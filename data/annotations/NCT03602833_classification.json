@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT03602833",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I safety study with the primary endpoint of dose limiting toxicity (DLT). Step 1 - TARGET ENGAGEMENT: No direct PD-L1 engagement data provided, but avelumab is a well-established anti-PD-L1 antibody with known target engagement. Step 2 - PATHWAY MODULATION: Immune-mediated adverse events (hepatitis, pneumonitis) suggest immune activation consistent with checkpoint inhibition. Step 3 - CLINICAL TRANSLATION: Primary safety endpoint was met (0/12 patients with DLT), demonstrating tolerability. Secondary efficacy signals show 50% PFS at 6 months and 67% OS at 1 year in soft tissue sarcoma, which are encouraging for this indication. Step 4 - POPULATION EFFECTS: Small sample size (n=12) limits subgroup analysis. Step 5 - CONFOUNDERS: Very small sample size typical for Phase I, but adequate for safety assessment.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Sample size of only 12 patients limits ability to fully characterize safety profile and efficacy signals, though appropriate for Phase I dose-finding study"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "avelumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Avelumab is established anti-PD-L1 antibody, immune-mediated AEs support target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-L1 blockade",
+      "target_entity": "immune activation",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Immune-mediated hepatitis and pneumonitis indicate immune system activation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune activation",
+      "target_entity": "anti-tumor response",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "50% PFS at 6 months and 67% OS at 1 year suggest anti-tumor activity in soft tissue sarcoma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "dose limiting toxicity",
+      "target_entity": "safety profile",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary safety endpoint successfully met with 0/12 patients experiencing DLT"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

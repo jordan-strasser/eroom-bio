@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT02626715",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both conditioning regimens engaged their intended targets - alemtuzumab levels were measurable (0.24 mcg/mL in RIC group), and both regimens achieved neutrophil engraftment at 13 days with no primary graft failures, indicating successful myeloablation and immunosuppression. 2. PATHWAY MODULATION: Downstream biology was appropriately modulated - immune reconstitution occurred with measurable CD3/CD4/CD8 counts at day 180, platelet engraftment occurred (though delayed in RIC: 38 vs 32 days), and GVHD rates differed between groups (RIC 2/6 vs MAC 8/15), confirming differential immunosuppression. 3. CLINICAL TRANSLATION: The clinical endpoints showed concerning results - event-free survival at 6 months was worse for RIC (5/6) compared to MAC (14/15), and overall survival at day 100 was also worse for RIC (5/6 vs 15/15). The RIC group had treatment-related mortality (1/6 vs 0/15). 4. POPULATION EFFECTS: The small sample size (n=21) makes subgroup analysis unreliable, but the consistent pattern across survival endpoints suggests the issue is not population-specific. 5. CONFOUNDERS: The study appears severely underpowered with only 6 patients in RIC vs 15 in MAC groups, making statistical interpretation difficult. However, the consistent directional differences across multiple endpoints suggest a real biological effect rather than just statistical noise.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 21 total patients with unbalanced groups (6 RIC vs 15 MAC), far too small for meaningful statistical analysis of survival endpoints"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Both regimens achieved target engagement and appropriate biological modulation (engraftment, immune reconstitution), but RIC showed worse clinical outcomes (event-free survival 5/6 vs 14/15, overall survival 5/6 vs 15/15)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "reduced-intensity conditioning",
+      "target_entity": "myeloablation and immunosuppression",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "RIC achieved biological targets but with worse clinical outcomes, suggesting insufficient intensity for this high-risk population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "conditioning intensity",
+      "target_entity": "transplant survival outcomes",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clear directional relationship between conditioning intensity and survival outcomes, with MAC showing superior results"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size makes statistical interpretation unreliable, and the unbalanced group allocation (6 vs 15) raises questions about study design and randomization"
+}

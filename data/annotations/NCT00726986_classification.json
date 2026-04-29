@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT00726986",
+  "trial_outcome": "failure",
+  "reasoning": "This single-arm phase II trial of sorafenib plus cisplatin/etoposide in extensive-stage SCLC shows multiple failure modes. Step 1 (Target Engagement): No PK/PD data or biomarker evidence of target engagement provided. Step 2 (Pathway Modulation): No biomarker changes or pathway modulation data reported. Step 3 (Clinical Translation): Median PFS of 5.1 months with no comparator arm makes efficacy assessment difficult, but this appears consistent with standard chemotherapy alone. Step 4 (Population Effects): No subgroup analyses reported. Step 5 (Confounders): Major issues include severe toxicity (14/18 patients with grade 3-5 events including hemorrhages), very small sample size (n=18), and single-arm design preventing proper efficacy assessment. The combination appears to add significant toxicity without clear benefit.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "14/18 patients experienced grade 3-5 treatment-related toxicities including serious events like GI hemorrhage (2/17), pulmonary hemorrhage (1/17), and febrile neutropenia (2/17)"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Single-arm study with only 18 patients enrolled, insufficient to demonstrate efficacy over standard care"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No target engagement data, no biomarker changes reported, no comparator arm, and no p-value for primary endpoint assessment"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "sorafenib",
+      "target_entity": "VEGFR/PDGFR/RAF",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided to confirm or refute binding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "multi-kinase inhibition",
+      "target_entity": "angiogenesis and proliferation",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No pathway biomarkers measured to assess biological activity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "angiogenesis inhibition",
+      "target_entity": "progression-free survival",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "PFS of 5.1 months appears consistent with chemotherapy alone, suggesting limited added benefit from sorafenib"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with small sample size makes efficacy assessment difficult; severe toxicity profile may have prevented adequate dosing and evaluation of mechanism"
+}

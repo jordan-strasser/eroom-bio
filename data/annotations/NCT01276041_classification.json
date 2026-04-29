@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT01276041",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD/PK data provided, but established doses for all three agents suggest adequate target engagement. Pertuzumab and trastuzumab are well-validated HER2 inhibitors, paclitaxel is established microtubule stabilizer. 2. PATHWAY MODULATION: No biomarker data provided to confirm pathway modulation, but dual HER2 blockade plus microtubule disruption is mechanistically sound. 3. CLINICAL TRANSLATION: Strong clinical efficacy with 86% progression-free survival at 6 months (95% CI: 75-93%) in HER2+ metastatic breast cancer, which is clinically meaningful. 4. POPULATION EFFECTS: No subgroup analysis reported, but enrolled appropriate HER2+ population. 5. CONFOUNDERS: Single-arm design limits interpretation, but effect size is robust and consistent with known efficacy of dual HER2 blockade.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.2,
+      "evidence": "Trial was conducted in HER2+ population specifically, validating mechanism in this biomarker-defined subset"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "pertuzumab",
+      "target_entity": "HER2",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong clinical efficacy in HER2+ population supports target engagement"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "trastuzumab",
+      "target_entity": "HER2",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong clinical efficacy in HER2+ population supports target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dual HER2 blockade",
+      "target_entity": "tumor progression",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "86% progression-free survival at 6 months strongly validates mechanism"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival",
+      "target_entity": "tumor growth inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "High progression-free survival rate demonstrates effective tumor control"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design and lack of biomarker data limit mechanistic interpretation despite strong clinical efficacy"
+}

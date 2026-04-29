@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT01328249",
+  "trial_outcome": "success",
+  "reasoning": "This was a feasibility study that met its primary endpoint. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but eribulin is a well-established tubulin inhibitor with known mechanism. Step 2 (PATHWAY MODULATION): No pathway biomarkers measured, but safety profile (peripheral neuropathy, neutropenia) is consistent with tubulin inhibition and microtubule disruption. Step 3 (CLINICAL TRANSLATION): Primary endpoint was feasibility of completing treatment without dose delays/reductions, which was achieved in both cohorts (70.4% and 60.0%). Step 4 (POPULATION EFFECTS): No significant difference between filgrastim prophylaxis strategies. Step 5 (CONFOUNDERS): This was appropriately designed as a feasibility study with adequate sample size (n=81) and appropriate duration.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.3,
+      "evidence": "While the trial succeeded in its feasibility endpoint, there was no direct measurement of target engagement or downstream biological effects, making it difficult to confirm the mechanistic chain"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "eribulin mesylate",
+      "target_entity": "tubulin",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Eribulin is a well-established tubulin inhibitor, and the observed safety profile (peripheral neuropathy, neutropenia) is consistent with tubulin binding and microtubule disruption"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "feasibility of completing treatment",
+      "target_entity": "tolerability and deliverability",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary endpoint was successfully met with 70.4% and 60.0% completion rates in the two cohorts, demonstrating the regimen is feasible to deliver"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

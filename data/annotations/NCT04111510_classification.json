@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT04111510",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of target engagement provided. LN-145 is autologous TILs that should theoretically engage tumor-associated antigens, but no biomarker data confirms this occurred. 2. PATHWAY MODULATION: No biomarker changes or pharmacodynamic markers reported to confirm anti-tumor immune response activation. 3. CLINICAL TRANSLATION: Primary endpoint failed - only 1/6 participants (16.7%) achieved objective response, well below what would be expected for an effective therapy. 4. POPULATION EFFECTS: No subgroup analysis reported in this small study. 5. CONFOUNDERS: Major confounder is extremely small sample size (n=6) making any conclusions unreliable. Additionally, significant toxicity (Grade \u22653 TEAEs in 50% of participants) may have limited optimal dosing or treatment delivery.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 6 participants is far too small to draw meaningful conclusions about efficacy or failure mechanisms"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement biomarkers, no pharmacodynamic markers, no immune activation markers reported to understand mechanism performance"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Grade \u22653 TEAEs in 50% of participants (3/6) including neutropenia, elevated liver enzymes, and hypoxia may have compromised treatment delivery"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "LN-145",
+      "target_entity": "tumor-associated antigens",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided to confirm or refute target engagement in this small study"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "adoptive T-cell therapy",
+      "target_entity": "anti-tumor immune response",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biomarker evidence of immune activation; sample too small to assess mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "anti-tumor immune response",
+      "target_entity": "tumor shrinkage",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Low response rate (1/6) but sample size too small for meaningful assessment"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size (n=6) makes mechanistic failure analysis unreliable. Study appears to be early phase with insufficient data to determine true failure mode."
+}

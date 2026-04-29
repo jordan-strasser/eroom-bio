@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02489448",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm neoadjuvant study of durvalumab + chemotherapy in triple-negative breast cancer. Step 1 (TARGET ENGAGEMENT): No direct PD-L1 engagement data provided, but durvalumab is a well-established PD-L1 inhibitor with known pharmacology. Step 2 (PATHWAY MODULATION): No biomarker data on immune activation or T-cell responses reported. Step 3 (CLINICAL TRANSLATION): 25/68 patients (36.8%) achieved pCR, which appears reasonable for TNBC but lacks a control arm for comparison. Historical pCR rates for chemotherapy alone in TNBC are typically 30-40%, so this result is within expected range but doesn't clearly demonstrate added benefit. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Single-arm design prevents definitive efficacy assessment; safety profile shows expected immune-related adverse events consistent with PD-L1 blockade.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm study design with no control group makes it impossible to determine if durvalumab added benefit beyond chemotherapy alone. No biomarker data on target engagement or immune activation provided."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "durvalumab",
+      "target_entity": "PD-L1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, but durvalumab is established PD-L1 inhibitor"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-L1 blockade",
+      "target_entity": "immune activation",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No biomarker evidence of immune activation provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "pathologic complete response",
+      "target_entity": "anti-tumor efficacy",
+      "direction": "neutral",
+      "magnitude": 0.4,
+      "reasoning": "36.8% pCR rate is within historical range for chemotherapy alone in TNBC, unclear if durvalumab contributed"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design prevents definitive efficacy assessment and lacks biomarker data to evaluate mechanism of action"
+}

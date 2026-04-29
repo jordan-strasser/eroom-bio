@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT02927925",
+  "trial_outcome": "partial",
+  "reasoning": "This single-arm study of daratumumab in relapsed/refractory NK/T-cell lymphoma showed a 25% overall response rate. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but daratumumab is a well-established CD38 antibody with known pharmacology at 16 mg/kg dosing. Step 2 (PATHWAY MODULATION): No biomarker or pathway data provided to confirm biological activity in this specific tumor type. Step 3 (CLINICAL TRANSLATION): 25% ORR suggests some clinical activity, though without a control arm or historical comparison it's difficult to assess significance. Step 4 (POPULATION EFFECTS): No subgroup analysis provided. Step 5 (CONFOUNDERS): Single-arm design limits interpretation, small sample size (n=32), and NK/T-cell lymphoma may have different CD38 expression patterns than multiple myeloma where daratumumab is established.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement biomarkers, no pathway modulation data, and single-arm design without historical controls makes mechanistic assessment difficult"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "NK/T-cell lymphoma may have different CD38 expression and biology compared to multiple myeloma where daratumumab is established, potentially explaining modest 25% response rate"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Daratumumab",
+      "target_entity": "CD38",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, though daratumumab-CD38 binding is well-established in other contexts"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD38 targeting",
+      "target_entity": "NK/T-cell lymphoma biology",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Modest 25% response rate suggests CD38 targeting may be less effective in NK/T-cell lymphoma compared to other hematologic malignancies"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no biomarker data makes mechanistic interpretation challenging; need expert assessment of whether 25% ORR represents meaningful activity in this rare tumor type"
+}

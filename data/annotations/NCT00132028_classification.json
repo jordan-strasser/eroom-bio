@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00132028",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided - no PK/PD data, no biomarker evidence of HDAC inhibition, no acetylation status measurements. Cannot confirm vorinostat reached and inhibited HDAC targets. 2. PATHWAY MODULATION: No biomarker changes reported to confirm downstream chromatin remodeling or gene expression changes expected from HDAC inhibition. 3. CLINICAL TRANSLATION: Primary endpoint failed with only 1/25 patients (4%) achieving partial response in relapsed/refractory Hodgkin's lymphoma, far below clinically meaningful thresholds. 4. POPULATION EFFECTS: No subgroup analyses reported, small sample size (n=27) limits subgroup detection. 5. CONFOUNDERS: Single-arm study with small sample size may be underpowered, but the extremely low response rate (4%) suggests fundamental efficacy issues rather than statistical power problems.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No target engagement data provided - no PK/PD measurements, no biomarkers of HDAC inhibition such as histone acetylation levels, no dose-exposure relationships documented"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Small sample size of 27 patients in single-arm study, though the extremely low 4% response rate suggests this is not primarily a power issue"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "vorinostat",
+      "target_entity": "histone deacetylase",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "No evidence provided that vorinostat successfully engaged HDAC targets in this patient population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "histone deacetylase inhibition",
+      "target_entity": "Hodgkin's lymphoma biology",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Extremely low 4% response rate suggests HDAC inhibition mechanism is not effective against relapsed/refractory Hodgkin's lymphoma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "response rate",
+      "target_entity": "HDAC inhibition efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Response rate appropriately captured lack of efficacy, though target engagement was not measured"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement data makes it difficult to distinguish between no target engagement versus target engaged but ineffective mechanism - expert review needed to assess whether this represents a target engagement failure or mechanism failure"
+}

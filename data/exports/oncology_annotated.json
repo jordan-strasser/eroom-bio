@@ -1,0 +1,162 @@
+{
+  "directed": true,
+  "multigraph": true,
+  "graph": {},
+  "nodes": [
+    {
+      "node_type": "CompoundNode",
+      "name": "Nivolumab",
+      "modality": "antibody",
+      "smiles": null,
+      "targets_claimed": [],
+      "metadata": {},
+      "id": "compound_nivolumab"
+    },
+    {
+      "node_type": "TargetNode",
+      "name": "PD-1",
+      "gene_symbol": "PDCD1",
+      "druggability_score": null,
+      "tissue_expression": {},
+      "essentiality_scores": {},
+      "id": "target_pd1"
+    },
+    {
+      "node_type": "MechanismNode",
+      "name": "Immune checkpoint blockade",
+      "mechanism_type": "inhibition",
+      "selectivity": null,
+      "id": "mech_checkpoint_blockade"
+    },
+    {
+      "node_type": "BiologyNode",
+      "name": "T-cell activation",
+      "pathway_ids": [],
+      "tissue_specificity": [],
+      "known_redundancies": [],
+      "id": "bio_tcell_activation"
+    },
+    {
+      "node_type": "IndicationNode",
+      "name": "Melanoma",
+      "icd_codes": [],
+      "prevalence": null,
+      "standard_of_care": null,
+      "unmet_need_score": null,
+      "id": "ind_melanoma"
+    },
+    {
+      "node_type": "EndpointNode",
+      "name": "Overall Survival",
+      "endpoint_type": "primary",
+      "regulatory_status": "accepted",
+      "measurement_properties": {},
+      "id": "ep_overall_survival"
+    },
+    {
+      "node_type": "PopulationNode",
+      "name": "PD-L1 positive melanoma",
+      "defining_features": [],
+      "estimated_size": null,
+      "genomic_features": [],
+      "id": "pop_pdl1_pos"
+    }
+  ],
+  "edges": [
+    {
+      "edge_type": "binds_to",
+      "belief": {
+        "alpha": 4.24,
+        "beta": 1.0,
+        "evidence": [
+          {
+            "source_id": "NCT01721772",
+            "source_type": "clinical_phase3",
+            "quality_score": 0.9,
+            "direction": "supporting",
+            "magnitude": 0.7200000000000001,
+            "timestamp": "2026-04-29T03:03:38.837285Z",
+            "provenance_url": null,
+            "notes": "Strong clinical efficacy with biomarker-driven response pattern consistent with PD-1 engagement"
+          }
+        ]
+      },
+      "metadata": {},
+      "source": "compound_nivolumab",
+      "target": "target_pd1",
+      "key": "binds_to"
+    },
+    {
+      "edge_type": "modulates_via",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "target_pd1",
+      "target": "mech_checkpoint_blockade",
+      "key": "modulates_via"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "mech_checkpoint_blockade",
+      "target": "bio_tcell_activation",
+      "key": "mechanism_affects"
+    },
+    {
+      "edge_type": "biology_drives",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "bio_tcell_activation",
+      "target": "ind_melanoma",
+      "key": "biology_drives"
+    },
+    {
+      "edge_type": "reflects_biology",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "bio_tcell_activation",
+      "target": "ep_overall_survival",
+      "key": "reflects_biology"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "ep_overall_survival",
+      "target": "ind_melanoma",
+      "key": "endpoint_captures"
+    },
+    {
+      "edge_type": "responds_differently",
+      "belief": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "evidence": []
+      },
+      "metadata": {},
+      "source": "pop_pdl1_pos",
+      "target": "ind_melanoma",
+      "key": "responds_differently"
+    }
+  ]
+}

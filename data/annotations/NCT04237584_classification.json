@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT04237584",
+  "trial_outcome": "failure",
+  "reasoning": "This trial appears to have been terminated early with only 23 participants enrolled. The lack of primary endpoint results, effect size, or p-value data suggests the study was stopped before completion. The safety profile shows concerning signals including syncope, hypotension, hypoxia, pneumonia, and bone fractures. With such a small sample size (23 participants) and early termination, it's impossible to assess target engagement, pathway modulation, or clinical translation. The most likely scenario is that safety concerns or feasibility issues led to early termination before meaningful efficacy data could be collected.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 23 participants enrolled with no primary endpoint results reported, suggesting early termination"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Multiple serious safety signals including syncope, hypotension, hypoxia, pneumonia, and bone fractures"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Radium-223",
+      "target_entity": "bone metastases",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data available due to early termination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "alpha particle radiation plus AR blockade",
+      "target_entity": "bone metastasis control",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biological activity data available due to study termination"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "SSE-FS",
+      "target_entity": "bone metastasis control",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Primary endpoint was not evaluated due to early termination"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": true,
+  "review_reason": "Early termination with minimal data makes mechanistic assessment impossible; safety profile suggests potential tolerability issues that may have driven termination"
+}

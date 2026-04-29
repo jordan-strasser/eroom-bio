@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT03361228",
+  "trial_outcome": "failure",
+  "reasoning": "This trial appears to have been terminated early with insufficient information to evaluate the mechanistic causal chain. With only 5 subjects enrolled and no reported efficacy data, the trial failed to generate meaningful evidence for target engagement, pathway modulation, or clinical translation. The presence of serious safety signals including myocardial infarction and brain edema in such a small population suggests potential dose-limiting toxicity issues. The unclear target and mechanism make it impossible to assess whether the intended biological pathway was engaged or modulated.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Trial terminated with only 5 subjects enrolled, no efficacy data reported, unclear target and mechanism, no biomarker or target engagement data"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Serious safety signals including myocardial infarction and brain edema in a very small population of 5 subjects suggests potential tolerability issues"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "INCB001158",
+      "target_entity": "unclear_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available to assess binding"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "objective_response_rate",
+      "target_entity": "antitumor_activity",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No efficacy data generated due to early termination"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated very early with minimal data generation and unclear mechanism of action - requires expert assessment of whether this represents a true mechanistic failure or operational/safety termination"
+}

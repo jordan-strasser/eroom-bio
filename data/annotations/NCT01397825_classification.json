@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT01397825",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests target engagement with dose-proportional increases in alisertib plasma concentrations across dose levels, indicating the drug reached systemic circulation in a predictable manner. 2. PATHWAY MODULATION: No biomarker data provided to confirm Aurora A kinase inhibition or downstream effects on cell cycle/mitotic processes. Cannot assess if target engagement translated to pathway modulation. 3. CLINICAL TRANSLATION: Phase 1 showed dose-dependent response rates (25% to 50% across dose levels), suggesting some clinical activity, but this appears to be a dose-finding study without a clear efficacy endpoint assessment. 4. POPULATION EFFECTS: No subgroup findings reported to assess differential responses. 5. CONFOUNDERS: Major confounder is dose-limiting toxicity - febrile neutropenia and other hematologic toxicities were dose-dependent and dose-limiting, preventing achievement of potentially therapeutic doses. The trial appears to have failed due to inability to reach adequate therapeutic dosing due to toxicity.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Febrile neutropenia was dose-limiting, with dose-dependent hematologic toxicities including neutropenia, thrombocytopenia, and anemia preventing adequate dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Alisertib",
+      "target_entity": "Aurora A kinase",
+      "direction": "neutral",
+      "magnitude": 0.6,
+      "reasoning": "Dose-proportional PK suggests drug exposure but no direct target engagement biomarkers provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Aurora A kinase inhibition",
+      "target_entity": "Cell cycle arrest",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Dose-limiting hematologic toxicity suggests mechanism may be affecting normal dividing cells more than tumor cells, indicating poor therapeutic window"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Limited biomarker data to assess target engagement and pathway modulation; unclear if this was truly a failed efficacy trial or just dose-finding study terminated due to toxicity"
+}

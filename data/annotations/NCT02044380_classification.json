@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT02044380",
+  "trial_outcome": "failure",
+  "reasoning": "This was a safety assessment trial of afatinib in NSCLC patients. Step 1 (TARGET ENGAGEMENT): No target engagement data provided, but afatinib is a well-established EGFR inhibitor with known pharmacology. Step 2 (PATHWAY MODULATION): No biomarker or pathway data reported. Step 3 (CLINICAL TRANSLATION): Primary endpoint was safety assessment with no efficacy data reported. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): The trial appears to have failed due to dose-limiting toxicity - 92.9% drug-related AEs, 35.7% dose reductions, 35.7% treatment discontinuations, and serious AEs including febrile neutropenia and pneumonia. The high toxicity rate prevented adequate dosing and likely contributed to trial failure.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "92.9% investigator-defined drug-related AEs, 35.7% AEs leading to dose reduction, 35.7% AEs leading to treatment discontinuation, 21.4% serious AEs including febrile neutropenia, pneumonia, neutropenia, atrial fibrillation, and pulmonary embolism"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "afatinib",
+      "target_entity": "safety_tolerability",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "High rate of serious adverse events and treatment discontinuations indicates poor tolerability profile"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "NSCLC_patients",
+      "target_entity": "afatinib_toxicity",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Very high toxicity rate (92.9% drug-related AEs) suggests this population may be particularly sensitive to afatinib toxicity"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

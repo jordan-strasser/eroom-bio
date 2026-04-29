@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT00295503",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm phase 2 trial of bevacizumab + cisplatin + pemetrexed in mesothelioma with 56% progression-free survival at 6 months. Without a control arm or historical comparison, it's impossible to determine if this represents efficacy above standard of care. The safety profile shows expected bevacizumab-related thrombotic events (pulmonary embolus 9.4%, DVT 5.7%) and RPLS (1.9%), suggesting target engagement occurred. However, no biomarker or PK/PD data is provided to confirm VEGF pathway modulation. The 56% PFS rate could represent activity but lacks context for interpretation without comparator data.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm design with no control group, no historical comparison provided, no biomarker data, no p-value reported, and no clear statement of whether primary endpoint was met"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Safety profile suggests bevacizumab exposure (thrombotic events, RPLS) but no direct target engagement data provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression free survival rate at 6 months",
+      "target_entity": "angiogenesis inhibition",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "56% PFS rate reported but without comparator cannot assess if this represents meaningful clinical benefit"
+    }
+  ],
+  "confidence_overall": 0.2,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial design makes efficacy assessment impossible without historical controls or benchmarks. Need expert input on whether 56% PFS at 6 months in mesothelioma represents meaningful activity."
+}

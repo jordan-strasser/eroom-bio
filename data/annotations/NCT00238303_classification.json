@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00238303",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided - no PK/PD data, no biomarker evidence of HDAC inhibition, no acetylation status measurements. Cannot confirm vorinostat reached and inhibited HDACs in brain tumors. 2. PATHWAY MODULATION: No pathway biomarkers measured - no evidence of chromatin remodeling, gene expression changes, or downstream biological effects of HDAC inhibition. 3. CLINICAL TRANSLATION: Primary endpoint failed - only 15.2% PFS at 6 months, well below historical controls for glioblastoma. No p-value provided but effect size appears insufficient. 4. POPULATION EFFECTS: Subgroup analysis shows potential signal in surgical stratum (26.7% vs 10% PFS), suggesting mechanism might work better in certain populations, but overall population failed. 5. CONFOUNDERS: Single-arm design limits interpretation, but the low overall response rate and lack of any mechanistic data suggests fundamental issues with target engagement or pathway modulation in this difficult-to-treat CNS indication.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No target engagement data provided - no PK/PD measurements, no biomarker evidence of HDAC inhibition, no acetylation status in tumor or surrogate tissues"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Glioblastoma is notoriously difficult to treat with systemic agents due to blood-brain barrier penetration issues, and subgroup analysis suggests surgical patients had better outcomes"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "vorinostat",
+      "target_entity": "histone deacetylases",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "No evidence of target engagement in CNS tumors despite known HDAC inhibitory activity in other contexts"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "histone deacetylase inhibition",
+      "target_entity": "glioblastoma progression",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Primary endpoint failed with only 15.2% PFS at 6 months, suggesting mechanism insufficient for this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "surgical glioblastoma patients",
+      "target_entity": "vorinostat treatment",
+      "direction": "strengthen",
+      "magnitude": 0.4,
+      "reasoning": "Surgical stratum showed 26.7% vs 10% PFS, suggesting potential subgroup benefit"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement data makes it difficult to distinguish between drug not reaching target versus mechanism being insufficient for glioblastoma"
+}

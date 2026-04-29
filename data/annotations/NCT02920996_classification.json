@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT02920996",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided - no PK/PD data, biomarker changes, or evidence that merestinib reached and inhibited MET/RON kinases. 2. PATHWAY MODULATION: No biomarker data showing MET pathway inhibition or downstream biological changes. 3. CLINICAL TRANSLATION: Primary endpoint failed with ORR of only 8.3% (1/12 patients), far below expectations for targeted therapy in biomarker-selected population. 4. POPULATION EFFECTS: No subgroup analysis reported in this small study. 5. CONFOUNDERS: Major confounders include extremely small sample size (n=12) making the study severely underpowered, and very short median treatment duration (1.2 months) suggesting either rapid progression or tolerability issues preventing adequate drug exposure.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 12 patients is far too small to adequately assess efficacy of targeted therapy, with wide confidence intervals (0.2%-46.4%) reflecting this limitation"
+    },
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "Complete absence of any target engagement data, PK/PD measurements, or biomarker evidence that merestinib successfully inhibited MET/RON kinases"
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.7,
+      "evidence": "Median treatment duration of only 1.2 months suggests insufficient exposure time for targeted therapy to demonstrate efficacy, possibly due to rapid progression or tolerability issues"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Merestinib",
+      "target_entity": "MET/RON kinase",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided to confirm or refute binding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "MET/RON inhibition",
+      "target_entity": "NSCLC with MET Exon 14 mutations",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Very low response rate (8.3%) in biomarker-selected population suggests limited clinical benefit from this mechanism"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Overall Response Rate",
+      "target_entity": "MET pathway inhibition benefit",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "ORR is appropriate endpoint but study too small and short to draw meaningful conclusions"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size and lack of any mechanistic data makes it difficult to distinguish between true mechanism failure versus inadequate study design and execution"
+}

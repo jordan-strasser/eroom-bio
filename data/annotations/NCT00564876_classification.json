@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT00564876",
+  "trial_outcome": "failure",
+  "reasoning": "This trial appears to have been terminated very early with only 2 patients enrolled, making it impossible to assess any step in the mechanistic causal chain. With such a tiny sample size, there is no meaningful data on target engagement, pathway modulation, clinical translation, or population effects. The extremely low enrollment suggests either safety concerns, manufacturing issues, or commercial/strategic decisions led to early termination.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Only 2 patients enrolled with no reported efficacy, safety, or biomarker data. No primary endpoint results, effect sizes, or p-values available."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Sample size of 2 patients is far below any reasonable power calculation for detecting clinical efficacy in early stage NSCLC."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.7,
+      "evidence": "Extremely early termination with minimal enrollment suggests strategic or operational decision rather than scientific failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Dasatinib",
+      "target_entity": "Src kinase",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data available to assess target engagement due to early termination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Src kinase inhibition",
+      "target_entity": "NSCLC tumor biology",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biological or clinical data available to assess mechanism in this indication"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated with only 2 patients enrolled - need to understand reason for early termination to properly classify failure mode"
+}

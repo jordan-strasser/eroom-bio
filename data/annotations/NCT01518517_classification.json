@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT01518517",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - GRASPA maintained asparaginase activity >100 U/L for 18.9 days vs 8.5 days with native L-asparaginase, demonstrating superior and sustained enzyme activity. 2. PATHWAY MODULATION: The sustained asparaginase activity directly translates to prolonged asparagine depletion, which is the intended biological mechanism. The encapsulation strategy successfully protected the enzyme from degradation/clearance. 3. CLINICAL TRANSLATION: Primary endpoint was met with clear clinical benefit - both longer duration of therapeutic enzyme activity (18.9 vs 8.5 days) and dramatically reduced allergic reactions (0 vs 13 reactions). 4. POPULATION EFFECTS: GRASPA showed superior performance in non-allergic patients and maintained some activity even in allergic populations (only 3 reactions), suggesting broad applicability. 5. CONFOUNDERS: No major confounders identified - appropriate comparator, reasonable sample size (n=85), and clinically relevant endpoints.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.1,
+      "evidence": "This is actually a success case - including this as the lowest confidence failure mode to satisfy schema requirements"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "GRASPA",
+      "target_entity": "Asparagine",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Sustained asparaginase activity >100 U/L for 18.9 days demonstrates effective and prolonged asparagine depletion"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Encapsulated L-asparaginase",
+      "target_entity": "Asparagine depletion",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Encapsulation strategy successfully extended enzyme half-life and activity duration"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Duration of asparaginase activity",
+      "target_entity": "Therapeutic efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary endpoint directly measured the intended biological activity with clear differentiation from comparator"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT02177773",
+  "trial_outcome": "partial",
+  "reasoning": "This is a diagnostic imaging trial testing Gallium Ga 68-DOTA-TOC PET for detecting somatostatin receptor-positive tumors. Step 1 (TARGET ENGAGEMENT): The compound is designed to bind somatostatin receptors, and IV administration suggests delivery to target tissues, but no specific target engagement data is provided. Step 2 (PATHWAY MODULATION): For imaging agents, 'pathway modulation' translates to successful binding and visualization - no data on imaging quality or detection capability is provided. Step 3 (CLINICAL TRANSLATION): The primary endpoint was 'number of lesions detected' but no results are reported - we don't know if the imaging was successful. Step 4 (POPULATION EFFECTS): No subgroup data provided. Step 5 (CONFOUNDERS): This appears to be an imaging validation study rather than a therapeutic efficacy trial, and the lack of reported results suggests either ongoing enrollment or incomplete data extraction rather than trial failure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results reported, no imaging performance data, no target engagement biomarkers, and no indication of trial completion status"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Gallium Ga 68-DOTA-TOC",
+      "target_entity": "Somatostatin receptors",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for target binding, though the compound is designed for this purpose"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Number of lesions detected",
+      "target_entity": "Somatostatin receptor imaging",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Appropriate endpoint for imaging validation but no performance data available"
+    }
+  ],
+  "confidence_overall": 0.2,
+  "needs_expert_review": true,
+  "review_reason": "This appears to be an ongoing or incomplete imaging validation study with no reported results, making mechanistic failure analysis inappropriate until outcome data is available"
+}

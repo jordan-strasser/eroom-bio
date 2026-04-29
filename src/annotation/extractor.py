@@ -1,0 +1,358 @@
+"""AI-powered trial data extraction using the Anthropic API."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+from pathlib import Path
+from typing import Any
+
+import anthropic
+
+from src.annotation.taxonomy import TrialExtraction
+from src.ingestion.clinicaltrials import TrialRecord
+
+logger = logging.getLogger(__name__)
+
+_PROMPTS_DIR = Path(__file__).parent / "prompts"
+_ANNOTATIONS_DIR = Path("data/annotations")
+
+MODEL = "claude-sonnet-4-20250514"
+MAX_TOKENS = 4096
+MAX_RETRIES = 3
+RATE_LIMIT_MAX_RETRIES = 5
+RATE_LIMIT_BASE_WAIT = 10.0  # seconds; doubled each attempt
+
+
+def _load_prompt(name: str) -> str:
+    return (_PROMPTS_DIR / name).read_text()
+
+
+async def _call_messages_with_backoff(
+    client: anthropic.AsyncAnthropic, **kwargs: Any
+) -> Any:
+    """Wrap ``client.messages.create`` with exponential backoff on 429.
+
+    Honors the ``retry-after`` response header when present; otherwise waits
+    ``RATE_LIMIT_BASE_WAIT * 2**attempt`` seconds. Up to ``RATE_LIMIT_MAX_RETRIES``
+    attempts before re-raising.
+    """
+    last_error: anthropic.RateLimitError | None = None
+    for attempt in range(RATE_LIMIT_MAX_RETRIES):
+        try:
+            return await client.messages.create(**kwargs)
+        except anthropic.RateLimitError as exc:
+            last_error = exc
+            wait = RATE_LIMIT_BASE_WAIT * (2 ** attempt)
+            response = getattr(exc, "response", None)
+            if response is not None:
+                header_val = response.headers.get("retry-after")
+                if header_val:
+                    try:
+                        wait = float(header_val)
+                    except ValueError:
+                        pass
+            logger.warning(
+                "Rate limited on attempt %d/%d; sleeping %.1fs before retry",
+                attempt + 1, RATE_LIMIT_MAX_RETRIES, wait,
+            )
+            await asyncio.sleep(wait)
+    assert last_error is not None
+    raise last_error
+
+
+# ── Response parsing model (richer than TrialExtraction) ─────────────────
+
+def _format_results_summary(results_summary: dict[str, Any] | None) -> str:
+    """Format the ClinicalTrials.gov results section into readable text."""
+    if not results_summary:
+        return ""
+
+    lines = ["## Posted Results Data"]
+
+    # Outcome measures
+    om_module = results_summary.get("outcomeMeasuresModule", {})
+    for om in om_module.get("outcomeMeasures", []):
+        om_type = om.get("type", "")
+        title = om.get("title", "")
+        lines.append(f"\n### {om_type} Outcome: {title}")
+
+        if om.get("description"):
+            lines.append(f"Definition: {om['description']}")
+        if om.get("timeFrame"):
+            lines.append(f"Time frame: {om['timeFrame']}")
+        if om.get("paramType"):
+            unit = om.get("unitOfMeasure", "")
+            lines.append(f"Parameter: {om['paramType']} ({unit})")
+
+        # Groups
+        groups = {g["id"]: g["title"] for g in om.get("groups", [])}
+
+        # Measurements
+        for cls in om.get("classes", []):
+            cls_title = cls.get("title", "")
+            if cls_title:
+                lines.append(f"  Subgroup: {cls_title}")
+            for cat in cls.get("categories", []):
+                for m in cat.get("measurements", []):
+                    gname = groups.get(m.get("groupId", ""), m.get("groupId", ""))
+                    val = m.get("value", "")
+                    lo = m.get("lowerLimit", "")
+                    hi = m.get("upperLimit", "")
+                    ci_str = f" (95% CI: {lo}–{hi})" if lo and hi else ""
+                    comment = f" [{m['comment']}]" if m.get("comment") else ""
+                    lines.append(f"  {gname}: {val}{ci_str}{comment}")
+
+        # Statistical analyses
+        for analysis in om.get("analyses", []):
+            method = analysis.get("statisticalMethod", "")
+            param = analysis.get("paramType", "")
+            value = analysis.get("paramValue", "")
+            pval = analysis.get("pValue", "")
+            ci_lo = analysis.get("ciLowerLimit", "")
+            ci_hi = analysis.get("ciUpperLimit", "")
+            ci_pct = analysis.get("ciPctValue", "")
+            ci_str = f" ({ci_pct}% CI: {ci_lo}–{ci_hi})" if ci_lo and ci_hi else ""
+            lines.append(f"  Analysis: {method} — {param} = {value}{ci_str}, p = {pval}")
+
+    # Adverse events summary
+    ae_module = results_summary.get("adverseEventsModule", {})
+    serious = ae_module.get("seriousEvents", [])
+    if serious:
+        lines.append("\n### Serious Adverse Events")
+        event_groups = {g["id"]: g["title"] for g in ae_module.get("eventGroups", [])}
+        for event in serious[:10]:  # cap to keep prompt reasonable
+            term = event.get("term", "")
+            stats_list = event.get("stats", [])
+            parts = []
+            for s in stats_list:
+                gname = event_groups.get(s.get("groupId", ""), "")
+                affected = s.get("numAffected", "")
+                at_risk = s.get("numAtRisk", "")
+                if affected and at_risk:
+                    parts.append(f"{gname}: {affected}/{at_risk}")
+            if parts:
+                lines.append(f"  {term}: {'; '.join(parts)}")
+
+    return "\n".join(lines)
+
+
+def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
+    """Fill the user prompt template with trial data."""
+    template = _load_prompt("extraction_user.txt")
+
+    interventions = "; ".join(
+        f"{iv.name} ({iv.type}): {iv.description}" for iv in trial.interventions
+    )
+    primary = "; ".join(
+        f"{o.measure} [{o.timeframe}]" for o in trial.primary_outcomes
+    )
+    secondary = "; ".join(
+        f"{o.measure} [{o.timeframe}]" for o in trial.secondary_outcomes
+    )
+    conditions = ", ".join(trial.conditions)
+
+    abstract_section = ""
+    if abstract:
+        abstract_section = f"## Abstract\n{abstract}"
+
+    results_section = _format_results_summary(trial.results_summary)
+
+    return template.format(
+        nct_id=trial.nct_id,
+        title=trial.title,
+        phase=trial.phase,
+        status=trial.status,
+        conditions=conditions,
+        interventions=interventions,
+        primary_outcomes=primary,
+        secondary_outcomes=secondary,
+        enrollment=trial.enrollment or "Not reported",
+        start_date=trial.start_date or "Not reported",
+        completion_date=trial.completion_date or "Not reported",
+        sponsor=trial.sponsor,
+        has_results=trial.has_results,
+        results_section=results_section,
+        abstract_section=abstract_section,
+    )
+
+
+def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> TrialExtraction:
+    """Map the rich Claude response to our TrialExtraction model."""
+    hypothesis = raw_json.get("therapeutic_hypothesis", {})
+    results = raw_json.get("results", {})
+    context = raw_json.get("context", {})
+
+    # Parse effect_size string to float if possible
+    effect_size = None
+    es_str = results.get("effect_size", "")
+    if es_str:
+        # Try to extract a leading number (e.g. "HR 0.73" -> 0.73, "2.3 months" -> 2.3)
+        import re
+        match = re.search(r"[-+]?\d*\.?\d+", es_str)
+        if match:
+            effect_size = float(match.group())
+
+    return TrialExtraction(
+        trial_id=raw_json.get("nct_id", trial_id),
+        compound_name=hypothesis.get("compound", ""),
+        target_name=hypothesis.get("claimed_target", ""),
+        indication=context.get("comparator", ""),  # best proxy from context
+        phase="",
+        primary_endpoint=hypothesis.get("primary_endpoint", ""),
+        primary_endpoint_met=results.get("primary_endpoint_met"),
+        effect_size=effect_size,
+        p_value=results.get("p_value"),
+        biomarker_data={
+            "target_engagement": results.get("target_engagement_evidence"),
+            "biomarker_changes": results.get("biomarker_changes", []),
+            "dose_information": results.get("dose_information", ""),
+        },
+        safety_signals=results.get("safety_signals", []),
+        subgroup_findings=results.get("subgroup_findings", []),
+        summary=json.dumps(raw_json, indent=2),
+    )
+
+
+# ── Extractor ────────────────────────────────────────────────────────────
+
+
+class Extractor:
+    def __init__(self, client: anthropic.AsyncAnthropic) -> None:
+        self._client = client
+        self._system_prompt = _load_prompt("extraction_system.txt")
+
+    async def extract(
+        self, trial: TrialRecord, abstract: str | None = None
+    ) -> TrialExtraction:
+        user_message = _format_trial_for_prompt(trial, abstract)
+        raw_json = await self._call_with_retries(user_message, trial.nct_id)
+        extraction = _parse_extraction_response(raw_json, trial.nct_id)
+        # Recall fix: results were posted but Claude declined to commit on the
+        # binary call. Ask once more with a focused yes/no prompt.
+        if (
+            trial.results_summary is not None
+            and extraction.primary_endpoint_met is None
+        ):
+            extraction = await self._reask_endpoint_met(trial, extraction, raw_json)
+        self._save_annotation(trial.nct_id, raw_json)
+        return extraction
+
+    async def _reask_endpoint_met(
+        self,
+        trial: TrialRecord,
+        extraction: TrialExtraction,
+        raw_json: dict[str, Any],
+    ) -> TrialExtraction:
+        results_text = _format_results_summary(trial.results_summary)
+        endpoint_label = extraction.primary_endpoint or "the primary endpoint"
+        user_msg = (
+            f"Trial: {trial.nct_id}\n"
+            f"Primary endpoint: {endpoint_label}\n\n"
+            f"{results_text}\n\n"
+            "Question: Given these results, was the primary endpoint statistically "
+            "significant? Return true, false, or null only if genuinely "
+            "indeterminate. Reply with one word and nothing else."
+        )
+        try:
+            response = await _call_messages_with_backoff(
+                self._client,
+                model=MODEL,
+                max_tokens=10,
+                temperature=0,
+                messages=[{"role": "user", "content": user_msg}],
+            )
+        except Exception:
+            logger.warning(
+                "Reask failed for %s; leaving primary_endpoint_met null",
+                trial.nct_id,
+                exc_info=True,
+            )
+            return extraction
+        text = response.content[0].text.strip().lower().rstrip(".")
+        if text == "true":
+            new_value: bool | None = True
+        elif text == "false":
+            new_value = False
+        else:
+            return extraction
+        # Keep the saved annotation in sync with the corrected field.
+        raw_json.setdefault("results", {})["primary_endpoint_met"] = new_value
+        raw_json.setdefault("results", {})["primary_endpoint_met_source"] = "reask"
+        return extraction.model_copy(update={"primary_endpoint_met": new_value})
+
+    async def extract_batch(
+        self, trials: list[TrialRecord], concurrency: int = 5
+    ) -> list[TrialExtraction]:
+        semaphore = asyncio.Semaphore(concurrency)
+
+        async def bounded_extract(trial: TrialRecord) -> TrialExtraction | None:
+            async with semaphore:
+                try:
+                    return await self.extract(trial)
+                except Exception:
+                    logger.error(
+                        "Extraction failed for %s", trial.nct_id, exc_info=True
+                    )
+                    return None
+
+        results = await asyncio.gather(*(bounded_extract(t) for t in trials))
+        return [r for r in results if r is not None]
+
+    async def _call_with_retries(
+        self, user_message: str, trial_id: str
+    ) -> dict[str, Any]:
+        last_error: str | None = None
+
+        for attempt in range(MAX_RETRIES):
+            messages = [{"role": "user", "content": user_message}]
+            if last_error:
+                messages.append({
+                    "role": "assistant",
+                    "content": "I'll fix the JSON formatting issue.",
+                })
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        f"Your previous response had a validation error:\n"
+                        f"{last_error}\n\n"
+                        f"Please return corrected JSON only."
+                    ),
+                })
+
+            response = await _call_messages_with_backoff(
+                self._client,
+                model=MODEL,
+                max_tokens=MAX_TOKENS,
+                temperature=0,
+                system=self._system_prompt,
+                messages=messages,
+            )
+
+            text = response.content[0].text.strip()
+            # Strip markdown fences if present
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+                if text.endswith("```"):
+                    text = text[:-3].strip()
+
+            try:
+                parsed = json.loads(text)
+                return parsed
+            except json.JSONDecodeError as e:
+                last_error = f"Invalid JSON: {e}"
+                logger.warning(
+                    "Attempt %d/%d for %s: %s",
+                    attempt + 1, MAX_RETRIES, trial_id, last_error,
+                )
+
+        raise ValueError(
+            f"Failed to get valid JSON for {trial_id} after {MAX_RETRIES} attempts"
+        )
+
+    def _save_annotation(self, nct_id: str, raw_json: dict[str, Any]) -> None:
+        _ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)
+        path = _ANNOTATIONS_DIR / f"{nct_id}_extraction.json"
+        path.write_text(json.dumps(raw_json, indent=2))
+        logger.debug("Saved extraction to %s", path)

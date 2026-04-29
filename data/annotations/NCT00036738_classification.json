@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT00036738",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: This is an allogeneic stem cell transplant study targeting BCR-ABL1 positive leukemia cells. The conditioning regimen (fludarabine + TBI) and donor stem cell engraftment would be expected to engage the target through graft-versus-leukemia effect. No direct target engagement biomarkers reported, but the mechanism relies on established transplant biology. 2. PATHWAY MODULATION: The intended biology is donor immune system recognition and elimination of residual leukemia cells. While no specific pathway biomarkers are reported, successful engraftment and low transplant-related mortality (1/28 at day 100) suggests the biological mechanism was functioning. 3. CLINICAL TRANSLATION: Primary endpoint of relapse-free survival was met with only 3/28 patients (10.7%) experiencing relapse within 1 year. This represents strong clinical efficacy. Long-term follow-up shows sustained benefit with 10/28 patients leukemia-free at 5 years. 4. POPULATION EFFECTS: This was a single-arm study in BCR-ABL1 positive leukemia patients who had responded to tyrosine kinase inhibitors. The population appears well-selected for the mechanism. 5. CONFOUNDERS: Small sample size (n=28) but results are robust. Single-arm design limits interpretation but the mechanism and results are consistent with established transplant biology.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.3,
+      "evidence": "While successful overall, this was tested in a specific subgroup (BCR-ABL1 positive patients who responded to prior TKI therapy), so generalizability to broader leukemia populations is unclear"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "allogeneic stem cell transplantation with nonmyeloablative conditioning",
+      "target_entity": "graft-versus-leukemia effect",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong clinical efficacy with 89.3% relapse-free survival at 1 year and sustained long-term benefit validates the graft-versus-leukemia mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "graft-versus-leukemia effect",
+      "target_entity": "leukemia cell eradication",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Low relapse rate and sustained leukemia-free survival demonstrates effective elimination of residual leukemia cells"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "relapse-free survival",
+      "target_entity": "treatment efficacy in BCR-ABL1 positive leukemia",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Relapse-free survival directly captures the intended clinical benefit with clear positive results"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

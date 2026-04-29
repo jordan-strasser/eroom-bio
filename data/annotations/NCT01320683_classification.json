@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01320683",
+  "trial_outcome": "failure",
+  "reasoning": "This appears to be a single-patient study (n=1) of a complex combination therapy involving radioimmunotherapy with yttrium-90 labeled anti-CEA antibody plus chemotherapy and bevacizumab. With no reported results, biomarker data, or safety information despite a 24-month primary endpoint timeframe, this suggests the trial was terminated early or failed to generate meaningful data. The extremely small sample size (n=1) makes this fundamentally underpowered to detect any treatment effect on progression-free survival. Without any target engagement data, biomarker evidence, or clinical outcomes reported, we cannot assess whether the radioimmunotherapy approach engaged CEA targets or delivered therapeutic radiation doses to tumor sites.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Sample size of 1 patient is fundamentally insufficient to assess progression-free survival or any meaningful clinical endpoint"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No results reported for primary endpoint, no biomarker data, no safety data, and no target engagement evidence despite complex radioimmunotherapy mechanism"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "yttrium Y 90 DOTA anti-CEA monoclonal antibody M5A",
+      "target_entity": "CEA",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for target engagement or binding specificity in this failed single-patient study"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "targeted radiotherapy",
+      "target_entity": "tumor cell killing",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence of mechanism activity or tumor response in this underpowered study"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival",
+      "target_entity": "tumor cell killing",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No progression-free survival data reported to assess endpoint capture of anti-tumor activity"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": true,
+  "review_reason": "Single-patient study with no reported results raises questions about trial conduct, early termination reasons, and whether any meaningful data was collected"
+}

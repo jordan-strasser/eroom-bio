@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00514917",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Limited evidence of target engagement. While standard doses of docetaxel, leuprolide, and bicalutamide were used, no direct target engagement biomarkers (testosterone suppression, microtubule effects) were reported. 2. PATHWAY MODULATION: No clear evidence of pathway modulation beyond PSA as endpoint. Missing key pharmacodynamic markers like testosterone levels or microtubule-related biomarkers. 3. CLINICAL TRANSLATION: The primary endpoint (progression-free survival) was not met with HR 1.29 (95% CI 1.00-1.65, p=0.0501), indicating the combination was actually worse than control, though marginally non-significant. 4. POPULATION EFFECTS: Testosterone-specific evaluable population showed similar negative results, suggesting no meaningful subgroup benefit. 5. CONFOUNDERS: High toxicity burden (94/196 vs 22/204 grade 3-4 AEs, 35/196 vs 1/204 discontinuations) may have prevented optimal dosing and contributed to worse outcomes.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "High rate of grade 3-4 adverse events (94/196 vs 22/204) and treatment discontinuations due to AEs (35/196 vs 1/204) suggest toxicity prevented optimal treatment delivery"
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.6,
+      "evidence": "Standard doses used but no evidence of meaningful biological activity beyond PSA progression endpoint, which showed worse outcomes in treatment arm"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Docetaxel + Leuprolide + Bicalutamide",
+      "target_entity": "Androgen receptor pathway and microtubules",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Combination therapy failed to improve outcomes and showed worse progression-free survival, suggesting inadequate pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Androgen deprivation + microtubule disruption",
+      "target_entity": "Progression-free survival",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "HR 1.29 indicates combination was worse than androgen deprivation alone, contradicting the biological hypothesis"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Docetaxel",
+      "target_entity": "Prostate cancer progression",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Addition of docetaxel to androgen deprivation therapy did not improve and may have worsened outcomes due to toxicity"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}
