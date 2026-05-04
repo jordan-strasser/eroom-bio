@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03293680",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm study of pembrolizumab in elderly NSCLC patients. Step 1 (TARGET ENGAGEMENT): No direct PD-1 engagement data provided, but pembrolizumab is a well-established PD-1 inhibitor with known pharmacology at 200mg Q3W dosing. Step 2 (PATHWAY MODULATION): No immune activation biomarkers reported, but PD-L1 subgroup analysis suggests pathway relevance. Step 3 (CLINICAL TRANSLATION): Median OS of 19.2 months appears reasonable for this population, but without a control arm or historical comparison, efficacy assessment is limited. Step 4 (POPULATION EFFECTS): Clear PD-L1-dependent response with high expressors (\u226550%) achieving 23.3 months median OS vs 16.5 months in low expressors, suggesting mechanism works preferentially in biomarker-positive subset. Step 5 (CONFOUNDERS): Single-arm design prevents definitive efficacy assessment; elderly population may have different response profile.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "PD-L1 \u226550% subgroup showed superior OS (23.3 vs 16.5 months), indicating mechanism works preferentially in biomarker-positive patients"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.5,
+      "evidence": "Elderly population (>70 years) may have compromised immune function affecting checkpoint inhibitor efficacy, though some patients did respond"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Well-established mechanism with known dosing regimen"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 high expressors",
+      "target_entity": "PD-1 checkpoint blockade",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clear biomarker-dependent response with 6.8 month OS difference between PD-L1 high vs low groups"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "Elderly NSCLC patients",
+      "target_entity": "PD-1 checkpoint blockade",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Age >70 may reduce immune checkpoint inhibitor effectiveness compared to younger populations"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design limits efficacy interpretation; need historical controls or comparator data to definitively assess treatment benefit in this elderly population"
+}

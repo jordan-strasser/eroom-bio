@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT01127763",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of mTOR target engagement provided - no PK/PD data, biomarker changes, or target engagement assays reported. 2. PATHWAY MODULATION: No biomarker data showing downstream mTOR pathway modulation or biological activity changes. 3. CLINICAL TRANSLATION: Clinical benefit rate of 36% in a single-arm study with no comparator makes it impossible to assess true efficacy. Without historical controls or randomized comparison, this rate could represent natural disease course. 4. POPULATION EFFECTS: No biomarker-defined subgroups identified, only dose-related toxicity differences. 5. CONFOUNDERS: Single-arm design is a major limitation - no way to distinguish treatment effect from natural history. Dose-limiting hematologic toxicity (28% grade 3+ thrombocytopenia, 12% neutropenia) may have prevented optimal dosing. Small sample size (n=25) provides insufficient power for definitive conclusions.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, no biomarker changes reported, and single-arm design prevents assessment of true treatment effect versus natural history"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Grade 3+ thrombocytopenia in 28% and neutropenia in 12% of patients, with higher carboplatin doses showing 71% thrombocytopenia rate"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 25 patients in single-arm study insufficient to draw definitive efficacy conclusions"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "RAD001 (everolimus)",
+      "target_entity": "mTOR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided to confirm or refute mTOR binding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mTOR inhibition",
+      "target_entity": "tumor cell proliferation",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No biomarker evidence of pathway modulation or biological activity changes"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "clinical benefit rate",
+      "target_entity": "treatment efficacy",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Single-arm design makes clinical benefit rate unreliable for assessing true treatment effect"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design with no target engagement data makes mechanistic failure classification highly uncertain. Expert review needed to interpret 36% clinical benefit rate in context of breast cancer natural history."
+}

@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT01858740",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The intervention was CD45RA+ T cell depletion from donor grafts. While no specific biomarker data is provided, the intervention by design removes CD45RA+ naive T cells while preserving CD45RO+ memory T cells. The successful engraftment (only 1/20 graft failures) suggests the intervention was technically successful. 2. PATHWAY MODULATION: The intended biology was to prevent severe GVHD while maintaining immune function. The safety profile shows this was achieved - no grade IV acute GVHD, no chronic GVHD requiring systemic immunosuppression, and no steroid-refractory acute GVHD, which represents a favorable GVHD profile compared to unmanipulated transplants. 3. CLINICAL TRANSLATION: Primary endpoints were met with low graft failure rate (5%) and reasonable time to immunosuppression discontinuation (median 349 days for all immunosuppression). The GVHD profile was manageable with mostly grade II acute GVHD. 4. POPULATION EFFECTS: No subgroup analysis reported, but the intervention appeared effective across the pediatric hematologic malignancy population studied. 5. CONFOUNDERS: Single-arm study with historical controls limits interpretation, but the mechanistic approach and consistent results across patients support the intervention's efficacy.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.2,
+      "evidence": "While successful clinically, 75% still developed grade II acute GVHD, suggesting incomplete prevention of GVHD biology despite T cell depletion"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "CD45RA+ T cell depletion",
+      "target_entity": "naive T cell removal",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Successful engraftment with low graft failure suggests effective T cell depletion was achieved"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "naive T cell removal",
+      "target_entity": "GVHD prevention",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "No grade IV acute GVHD and no chronic GVHD requiring systemic therapy demonstrates meaningful GVHD mitigation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GVHD prevention",
+      "target_entity": "immunosuppression discontinuation",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Median time to discontinuation of all immunosuppression was 349 days, indicating successful immune reconstitution"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

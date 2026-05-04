@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT03684694",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows dose-proportional PK exposure for loncastuximab tesirine components, indicating the drug reached systemic circulation. Low anti-drug antibody formation suggests sustained target engagement. 2. PATHWAY MODULATION: Limited direct evidence of pathway modulation, but the differential response rates suggest biological activity occurred. 3. CLINICAL TRANSLATION: Mixed results - MCL showed excellent response (90% CRR) while DLBCL subtypes showed modest responses (~27%). This suggests the mechanism works but with disease-specific efficacy. 4. POPULATION EFFECTS: Clear subgroup effect with MCL responding much better than DLBCL, indicating the combination mechanism is more effective in certain B-cell malignancies. 5. CONFOUNDERS: Dose-limiting toxicities at the highest dose (90 \u00b5g/kg) may have prevented optimal dosing in some patients.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "MCL showed 90% complete response rate while DLBCL subtypes only achieved ~27%, indicating the combination works well in a specific disease subtype"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "DLTs occurred in 2/6 participants at 90 \u00b5g/kg dose, with serious AEs including neutropenia, febrile neutropenia, and cardiac events potentially limiting optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Loncastuximab Tesirine",
+      "target_entity": "CD19",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Dose-proportional PK exposure and low immunogenicity suggest good target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD19-ADC + BTK inhibition",
+      "target_entity": "MCL biology",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "90% complete response rate in MCL demonstrates strong mechanistic activity in this disease"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD19-ADC + BTK inhibition",
+      "target_entity": "DLBCL biology",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Only 27% response rate in DLBCL suggests limited mechanistic activity in this disease context"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "MCL population",
+      "target_entity": "DLBCL population",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear differential response rates (90% vs 27%) demonstrate population-specific efficacy"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT04233034",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Limited direct evidence for verapamil L-type calcium channel engagement, but the 120mg daily dose is within therapeutic range. HCL system clearly engaged its target (automated insulin delivery) as evidenced by superior glycemic control metrics. 2. PATHWAY MODULATION: Verapamil showed clear downstream biological activity with significantly higher C-peptide AUC (0.65 vs 0.44) and peak C-peptide (0.83 vs 0.55), indicating preserved beta cell function. HCL demonstrated expected pathway effects with improved glucose control (145 vs 167 mg/dL) and time in range (78% vs 64%). 3. CLINICAL TRANSLATION: The primary endpoint (C-peptide AUC at 52 weeks) was met with statistical significance (p=0.04, effect size 0.14). This directly reflects the intended biological mechanism of beta cell preservation. 4. POPULATION EFFECTS: The trial succeeded in the overall population for verapamil's beta cell preservation effect. HCL showed consistent benefits across glycemic control measures. 5. CONFOUNDERS: No major confounders identified - appropriate duration, adequate sample size (113), and clinically relevant endpoints.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.2,
+      "evidence": "While verapamil succeeded, there's limited direct evidence of L-type calcium channel engagement, though biological effects suggest target was hit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Verapamil",
+      "target_entity": "L-type calcium channels",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Therapeutic dose achieved biological effects consistent with calcium channel blockade"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "L-type calcium channel blockade",
+      "target_entity": "Beta cell preservation",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Significant improvement in C-peptide AUC and peak C-peptide demonstrates beta cell preservation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Beta cell preservation",
+      "target_entity": "C-peptide AUC",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Primary endpoint met with statistically significant improvement in C-peptide measures"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Automated insulin delivery",
+      "target_entity": "Glycemic control",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "HCL demonstrated superior glycemic control across multiple measures with high statistical significance"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

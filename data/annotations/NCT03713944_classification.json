@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03713944",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm phase II study with 30 patients testing a 4-drug combination. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but standard doses of established agents suggest likely target engagement for PD-L1 (atezolizumab 1200mg) and VEGF (bevacizumab 15mg/kg). Step 2 (PATHWAY MODULATION): No biomarker data provided to confirm pathway modulation. Step 3 (CLINICAL TRANSLATION): Median PFS of 11.3 months appears reasonable for this population, but without a control arm or comparison to historical controls, efficacy cannot be definitively assessed. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Major limitation is single-arm design preventing efficacy assessment. High toxicity rate (63% grade 3+ AEs, 40% serious AEs) suggests tolerability concerns that could limit clinical utility.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm study design with no control group, no p-value reported, no biomarker data, and no comparison to historical controls makes efficacy assessment impossible"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "High toxicity burden with 63% experiencing grade 3+ treatment-related AEs and 40% experiencing serious AEs, including severe events like colonic perforation and heart failure"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Standard dosing suggests likely target engagement but no direct evidence provided"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Standard dosing suggests likely target engagement but no direct evidence provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Progression Free Survival",
+      "target_entity": "Anti-tumor efficacy",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "PFS of 11.3 months observed but cannot assess efficacy without control arm"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design prevents meaningful efficacy assessment, and high toxicity rates raise questions about risk-benefit profile of this 4-drug combination"
+}

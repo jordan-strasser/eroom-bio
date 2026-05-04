@@ -1,38 +1,46 @@
 {
   "nct_id": "NCT03200847",
   "trial_outcome": "success",
-  "reasoning": "This Phase I dose-escalation trial successfully met its primary endpoint of establishing MTD/RP2D. TARGET ENGAGEMENT: Strong evidence of target engagement with MDSC frequency decreasing 48.6% in responders, confirming ATRA's mechanism. PATHWAY MODULATION: Clear biological activity demonstrated through differential MDSC modulation between responders and non-responders, suggesting the combination mechanism is working as intended. CLINICAL TRANSLATION: Primary endpoint (safety/dosing) was met, establishing the combination is tolerable at therapeutic doses. POPULATION EFFECTS: Strong biomarker-response correlation suggests the mechanism works in patients who achieve MDSC depletion, identifying a potential predictive biomarker. CONFOUNDERS: Appropriate Phase I design with adequate sample size (26 patients) for dose-finding objectives.",
+  "reasoning": "This Phase I dose-escalation trial successfully met its primary endpoint of establishing MTD/RP2D. TARGET ENGAGEMENT: Strong evidence of target engagement with MDSC frequency decreasing 48.6% in responders, confirming ATRA's mechanism. PATHWAY MODULATION: Clear biological activity demonstrated through differential MDSC modulation between responders and non-responders, suggesting the combination mechanism is working as intended. CLINICAL TRANSLATION: Primary endpoint (safety/dosing) was met, establishing the combination is tolerable at therapeutic doses. POPULATION EFFECTS: Strong biomarker-response correlation suggests the mechanism works in a subset of patients who achieve MDSC depletion. CONFOUNDERS: Appropriate Phase I design with reasonable sample size for dose-finding objectives.",
   "failure_modes": [
     {
       "mode": "efficacy_in_subgroup_only",
       "confidence": 0.8,
-      "evidence": "Clear mechanistic validation in responding patients (48.6% MDSC decrease) but mechanism failed in non-responders (109.7% MDSC increase), suggesting efficacy limited to biomarker-defined subgroup"
+      "evidence": "Clear bifurcation between responders (-48.6% MDSC) and non-responders (+109.7% MDSC) suggests mechanism works only in subset achieving target engagement"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "modulates_via",
+      "edge_type": "binds_to",
       "source_entity": "All-Trans Retinoic Acid",
       "target_entity": "myeloid-derived suppressor cells",
       "direction": "strengthen",
       "magnitude": 0.8,
-      "reasoning": "Strong evidence of MDSC depletion in responding patients (48.6% decrease) validates ATRA's mechanism"
+      "reasoning": "Strong evidence of MDSC depletion in responding patients (-48.6%) confirms ATRA engages its intended target"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "MDSC depletion",
-      "target_entity": "anti-tumor immunity",
+      "edge_type": "modulates_via",
+      "source_entity": "Pembrolizumab + ATRA combination",
+      "target_entity": "PD-1 checkpoint inhibition with MDSC depletion",
       "direction": "strengthen",
       "magnitude": 0.7,
-      "reasoning": "Clear correlation between MDSC depletion and clinical response suggests mechanism drives efficacy"
+      "reasoning": "Combination achieved intended dual mechanism with clear biomarker evidence of pathway modulation"
     },
     {
       "edge_type": "reflects_biology",
       "source_entity": "MDSC frequency",
-      "target_entity": "treatment response",
+      "target_entity": "immunosuppressive myeloid activity",
       "direction": "strengthen",
       "magnitude": 0.9,
-      "reasoning": "Strong biomarker-response correlation (48.6% decrease in responders vs 109.7% increase in non-responders) validates MDSC as predictive biomarker"
+      "reasoning": "Strong correlation between MDSC depletion and clinical response validates this biomarker"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "MDSC-depleted subset",
+      "target_entity": "pembrolizumab + ATRA combination",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear biomarker-defined population showing differential response based on target engagement"
     }
   ],
   "confidence_overall": 0.8,

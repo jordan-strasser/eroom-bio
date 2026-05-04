@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01258608",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - mapatumumab achieved therapeutic serum concentrations (mean 555,157.6 ng/mL at end of infusion, sustained >100,000 ng/mL throughout treatment). 2. PATHWAY MODULATION: No direct evidence of downstream pathway modulation or apoptosis induction biomarkers reported. The development of anti-mapatumumab antibodies in 13/49 patients suggests immune recognition but doesn't confirm biological pathway activation. 3. CLINICAL TRANSLATION: Clear failure - primary endpoint not met with HR 1.192 (p=0.7382), indicating no benefit over control. Effect size suggests potential harm rather than benefit. 4. POPULATION EFFECTS: No subgroup analyses reported to identify potential responder populations. 5. CONFOUNDERS: Significant safety signals including cardiovascular events and bleeding complications may have affected dosing or treatment duration, potentially limiting efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "Strong pharmacokinetic evidence of target engagement with therapeutic drug levels, but no reported biomarkers of downstream TRAIL pathway activation or apoptosis induction, combined with complete lack of clinical efficacy"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Significant safety signals including cardiovascular events (acute MI, cardio-respiratory arrest, myocardial ischemia) and bleeding complications that may have limited optimal dosing or treatment duration"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Mapatumumab",
+      "target_entity": "TRAIL-R1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong pharmacokinetic evidence shows therapeutic drug concentrations were achieved and sustained"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "TRAIL-R1",
+      "target_entity": "apoptosis pathway",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Despite target engagement, no evidence of downstream pathway activation and complete lack of clinical benefit suggests poor pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "apoptosis induction",
+      "target_entity": "tumor progression",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "HR >1.0 suggests potential harm rather than benefit, indicating the biological mechanism did not translate to clinical benefit"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Significant safety signals and immunogenicity concerns may have confounded efficacy assessment, and lack of pathway biomarkers makes it difficult to definitively distinguish between target engagement failure and downstream pathway issues"
+}

@@ -20,6 +20,8 @@ _ANNOTATIONS_DIR = Path("data/annotations")
 
 MODEL = "claude-sonnet-4-20250514"
 MAX_TOKENS = 4096
+MAX_TOKENS_DOCUMENT = 16384  # medical reviews emit many trials per call
+MAX_DOCUMENT_CHARS = 500_000  # ~125k tokens; truncate over this
 MAX_RETRIES = 3
 RATE_LIMIT_MAX_RETRIES = 5
 RATE_LIMIT_BASE_WAIT = 10.0  # seconds; doubled each attempt
@@ -32,30 +34,36 @@ def _load_prompt(name: str) -> str:
 async def _call_messages_with_backoff(
     client: anthropic.AsyncAnthropic, **kwargs: Any
 ) -> Any:
-    """Wrap ``client.messages.create`` with exponential backoff on 429.
+    """Wrap ``client.messages.create`` with exponential backoff on 429 / timeout / connection errors.
 
     Honors the ``retry-after`` response header when present; otherwise waits
     ``RATE_LIMIT_BASE_WAIT * 2**attempt`` seconds. Up to ``RATE_LIMIT_MAX_RETRIES``
     attempts before re-raising.
     """
-    last_error: anthropic.RateLimitError | None = None
+    _transient = (
+        anthropic.RateLimitError,
+        anthropic.APITimeoutError,
+        anthropic.APIConnectionError,
+    )
+    last_error: Exception | None = None
     for attempt in range(RATE_LIMIT_MAX_RETRIES):
         try:
             return await client.messages.create(**kwargs)
-        except anthropic.RateLimitError as exc:
+        except _transient as exc:
             last_error = exc
             wait = RATE_LIMIT_BASE_WAIT * (2 ** attempt)
-            response = getattr(exc, "response", None)
-            if response is not None:
-                header_val = response.headers.get("retry-after")
-                if header_val:
-                    try:
-                        wait = float(header_val)
-                    except ValueError:
-                        pass
+            if isinstance(exc, anthropic.RateLimitError):
+                response = getattr(exc, "response", None)
+                if response is not None:
+                    header_val = response.headers.get("retry-after")
+                    if header_val:
+                        try:
+                            wait = float(header_val)
+                        except ValueError:
+                            pass
             logger.warning(
-                "Rate limited on attempt %d/%d; sleeping %.1fs before retry",
-                attempt + 1, RATE_LIMIT_MAX_RETRIES, wait,
+                "%s on attempt %d/%d; sleeping %.1fs before retry",
+                type(exc).__name__, attempt + 1, RATE_LIMIT_MAX_RETRIES, wait,
             )
             await asyncio.sleep(wait)
     assert last_error is not None
@@ -173,6 +181,7 @@ def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
         completion_date=trial.completion_date or "Not reported",
         sponsor=trial.sponsor,
         has_results=trial.has_results,
+        why_stopped=trial.why_stopped or "(not stated)",
         results_section=results_section,
         abstract_section=abstract_section,
     )
@@ -215,6 +224,57 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
     )
 
 
+def _parse_document_response(
+    raw_json: dict[str, Any], doc_id: str
+) -> list[TrialExtraction]:
+    """Map a multi-trial document response to a list of TrialExtraction."""
+    drug = raw_json.get("drug", {}) or {}
+    compound = drug.get("compound", "")
+    target = drug.get("claimed_target", "")
+
+    extractions: list[TrialExtraction] = []
+    for i, trial in enumerate(raw_json.get("trials", []) or []):
+        trial_id = trial.get("trial_id") or f"{doc_id}_trial_{i}"
+
+        effect_size: float | None = None
+        es_str = trial.get("effect_size", "") or ""
+        if es_str:
+            import re
+            match = re.search(r"[-+]?\d*\.?\d+", es_str)
+            if match:
+                effect_size = float(match.group())
+
+        extractions.append(
+            TrialExtraction(
+                trial_id=trial_id,
+                compound_name=trial.get("compound") or compound,
+                target_name=target,
+                indication=trial.get("indication", ""),
+                phase=str(trial.get("phase", "")),
+                primary_endpoint=trial.get("primary_endpoint", ""),
+                primary_endpoint_met=trial.get("primary_endpoint_met"),
+                effect_size=effect_size,
+                p_value=trial.get("p_value"),
+                biomarker_data={
+                    "target_engagement": trial.get("target_engagement_evidence"),
+                    "biomarker_changes": trial.get("biomarker_changes", []),
+                    "dose_information": trial.get("dose_information", ""),
+                },
+                safety_signals=trial.get("safety_signals", []) or [],
+                subgroup_findings=trial.get("subgroup_findings", []) or [],
+                summary=json.dumps(
+                    {
+                        "application_number": raw_json.get("application_number"),
+                        "drug": drug,
+                        "trial": trial,
+                    },
+                    indent=2,
+                ),
+            )
+        )
+    return extractions
+
+
 # ── Extractor ────────────────────────────────────────────────────────────
 
 
@@ -222,10 +282,23 @@ class Extractor:
     def __init__(self, client: anthropic.AsyncAnthropic) -> None:
         self._client = client
         self._system_prompt = _load_prompt("extraction_system.txt")
+        self._document_system_prompt = _load_prompt("extraction_document_system.txt")
 
     async def extract(
         self, trial: TrialRecord, abstract: str | None = None
     ) -> TrialExtraction:
+        # Cache hit: load saved extraction and skip the LLM call entirely.
+        cache_path = _ANNOTATIONS_DIR / f"{trial.nct_id}_extraction.json"
+        if cache_path.exists():
+            try:
+                cached_raw = json.loads(cache_path.read_text())
+                return _parse_extraction_response(cached_raw, trial.nct_id)
+            except (json.JSONDecodeError, KeyError) as exc:
+                logger.warning(
+                    "Cached extraction for %s unreadable (%s); re-extracting",
+                    trial.nct_id, exc,
+                )
+
         user_message = _format_trial_for_prompt(trial, abstract)
         raw_json = await self._call_with_retries(user_message, trial.nct_id)
         extraction = _parse_extraction_response(raw_json, trial.nct_id)
@@ -350,6 +423,107 @@ class Extractor:
         raise ValueError(
             f"Failed to get valid JSON for {trial_id} after {MAX_RETRIES} attempts"
         )
+
+    async def extract_from_document(
+        self,
+        document_text: str,
+        doc_id: str,
+        source_url: str = "",
+    ) -> list[TrialExtraction]:
+        """Extract trial records from an unstructured document (e.g. an FDA medical review).
+
+        ``doc_id`` is used as both the application number passed to the model and
+        the cache key (typically the FDA application number plus PDF basename, so
+        an application with multiple review PDFs caches separately).
+        """
+        cache_path = _ANNOTATIONS_DIR / f"{doc_id}_document.json"
+        if cache_path.exists():
+            try:
+                cached_raw = json.loads(cache_path.read_text())
+                return _parse_document_response(cached_raw, doc_id)
+            except (json.JSONDecodeError, KeyError) as exc:
+                logger.warning(
+                    "Cached document extraction for %s unreadable (%s); re-extracting",
+                    doc_id, exc,
+                )
+
+        if not document_text.strip():
+            logger.warning("Empty document text for %s; skipping", doc_id)
+            return []
+
+        truncated = document_text
+        if len(truncated) > MAX_DOCUMENT_CHARS:
+            logger.warning(
+                "Document %s is %d chars; truncating to %d",
+                doc_id, len(truncated), MAX_DOCUMENT_CHARS,
+            )
+            truncated = truncated[:MAX_DOCUMENT_CHARS]
+
+        template = _load_prompt("extraction_document_user.txt")
+        user_message = template.format(
+            application_number=doc_id,
+            source_url=source_url or "(local PDF)",
+            document_text=truncated,
+        )
+
+        raw_json = await self._call_document_with_retries(user_message, doc_id)
+        self._save_document_annotation(doc_id, raw_json)
+        return _parse_document_response(raw_json, doc_id)
+
+    async def _call_document_with_retries(
+        self, user_message: str, doc_id: str
+    ) -> dict[str, Any]:
+        last_error: str | None = None
+
+        for attempt in range(MAX_RETRIES):
+            messages = [{"role": "user", "content": user_message}]
+            if last_error:
+                messages.append({
+                    "role": "assistant",
+                    "content": "I'll fix the JSON formatting issue.",
+                })
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        f"Your previous response had a validation error:\n"
+                        f"{last_error}\n\n"
+                        f"Please return corrected JSON only."
+                    ),
+                })
+
+            response = await _call_messages_with_backoff(
+                self._client,
+                model=MODEL,
+                max_tokens=MAX_TOKENS_DOCUMENT,
+                temperature=0,
+                system=self._document_system_prompt,
+                messages=messages,
+            )
+
+            text = response.content[0].text.strip()
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+                if text.endswith("```"):
+                    text = text[:-3].strip()
+
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError as e:
+                last_error = f"Invalid JSON: {e}"
+                logger.warning(
+                    "Document attempt %d/%d for %s: %s",
+                    attempt + 1, MAX_RETRIES, doc_id, last_error,
+                )
+
+        raise ValueError(
+            f"Failed to get valid JSON for document {doc_id} after {MAX_RETRIES} attempts"
+        )
+
+    def _save_document_annotation(self, doc_id: str, raw_json: dict[str, Any]) -> None:
+        _ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)
+        path = _ANNOTATIONS_DIR / f"{doc_id}_document.json"
+        path.write_text(json.dumps(raw_json, indent=2))
+        logger.debug("Saved document extraction to %s", path)
 
     def _save_annotation(self, nct_id: str, raw_json: dict[str, Any]) -> None:
         _ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)

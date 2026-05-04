@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT03024996",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests target engagement occurred - PD-L1 expression was assessed by IHC using SP142 assay, and the standard atezolizumab dose (1200mg IV q3w) was used, which has established PK/PD. 2. PATHWAY MODULATION: While direct pathway biomarkers aren't reported, the mechanism of PD-L1 blockade leading to T-cell activation is well-established for atezolizumab. The presence of treatment-emergent ADAs in 103 participants suggests immune system engagement. 3. CLINICAL TRANSLATION: The primary endpoint (investigator-assessed DFS) was not met with HR 0.93 (95% CI 0.75-1.15, p=0.495), showing no clinical benefit in the overall population. 4. POPULATION EFFECTS: Strong signal for efficacy in PD-L1 positive subgroup (IC1/2/3) with HR 0.75 (95% CI 0.55-1.03, p=0.0735) for IRF-assessed DFS and HR 0.83 for investigator-assessed DFS, suggesting the mechanism works in biomarker-selected patients. 5. CONFOUNDERS: No major trial design issues apparent - adequate sample size (778), appropriate duration (64 months), and placebo-controlled design.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.85,
+      "evidence": "PD-L1 IC1/2/3 subgroup showed HR 0.75 (95% CI 0.55-1.03, p=0.0735) for IRF-assessed DFS and HR 0.83 for investigator-assessed DFS, indicating efficacy signal in biomarker-positive patients while overall population showed no benefit (HR 0.93, p=0.495)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Standard dosing and established mechanism suggest good target engagement"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "PD-L1 blockade",
+      "target_entity": "disease-free survival in RCC",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Overall population showed no DFS benefit despite target engagement"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 positive RCC patients",
+      "target_entity": "atezolizumab efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.75,
+      "reasoning": "PD-L1 IC1/2/3 subgroup showed consistent numerical improvement with HR 0.75-0.83 across assessments"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

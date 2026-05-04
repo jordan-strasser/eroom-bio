@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02545504",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement evidence provided - no PK/PD data, no biomarker changes confirming MMP-9 inhibition, no dose-exposure relationships reported. This is a critical gap. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm that MMP-9 inhibition led to reduced tumor invasion/metastasis biology. 3. CLINICAL TRANSLATION: Primary endpoint (OS) failed with HR 0.93 (95% CI 0.74-1.18), p=0.5625, showing no clinical benefit. 4. POPULATION EFFECTS: No subgroup findings reported, suggesting no subset benefited. 5. CONFOUNDERS: Significant safety signals including cardiac events and coagulation abnormalities may have limited dosing or treatment duration. The complete absence of target engagement data combined with flat efficacy suggests either the drug didn't engage MMP-9 or MMP-9 inhibition doesn't drive meaningful anti-tumor biology in this population.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No target engagement evidence provided - no PK/PD data, biomarker changes, or dose-exposure relationships confirming MMP-9 inhibition"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Significant safety signals including cardiac arrest, acute MI, and coagulation abnormalities that may have prevented adequate dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Andecaliximab",
+      "target_entity": "MMP-9",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "No evidence of target engagement despite adequate dosing regimen"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "MMP-9 inhibition",
+      "target_entity": "tumor invasion and metastasis",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No pathway biomarkers or biological activity demonstrated"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "tumor invasion and metastasis inhibition",
+      "target_entity": "overall survival",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Complete lack of survival benefit with HR 0.93, p=0.5625"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Complete absence of target engagement data makes it difficult to distinguish between drug not hitting target versus target not being relevant for this indication"
+}

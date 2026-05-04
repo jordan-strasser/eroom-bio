@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT04442581",
+  "trial_outcome": "failure",
+  "reasoning": "This trial enrolled only 2 patients over 10+ months and was terminated early. With n=2 and 0% response rate, this represents a catastrophic failure in enrollment and execution rather than a meaningful test of the therapeutic hypothesis. The combination of cabozantinib (VEGFR/MET/AXL inhibitor) + pembrolizumab (PD-1 inhibitor) has biological rationale for hepatocellular carcinoma, but severe safety signals (necrotizing fasciitis, general weakness) in 50-100% of patients suggest either dose-limiting toxicity or wrong population selection. The extremely small sample size makes it impossible to assess target engagement, pathway modulation, or clinical translation meaningfully.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 2 patients enrolled over 10+ months, making any efficacy assessment meaningless"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Severe safety signals in 50-100% of patients including necrotizing fasciitis and general weakness/poor performance"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Advanced hepatocellular carcinoma patients may have been too sick to tolerate combination therapy, suggested by poor performance status"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Cabozantinib + Pembrolizumab combination",
+      "target_entity": "Advanced hepatocellular carcinoma",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Severe toxicity profile suggests this combination may not be tolerable in advanced HCC population"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "Advanced hepatocellular carcinoma patients",
+      "target_entity": "Cabozantinib + Pembrolizumab combination",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Poor tolerability suggests this population may not be appropriate for this combination approach"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size (n=2) makes mechanistic interpretation nearly impossible; classification based primarily on enrollment failure and safety signals rather than efficacy assessment"
+}

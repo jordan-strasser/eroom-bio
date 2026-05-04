@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00378482",
+  "trial_outcome": "failure",
+  "reasoning": "This was a single-arm rollover study of tremelimumab in 37 patients with various solid tumors. Working through the causal chain: 1) TARGET ENGAGEMENT: No PD/PK data or biomarker evidence provided to confirm CTLA-4 engagement, though the dose (15 mg/kg) is in the expected therapeutic range. 2) PATHWAY MODULATION: No evidence of immune activation or T-cell biomarker changes reported. 3) CLINICAL TRANSLATION: The median disease-free survival of 3.0 days is extremely poor, suggesting minimal to no clinical benefit. 4) POPULATION EFFECTS: No subgroup analyses reported. 5) CONFOUNDERS: This appears to be a rollover/compassionate use study for patients who had previously received tremelimumab, suggesting they may have been treatment-refractory. The extremely short disease-free survival and lack of any efficacy signal, combined with notable safety issues (hypersensitivity reactions in 16% of patients), indicates failure at multiple levels of the causal chain.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "While target engagement cannot be confirmed from available data, the extremely short median disease-free survival of 3.0 days suggests that even if CTLA-4 was engaged and immune biology was modulated, it did not translate to meaningful clinical benefit"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.8,
+      "evidence": "This was a rollover study for patients who had previously received tremelimumab in other protocols, suggesting a heavily pre-treated, potentially treatment-refractory population that may not be optimal for demonstrating efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Tremelimumab",
+      "target_entity": "CTLA-4",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided, but dose is in therapeutic range - insufficient evidence to update confidence in binding"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell activation",
+      "target_entity": "anti-tumor response",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Extremely poor disease-free survival of 3.0 days suggests that even if T-cell activation occurred, it did not drive meaningful anti-tumor response in this heavily pre-treated population"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "treatment-refractory patients",
+      "target_entity": "CTLA-4 blockade",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Poor outcomes in this rollover population of previously treated patients suggests treatment-refractory patients may respond differently to CTLA-4 blockade"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited data from rollover study design makes it difficult to definitively assess mechanism failure vs population selection effects. The extremely short disease-free survival is concerning but may reflect patient selection rather than mechanism failure."
+}

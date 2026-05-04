@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01236560",
+  "trial_outcome": "partial",
+  "reasoning": "This was a three-arm feasibility study comparing vorinostat, temozolomide, and bevacizumab in pediatric high-grade glioma. Step 1 (TARGET ENGAGEMENT): Limited evidence - only MTD established for vorinostat (230 mg/sq m/day), no PK/PD or biomarker data provided for target engagement confirmation. Step 2 (PATHWAY MODULATION): No pathway biomarkers or pharmacodynamic markers reported to confirm biological activity. Step 3 (CLINICAL TRANSLATION): Mixed results - temozolomide arm showed highest EFS at 59.3%, while vorinostat (41.3%) and bevacizumab (43.8%) were lower. No statistical comparisons provided. Step 4 (POPULATION EFFECTS): Clear differential response between arms suggests different mechanisms may work differently in this population. Step 5 (CONFOUNDERS): This appears to be a feasibility study rather than a definitive efficacy trial, with safety as a key objective. Multiple safety signals across arms including deaths, suggesting tolerability challenges.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement biomarkers, no statistical testing of primary endpoint, no PK/PD data to confirm mechanism of action for any of the three drugs"
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.6,
+      "evidence": "Temozolomide arm showed numerically higher EFS (59.3%) compared to vorinostat (41.3%) and bevacizumab (43.8%), suggesting differential efficacy by treatment approach"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "DNA alkylation (temozolomide)",
+      "target_entity": "pediatric high-grade glioma progression",
+      "direction": "strengthen",
+      "magnitude": 0.4,
+      "reasoning": "Temozolomide arm showed numerically highest event-free survival at 59.3%, suggesting this mechanism may be most effective in this population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "HDAC inhibition (vorinostat)",
+      "target_entity": "pediatric high-grade glioma progression",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Vorinostat arm showed lower EFS (41.3%) compared to temozolomide, with significant safety signals including vomiting and optic nerve disorders"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "VEGF inhibition (bevacizumab)",
+      "target_entity": "pediatric high-grade glioma progression",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Bevacizumab arm had lowest overall survival (67.3%) and concerning safety profile including wound dehiscence and thrombocytopenia"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Feasibility study with no statistical testing, limited mechanistic data, and unclear whether this was powered for efficacy comparisons. Multiple safety signals across all arms require expert interpretation of risk-benefit in pediatric population."
+}

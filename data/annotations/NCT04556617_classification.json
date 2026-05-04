@@ -1,0 +1,30 @@
+{
+  "nct_id": "NCT04556617",
+  "trial_outcome": "failure",
+  "reasoning": "This was a Phase 1 dose-escalation study that was terminated early. Working through the causal chain: 1) TARGET ENGAGEMENT: Cannot assess - the target for PLX2853 is unknown and no target engagement data was provided. 2) PATHWAY MODULATION: Cannot assess - no biomarker or pathway data reported. 3) CLINICAL TRANSLATION: Not applicable - this was a safety/dose-finding study, not an efficacy study. 4) POPULATION EFFECTS: No subgroup data reported. 5) CONFOUNDERS: The study was terminated early with MTD not determined. With only 19 subjects enrolled and an average treatment duration of 103 days, this appears to be premature termination likely due to commercial/strategic reasons rather than safety issues, as the investigator noted DLTs were not observed in 2 or more subjects per protocol definition.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Study was terminated early with MTD not determined, despite investigator noting that DLTs were not observed in 2 or more subjects per protocol definition. This suggests termination was not driven by safety concerns but likely commercial/strategic decisions."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Target for PLX2853 is unknown, no target engagement data provided, no biomarker data, and no mechanistic information available to assess the therapeutic hypothesis."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "PLX2853",
+      "target_entity": "unknown_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available and target identity is unknown, so cannot update binding relationship"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Unknown target identity and mechanism, combined with early termination despite apparent lack of dose-limiting toxicities, makes this classification uncertain and requires expert interpretation of the commercial vs scientific factors"
+}

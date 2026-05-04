@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01981122",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows both sipuleucel-T and enzalutamide engaged their targets - T-cell proliferation responses were observed in both arms, indicating PAP-specific immune activation, and enzalutamide was dosed at standard therapeutic levels. 2. PATHWAY MODULATION: Downstream biology moved as predicted - PA2024-specific T cell proliferation increased from baseline in both arms, confirming immune system activation against prostate cancer antigens. 3. CLINICAL TRANSLATION: The primary endpoint (T-cell proliferation stimulation index) showed a trend favoring concurrent administration but failed to reach statistical significance (p=0.095). The effect was in the predicted direction but underpowered. 4. POPULATION EFFECTS: Timing effects were observed - concurrent arm showed consistently higher responses through week 40, while sequential arm had higher response at week 52, suggesting optimal timing matters. 5. CONFOUNDERS: Small sample size (n=52) likely underpowered the study to detect the observed effect size as statistically significant.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "p-value of 0.095 suggests a trend in favor of concurrent treatment but study with only 52 patients was likely underpowered to detect this effect size as statistically significant"
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.6,
+      "evidence": "Sequential arm showed higher response at week 52 while concurrent arm was better through week 40, suggesting timing of combination therapy affects immune response kinetics"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "sipuleucel-T",
+      "target_entity": "prostatic acid phosphatase",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "T-cell proliferation responses observed in both arms confirm PAP-specific immune activation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PAP-specific immune response",
+      "target_entity": "T-cell proliferation",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "PA2024-specific T cell proliferation increased from baseline in both arms, validating the immune mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell proliferation",
+      "target_entity": "stimulation index",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Concurrent arm showed higher stimulation index values at most timepoints, though not statistically significant"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Borderline statistical significance (p=0.095) and complex timing effects between concurrent vs sequential administration require expert interpretation of optimal dosing strategy"
+}

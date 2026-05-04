@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03130764",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided, but durvalumab and tremelimumab are established checkpoint inhibitors with known PD-L1 and CTLA-4 binding at standard doses. 2. PATHWAY MODULATION: No biomarker data available to assess T-cell activation or immune pathway changes. 3. CLINICAL TRANSLATION: Primary endpoint (percentage rate of induced T-cell response) has no reported results - effect size, p-value, and endpoint achievement are all null. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: Key confounder identified - PI transferred, suggesting trial was terminated for administrative/operational reasons rather than scientific failure. The complete absence of results data combined with PI transfer indicates this was likely a premature termination.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "PI transferred and complete absence of any results data suggests administrative termination rather than scientific failure"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No target engagement data, biomarker changes, or primary endpoint results reported to assess mechanism"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "durvalumab",
+      "target_entity": "PD-L1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No trial-specific target engagement data, but established mechanism from other studies"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "tremelimumab",
+      "target_entity": "CTLA-4",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No trial-specific target engagement data, but established mechanism from other studies"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "T-cell response rate",
+      "target_entity": "immune activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint data available due to trial termination"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Trial appears terminated for administrative reasons with no scientific data available - classification based on operational failure rather than mechanistic assessment"
+}

@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02202746",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests target engagement occurred - PK data showed measurable drug exposure with Cmax 265-292 ng/mL and quantifiable AUC values, indicating the drug reached systemic circulation at potentially active levels. 2. PATHWAY MODULATION: No biomarker data provided to confirm downstream pathway modulation of VEGFR/FGFR/PDGFR signaling, creating uncertainty about biological activity despite drug exposure. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) was not met. Median PFS was only 93 days (10mg) vs 77 days (15mg), which represents very short progression-free intervals suggesting minimal clinical benefit. 4. POPULATION EFFECTS: Counterintuitive dose-response relationship observed - lower 10mg dose performed better than 15mg dose in both PFS (93 vs 77 days) and ORR (4.7% vs 1.5%), suggesting dose-limiting toxicity may have compromised efficacy at higher dose. 5. CONFOUNDERS: Significant safety signals including febrile neutropenia, cardiac arrhythmias, and adrenal insufficiency suggest tolerability issues that may have limited effective dosing and treatment duration.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Inverse dose-response relationship (10mg outperformed 15mg) combined with serious safety signals including febrile neutropenia, cardiac arrhythmias, and adrenal insufficiency suggests toxicity limited effective dosing"
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.6,
+      "evidence": "PK data confirms drug exposure but no biomarker evidence of downstream pathway modulation despite targeting multiple receptor tyrosine kinases"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Lucitanib",
+      "target_entity": "VEGFR/FGFR/PDGFR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "PK data suggests drug exposure but lack of biomarker confirmation of target engagement creates uncertainty"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "multi-RTK inhibition",
+      "target_entity": "angiogenesis/growth factor signaling",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Very short PFS intervals and inverse dose-response suggest mechanism was not effectively modulating intended biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "angiogenesis inhibition",
+      "target_entity": "tumor progression",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Minimal PFS benefit (93 days median) suggests insufficient biological impact on tumor progression in metastatic breast cancer"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": true,
+  "review_reason": "Inverse dose-response relationship is unusual and may indicate complex pharmacology or patient selection issues that warrant deeper mechanistic analysis"
+}

@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT03207867",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests both targets were engaged - NIR178 showed dose-proportional PK with accumulation at steady state, and PDR001 (anti-PD-1) is a validated checkpoint inhibitor. 2. PATHWAY MODULATION: Downstream biology showed mixed results - CD8+ T-cell infiltration increased in some tumor types (RCC na\u00efve: 10.93%, TNBC: 4.86%) but minimal changes in most other tumor types, suggesting pathway modulation was tumor-type dependent. 3. CLINICAL TRANSLATION: Despite some biological activity, clinical endpoints were largely disappointing with ORR ranging 0-27.3% across tumor types. Only RCC treatment-na\u00efve patients showed meaningful responses (27.3% at 160mg, 25.0% at 240mg). 4. POPULATION EFFECTS: Clear subgroup effect - best responses in RCC treatment-na\u00efve patients, poor responses in pre-treated populations, minimal activity in MSS colorectal cancer and limited activity in NSCLC. This suggests the mechanism works in a specific subset. 5. CONFOUNDERS: Large heterogeneous population (315 patients across multiple tumor types) may have diluted overall efficacy signal.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Best responses observed in RCC treatment-na\u00efve patients (27.3% ORR) with corresponding CD8+ T-cell infiltration increases, while most other tumor types showed minimal activity and biological changes"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Poor responses in pre-treated populations and minimal activity in MSS colorectal cancer suggest the broad tumor type inclusion may not have been optimal for the adenosine pathway mechanism"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "NIR178",
+      "target_entity": "Adenosine A2a receptor",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Dose-proportional PK with accumulation suggests target engagement occurred"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Adenosine A2a antagonism + PD-1 blockade",
+      "target_entity": "CD8+ T-cell infiltration",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Increased CD8+ infiltration observed in RCC na\u00efve and TNBC, but not consistently across tumor types"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "RCC treatment-na\u00efve population",
+      "target_entity": "Adenosine pathway combination therapy",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear differential response with 27.3% ORR and corresponding biomarker changes in this subgroup"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "CD8+ T-cell infiltration",
+      "target_entity": "Overall Response Rate",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "Despite some CD8+ infiltration increases, overall clinical responses were limited across most tumor types"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

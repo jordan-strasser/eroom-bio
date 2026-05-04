@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT03397654",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I safety study with a primary endpoint of safety and tolerability, which was met. The study achieved its primary objective of demonstrating that pembrolizumab following TACE can be administered safely with manageable adverse events. The 93.3% PFS rate at 12 weeks suggests potential efficacy signals. However, this is a small single-arm study (n=15) focused on safety rather than efficacy, so we cannot fully evaluate the mechanistic causal chain beyond demonstrating the combination is tolerable.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data, target engagement evidence, or mechanistic readouts provided. Cannot assess whether PD-1 was engaged or if immune activation occurred post-TACE."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Safety profile consistent with known PD-1 inhibition effects, but no direct target engagement data provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Safety and tolerability",
+      "target_entity": "Treatment feasibility",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Primary safety endpoint was successfully met, demonstrating the combination is tolerable"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Phase I safety study with limited mechanistic data. Success defined by safety rather than efficacy endpoints. Cannot fully evaluate the proposed PD-1/immune activation mechanism without biomarker data."
+}

@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT03759366",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Excellent evidence - complete suppression of free C5 from 172.7 \u03bcg/mL to 0.0 \u03bcg/mL at all timepoints demonstrates robust target engagement. 2. PATHWAY MODULATION: Strong evidence - hemolysis reduction from 105.8% to <2% confirms downstream complement pathway inhibition as expected. 3. CLINICAL TRANSLATION: Clear success - primary endpoint met with clinically meaningful -5.8 point reduction in QMG score (p=0.0004), well above the 3-point MCID for QMG. 4. POPULATION EFFECTS: Good response rate with 70% achieving \u22655-point QMG reduction, suggesting broad efficacy in this refractory pediatric MG population. 5. CONFOUNDERS: Single-arm design limits interpretation, but very small sample size (n=12) and strong effect size with low p-value support genuine efficacy despite design limitations.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Very small sample size of 12 participants limits statistical power and generalizability, though strong effect size partially mitigates this concern"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Eculizumab",
+      "target_entity": "Complement component 5 (C5)",
+      "direction": "strengthen",
+      "magnitude": 0.95,
+      "reasoning": "Complete suppression of free C5 to undetectable levels demonstrates excellent target binding and engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "C5 inhibition",
+      "target_entity": "Complement pathway",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Hemolysis reduction from 105.8% to <2% confirms effective complement pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Complement inhibition",
+      "target_entity": "Neuromuscular junction function",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clinically meaningful improvement in QMG score supports that complement inhibition improves neuromuscular function in myasthenia gravis"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "QMG score",
+      "target_entity": "Myasthenia gravis severity",
+      "direction": "strengthen",
+      "magnitude": 0.85,
+      "reasoning": "5.8-point reduction exceeds established MCID and correlates with functional improvements, validating QMG as appropriate endpoint"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02095132",
+  "trial_outcome": "success",
+  "reasoning": "This Phase I dose escalation trial successfully met its primary endpoint of establishing MTD and characterizing DLTs. TARGET ENGAGEMENT: Strong evidence with gamma H2AX increases (0.45-10 fold) indicating DNA damage response activation, confirming WEE1 inhibition is engaging the target pathway. PATHWAY MODULATION: The biomarker data shows clear downstream biology changes with DNA damage markers responding as predicted for WEE1 inhibition combined with irinotecan. CLINICAL TRANSLATION: While this was a dose-finding study, clinical activity was observed with responses in neuroblastoma (3/19) and medulloepithelioma/CNS PNET (2/10) cohorts. POPULATION EFFECTS: Clear differential responses across tumor types - neuroblastoma and CNS tumors showed activity while rhabdomyosarcoma showed none, suggesting mechanism works in specific populations. CONFOUNDERS: No major design issues - appropriate Phase I methodology with successful dose escalation to MTD.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Responses observed in neuroblastoma (3/19) and medulloepithelioma/CNS PNET (2/10) but no responses in rhabdomyosarcoma (0/10), indicating mechanism works in specific tumor types"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Adavosertib",
+      "target_entity": "WEE1 kinase",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong gamma H2AX biomarker evidence confirms target engagement with dose-dependent DNA damage response"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "WEE1 inhibition + DNA topoisomerase I inhibition",
+      "target_entity": "DNA damage and cell cycle checkpoint disruption",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear biomarker evidence of DNA damage response activation with gamma H2AX increases"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "neuroblastoma/CNS tumors",
+      "target_entity": "WEE1 inhibition mechanism",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clinical responses observed in neuroblastoma and CNS PNET but not rhabdomyosarcoma, suggesting tumor-type specific sensitivity"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

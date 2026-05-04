@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT04304144",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase 1 dose-escalation safety study that met its primary endpoint. Step 1 (TARGET ENGAGEMENT): Evidence shows dose-proportional plasma exposure with measurable Cmax values (126-580 \u00b5g/mL) and drug accumulation at Week 20, indicating the compound reached systemic circulation. Step 2 (PATHWAY MODULATION): No biomarker data provided to assess amyloid fibril targeting or clearance. Step 3 (CLINICAL TRANSLATION): Primary endpoint was safety/tolerability, which was met with no dose-limiting toxicities in the first 4 weeks across all dose levels. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Notable safety signals including cardiac failure (6/25 participants) and cardiac arrhythmias, but these did not constitute dose-limiting toxicities per protocol definition. The trial successfully established a recommended Phase 2 dose of 1000 mg/m\u00b2.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "While systemic exposure was achieved, no biomarker data was provided to confirm amyloid fibril targeting or downstream biological effects on amyloid deposits"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "CAEL-101",
+      "target_entity": "amyloid fibrils",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Systemic exposure achieved but no direct evidence of target engagement with amyloid fibrils provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety and tolerability",
+      "target_entity": "dose-limiting toxicity assessment",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary safety endpoint was successfully met with clear dose escalation and safety profile established"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

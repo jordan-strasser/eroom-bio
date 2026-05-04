@@ -1,10 +1,6 @@
-"""Tests for the prediction layer: path queries and explainer."""
+"""Tests for the prediction layer: path queries."""
 
 from __future__ import annotations
-
-import json
-from types import SimpleNamespace
-from unittest.mock import AsyncMock
 
 import numpy as np
 import pytest
@@ -32,8 +28,10 @@ from src.prediction.path_query import (
     EdgeContribution,
     PredictionEngine,
     PredictionResult,
+    _aggregate_samples,
+    _trust_weight,
+    predict_clinical_hypothesis,
 )
-from src.prediction.explainer import explain
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────
@@ -125,20 +123,7 @@ class TestEdgeContribution:
 
 
 class TestPredict:
-    def test_uniform_priors_give_moderate_prediction(self):
-        """All Beta(1,1) edges -> each has mean 0.5. Product of 7 = 0.5^7 ≈ 0.0078."""
-        graph = _make_graph()
-        engine = PredictionEngine(graph)
-        result = engine.predict(_make_trial(), n_samples=50_000)
-        # Mean of product of 7 Beta(1,1) = (1/2)^7 but actually the mean of
-        # product of independent Beta(1,1) is product of means = 0.5^7
-        # With sampling noise, allow some tolerance
-        assert result.overall_probability == pytest.approx(0.5**7, rel=0.1)
-        assert result.ci_lower < result.overall_probability
-        assert result.ci_upper > result.overall_probability
-
     def test_strong_edges_give_high_prediction(self):
-        """All edges Beta(20,1) -> each mean ≈ 0.952. Product ≈ 0.952^7 ≈ 0.71."""
         params = (20.0, 1.0)
         graph = _make_graph(
             binds_to=params, modulates_via=params, mechanism_affects=params,
@@ -148,21 +133,6 @@ class TestPredict:
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=50_000)
         assert result.overall_probability > 0.5
-
-    def test_one_weak_edge_lowers_prediction(self):
-        """One edge at Beta(1,20) (mean≈0.048) dominates the product."""
-        graph = _make_graph(
-            binds_to=(1.0, 20.0),  # weak
-            modulates_via=(20.0, 1.0),
-            mechanism_affects=(20.0, 1.0),
-            biology_drives=(20.0, 1.0),
-            reflects_biology=(20.0, 1.0),
-            endpoint_captures=(20.0, 1.0),
-            responds_differently=(20.0, 1.0),
-        )
-        engine = PredictionEngine(graph)
-        result = engine.predict(_make_trial(), n_samples=50_000)
-        assert result.overall_probability < 0.1
 
     def test_weakest_link_identified(self):
         graph = _make_graph(
@@ -228,31 +198,85 @@ class TestPredict:
         assert len(binds) == 1
         assert binds[0].belief.alpha == pytest.approx(20.0)
 
-    def test_known_product_by_hand(self):
-        """Hand-computed: 4 causal chain edges all Beta(10,10) (mean=0.5).
-        E[product] = 0.5^4 = 0.0625. With endpoint/population UNKNOWN,
-        only 4 edges contribute.
-        """
-        params = (10.0, 10.0)
-        graph = _make_graph(
-            binds_to=params, modulates_via=params,
-            mechanism_affects=params, biology_drives=params,
-        )
-        trial = TrialSubgraph(
-            trial_id="NCT_TEST",
-            compound_id="c1", target_id="t1",
-            mechanism_id="m1", biology_id="b1",
-            indication_id="i1",
-            endpoint_id="UNKNOWN", population_id="UNKNOWN",
-            outcome=TrialOutcome.UNKNOWN, phase="3",
-        )
+# ============================================================
+# Trust weights + weighted_geomean
+# ============================================================
+
+
+class TestTrustWeight:
+    def test_uniform_prior_gets_zero_trust(self):
+        belief = EdgeBeliefState(alpha=1.0, beta=1.0)
+        assert _trust_weight(belief) == pytest.approx(0.0)
+
+    def test_strong_evidence_saturates_at_one(self):
+        # alpha + beta - 2 = 18; 18/10 capped at 1.0
+        belief = EdgeBeliefState(alpha=15.0, beta=5.0)
+        assert _trust_weight(belief) == pytest.approx(1.0)
+
+    def test_modest_evidence_scales_linearly(self):
+        # alpha + beta - 2 = 4; 4/10 = 0.4
+        belief = EdgeBeliefState(alpha=3.0, beta=3.0)
+        assert _trust_weight(belief) == pytest.approx(0.4)
+
+
+class TestAggregateSamples:
+    def test_zero_weight_falls_back_to_unweighted(self):
+        # All weights 0 → fallback to unweighted geomean of 0.5 and 0.5 = 0.5
+        s1 = np.array([0.5, 0.5])
+        s2 = np.array([0.5, 0.5])
+        out = _aggregate_samples([s1, s2], [0.0, 0.0])
+        assert np.allclose(out, [0.5, 0.5])
+
+    def test_full_trust_recovers_geomean(self):
+        s1 = np.full(1000, 0.6)
+        s2 = np.full(1000, 0.4)
+        out = _aggregate_samples([s1, s2], [1.0, 1.0])
+        expected = np.exp(0.5 * np.log(0.6) + 0.5 * np.log(0.4))
+        assert np.allclose(out, expected)
+
+    def test_zero_weight_edges_dont_drag(self):
+        strong = np.full(100, 0.9)
+        weak_samples = [np.full(100, 0.5) for _ in range(6)]
+        out = _aggregate_samples([strong] + weak_samples, [1.0] + [0.0] * 6)
+        assert np.allclose(out, 0.9)
+
+
+class TestWeightedGeomeanPredict:
+    def test_default_is_weighted_geomean(self):
+        graph = _make_graph()  # all Beta(1,1)
         engine = PredictionEngine(graph)
-        result = engine.predict(trial, n_samples=100_000)
-        # E[X1*X2*X3*X4] where Xi ~ Beta(10,10)
-        # For independent Betas, E[prod] = prod of E[Xi] = 0.5^4 = 0.0625
-        # But E[prod(Xi)] != prod(E[Xi]) for Beta; actually they ARE equal
-        # since the Xi are independent.
-        assert result.overall_probability == pytest.approx(0.0625, rel=0.05)
+        result = engine.predict(_make_trial(), n_samples=20_000)
+        # Beta(1,1) → uniform; geomean of uniforms ≈ 1/e ≈ 0.368.
+        # Critically, NOT 0.5^7 (which would be the product).
+        assert result.overall_probability > 0.2
+        assert result.overall_probability < 0.5
+
+    def test_one_strong_edge_dominates(self):
+        # binds_to with strong evidence (alpha+beta-2=18, trust=1.0),
+        # all other edges Beta(1,1) (trust=0). Result should track binds_to mean.
+        graph = _make_graph(binds_to=(18.0, 2.0))
+        engine = PredictionEngine(graph)
+        result = engine.predict(_make_trial(), n_samples=50_000)
+        # binds_to mean = 0.9; geomean dominated by it should land near 0.9
+        assert result.overall_probability == pytest.approx(0.9, abs=0.05)
+
+    def test_weakest_link_uses_trust_weighted_score(self):
+        # Beta(1,1) edge has mean 0.5 but no trust, so it should NOT be flagged
+        # as the weakest link. binds_to with Beta(2, 18) (mean 0.1, trust=1.0)
+        # has both low mean AND evidence; that's the real bottleneck.
+        graph = _make_graph(binds_to=(2.0, 18.0))  # rest Beta(1,1)
+        engine = PredictionEngine(graph)
+        result = engine.predict(_make_trial(), n_samples=10_000)
+        assert result.weakest_link is not None
+        assert result.weakest_link.edge_type == EdgeType.BINDS_TO
+
+    def test_uniform_priors_have_zero_bottleneck_score(self):
+        graph = _make_graph()
+        engine = PredictionEngine(graph)
+        result = engine.predict(_make_trial(), n_samples=1_000)
+        for ec in result.edge_contributions:
+            # Beta(1,1) → trust=0 → bottleneck_score = (1 - 0.5) * 0 = 0
+            assert ec.bottleneck_score == pytest.approx(0.0)
 
 
 # ============================================================
@@ -349,40 +373,79 @@ class TestSuggestImprovements:
 # ============================================================
 
 
-class TestExplainer:
-    @pytest.mark.asyncio
-    async def test_explain_returns_string(self):
-        mock_client = AsyncMock()
-        content_block = SimpleNamespace(text="This is an explanation.")
-        mock_client.messages.create = AsyncMock(
-            return_value=SimpleNamespace(content=[content_block])
+class TestPredictClinicalHypothesis:
+    def test_walks_full_chain(self):
+        graph = _make_graph(
+            binds_to=(20.0, 1.0),
+            modulates_via=(20.0, 1.0),
+            mechanism_affects=(20.0, 1.0),
+            biology_drives=(20.0, 1.0),
         )
-
-        graph = _make_graph(binds_to=(10.0, 2.0))
-        engine = PredictionEngine(graph)
-        result = engine.predict(_make_trial(), n_samples=100)
-
-        explanation = await explain(result, mock_client)
-        assert isinstance(explanation, str)
-        assert len(explanation) > 0
-        mock_client.messages.create.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_explain_sends_prediction_data(self):
-        mock_client = AsyncMock()
-        content_block = SimpleNamespace(text="Explanation text")
-        mock_client.messages.create = AsyncMock(
-            return_value=SimpleNamespace(content=[content_block])
+        # endpoint/population edges exist but we don't pass them — they're
+        # auxiliary, not required for the causal-chain prediction.
+        result = predict_clinical_hypothesis(
+            graph, "c1", "i1", n_samples=5_000
         )
+        edge_types = {ec.edge_type for ec in result.edge_contributions}
+        assert EdgeType.BINDS_TO in edge_types
+        assert EdgeType.MODULATES_VIA in edge_types
+        assert EdgeType.MECHANISM_AFFECTS in edge_types
+        assert EdgeType.BIOLOGY_DRIVES in edge_types
+        # Aux edges are skipped because endpoint_id / population_id default to UNKNOWN
+        assert EdgeType.REFLECTS_BIOLOGY not in edge_types
+        assert EdgeType.ENDPOINT_CAPTURES not in edge_types
+        assert EdgeType.RESPONDS_DIFFERENTLY not in edge_types
+        # All four chain edges have strong supporting beliefs → high P
+        assert result.overall_probability > 0.5
 
-        graph = _make_graph(binds_to=(10.0, 2.0))
-        engine = PredictionEngine(graph)
-        result = engine.predict(_make_trial(), n_samples=100)
+    def test_includes_aux_edges_when_passed(self):
+        graph = _make_graph(
+            binds_to=(20.0, 1.0),
+            modulates_via=(20.0, 1.0),
+            mechanism_affects=(20.0, 1.0),
+            biology_drives=(20.0, 1.0),
+            reflects_biology=(20.0, 1.0),
+            endpoint_captures=(20.0, 1.0),
+            responds_differently=(20.0, 1.0),
+        )
+        result = predict_clinical_hypothesis(
+            graph, "c1", "i1",
+            endpoint_id="e1", population_id="p1",
+            n_samples=2_000,
+        )
+        assert len(result.edge_contributions) == 7
 
-        await explain(result, mock_client)
+    def test_missing_compound_raises(self):
+        graph = _make_graph()
+        with pytest.raises(KeyError, match="Compound"):
+            predict_clinical_hypothesis(graph, "missing_compound", "i1")
 
-        call_kwargs = mock_client.messages.create.call_args.kwargs
-        user_msg = call_kwargs["messages"][0]["content"]
-        assert "P(success)" in user_msg
-        assert "binds_to" in user_msg
-        assert result.trial_hypothesis in user_msg
+    def test_missing_indication_raises(self):
+        graph = _make_graph()
+        with pytest.raises(KeyError, match="Indication"):
+            predict_clinical_hypothesis(graph, "c1", "missing_indication")
+
+    def test_picks_best_supported_target_when_multiple_binds_to(self):
+        # Compound with two binds_to: t1 (weak prior) vs t2 (strong supporting).
+        # Resolver should prefer t2.
+        g = GraphStore()
+        g.add_node(CompoundNode(id="c1", name="DrugA", modality=Modality.SMALL_MOLECULE))
+        g.add_node(TargetNode(id="t1", name="A", gene_symbol="A"))
+        g.add_node(TargetNode(id="t2", name="B", gene_symbol="B"))
+        g.add_node(IndicationNode(id="i1", name="DiseaseA"))
+        g.add_edge(GraphEdge(
+            source_id="c1", target_id="t1", edge_type=EdgeType.BINDS_TO,
+            belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+        ))
+        g.add_edge(GraphEdge(
+            source_id="c1", target_id="t2", edge_type=EdgeType.BINDS_TO,
+            belief=EdgeBeliefState(alpha=18.0, beta=2.0),
+        ))
+        result = predict_clinical_hypothesis(g, "c1", "i1", n_samples=1_000)
+        binds_edges = [
+            ec for ec in result.edge_contributions
+            if ec.edge_type == EdgeType.BINDS_TO
+        ]
+        assert binds_edges and binds_edges[0].target_id == "t2"
+
+

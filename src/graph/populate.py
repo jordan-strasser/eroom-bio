@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import re
+from pathlib import Path
 from typing import Any
 
+import anthropic
 from rich.console import Console
 
+from src.annotation.extractor import _call_messages_with_backoff
 from src.graph.models import (
     CompoundNode,
     EdgeBeliefState,
@@ -16,27 +20,109 @@ from src.graph.models import (
     EndpointNode,
     GraphEdge,
     IndicationNode,
+    MechanismNode,
+    MechanismType,
+    PopulationNode,
+    TargetNode,
     TrialOutcome,
     TrialSubgraph,
 )
 from src.graph.store import GraphStore
+from src.ingestion.clinicaltrials import (
+    ClinicalTrialsClient,
+    TrialRecord,
+    map_trial_to_graph_nodes,
+)
+from src.ingestion.lincs import LINCSClient, populate_lincs_signatures
+from src.ingestion.opentargets import (
+    OpenTargetsClient,
+    populate_target_disease_edges,
+)
 
-# Regulatory-precedent priors for endpoint_captures edges.
-# Strength reflects how reliably the endpoint translates to disease-level benefit:
-# OS is the gold standard, PFS is widely accepted, ORR is a weaker surrogate.
-_ENDPOINT_PRIOR_RULES: list[tuple[re.Pattern[str], tuple[float, float]]] = [
-    (re.compile(r"\bos\b|overall survival", re.IGNORECASE), (3.0, 1.0)),
-    (re.compile(r"\bpfs\b|progression.free survival|progression free", re.IGNORECASE), (2.0, 1.0)),
-    (re.compile(r"\borr\b|objective response rate|overall response rate|response rate", re.IGNORECASE), (1.5, 1.0)),
-]
+logger = logging.getLogger(__name__)
+console = Console()
+
+# Haiku is fast + cheap for short categorical labels. The structural inferences
+# (endpoint type, mechanism, population) are short — Haiku is more than enough.
+INFERENCE_MODEL = "claude-haiku-4-5-20251001"
 
 
-def endpoint_prior(endpoint_name: str) -> tuple[float, float] | None:
-    """Return the Beta(alpha, beta) prior for a known endpoint type, or None."""
-    for pattern, prior in _ENDPOINT_PRIOR_RULES:
-        if pattern.search(endpoint_name):
-            return prior
-    return None
+# ── Endpoint classification ──────────────────────────────────────────────
+
+
+# Beta(α, β) priors per endpoint class. Higher α/β reflects more regulatory
+# precedent for translating endpoint movement into disease-level benefit.
+ENDPOINT_PRIORS_BY_CLASS: dict[str, tuple[float, float]] = {
+    "OS": (3.0, 1.0),
+    "DFS": (2.5, 1.0),
+    "composite_survival": (2.5, 1.0),
+    "PFS": (2.0, 1.0),
+    "TTP": (2.0, 1.0),
+    "CR": (1.7, 1.0),
+    "ORR": (1.5, 1.0),
+    "composite_response": (1.5, 1.0),
+    "biomarker": (1.2, 1.0),
+    "PRO": (1.0, 1.0),
+    "other": (1.0, 1.0),
+}
+ENDPOINT_CLASSES = list(ENDPOINT_PRIORS_BY_CLASS.keys())
+
+
+class JSONCache:
+    """Tiny dict-style cache that flushes to a JSON file on every write.
+
+    Used for structural LLM classifications (endpoint type, mechanism, population)
+    so the same input is never paid for twice.
+    """
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._data: dict[str, str] = {}
+        if path.exists():
+            try:
+                self._data = json.loads(path.read_text())
+            except json.JSONDecodeError:
+                logger.warning("Cache %s unreadable; starting empty", path)
+                self._data = {}
+
+    def get(self, key: str) -> str | None:
+        return self._data.get(key)
+
+    def set(self, key: str, value: str) -> None:
+        self._data[key] = value
+        self.path.write_text(json.dumps(self._data, indent=2, sort_keys=True))
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+
+async def classify_endpoint_with_llm(
+    client: anthropic.AsyncAnthropic,
+    endpoint_name: str,
+    cache: JSONCache,
+) -> str:
+    """Classify a primary endpoint name into one of ENDPOINT_CLASSES."""
+    cached = cache.get(endpoint_name)
+    if cached is not None:
+        return cached
+    classes = ", ".join(ENDPOINT_CLASSES)
+    user_msg = (
+        f"Clinical trial primary endpoint: {endpoint_name!r}\n\n"
+        f"Classify into ONE of: {classes}\n\n"
+        "Reply with only the category name. No other text."
+    )
+    response = await _call_messages_with_backoff(
+        client,
+        model=INFERENCE_MODEL,
+        max_tokens=10,
+        temperature=0,
+        messages=[{"role": "user", "content": user_msg}],
+    )
+    raw = response.content[0].text.strip()
+    classification = raw if raw in ENDPOINT_CLASSES else "other"
+    cache.set(endpoint_name, classification)
+    return classification
 
 
 def seed_endpoint_captures_edge(
@@ -44,14 +130,10 @@ def seed_endpoint_captures_edge(
     endpoint_id: str,
     endpoint_name: str,
     indication_id: str,
+    classification: str,
 ) -> bool:
-    """Add an endpoint_captures edge seeded with a regulatory-precedent prior.
-
-    Returns True iff the endpoint name matched a known type (OS / PFS / ORR).
-    Mirrors how Open Targets seeds biology_drives priors — consensus-level
-    information that does not require trial evidence to establish.
-    """
-    prior = endpoint_prior(endpoint_name)
+    """Add an endpoint_captures edge with the prior for the given class."""
+    prior = ENDPOINT_PRIORS_BY_CLASS.get(classification)
     if prior is None:
         return False
     alpha, beta_val = prior
@@ -63,21 +145,85 @@ def seed_endpoint_captures_edge(
         metadata={
             "source": "endpoint_type_prior",
             "endpoint_name": endpoint_name,
+            "classification": classification,
         },
     ))
     return True
-from src.ingestion.clinicaltrials import (
-    ClinicalTrialsClient,
-    TrialRecord,
-    map_trial_to_graph_nodes,
-)
-from src.ingestion.opentargets import (
-    OpenTargetsClient,
-    populate_target_disease_edges,
-)
 
-logger = logging.getLogger(__name__)
-console = Console()
+
+# ── Mechanism inference ──────────────────────────────────────────────────
+
+
+def _sanitize_label(text: str, fallback: str = "unknown") -> str:
+    """Coerce LLM free-text into a snake_case identifier safe to embed in node IDs."""
+    cleaned = re.sub(r"[^A-Za-z0-9_]+", "_", text.strip()).strip("_")
+    return cleaned[:60] or fallback
+
+
+async def infer_mechanism_for_trial(
+    client: anthropic.AsyncAnthropic,
+    trial: TrialRecord,
+    target_node: dict[str, Any],
+    cache: JSONCache,
+) -> str:
+    """Infer a snake_case mechanism-of-action label for a trial+target pair."""
+    cached = cache.get(trial.nct_id)
+    if cached is not None:
+        return cached
+    intervention_text = "; ".join(
+        f"{iv.name}: {iv.description}".strip()
+        for iv in trial.interventions
+        if iv.type == "DRUG" and iv.name
+    ) or "unknown"
+    target_symbol = target_node.get("gene_symbol") or target_node.get("name") or ""
+    user_msg = (
+        f"Drug intervention: {intervention_text}\n"
+        f"Target gene/protein: {target_symbol}\n\n"
+        "Reply with one short snake_case mechanism-of-action label, e.g. "
+        "'PD1_blockade', 'kinase_inhibition', 'CD20_depletion', 'HER2_ADC'. "
+        "One label only, no other text."
+    )
+    response = await _call_messages_with_backoff(
+        client,
+        model=INFERENCE_MODEL,
+        max_tokens=20,
+        temperature=0,
+        messages=[{"role": "user", "content": user_msg}],
+    )
+    label = _sanitize_label(response.content[0].text, fallback="unknown_mechanism")
+    cache.set(trial.nct_id, label)
+    return label
+
+
+# ── Population inference ─────────────────────────────────────────────────
+
+
+async def infer_population_for_trial(
+    client: anthropic.AsyncAnthropic,
+    trial: TrialRecord,
+    cache: JSONCache,
+) -> str:
+    """Infer a snake_case patient-population label from title + conditions."""
+    cached = cache.get(trial.nct_id)
+    if cached is not None:
+        return cached
+    user_msg = (
+        f"Trial title: {trial.title}\n"
+        f"Conditions: {', '.join(trial.conditions) or 'unspecified'}\n\n"
+        "Reply with one short snake_case patient-population label, e.g. "
+        "'pdl1_positive_nsclc', 'her2_positive_breast', 'treatment_naive_aml', "
+        "'unselected_advanced_solid'. One label only, no other text."
+    )
+    response = await _call_messages_with_backoff(
+        client,
+        model=INFERENCE_MODEL,
+        max_tokens=20,
+        temperature=0,
+        messages=[{"role": "user", "content": user_msg}],
+    )
+    label = _sanitize_label(response.content[0].text, fallback="unselected")
+    cache.set(trial.nct_id, label)
+    return label
 
 # Placeholder for unresolvable subgraph fields
 _UNKNOWN = "UNKNOWN"
@@ -108,18 +254,35 @@ class PopulationPipeline:
 
     # ── Main pipeline ────────────────────────────────────────────────────
 
-    async def populate_oncology(self, max_trials: int = 500) -> dict[str, Any]:
+    async def populate_oncology(
+        self,
+        max_trials: int = 500,
+        include_terminated_no_results: bool = True,
+    ) -> dict[str, Any]:
         # Step 1: Fetch trials
         console.print(f"[bold]Fetching up to {max_trials} oncology trials...[/bold]")
         trials = await self._ct_client.fetch_oncology_with_results(
             max_results=max_trials
         )
-        console.print(f"  Fetched {len(trials)} trials")
+        console.print(f"  Fetched {len(trials)} with-results trials")
 
-        # Step 2: Extract and add nodes per trial
+        if include_terminated_no_results:
+            terminated = await self._ct_client.fetch_oncology_terminated_with_reason(
+                max_results=max_trials
+            )
+            seen = {t.nct_id for t in trials}
+            added = [t for t in terminated if t.nct_id not in seen]
+            trials.extend(added)
+            console.print(
+                f"  +{len(added)} terminated/withdrawn trials with why_stopped"
+            )
+
+        # Step 2: Extract and add nodes per trial.
+        # endpoint_captures seeding now requires an LLM classification per
+        # endpoint name — the backtest pipeline does this in its own
+        # _populate_graph; canonical populate keeps node creation only.
         console.print("[bold]Extracting graph nodes from trials...[/bold]")
         seen_indications: set[str] = set()
-        ec_seeded = 0
         for trial in trials:
             nodes = map_trial_to_graph_nodes(trial)
             for ind in nodes["indications"]:
@@ -132,21 +295,11 @@ class PopulationPipeline:
             for ep in nodes["endpoints"]:
                 self.graph.add_node(ep)
                 self._index_node(ep.id, ep.name, "endpoint")
-            # Seed endpoint_captures with regulatory-precedent priors
-            for ep in nodes["endpoints"]:
-                for ind in nodes["indications"]:
-                    if seed_endpoint_captures_edge(
-                        self.graph, ep.id, ep.name, ind.id
-                    ):
-                        ec_seeded += 1
 
         stats_after_nodes = self.graph.stats()
         console.print(
             f"  Nodes: {stats_after_nodes['node_count']} "
             f"({stats_after_nodes['node_types']})"
-        )
-        console.print(
-            f"  Seeded {ec_seeded} endpoint_captures edges from regulatory priors"
         )
 
         # Step 3: For each unique indication, fetch Open Targets associations
@@ -171,6 +324,19 @@ class PopulationPipeline:
         console.print("[bold]Building trial subgraphs...[/bold]")
         subgraphs = self.build_trial_subgraphs(trials)
         console.print(f"  Built {len(subgraphs)} trial subgraphs")
+
+        # Step 6: LINCS L1000 Touchstone signatures.
+        # Adds mechanism_affects evidence and materializes BiologyNodes for
+        # any Reactome pathway consistently perturbed by a Touchstone
+        # compound whose target+mechanism are already in the graph.
+        # Skipped silently if CLUE_API_KEY is unset.
+        console.print("[bold]Adding LINCS L1000 mechanism→biology evidence...[/bold]")
+        try:
+            lincs_client = LINCSClient()
+            lincs_added = await populate_lincs_signatures(lincs_client, self.graph)
+            console.print(f"  Added {lincs_added} LINCS evidence records")
+        except RuntimeError as exc:
+            console.print(f"  [yellow]Skipped LINCS:[/yellow] {exc}")
 
         # Summary
         final = self.graph.stats()

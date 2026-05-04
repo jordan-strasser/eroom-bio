@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT03197467",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD-1 occupancy data provided, but pembrolizumab is a well-established PD-1 inhibitor with known pharmacology at 200mg q3w dosing. 2. PATHWAY MODULATION: Limited biomarker evidence - PET SUV reduction of -1 (95% CI: -7 to 2) suggests some metabolic changes but confidence interval crosses zero. Safety profile shows immune-related adverse events (hyperthyroidism, colitis, hepatitis) consistent with PD-1 pathway activation. 3. CLINICAL TRANSLATION: Primary endpoint was met with 24% pathologic response rate and median tumor size reduction of -4.0mm (95% CI: -13.5 to 0.0). This demonstrates clinical activity in neoadjuvant NSCLC setting. 4. POPULATION EFFECTS: No subgroup analysis reported in this single-arm study of 30 patients. 5. CONFOUNDERS: Single-arm design limits interpretation, small sample size, but appropriate neoadjuvant timeframe for assessment.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.3,
+      "evidence": "24% pathologic response rate suggests only a subset of patients responded, though this is expected for checkpoint inhibitors and considered clinically meaningful"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Pembrolizumab is established PD-1 inhibitor, standard dosing used"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "PD-1",
+      "target_entity": "T-cell activation",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Immune-related adverse events suggest pathway activation, though biomarker evidence is limited"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell activation",
+      "target_entity": "tumor regression",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Pathologic responses and tumor size reduction demonstrate anti-tumor activity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "pathologic response",
+      "target_entity": "anti-tumor efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Pathologic response is well-validated endpoint for neoadjuvant therapy efficacy"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

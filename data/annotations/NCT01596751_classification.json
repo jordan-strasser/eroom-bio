@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01596751",
+  "trial_outcome": "partial",
+  "reasoning": "This was a Phase I/II combination study that achieved its primary endpoints but with limited mechanistic validation. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided for either CSF1R or microtubules, though MTD was established suggesting some biological activity. Step 2 (PATHWAY MODULATION): No biomarker data showing tumor-associated macrophage depletion or microtubule disruption. Step 3 (CLINICAL TRANSLATION): Primary endpoint met with 35.7% progression-free at 3 months in triple negative breast cancer, which appears reasonable for this aggressive cancer type. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Single-arm design limits interpretation; safety signals including cardiac events suggest dose-limiting issues may have prevented optimal dosing.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "MTD was established and clinical activity observed, suggesting target engagement, but no biomarker evidence of intended biology (macrophage depletion or microtubule effects)"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Serious cardiac safety signals (myocardial infarction, atrial fibrillation) and febrile neutropenia may have limited ability to achieve optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "PLX3397",
+      "target_entity": "CSF1R",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "MTD established suggests some target engagement but no direct evidence provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CSF1R inhibition + microtubule depolymerization",
+      "target_entity": "tumor progression",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "Clinical activity observed with 35.7% progression-free at 3 months in aggressive TNBC"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival at 3 months",
+      "target_entity": "combination mechanism efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.4,
+      "reasoning": "Endpoint was met but single-arm design limits strength of evidence"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited mechanistic validation data and single-arm design make it difficult to definitively assess whether the combination mechanism is truly effective versus individual drug contributions"
+}

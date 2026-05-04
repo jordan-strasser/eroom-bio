@@ -1,0 +1,30 @@
+{
+  "nct_id": "NCT02856581",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was terminated early due to insufficient enrollment (n=23), making it impossible to assess the mechanistic causal chain. While varenicline is known to engage nicotinic acetylcholine receptors and promote smoking cessation in other contexts, this trial could not generate sufficient data to evaluate: 1) TARGET ENGAGEMENT - No PK/PD data reported, though salivary cotinine testing was planned to assess smoking cessation; 2) PATHWAY MODULATION - No data on whether smoking cessation was achieved; 3) CLINICAL TRANSLATION - No efficacy data on surgical complications due to early termination; 4) POPULATION EFFECTS - No subgroup analysis possible with such small enrollment; 5) CONFOUNDERS - The primary issue was severe underenrollment preventing any meaningful analysis.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Trial terminated early with only 23 patients enrolled, insufficient to assess primary endpoint of surgical complications"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No efficacy data, effect sizes, or p-values reported due to early termination; unable to assess target engagement or biological activity"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "surgical complications",
+      "target_entity": "smoking cessation benefit",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No data generated to assess whether surgical complications endpoint appropriately captures benefits of perioperative smoking cessation"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

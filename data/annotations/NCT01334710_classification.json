@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01334710",
+  "trial_outcome": "failure",
+  "reasoning": "This appears to be a very small early-phase trial (n=3) testing combination therapy of OSI-906 (IGF-1R inhibitor) and sorafenib in hepatocellular cancer. Working through the causal chain: 1) TARGET ENGAGEMENT: No PK/PD data or biomarker evidence provided to confirm either drug reached therapeutic levels or engaged their targets. 2) PATHWAY MODULATION: No biomarker data showing downstream effects on IGF-1R or VEGFR/PDGFR/RAF pathways. 3) CLINICAL TRANSLATION: Primary endpoint (progression-free survival at 5 months) results not reported, suggesting trial was terminated early or failed to meet endpoint. 4) POPULATION EFFECTS: With only 3 patients, no meaningful subgroup analysis possible. 5) CONFOUNDERS: The extremely small sample size (n=3) makes this severely underpowered for any meaningful efficacy assessment. The lack of reported results despite having a defined primary endpoint suggests early termination.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Sample size of only 3 participants is far too small to detect meaningful treatment effects for progression-free survival endpoint"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, no biomarker changes, no primary endpoint results reported despite having defined endpoint"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "OSI-906",
+      "target_entity": "IGF-1R",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for target engagement, but sample too small to draw conclusions"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Sorafenib",
+      "target_entity": "VEGFR/PDGFR/RAF",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for target engagement in this specific combination context"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival",
+      "target_entity": "tumor growth inhibition",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Endpoint results not reported, cannot assess relationship"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Extremely limited data from tiny sample size makes mechanistic assessment nearly impossible - may represent early termination or pilot study rather than meaningful efficacy trial"
+}

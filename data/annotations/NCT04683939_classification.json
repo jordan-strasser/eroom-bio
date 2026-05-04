@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT04683939",
+  "trial_outcome": "partial",
+  "reasoning": "This is a Phase 1 dose escalation study with safety as the primary endpoint. Step 1 (TARGET ENGAGEMENT): Evidence shows dose-proportional PK with measurable drug exposure across dose levels, suggesting the ADC reached systemic circulation. However, no direct evidence of CLDN18.2 target binding or engagement is provided. Step 2 (PATHWAY MODULATION): No biomarker data showing target engagement or downstream pathway effects. Step 3 (CLINICAL TRANSLATION): Primary endpoint was safety, not efficacy. No DLTs were observed, suggesting tolerability at tested doses, but safety signals including CRS and infections were noted. Step 4 (POPULATION EFFECTS): No subgroup analysis reported in this small Phase 1 study. Step 5 (CONFOUNDERS): Very small sample size (n=13) and early-phase design limit conclusions. The trial appears to have met its safety objectives for dose escalation but lacks evidence of target engagement or biological activity.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No direct evidence of CLDN18.2 target engagement, no biomarker data showing pathway modulation, and no efficacy endpoints measured in this Phase 1 safety study"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "BNT141",
+      "target_entity": "CLDN18.2",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Dose-proportional PK suggests drug exposure but no direct evidence of target binding provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CLDN18.2 targeting",
+      "target_entity": "tumor cell killing",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No biomarker or efficacy data to assess mechanism activity"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Phase 1 safety study with limited mechanistic data - insufficient information to assess target engagement or biological activity beyond basic PK"
+}

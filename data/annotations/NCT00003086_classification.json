@@ -1,0 +1,30 @@
+{
+  "nct_id": "NCT00003086",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Cannot assess - no target specified and no participants enrolled. 2. PATHWAY MODULATION: Cannot assess - no biological data available due to lack of enrollment. 3. CLINICAL TRANSLATION: Cannot assess - no clinical endpoint data due to zero enrollment. 4. POPULATION EFFECTS: Cannot assess - no participants to analyze. 5. CONFOUNDERS: Major confounder identified - trial failed to enroll any participants over three years despite planning for 12, indicating fundamental feasibility issues with the study design, population selection, or institutional capacity.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.9,
+      "evidence": "No participants enrolled in a three year period despite targeting women with advanced breast cancer, suggesting the target population was either too narrow, unavailable at the study site, or unwilling to participate in this high-risk intervention"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint not specified, no target identified, no mechanism details provided, making it impossible to assess the scientific rationale or appropriateness of the intervention"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "women with advanced breast cancer",
+      "target_entity": "repeated bone marrow transplantation with high-dose chemotherapy",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Complete failure to enroll suggests this population may not be appropriate for this intervention, either due to eligibility criteria being too restrictive or patient/physician reluctance"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": true,
+  "review_reason": "Trial provides no scientific data due to zero enrollment, making mechanistic assessment impossible. The failure appears operational rather than scientific, but expert review needed to determine if this reflects broader issues with the therapeutic approach in this population."
+}

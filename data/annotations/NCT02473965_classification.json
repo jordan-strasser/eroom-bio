@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT02473965",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of target engagement provided - no PK/PD data, biomarker changes, or immunological markers showing IGIV-C engaged immune system targets. 2. PATHWAY MODULATION: No biomarker data showing downstream immune modulation or changes in autoimmune activity against acetylcholine receptors. 3. CLINICAL TRANSLATION: Primary endpoint failed with OR 0.868 (95% CI 0.270-2.787, p=1.0), showing no clinical benefit for corticosteroid dose reduction. 4. POPULATION EFFECTS: Subgroup analysis shows interesting pattern - in higher baseline steroid dose group (41-60 mg/day), both treatment and placebo achieved 100% response rate, suggesting these patients may naturally taper steroids regardless of treatment. In lower dose group (15-40 mg), response rates were similar (58.6% vs 60.7%). 5. CONFOUNDERS: Small sample size (n=60) may contribute to lack of power. Safety signal of increased myasthenia gravis worsening in treatment group (4/30 vs 1/30) suggests potential harm rather than benefit.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "While IGIV-C likely engaged immune system components (standard mechanism), no biomarker evidence shows meaningful immune modulation or reduction in autoimmune activity against acetylcholine receptors"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 60 patients may be insufficient to detect meaningful differences, especially given the wide confidence interval (0.270-2.787)"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.5,
+      "evidence": "Subgroup showing 100% response in both arms for higher baseline steroid doses suggests some patients may naturally reduce steroids regardless of treatment, indicating population selection issues"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "IGIV-C immune modulation",
+      "target_entity": "autoimmune attack reduction in myasthenia gravis",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "No clinical benefit observed and potential worsening of myasthenia gravis symptoms in treatment group suggests mechanism may not effectively reduce autoimmune attack"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "autoimmune attack reduction",
+      "target_entity": "corticosteroid dose reduction capability",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Primary endpoint failure with OR 0.868 suggests that even if immune modulation occurred, it did not translate to steroid-sparing effect"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement biomarkers makes it difficult to distinguish between target engagement failure vs. downstream pathway failure. Safety signal of disease worsening in treatment group warrants expert interpretation."
+}

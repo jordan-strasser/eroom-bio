@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT04712903",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm safety study of durvalumab in extensive-stage small cell lung cancer. Step 1 (TARGET ENGAGEMENT): No direct PD-L1 engagement data provided, but durvalumab is an established anti-PD-L1 antibody with known target engagement at standard dosing (1500mg). Step 2 (PATHWAY MODULATION): Immune-mediated AEs in 38/101 patients (37.6%) suggest immune system activation consistent with checkpoint blockade mechanism. Step 3 (CLINICAL TRANSLATION): ORR of 54.5% appears promising for this indication, though no comparator arm exists. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): This is a safety study without a primary efficacy endpoint comparison, making efficacy assessment secondary. High rate of grade \u22653 AEs (76.2%) raises tolerability concerns but may be expected given combination with chemotherapy.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Single-arm safety study without comparator makes it difficult to assess true efficacy benefit. No direct target engagement biomarkers reported, and primary endpoint was safety rather than efficacy."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Durvalumab",
+      "target_entity": "PD-L1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, but established mechanism at standard dosing suggests likely engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-L1 blockade",
+      "target_entity": "immune activation",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Immune-mediated AEs in 37.6% of patients suggests meaningful immune system activation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune activation",
+      "target_entity": "tumor response",
+      "direction": "neutral",
+      "magnitude": 0.4,
+      "reasoning": "ORR of 54.5% appears promising but lacks comparator to assess true benefit over standard care"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm safety study design limits ability to assess mechanistic success. High toxicity rate and lack of comparator make benefit-risk assessment challenging."
+}

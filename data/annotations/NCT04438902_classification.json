@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04438902",
+  "trial_outcome": "failure",
+  "reasoning": "This trial failed due to dose-limiting toxicity preventing adequate evaluation of efficacy. Step 1 (TARGET ENGAGEMENT): No target engagement data provided, but both osimertinib and anlotinib are established agents with known target engagement profiles. Step 2 (PATHWAY MODULATION): No biomarker or pathway data available to assess biological activity. Step 3 (CLINICAL TRANSLATION): No efficacy data available - primary endpoint (PFS) results not reported. Step 4 (POPULATION EFFECTS): No subgroup analysis possible. Step 5 (CONFOUNDERS): Major confounder identified - investigator commentary explicitly states 'Many patients can't tolerate the combination treatment due to adverse events.' With only 3 patients enrolled and high discontinuation due to toxicity, the trial was unable to generate meaningful efficacy data.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "Investigator commentary explicitly states 'Many patients can't tolerate the combination treatment due to adverse events' with only 3 patients enrolled"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Sample size of only 3 patients is far too small to detect meaningful treatment effects for PFS endpoint"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "osimertinib + anlotinib combination",
+      "target_entity": "tolerability",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Combination showed poor tolerability preventing adequate dosing and evaluation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "EGFR + VEGFR dual inhibition",
+      "target_entity": "progression-free survival",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No efficacy data available due to early termination from toxicity - cannot assess biological effect on endpoint"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

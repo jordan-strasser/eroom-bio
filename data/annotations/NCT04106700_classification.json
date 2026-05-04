@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04106700",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Apixaban is a well-established Factor Xa inhibitor with known pharmacology, so target engagement is highly likely at the 2.5mg daily dose used. 2. PATHWAY MODULATION: Factor Xa inhibition should produce anticoagulation effects, which is the expected downstream biology for this mechanism. 3. CLINICAL TRANSLATION: No results are reported for the primary VTE endpoint, suggesting the trial did not complete or demonstrate efficacy. 4. POPULATION EFFECTS: No subgroup data available to assess differential responses. 5. CONFOUNDERS: The investigator commentary specifically mentions 'low recruitment' as an issue, and with only 60 patients planned, this appears to be an underpowered study that failed to complete enrollment.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Investigator commentary specifically mentions 'low recruitment' and no primary endpoint results are reported despite the trial being listed, suggesting enrollment failure"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No primary endpoint results, effect sizes, or p-values reported, making it impossible to assess clinical efficacy or biological activity"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Apixaban",
+      "target_entity": "Factor Xa",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No new information about this well-established binding relationship"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "VTE composite endpoint",
+      "target_entity": "anticoagulation benefit",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to inform this relationship due to trial failure to complete"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

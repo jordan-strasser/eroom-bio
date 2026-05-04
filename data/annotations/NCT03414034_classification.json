@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT03414034",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PLK1 target engagement data provided, but multiple dosing schedules were tested suggesting dose-finding efforts. 2. PATHWAY MODULATION: PSA changes (42-84% increases from baseline) and hematologic toxicities (neutropenia, thrombocytopenia) suggest biological activity consistent with PLK1 inhibition affecting cell cycle. 3. CLINICAL TRANSLATION: Overall disease control rate of 29.2% appears modest for this population, but Arm C showed promising 80% radiographic response rate and 57-week median time to progression. 4. POPULATION EFFECTS: Clear subgroup effect with Arm C (specific dosing schedule) showing substantially better outcomes than other arms. 5. CONFOUNDERS: Significant toxicity (50% grade \u22653 TEAEs, 15% DLTs) may have limited optimal dosing in some arms.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Arm C showed 80% radiographic response rate and 57-week median progression time while overall disease control was only 29.2%"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "DLTs in 11/72 participants, grade \u22653 TEAEs in 50% of participants, serious infections including sepsis"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Onvansertib",
+      "target_entity": "PLK1",
+      "direction": "neutral",
+      "magnitude": 0.5,
+      "reasoning": "No direct target engagement data, but biological effects suggest target interaction"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PLK1 inhibition",
+      "target_entity": "cell cycle arrest",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Hematologic toxicities and PSA changes consistent with cell cycle disruption"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "cell cycle arrest",
+      "target_entity": "tumor control",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Arm C showed strong radiographic responses suggesting mechanism can drive tumor control with optimal dosing"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "dosing schedule",
+      "target_entity": "treatment response",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear differential response across dosing arms with Arm C showing superior efficacy"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Mixed results with strong subgroup efficacy but overall modest response and significant toxicity require expert interpretation of optimal dosing strategy"
+}

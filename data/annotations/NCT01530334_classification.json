@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01530334",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Gefitinib 250mg daily is a standard dose known to engage EGFR, but no PK/PD data or biomarker evidence of target engagement is provided in this extraction. 2. PATHWAY MODULATION: No biomarker changes or pathway modulation data reported to confirm downstream biological effects. 3. CLINICAL TRANSLATION: Primary endpoints not clearly met - only 3/61 patients achieved objective response (ORR ~5%), which is very low for EGFR mutation-positive NSCLC patients who previously responded to gefitinib. Clinical benefit rate of 32/61 patients (~52%) suggests some disease stabilization but limited efficacy. 4. POPULATION EFFECTS: This was EGFR mutation-positive patients who previously responded to gefitinib, suggesting acquired resistance. No subgroup analysis reported to identify potential responders. 5. CONFOUNDERS: Single-arm study design makes interpretation difficult without historical controls. Short median PFS of 84 days indicates limited durability.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "Standard gefitinib dosing likely engaged EGFR target, but very low ORR (5%) in previously responsive EGFR mutation-positive patients suggests acquired resistance mechanisms prevented effective pathway modulation"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Population was EGFR mutation-positive patients who previously responded to gefitinib but then progressed, indicating acquired resistance that would limit re-challenge efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Gefitinib",
+      "target_entity": "EGFR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Standard dosing likely achieved target engagement but no direct evidence provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EGFR inhibition",
+      "target_entity": "tumor proliferation",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Very low response rate in previously responsive EGFR mutation-positive patients suggests acquired resistance mechanisms limit efficacy"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "acquired resistance population",
+      "target_entity": "EGFR inhibitor re-challenge",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Poor outcomes in patients who previously responded but then progressed on gefitinib demonstrates limited efficacy of re-challenge"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited biomarker and target engagement data makes it difficult to definitively classify failure mechanism. Single-arm design and lack of comparator also complicates interpretation of clinical outcomes."
+}

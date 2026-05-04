@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04467281",
+  "trial_outcome": "failure",
+  "reasoning": "This is a diagnostic imaging study using 89Zr-DFO-daratumumab to visualize CD38-positive tumors in multiple myeloma patients. The study appears to have been terminated early due to administrative reasons (PI left institution) rather than scientific failure. However, with no results reported and the study being incomplete, we cannot assess any step of the mechanistic chain: 1) TARGET ENGAGEMENT: No data on whether the radiotracer bound to CD38 targets. 2) PATHWAY MODULATION: Not applicable for imaging study. 3) CLINICAL TRANSLATION: No imaging results reported to assess tumor visualization. 4) POPULATION EFFECTS: No subgroup data available. 5) CONFOUNDERS: Study was terminated for administrative reasons before completion, preventing any meaningful data collection.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Study terminated due to PI leaving institution rather than scientific failure, with study being transferred"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No results data available for any endpoint - primary endpoint met is null, no effect size, no p-value, no biomarker data"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "89Zr-DFO-daratumumab",
+      "target_entity": "CD38",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data available to assess binding of radiotracer to CD38 target due to early termination"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "number of patients with positive tumors",
+      "target_entity": "CD38 tumor visualization",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No imaging results available to assess whether endpoint captured CD38-positive tumor detection"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

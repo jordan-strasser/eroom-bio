@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT01674738",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided, but bevacizumab is a well-established VEGF inhibitor with known pharmacology at the 7.5 mg/kg dose. 2. PATHWAY MODULATION: No biomarker or pathway data available to assess whether VEGF inhibition occurred or affected angiogenesis. 3. CLINICAL TRANSLATION: No efficacy data available - primary endpoint results not reported. 4. POPULATION EFFECTS: No subgroup analysis data available. 5. CONFOUNDERS: The trial was terminated early due to sponsor decision related to funding issues, not scientific reasons. This is a clear commercial/strategic termination rather than a mechanistic failure.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.95,
+      "evidence": "Trial terminated due to 'Decision of the Sponsor, as the funding of the study was no longer guaranteed' - explicitly stated as a funding/commercial decision rather than safety or efficacy concerns"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No new information about bevacizumab-VEGF binding from this terminated trial"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Progression free survival",
+      "target_entity": "VEGF inhibition + chemotherapy efficacy",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint data collected due to early termination for commercial reasons"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

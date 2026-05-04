@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04666623",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was terminated early due to investigator decision with no results reported. Step 1 (TARGET ENGAGEMENT): No PK/PD data or biomarker evidence provided to confirm esketamine reached and antagonized NMDA receptors, though esketamine's NMDA antagonism is well-established from prior studies. Step 2 (PATHWAY MODULATION): No biomarker or pharmacodynamic data showing modulation of pain signaling pathways. Step 3 (CLINICAL TRANSLATION): No efficacy data reported as trial was terminated early. Step 4 (POPULATION EFFECTS): No subgroup analysis possible due to early termination. Step 5 (CONFOUNDERS): Early termination by investigator decision suggests operational or feasibility issues rather than clear scientific failure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Trial terminated early by investigator decision with no primary endpoint results, effect sizes, p-values, or biomarker data reported"
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.6,
+      "evidence": "Early termination due to 'investigator decision' suggests operational, feasibility, or strategic reasons rather than scientific failure"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "esketamine",
+      "target_entity": "NMDA receptor",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided, though esketamine-NMDA binding is well-established from other studies"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "NPRS pain scale",
+      "target_entity": "chronic cancer pain",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data on endpoint performance due to early termination"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Early termination with no results makes mechanistic assessment impossible - need to understand specific reasons for investigator decision to properly classify failure mode"
+}

@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT05208177",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase I dose-escalation trial of a triple combination (SHR-1802 + camrelizumab + famitinib) in advanced solid tumors. The trial was terminated early due to 'adjustment of R&D strategy' with only 25 patients enrolled over a planned 2-year duration. No primary endpoints were met, no efficacy data reported, and no safety signals documented. The lack of target identification for SHR-1802 and absence of any mechanistic data makes it impossible to assess target engagement or pathway modulation. The early termination for strategic reasons rather than safety or futility suggests a commercial decision rather than scientific failure, though the complete absence of any reported data prevents meaningful mechanistic analysis.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial terminated early due to 'adjustment of R&D strategy' rather than safety or efficacy concerns, with minimal enrollment (25 patients) and no reported results"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No target identified for SHR-1802, no mechanism described, no biomarker data, no efficacy results, and no safety signals reported despite being a Phase I trial"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "SHR-1802",
+      "target_entity": "unknown_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available and target not identified"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "SHR-1802_camrelizumab_famitinib_combination",
+      "target_entity": "solid_tumor_biology",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No mechanistic or biomarker data to assess biological impact"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated early for strategic reasons with no reported data, making mechanistic assessment impossible. The classification is based primarily on termination reason rather than scientific evidence."
+}

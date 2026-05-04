@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT05315713",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows mosunetuzumab achieved measurable serum concentrations with accumulation over cycles (peak ~4 ug/mL at C2D1), indicating target engagement for at least one component of the combination. No specific data on tiragolumab or atezolizumab engagement provided. 2. PATHWAY MODULATION: No biomarker data provided to assess downstream pathway effects of the triple combination. 3. CLINICAL TRANSLATION: ORR of 62.5% with CR rate of 37.5% in Phase 1b suggests clinical activity, but this is a small sample (n=8) without statistical testing or comparator. 4. POPULATION EFFECTS: No subgroup analysis reported due to small sample size. 5. CONFOUNDERS: Major confounders include very small sample size (n=8), early termination, 100% AE rate with serious safety events, and lack of statistical power for efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 8 participants is insufficient for meaningful efficacy assessment, especially for a combination therapy"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "100% of participants experienced adverse events with serious events including septic shock, cerebellar hematoma, and aspiration pneumonia leading to early termination"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No biomarker data on pathway modulation, no statistical analysis of efficacy, and limited target engagement data for 2 of 3 components"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "mosunetuzumab",
+      "target_entity": "CD20/CD3",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Measurable serum concentrations with accumulation suggest adequate target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "triple combination therapy",
+      "target_entity": "B-cell lymphoma",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "62.5% ORR suggests activity but sample too small and safety concerns too significant for confident assessment"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Very small sample size, early termination due to safety, and lack of biomarker data make mechanistic assessment highly uncertain"
+}

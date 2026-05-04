@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02657005",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement evidence provided despite dose escalation from 18-288 mg/m\u00b2. Without PK/PD data or biomarkers confirming EWS-FLI1 modulation, cannot confirm target was hit. 2. PATHWAY MODULATION: No biomarker changes reported to confirm disruption of EWS-FLI1 oncogenic signaling pathway. 3. CLINICAL TRANSLATION: Primary endpoint failed with only 3/85 patients (3.5%) achieving overall response, far below clinically meaningful threshold. 4. POPULATION EFFECTS: Responses only in expansion cohort (3/44) suggests potential subgroup effect, but still very low response rate even in this subset. 5. CONFOUNDERS: Significant safety signals including serious AEs like aortobronchial fistula and hypoglossal nerve paralysis may have limited dosing or duration of treatment.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No target engagement evidence provided despite dose escalation study design. No PK/PD data or biomarkers confirming EWS-FLI1 fusion protein modulation reported."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Serious safety signals including aortobronchial fistula, hypoglossal nerve paralysis, and haematemesis suggest toxicity may have prevented adequate target engagement or treatment duration."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "TK216",
+      "target_entity": "EWS-FLI1 fusion protein",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "No evidence of target engagement despite dose escalation, suggesting poor binding or insufficient exposure"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EWS-FLI1 inhibition",
+      "target_entity": "Ewing sarcoma biology",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No biomarker evidence of pathway modulation and very low response rate questions mechanism validity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "overall response rate",
+      "target_entity": "EWS-FLI1 pathway disruption",
+      "direction": "neutral",
+      "magnitude": 0.5,
+      "reasoning": "Endpoint appropriate but failure could be due to upstream issues rather than endpoint sensitivity"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement data makes it difficult to distinguish between no target engagement versus target engaged but ineffective mechanism. Safety profile suggests potential for dose-limiting toxicity preventing adequate exposure."
+}

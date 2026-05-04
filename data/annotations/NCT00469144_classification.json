@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT00469144",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests adequate target engagement - PK studies were performed to achieve target AUC of 6,000 microMol-min \u00b1 10%, indicating the drug reached therapeutic levels and engaged DNA targets. 2. PATHWAY MODULATION: Downstream biology appeared to move as expected - bone marrow blast reduction <5% was achieved in complete responders, indicating the myeloablative conditioning worked biologically. 3. CLINICAL TRANSLATION: The clinical endpoints were not met. While median PFS showed some difference (42 vs 56 days), this represents a very short survival benefit and the primary endpoint was not achieved. The effect size suggests minimal clinical benefit. 4. POPULATION EFFECTS: Subgroup analysis shows differential responses - patients achieving complete response had lower treatment-related mortality, and PK-adjusted dosing appeared to reduce TRM in non-CR patients (3% vs 7% at 100 days, 3% vs 18% at 1 year). 5. CONFOUNDERS: This appears to be a conditioning regimen comparison rather than a therapeutic efficacy trial. The very short median PFS (42-56 days) suggests the underlying disease was aggressive and the conditioning regimen, while biologically active, was insufficient for meaningful clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Bone marrow blast reduction <5% achieved in complete responders indicating biological activity, but primary endpoints of treatment-related mortality and progression-free survival were not met with minimal clinical benefit (median PFS 42-56 days)"
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.6,
+      "evidence": "PK-adjusted dosing showed benefit in non-CR patients with reduced TRM at 1 year (3% vs 18%), and CR patients had consistently lower TRM rates across both dosing strategies"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Busulfan + Fludarabine",
+      "target_entity": "DNA",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "PK studies achieved target AUC levels indicating adequate drug exposure and target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "DNA alkylation and antimetabolite activity",
+      "target_entity": "Myeloablative conditioning",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Bone marrow blast reduction <5% in complete responders demonstrates biological mechanism is working"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Myeloablative conditioning",
+      "target_entity": "Treatment-related mortality and progression-free survival",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Despite biological activity, clinical endpoints were not met with very short median PFS indicating insufficient clinical translation"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "Complete response patients",
+      "target_entity": "Treatment-related mortality",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "CR patients consistently showed lower TRM rates, and PK-adjusted dosing particularly benefited non-CR patients"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "This appears to be a conditioning regimen comparison trial rather than a therapeutic efficacy trial, making standard efficacy classifications challenging. The very short median PFS suggests aggressive underlying disease, and the subgroup effects with PK-adjusted dosing may warrant further investigation."
+}

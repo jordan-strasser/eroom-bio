@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT02416206",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm study of BeEAM conditioning regimen in multiple myeloma patients. Step 1: Target engagement cannot be assessed as the target is unclear and this appears to be a cytotoxic chemotherapy combination rather than a targeted therapy. Step 2: Pathway modulation is not applicable for cytotoxic chemotherapy - the mechanism is direct cell killing rather than specific pathway modulation. Step 3: Clinical translation shows a 40% complete response rate at Day 100, which appears reasonable for this indication, but without a control arm or historical comparison, efficacy cannot be definitively assessed. Step 4: No subgroup analysis reported. Step 5: This is a single-arm feasibility/safety study rather than a controlled efficacy trial, making definitive efficacy conclusions impossible.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm study with no control group, unclear target, no comparator data, and no statistical testing of primary endpoint makes efficacy assessment impossible"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "complete response rate",
+      "target_entity": "myeloablative conditioning efficacy",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "40% CR rate observed but no benchmark for comparison in single-arm design"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "BeEAM conditioning",
+      "target_entity": "myeloma cell elimination",
+      "direction": "neutral",
+      "magnitude": 0.4,
+      "reasoning": "Response rates suggest biological activity but lack of control arm prevents definitive assessment"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design with unclear target and no statistical testing makes mechanistic failure analysis inappropriate - this appears to be a feasibility study rather than a hypothesis-testing trial"
+}

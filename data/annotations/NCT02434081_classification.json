@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT02434081",
+  "trial_outcome": "success",
+  "reasoning": "This was a safety study evaluating pneumonitis risk with nivolumab plus chemoradiotherapy. Step 1 (TARGET ENGAGEMENT): No direct PD-1 engagement data provided, but nivolumab is an established PD-1 inhibitor with known pharmacology. Step 2 (PATHWAY MODULATION): No immune activation biomarkers reported, but this was a safety study focused on pneumonitis rather than efficacy. Step 3 (CLINICAL TRANSLATION): The primary safety endpoint was met - 87% of patients remained free of grade \u22653 pneumonitis at 6 months, which was the study's success criterion. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Single-arm design limits interpretation, but the safety objective was achieved with acceptable pneumonitis rates.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Limited target engagement and biomarker data provided for a mechanistic assessment, though the safety endpoint was successfully met"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Nivolumab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, relying on established mechanism"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Grade \u22653 pneumonitis rate",
+      "target_entity": "Safety profile",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary safety endpoint successfully met with 87% pneumonitis-free rate"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Safety study with limited mechanistic data - success defined by acceptable toxicity profile rather than target engagement or efficacy biomarkers"
+}

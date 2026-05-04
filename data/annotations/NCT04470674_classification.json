@@ -1,0 +1,25 @@
+{
+  "nct_id": "NCT04470674",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for target engagement - no PD/PK data, biomarker changes, or target engagement confirmation despite durvalumab being a well-characterized PD-L1 inhibitor. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm immune activation. 3. CLINICAL TRANSLATION: No primary endpoint results reported - response rate was not evaluated. 4. POPULATION EFFECTS: No subgroup analysis possible due to lack of accrual. 5. CONFOUNDERS: Investigator commentary explicitly states 'Lack of Accrual' as the reason for trial failure, indicating insufficient enrollment prevented meaningful evaluation of the therapeutic hypothesis.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Investigator commentary explicitly states 'Lack of Accrual' and no sample size or results are reported, indicating insufficient patient enrollment to evaluate efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "response rate",
+      "target_entity": "anti-tumor efficacy",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to evaluate whether response rate endpoint would capture anti-tumor efficacy due to lack of patient accrual"
+    }
+  ],
+  "confidence_overall": 0.95,
+  "needs_expert_review": false,
+  "review_reason": null
+}

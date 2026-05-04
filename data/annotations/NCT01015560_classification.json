@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT01015560",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of CCR2 engagement provided - no PK/PD data, receptor occupancy, or CCR2-specific biomarkers reported. 2. PATHWAY MODULATION: The intended biology was inhibition of monocyte/macrophage recruitment to bone metastases, but no biomarkers of this pathway were measured. 3. CLINICAL TRANSLATION: The primary endpoint was uNTX response rate (\u226525% reduction) at 43 days. Only 14% of patients achieved this response (95% CI: 5-27%), which appears to be a low response rate for a single-arm study without comparison to historical controls. 4. POPULATION EFFECTS: No subgroup analyses reported to identify potential responders. 5. CONFOUNDERS: Small sample size (n=44) and single-arm design without placebo control makes interpretation difficult. The 43-day timeframe may be too short to see meaningful bone turnover marker changes.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No evidence provided for CCR2 receptor engagement, occupancy, or CCR2-specific pathway modulation"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Small sample size of 44 patients in single-arm study with wide confidence interval (5-27%) around 14% response rate"
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.6,
+      "evidence": "43-day duration may be insufficient for meaningful changes in bone turnover markers in metastatic bone disease"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "MLN1202",
+      "target_entity": "CCR2",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence of target engagement provided, suggesting either poor binding or inadequate dosing"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CCR2 antagonism",
+      "target_entity": "bone metastasis progression",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Low response rate (14%) suggests mechanism may not effectively impact bone metastasis biology"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "uNTX reduction",
+      "target_entity": "bone metastasis activity",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Unclear if 43-day timeframe and 25% threshold are appropriate for this mechanism and population"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement data and mechanistic biomarkers makes it difficult to distinguish between drug failure vs. inadequate target validation"
+}

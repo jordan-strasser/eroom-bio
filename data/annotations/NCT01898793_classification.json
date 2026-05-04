@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT01898793",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of NK cell engraftment, persistence, or functional activity post-infusion provided. Dose escalation was completed up to MTD (1.0 x 10^7 cells/kg), suggesting cells could be delivered, but no PK/PD data on NK cell behavior in vivo. 2. PATHWAY MODULATION: No biomarker data provided to confirm enhanced NK cell cytotoxicity or immune surveillance activity. The mechanism relies on adoptively transferred NK cells maintaining their memory-like properties and anti-leukemic activity in vivo, but this wasn't measured. 3. CLINICAL TRANSLATION: Primary endpoint failed - overall CR/CRi rate was very low (3/16 evaluable patients, 19%). The 0% response in ALT-803 cohort vs 33% in IL-2 cohort suggests the supportive cytokine matters significantly. 4. POPULATION EFFECTS: Clear subgroup difference between IL-2 (33% response) and ALT-803 (0% response) cohorts, and one pediatric response noted. This suggests the mechanism may work with appropriate cytokine support. 5. CONFOUNDERS: Severe toxicity profile including multi-organ failure, sepsis, and respiratory failure may have limited dosing or treatment duration. Small sample sizes in subgroups (7-9 patients) limit statistical power.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "IL-2 cohort showed 33% CR/CRi rate (3/9 patients) while ALT-803 cohort had 0% response (0/7 patients), suggesting mechanism works with IL-2 support but not ALT-803"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Severe safety profile including multi-organ failure, sepsis, respiratory failure, and cytokine release syndrome may have prevented optimal dosing or treatment completion"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Small subgroup sizes (7-9 patients per cohort) provide limited statistical power to definitively assess efficacy, especially given the heterogeneous response pattern"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "CIML-NK cells",
+      "target_entity": "NK cell cytotoxicity",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence provided that infused NK cells maintained enhanced cytotoxic function in vivo, and overall low response rates suggest limited biological activity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "IL-2 cytokine support",
+      "target_entity": "CIML-NK cell efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clear difference in response rates between IL-2 cohort (33%) vs ALT-803 cohort (0%) suggests IL-2 is critical for NK cell function"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Enhanced NK cytotoxicity",
+      "target_entity": "AML remission",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "Overall low response rates suggest that even if NK cells are active, the biology may not be sufficient to drive meaningful clinical responses in most patients"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited target engagement and biomarker data makes it difficult to distinguish between failure of NK cell delivery/persistence vs failure of the underlying mechanism. The subgroup efficacy with IL-2 suggests the approach may have merit with optimization."
+}

@@ -6,16 +6,18 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import anthropic
 
+from src.annotation.attributor import AppliedEdgeUpdate, Attributor
 from src.annotation.extractor import Extractor, _call_messages_with_backoff
 from src.annotation.taxonomy import (
     FailureClassification,
     FailureMode,
     TrialExtraction,
 )
+from src.graph.models import TrialSubgraph
 from src.ingestion.clinicaltrials import TrialRecord
 
 logger = logging.getLogger(__name__)
@@ -76,8 +78,9 @@ def _needs_expert_review(
     confidence = raw.get("confidence_overall", 0.0)
     modes = raw.get("failure_modes", [])
 
-    # Low overall confidence
-    if confidence < 0.6:
+    # Low overall confidence — flags the rubric's "no PD biomarker" tier (0.5-0.7)
+    # and below, since clinical-trial evidence is weighted 5x in the inference layer
+    if confidence < 0.7:
         return True, f"Low classification confidence ({confidence:.2f})"
 
     # Top 2 modes within 0.15 of each other
@@ -156,6 +159,18 @@ class Classifier:
         self._system_prompt = _load_prompt("classification_system.txt")
 
     async def classify(self, extraction: TrialExtraction) -> FailureClassification:
+        # Cache hit: load the saved classification and skip the LLM call.
+        cache_path = _ANNOTATIONS_DIR / f"{extraction.trial_id}_classification.json"
+        if cache_path.exists():
+            try:
+                cached_raw = json.loads(cache_path.read_text())
+                return _parse_classification(cached_raw, extraction.trial_id, extraction)
+            except (json.JSONDecodeError, KeyError) as exc:
+                logger.warning(
+                    "Cached classification for %s unreadable (%s); re-classifying",
+                    extraction.trial_id, exc,
+                )
+
         user_message = _format_classification_prompt(extraction)
         raw_json = await self._call_with_retries(user_message, extraction.trial_id)
         classification = _parse_classification(raw_json, extraction.trial_id, extraction)
@@ -226,10 +241,24 @@ async def annotate_trial(
     trial: TrialRecord,
     extractor: Extractor,
     classifier: Classifier,
-) -> tuple[TrialExtraction, FailureClassification]:
+    attributor: Attributor | None = None,
+    build_subgraph: Callable[[TrialRecord, TrialExtraction], TrialSubgraph] | None = None,
+) -> tuple[TrialExtraction, FailureClassification, list[AppliedEdgeUpdate]]:
+    """Single annotation entry point: extract → classify → attribute → update.
+
+    The fourth step (Bayesian belief update) is performed inside
+    ``attributor.attribute`` via ``GraphStore.update_edge_belief``.
+
+    If ``attributor`` or ``build_subgraph`` is omitted, the attribute step
+    is skipped and an empty update list is returned.
+    """
     extraction = await extractor.extract(trial)
     classification = await classifier.classify(extraction)
-    return extraction, classification
+    updates: list[AppliedEdgeUpdate] = []
+    if attributor is not None and build_subgraph is not None:
+        subgraph = build_subgraph(trial, extraction)
+        updates = attributor.attribute(classification, subgraph)
+    return extraction, classification, updates
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────
@@ -241,7 +270,7 @@ async def _main(nct_id: str) -> None:
 
     console = Console()
 
-    client = anthropic.AsyncAnthropic()
+    client = anthropic.AsyncAnthropic(timeout=60.0)
     extractor = Extractor(client)
     classifier = Classifier(client)
 
@@ -254,7 +283,7 @@ async def _main(nct_id: str) -> None:
     console.print(f"  Phase {trial.phase} | {trial.status} | Results: {trial.has_results}")
 
     console.print("\n[bold]Extracting...[/bold]")
-    extraction, classification = await annotate_trial(trial, extractor, classifier)
+    extraction, classification, _ = await annotate_trial(trial, extractor, classifier)
 
     # Display extraction
     console.print(Panel(

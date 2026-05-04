@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+import networkx as nx
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy import stats as sp_stats
@@ -36,6 +37,41 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
 ]
 
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
+
+_TRUST_FULL_AT = 10.0  # evidence_strength at which trust_weight saturates to 1.0
+_LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
+
+
+def _trust_weight(belief: EdgeBeliefState) -> float:
+    """Map an edge's evidence_strength to a [0, 1] trust weight.
+
+    Beta(1,1) (no evidence) → 0; Beta(11,1) or stronger → 1.0.
+    """
+    return min(1.0, max(0.0, belief.evidence_strength) / _TRUST_FULL_AT)
+
+
+def _aggregate_samples(
+    edge_samples: list[np.ndarray],
+    weights: list[float],
+) -> np.ndarray:
+    """Combine per-edge sample arrays via trust-weighted geometric mean."""
+    if not edge_samples:
+        return np.array([])
+    n_samples = edge_samples[0].shape[0]
+    sum_w = float(sum(weights))
+    log_sum = np.zeros(n_samples)
+    if sum_w <= 0.0:
+        # No evidence anywhere — back off to unweighted geomean so we
+        # don't blow up; conceptually "everyone abstains, take the mean
+        # of the priors."
+        for s in edge_samples:
+            log_sum += np.log(np.clip(s, _LOG_FLOOR, 1.0))
+        return np.exp(log_sum / len(edge_samples))
+    for s, w in zip(edge_samples, weights):
+        if w <= 0.0:
+            continue
+        log_sum += w * np.log(np.clip(s, _LOG_FLOOR, 1.0))
+    return np.exp(log_sum / sum_w)
 
 
 # ── Models ──────────────────────────────────────────────────────────────
@@ -74,42 +110,67 @@ class PredictionEngine:
         self.graph = graph
 
     def predict(
-        self, trial: TrialSubgraph, n_samples: int = 10_000
+        self,
+        trial: TrialSubgraph,
+        n_samples: int = 10_000,
     ) -> PredictionResult:
-        """Compositional prediction via Monte Carlo sampling along the causal chain."""
+        """Compositional prediction via Monte Carlo sampling along the causal chain.
+
+        Aggregation: trust-weighted geometric mean. Edges with no evidence
+        beyond the prior contribute little; edges with substantial evidence
+        dominate.
+        """
         # 1. Collect edges and their beliefs
         edges = self._collect_edges(trial)
 
-        # 2. Sample from each Beta and multiply
+        # 2. Sample from each edge's Beta and compute per-edge trust weights
         rng = np.random.default_rng()
-        samples = np.ones(n_samples)
         edge_samples: list[np.ndarray] = []
-
+        trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
-            s = rng.beta(belief.alpha, belief.beta, size=n_samples)
-            samples *= s
-            edge_samples.append(s)
+            edge_samples.append(rng.beta(belief.alpha, belief.beta, size=n_samples))
+            trust_weights.append(_trust_weight(belief))
 
-        # 3. Compute statistics
-        overall_prob = float(np.mean(samples))
-        ci_lower = float(np.percentile(samples, 2.5))
-        ci_upper = float(np.percentile(samples, 97.5))
+        # 3. Aggregate samples via trust-weighted geometric mean
+        samples = _aggregate_samples(edge_samples, trust_weights)
 
-        # 4. Build edge contributions
+        # 4. Compute statistics
+        if samples.size:
+            overall_prob = float(np.mean(samples))
+            ci_lower = float(np.percentile(samples, 2.5))
+            ci_upper = float(np.percentile(samples, 97.5))
+        else:
+            overall_prob, ci_lower, ci_upper = 0.5, 0.0, 1.0
+
+        # 5. Build edge contributions. Bottleneck score is now weighted by
+        #    trust: an uncontradicted Beta(1,1) edge is not a "weak link",
+        #    just unobserved.
         contributions: list[EdgeContribution] = []
         for i, (src, tgt, etype, belief) in enumerate(edges):
-            sampled_mean = float(np.mean(edge_samples[i]))
+            sampled_mean = float(np.mean(edge_samples[i])) if edge_samples[i].size else belief.expected_probability
+            bottleneck = (1.0 - belief.expected_probability) * trust_weights[i]
             contributions.append(EdgeContribution(
                 source_id=src,
                 target_id=tgt,
                 edge_type=etype,
                 belief=belief,
                 sampled_mean=sampled_mean,
-                bottleneck_score=1.0 - belief.expected_probability,
+                bottleneck_score=bottleneck,
             ))
 
-        # 5. Identify weakest link
-        weakest = max(contributions, key=lambda c: c.bottleneck_score) if contributions else None
+        # 6. Identify weakest link. Tiebreak on raw (1 - mean) so all-zero
+        #    bottleneck scores still produce a sensible pick.
+        weakest = (
+            max(
+                contributions,
+                key=lambda c: (
+                    c.bottleneck_score,
+                    1.0 - c.belief.expected_probability,
+                ),
+            )
+            if contributions
+            else None
+        )
 
         hypothesis = (
             f"{trial.compound_id} -> {trial.target_id} -> "
@@ -128,7 +189,9 @@ class PredictionEngine:
         )
 
     def compare_hypotheses(
-        self, trials: list[TrialSubgraph], n_samples: int = 10_000
+        self,
+        trials: list[TrialSubgraph],
+        n_samples: int = 10_000,
     ) -> list[PredictionResult]:
         """Predict and rank multiple hypotheses by probability."""
         results = [self.predict(trial, n_samples=n_samples) for trial in trials]
@@ -136,21 +199,30 @@ class PredictionEngine:
         return results
 
     def suggest_improvements(self, result: PredictionResult) -> list[str]:
-        """Suggest which edges to strengthen based on bottleneck analysis."""
+        """Suggest which edges to strengthen based on evidence + bottleneck analysis.
+
+        Three categories, evaluated independently per edge:
+          - DATA GAP: evidence_strength < 2.0 (priors only, regardless of mean).
+          - WEAK LINK: evidence_strength ≥ 2.0 and bottleneck_score > 0.5.
+          - MODERATE: evidence_strength ≥ 2.0 and 0.2 ≤ bottleneck_score ≤ 0.5.
+
+        Under weighted-geomean prediction, low-trust edges have bottleneck_score
+        near 0, so DATA GAP must be detected from evidence_strength rather than
+        from the bottleneck ranking.
+        """
         suggestions: list[str] = []
         if not result.edge_contributions:
             return ["No edges in the causal chain to evaluate."]
 
-        # Sort by bottleneck score (highest = most room for improvement)
         ranked = sorted(
             result.edge_contributions,
-            key=lambda c: c.bottleneck_score,
-            reverse=True,
+            key=lambda c: (
+                c.belief.evidence_strength < 2.0,  # data gaps last
+                -c.bottleneck_score,                 # then by bottleneck desc
+            ),
         )
 
         for ec in ranked:
-            if ec.bottleneck_score < 0.2:
-                break  # Already strong enough
             belief_str = f"Beta({ec.belief.alpha:.1f}, {ec.belief.beta:.1f})"
             p = ec.belief.expected_probability
             if ec.belief.evidence_strength < 2.0:
@@ -159,13 +231,14 @@ class PredictionEngine:
                     f"P={p:.2f} {belief_str} — insufficient evidence. "
                     f"Need direct experimental validation."
                 )
-            elif ec.bottleneck_score > 0.5:
+                continue
+            if ec.bottleneck_score > 0.5:
                 suggestions.append(
                     f"[WEAK LINK] {ec.edge_type.value} ({ec.source_id} → {ec.target_id}): "
                     f"P={p:.2f} {belief_str} — evidence contradicts this link. "
                     f"Consider alternative targets or mechanisms."
                 )
-            else:
+            elif ec.bottleneck_score >= 0.2:
                 suggestions.append(
                     f"[MODERATE] {ec.edge_type.value} ({ec.source_id} → {ec.target_id}): "
                     f"P={p:.2f} {belief_str} — could be strengthened with "
@@ -183,8 +256,16 @@ class PredictionEngine:
     def _collect_edges(
         self, trial: TrialSubgraph
     ) -> list[tuple[str, str, EdgeType, EdgeBeliefState]]:
-        """Collect belief states for all edges in the causal chain."""
+        """Collect belief states for all edges in the causal chain.
+
+        For ``mechanism_affects`` specifically, retrieves a belief that has
+        been conditioned on the indication's relevant tissues — so cell-line
+        evidence from the wrong tissue (e.g. a melanoma signature when the
+        trial is in NSCLC) gets downweighted rather than counted equally.
+        Other edge types are context-free at retrieval.
+        """
         edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
+        relevant_tissues = self._tissues_for_trial(trial)
 
         for src_field, tgt_field, edge_type in _CAUSAL_CHAIN + _AUXILIARY_EDGES:
             src_id = getattr(trial, src_field)
@@ -194,13 +275,177 @@ class PredictionEngine:
                 continue
 
             try:
-                belief = self.graph.get_edge_belief(src_id, tgt_id, edge_type)
+                if edge_type == EdgeType.MECHANISM_AFFECTS and relevant_tissues:
+                    belief = self.graph.get_edge_belief_conditioned(
+                        src_id, tgt_id, edge_type, relevant_tissues
+                    )
+                else:
+                    belief = self.graph.get_edge_belief(src_id, tgt_id, edge_type)
             except KeyError:
                 belief = _DEFAULT_BELIEF
 
             edges.append((src_id, tgt_id, edge_type, belief))
 
         return edges
+
+    def _tissues_for_trial(self, trial: TrialSubgraph) -> set[str]:
+        """Resolve the trial's indication name to the tissues whose
+        cell-line evidence is relevant. Empty set = no conditioning.
+        """
+        if trial.indication_id == "UNKNOWN":
+            return set()
+        try:
+            ind_node = self.graph.get_node(trial.indication_id)
+        except KeyError:
+            return set()
+        # Lazy import to avoid src.prediction → src.ingestion dependency at
+        # module import time.
+        from src.ingestion.lincs import tissues_for_indication_name
+
+        return tissues_for_indication_name(ind_node.get("name"))
+
+
+# ── Stateless query: compound + indication → full chain prediction ─────
+
+
+def _resolve_target_for_compound(
+    graph: GraphStore, compound_id: str
+) -> str:
+    """Pick the most-supported binds_to target of a compound.
+
+    Tiebreaks on belief.expected_probability * evidence_strength so an edge
+    with real evidence beats a Beta(1,1) placeholder. Returns ``"UNKNOWN"``
+    if the compound has no binds_to neighbors.
+    """
+    g = graph._graph
+    if compound_id not in g:
+        return "UNKNOWN"
+    best_id = "UNKNOWN"
+    best_score = -1.0
+    for _u, v, key, data in g.out_edges(compound_id, data=True, keys=True):
+        if key != EdgeType.BINDS_TO.value:
+            continue
+        belief_data = data.get("belief") or {}
+        try:
+            belief = EdgeBeliefState.model_validate(belief_data)
+        except Exception:  # noqa: BLE001 — defensive against legacy snapshots
+            belief = _DEFAULT_BELIEF
+        score = belief.expected_probability * (1.0 + belief.evidence_strength)
+        if score > best_score:
+            best_score = score
+            best_id = v
+    return best_id
+
+
+def _resolve_chain_via_topology(
+    graph: GraphStore, target_id: str, indication_id: str
+) -> tuple[str, str]:
+    """Walk simple paths target → indication and label mechanism / biology.
+
+    Mirrors the resolution semantics used by the backtest's subgraph builder:
+      - modulates_via       : v is mechanism
+      - mechanism_affects   : u is mechanism, v is biology
+      - biology_drives      : u is biology
+    Picks the path that resolves the most nodes; ties go to the first
+    encountered. Returns ("UNKNOWN", "UNKNOWN") if no path exists.
+
+    Falls back to the first modulates_via neighbor of the target when no
+    simple path resolves a mechanism — in graphs where target→mechanism
+    edges are dead-ends (no mechanism→indication wiring), this is the only
+    way to recover the mechanism node.
+    """
+    g = graph._graph
+    if target_id == "UNKNOWN" or indication_id == "UNKNOWN":
+        return "UNKNOWN", "UNKNOWN"
+    if target_id not in g or indication_id not in g:
+        return "UNKNOWN", "UNKNOWN"
+    try:
+        paths = list(
+            nx.all_simple_paths(g, target_id, indication_id, cutoff=3)
+        )
+    except nx.NodeNotFound:
+        paths = []
+
+    best_mech, best_bio = "UNKNOWN", "UNKNOWN"
+    best_score = -1
+    for path in paths:
+        mech, bio = "UNKNOWN", "UNKNOWN"
+        for u, v in zip(path[:-1], path[1:]):
+            edges_between = g.get_edge_data(u, v) or {}
+            for key in edges_between:
+                if key == EdgeType.MODULATES_VIA.value and mech == "UNKNOWN":
+                    mech = v
+                elif key == EdgeType.MECHANISM_AFFECTS.value:
+                    if mech == "UNKNOWN":
+                        mech = u
+                    if bio == "UNKNOWN":
+                        bio = v
+                elif key == EdgeType.BIOLOGY_DRIVES.value and bio == "UNKNOWN":
+                    bio = u
+        score = int(mech != "UNKNOWN") + int(bio != "UNKNOWN")
+        if score > best_score:
+            best_score = score
+            best_mech, best_bio = mech, bio
+
+    if best_mech == "UNKNOWN":
+        for _, mid, key in g.out_edges(target_id, keys=True):
+            if key == EdgeType.MODULATES_VIA.value:
+                best_mech = mid
+                break
+
+    return best_mech, best_bio
+
+
+def predict_clinical_hypothesis(
+    graph: GraphStore,
+    compound_id: str,
+    indication_id: str,
+    *,
+    endpoint_id: str | None = None,
+    population_id: str | None = None,
+    n_samples: int = 10_000,
+) -> PredictionResult:
+    """Stateless prediction for a (compound, indication) pair.
+
+    Walks the graph to assemble the full causal chain — target via binds_to,
+    then mechanism + biology by walking target→indication paths — and runs
+    the standard engine on the resulting subgraph. No in-memory trial cache
+    needed: the graph snapshot itself is the source of truth.
+
+    ``endpoint_id`` / ``population_id`` are optional. When omitted, the
+    auxiliary edges (``reflects_biology``, ``endpoint_captures``,
+    ``responds_differently``) are skipped at engine time — so the prediction
+    reflects the causal chain only, not endpoint translatability or
+    population responsiveness.
+
+    Raises ``KeyError`` if either node is not in the graph; this is a
+    programmer error worth surfacing rather than silently returning a flat
+    prediction.
+    """
+    if compound_id not in graph._graph:
+        raise KeyError(f"Compound '{compound_id}' not in graph")
+    if indication_id not in graph._graph:
+        raise KeyError(f"Indication '{indication_id}' not in graph")
+
+    target_id = _resolve_target_for_compound(graph, compound_id)
+    mechanism_id, biology_id = _resolve_chain_via_topology(
+        graph, target_id, indication_id
+    )
+
+    trial = TrialSubgraph(
+        trial_id=f"hypothesis:{compound_id}->{indication_id}",
+        compound_id=compound_id,
+        target_id=target_id,
+        mechanism_id=mechanism_id,
+        biology_id=biology_id,
+        indication_id=indication_id,
+        endpoint_id=endpoint_id or "UNKNOWN",
+        population_id=population_id or "UNKNOWN",
+        outcome=TrialOutcome.UNKNOWN,
+        phase="hypothesis",
+    )
+    engine = PredictionEngine(graph)
+    return engine.predict(trial, n_samples=n_samples)
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────

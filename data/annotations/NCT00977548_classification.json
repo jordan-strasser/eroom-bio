@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT00977548",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for EGFR engagement or PK/PD data showing drug reached target. Only dosing instructions given. 2. PATHWAY MODULATION: No biomarker data showing downstream pathway effects or biological activity. 3. CLINICAL TRANSLATION: Very low response rate (12.8%, 5/39 patients) with no statistical testing or comparator. This is well below what would be considered clinically meaningful for MDS. 4. POPULATION EFFECTS: No subgroup analysis reported to identify potential responders. 5. CONFOUNDERS: Single-arm design with small sample size (n=39) and no statistical framework for efficacy assessment. The rationale for using EGFR inhibition in MDS was noted as 'weak', suggesting poor mechanistic foundation.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No PK/PD data, biomarker evidence, or any indication that erlotinib engaged EGFR in MDS patients"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "MDS patients may not have EGFR-driven disease biology, and the therapeutic rationale was characterized as 'weak'"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small single-arm study (n=39) with no statistical framework for efficacy assessment and very low response rate"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Erlotinib",
+      "target_entity": "EGFR",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence of target engagement in this population, but drug is known EGFR inhibitor in other contexts"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EGFR inhibition",
+      "target_entity": "MDS biology",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Very low response rate suggests EGFR inhibition is not relevant to MDS pathophysiology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "MDS biology",
+      "target_entity": "hematological improvement",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Poor clinical response suggests EGFR pathway not driving MDS symptoms in this population"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement data makes it difficult to distinguish between no target engagement vs. target engaged but irrelevant to disease biology"
+}

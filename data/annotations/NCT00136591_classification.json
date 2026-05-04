@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT00136591",
+  "trial_outcome": "failure",
+  "reasoning": "Working through the causal chain: 1) TARGET ENGAGEMENT: No target engagement data provided - no PK/PD data, biomarker changes, or proteasome inhibition measurements despite this being a well-characterized mechanism for bortezomib. 2) PATHWAY MODULATION: No biomarker changes reported to confirm downstream biology was affected. 3) CLINICAL TRANSLATION: Primary endpoint (response rate) was not met, with one arm closed due to lack of efficacy. 4) POPULATION EFFECTS: No subgroup findings reported. 5) CONFOUNDERS: Single-arm study with moderate sample size (n=87) over appropriate duration. The failure appears to stem from either lack of target engagement in this specific population (follicular B-cell lymphoma) or the mechanism not translating to efficacy in this tumor type, despite bortezomib's established activity in other hematologic malignancies.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Bortezomib has established efficacy in multiple myeloma and mantle cell lymphoma, but failed in follicular B-cell lymphoma despite adequate dosing and duration. One arm was closed due to lack of efficacy, suggesting the mechanism may not be effective in this specific lymphoma subtype."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No target engagement data, biomarker changes, or PK/PD measurements provided despite proteasome inhibition being a well-characterized and measurable mechanism. Cannot definitively rule out target engagement failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "proteasome inhibition",
+      "target_entity": "follicular B-cell lymphoma biology",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Despite established proteasome inhibition mechanism, bortezomib failed to show efficacy in follicular B-cell lymphoma, with one arm closed for lack of efficacy"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "protein degradation pathway disruption",
+      "target_entity": "response rate in follicular lymphoma",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Primary endpoint of response rate was not met, suggesting the biological mechanism does not translate to clinical benefit in this population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited mechanistic data provided despite well-characterized target. Need expert input on whether this represents true population-specific resistance or inadequate target engagement assessment."
+}

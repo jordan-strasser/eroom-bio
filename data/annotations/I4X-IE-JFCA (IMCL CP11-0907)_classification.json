@@ -1,0 +1,49 @@
+{
+  "nct_id": "I4X-IE-JFCA",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase 1 dose-finding study with safety and PK as primary endpoints. Step 1 - TARGET ENGAGEMENT: Strong evidence of target engagement with all 3 regimens achieving trough concentrations above 40 \u03bcg/mL throughout the study, indicating adequate drug exposure. Step 2 - PATHWAY MODULATION: Limited pathway biomarker data available, but the skin toxicity profile (dry skin, rash, pruritus) is consistent with EGFR inhibition, suggesting biological activity. Step 3 - CLINICAL TRANSLATION: Primary endpoint was safety/PK, not efficacy. No DLTs observed and MTD not reached, meeting the safety objective. Step 4 - POPULATION EFFECTS: Study specifically validated that Japanese patients can receive the same dosing as Western patients. Step 5 - CONFOUNDERS: No major confounders identified. This was an appropriately designed Phase 1 study that met its objectives.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.3,
+      "evidence": "While target engagement was demonstrated through PK, limited biomarker data to confirm downstream pathway modulation beyond skin toxicity profile"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "necitumumab",
+      "target_entity": "EGFR",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong PK evidence showing sustained drug concentrations above target threshold across all dosing regimens"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "EGFR",
+      "target_entity": "EGFR signaling pathway",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Skin toxicity profile (dry skin, rash, pruritus) is consistent with EGFR pathway inhibition"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety and PK profile",
+      "target_entity": "drug tolerability",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Primary safety endpoint was met with no DLTs observed and manageable toxicity profile"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "Japanese population",
+      "target_entity": "necitumumab dosing",
+      "direction": "neutral",
+      "magnitude": 0.8,
+      "reasoning": "Study confirmed Japanese patients can receive same dosing as Western patients with similar safety profile"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

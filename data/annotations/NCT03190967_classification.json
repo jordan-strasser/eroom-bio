@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT03190967",
+  "trial_outcome": "partial",
+  "reasoning": "This was a Phase I dose-escalation study that successfully established the MTD of temozolomide (40 mg/m\u00b2) when combined with T-DM1, but did not progress to Phase II efficacy evaluation. TARGET ENGAGEMENT: No direct evidence of HER2 target engagement provided, though T-DM1 is an established HER2-targeted therapy with known pharmacology. PATHWAY MODULATION: No biomarker or pathway data reported to confirm biological activity. CLINICAL TRANSLATION: Phase II efficacy endpoint (time to new brain lesions) was not evaluated as the study appears to have stopped after Phase I. POPULATION EFFECTS: No subgroup analysis reported in this small Phase I cohort (n=12). CONFOUNDERS: This appears to be a Phase I safety/dose-finding study that established MTD but did not proceed to efficacy evaluation, likely due to the small sample size and focus on safety rather than efficacy.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, no biomarker changes reported, and Phase II efficacy endpoint was not evaluated. Study appears to have stopped after Phase I dose-finding."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Very small sample size (n=12) in Phase I study, insufficient to evaluate efficacy endpoint of time to new brain lesions."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "T-DM1",
+      "target_entity": "HER2",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, though T-DM1 is established HER2-targeted therapy"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "HER2 targeting plus DNA alkylation",
+      "target_entity": "brain metastasis prevention",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No efficacy data available as Phase II was not completed"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Phase I study with no efficacy data and minimal mechanistic information. Unclear why study did not proceed to Phase II despite establishing MTD."
+}

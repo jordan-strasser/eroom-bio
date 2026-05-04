@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01349660",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but dose-limiting toxicities at 80mg BKM120 suggest PI3K pathway engagement (hyperglycemia, psychiatric effects are known PI3K inhibitor effects). Bevacizumab has established VEGF engagement. 2. PATHWAY MODULATION: Limited evidence - hyperglycemia suggests PI3K pathway modulation, hypertension suggests VEGF pathway effects. No formal biomarker data provided. 3. CLINICAL TRANSLATION: Mixed results - primary endpoint technically met with PFS of 5.3 months in bevacizumab-naive patients, but this appears modest for glioblastoma. Response rate of 23.7% in bevacizumab-naive patients suggests some clinical activity. 4. POPULATION EFFECTS: Clear subgroup effect - bevacizumab-naive patients had dramatically better outcomes (5.3 vs 2.8 months PFS, 23.7% vs 1.3% response rate). This suggests the combination works primarily in treatment-naive patients. 5. CONFOUNDERS: Significant dose-limiting toxicity prevented optimal dosing of BKM120 (80mg not tolerable), which may have limited efficacy potential.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Dramatic difference in outcomes between bevacizumab-naive (5.3 months PFS, 23.7% response) vs prior bevacizumab patients (2.8 months PFS, 1.3% response)"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "80mg BKM120 dose level had 3 DLTs and was not tolerable, forcing dose reduction to 60mg. Extensive Grade 3/4/5 toxicities including psychiatric events, seizures, and metabolic effects"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "BKM120",
+      "target_entity": "PI3K pathway",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Hyperglycemia and psychiatric effects are characteristic of PI3K inhibition, suggesting target engagement despite lack of formal biomarker data"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "PI3K + VEGF dual inhibition",
+      "target_entity": "glioblastoma progression control",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "Modest but measurable clinical activity in bevacizumab-naive patients suggests biological relevance, though effect size is limited"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bevacizumab-naive glioblastoma patients",
+      "target_entity": "PI3K + VEGF combination therapy",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear differential response based on prior bevacizumab exposure, with naive patients showing substantially better outcomes"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

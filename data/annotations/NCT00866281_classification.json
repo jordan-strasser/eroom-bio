@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT00866281",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I dose-escalation trial that successfully met its primary endpoint of establishing MTD. Step 1 (TARGET ENGAGEMENT): Clear evidence of target engagement with dose-proportional plasma exposure of midostaurin and active metabolites. Step 2 (PATHWAY MODULATION): While specific pathway biomarkers weren't reported, the dose-proportional PK suggests biological activity. Step 3 (CLINICAL TRANSLATION): The trial met its primary safety endpoint (MTD establishment) and showed encouraging efficacy signals with 55.6% response in AML and 23.1% in MLLr-ALL. Step 4 (POPULATION EFFECTS): Clear differential response between AML (55.6%) and MLLr-ALL (23.1%) subgroups, suggesting mechanism may be more effective in AML. Step 5 (CONFOUNDERS): No major design issues - appropriate Phase I design with reasonable sample size for dose escalation.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "AML patients showed 55.6% response rate while MLLr-ALL patients only achieved 23.1% response rate, suggesting the mechanism works better in the AML subgroup"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "midostaurin",
+      "target_entity": "protein kinase C",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Dose-proportional plasma exposure of midostaurin and active metabolites demonstrates successful target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "protein kinase C inhibition",
+      "target_entity": "AML cell proliferation",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "55.6% response rate in AML patients with rapid median time to response (14 days) suggests effective mechanism in this population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "protein kinase C inhibition",
+      "target_entity": "MLLr-ALL cell proliferation",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "Lower response rate (23.1%) in MLLr-ALL patients suggests mechanism is less effective in this leukemia subtype"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "maximum tolerated dose",
+      "target_entity": "safety and tolerability",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Successfully established MTD with acceptable DLT probability, demonstrating endpoint appropriately captured safety profile"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00003820",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm study of rituximab in nodular lymphocyte predominant Hodgkin lymphoma with 46% progression-free survival at 5 years. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but rituximab is a well-established anti-CD20 monoclonal antibody with known mechanism. Step 2 (PATHWAY MODULATION): No biomarker data on B-cell depletion provided. Step 3 (CLINICAL TRANSLATION): 46% progression-free survival at 5 years appears clinically meaningful for this rare lymphoma subtype, though no comparator arm exists. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Single-arm design prevents definitive efficacy assessment; small sample size (n=39) limits power; safety profile shows concerning secondary malignancies and disease progression in majority of patients.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm study design with no control group, no target engagement biomarkers, no statistical comparison to historical controls or standard of care"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Small sample size of 39 patients in a rare lymphoma subtype limits ability to draw definitive conclusions about efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "rituximab",
+      "target_entity": "CD20",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data provided, though rituximab-CD20 binding is well-established from other studies"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "B-cell depletion",
+      "target_entity": "nodular lymphocyte predominant Hodgkin lymphoma",
+      "direction": "strengthen",
+      "magnitude": 0.4,
+      "reasoning": "46% progression-free survival at 5 years suggests some clinical activity, though limited by single-arm design"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival",
+      "target_entity": "clinical benefit",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "Progression-free survival is appropriate endpoint for lymphoma, and 46% at 5 years may represent meaningful activity"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design makes efficacy assessment difficult; need expert opinion on whether 46% progression-free survival at 5 years represents meaningful activity in this rare lymphoma subtype compared to natural history"
+}

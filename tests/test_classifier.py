@@ -331,7 +331,7 @@ class TestAnnotateTrial:
             has_results=True,
         )
 
-        extraction, classification = await annotate_trial(trial, extractor, classifier)
+        extraction, classification, _updates = await annotate_trial(trial, extractor, classifier)
         assert extraction.trial_id == "NCT00000001"
         assert classification.trial_id == "NCT00000001"
         assert client.messages.create.call_count == 2

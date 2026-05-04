@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00374140",
+  "trial_outcome": "failure",
+  "reasoning": "This single-arm phase II trial of everolimus (RAD001) in previously treated small cell lung cancer patients failed to demonstrate meaningful clinical activity. Step 1 (TARGET ENGAGEMENT): No target engagement data provided - no PK/PD measurements, no biomarker evidence of mTOR inhibition. Step 2 (PATHWAY MODULATION): No pathway biomarkers or pharmacodynamic markers reported to confirm mTOR pathway modulation. Step 3 (CLINICAL TRANSLATION): Only 26% of patients were progression-free at 6 weeks, which is poor for any cancer therapy and suggests minimal clinical benefit. No comparator arm or historical control comparison provided. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Small sample size (n=40) and single-arm design limit interpretability, but the low progression-free rate suggests the drug simply lacks efficacy in this population.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.8,
+      "evidence": "No target engagement data provided - no PK/PD measurements, biomarkers, or evidence that everolimus reached and inhibited mTOR in these patients"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Small cell lung cancer may not be dependent on mTOR signaling for survival, with only 26% progression-free at 6 weeks suggesting the mechanism is not relevant in this tumor type"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "everolimus",
+      "target_entity": "mTOR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided to confirm or refute mTOR binding in this study"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mTOR inhibition",
+      "target_entity": "small cell lung cancer progression",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Poor clinical activity (26% progression-free at 6 weeks) suggests mTOR inhibition is not effective against small cell lung cancer"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival at 6 weeks",
+      "target_entity": "mTOR pathway activity",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Low progression-free rate suggests either the endpoint doesn't capture mTOR activity or mTOR inhibition doesn't affect this cancer type"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no target engagement data makes it difficult to distinguish between lack of target engagement versus wrong population/mechanism. Expert review needed to assess whether mTOR is a valid target in small cell lung cancer."
+}

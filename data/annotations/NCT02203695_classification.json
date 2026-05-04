@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02203695",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Enzalutamide is a well-established androgen receptor antagonist with known pharmacology. The 160mg daily dose is standard and expected to achieve target engagement, though direct PK/PD data not provided. 2. PATHWAY MODULATION: PSA is a direct downstream marker of androgen receptor signaling. The differential PSA progression rates between arms (84% vs 66% freedom from progression) strongly suggests androgen pathway modulation occurred. 3. CLINICAL TRANSLATION: The primary endpoint was met with a clinically meaningful 18% absolute difference in freedom from PSA progression at 2 years. This represents successful translation of pathway modulation to clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported, suggesting benefit was consistent across the enrolled population. 5. CONFOUNDERS: Small sample size (n=86) but clear separation between arms. Safety profile consistent with known enzalutamide effects, supporting drug exposure and activity.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.2,
+      "evidence": "No subgroup data provided to confirm broad population benefit, though primary endpoint success suggests general efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Enzalutamide",
+      "target_entity": "Androgen receptor",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Standard dose of established AR antagonist with clinical activity confirms target binding"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Androgen receptor",
+      "target_entity": "Androgen signaling pathway",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "PSA progression differences strongly indicate androgen pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Androgen signaling inhibition",
+      "target_entity": "PSA progression",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Clear relationship between pathway inhibition and PSA progression endpoint"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Freedom from PSA progression",
+      "target_entity": "Prostate cancer control",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "PSA progression is established surrogate for prostate cancer progression in this setting"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

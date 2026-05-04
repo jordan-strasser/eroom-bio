@@ -1,0 +1,30 @@
+{
+  "nct_id": "NCT05574504",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence available - trial terminated due to no enrollment before any patients could be treated. 2. PATHWAY MODULATION: Cannot assess - no patients enrolled to evaluate biological activity. 3. CLINICAL TRANSLATION: Cannot assess - no clinical data generated. 4. POPULATION EFFECTS: Cannot assess - no patient data available. 5. CONFOUNDERS: Trial failed due to enrollment issues - investigator decision based on inability to recruit patients over 32 months, indicating either wrong population targeting, site selection issues, or competing trials.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Trial terminated after 32 months due to no enrollment, suggesting the target population (metastatic urothelial carcinoma) was either not accessible at this site or patients were not interested in this combination"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No clinical, biomarker, or safety data generated due to zero enrollment - cannot assess any aspect of the mechanistic hypothesis"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "metastatic urothelial carcinoma patients",
+      "target_entity": "lurbinectedin + avelumab combination",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to inform patient population responsiveness due to enrollment failure"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Trial failure due to enrollment issues provides no mechanistic information - may need to understand competitive landscape and site selection factors rather than biological mechanism"
+}

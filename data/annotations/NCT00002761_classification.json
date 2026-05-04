@@ -1,0 +1,30 @@
+{
+  "nct_id": "NCT00002761",
+  "trial_outcome": "failure",
+  "reasoning": "This trial appears to have been terminated early due to investigator departure ('PI left institution') rather than completing to assess efficacy. The combination chemotherapy approach targeting BCR-ABL in CML has a reasonable mechanistic rationale - cytotoxic agents should eliminate leukemic cells followed by stem cell rescue for hematopoietic reconstitution. However, no primary endpoint was defined, no results were reported, and there is no evidence of target engagement, biomarker changes, or clinical outcomes. The early termination due to investigator departure suggests this was a commercial/operational decision rather than a scientific failure of the mechanism.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial appears to have been terminated due to 'PI left institution' rather than completing to assess efficacy or safety endpoints"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint defined, no results reported, no biomarker data, no safety signals - insufficient data to assess any aspect of the mechanistic causal chain"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "combination chemotherapy (busulfan, cyclophosphamide, cytarabine, idarubicin)",
+      "target_entity": "BCR-ABL positive leukemic cell elimination",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data available to assess whether the cytotoxic mechanism effectively eliminated BCR-ABL positive cells"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated early for operational reasons with no efficacy or safety data reported - cannot assess mechanistic validity from available information"
+}

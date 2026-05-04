@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT00751036",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but nilotinib is a known BCR-ABL/KIT inhibitor with established activity. At 800mg daily dose, target engagement likely occurred. 2. PATHWAY MODULATION: No biomarker or pathway data provided to confirm downstream biological effects. 3. CLINICAL TRANSLATION: Primary endpoint failed - median PFS was essentially identical between nilotinib (111 days) and high-dose imatinib (120 days), showing no clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported that might identify responders. 5. CONFOUNDERS: Study was terminated early, suggesting either futility or safety concerns. Significant cardiac toxicity with nilotinib (MI, tachycardia) and GI bleeding may have limited dosing or contributed to early termination. Small sample size (n=94) may have been underpowered.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Nilotinib likely engaged BCR-ABL/KIT targets given known mechanism and adequate dosing, but median PFS was virtually identical (111 vs 120 days), indicating no clinical translation despite probable target engagement"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Significant cardiac toxicity including acute MI and tachycardia with nilotinib, plus GI bleeding, may have prevented optimal dosing or contributed to early study termination"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Small sample size of 94 patients and early termination suggest study may have been underpowered to detect meaningful differences"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Nilotinib",
+      "target_entity": "BCR-ABL/KIT",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No direct target engagement data, but known mechanism and adequate dosing suggest binding likely occurred"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "BCR-ABL/KIT inhibition",
+      "target_entity": "progression-free survival",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Despite probable target engagement, no improvement in PFS compared to high-dose imatinib in imatinib-resistant GIST"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Nilotinib",
+      "target_entity": "cardiac safety",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Significant cardiac toxicity including acute MI and tachycardia suggests concerning safety profile"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Early termination and lack of biomarker data make it difficult to definitively determine whether failure was due to inadequate biology modulation, dose-limiting toxicity, or study design issues"
+}

@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT03095612",
+  "trial_outcome": "failure",
+  "reasoning": "This was a Phase I dose escalation study of selinexor + docetaxel in NSCLC patients. Step 1 (TARGET ENGAGEMENT): No target engagement data provided - no XPO1 inhibition biomarkers or PK/PD data reported. Step 2 (PATHWAY MODULATION): No evidence of nuclear export inhibition or tumor suppressor protein retention reported. Step 3 (CLINICAL TRANSLATION): This was a safety study with DLT as primary endpoint, so efficacy translation not assessed. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): The trial appears to have encountered significant toxicity issues with multiple serious adverse events including respiratory failure, hypotension, and high rates of fatigue/hyponatremia at the 80mg dose level, suggesting dose-limiting toxicity prevented adequate evaluation of the mechanism.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Multiple serious adverse events reported including respiratory failure, hypotension, neutropenia, anemia, and high rates of fatigue/hyponatremia (2/4 patients) at 80mg dose level, suggesting toxicity limited dose escalation"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No target engagement data, biomarker changes, or pharmacodynamic evidence provided to assess whether selinexor engaged XPO1 or modulated nuclear export pathways"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Selinexor",
+      "target_entity": "XPO1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided to assess XPO1 binding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "XPO1 inhibition",
+      "target_entity": "nuclear export pathways",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No pharmacodynamic evidence of nuclear export inhibition provided"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Phase I safety study with limited mechanistic data and unclear whether toxicity was mechanism-related or off-target. Need expert assessment of whether observed toxicities are consistent with XPO1 inhibition mechanism."
+}

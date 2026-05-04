@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01934894",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of target engagement provided - no PK/PD data or biomarker confirmation that cabazitaxel engaged microtubules or lapatinib engaged HER2. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biological effects. 3. CLINICAL TRANSLATION: Primary endpoint completely failed - 0/11 patients achieved CNS objective response. However, 2/6 patients at lower dose achieved stable disease \u22656 months, suggesting some biological activity. 4. POPULATION EFFECTS: Small sample size (n=11) limits subgroup analysis, but lower dose showed better clinical benefit than higher dose, suggesting dose-toxicity relationship. 5. CONFOUNDERS: Major confounder was dose-limiting toxicity preventing adequate dosing - study closed early due to severe toxicities including septic shock and death. The combination appears too toxic to deliver effective doses.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "Study closed early due to DLTs including febrile neutropenia, septic shock, death, and pulmonary embolism. MTD not reached due to toxicities. Higher dose level (2) showed worse outcomes than lower dose level (1)."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Only 11 patients enrolled before early closure, insufficient to adequately assess efficacy. Small sample size limits ability to detect treatment effects or meaningful subgroup differences."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "cabazitaxel plus lapatinib",
+      "target_entity": "HER2 and microtubules",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence of target engagement provided, and severe toxicity prevented adequate dosing to achieve target modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "tumor cell proliferation inhibition",
+      "target_entity": "CNS objective response rate",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "0/11 patients achieved objective response despite some patients achieving stable disease, suggesting biological activity insufficient for objective responses"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CNS objective response rate",
+      "target_entity": "clinical benefit in HER2+ breast cancer CNS metastases",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "While no objective responses occurred, 2/6 patients at lower dose achieved stable disease \u22656 months, suggesting endpoint may be too stringent for this combination"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

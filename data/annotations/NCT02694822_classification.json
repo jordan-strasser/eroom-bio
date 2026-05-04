@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02694822",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests target engagement with dose-proportional pharmacokinetics across dose levels (Cmax 1.95-120 ug/mL, AUC 317-18803 hour*ug/mL), indicating the drug reached systemic circulation in a predictable manner. 2. PATHWAY MODULATION: Limited evidence of pathway modulation - while CTLA-4 checkpoint inhibition should activate T-cells and anti-tumor immunity, no specific biomarker data confirms downstream immune activation. Safety profile includes autoimmune-related adverse events (colitis, intestinal perforation) consistent with immune activation but also serious infections suggesting potential over-immunosuppression. 3. CLINICAL TRANSLATION: Modest clinical activity observed with Phase 2 ORR of 5.9% and DCR of 37.3% in checkpoint inhibitor-refractory patients. This represents some clinical benefit but limited efficacy. 4. POPULATION EFFECTS: Intriguing inverse dose-response relationship observed - lowest dose (Dose 1) showed 20% ORR while higher doses showed 0% ORR, suggesting potential therapeutic window issues or that higher doses may be counterproductive. 5. CONFOUNDERS: Study population was checkpoint inhibitor-refractory, representing a challenging population. The inverse dose-response suggests dosing strategy may not have been optimal.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "CTLA-4 engagement likely occurred based on PK and immune-related adverse events, but clinical efficacy was modest (5.9% ORR) in checkpoint inhibitor-refractory population"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Study enrolled patients who had progressed on PD-1/PD-L1 inhibitors, representing a particularly treatment-refractory population that may be less responsive to checkpoint inhibition"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Zalifrelimab",
+      "target_entity": "CTLA-4",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Dose-proportional pharmacokinetics and immune-related adverse events suggest target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CTLA-4 inhibition",
+      "target_entity": "anti-tumor immunity",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Inverse dose-response relationship and modest efficacy suggest mechanism may not translate effectively in this population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "anti-tumor immunity",
+      "target_entity": "tumor response",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "Limited clinical efficacy (5.9% ORR) despite evidence of immune activation suggests biology-to-endpoint translation is weak in checkpoint inhibitor-refractory patients"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Inverse dose-response relationship is unusual and concerning - lowest dose showed best efficacy while higher doses showed no responses. This suggests either a narrow therapeutic window or that the mechanism becomes counterproductive at higher exposures, requiring expert interpretation."
+}

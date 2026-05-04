@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT02964988",
+  "trial_outcome": "failure",
+  "reasoning": "This was an imaging study using 68Ga-NOTA-AE105 PET tracer to monitor uPAR expression in prostate cancer patients receiving Radium-223. The trial failed to complete due to recruitment issues with only 17 patients enrolled. No primary endpoint data, effect sizes, or p-values are available. Without completion, we cannot assess target engagement (whether the tracer bound to uPAR), pathway modulation (changes in uPAR expression), or clinical translation (correlation with treatment response). The small sample size and early termination suggest this was underpowered and potentially had wrong population selection given recruitment difficulties.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 17 patients enrolled with recruitment issues leading to early termination, insufficient to generate meaningful imaging data or correlations"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Recruitment difficulties suggest the target population (mCRPC patients with bone metastases) may have been too narrow or difficult to access"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No data available on primary endpoints, target engagement, or imaging results due to early termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "68Ga-NOTA-AE105",
+      "target_entity": "uPAR",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data available to assess tracer binding to uPAR target due to trial termination"
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "uPAR PET imaging",
+      "target_entity": "uPAR expression",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cannot assess whether PET imaging reflects uPAR biology without completed imaging data"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02156804",
+  "trial_outcome": "success",
+  "reasoning": "This is a safety study of nivolumab in melanoma patients. Step 1 (TARGET ENGAGEMENT): While no direct PD-1 engagement data is provided, the characteristic immune-related adverse events (hepatic, endocrine, GI, skin, pulmonary, renal) are consistent with PD-1 checkpoint inhibition and suggest target engagement. Step 2 (PATHWAY MODULATION): The pattern of immune-related AEs indicates immune system activation consistent with PD-1 pathway modulation. Step 3 (CLINICAL TRANSLATION): The primary endpoint was safety, not efficacy. The safety profile appears manageable with Grade 3-4 treatment-related AEs in <3% for most categories. The median OS of 21.2 months is encouraging for this advanced melanoma population. Step 4 (POPULATION EFFECTS): No subgroup data provided. Step 5 (CONFOUNDERS): This appears to be a well-designed safety study with adequate sample size (1009 patients) and follow-up duration.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.2,
+      "evidence": "Limited direct evidence of target engagement, but immune-related AE pattern suggests PD-1 modulation occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Nivolumab",
+      "target_entity": "PD-1",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Characteristic immune-related adverse event profile strongly suggests PD-1 engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "PD-1",
+      "target_entity": "T-cell checkpoint inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Pattern of immune-related AEs indicates checkpoint pathway modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "T-cell checkpoint inhibition",
+      "target_entity": "Anti-tumor immune response",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Median OS of 21.2 months in advanced melanoma suggests clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Safety monitoring",
+      "target_entity": "Immune-related adverse events",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Safety endpoint successfully captured expected immune-related toxicity profile"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

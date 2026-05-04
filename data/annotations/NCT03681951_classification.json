@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT03681951",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Cannot assess - target is unknown and no PD/PK data or biomarker evidence provided. 2. PATHWAY MODULATION: Cannot assess - no pathway biomarkers or pharmacodynamic markers reported, mechanism unknown. 3. CLINICAL TRANSLATION: Clear failure - 0% response rate (0/8 participants achieved CR or PR), 62.5% had progressive disease. 4. POPULATION EFFECTS: Cannot assess - no subgroup analysis reported and only 8 participants enrolled. 5. CONFOUNDERS: Multiple issues - severely underpowered (n=8), early termination, high toxicity burden (4/8 Grade 3+ AEs, 4/8 serious AEs), and complete lack of mechanistic understanding.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 8 participants enrolled before early termination, far too small for meaningful efficacy assessment"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.85,
+      "evidence": "50% of participants had Grade 3+ adverse events, 50% had serious adverse events including severe complications like bile duct obstruction and GI hemorrhage"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Target, mechanism, and rationale are all unknown, making mechanistic failure analysis impossible"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "GSK3145095",
+      "target_entity": "unknown_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available and target identity unknown"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "overall_response_rate",
+      "target_entity": "antitumor_activity",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "0% response rate with 62.5% progressive disease suggests no antitumor activity"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Unknown target and mechanism make mechanistic analysis impossible; high toxicity and early termination suggest fundamental issues with compound development"
+}

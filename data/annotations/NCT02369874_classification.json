@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02369874",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but immune checkpoint inhibitors have well-established mechanisms and the presence of immune-related adverse events (colitis) suggests target engagement occurred. 2. PATHWAY MODULATION: The longer duration of response (7.4-12.9 months vs 3.7 months for standard of care) indicates that when the drugs worked, they produced the expected biological effect of sustained immune activation. 3. CLINICAL TRANSLATION: Primary endpoint (OS) was not met with HR 1.04 (p=0.7624), showing no survival benefit. Paradoxically, PD-L1 positive patients had worse outcomes with combination therapy. 4. POPULATION EFFECTS: Critical finding - PD-L1 positive patients (the expected responders) had dramatically worse outcomes with combination (4.8 months) vs monotherapy (9.8 months) or standard care (9.0 months), while PD-L1 negative patients showed similar outcomes across arms. 5. CONFOUNDERS: The trial appears adequately powered (n=736) with sufficient follow-up (36 months). The key issue is that the combination therapy was actually harmful in the biomarker-positive population that should have benefited most.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Duration of response was longer with immunotherapy (7.4-12.9 months) vs standard of care (3.7 months), indicating biological activity, but overall survival showed no benefit (HR 1.04, p=0.7624)"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "PD-L1 positive patients, who should be the primary beneficiaries of PD-L1 blockade, had worse outcomes with combination therapy (4.8 months) compared to monotherapy (9.8 months) or standard care (9.0 months)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Durvalumab + Tremelimumab combination",
+      "target_entity": "PD-L1 and CTLA-4 dual blockade",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Combination therapy was paradoxically harmful in PD-L1 positive patients, suggesting negative interaction between dual checkpoint blockade in this population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell activation",
+      "target_entity": "overall survival in head and neck cancer",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Despite evidence of biological activity (longer duration of response), this did not translate to survival benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 positive head and neck cancer patients",
+      "target_entity": "dual checkpoint blockade",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "PD-L1 positive patients had dramatically worse outcomes with combination therapy, opposite of expected benefit"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": true,
+  "review_reason": "The paradoxical finding that PD-L1 positive patients had worse outcomes with combination therapy is unexpected and warrants expert review to understand potential mechanisms of harm in dual checkpoint blockade"
+}

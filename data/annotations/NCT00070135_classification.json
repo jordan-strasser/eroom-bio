@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT00070135",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm conditioning regimen study in older AML patients. Step 1 (TARGET ENGAGEMENT): The fludarabine/busulfan regimen likely engaged its targets (hematopoietic cells and leukemic blasts) based on expected myeloablative effects, though direct target engagement data is not provided. Step 2 (PATHWAY MODULATION): The conditioning regimen presumably achieved myeloablation and created space for donor engraftment, evidenced by the ability to proceed with transplant, though specific biomarker data is lacking. Step 3 (CLINICAL TRANSLATION): The 40% 2-year DFS in unrelated donor recipients represents a meaningful clinical outcome for this high-risk population, though without a control group it's difficult to assess superiority. Step 4 (POPULATION EFFECTS): No clear subgroup differences identified. Step 5 (CONFOUNDERS): This is a single-arm study without a comparcomparator, making efficacy assessment challenging. The 16% non-relapse mortality suggests acceptable toxicity for this population.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Single-arm study design without control group makes it impossible to determine if the conditioning regimen is superior to alternatives. No direct target engagement or pathway modulation biomarkers provided."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Fludarabine and Busulfan",
+      "target_entity": "Hematopoietic cells and leukemic blasts",
+      "direction": "neutral",
+      "magnitude": 0.5,
+      "reasoning": "Conditioning regimen likely achieved myeloablation based on ability to proceed with transplant, but no direct biomarker evidence of target modulation provided"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Myeloablative conditioning",
+      "target_entity": "Disease-free survival",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "40% 2-year DFS represents meaningful clinical outcome for older AML patients, though single-arm design limits interpretation"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design without comparator makes efficacy assessment challenging. Lack of target engagement and pathway biomarkers limits mechanistic understanding. Clinical outcome appears reasonable for population but cannot assess superiority."
+}

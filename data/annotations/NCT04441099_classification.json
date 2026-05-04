@@ -1,0 +1,35 @@
+{
+  "nct_id": "NCT04441099",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase 1/2 trial of NBE-002 in advanced solid tumors that was terminated early with 'End of Program' noted. Step 1 (TARGET ENGAGEMENT): Cannot assess - the target is unknown and no PK/PD data is provided. Step 2 (PATHWAY MODULATION): Cannot assess - no biomarker or pathway data available. Step 3 (CLINICAL TRANSLATION): Cannot assess - no efficacy data reported, primary endpoints not met. Step 4 (POPULATION EFFECTS): Cannot assess - no subgroup data with only 12 patients enrolled. Step 5 (CONFOUNDERS): The trial was clearly underpowered with only 12 patients enrolled in a Phase 1/2 study, and the 'End of Program' notation suggests commercial/strategic termination rather than scientific completion.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial terminated early with 'End of Program' notation, suggesting strategic/commercial decision rather than completion based on scientific data"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 12 patients enrolled in a Phase 1/2 trial designed to run up to 60 months, clearly insufficient for meaningful efficacy assessment"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Unknown target, no mechanism described, no PK/PD data, no biomarker data, no efficacy data reported - insufficient information to assess any step in the mechanistic causal chain"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "NBE-002",
+      "target_entity": "unknown_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available and target identity unknown"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Early termination with minimal data makes mechanistic failure analysis impossible - expert review needed to determine if this represents a true mechanistic failure or purely commercial decision"
+}

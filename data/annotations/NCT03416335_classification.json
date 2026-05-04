@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT03416335",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase I dose-escalation trial for DSP-0509 in advanced solid tumors. Working through the causal chain: 1) TARGET ENGAGEMENT: Unknown target and mechanism make it impossible to assess target engagement. No target engagement evidence reported. 2) PATHWAY MODULATION: Cytokine level changes were evaluated but no specific results provided. Without knowing the target or mechanism, cannot assess if intended biology was modulated. 3) CLINICAL TRANSLATION: This was a safety/dose-finding study with DLT as primary endpoint, not efficacy. Multiple safety signals reported including serious events like uveitis, duodenal obstruction, and disease progression. 4) POPULATION EFFECTS: No subgroup findings reported. 5) CONFOUNDERS: The fundamental issue is insufficient information about the drug's target and mechanism, making mechanistic assessment impossible. The safety profile appears concerning with multiple diverse adverse events.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Target and mechanism of action are completely unknown. No target engagement data provided. Biomarker results not reported despite cytokine evaluation mentioned."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Multiple concerning safety signals including uveitis, duodenal obstruction, sinus tachycardia, and generalized edema suggest potential dose-limiting toxicities that may have prevented adequate dosing."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "DSP-0509",
+      "target_entity": "unknown_target",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cannot assess target binding without knowing the intended target"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "unknown_mechanism",
+      "target_entity": "cytokine_levels",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cytokine changes were evaluated but results not provided, and mechanism is unknown"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Critical information missing including drug target, mechanism of action, and biomarker results. Cannot perform meaningful mechanistic analysis without this fundamental information."
+}

@@ -50,6 +50,11 @@ class TrialRecord(BaseModel):
     sponsor: str = ""
     has_results: bool = False
     results_summary: dict[str, Any] | None = None
+    # Sponsor's stated reason a trial was stopped early (TERMINATED/WITHDRAWN).
+    # Coarse free text — typically one phrase like "lack of efficacy",
+    # "safety concerns", "futility", "business decision". Often the only
+    # mechanistic signal available for trials with no posted results.
+    why_stopped: str | None = None
 
 
 # ── Parsing helpers ──────────────────────────────────────────────────────
@@ -123,6 +128,8 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
     has_results = raw.get("hasResults", False)
     results_section = raw.get("resultsSection") if has_results else None
 
+    why_stopped = status_mod.get("whyStopped") or None
+
     return TrialRecord(
         nct_id=ident.get("nctId", ""),
         title=ident.get("briefTitle", ""),
@@ -138,6 +145,7 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
         sponsor=sponsor,
         has_results=has_results,
         results_summary=results_section,
+        why_stopped=why_stopped,
     )
 
 
@@ -225,6 +233,34 @@ class ClinicalTrialsClient:
             has_results=True,
             max_results=max_results,
         )
+
+    async def fetch_oncology_terminated_with_reason(
+        self, max_results: int = 1000
+    ) -> list[TrialRecord]:
+        """Terminated/withdrawn trials that have a sponsor-stated reason.
+
+        Complements ``fetch_oncology_with_results``: many failed programs
+        never post results, but the ``whyStopped`` field is enough to update
+        the right edges when the compound + target are known. We additionally
+        require a DRUG intervention so the trial actually maps to a graph
+        compound.
+        """
+        records = await self.search(
+            condition="cancer",
+            phase="PHASE2,PHASE3",
+            status="TERMINATED,WITHDRAWN",
+            max_results=max_results * 2,  # over-fetch; many will be filtered out
+        )
+        kept: list[TrialRecord] = []
+        for record in records:
+            if not record.why_stopped:
+                continue
+            if not any(iv.type == "DRUG" for iv in record.interventions):
+                continue
+            kept.append(record)
+            if len(kept) >= max_results:
+                break
+        return kept
 
 
 # ── Graph node mapping ───────────────────────────────────────────────────

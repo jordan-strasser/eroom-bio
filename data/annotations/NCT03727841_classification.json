@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT03727841",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of proteasome inhibition provided - no PK/PD data, proteasome activity assays, or target engagement biomarkers reported. 2. PATHWAY MODULATION: No biomarker data showing downstream effects of proteasome inhibition such as protein accumulation, ER stress markers, or apoptosis indicators. 3. CLINICAL TRANSLATION: Primary endpoint failed - only 1/4 participants (25%) achieved 6-month progression-free survival, with no complete or partial responses observed. 4. POPULATION EFFECTS: Limited subgroup analysis due to tiny sample size (n=4), but trend suggests patients with fewer prior therapies may respond better (1/3 vs 0/1). 5. CONFOUNDERS: Major confounder is severely underpowered study design with only 4 participants, making any meaningful efficacy assessment impossible. All participants experienced adverse events, suggesting drug exposure occurred.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 4 participants enrolled in total, making statistical assessment of efficacy impossible and preventing meaningful conclusions about drug activity"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, biomarker measurements, or pharmacokinetic/pharmacodynamic information to assess whether proteasome inhibition occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Marizomib",
+      "target_entity": "proteasome",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided, cannot assess proteasome binding"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival at 6 months",
+      "target_entity": "proteasome inhibition efficacy",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Poor clinical outcomes (25% 6-month PFS, no responses) but sample size too small for meaningful interpretation"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size (n=4) makes it impossible to draw meaningful conclusions about drug efficacy or mechanism. Study appears to be a dose-finding or feasibility study rather than an efficacy trial."
+}

@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT00377780",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was terminated due to sponsor withdrawal, not for scientific reasons. The primary endpoint was cardiotoxicity assessment rather than efficacy, suggesting this was a safety study of a combination therapy. With only 60 patients and early termination, there is insufficient data to evaluate any step of the mechanistic causal chain - no target engagement data, no biomarker changes, no efficacy or safety outcomes reported. The combination includes trastuzumab (HER2 antagonist), doxorubicin (DNA intercalator), and docetaxel (microtubule stabilizer), which is mechanistically rational for HER2+ breast cancer, but we cannot assess whether any component of the causal chain functioned as intended.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Trial terminated due to 'withdrawal of sponsor' rather than safety or efficacy concerns"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results, effect sizes, p-values, target engagement data, or biomarker changes reported due to early termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "trastuzumab",
+      "target_entity": "HER2",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data available to assess target engagement due to early termination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "HER2 antagonism + DNA intercalation + microtubule stabilization",
+      "target_entity": "HER2-driven tumor biology",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker or pathway data available to assess biological modulation"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

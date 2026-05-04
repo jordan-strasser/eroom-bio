@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT04677504",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows atezolizumab achieved therapeutic serum concentrations (200-400 \u03bcg/mL), indicating PD-L1 target engagement. Bevacizumab dosing at 15 mg/kg is standard for VEGF inhibition. 2. PATHWAY MODULATION: No biomarker data provided to confirm downstream immune activation or angiogenesis inhibition, creating uncertainty about biological activity. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) was not met. HR of 0.76 (95% CI 0.51-1.14) suggests numerical improvement but lacks statistical significance. 4. POPULATION EFFECTS: No subgroup analyses reported to identify potential responder populations. 5. CONFOUNDERS: Sample size of 162 may be underpowered for detecting modest treatment effects. 100% adverse event rate with serious hematologic and cardiac toxicities may have impacted treatment delivery and outcomes.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Sample size of 162 with HR 0.76 and wide confidence interval (0.51-1.14) suggests insufficient power to detect treatment effect"
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.6,
+      "evidence": "Target engagement confirmed by drug levels but no biomarker evidence of immune activation or angiogenesis modulation provided"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.5,
+      "evidence": "100% adverse event rate with serious hematologic, cardiac, and GI events may have compromised treatment delivery"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Therapeutic drug levels achieved confirming target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-L1 blockade + VEGF inhibition",
+      "target_entity": "tumor progression",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Numerical but non-significant improvement in PFS suggests limited clinical impact"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "anti-tumor activity",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Endpoint appropriate but trial may have been underpowered to detect effect"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited biomarker data to assess pathway modulation and unclear whether failure was due to insufficient power, lack of biological activity, or treatment delivery issues from toxicity"
+}

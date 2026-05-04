@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT03647488",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Both drugs achieved measurable plasma concentrations (Capmatinib Cmax 3260 ng/mL, Spartalizumab Cmax 138 \u03bcg/mL), suggesting target engagement occurred. 2. PATHWAY MODULATION: No biomarker data provided to assess downstream pathway effects of MET inhibition or PD-1 blockade. ADA data shows minimal immunogenicity but doesn't indicate pathway modulation. 3. CLINICAL TRANSLATION: Trial was terminated early due to poor efficacy - 0% ORR, 27.8% DCR, median PFS 1.9 months. The randomized part never started, indicating futility. 4. POPULATION EFFECTS: No subgroup analysis reported due to early termination. 5. CONFOUNDERS: High toxicity burden (100% AEs, 61% Grade \u22653 AEs, 28% discontinuations due to AEs, 67% total deaths, 28% on-treatment deaths) and extensive dose modifications (33% capmatinib dose reductions, 44% interruptions) suggest dose-limiting toxicity prevented adequate exposure.",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests adequate target engagement - capmatinib achieved Cmax 3260 ng/mL and spartalizumab achieved Cmax 138 \u03bcg/mL with high dose intensity (99.6% and 100% respectively). 2. PATHWAY MODULATION: Limited biomarker data available - only ADA data for spartalizumab showing low immunogenicity (3/18 participants), but no pathway-specific biomarkers reported to confirm downstream biological effects. 3. CLINICAL TRANSLATION: Trial failed dramatically at clinical translation - 0% objective response rate, only 27.8% disease control rate, and median PFS of only 1.9 months led to early termination before randomized phase could begin. 4. POPULATION EFFECTS: No subgroup analysis possible due to early termination and small sample size (n=18). 5. CONFOUNDERS: High toxicity burden (100% AEs, 61% grade \u22653 AEs, 28% discontinuations due to AEs, 28% on-treatment deaths) may have prevented adequate exposure, though dose intensity remained high.",
   "failure_modes": [
     {
-      "mode": "dose_limiting_toxicity",
-      "confidence": 0.8,
-      "evidence": "100% of participants had AEs, 61% had Grade \u22653 AEs, 28% discontinued due to AEs, 33% required capmatinib dose reductions, 44% had dose interruptions, and 28% had on-treatment deaths"
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Drugs achieved target concentrations but clinical efficacy was absent (0% ORR, 1.9 month median PFS) leading to early trial termination"
     },
     {
-      "mode": "biology_moved_endpoint_flat",
+      "mode": "dose_limiting_toxicity",
       "confidence": 0.6,
-      "evidence": "Despite achieving target drug concentrations, clinical efficacy was poor with 0% ORR, 27.8% DCR, and median PFS of only 1.9 months, leading to early termination"
+      "evidence": "High toxicity burden with 100% AEs, 61% grade \u22653 AEs, 28% discontinuations due to AEs, and 28% on-treatment deaths despite maintained dose intensity"
     }
   ],
   "edges_to_update": [
@@ -21,7 +21,7 @@
       "target_entity": "MET",
       "direction": "neutral",
       "magnitude": 0.3,
-      "reasoning": "Drug concentrations achieved but extensive dose modifications may have compromised sustained target engagement"
+      "reasoning": "Adequate plasma concentrations achieved but no pathway biomarkers to confirm target engagement"
     },
     {
       "edge_type": "binds_to",
@@ -29,15 +29,23 @@
       "target_entity": "PD-1",
       "direction": "neutral",
       "magnitude": 0.3,
-      "reasoning": "Drug concentrations achieved but dose interruptions and poor efficacy suggest suboptimal engagement"
+      "reasoning": "Adequate plasma concentrations achieved with low immunogenicity but no pathway biomarkers"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "MET inhibition + PD-1 blockade",
-      "target_entity": "overall survival",
+      "target_entity": "tumor response",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Complete absence of objective responses (0% ORR) despite drug exposure suggests mechanism ineffective in this population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "overall survival",
+      "target_entity": "clinical benefit",
       "direction": "weaken",
       "magnitude": 0.7,
-      "reasoning": "Complete lack of efficacy (0% ORR) and early termination strongly suggest this combination does not drive survival benefit in this population"
+      "reasoning": "Trial terminated early due to futility before primary endpoint could be assessed"
     }
   ],
   "confidence_overall": 0.7,

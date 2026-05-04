@@ -62,5 +62,25 @@ Rules:
 - For successful trials, edges_to_update should have "strengthen" directions.
 - Set needs_expert_review to true if evidence is ambiguous or conflicting.
 - confidence_overall reflects your certainty in the ENTIRE classification, not just one mode.
-- Be conservative: if evidence is thin, say so and lower confidence.
 - Return ONLY the JSON object.
+
+Confidence rubric for confidence_overall — assign by matching the strongest tier the evidence satisfies:
+
+  0.9+    Target engagement biomarker data explicitly reported AND
+          downstream pathway biomarker explicitly reported AND
+          primary endpoint result unambiguous AND failure mode
+          maps to exactly one category.
+
+  0.7-0.9 At least one of target engagement or pathway biomarker
+          reported, primary endpoint clear, failure mode likely
+          but one alternative plausible.
+
+  0.5-0.7 No PD biomarker data; classification based on endpoint
+          result and investigator commentary only; multiple
+          failure modes plausible.
+
+  <0.5    Insufficient information. Set the primary failure_mode to
+          "insufficient_information", set needs_expert_review to true,
+          and explain in review_reason what specific evidence is missing.
+
+Be conservative: when evidence sits between tiers, choose the lower one. The rubric is the source of truth — do not inflate confidence based on narrative tone in the trial report.

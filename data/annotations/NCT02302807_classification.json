@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT02302807",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with therapeutic serum concentrations (Cmax 334 mcg/mL, steady-state Cmin 67.5-223 mcg/mL). The 33.3% anti-drug antibody rate suggests immune recognition but doesn't negate target engagement. 2. PATHWAY MODULATION: Limited direct evidence of downstream immune pathway activation, though the safety profile (lower neutropenia rates) suggests different mechanism of action than chemotherapy. 3. CLINICAL TRANSLATION: Primary endpoint (OS) was not met statistically, though HR 0.85 suggests numerical trend toward benefit. Effect size indicates modest clinical activity but insufficient for regulatory success. 4. POPULATION EFFECTS: IC2/3 biomarker-defined subgroup showed better outcomes (11.1 vs 10.6 months OS) but still modest effect size. This suggests the mechanism may work better in PD-L1 high expressors but benefit was limited even in this enriched population. 5. CONFOUNDERS: No clear trial design issues - appropriate comparator, adequate sample size (931 patients), reasonable duration.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Target was engaged with therapeutic drug levels and different safety profile vs chemotherapy, but primary OS endpoint was not met despite HR 0.85 trend"
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.6,
+      "evidence": "IC2/3 PD-L1 high subgroup showed better outcomes (11.1 vs 10.6 months) but effect was still modest and not statistically significant"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong PK evidence of therapeutic drug exposure and target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-L1 blockade",
+      "target_entity": "immune checkpoint pathway",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Limited evidence of robust downstream immune activation despite target engagement"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune checkpoint pathway",
+      "target_entity": "overall survival",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Modest HR 0.85 suggests some biological activity but insufficient for clinical significance"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 high patients",
+      "target_entity": "atezolizumab efficacy",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "IC2/3 subgroup showed numerically better outcomes but effect was still limited"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

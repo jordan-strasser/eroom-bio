@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04109482",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase 1/2 CAR-T cell therapy trial that was terminated early for business reasons with only 3 patients enrolled. Step 1 (TARGET ENGAGEMENT): No target engagement data reported, but CAR-T cells are designed to engage CD123 on target cells. Step 2 (PATHWAY MODULATION): No biomarker or pathway data available to assess biological activity. Step 3 (CLINICAL TRANSLATION): No efficacy data available due to early termination. Step 4 (POPULATION EFFECTS): Sample size too small (n=3) to assess subgroup effects. Step 5 (CONFOUNDERS): The primary issue is commercial termination for 'business reasons' rather than scientific failure, combined with severe underpowering due to minimal enrollment.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Trial terminated for 'business reasons' according to investigator commentary, not due to safety or efficacy concerns"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 3 patients enrolled in a Phase 1/2 trial, far below any meaningful sample size for efficacy assessment"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "MB-102 CAR-T cells",
+      "target_entity": "CD123",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data available due to early termination, cannot assess binding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD123 targeting",
+      "target_entity": "BPDCN cell elimination",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biological activity data available due to premature termination"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

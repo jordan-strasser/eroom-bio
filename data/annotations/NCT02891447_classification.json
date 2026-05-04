@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02891447",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm study of HIPEC in gastric cancer with peritoneal carcinomatosis. Step 1 (TARGET ENGAGEMENT): No direct evidence of target engagement provided, but heated intraperitoneal delivery of cytotoxic agents (mitomycin/cisplatin) during surgery suggests physical delivery to peritoneal tumor cells. Step 2 (PATHWAY MODULATION): No biomarker or pathway data provided to confirm biological activity. Step 3 (CLINICAL TRANSLATION): Median OS of 22.1 months reported but no comparator arm or p-value provided to assess clinical significance. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Single-arm design prevents assessment of treatment effect versus natural history. Safety profile shows significant toxicity (29% Grade III-IV complications) but appears manageable.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm study with no comparator, no p-value, no biomarker data, and no target engagement evidence makes it impossible to determine if treatment was effective"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Heated Mitomycin and Cisplatin",
+      "target_entity": "Peritoneal tumor cells",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Intraperitoneal delivery suggests physical access to target cells but no direct engagement evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Direct cytotoxic effect enhanced by hyperthermia",
+      "target_entity": "Elimination of peritoneal metastases",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "No biomarker or imaging data to confirm mechanism activity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Overall survival",
+      "target_entity": "Treatment benefit",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Single-arm design prevents assessment of treatment effect on survival endpoint"
+    }
+  ],
+  "confidence_overall": 0.2,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study design with no comparator makes it impossible to assess treatment efficacy. The reported median OS of 22.1 months cannot be interpreted without historical controls or comparison group."
+}

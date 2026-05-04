@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT00458952",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I dose-escalation trial with the primary endpoint of establishing maximum tolerated dose (MTD). Step 1 (TARGET ENGAGEMENT): While direct target engagement data is not provided, MIBG is a well-established norepinephrine transporter substrate with known uptake mechanisms in neuroendocrine tumors. Step 2 (PATHWAY MODULATION): The mechanism involves radioactive delivery rather than traditional pathway modulation - success is measured by achieving targeted radiation delivery without excessive toxicity. Step 3 (CLINICAL TRANSLATION): The primary endpoint (MTD establishment at 8 mCi/kg) was successfully met, which is the appropriate endpoint for a Phase I safety/dose-finding study. Step 4 (POPULATION EFFECTS): No subgroup analysis reported, which is typical for Phase I studies. Step 5 (CONFOUNDERS): No major confounders identified - the study achieved its intended goal of dose escalation and MTD determination.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.3,
+      "evidence": "Multiple serious adverse events reported including pulmonary embolism, thalamic infarction, and thrombocytopenia, which likely defined the MTD boundary"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Ultratrace Iobenguane (MIBG) I 131",
+      "target_entity": "norepinephrine transporter",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "MTD establishment suggests successful uptake mechanism, though direct engagement data not provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "targeted radiotherapy",
+      "target_entity": "neuroendocrine tumor cells",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Successful MTD determination at 8 mCi/kg indicates mechanism can deliver therapeutic radiation doses"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "maximum tolerated dose",
+      "target_entity": "safety and dosing feasibility",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Primary endpoint was met successfully, establishing dosing parameters for future efficacy studies"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

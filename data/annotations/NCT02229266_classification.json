@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02229266",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for NK cell engraftment, persistence, or tumor cell targeting. No biomarker data to confirm NK cells reached and engaged tumor cells. 2. PATHWAY MODULATION: No data on immune activation, cytokine release, or tumor microenvironment changes that would indicate NK cell-mediated immune response. 3. CLINICAL TRANSLATION: Primary endpoint results not reported, suggesting trial did not complete or meet endpoints. 4. POPULATION EFFECTS: No subgroup analysis reported. 5. CONFOUNDERS: Sample size of only 1 patient and low recruitment rate indicate severe enrollment issues that prevented meaningful evaluation of the therapeutic hypothesis.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Sample size of only 1 patient with low recruitment rate makes any meaningful efficacy assessment impossible"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results, no biomarker data, no target engagement evidence, and no safety data reported"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "NK cells",
+      "target_entity": "tumor cells",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No evidence of NK cell-tumor cell interaction due to insufficient enrollment and data"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "adoptive NK cell therapy",
+      "target_entity": "immune-mediated tumor killing",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cannot assess mechanism due to trial failure to enroll adequate patients"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "2-year overall survival",
+      "target_entity": "immune-mediated tumor killing",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Endpoint appropriateness cannot be evaluated due to lack of data"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

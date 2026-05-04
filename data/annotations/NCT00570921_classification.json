@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT00570921",
+  "trial_outcome": "failure",
+  "reasoning": "This is a single-arm phase II trial with 33 patients testing everolimus + fulvestrant in advanced breast cancer after aromatase inhibitor failure. Step 1 (TARGET ENGAGEMENT): No PK/PD data or biomarker evidence provided to confirm target engagement of either mTOR or estrogen receptor. Step 2 (PATHWAY MODULATION): No pathway biomarkers or pharmacodynamic markers reported to show biological activity. Step 3 (CLINICAL TRANSLATION): Single-arm design with median TTP of 7.4 months but no comparator or historical control context provided to assess efficacy. No p-value reported. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Major issues include single-arm design making efficacy assessment difficult, very small sample size (n=33) likely underpowered, and significant safety signals including serious AEs like left ventricular thrombus and renal failure that may have limited dosing or treatment duration.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, no biomarker changes, no comparator arm, and no p-value provided make mechanistic assessment impossible"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Single-arm study with only 33 patients is likely insufficient to demonstrate efficacy in this heterogeneous population"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Serious safety signals including left ventricular thrombus, acute cholecystitis, pneumonia, and renal failure may have prevented optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "everolimus",
+      "target_entity": "mTOR",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided to assess mTOR binding"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "fulvestrant",
+      "target_entity": "estrogen_receptor",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided to assess ER binding"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "time_to_progression",
+      "target_entity": "clinical_benefit",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Single-arm design without historical control context makes TTP interpretation difficult"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no comparator, missing critical mechanistic data, and unclear efficacy assessment requires expert interpretation of clinical context"
+}

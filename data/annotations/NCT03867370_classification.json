@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT03867370",
+  "trial_outcome": "partial",
+  "reasoning": "This trial lacks critical outcome data despite being completed. Step 1 (TARGET ENGAGEMENT): No PD/PK data or biomarker evidence provided to confirm target engagement of either PD-1 or VEGFR/FGFR/PDGFR pathways. Step 2 (PATHWAY MODULATION): No biomarker changes or pharmacodynamic markers reported to assess downstream biological effects. Step 3 (CLINICAL TRANSLATION): Primary endpoint (pathological response rate) results are not provided despite study completion. Step 4 (POPULATION EFFECTS): No subgroup analyses reported. Step 5 (CONFOUNDERS): Study appears completed with 40 patients over 3 years, suggesting adequate sample size and duration, but lack of reported results prevents mechanistic assessment.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Despite study completion, no primary endpoint results, biomarker data, or target engagement evidence is provided to assess mechanism of action"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Toripalimab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided to assess PD-1 binding"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Lenvatinib",
+      "target_entity": "VEGFR/FGFR/PDGFR",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided to assess multi-kinase inhibition"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "pathological response rate",
+      "target_entity": "combined immunotherapy and anti-angiogenic effects",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint results provided to assess clinical translation"
+    }
+  ],
+  "confidence_overall": 0.1,
+  "needs_expert_review": true,
+  "review_reason": "Study appears completed but critical outcome data is missing, preventing proper mechanistic failure analysis"
+}

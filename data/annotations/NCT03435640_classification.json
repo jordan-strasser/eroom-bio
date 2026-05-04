@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT03435640",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but dose escalation reached 3.84 mg intratumoral for NKTR-262 without reaching MTD, suggesting the drug was delivered. However, lack of PD/PK or biomarker data makes target engagement uncertain. 2. PATHWAY MODULATION: No biomarker changes or pharmacodynamic markers reported to confirm immune activation or pathway modulation despite the immune-stimulating mechanism. 3. CLINICAL TRANSLATION: Primary endpoint not met with 0% ORR in doublet arm. Even triplet showed only 14.3% ORR, which is modest for this heavily pretreated population. 4. POPULATION EFFECTS: Triplet combination (with nivolumab) showed higher response than doublet, suggesting the mechanism may require checkpoint inhibition to be effective, but overall response rates remain low. 5. CONFOUNDERS: Small sample size (64 patients) across multiple tumor types and dose levels may have limited power to detect efficacy. Serious safety signals including cerebrovascular events may have limited dose escalation or treatment duration.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Despite reaching high doses without MTD and having a mechanistically sound immune activation approach, clinical response rates were very low (0% doublet, 14.3% triplet)"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 64 patients spread across multiple tumor types and dose escalation cohorts limits ability to detect efficacy signals"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.5,
+      "evidence": "Serious safety signals including cerebral infarction, cerebrovascular accident, and intracranial hemorrhage may have limited optimal dosing or treatment duration"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "TLR7/8 agonism + IL-2 activation",
+      "target_entity": "immune system activation",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Despite mechanistic rationale, very low response rates suggest the combination approach may not effectively activate anti-tumor immunity in this population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune activation",
+      "target_entity": "tumor response",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Even if immune activation occurred, translation to meaningful tumor responses was very limited"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "triplet vs doublet combination",
+      "target_entity": "response rate",
+      "direction": "strengthen",
+      "magnitude": 0.4,
+      "reasoning": "Triplet combination with nivolumab showed higher response rate than doublet, suggesting checkpoint inhibition may be necessary component"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Lack of target engagement and biomarker data makes it difficult to determine whether failure was due to insufficient target engagement, inadequate pathway modulation, or poor clinical translation. Serious safety signals also complicate interpretation."
+}

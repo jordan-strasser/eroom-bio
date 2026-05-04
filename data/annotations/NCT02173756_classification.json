@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT02173756",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No PK/PD data provided to confirm morphine gel reached opioid receptors, though topical morphine has established pharmacology. 2. PATHWAY MODULATION: No biomarker data on opioid pathway activation or pain pathway modulation. 3. CLINICAL TRANSLATION: Primary endpoint results not reported - no effect size or p-value data available. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Major confounder identified - numerous premature discontinuations due to adverse events, suggesting dose-limiting toxicity prevented adequate evaluation of efficacy. Small sample size (n=25) also suggests potential underpowering.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Numerous premature study discontinuations due to adverse events prevented completion of efficacy evaluation"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 25 participants, further reduced by premature discontinuations"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No primary endpoint results, effect sizes, or p-values reported; no target engagement or biomarker data"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "morphine gel",
+      "target_entity": "opioid receptors",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided, but morphine-opioid receptor binding is well-established"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "pain assessment",
+      "target_entity": "mucositis pain relief",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Trial could not adequately assess endpoint due to safety-related discontinuations"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited data available with no efficacy results reported and significant safety issues preventing trial completion"
+}

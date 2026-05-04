@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02658097",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD-1 target engagement data provided, but pembrolizumab 200mg IV is a standard dose with established PD-1 binding. Radiation therapy at 8Gy single fraction is within therapeutic range. Likely adequate target engagement. 2. PATHWAY MODULATION: No direct pathway biomarkers reported. PD-L1 status correlates with response (13 vs 7.1 months OS in positive vs negative patients), suggesting some immune pathway modulation occurred. 3. CLINICAL TRANSLATION: Primary endpoint was objective response rate by RECIST 1.1. Results show 0 CR, 4 PR out of 13 patients (31% response rate), but no statistical testing reported and no comparator arm. Effect size appears modest. 4. POPULATION EFFECTS: Clear subgroup effect with PD-L1 positive patients showing nearly double the median OS (13 vs 7.1 months), suggesting mechanism works better in biomarker-selected population. 5. CONFOUNDERS: Major confounder is extremely small sample size (n=13) making any conclusions unreliable. Single-arm design prevents proper efficacy assessment. Study appears underpowered for meaningful conclusions.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 13 patients is far too small to draw meaningful conclusions about efficacy of combination therapy in Stage IV NSCLC"
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "PD-L1 positive patients showed nearly double the median OS (13 vs 7.1 months) compared to PD-L1 negative patients, suggesting mechanism works primarily in biomarker-selected population"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Standard pembrolizumab dose used but no direct target engagement data provided"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 positive NSCLC patients",
+      "target_entity": "Pembrolizumab + radiation combination",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Clear differential response with PD-L1 positive patients showing nearly double the median OS"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "RECIST 1.1 response rate",
+      "target_entity": "PD-1 checkpoint inhibition + radiation synergy",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Study too underpowered to properly assess combination efficacy with only 13 patients and no control arm"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size makes any mechanistic conclusions unreliable. Study design inadequate for proper efficacy assessment of combination therapy."
+}

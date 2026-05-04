@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT03696212",
+  "trial_outcome": "failure",
+  "reasoning": "This was a phase 1/2 combination trial of grapiprant (EP4 antagonist) plus pembrolizumab (PD-1 inhibitor) in post-PD-1/L1 NSCLC patients. The trial failed to meet its primary endpoints of safety/tolerability, recommended phase 2 dose, and objective response rate. With only 18 patients over 7 months average duration, the company terminated the study based on 'totality of combined safety and efficacy data.' No target engagement data, biomarker changes, or efficacy signals are reported. The small sample size (n=18) and early termination suggest either safety concerns or lack of efficacy signal, but without specific safety signals reported, this appears to be primarily an efficacy failure. The combination rationale of EP4 antagonism enhancing PD-1 checkpoint inhibition was not validated clinically.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 18 patients enrolled with early termination after average 7 months, insufficient to adequately assess combination efficacy"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Company terminated based on 'totality of safety and efficacy data' suggesting biological activity was insufficient to drive clinical response"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.5,
+      "evidence": "Post-PD-1/L1 NSCLC patients may not be optimal population for EP4/PD-1 combination approach"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EP4 antagonism plus PD-1 inhibition combination",
+      "target_entity": "anti-tumor immune response",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Combination approach failed to demonstrate clinical benefit in post-PD-1 NSCLC setting"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "enhanced T-cell activation via EP4/PD-1 modulation",
+      "target_entity": "objective response rate",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Primary endpoint of ORR was not met, suggesting insufficient clinical translation"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited data available on specific reasons for termination, no target engagement or biomarker data to assess mechanism failure point"
+}

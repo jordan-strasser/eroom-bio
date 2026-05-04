@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT04373083",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for PD-1 engagement despite cemiplimab being a well-established PD-1 inhibitor. No PK/PD data or biomarker confirmation reported. 2. PATHWAY MODULATION: No biomarker changes or pharmacodynamic markers reported to confirm immune activation or T-cell response. 3. CLINICAL TRANSLATION: Primary endpoint (PFS at 1 year) results not reported - no effect size or p-value available. 4. POPULATION EFFECTS: No subgroup findings reported to suggest differential responses. 5. CONFOUNDERS: Investigator commentary explicitly states 'Business Decision' as reason for trial conclusion, indicating commercial rather than scientific termination.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Investigator commentary explicitly states 'Business Decision' as the reason for trial conclusion"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results, effect sizes, p-values, or biomarker data reported despite trial completion"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Cemiplimab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data provided, though cemiplimab is known PD-1 inhibitor"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-1 blockade",
+      "target_entity": "T-cell activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker evidence of immune activation or pathway modulation"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS at 1 year",
+      "target_entity": "anti-tumor efficacy",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint results reported to evaluate clinical translation"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated for business reasons with no efficacy or biomarker data reported, making mechanistic assessment impossible"
+}

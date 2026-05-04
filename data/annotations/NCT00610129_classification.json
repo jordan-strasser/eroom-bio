@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00610129",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided - no PK/PD measurements, no IGF-1R occupancy data, no downstream signaling biomarkers reported. Cannot confirm if MK-0646 reached and bound IGF-1R at the 10 mg/kg weekly dose. 2. PATHWAY MODULATION: No biomarker data showing IGF-1R pathway inhibition (e.g., IGF-1, IGFBP-3, downstream signaling markers). Cannot assess if target engagement led to pathway modulation. 3. CLINICAL TRANSLATION: Complete failure at clinical endpoint - 0/25 patients (0%) achieved objective response. No clinical benefit observed. 4. POPULATION EFFECTS: No subgroup analyses reported in this small 25-patient study. Cannot assess differential responses. 5. CONFOUNDERS: Small sample size (n=25) for a single-arm study limits power, but with 0% response rate, statistical power is not the primary issue. The complete lack of target engagement and biomarker data suggests fundamental issues with either drug delivery, target engagement, or mechanism validity in neuroendocrine tumors.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.7,
+      "evidence": "No target engagement data provided - no PK/PD measurements, IGF-1R occupancy, or downstream pathway biomarkers to confirm drug reached and modulated IGF-1R"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Small single-arm study with only 25 patients, though 0% response rate suggests power is not the primary limitation"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "MK-0646",
+      "target_entity": "IGF-1R",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence of target engagement at tested dose, suggesting inadequate binding or exposure"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "IGF-1R inhibition",
+      "target_entity": "neuroendocrine tumor growth",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Complete lack of clinical response (0/25) suggests IGF-1R pathway may not be critical for neuroendocrine tumor growth or drug failed to adequately inhibit pathway"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "objective response rate",
+      "target_entity": "IGF-1R pathway inhibition benefit",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Objective response rate is appropriate endpoint for anti-tumor activity, but lack of biomarker data prevents assessment of pathway-endpoint relationship"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Complete absence of target engagement and biomarker data makes it impossible to distinguish between no target engagement, inadequate pathway modulation, or mechanism invalidity in this population"
+}

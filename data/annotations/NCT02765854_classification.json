@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02765854",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Limited direct evidence of target engagement, but both ixazomib (proteasome inhibitor) and lenalidomide (immunomodulatory) are established agents with known mechanisms. Oral administration suggests adequate delivery. 2. PATHWAY MODULATION: No specific pathway biomarkers reported, but the different response rates across arms suggest biological activity. NFKB2 rearrangement assessment indicates some pathway investigation. 3. CLINICAL TRANSLATION: Primary endpoint was met with strong effect sizes - Arm A achieved 59% ORR vs 30% historical control, and Arm C achieved 67% ORR. This represents clinically meaningful improvement. 4. POPULATION EFFECTS: Clear subgroup differences emerged - Arm A (no NFKB2 rearrangement) showed best durability with 50.5% treatment-failure-free at 24 months vs 14.1-15.6% in other arms, despite similar initial response rates. This suggests the mechanism works differently based on genetic background. 5. CONFOUNDERS: Historical control comparison is less robust than concurrent control, but effect sizes are large enough to be convincing. Sample size of 70 is modest but adequate for the observed effect sizes.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "While all arms showed response rates above historical control, Arm A (without NFKB2 rearrangement) demonstrated superior durability with 50.5% treatment-failure-free at 24 months compared to 14.1-15.6% in arms with NFKB2 rearrangement, suggesting optimal efficacy in a genetic subgroup"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ixazomib",
+      "target_entity": "proteasome",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Clinical response rates above historical control support proteasome inhibition mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "proteasome_inhibition_immunomodulation",
+      "target_entity": "myeloma_cell_death",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Strong response rates (59-67%) demonstrate biological mechanism translates to clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "NFKB2_rearrangement_negative_patients",
+      "target_entity": "ixazomib_dexamethasone",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Arm A without NFKB2 rearrangement showed superior durability (50.5% vs 14-15% treatment-failure-free at 24 months)"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "overall_response_rate",
+      "target_entity": "myeloma_treatment_benefit",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Response rates significantly exceeded historical control and showed meaningful clinical benefit"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

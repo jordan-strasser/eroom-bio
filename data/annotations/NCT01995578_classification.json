@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT01995578",
+  "trial_outcome": "partial",
+  "reasoning": "This is a single-arm phase II trial with 32 patients receiving 5'-azacitidine post-transplant. Step 1 (TARGET ENGAGEMENT): No PK/PD data or biomarker evidence provided to confirm DNA methyltransferase inhibition, though azacitidine is a well-established DNMT inhibitor. Step 2 (PATHWAY MODULATION): No biomarker data showing DNA hypomethylation or epigenetic changes. Step 3 (CLINICAL TRANSLATION): Only 2/32 patients relapsed at 2 years, which appears low for high-risk post-transplant patients, but without a control group or historical comparison, efficacy cannot be definitively assessed. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Single-arm design prevents definitive efficacy assessment; safety signals including hemorrhages and infections are concerning but manageable with dose modifications.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No control group, no statistical analysis, no target engagement biomarkers, and no comparison to historical controls provided"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "5'-azacitidine",
+      "target_entity": "DNA methyltransferase",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Known mechanism but no target engagement data provided in this trial"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "DNA hypomethylation",
+      "target_entity": "post-transplant relapse prevention",
+      "direction": "neutral",
+      "magnitude": 0.4,
+      "reasoning": "Low relapse rate observed but cannot determine causality without control group"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "relapse rate at 2 years",
+      "target_entity": "post-transplant outcomes",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Appropriate endpoint for assessing post-transplant maintenance therapy"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no statistical analysis or control comparison makes efficacy assessment impossible; low relapse rate could suggest benefit but requires expert interpretation of historical context"
+}

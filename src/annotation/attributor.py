@@ -207,6 +207,15 @@ class Attributor:
         item: dict[str, Any],
     ) -> tuple[str | None, str | None]:
         """Resolve source/target entity names to graph node IDs."""
+        # Open Targets seeds biology_drives as target_id → indication_id.
+        # The subgraph resolver stashes those coordinates in metadata so we
+        # can update the real OT edge here instead of a phantom one keyed
+        # on the trial's (BIO/MECH-labelled) biology_id.
+        if edge_type == EdgeType.BIOLOGY_DRIVES:
+            ot_coords = trial.metadata.get("ot_biology_drives")
+            if ot_coords:
+                return ot_coords.get("source_id"), ot_coords.get("target_id")
+
         mapping = _EDGE_TYPE_TO_SUBGRAPH_FIELDS.get(edge_type.value)
         if not mapping:
             return None, None

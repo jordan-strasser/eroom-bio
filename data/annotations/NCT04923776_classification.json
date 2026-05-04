@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT04923776",
+  "trial_outcome": "failure",
+  "reasoning": "This trial appears to have been terminated early with only 2 patients enrolled out of what was likely a much larger planned sample size. With no reported results for the primary endpoint (6-month progression-free survival rate), no effect size, no p-value, and no biomarker data, there is insufficient enrollment and follow-up to evaluate any aspect of the mechanistic causal chain. The combination therapy involves multiple components (SBRT radiation to liver, PD-L1 checkpoint inhibitor atezolizumab, and chemotherapy with carboplatin/etoposide) targeting both local liver metastases and systemic immune activation, but with only 2 patients, no meaningful assessment of target engagement, pathway modulation, or clinical translation is possible.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.95,
+      "evidence": "Only 2 patients enrolled, no primary endpoint results reported, no biomarker data, no target engagement evidence, suggesting early termination before meaningful data collection"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of 2 patients is far below what would be needed for any statistical analysis of a 6-month progression-free survival endpoint"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available due to insufficient enrollment"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "SBRT radiation",
+      "target_entity": "abscopal immune activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker or immune activation data available to assess radiation-induced immune effects"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "6-month progression-free survival",
+      "target_entity": "treatment benefit",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint data available due to early termination"
+    }
+  ],
+  "confidence_overall": 0.95,
+  "needs_expert_review": false,
+  "review_reason": null
+}

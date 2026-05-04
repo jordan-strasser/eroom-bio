@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02108652",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with mean Cmax of 364 mcg/mL and steady-state levels achieved by cycle 3-4 (120-147 mcg/mL), indicating adequate drug exposure for PD-L1 blockade. 2. PATHWAY MODULATION: While direct PD-L1 occupancy data not provided, the development of anti-therapeutic antibodies in 42.4% of participants suggests immune system activation, consistent with checkpoint inhibitor mechanism. 3. CLINICAL TRANSLATION: Primary endpoint was met with ORR of 15.8% (95% CI: 11.9-20.4) by independent review, demonstrating clinical efficacy in this heavily pretreated urothelial cancer population where response rates are typically low. 4. POPULATION EFFECTS: No subgroup data reported, but the overall response rate suggests the mechanism worked across the enrolled population. 5. CONFOUNDERS: Single-arm design limits interpretation, but the response rate is clinically meaningful for second-line+ urothelial cancer, and safety profile was manageable.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.3,
+      "evidence": "15.8% ORR suggests only a subset of patients responded, which is typical for checkpoint inhibitors, though no biomarker stratification was reported"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Adequate drug exposure levels achieved and maintained, supporting target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "PD-L1",
+      "target_entity": "immune checkpoint blockade",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Anti-therapeutic antibody development suggests immune activation consistent with checkpoint inhibition"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune checkpoint blockade",
+      "target_entity": "anti-tumor immune response",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clinical responses observed in 15.8% of patients support anti-tumor activity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "anti-tumor immune response",
+      "target_entity": "tumor shrinkage",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Objective responses by RECIST criteria demonstrate tumor shrinkage from immune activation"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,54 @@
+{
+  "nct_id": "NCT04410133",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: 18F fluciclovine is a well-established amino acid analog that binds to amino acid transporters (LAT1/LAT2). The standard dose of 185 MBq was administered, and the compound has known uptake kinetics. Target engagement is likely adequate. 2. PATHWAY MODULATION: The compound should accumulate in metabolically active tissues via amino acid transport. However, there's no direct evidence of differential uptake in brain metastases vs normal brain tissue provided. 3. CLINICAL TRANSLATION: The primary endpoint (diagnostic accuracy) failed dramatically. PPA was only 23.8-36.6%, meaning the imaging failed to detect most recurrent brain metastases. This suggests either poor uptake in brain metastases or inability to distinguish metastases from normal brain tissue. 4. POPULATION EFFECTS: Significant heterogeneity across cancer types (lung 29-44% vs breast 10-40% PPA) and immunotherapy status (0-17% vs 28-40% PPA) suggests the mechanism may work better in specific populations but overall performance remains poor. 5. CONFOUNDERS: Sample size of 151 appears adequate for a diagnostic accuracy study. The reference standard (MRI with surgical/clinical follow-up) is appropriate.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "18F fluciclovine likely engaged amino acid transporters and accumulated in tissues, but failed to provide adequate diagnostic accuracy for brain metastases detection (PPA only 23.8-36.6%)"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Large variation in PPA across cancer types (lung 29-44% vs breast 10-40%) and immunotherapy status suggests the mechanism may not work uniformly across all brain metastases populations"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "18F fluciclovine",
+      "target_entity": "amino acid transporter",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Target engagement likely occurred but no direct evidence provided in this brain metastases context"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "amino acid transport",
+      "target_entity": "brain metastases detection",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "Poor diagnostic accuracy (PPA 23.8-36.6%) suggests amino acid transport mechanism is inadequate for reliable brain metastases detection"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lung cancer brain metastases",
+      "target_entity": "18F fluciclovine uptake",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "Lung cancer showed highest PPA (29-44%) compared to other cancer types"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "immunotherapy concurrent patients",
+      "target_entity": "18F fluciclovine uptake",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Concurrent immunotherapy dramatically reduced PPA (0-17% vs 28-40%)"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT01864018",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence of target engagement through measured pharmacokinetic parameters (peak concentration, time to maximum concentration, area under curve) for ixazomib, a known proteasome inhibitor. The MTD was established at 4mg weekly, indicating adequate drug exposure. 2. PATHWAY MODULATION: While specific proteasome inhibition biomarkers weren't reported, the combination includes established agents (cyclophosphamide, dexamethasone) with known mechanisms. The achievement of clinical responses suggests downstream biological effects occurred. 3. CLINICAL TRANSLATION: Strong clinical translation with 35% CR/VGPR rate in multiple myeloma cohort and 63% overall response rate in light chain amyloidosis cohort. Both endpoints exceeded typical expectations for this patient population. 4. POPULATION EFFECTS: Interesting differential response between cohorts - light chain amyloidosis patients (63% response) showed better outcomes than multiple myeloma patients (35% CR/VGPR), suggesting mechanism may be particularly effective in amyloidosis. 5. CONFOUNDERS: Single-arm design limits interpretation, but response rates appear clinically meaningful. Safety profile was manageable with established MTD.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.3,
+      "evidence": "Light chain amyloidosis cohort showed superior response rate (63%) compared to multiple myeloma cohort (35%), suggesting differential efficacy across populations"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Ixazomib",
+      "target_entity": "Proteasome",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "PK parameters confirmed drug exposure and MTD establishment indicates target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Proteasome inhibition",
+      "target_entity": "Plasma cell biology",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clinical responses in both cohorts demonstrate biological activity against plasma cell disorders"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Plasma cell apoptosis",
+      "target_entity": "Disease response",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "35% CR/VGPR in MM and 63% response in AL amyloidosis demonstrate clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "Light chain amyloidosis patients",
+      "target_entity": "Multiple myeloma patients",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "63% vs 35% response rates suggest differential sensitivity to proteasome inhibition"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

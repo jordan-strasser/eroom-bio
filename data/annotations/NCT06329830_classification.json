@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT06329830",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase 1 dose-escalation trial that was terminated early due to funding withdrawal. No efficacy or safety data was collected, making it impossible to assess target engagement, pathway modulation, or clinical translation. The trial failed to complete enrollment and data collection phases, preventing any mechanistic evaluation of the triple combination therapy (177Lu-PSMA-617 + Niraparib/Abiraterone + Prednisone) in metastatic castration-resistant prostate cancer.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.95,
+      "evidence": "Trial was terminated due to funding withdrawal as explicitly stated in investigator commentary, not due to scientific or safety concerns"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint data, effect sizes, p-values, biomarker changes, or safety signals reported due to early termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "177Lu-PSMA-617",
+      "target_entity": "PSMA",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data collected to assess target engagement due to early termination"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Niraparib",
+      "target_entity": "PARP",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No pharmacodynamic data available to confirm PARP inhibition"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Abiraterone acetate",
+      "target_entity": "CYP17A1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker data to confirm androgen synthesis inhibition"
+    }
+  ],
+  "confidence_overall": 0.95,
+  "needs_expert_review": false,
+  "review_reason": null
+}

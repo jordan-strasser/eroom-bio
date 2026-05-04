@@ -79,6 +79,58 @@ class GraphStore:
         data = self._get_edge_data(src_id, tgt_id, edge_type)
         return EdgeBeliefState.model_validate(data["belief"])
 
+    def get_edge_belief_conditioned(
+        self,
+        src_id: str,
+        tgt_id: str,
+        edge_type: EdgeType,
+        relevant_tissues: set[str] | None = None,
+        off_tissue_weight: float = 0.3,
+    ) -> EdgeBeliefState:
+        """Belief recomputed from evidence records, downweighting any record
+        whose ``context["tissue"]`` is not in ``relevant_tissues``.
+
+        Records with no ``tissue`` context are treated as fully relevant
+        (context-free evidence applies regardless of indication). Records
+        whose tissue *is* tagged but doesn't match get weighted by
+        ``off_tissue_weight`` rather than dropped entirely — they're still
+        partial evidence that the mechanism perturbs the biology, just in a
+        different cellular context.
+
+        When ``relevant_tissues`` is None or empty, behaves identically to
+        ``get_edge_belief`` (no conditioning).
+        """
+        data = self._get_edge_data(src_id, tgt_id, edge_type)
+        stored = EdgeBeliefState.model_validate(data["belief"])
+        if not relevant_tissues:
+            return stored
+        if not stored.evidence:
+            return stored
+
+        # Recompute alpha/beta from the prior + reweighted evidence.
+        # The "prior" is alpha/beta minus the contributions implied by the
+        # stored evidence. Since update_edge_belief monotonically adds, we
+        # back out by recomputing from Beta(1,1).
+        alpha, beta = 1.0, 1.0
+        for ev in stored.evidence:
+            tissue = (ev.context or {}).get("tissue")
+            if tissue is None:
+                tissue_weight = 1.0  # no tissue tag = context-free, full weight
+            elif tissue in relevant_tissues:
+                tissue_weight = 1.0
+            else:
+                tissue_weight = off_tissue_weight
+            weight = EVIDENCE_TYPE_WEIGHTS[ev.source_type]
+            delta = weight * ev.quality_score * ev.magnitude * tissue_weight
+            if ev.direction == EvidenceDirection.SUPPORTING:
+                alpha += delta
+            elif ev.direction == EvidenceDirection.CONTRADICTING:
+                beta += delta
+            else:  # ambiguous
+                alpha += delta * 0.3
+                beta += delta * 0.3
+        return EdgeBeliefState(alpha=alpha, beta=beta, evidence=stored.evidence)
+
     def update_edge_belief(
         self,
         src_id: str,

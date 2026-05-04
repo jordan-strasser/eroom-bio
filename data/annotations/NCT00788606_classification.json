@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT00788606",
+  "trial_outcome": "partial",
+  "reasoning": "This appears to be a small safety run-in study (n=7) with primary endpoint focused on cardiac and bevacizumab-specific toxicity rather than efficacy. The trial was designed to assess safety of combining bevacizumab with R-CHOP in DLBCL patients. No primary endpoint results, effect sizes, or p-values are reported. The mention of 'toxicity and efficacy data from another trial' suggests this may have been terminated early or results were pooled with another study. With only 7 patients and no reported outcomes, this appears to be an incomplete or prematurely terminated safety study rather than a definitive efficacy trial.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results reported, no effect sizes, no p-values, and extremely small sample size (n=7) for what appears to be a safety run-in study"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Sample size of only 7 patients is insufficient for meaningful safety or efficacy assessment in DLBCL"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data reported, but bevacizumab is a well-established VEGF inhibitor"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "VEGF inhibition",
+      "target_entity": "tumor angiogenesis",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biomarker or pathway data reported to assess angiogenesis modulation"
+    }
+  ],
+  "confidence_overall": 0.2,
+  "needs_expert_review": true,
+  "review_reason": "Extremely limited data from small safety study with no reported outcomes makes mechanistic classification highly uncertain"
+}

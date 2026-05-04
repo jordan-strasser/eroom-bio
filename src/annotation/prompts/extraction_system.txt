@@ -38,4 +38,10 @@ Rules:
 - If a field cannot be determined, use null for nullable fields or empty string/list for others.
 - For primary_endpoint_met: true if the trial met its primary endpoint, false if it did not, null if unclear.
 - For rationale_strength: "strong" = validated target + prior clinical evidence, "moderate" = preclinical evidence + biological rationale, "weak" = limited supporting data, "unclear" = insufficient information.
+- When the trial was TERMINATED or WITHDRAWN with no posted results but a "Why Stopped" reason is provided, treat that text as the primary signal:
+    * Quote it verbatim into context.investigator_commentary.
+    * If it indicates futility / lack of efficacy / failure to meet endpoint, set results.primary_endpoint_met=false.
+    * If it indicates safety / toxicity / adverse events, populate results.safety_signals with the quoted phrase.
+    * If it indicates business / strategic / sponsor decision / portfolio reasons, leave primary_endpoint_met=null and capture the phrase in investigator_commentary — do not infer mechanistic failure.
+    * If it indicates slow accrual / feasibility / enrollment problems, leave primary_endpoint_met=null and capture in investigator_commentary — this is a trial-design issue, not mechanistic.
 - Return ONLY the JSON object. No explanation, no markdown fences.

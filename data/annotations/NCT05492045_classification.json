@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT05492045",
+  "trial_outcome": "failure",
+  "reasoning": "This is a Phase I dose-escalation trial of D-1553, a KRAS G12C inhibitor, in NSCLC patients with KRAS G12C mutations. The trial was terminated early with only 22 patients enrolled over approximately 3 years, with investigator commentary citing 'adjustment of drug development strategy.' No primary endpoint results, biomarker data, or safety signals are reported. The lack of any reported data on target engagement, pharmacokinetics, pharmacodynamics, or clinical activity, combined with early termination and strategic adjustment, suggests fundamental issues with the compound or development approach. Without any evidence of target engagement or biological activity, and given the early termination, this appears to be a failure at the target engagement level, though commercial/strategic factors may have also contributed.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.6,
+      "evidence": "No biomarker data, PK/PD data, or target engagement evidence reported despite KRAS G12C being a well-validated target with established biomarkers"
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.7,
+      "evidence": "Early termination with 'adjustment of drug development strategy' suggests strategic/commercial decision rather than safety concerns"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "D-1553",
+      "target_entity": "KRAS G12C",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence of target engagement despite this being a measurable endpoint in KRAS G12C inhibitor development"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "KRAS G12C inhibition",
+      "target_entity": "tumor cell proliferation",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "No biological activity data reported to support mechanism of action"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Very limited data available - early termination with minimal reporting makes it difficult to distinguish between scientific failure and commercial decision"
+}

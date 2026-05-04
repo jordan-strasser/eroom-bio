@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT02535988",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for thymalfasin engaging immune system targets or radiation achieving intended immunogenic cell death. No PD/PK data or immune biomarkers reported. 2. PATHWAY MODULATION: No biomarker changes reported to confirm immune system activation or abscopal effect pathway engagement. 3. CLINICAL TRANSLATION: No results reported for primary endpoint (abscopal response proportion). 4. POPULATION EFFECTS: No subgroup analysis possible due to lack of enrollment. 5. CONFOUNDERS: Critical confounder identified - investigator commentary states 'No recruitment', indicating the trial failed to enroll patients and therefore could not generate any efficacy or safety data.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results, effect size, or p-values reported. No target engagement or biomarker data available."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.8,
+      "evidence": "Investigator commentary states 'No recruitment', suggesting inability to identify and enroll appropriate patients with metastatic colorectal cancer."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Thymalfasin",
+      "target_entity": "immune system",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No evidence of immune system modulation due to lack of patient enrollment and data generation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "abscopal effect",
+      "target_entity": "distant metastases response",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to evaluate abscopal effect biology due to recruitment failure"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

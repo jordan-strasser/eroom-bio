@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01161498",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for target engagement - no viral replication data, tumor infection confirmation, or pharmacodynamic markers showing the oncolytic virus reached and infected tumor cells. 2. PATHWAY MODULATION: No biomarker data showing downstream effects like immune activation, tumor lysis markers, or inflammatory responses that would indicate the oncolytic mechanism was active. 3. CLINICAL TRANSLATION: Trial terminated early with only 5 participants enrolled, making efficacy assessment impossible. The limited response data (1/2 vs 2/3 clinical complete response) actually favors control. 4. POPULATION EFFECTS: Sample too small to assess subgroup responses meaningfully. 5. CONFOUNDERS: Major confounder is severe under-enrollment - only 5 participants enrolled when adequate power would require much larger sample size. Early termination prevents any meaningful efficacy or mechanistic assessment.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 5 participants enrolled in total (2 combination arm, 3 control arm) with early termination, making statistical analysis impossible and preventing any meaningful efficacy assessment"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No target engagement data, no biomarker evidence of viral replication or tumor infection, no pharmacodynamic markers to assess whether the oncolytic mechanism was active"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Talimogene Laherparepvec",
+      "target_entity": "tumor cells",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for tumor cell infection or viral replication, but sample too small to draw meaningful conclusions about target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "oncolytic viral therapy",
+      "target_entity": "tumor cell lysis and immune activation",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biomarker data to assess whether oncolytic mechanism was active, and early termination prevents assessment"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "tumor cell destruction and immune activation",
+      "target_entity": "event-free survival",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "Trial terminated too early to assess clinical outcomes meaningfully, though limited data suggests no benefit"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": true,
+  "review_reason": "Early termination with minimal enrollment prevents meaningful mechanistic assessment - unclear whether failure was due to biological inefficacy, operational issues, or other factors"
+}

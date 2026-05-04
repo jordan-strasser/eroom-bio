@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT05141357",
+  "trial_outcome": "partial",
+  "reasoning": "This is a Phase I safety run-in study with only 5 patients that appears to have been terminated early. Step 1 (TARGET ENGAGEMENT): No PK/PD data or biomarker evidence provided to confirm HDAC or PD-1 engagement, though standard dosing regimens were used. Step 2 (PATHWAY MODULATION): No pathway biomarkers or pharmacodynamic markers reported to assess biological activity. Step 3 (CLINICAL TRANSLATION): Primary endpoint was safety/tolerability, not efficacy, so clinical translation cannot be assessed. Step 4 (POPULATION EFFECTS): No subgroup analysis possible with n=5. Step 5 (CONFOUNDERS): Major confounders include extremely small sample size (n=5), likely early termination, and multiple serious safety events including GI hemorrhage, ileus, and various infections/respiratory complications that may have driven study discontinuation.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 5 patients enrolled in what appears to be a prematurely terminated study, insufficient to assess safety or any other endpoints meaningfully"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Multiple serious adverse events including GI hemorrhage, ileus, and various infections in a very small cohort (5 patients) suggests potential dose-limiting toxicity that may have led to early termination"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, no biomarker data, no efficacy data, and no clear indication of whether primary safety endpoint was met"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "HBI-8000",
+      "target_entity": "HDAC",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided, but compound is known HDAC inhibitor - insufficient evidence to update edge"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided, but pembrolizumab is established PD-1 inhibitor - insufficient evidence to update edge"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "HDAC inhibition + PD-1 blockade",
+      "target_entity": "anti-tumor immune response",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Early termination and safety concerns suggest combination may not be well-tolerated enough to achieve intended biological effects"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Very limited data from apparent early termination with only 5 patients makes mechanistic assessment extremely difficult. Safety profile concerning but unclear if related to mechanism or other factors."
+}

@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT01042028",
+  "trial_outcome": "failure",
+  "reasoning": "This was a Phase I/II trial of a triple combination (ICE) in gemcitabine-resistant pancreatic cancer that appears to have been terminated early. Step 1 (TARGET ENGAGEMENT): No target engagement data provided - no PK/PD data, biomarker changes, or evidence that EGFR/mTOR targets were engaged. Step 2 (PATHWAY MODULATION): No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biology changes. Step 3 (CLINICAL TRANSLATION): Primary endpoints not met - no effect size or p-values reported, suggesting the trial did not demonstrate efficacy. Step 4 (POPULATION EFFECTS): No subgroup findings reported. Step 5 (CONFOUNDERS): Investigator commentary mentions 'slow recruitment' and 'emergence of FOLFIRINOX' suggesting the trial was terminated early due to external factors including competition from a new standard of care (FOLFIRINOX) and enrollment challenges. The small sample size (39 patients) and early termination suggest this was likely underpowered and stopped for commercial/strategic reasons rather than completing the planned efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Investigator commentary specifically mentions 'emergence of FOLFIRINOX and slow recruitment' suggesting trial was terminated due to competitive landscape changes and enrollment challenges rather than scientific failure"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Small sample size of 39 patients and early termination due to slow recruitment likely resulted in insufficient power to detect treatment effects"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No target engagement data, biomarker changes, or efficacy results reported, making it impossible to assess whether the mechanism failed or was never properly tested"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "ICE combination",
+      "target_entity": "EGFR/mTOR",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No evidence provided for target engagement, but trial terminated early so mechanism not properly tested"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "EGFR/mTOR inhibition",
+      "target_entity": "progression-free survival",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No efficacy data available due to early termination, cannot assess biological pathway to clinical outcome relationship"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Trial appears to have been terminated early for commercial/competitive reasons rather than scientific failure, making it difficult to assess the true mechanistic potential of the combination"
+}

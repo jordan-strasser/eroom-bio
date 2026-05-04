@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT01310855",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD/PK data available to confirm VEGFR/EGFR engagement. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) showed modest numerical improvement (3.6 vs 2.8 months) but no p-value reported and effect size appears clinically marginal. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Very small sample size (n=38) suggests underpowered study. Significant safety signals including thromboembolic events, CNS toxicities, and falls may have limited dosing or treatment duration.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Sample size of only 38 patients is extremely small for a PFS endpoint in glioblastoma, likely insufficient to detect meaningful differences"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Multiple serious safety signals including thromboembolic events, pulmonary embolism, and CNS toxicities (ataxia, cognitive disturbance, dysphasia) likely limited optimal dosing"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No target engagement data, no biomarker evidence, no p-values reported, making mechanistic assessment impossible"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "cediranib",
+      "target_entity": "VEGFR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data available to confirm or refute VEGFR binding"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "gefitinib",
+      "target_entity": "EGFR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data available to confirm or refute EGFR binding"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression-free survival",
+      "target_entity": "anti-angiogenic and EGFR inhibition effects",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Minimal PFS benefit despite dual targeting suggests endpoint may not capture combined mechanism effects in this population"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Extremely limited data with no target engagement evidence, no statistical significance testing, and very small sample size makes mechanistic classification highly uncertain"
+}

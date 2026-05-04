@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT04859582",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was withdrawn due to protocol amendment before completion, providing no data on any step of the mechanistic causal chain. There is no evidence of target engagement (no PD/PK data or biomarker changes), no pathway modulation data (no immune activation markers), no clinical translation data (no OS results), no subgroup analysis, and the withdrawal appears to be for operational/commercial reasons rather than scientific failure of the mechanism.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial was withdrawn due to protocol amendment before generating any efficacy or safety data, suggesting operational or strategic decision rather than mechanistic failure"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results, effect size, p-values, target engagement data, or biomarker changes reported due to early withdrawal"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Pembrolizumab",
+      "target_entity": "PD-1",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to inform target engagement due to trial withdrawal"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PD-1 blockade",
+      "target_entity": "T-cell activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker or pathway data generated to assess immune activation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "anti-tumor immune response",
+      "target_entity": "overall survival",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No clinical outcome data generated due to early withdrawal"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

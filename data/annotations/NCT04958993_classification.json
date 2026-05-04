@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT04958993",
+  "trial_outcome": "failure",
+  "reasoning": "This appears to be a phase I/II trial that was terminated early due to safety concerns. Step 1 (TARGET ENGAGEMENT): No target engagement data provided, but anlotinib is a known multi-kinase inhibitor with established activity against VEGFR/PDGFR/FGFR at the 12mg dose used. Step 2 (PATHWAY MODULATION): No biomarker or pathway data provided to assess biological activity. Step 3 (CLINICAL TRANSLATION): No efficacy data reported - primary endpoints (PFS for phase II, MTD for phase I) were not met. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): Major safety signal of severe radiation pneumonia with only 7 patients enrolled suggests the trial was stopped early for dose-limiting toxicity when combined with radiotherapy and chemotherapy. The small sample size (n=7) and early termination indicate this was a dose-limiting toxicity issue rather than lack of efficacy.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "High incidence of severe radiation pneumonia reported with only 7 patients enrolled, suggesting early termination due to unacceptable toxicity when anlotinib was combined with radiotherapy and chemotherapy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "anlotinib + radiotherapy + chemotherapy combination",
+      "target_entity": "lung toxicity",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong evidence that this triple combination causes severe radiation pneumonia, limiting clinical utility in this setting"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "unresectable stage III NSCLC patients",
+      "target_entity": "anlotinib + chemoradiotherapy",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "This population appears particularly susceptible to severe pulmonary toxicity with this combination approach"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

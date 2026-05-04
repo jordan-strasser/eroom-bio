@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT04327986",
+  "trial_outcome": "failure",
+  "reasoning": "This Phase 1 dose-escalation trial was terminated early with only 3 patients enrolled. Step 1 (TARGET ENGAGEMENT): No target engagement data provided - no PD/PK data, biomarker changes, or evidence that M7824 engaged PD-L1/TGF-\u03b2 or M9241 engaged IL-12 pathway. Step 2 (PATHWAY MODULATION): No biomarker or pharmacodynamic data to assess whether downstream immune activation occurred. Step 3 (CLINICAL TRANSLATION): Primary endpoint not met, though this was a dose-finding study focused on safety rather than efficacy. Step 4 (POPULATION EFFECTS): No subgroup analysis possible with only 3 patients. Step 5 (CONFOUNDERS): Major confounder is the extremely small sample size (n=3) which provides insufficient information for any meaningful assessment of the mechanism. The trial appears to have been stopped early, likely due to safety concerns given the serious adverse events including GI hemorrhage.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Only 3 patients enrolled before early termination, no target engagement data, no biomarker data, no meaningful efficacy assessment possible"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Sample size of 3 patients is far too small to assess safety, determine recommended Phase 2 dose, or evaluate efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "M7824",
+      "target_entity": "PD-L1/TGF-\u03b2",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data available to assess binding"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "M9241",
+      "target_entity": "IL-12 pathway",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data available to assess IL-12 pathway activation"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated with only 3 patients - insufficient data to make meaningful mechanistic conclusions about compound activity or failure modes"
+}

@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT00372905",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I dose-escalation trial with the primary objective of establishing maximum tolerated dose (MTD) and safety profile. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but both bortezomib (proteasome inhibitor) and Y-90-ibritumomab tiuxetan (anti-CD20 radioimmunotherapy) are established agents with known target engagement profiles. Step 2 (PATHWAY MODULATION): No pathway biomarkers reported, but this is typical for Phase I safety studies. Step 3 (CLINICAL TRANSLATION): The primary endpoint was met - MTD was successfully established at 1.3 mg/m2 bortezomib with acceptable toxicity profile. Two dose-limiting toxicities occurred at 1.6 mg/m2, confirming the MTD determination. Step 4 (POPULATION EFFECTS): No subgroup analysis in this small Phase I study. Step 5 (CONFOUNDERS): No major confounders identified. The trial achieved its stated objective of dose finding and safety assessment.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Limited target engagement and biomarker data typical of Phase I dose-escalation studies, but primary safety/MTD endpoint was successfully achieved"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Bortezomib",
+      "target_entity": "Proteasome",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Established proteasome inhibitor used at therapeutic doses without unexpected toxicity profile"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Y-90-ibritumomab tiuxetan",
+      "target_entity": "CD20",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Established anti-CD20 radioimmunotherapy agent used in combination without prohibitive toxicity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Maximum tolerated dose determination",
+      "target_entity": "Safety and tolerability",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary endpoint successfully achieved with clear MTD establishment and acceptable safety profile"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

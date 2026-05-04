@@ -162,6 +162,11 @@ class EvidenceRecord(BaseModel):
     timestamp: datetime
     provenance_url: str | None = None
     notes: str | None = None
+    # Free-form structured context (e.g. {"cell_line": "A375", "tissue": "skin"}).
+    # Used at query time by context-conditioned belief retrieval to downweight
+    # evidence that doesn't match the queried indication's tissue. Empty for
+    # context-free evidence (the default for everything except LINCS sigs).
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 class EdgeBeliefState(BaseModel):

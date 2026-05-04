@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02450331",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with mean Cmax 365 \u00b5g/mL and steady-state levels achieved by Cycle 8 (203 \u00b5g/mL), indicating adequate drug exposure. 2. PATHWAY MODULATION: Limited direct evidence of pathway modulation, but the immune-related adverse events (hypophysitis, hypothyroidism, adrenal insufficiency) suggest immune system activation consistent with PD-L1 blockade mechanism. Anti-drug antibodies in 29.3% may have reduced efficacy in some patients. 3. CLINICAL TRANSLATION: Despite apparent target engagement and biological activity, the primary endpoint of disease-free survival was not met (HR 0.892, p=0.2446). The effect size suggests a modest trend toward benefit but was not statistically significant. 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess whether the mechanism worked in specific patient subsets. 5. CONFOUNDERS: The trial appears adequately powered with 809 patients and appropriate duration. The comparison to observation arm is appropriate for adjuvant setting.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Target engagement achieved with appropriate drug levels, immune-related adverse events suggest pathway activation, but primary DFS endpoint not met (HR 0.892, p=0.2446)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Atezolizumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong PK evidence of target engagement with appropriate drug levels achieved"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "PD-L1",
+      "target_entity": "immune checkpoint blockade",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Immune-related adverse events suggest pathway activation, though anti-drug antibodies in 29.3% may have limited activity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell activation",
+      "target_entity": "disease-free survival",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Despite evidence of immune activation, no significant improvement in DFS endpoint in adjuvant urothelial carcinoma setting"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

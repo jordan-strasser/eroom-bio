@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT03232138",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of Nrf2 pathway engagement provided, but significant gene expression changes in nasal samples (p=0.012, p=0.0045) suggest some biological activity. 2. PATHWAY MODULATION: Mixed evidence - Ki-67 proliferation marker showed favorable changes (decrease in treatment vs increase in placebo), and gene expression changes in nasal samples indicate pathway activity, but no changes in apoptosis markers (TUNEL, Caspase-3). 3. CLINICAL TRANSLATION: Primary endpoint (bronchial dysplasia index) failed with p=0.452 and small effect size of 0.22, despite some biological activity. 4. POPULATION EFFECTS: Interesting tissue-specific response - nasal brushing samples showed significant gene modulation while bronchial samples did not, suggesting the drug may not reach the target tissue effectively. 5. CONFOUNDERS: Small sample size (n=43) likely underpowered for detecting modest effects in cancer prevention.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Ki-67 proliferation marker showed favorable changes and gene expression was modulated in nasal samples, but primary endpoint (bronchial dysplasia index) failed with p=0.452"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 43 participants for a cancer prevention trial with modest expected effect sizes"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.5,
+      "evidence": "Tissue-specific response pattern - significant effects in nasal but not bronchial samples suggests drug may not adequately reach the target bronchial tissue"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Sulforaphane",
+      "target_entity": "Nrf2 pathway",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Some gene expression changes suggest pathway activity but inconsistent across tissue types and no direct Nrf2 engagement data"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Nrf2 pathway activation",
+      "target_entity": "bronchial epithelial biology",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Mixed biological effects - Ki-67 changes favorable but no apoptosis marker changes, and tissue-specific response pattern"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bronchial epithelial changes",
+      "target_entity": "bronchial dysplasia index",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Despite some biological activity (Ki-67 changes), primary clinical endpoint failed with p=0.452"
+    }
+  ],
+  "confidence_overall": 0.65,
+  "needs_expert_review": true,
+  "review_reason": "Complex pattern of tissue-specific responses and mixed biomarker results requires expert interpretation of whether this represents inadequate target tissue penetration or endpoint sensitivity issues"
+}

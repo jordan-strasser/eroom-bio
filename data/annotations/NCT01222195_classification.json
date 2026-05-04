@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT01222195",
+  "trial_outcome": "failure",
+  "reasoning": "This is a single-patient study that provides insufficient data to evaluate the mechanistic causal chain. With only 1 patient enrolled who experienced neutropenic fever and achieved 0% transfusion independence, we cannot assess target engagement, pathway modulation, or clinical translation. The study appears to have been terminated early, likely due to safety concerns or feasibility issues. The extremely small sample size makes any mechanistic conclusions impossible.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Only 1 patient enrolled with no target engagement data, biomarker measurements, or mechanistic assessments reported"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Single patient study cannot provide meaningful efficacy or safety data for statistical analysis"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Patient experienced neutropenic fever, which may have contributed to early study termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Lenalidomide",
+      "target_entity": "Immunomodulatory pathway",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available from single patient study"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Darbepoetin alfa",
+      "target_entity": "Erythropoietin receptor",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available from single patient study"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Transfusion independence",
+      "target_entity": "Enhanced red blood cell production",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cannot evaluate endpoint validity with single patient failure"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Single patient study provides no meaningful data for mechanistic analysis - appears to be early termination rather than true efficacy assessment"
+}

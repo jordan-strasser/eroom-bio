@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02853604",
+  "trial_outcome": "failure",
+  "reasoning": "Working through the causal chain: 1) TARGET ENGAGEMENT: No biomarker data or target engagement evidence provided, making it impossible to confirm whether ADXS11-001 successfully engaged HPV-16 E7 antigen or induced the intended immune response. 2) PATHWAY MODULATION: No biomarker changes or pharmacodynamic markers reported to confirm immune system activation against HPV-transformed cells. 3) CLINICAL TRANSLATION: Primary endpoint (Disease Free Survival) results not reported, with no effect size or p-value data available. 4) POPULATION EFFECTS: No subgroup findings reported. 5) CONFOUNDERS: Safety signals including cytokine release syndrome suggest some biological activity occurred, but the complete absence of efficacy data and biomarker information prevents mechanistic classification.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results reported, no effect size or p-value data, no biomarker or target engagement evidence, and no subgroup findings available despite 110 patient sample size"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "ADXS11-001",
+      "target_entity": "HPV-16 E7 antigen",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available to assess binding or immune recognition of HPV-16 E7"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Listeria-based immunotherapy",
+      "target_entity": "immune system activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "Cytokine release syndrome in 2/72 patients suggests some immune activation, but no biomarker data to confirm intended mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune system activation",
+      "target_entity": "disease free survival",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No efficacy data reported to assess clinical translation of any biological effects"
+    }
+  ],
+  "confidence_overall": 0.2,
+  "needs_expert_review": true,
+  "review_reason": "Complete absence of efficacy data and biomarker information makes mechanistic failure analysis impossible - requires access to full study results or clarification of trial status"
+}

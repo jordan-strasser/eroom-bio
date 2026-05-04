@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT00602329",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was terminated early due to poor accrual with only 5 patients enrolled. The primary endpoint was percentage change in Ktrans by DCE-MRI after 2 courses of treatment, but no results are reported. With such a small sample size and early termination, it's impossible to assess target engagement, pathway modulation, or clinical translation. The trial failed due to operational issues rather than scientific reasons - specifically inability to recruit sufficient patients to generate meaningful data.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 5 patients enrolled before early termination due to poor accrual, far below any reasonable sample size for detecting treatment effects"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results, biomarker data, or target engagement evidence reported due to early termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No data generated to assess target engagement due to early termination"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Ktrans DCE-MRI",
+      "target_entity": "angiogenesis inhibition",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint data collected to validate this relationship"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

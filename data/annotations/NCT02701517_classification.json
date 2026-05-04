@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02701517",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was terminated early due to lack of support before reaching target enrollment (72 patients enrolled vs target unclear). No efficacy data is available - primary endpoint results, effect sizes, and p-values are all null. While the dosing regimens for cyclosporine, methotrexate, and alemtuzumab are provided and appear standard for transplant immunosuppression, there is no evidence of target engagement, biomarker changes, or clinical outcomes. The early termination prevents assessment of the mechanistic causal chain from target engagement through clinical translation. This appears to be a commercial/strategic decision rather than a scientific failure of the mechanism.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Trial was explicitly stopped 'due to lack of support' before reaching target enrollment, with no efficacy or safety data reported"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results, effect sizes, p-values, target engagement evidence, or biomarker data available due to early termination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Cyclosporine",
+      "target_entity": "Calcineurin",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available due to early trial termination"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Alemtuzumab",
+      "target_entity": "CD52",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available due to early trial termination"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Event-free survival at 270 days",
+      "target_entity": "Transplant outcomes",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No endpoint data collected due to early termination"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Early termination prevents mechanistic assessment - unclear if this represents a true failure of the therapeutic approach or simply inadequate trial execution/support"
+}

@@ -1,0 +1,46 @@
+{
+  "nct_id": "INSPIRE",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided, but necitumumab is a well-characterized anti-EGFR monoclonal antibody with established binding properties. At 800mg dosing, target engagement is likely achieved. 2. PATHWAY MODULATION: No biomarker data provided to confirm EGFR pathway inhibition or downstream biological effects. 3. CLINICAL TRANSLATION: Primary endpoint of overall survival was not met, with no survival benefit observed. No improvement in PFS or ORR either. 4. POPULATION EFFECTS: No subgroup analyses reported. Reviewer notes that non-squamous NSCLC may be different from squamous NSCLC where necitumumab later showed efficacy. 5. CONFOUNDERS: Major confounder is dose-limiting toxicity - study was terminated early due to safety concerns including 3.2% vs 1.3% sudden death/unknown cause deaths and increased thromboembolic events (17% vs 14%). This prevented adequate exposure and assessment of efficacy.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "Study terminated early due to safety concerns including doubled rate of sudden death/unknown cause (3.2% vs 1.3%) and increased thromboembolic events (17% vs 14%)"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Reviewer commentary notes that non-squamous NSCLC and squamous NSCLC are different disease entities with different genomic characteristics and treatment responses. Necitumumab later showed efficacy in squamous NSCLC."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "necitumumab",
+      "target_entity": "EGFR",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided, but mechanism is well-established for this antibody class"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EGFR inhibition",
+      "target_entity": "non-squamous NSCLC biology",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Failed to show clinical benefit in non-squamous NSCLC population, suggesting limited biological impact in this specific cancer subtype"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non-squamous NSCLC",
+      "target_entity": "EGFR inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Evidence suggests non-squamous NSCLC responds differently to EGFR inhibition compared to squamous NSCLC where necitumumab showed efficacy"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

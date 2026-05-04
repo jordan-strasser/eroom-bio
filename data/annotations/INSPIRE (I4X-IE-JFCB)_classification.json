@@ -1,0 +1,51 @@
+{
+  "nct_id": "INSPIRE (I4X-IE-JFCB)",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided - no PK/PD data, biomarker changes, or evidence that necitumumab reached and bound EGFR at the intended dose. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm EGFR pathway inhibition occurred. 3. CLINICAL TRANSLATION: Clinical endpoint was flat with HR 1.01 (95% CI 0.84, 1.21), showing no survival benefit. 4. POPULATION EFFECTS: No subgroup analyses reported, but this was non-squamous NSCLC which may have different EGFR biology than squamous. 5. CONFOUNDERS: Study was terminated early due to safety concerns (increased deaths and thromboembolic events), preventing full enrollment and potentially confounding efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.7,
+      "evidence": "No target engagement data provided despite this being critical for an EGFR-targeted therapy. No PK/PD data, biomarker changes, or evidence of EGFR binding/modulation reported."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.8,
+      "evidence": "Trial was in non-squamous NSCLC, and reviewer specifically noted that necitumumab is not effective in non-squamous NSCLC, recommending a limitation of use statement. This suggests the mechanism may not be relevant in this histological subtype."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Study terminated early due to imbalance in deaths (3.3% vs 1.6%) and thromboembolic events (17.4% vs 14%), suggesting safety issues may have prevented adequate exposure or confounded efficacy assessment."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "necitumumab",
+      "target_entity": "EGFR",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "No evidence provided that necitumumab engaged EGFR target in this trial, weakening confidence in binding relationship"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "EGFR inhibition",
+      "target_entity": "non-squamous NSCLC survival",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "HR 1.01 with no survival benefit and regulatory recommendation against use in non-squamous NSCLC strongly suggests mechanism is not effective in this population"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non-squamous NSCLC",
+      "target_entity": "EGFR-targeted therapy",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clear evidence that non-squamous NSCLC does not respond to necitumumab, suggesting histological subtype differences in EGFR pathway relevance"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Multiple potential failure modes with limited mechanistic data. Early termination for safety confounds interpretation, and lack of target engagement data makes it difficult to distinguish between target engagement failure versus wrong population."
+}

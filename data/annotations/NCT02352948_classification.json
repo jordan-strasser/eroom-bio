@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02352948",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but durvalumab and tremelimumab are established checkpoint inhibitors with known PD-L1 and CTLA-4 binding respectively. Assume target engagement occurred based on established mechanism. 2. PATHWAY MODULATION: No biomarker data provided to confirm immune activation or pathway modulation, but response rates suggest some biological activity occurred. 3. CLINICAL TRANSLATION: Mixed results - Sub-study A (PD-L1 selected) showed OS benefit (11.7 vs 6.8 months) and higher ORR (35.5% vs 12.5%), but Sub-study B (unselected) failed primary endpoint (p=0.109). 4. POPULATION EFFECTS: Clear biomarker-defined response - PD-L1 selected patients (Sub-study A) responded while unselected population (Sub-study B) did not. Combination did not improve outcomes over durvalumab monotherapy. 5. CONFOUNDERS: Study appears adequately powered (n=597) with appropriate duration. The failure appears mechanistically driven by population selection rather than trial design issues.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.9,
+      "evidence": "Sub-study A (PD-L1 selected patients) showed clear OS benefit (11.7 vs 6.8 months) and higher ORR (35.5% vs 12.5%), while Sub-study B (unselected population) failed to meet primary endpoint (p=0.109)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Durvalumab",
+      "target_entity": "PD-L1",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Established checkpoint inhibitor with known binding, clinical activity supports target engagement"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Tremelimumab",
+      "target_entity": "CTLA-4",
+      "direction": "neutral",
+      "magnitude": 0.5,
+      "reasoning": "Combination did not improve outcomes over durvalumab monotherapy, questioning added value"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "PD-L1 checkpoint blockade",
+      "target_entity": "Overall survival",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clear OS benefit in PD-L1 selected population validates mechanism in appropriate patients"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "PD-L1 positive patients",
+      "target_entity": "Durvalumab",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Strong differential response between PD-L1 selected (Sub-study A) and unselected (Sub-study B) populations"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

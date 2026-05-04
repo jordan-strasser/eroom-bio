@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT06210750",
+  "trial_outcome": "failure",
+  "reasoning": "This trial was moved to 'Disapproved' status before generating any results data. There is no evidence of target engagement, biomarker changes, or clinical outcomes because the trial appears to have been terminated or never initiated. The lack of any pharmacokinetic, pharmacodynamic, or efficacy data prevents assessment of the mechanistic causal chain. The disapproval suggests either regulatory, safety, or commercial concerns prevented the trial from proceeding.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.7,
+      "evidence": "Protocol moved to 'Disapproved' status with no results data, suggesting regulatory or strategic decision to halt the trial before execution"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Complete absence of any pharmacokinetic, pharmacodynamic, biomarker, or efficacy data prevents mechanistic failure analysis"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Navitoclax and Venetoclax",
+      "target_entity": "BCL-2 family proteins",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available due to trial not proceeding"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "BCL-2 inhibition",
+      "target_entity": "tumor cell apoptosis",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biological activity data available due to trial disapproval"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial was disapproved before generating any mechanistic data, making failure mode classification highly uncertain and requiring expert review of regulatory or strategic factors"
+}

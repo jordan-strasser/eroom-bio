@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT00311467",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data provided, but dosing appears adequate for capecitabine (standard 1000 mg/m2) and cytokines (IFN-\u03b1 6 MIU, IL-2 4.5 MIU). 2. PATHWAY MODULATION: No biomarker or pharmacodynamic data to assess whether thymidylate synthase was inhibited or immune activation occurred. 3. CLINICAL TRANSLATION: No efficacy results reported - primary endpoint (PFS) outcome is null. 4. POPULATION EFFECTS: No subgroup analysis reported. 5. CONFOUNDERS: Critical confounder identified - investigator commentary states 'no patient recruitment', indicating the trial failed to enroll patients rather than failing due to lack of efficacy. This appears to be an operational/recruitment failure rather than a mechanistic failure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No efficacy results, biomarker data, or target engagement evidence reported. Primary endpoint outcome is null with no effect size or p-value."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Investigator commentary states 'no patient recruitment', suggesting operational/recruitment issues rather than scientific failure. Trial appears to have been terminated due to enrollment problems."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Capecitabine",
+      "target_entity": "Thymidylate synthase",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No target engagement data available to assess binding or inhibition of thymidylate synthase"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Interferon-alpha and Interleukin-2",
+      "target_entity": "immune system activation",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No biomarker or pharmacodynamic evidence of immune system modulation"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "progression free survival",
+      "target_entity": "tumor growth inhibition",
+      "direction": "neutral",
+      "magnitude": 0.0,
+      "reasoning": "No efficacy data available due to recruitment failure - cannot assess endpoint validity"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial appears to have failed due to recruitment issues rather than mechanistic failure. No efficacy or biomarker data available to assess the therapeutic hypothesis. Classification is based on operational failure rather than scientific evidence."
+}

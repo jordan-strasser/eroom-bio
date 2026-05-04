@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03684811",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence of target engagement exists - CSF penetration was demonstrated in glioma patients with mean concentration 27.15 ng/mL, indicating the drug reached the target tissue. 2. PATHWAY MODULATION: No biomarker data provided to confirm IDH1 inhibition or reduction in oncometabolite production, so pathway modulation cannot be assessed. 3. CLINICAL TRANSLATION: Mixed clinical results - responses were observed in specific tumor types (2/26 glioma patients, 1/8 hepatobiliary patients) but no responses in other solid tumors, suggesting the mechanism may work in select contexts. 4. POPULATION EFFECTS: Clear subgroup effect - responses only in glioma and hepatobiliary tumors, with no activity in chondrosarcoma, intrahepatic cholangiocarcinoma, or other solid tumors. This suggests the mechanism is tumor-type dependent. 5. CONFOUNDERS: Single-arm design limits interpretation, and hepatotoxicity signals may have limited dosing optimization.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Responses observed only in glioma (2/26 patients) and hepatobiliary tumors (1/8 patients), with zero responses in chondrosarcoma, intrahepatic cholangiocarcinoma, and other solid tumors"
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.6,
+      "evidence": "CSF penetration demonstrated but no biomarker data showing IDH1 inhibition or oncometabolite reduction to confirm pathway modulation"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "FT-2102",
+      "target_entity": "IDH1",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "CSF penetration data suggests drug reaches target tissue, supporting target engagement"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "glioma_patients",
+      "target_entity": "IDH1_inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Glioma patients showed responses (2/26) while other tumor types showed no responses"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hepatobiliary_patients",
+      "target_entity": "IDH1_inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.5,
+      "reasoning": "Hepatobiliary patients showed limited responses (1/8) suggesting some activity in this subgroup"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Lack of pharmacodynamic biomarker data makes it difficult to assess whether target engagement translated to pathway modulation, and the tumor-type specific responses need deeper mechanistic understanding"
+}

@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT01610336",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of c-MET target engagement with median -100% reduction in c-MET H score at multiple dose levels in Phase Ib, though reduced to -31% at the Phase II dose. EGFR engagement presumed via gefitinib. 2. PATHWAY MODULATION: c-MET H score reduction demonstrates pathway modulation, suggesting the combination mechanism was biologically active. 3. CLINICAL TRANSLATION: Mixed results - capsule formulation showed modest 22.6% ORR while tablet formulation achieved 36.2% ORR, indicating clinical activity but formulation-dependent efficacy. 4. POPULATION EFFECTS: Clear formulation effect with tablet showing superior response rate (36.2% vs 22.6%), suggesting manufacturing/delivery issues with capsule formulation. 5. CONFOUNDERS: Significant safety concerns with 74.5% Grade 3/4 AEs in tablet patients and dose-limiting toxicities, plus apparent manufacturing differences between formulations.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.8,
+      "evidence": "Clear difference in efficacy between capsule (22.6% ORR) and tablet (36.2% ORR) formulations despite same dose, indicating formulation/delivery issues affecting drug exposure"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "High rate of Grade 3/4 AEs (74.5% in tablet patients), DLTs including cough, dizziness, dyspnoea, and serious AEs including cardiac disorders limiting optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "INC280",
+      "target_entity": "c-MET",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong target engagement evidence with median -100% c-MET H score reduction at multiple dose levels"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "c-MET + EGFR inhibition",
+      "target_entity": "EGFR resistance pathway",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Clinical activity demonstrated, particularly with tablet formulation (36.2% ORR), supporting mechanism validity"
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "c-MET H score",
+      "target_entity": "c-MET pathway activity",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "c-MET H score reduction correlated with drug exposure and formulation differences"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": true,
+  "review_reason": "Complex interaction between formulation issues, dose-limiting toxicity, and mechanism validation requires expert interpretation of risk-benefit and optimal development path"
+}

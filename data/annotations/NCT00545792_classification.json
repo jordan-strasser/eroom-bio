@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT00545792",
+  "trial_outcome": "partial",
+  "reasoning": "This was a phase I safety study of bevacizumab with concurrent pelvic radiation in recurrent gynecological cancers. Step 1 (TARGET ENGAGEMENT): No direct target engagement data provided, but bevacizumab is a well-established anti-VEGF antibody with known pharmacology. Step 2 (PATHWAY MODULATION): No biomarker data provided to confirm VEGF pathway modulation. Step 3 (CLINICAL TRANSLATION): Primary endpoint was safety/toxicity, not efficacy. The study reported 766 total toxicity events in 21 patients (average ~36 events per patient), with notable serious AEs including thrombosis, GI hemorrhage, and lymphopenia. Step 4 (POPULATION EFFECTS): No subgroup analysis reported. Step 5 (CONFOUNDERS): This was a small single-arm phase I study (n=21) designed primarily for safety assessment, not efficacy. The high toxicity burden suggests potential dose-limiting toxicity issues when combining bevacizumab with radiation.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "766 total toxicity events in 21 patients with serious AEs including thrombosis (2/20), GI hemorrhage (1/20), and lymphopenia (4/20) when combining bevacizumab with pelvic radiation"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "bevacizumab",
+      "target_entity": "VEGF",
+      "direction": "neutral",
+      "magnitude": 0.5,
+      "reasoning": "No direct target engagement data provided, but bevacizumab is established anti-VEGF antibody"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "VEGF inhibition",
+      "target_entity": "radiation toxicity",
+      "direction": "weaken",
+      "magnitude": 0.7,
+      "reasoning": "High toxicity burden suggests bevacizumab may increase radiation-related toxicity rather than provide benefit"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Phase I safety study with limited efficacy data and concerning toxicity profile that may impact future development strategy"
+}

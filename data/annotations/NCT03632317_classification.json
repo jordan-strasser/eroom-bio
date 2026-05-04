@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03632317",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No PK/PD data or biomarker evidence provided to confirm either panobinostat engaged HDAC or everolimus engaged mTOR at the given doses. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to show downstream biological effects. 3. CLINICAL TRANSLATION: Primary endpoints (PFS, OS, ORR) were not met, with no effect sizes or p-values reported. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Investigator noted 'low accrual' suggesting the trial was underpowered due to enrollment challenges in this pediatric glioma population.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Investigator specifically noted 'low accrual' and no sample size is reported, suggesting insufficient enrollment to detect treatment effects"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No target engagement data, biomarker changes, effect sizes, or p-values reported to assess mechanism failure vs. trial execution issues"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Panobinostat",
+      "target_entity": "HDAC",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided to assess binding"
+    },
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Everolimus",
+      "target_entity": "mTOR",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data provided to assess mTOR inhibition"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "HDAC + mTOR inhibition",
+      "target_entity": "progression free survival",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "Primary PFS endpoint was not met, though low accrual limits interpretability"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Insufficient data to distinguish between mechanistic failure and trial execution failure due to low accrual. No target engagement, biomarker, or efficacy data reported."
+}

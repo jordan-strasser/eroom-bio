@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT04782856",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data provided, but thyroid hormone replacement therapy has well-established pharmacology and the biomarker changes (cholesterol reduction) suggest thyroid hormone receptors were engaged. 2. PATHWAY MODULATION: Evidence of pathway modulation exists - cholesterol decreased by 35 mg/dL with combination vs increased by 43 mg/dL with monotherapy, indicating metabolic pathway activation. Energy expenditure also increased modestly (+25 vs -39 cal/24h). 3. CLINICAL TRANSLATION: Mixed results on primary endpoints - weight showed modest benefit (-0.76 kg vs +1.7 kg), energy expenditure showed small increase, cholesterol improved significantly. No p-values provided to assess statistical significance. 4. POPULATION EFFECTS: Strong signals in quality of life measures - combination therapy showed substantial improvements in composite QoL (45 vs 14.3 points), tiredness (36.7 vs 11.2), and cognition (33.3 vs 14.3), suggesting the mechanism may be more relevant for symptom-based endpoints. 5. CONFOUNDERS: Very small sample size (n=13) creates major power limitations and prevents meaningful statistical analysis.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 13 patients is far too small to detect meaningful differences in metabolic endpoints or provide statistical significance"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Biomarker changes suggest pathway modulation (cholesterol improvement, modest energy expenditure increase) but primary metabolic endpoints showed only modest effects without statistical testing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Liothyronine + Levothyroxine combination",
+      "target_entity": "thyroid hormone receptors",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Cholesterol reduction and energy expenditure changes suggest target engagement, though direct evidence lacking"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "thyroid hormone pathway modulation",
+      "target_entity": "quality of life measures",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Strong improvements in QoL composite, tiredness, and cognitive domains suggest this pathway strongly affects patient-reported outcomes"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "thyroid hormone pathway modulation",
+      "target_entity": "metabolic endpoints",
+      "direction": "neutral",
+      "magnitude": 0.4,
+      "reasoning": "Modest effects on weight and energy expenditure with cholesterol improvement, but underpowered to draw strong conclusions"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size prevents meaningful interpretation of results, and lack of statistical testing makes it impossible to distinguish signal from noise in the metabolic endpoints"
+}

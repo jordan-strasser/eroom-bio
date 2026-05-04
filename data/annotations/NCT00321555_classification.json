@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT00321555",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: While direct target engagement data is not provided, the mechanism of an immunotoxin targeting CD25 is well-established, and the dosing regimen appears appropriate for this class of agents. 2. PATHWAY MODULATION: Strong evidence of pathway modulation with \u226550% decrease in hairy cell count by flow cytometry in responders, indicating selective killing of CD25-expressing hairy cells as intended. 3. CLINICAL TRANSLATION: Primary endpoint was met with 6/15 patients (40%) achieving response including 1 complete remission and 5 partial responses, demonstrating clinical benefit. 4. POPULATION EFFECTS: No subgroup analysis reported in this small study. 5. CONFOUNDERS: Small sample size (n=15) limits statistical power, but the response rate and durability (median 23.5 months) suggest meaningful clinical activity despite safety concerns including 2 deaths.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "2/15 patients died (death NOS), plus allergic reactions and anaphylaxis, suggesting significant toxicity that may limit broader application despite efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "LMB-2 immunotoxin",
+      "target_entity": "CD25",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Immunotoxin mechanism targeting CD25 demonstrated biological activity with selective reduction in hairy cells"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD25 targeting",
+      "target_entity": "hairy cell killing",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "\u226550% decrease in hairy cell count in responders confirms mechanism of selective cell killing"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "hairy cell reduction",
+      "target_entity": "clinical response",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "40% response rate with durable responses (median 23.5 months) demonstrates clinical translation"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

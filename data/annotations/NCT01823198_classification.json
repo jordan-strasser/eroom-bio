@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT01823198",
+  "trial_outcome": "success",
+  "reasoning": "This was a Phase I dose-escalation safety study that successfully met its primary endpoint of determining dose-limiting toxicities. Step 1 (TARGET ENGAGEMENT): While direct target engagement evidence is limited, the NK cells were successfully infused at escalating doses with aldesleukin support, suggesting delivery to target tissues. Step 2 (PATHWAY MODULATION): The occurrence of GVHD and graft effects indicates the NK cells were biologically active and engaging with host tissues. Step 3 (CLINICAL TRANSLATION): The primary safety endpoint was met, with clear dose-toxicity relationships established across different donor types. Step 4 (POPULATION EFFECTS): Strong subgroup differences were observed - KIR mismatched haplo donors showed lower DLT rates at higher doses, while cord blood donors had higher DLT rates, particularly at the highest dose. This suggests donor source significantly impacts safety profile. Step 5 (CONFOUNDERS): No major confounders identified - appropriate Phase I design with adequate sample size (n=63) and follow-up duration.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Clear differential safety profiles across donor types: Group A (KIR mismatched haplo) had lower DLT rates at higher doses, Group B (cord blood) had higher DLT rates especially at highest dose, Group C (matched related) had intermediate rates"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Allogeneic NK Cells",
+      "target_entity": "Malignant hematopoietic cells",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "NK cells were successfully delivered and showed biological activity evidenced by GVHD and graft effects"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "NK cell-mediated cytotoxicity",
+      "target_entity": "Graft-versus-leukemia effect",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Biological activity confirmed through observed GVHD and secondary graft effects"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "KIR mismatched haplo donors",
+      "target_entity": "Dose-limiting toxicities",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "Clear evidence that donor type significantly impacts safety profile, with haplo donors showing better tolerance at higher doses"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Dose-limiting toxicities",
+      "target_entity": "NK cell safety profile",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary safety endpoint successfully captured dose-toxicity relationships across different donor sources"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

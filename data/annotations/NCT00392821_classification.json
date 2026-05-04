@@ -1,0 +1,51 @@
+{
+  "nct_id": "NCT00392821",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No PK/PD data or biomarker evidence provided to confirm either sorafenib or RAD001 engaged their respective targets (VEGFR/PDGFR/RAF and mTOR). Only dose information is that MTD/Phase II dose was reached, but specific doses not provided. 2. PATHWAY MODULATION: No biomarker changes reported to indicate downstream pathway effects from either angiogenesis inhibition or mTOR pathway modulation. 3. CLINICAL TRANSLATION: ORR of 13% (95% CI: 7-23%) appears modest for advanced kidney cancer, though no comparator provided to assess clinical significance. Primary endpoint achievement status is null. 4. POPULATION EFFECTS: No subgroup findings reported to suggest differential responses. 5. CONFOUNDERS: Sample size of 78 patients may be underpowered for detecting meaningful ORR differences. Safety signals including CNS ischemia (4/69) suggest potential dose-limiting toxicities that could have prevented optimal dosing of the combination.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No target engagement data, biomarker changes, or comparator provided. Primary endpoint achievement status is null, making definitive failure classification difficult."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Sample size of 78 patients may be insufficient to detect clinically meaningful differences in ORR for combination therapy in advanced kidney cancer."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.5,
+      "evidence": "CNS ischemia in 4/69 patients (5.8%) suggests potential dose-limiting toxicity that may have prevented optimal dosing of the sorafenib/RAD001 combination."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Sorafenib and RAD001 combination",
+      "target_entity": "VEGFR/PDGFR/RAF and mTOR",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No target engagement data provided to confirm or refute binding to intended targets"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "Multi-kinase and mTOR inhibition",
+      "target_entity": "Tumor angiogenesis and cell proliferation",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "No biomarker evidence of pathway modulation provided"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "Overall Response Rate",
+      "target_entity": "Tumor angiogenesis and cell proliferation inhibition",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "ORR of 13% suggests limited clinical activity, though lack of comparator limits interpretation"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Insufficient mechanistic data provided to definitively classify failure mode. Primary endpoint achievement status is null, and no target engagement or biomarker data available to assess causal chain."
+}

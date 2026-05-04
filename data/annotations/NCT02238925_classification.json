@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT02238925",
+  "trial_outcome": "success",
+  "reasoning": "This was a cardiac safety study (QT prolongation assessment) for CPX-351, not an efficacy trial. Step 1: Target engagement was demonstrated with measurable PK levels of both cytarabine (62,200 ng/ml) and daunorubicin (26,000 ng/ml). Step 2: Pathway modulation occurred as evidenced by serum copper level increases (64.95 \u03bcg/dL), suggesting cellular uptake and metabolism. Step 3: The primary endpoint (QTcF prolongation) was met with a maximum mean change of 8.0 msecs, which is within acceptable cardiac safety limits (<20 msecs is generally considered low risk). Step 4: Clinical activity was observed with 8/26 patients achieving complete response (31% response rate). Step 5: No major confounders - this was appropriately designed as a single-arm cardiac safety study with adequate sample size for the primary endpoint.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.2,
+      "evidence": "While PK data shows drug exposure, this was primarily a safety study so biological activity assessment was limited"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "CPX-351",
+      "target_entity": "DNA synthesis and topoisomerase II",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Adequate PK exposure achieved for both cytarabine and daunorubicin components"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "DNA synthesis and topoisomerase II inhibition",
+      "target_entity": "leukemic cell death",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "31% complete response rate (8/26) suggests meaningful anti-leukemic activity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "QTcF prolongation",
+      "target_entity": "cardiac safety",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Primary cardiac safety endpoint successfully assessed with acceptable QT prolongation of 8.0 msecs"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

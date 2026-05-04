@@ -448,6 +448,122 @@ class TestApplyUpdates:
         assert len(result["largest_changes"]) <= 5
 
 
+# ── OT biology_drives wiring ────────────────────────────────────────────
+
+
+class TestBiologyDrivesOTWiring:
+    """Verify that biology_drives updates land on the OT-seeded edge
+    (target_id → indication_id), not the unresolved biology_id."""
+
+    def _ot_graph_and_trial(
+        self, ot_alpha: float = 3.0, ot_beta: float = 1.5
+    ) -> tuple[GraphStore, TrialSubgraph]:
+        g = GraphStore()
+        g.add_node(CompoundNode(
+            id="compound_nivo", name="Nivolumab", modality=Modality.ANTIBODY
+        ))
+        g.add_node(TargetNode(
+            id="target_pd1", name="PD-1", gene_symbol="PDCD1"
+        ))
+        g.add_node(IndicationNode(id="ind_melanoma", name="Melanoma"))
+        # OT-style biology_drives runs from the target node, not biology.
+        g.add_edge(GraphEdge(
+            source_id="target_pd1",
+            target_id="ind_melanoma",
+            edge_type=EdgeType.BIOLOGY_DRIVES,
+            belief=EdgeBeliefState(alpha=ot_alpha, beta=ot_beta),
+            metadata={"source": "opentargets"},
+        ))
+        # The trial's biology_id is a topology-resolved label that does NOT
+        # match the OT edge's source. Without the fix, biology_drives
+        # updates would silently fail because (BIO_t_cell, ind_melanoma,
+        # biology_drives) doesn't exist in the graph.
+        trial = TrialSubgraph(
+            trial_id="NCT_PD1_MEL",
+            compound_id="compound_nivo",
+            target_id="target_pd1",
+            mechanism_id="MECH_pd1_blockade",
+            biology_id="BIO_t_cell_activation",
+            indication_id="ind_melanoma",
+            endpoint_id="UNKNOWN",
+            population_id="UNKNOWN",
+            outcome=TrialOutcome.SUCCESS,
+            phase="3",
+            metadata={
+                "ot_biology_drives": {
+                    "source_id": "target_pd1",
+                    "target_id": "ind_melanoma",
+                }
+            },
+        )
+        return g, trial
+
+    def test_strengthen_lands_on_ot_edge(self):
+        graph, trial = self._ot_graph_and_trial()
+        pre = graph.get_edge_belief(
+            "target_pd1", "ind_melanoma", EdgeType.BIOLOGY_DRIVES
+        )
+        attributor = Attributor(graph)
+        clf = _make_classification(
+            mode=FailureMode.NO_TARGET_ENGAGEMENT,
+            raw_edges=[{
+                "edge_type": "biology_drives",
+                "direction": "strengthen",
+                "magnitude": 0.8,
+                "reasoning": "Successful PD-1 blockade in melanoma confirms target-disease link",
+            }],
+        )
+        updates = attributor.attribute(clf, trial)
+
+        assert len(updates) == 1
+        applied = updates[0]
+        assert applied.source_id == "target_pd1"
+        assert applied.target_id == "ind_melanoma"
+        assert applied.edge_type == EdgeType.BIOLOGY_DRIVES
+
+        post = graph.get_edge_belief(
+            "target_pd1", "ind_melanoma", EdgeType.BIOLOGY_DRIVES
+        )
+        assert post.alpha > pre.alpha
+        assert len(post.evidence) == len(pre.evidence) + 1
+
+    def test_no_metadata_falls_back_to_biology_id(self):
+        """Without the OT pointer, the resolver should still use biology_id."""
+        graph, _ = self._ot_graph_and_trial()
+        # Add a separate biology_drives edge for the fallback path.
+        graph.add_node(BiologyNode(id="BIO_other", name="Other"))
+        graph.add_edge(GraphEdge(
+            source_id="BIO_other",
+            target_id="ind_melanoma",
+            edge_type=EdgeType.BIOLOGY_DRIVES,
+        ))
+        trial = TrialSubgraph(
+            trial_id="NCT_PLAIN",
+            compound_id="compound_nivo",
+            target_id="target_pd1",
+            mechanism_id="UNKNOWN",
+            biology_id="BIO_other",
+            indication_id="ind_melanoma",
+            endpoint_id="UNKNOWN",
+            population_id="UNKNOWN",
+            outcome=TrialOutcome.UNKNOWN,
+            phase="3",
+        )
+        attributor = Attributor(graph)
+        clf = _make_classification(
+            mode=FailureMode.NO_TARGET_ENGAGEMENT,
+            raw_edges=[{
+                "edge_type": "biology_drives",
+                "direction": "strengthen",
+                "magnitude": 0.5,
+            }],
+        )
+        updates = attributor.attribute(clf, trial)
+        assert len(updates) == 1
+        assert updates[0].source_id == "BIO_other"
+        assert updates[0].target_id == "ind_melanoma"
+
+
 # ── Belief state mutation ───────────────────────────────────────────────
 
 

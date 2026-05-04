@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02150967",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD/PK or biomarker data provided to confirm FGFR2 target engagement, but the selective activity in FGFR2 fusion-positive cholangiocarcinoma patients suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the tumor responses observed indicate downstream biology was modulated effectively. 3. CLINICAL TRANSLATION: Primary endpoint was met with ORR of 23.1% by BICR in a heavily pretreated population, demonstrating meaningful clinical translation of the mechanism. 4. POPULATION EFFECTS: Strong evidence of population selectivity - activity was concentrated in FGFR2 fusion-positive patients (the intended population), with differential responses based on line of therapy (28.8% ORR in third-line+ vs 0% in second-line). 5. CONFOUNDERS: Single-arm design limits interpretation, and study was terminated early, but the observed response rate in this refractory population is clinically meaningful and consistent with mechanism.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Study specifically enrolled FGFR2 fusion-positive cholangiocarcinoma patients and showed activity primarily in third-line+ therapy setting, demonstrating mechanism works in biomarker-defined population"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "BGJ398",
+      "target_entity": "FGFR2",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Clinical activity in FGFR2 fusion-positive patients suggests target engagement, though direct evidence not provided"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "FGFR2 inhibition",
+      "target_entity": "tumor proliferation",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "23.1% ORR in heavily pretreated FGFR2 fusion-positive cholangiocarcinoma demonstrates mechanism effectively inhibits tumor growth"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "overall response rate",
+      "target_entity": "tumor growth inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.9,
+      "reasoning": "ORR directly measures tumor shrinkage, appropriate endpoint for cytostatic/cytotoxic mechanism"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "FGFR2 fusion-positive patients",
+      "target_entity": "BGJ398 treatment",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Activity concentrated in biomarker-defined population with differential response by treatment line"
+    }
+  ],
+  "confidence_overall": 0.75,
+  "needs_expert_review": false,
+  "review_reason": null
+}

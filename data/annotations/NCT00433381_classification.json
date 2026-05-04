@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT00433381",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct evidence of VEGF target engagement provided, but cerebral blood volume (rCBV) changes suggest vascular effects consistent with anti-VEGF activity. 2. PATHWAY MODULATION: Strong evidence of pathway modulation - rCBV changes at week 2 (AUC 0.85) and week 16 (AUC 0.905) for predicting survival suggest meaningful vascular biology changes. 3. CLINICAL TRANSLATION: Primary endpoint results unclear - 22/60 and 23/60 patients progression-free at 6 months in the two arms, but no statistical comparison or p-value provided. Effect size appears modest. 4. POPULATION EFFECTS: Variable MRI spectroscopy predictive value (AUC 0.39-1.0) suggests heterogeneous response, indicating potential subgroup effects. 5. CONFOUNDERS: This appears to be a comparison of two bevacizumab combination regimens rather than a placebo-controlled trial, making efficacy assessment difficult.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No statistical comparison provided for primary endpoint, no p-values, unclear if primary endpoint was met, and no direct target engagement data"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Strong biomarker evidence of vascular changes (rCBV AUC 0.85-0.905) but modest clinical outcomes with 37-38% progression-free survival at 6 months"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "Bevacizumab",
+      "target_entity": "cerebral blood volume",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "Strong biomarker evidence with high AUC values (0.85-0.905) for rCBV changes predicting survival"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "vascular changes",
+      "target_entity": "progression-free survival",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Despite clear vascular biology changes, clinical outcomes appear modest with only 37-38% progression-free at 6 months"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Critical information missing including statistical analysis of primary endpoint, comparison group details, and direct target engagement evidence. Trial design appears to compare two active arms rather than test bevacizumab efficacy."
+}

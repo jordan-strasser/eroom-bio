@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT03015129",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-L1 or CTLA-4 engagement. However, durvalumab and tremelimumab are established checkpoint inhibitors with known target engagement profiles. 2. PATHWAY MODULATION: No biomarker data to confirm T-cell activation or immune response modulation. 3. CLINICAL TRANSLATION: Low response rates observed - durvalumab monotherapy 12.5% (5/40) and combination 10% (4/40). These response rates are modest and suggest limited clinical benefit. No p-value reported, suggesting primary endpoint was not met with statistical significance. 4. POPULATION EFFECTS: No subgroup findings reported to identify potential responder populations. 5. CONFOUNDERS: Sample size of 80 patients may be underpowered for detecting meaningful differences. Safety signals including acute kidney injury, elevated liver enzymes, and cerebral edema suggest tolerability issues that could limit dosing or duration.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Checkpoint inhibitors likely engaged targets and modulated immune pathways, but clinical response rates were low (10-12.5%) suggesting limited translation to clinical benefit"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Sample size of 80 patients split between two arms may be insufficient to detect meaningful differences in response rates, especially with no reported p-values"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.5,
+      "evidence": "Multiple serious safety signals including acute kidney injury, elevated liver enzymes, and cerebral edema could have limited optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune checkpoint blockade",
+      "target_entity": "anti-tumor immune response in endometrial cancer",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Low response rates (10-12.5%) suggest checkpoint inhibition has limited efficacy in this endometrial cancer population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "T-cell activation",
+      "target_entity": "overall response rate in endometrial cancer",
+      "direction": "weaken",
+      "magnitude": 0.5,
+      "reasoning": "Modest response rates suggest T-cell activation may not translate effectively to tumor responses in this indication"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Lack of biomarker data makes it difficult to confirm target engagement and pathway modulation. Low response rates could reflect multiple factors including wrong population, insufficient dosing due to toxicity, or inherent resistance in endometrial cancer."
+}

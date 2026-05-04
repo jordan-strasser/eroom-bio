@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT03288545",
+  "trial_outcome": "partial",
+  "reasoning": "This appears to be a dose-escalation and expansion study that was terminated early by the sponsor after meeting enrollment targets and primary objectives for regulatory filing purposes. The lack of reported efficacy data (no effect size or p-values) combined with the sponsor's statement that they collected 'sufficient data for planned regulatory filings' suggests the trial achieved its regulatory objectives rather than failing scientifically. However, without specific efficacy or biomarker data, we cannot assess target engagement, pathway modulation, or clinical translation through the mechanistic chain. The early termination for commercial/regulatory reasons rather than safety or futility indicates this was a strategic decision rather than a scientific failure.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Sponsor explicitly stated the study was stopped after meeting enrollment targets and primary objectives for regulatory filings, not due to safety, futility, or regulatory concerns"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "enfortumab vedotin",
+      "target_entity": "Nectin-4",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No target engagement data reported, but early termination for regulatory purposes suggests mechanism was not disproven"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody-drug conjugate",
+      "target_entity": "tumor cell cytotoxicity",
+      "direction": "neutral",
+      "magnitude": 0.1,
+      "reasoning": "No biological activity data reported, but regulatory filing suggests some evidence of activity may have been collected"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Limited efficacy and biomarker data available; classification based primarily on sponsor's stated reason for termination rather than scientific outcomes"
+}

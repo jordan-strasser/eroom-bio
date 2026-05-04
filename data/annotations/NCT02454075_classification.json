@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02454075",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Gastrin levels were measured but showed variable changes (Patient 1: 509\u2192355 pg/mL decrease, Patient 2: 13049\u219212846 pg/mL minimal change, Patient 3: 706\u2192718 pg/mL slight increase). Without dose information or clear pharmacokinetic data, target engagement is uncertain. 2. PATHWAY MODULATION: Chromogranin A (ECL cell marker) showed inconsistent patterns - some patients had increases during treatment and dramatic increases at follow-up, suggesting poor pathway modulation. 3. CLINICAL TRANSLATION: Primary endpoint not met - only 1 of 3 patients achieved >25% carcinoid regression (23.7%, just below threshold). Mean regression across patients was insufficient. 4. POPULATION EFFECTS: Patient 1 responded better than Patients 2 and 3, but with only 3 patients, subgroup analysis is not meaningful. 5. CONFOUNDERS: Extremely small sample size (n=3) makes any conclusions unreliable. Study was severely underpowered to detect treatment effects.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Only 3 patients enrolled in the study, making it impossible to draw meaningful statistical conclusions about efficacy"
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "Chromogranin A levels (ECL cell marker) showed inconsistent patterns with some increases during treatment, suggesting poor downstream pathway modulation despite potential target engagement"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "YF476",
+      "target_entity": "gastrin receptor",
+      "direction": "neutral",
+      "magnitude": 0.3,
+      "reasoning": "Variable gastrin level changes suggest uncertain target engagement, but insufficient pharmacokinetic data to confirm"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "gastrin receptor",
+      "target_entity": "ECL cell proliferation",
+      "direction": "weaken",
+      "magnitude": 0.6,
+      "reasoning": "Chromogranin A levels showed inconsistent patterns with some increases, suggesting poor pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "ECL cell proliferation",
+      "target_entity": "gastric carcinoid regression",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "Sample size too small to establish meaningful relationship between pathway modulation and clinical outcome"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Extremely small sample size (n=3) makes mechanistic conclusions unreliable. Study design appears inadequate for hypothesis testing."
+}

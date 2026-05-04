@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT01658527",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No evidence provided for CYP17A1 engagement by orteronel. No PK/PD data, biomarker changes, or dose-exposure relationships reported. 2. PATHWAY MODULATION: No biomarker data showing androgen synthesis inhibition or downstream pathway effects. 3. CLINICAL TRANSLATION: Primary endpoint (clinical progression free survival) results not reported, but pharmaceutical company terminated development suggesting negative results. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The dose information shows bicalutamide 50mg daily, which is an androgen receptor antagonist, not orteronel (CYP17A1 inhibitor). This suggests either a data extraction error or the trial was actually testing bicalutamide, not orteronel. The company termination of orteronel development indicates commercial failure, likely due to lack of efficacy.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Pharmaceutical company terminated orteronel development for prostate cancer, indicating commercial decision likely based on negative efficacy data"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "No primary endpoint results, effect sizes, p-values, or target engagement data reported. Dose information appears to be for wrong drug (bicalutamide vs orteronel)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Orteronel",
+      "target_entity": "CYP17A1",
+      "direction": "weaken",
+      "magnitude": 0.3,
+      "reasoning": "No evidence of target engagement provided, and commercial termination suggests mechanism may not have been validated"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "androgen synthesis inhibition",
+      "target_entity": "clinical progression free survival",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Company termination suggests this biological approach did not translate to clinical benefit in castration resistant prostate cancer"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Major data inconsistencies - dose information shows bicalutamide instead of orteronel, no efficacy data reported, and unclear whether this represents the actual trial results or data extraction errors"
+}

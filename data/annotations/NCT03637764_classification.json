@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT03637764",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence suggests adequate target engagement - isatuximab achieved target concentrations (Cmax 218-266 mcg/mL) and development of ADAs against both drugs indicates immune system recognition. 2. PATHWAY MODULATION: Limited evidence of meaningful pathway modulation - while ADAs suggest immune activation, no biomarker data showing CD38 depletion or enhanced T-cell activation. 3. CLINICAL TRANSLATION: Poor clinical translation - overall response rates were very low across tumor types (HCC 7.4%, SCCHN 13.8%, EOC 5.6%) and GBM PFS-6 was particularly poor at 0.033. 4. POPULATION EFFECTS: Heterogeneous responses across tumor types suggest mechanism may work better in some cancers than others, but overall efficacy was insufficient. 5. CONFOUNDERS: Study was terminated due to limited efficacy, suggesting the biological rationale for CD38 + PD-L1 combination was flawed rather than execution issues.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.8,
+      "evidence": "Isatuximab achieved target concentrations and both drugs generated ADAs indicating target engagement, but clinical response rates were very low across all tumor types suggesting the biological hypothesis was incorrect"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Particularly poor outcomes in GBM cohort (PFS-6 of 0.033) and variable responses across tumor types suggest the selected populations may not have been optimal for this combination mechanism"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "Isatuximab",
+      "target_entity": "CD38",
+      "direction": "neutral",
+      "magnitude": 0.7,
+      "reasoning": "PK data shows target concentrations achieved, confirming binding capability"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "CD38 + PD-L1 targeting",
+      "target_entity": "tumor response",
+      "direction": "weaken",
+      "magnitude": 0.8,
+      "reasoning": "Very low response rates across multiple tumor types indicate this combination mechanism is not effective for tumor control"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "GBM patients",
+      "target_entity": "CD38 + PD-L1 combination",
+      "direction": "weaken",
+      "magnitude": 0.9,
+      "reasoning": "Particularly poor PFS-6 of 0.033 in GBM cohort indicates this population is not suitable for this mechanism"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

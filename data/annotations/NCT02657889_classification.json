@@ -1,0 +1,46 @@
+{
+  "nct_id": "NCT02657889",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows niraparib achieved therapeutic plasma concentrations with dose-proportional exposure, indicating PARP target engagement. Pembrolizumab is well-established to engage PD-1. 2. PATHWAY MODULATION: No specific biomarker data provided to confirm downstream pathway effects of PARP inhibition or immune activation, though therapeutic drug levels suggest biological activity likely occurred. 3. CLINICAL TRANSLATION: Single-arm study showed modest activity with ORR 15.1% in ovarian cancer and 18.2% in TNBC. Without historical controls or comparator arm, difficult to assess if this represents meaningful clinical benefit above standard of care. 4. POPULATION EFFECTS: Similar response rates across both tumor types (ovarian cancer vs TNBC), with slightly better disease control in ovarian cancer (58.5% vs 41.8% DCR). 5. CONFOUNDERS: Single-arm design limits interpretation. Significant hematologic toxicities may have limited optimal dosing. No clear efficacy benchmark provided for comparison.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Target engagement achieved with therapeutic drug levels, but modest ORR of 15-18% in single-arm study without clear evidence this exceeds historical controls or represents clinically meaningful benefit"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Significant hematologic toxicities including thrombocytopenia, anemia, neutropenia, and pancytopenia, plus cardiac events including pericardial effusion, may have prevented optimal dosing"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "niraparib",
+      "target_entity": "PARP",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "Clear evidence of therapeutic drug levels achieved with dose-proportional exposure"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "PARP inhibition + PD-1 blockade combination",
+      "target_entity": "tumor response",
+      "direction": "weaken",
+      "magnitude": 0.4,
+      "reasoning": "Modest response rates of 15-18% suggest limited clinical benefit from combination approach"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ovarian cancer vs TNBC",
+      "target_entity": "niraparib + pembrolizumab",
+      "direction": "neutral",
+      "magnitude": 0.2,
+      "reasoning": "Similar response rates across both tumor types with only modest differences in disease control"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design makes it difficult to assess true clinical benefit. Significant toxicity profile may have impacted dosing optimization. Need expert interpretation of whether response rates represent meaningful activity in these populations."
+}

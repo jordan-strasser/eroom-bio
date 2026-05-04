@@ -201,9 +201,12 @@ class TestPopulateOncology:
     async def test_end_to_end_mocked(self, pipeline, graph):
         trial = _make_trial()
 
-        # Mock ClinicalTrials.gov
+        # Mock ClinicalTrials.gov (both fetch paths the orchestrator hits)
         pipeline._ct_client.fetch_oncology_with_results = AsyncMock(
             return_value=[trial]
+        )
+        pipeline._ct_client.fetch_oncology_terminated_with_reason = AsyncMock(
+            return_value=[]
         )
 
         # Mock Open Targets — disease search returns nothing (simplify)
@@ -227,6 +230,9 @@ class TestPopulateOncology:
 
         pipeline._ct_client.fetch_oncology_with_results = AsyncMock(
             return_value=[trial]
+        )
+        pipeline._ct_client.fetch_oncology_terminated_with_reason = AsyncMock(
+            return_value=[]
         )
 
         # Mock OT: disease search returns EFO ID, then disease associations
@@ -267,6 +273,9 @@ class TestPopulateOncology:
 
         pipeline._ct_client.fetch_oncology_with_results = AsyncMock(
             return_value=[trial]
+        )
+        pipeline._ct_client.fetch_oncology_terminated_with_reason = AsyncMock(
+            return_value=[]
         )
 
         # OT raises on every call

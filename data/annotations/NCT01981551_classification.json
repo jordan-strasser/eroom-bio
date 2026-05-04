@@ -1,0 +1,41 @@
+{
+  "nct_id": "NCT01981551",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD/PK data or biomarkers confirming gamma-secretase inhibition are reported, creating uncertainty about target engagement. 2. PATHWAY MODULATION: The identification of APC/CTNNB1 mutations in 15/17 patients suggests Wnt pathway involvement, which is downstream of gamma-secretase, but no direct evidence of pathway modulation is provided. 3. CLINICAL TRANSLATION: The trial met its primary endpoint with 5/16 evaluable patients (31.3%) achieving partial response, demonstrating clinical efficacy. 4. POPULATION EFFECTS: The high prevalence of APC/CTNNB1 mutations (88%) suggests the population was enriched for Wnt pathway-driven tumors, which may explain the positive response. 5. CONFOUNDERS: Small sample size (n=17) and single-arm design limit interpretation, but the 31.3% response rate appears clinically meaningful for this rare tumor type.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "High prevalence of APC/CTNNB1 mutations (88%) suggests efficacy may be limited to Wnt pathway-driven desmoid tumors rather than all desmoid tumors"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "gamma-secretase inhibition",
+      "target_entity": "Wnt signaling pathway",
+      "direction": "strengthen",
+      "magnitude": 0.6,
+      "reasoning": "Clinical efficacy in population enriched for Wnt pathway mutations supports mechanistic connection"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "Wnt signaling pathway modulation",
+      "target_entity": "desmoid tumor growth inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.7,
+      "reasoning": "31.3% objective response rate demonstrates biological effect translates to tumor control"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "APC/CTNNB1 mutated desmoid tumors",
+      "target_entity": "gamma-secretase inhibition",
+      "direction": "strengthen",
+      "magnitude": 0.8,
+      "reasoning": "88% of patients had these mutations and trial showed efficacy, suggesting biomarker-defined responsive population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Lack of direct target engagement and pathway modulation data makes mechanistic interpretation uncertain despite positive clinical outcome"
+}
