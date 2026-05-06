@@ -10,7 +10,7 @@ Named after Eroom's Law (Moore's Law backwards) — the 80x decline in drug appr
 2. **Ingestion** (`src/ingestion/`) — Adapters for ClinicalTrials.gov, Open Targets, DrugBank. Maps external data to graph nodes and edges.
 3. **Annotation** (`src/annotation/`) — AI-powered pipeline that extracts structured trial data, classifies failure modes (13-category mechanistic taxonomy), and attributes failures to specific edge updates. Uses Anthropic API (Claude Sonnet).
 4. **Inference** (`src/inference/`) — Bayesian updating of edge beliefs with evidence-type weighting (clinical > genetic > preclinical > in vitro). Damped belief propagation across graph neighbors.
-5. **Prediction** (`src/prediction/`) — Compositional path queries: P(success) ≈ product of edge beliefs along the causal chain. Monte Carlo sampling for uncertainty. Identifies bottleneck edges.
+5. **Prediction** (`src/prediction/`) — Compositional path queries: P(success) is the **trust-weighted geometric mean** of per-edge Beta samples along the causal chain (not a raw product), so unobserved Beta(1,1) edges don't drag the prediction down. Monte Carlo sampling for uncertainty. Identifies bottleneck edges (weighted by trust, so unknown ≠ weak). See `onboarding/how_success_is_predicted.md` for the full breakdown.
 
 ## Key design decisions
 - NetworkX (MultiDiGraph) for graph storage, not Neo4j — keeps everything in-process for now

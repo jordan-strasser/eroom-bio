@@ -212,7 +212,13 @@ class TestChainAwareRouting:
         assert ("nivolumab", "ENSG00000188389") in routes
         assert ("ipilimumab", "ENSG00000163599") in routes
 
-    def test_unknown_compound_logs_unrouted_and_does_not_apply(self):
+    def test_off_trial_entity_is_dropped_as_hallucination(self):
+        """Classifier emits an entity (Pembrolizumab) that is nowhere in
+        the trial subgraph. Candidate (compound, target) pairs exist but
+        none match the classifier names — graph-build trusts only
+        trial-derived entities, so this is rejected as a hallucination
+        rather than misrouted to whichever pair happened to be present.
+        """
         g, ts = _seed_combo_trial_graph()
         clf = _make_classification([
             {"edge_type": "binds_to", "source_entity": "Pembrolizumab",
@@ -220,12 +226,64 @@ class TestChainAwareRouting:
         ])
         updates = Attributor(g).attribute(clf, ts)
         assert updates == []
-        # Logged
         assert _UNROUTED_LOG_PATH.exists()
         records = [
             json.loads(line) for line in _UNROUTED_LOG_PATH.read_text().splitlines()
         ]
-        assert any(r["source_entity"] == "Pembrolizumab" for r in records)
+        hallucinations = [r for r in records if r["source_entity"] == "Pembrolizumab"]
+        assert hallucinations, "expected the off-trial entity to be logged"
+        assert all(r["reason"] == "entity_not_in_trial" for r in hallucinations)
+
+    def test_sparse_chain_logs_no_chain_match_not_hallucination(self):
+        """When the trial subgraph has UNKNOWN placeholders so no
+        candidate (src, tgt) pairs can be formed for the requested edge
+        type, the update is still dropped — but logged as
+        ``no_chain_match`` (chain too sparse to verify) rather than
+        ``entity_not_in_trial`` (classifier hallucinated). The
+        distinction matters: hallucination is a model-quality signal,
+        sparse chains are an ingestion-coverage signal.
+        """
+        g = GraphStore()
+        g.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        g.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        g.add_node(PopulationNode(id="melanoma__unselected", name="All patients"))
+        # Note: NO TargetNode and NO mechanism_affects-relevant nodes —
+        # the trial chain will reference "UNKNOWN" for those.
+
+        arms = [TrialArm(arm_id="solo", compound_ids=["nivolumab"],
+                         regimen_compound_id="nivolumab")]
+        chains = [
+            CausalChain(
+                arm_id="solo", compound_id="nivolumab",
+                subgroup_population_id="melanoma__unselected",
+                target_id="UNKNOWN", mechanism_id="UNKNOWN",
+                biology_id="UNKNOWN", indication_id="melanoma",
+                endpoint_id="UNKNOWN", outcome=TrialOutcome.UNKNOWN,
+            )
+        ]
+        ts = TrialSubgraph(
+            trial_id="NCT_SPARSE", phase="3", arms=arms, chains=chains,
+            parent_population_id="melanoma__unselected",
+        )
+        g.set_trial_subgraph(ts)
+
+        clf = FailureClassification(
+            trial_id="NCT_SPARSE",
+            primary_failure_mode=FailureMode.EFFICACY_IN_SUBGROUP_ONLY,
+            confidence=0.7, evidence_quotes=["test"],
+        )
+        clf._raw = {"edges_to_update": [
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+        ]}  # type: ignore[attr-defined]
+
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
+        records = [
+            json.loads(line) for line in _UNROUTED_LOG_PATH.read_text().splitlines()
+        ]
+        assert records
+        assert all(r["reason"] == "no_chain_match" for r in records)
 
     def test_composed_of_updates_skipped(self):
         g, ts = _seed_combo_trial_graph()

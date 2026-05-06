@@ -12,8 +12,10 @@ import anthropic
 
 from src.annotation.taxonomy import (
     ChainResult,
+    DoseInfo,
     ExtractedArm,
     ExtractedSubgroup,
+    StructuredAE,
     TrialExtraction,
 )
 from src.ingestion.clinicaltrials import TrialRecord
@@ -210,6 +212,65 @@ def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
     )
 
 
+def _safe_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_dose_info(raw: Any) -> DoseInfo:
+    """Parse the structured dose_info block from the LLM response.
+
+    Tolerates the legacy ``dose_information: str`` shape (older cached
+    extractions) by stuffing the whole string into ``DoseInfo.dose``.
+    """
+    if isinstance(raw, dict):
+        return DoseInfo(
+            dose=str(raw.get("dose") or ""),
+            schedule=str(raw.get("schedule") or ""),
+            max_tolerated_dose=str(raw.get("max_tolerated_dose") or ""),
+            dose_modifications=str(raw.get("dose_modifications") or ""),
+        )
+    if isinstance(raw, str) and raw:
+        return DoseInfo(dose=raw)
+    return DoseInfo()
+
+
+def _parse_adverse_events(raw: Any) -> list[StructuredAE]:
+    """Parse the LLM-emitted adverse_events list into StructuredAE models.
+
+    Drops malformed entries (missing or empty term) silently — incidence
+    rates can legitimately be missing when the report doesn't break them
+    out per arm, but a term-less AE row is unusable for attribution.
+    """
+    out: list[StructuredAE] = []
+    if not isinstance(raw, list):
+        return out
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        term = str(entry.get("term") or "").strip()
+        if not term:
+            continue
+        out.append(
+            StructuredAE(
+                term=term,
+                grade=str(entry.get("grade") or ""),
+                incidence_treatment_pct=_safe_float(
+                    entry.get("incidence_treatment_pct")
+                ),
+                incidence_control_pct=_safe_float(
+                    entry.get("incidence_control_pct")
+                ),
+                serious=bool(entry.get("serious") or False),
+            )
+        )
+    return out
+
+
 def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> TrialExtraction:
     """Map the rich Claude response to our TrialExtraction model."""
     hypothesis = raw_json.get("therapeutic_hypothesis", {})
@@ -279,11 +340,20 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
             outcome=(cr.get("outcome") or "unknown").lower(),
         ))
 
+    # Structured dose_info supersedes the legacy results.dose_information
+    # string; fall back to the old key for cached extractions written
+    # before the schema change.
+    dose_raw = results.get("dose_info")
+    if dose_raw is None:
+        dose_raw = results.get("dose_information")
+    dose_info = _parse_dose_info(dose_raw)
+    adverse_events = _parse_adverse_events(results.get("adverse_events"))
+
     return TrialExtraction(
         trial_id=raw_json.get("nct_id", trial_id),
         compound_name=hypothesis.get("compound", ""),
         target_name=hypothesis.get("claimed_target", ""),
-        indication=context.get("comparator", ""),  # best proxy from context
+        indication=context.get("indication", ""),
         phase="",
         primary_endpoint=hypothesis.get("primary_endpoint", ""),
         primary_endpoint_met=results.get("primary_endpoint_met"),
@@ -292,7 +362,6 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         biomarker_data={
             "target_engagement": results.get("target_engagement_evidence"),
             "biomarker_changes": results.get("biomarker_changes", []),
-            "dose_information": results.get("dose_information", ""),
         },
         safety_signals=results.get("safety_signals", []),
         subgroup_findings=results.get("subgroup_findings", []),
@@ -300,6 +369,9 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         arms=arms,
         subgroups=subgroups,
         results_by_chain=chain_results,
+        duration_weeks=_safe_float(context.get("duration_weeks")),
+        dose_info=dose_info,
+        adverse_events=adverse_events,
     )
 
 
@@ -323,6 +395,12 @@ def _parse_document_response(
             if match:
                 effect_size = float(match.group())
 
+        dose_raw = trial.get("dose_info")
+        if dose_raw is None:
+            dose_raw = trial.get("dose_information")
+        dose_info = _parse_dose_info(dose_raw)
+        adverse_events = _parse_adverse_events(trial.get("adverse_events"))
+
         extractions.append(
             TrialExtraction(
                 trial_id=trial_id,
@@ -337,7 +415,6 @@ def _parse_document_response(
                 biomarker_data={
                     "target_engagement": trial.get("target_engagement_evidence"),
                     "biomarker_changes": trial.get("biomarker_changes", []),
-                    "dose_information": trial.get("dose_information", ""),
                 },
                 safety_signals=trial.get("safety_signals", []) or [],
                 subgroup_findings=trial.get("subgroup_findings", []) or [],
@@ -349,6 +426,9 @@ def _parse_document_response(
                     },
                     indent=2,
                 ),
+                duration_weeks=_safe_float(trial.get("duration_weeks")),
+                dose_info=dose_info,
+                adverse_events=adverse_events,
             )
         )
     return extractions

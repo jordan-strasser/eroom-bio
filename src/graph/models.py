@@ -102,6 +102,14 @@ class EdgeType(str, Enum):
     # constituent CompoundNodes. Carries no Beta belief — used purely to make
     # the combo's composition queryable from the graph.
     COMPOSED_OF = "composed_of"
+    # Compound → AdverseEvent. Belief = P(this compound causes this AE).
+    # Evidence: per-trial incidence-rate deltas vs control arm.
+    CAUSES_AE = "causes_ae"
+    # Target → AdverseEvent. Belief = P(modulating this target causes this AE).
+    # Evidence: ≥2 distinct compounds binding the target with strong causes_ae
+    # to the same AE — the cross-trial signal that an AE is on-mechanism
+    # rather than compound-specific.
+    TARGET_ASSOCIATED_AE = "target_associated_ae"
 
 
 class EvidenceType(str, Enum):
@@ -256,6 +264,25 @@ class IndicationNode(BaseModel):
     prevalence: float | None = None
     standard_of_care: str | None = None
     unmet_need_score: float | None = None
+
+
+class AdverseEventNode(BaseModel):
+    """A graph-native adverse event keyed on a normalized MedDRA preferred term.
+
+    The id format is ``AE:{lowercase_underscored_meddra_term}`` (e.g.
+    ``AE:hepatotoxicity``) so the same AE shared across trials and
+    compounds collapses to a single node — the precondition for
+    cross-trial learning of mechanism-associated toxicities.
+    """
+    id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    # MedDRA System Organ Class (e.g. "Hepatobiliary disorders"). Free
+    # string; normalized by the MedDRA mapper at extraction time.
+    system_organ_class: str = ""
+    # Observed CTCAE grade range across trials feeding this node, e.g.
+    # "grade_1_3" or "grade_3_4". Updated when new evidence arrives.
+    severity_range: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class TrialNode(BaseModel):

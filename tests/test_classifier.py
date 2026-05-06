@@ -234,8 +234,26 @@ class TestParseClassification:
         assert clf.primary_failure_mode == FailureMode.NO_TARGET_ENGAGEMENT
         assert clf.secondary_failure_modes == [FailureMode.DOSE_LIMITING_TOXICITY]
 
-    def test_empty_modes_defaults_to_insufficient(self):
+    def test_empty_modes_on_success_uses_confidence_overall(self):
+        # Empty failure_modes on a successful trial is the legitimate
+        # "no remaining weak points" case — confidence must NOT be
+        # zeroed, otherwise quality_score would null out the per-edge
+        # bucket updates downstream in the attributor.
         raw = {**VALID_CLASSIFICATION_JSON, "failure_modes": []}
+        assert raw["trial_outcome"] == "success"
+        ext = _make_extraction()
+        clf = _parse_classification(raw, "NCT00000001", ext)
+        assert clf.primary_failure_mode == FailureMode.INSUFFICIENT_INFORMATION
+        assert clf.confidence == raw["confidence_overall"]
+
+    def test_empty_modes_on_failure_zeros_confidence(self):
+        # Empty failure_modes on a non-success trial still signals
+        # insufficient information and zeros confidence.
+        raw = {
+            **VALID_CLASSIFICATION_JSON,
+            "trial_outcome": "failure",
+            "failure_modes": [],
+        }
         ext = _make_extraction()
         clf = _parse_classification(raw, "NCT00000001", ext)
         assert clf.primary_failure_mode == FailureMode.INSUFFICIENT_INFORMATION

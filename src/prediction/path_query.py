@@ -91,6 +91,24 @@ class EdgeContribution(BaseModel):
     )
 
 
+class SafetyRisk(BaseModel):
+    """One adverse-event risk surfaced in a prediction.
+
+    ``source`` distinguishes compound-specific risk (this drug has caused
+    this AE in past trials) from target-class risk (other drugs binding
+    the same target have caused this AE — likely on-mechanism). The two
+    travel together so the consumer can decide whether the risk is
+    chemistry-related (changeable) or mechanism-related (intrinsic).
+    """
+
+    ae_id: str
+    ae_name: str
+    source: str  # "compound" | "target_class"
+    belief_probability: float
+    evidence_strength: float
+    contributing_compound_ids: list[str] = Field(default_factory=list)
+
+
 class PredictionResult(BaseModel):
     """Full prediction for a trial hypothesis."""
 
@@ -101,6 +119,10 @@ class PredictionResult(BaseModel):
     edge_contributions: list[EdgeContribution]
     weakest_link: EdgeContribution | None
     n_samples: int
+    # Adverse-event risks the graph attaches to this compound or its
+    # target. Surfaced for the consumer; does NOT factor into
+    # ``overall_probability`` — efficacy and safety are scored independently.
+    safety_risks: list[SafetyRisk] = Field(default_factory=list)
 
 
 # ── Engine ──────────────────────────────────────────────────────────────
@@ -181,6 +203,8 @@ class PredictionEngine:
             f"{chain.indication_id}"
         )
 
+        safety_risks = self._collect_safety_risks(chain)
+
         return PredictionResult(
             trial_hypothesis=hypothesis,
             overall_probability=overall_prob,
@@ -189,7 +213,89 @@ class PredictionEngine:
             edge_contributions=contributions,
             weakest_link=weakest,
             n_samples=n_samples,
+            safety_risks=safety_risks,
         )
+
+    def _collect_safety_risks(
+        self,
+        chain: CausalChain,
+        *,
+        min_belief: float = 0.4,
+        min_evidence: float = 1.0,
+        max_risks: int = 10,
+    ) -> list[SafetyRisk]:
+        """Pull AE risks from the compound's causes_ae and the target's
+        target_associated_ae edges.
+
+        Compound-specific risks come first (more directly attributable);
+        target-class risks supplement them. Both filtered by minimum
+        belief + evidence so a Beta(1,1) edge isn't reported as a "risk".
+        Sorted by belief × evidence_strength so the most-grounded risks
+        rise to the top, then capped at ``max_risks`` so the consumer
+        isn't drowned in low-signal AEs.
+        """
+        risks: list[SafetyRisk] = []
+        seen_ae_ids: set[str] = set()
+
+        for edge in self.graph.get_neighboring_edges(
+            chain.compound_id, edge_types=[EdgeType.CAUSES_AE],
+        ):
+            ae_id = edge["target_id"]
+            belief = EdgeBeliefState.model_validate(edge["belief"])
+            if (
+                belief.expected_probability < min_belief
+                or belief.evidence_strength < min_evidence
+            ):
+                continue
+            try:
+                ae_node = self.graph.get_node(ae_id)
+            except KeyError:
+                continue
+            risks.append(SafetyRisk(
+                ae_id=ae_id,
+                ae_name=ae_node.get("name", ae_id),
+                source="compound",
+                belief_probability=belief.expected_probability,
+                evidence_strength=belief.evidence_strength,
+                contributing_compound_ids=[chain.compound_id],
+            ))
+            seen_ae_ids.add(ae_id)
+
+        for edge in self.graph.get_neighboring_edges(
+            chain.target_id, edge_types=[EdgeType.TARGET_ASSOCIATED_AE],
+        ):
+            ae_id = edge["target_id"]
+            if ae_id in seen_ae_ids:
+                # Compound-specific risk already covers this AE; skip the
+                # target-class entry so the same AE isn't double-listed.
+                continue
+            belief = EdgeBeliefState.model_validate(edge["belief"])
+            if (
+                belief.expected_probability < min_belief
+                or belief.evidence_strength < min_evidence
+            ):
+                continue
+            try:
+                ae_node = self.graph.get_node(ae_id)
+            except KeyError:
+                continue
+            contributing = [
+                rec.source_id for rec in belief.evidence
+            ]
+            risks.append(SafetyRisk(
+                ae_id=ae_id,
+                ae_name=ae_node.get("name", ae_id),
+                source="target_class",
+                belief_probability=belief.expected_probability,
+                evidence_strength=belief.evidence_strength,
+                contributing_compound_ids=contributing,
+            ))
+
+        risks.sort(
+            key=lambda r: r.belief_probability * r.evidence_strength,
+            reverse=True,
+        )
+        return risks[:max_risks]
 
     def compare_hypotheses(
         self,

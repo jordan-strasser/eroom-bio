@@ -12,21 +12,27 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from src.graph.models import (
+    AdverseEventNode,
     CausalChain,
     EdgeBeliefState,
     EdgeType,
     EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
+    GraphEdge,
     TrialArm,
     TrialSubgraph,
 )
 from src.graph.store import GraphStore
+from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import SupportBucket, bucket_to_direction
+from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
 from src.annotation.taxonomy import (
     FAILURE_MODE_RULES,
     FailureClassification,
     FailureMode,
+    StructuredAE,
+    TrialExtraction,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,6 +64,8 @@ _EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
     EdgeType.REFLECTS_BIOLOGY:     ("BiologyNode", "EndpointNode"),
     EdgeType.ENDPOINT_CAPTURES:    ("EndpointNode", "IndicationNode"),
     EdgeType.RESPONDS_DIFFERENTLY: ("PopulationNode", "IndicationNode"),
+    EdgeType.CAUSES_AE:            ("CompoundNode", "AdverseEventNode"),
+    EdgeType.TARGET_ASSOCIATED_AE: ("TargetNode", "AdverseEventNode"),
 }
 
 
@@ -197,27 +205,28 @@ def _score_pair_against_names(
     src_name: str,
     tgt_name: str,
     name_index: _NameIndex,
-) -> int:
-    """Higher = better fit. Both sides must match for the pair to win.
+) -> tuple[int, bool]:
+    """Returns ``(score, explicit_mismatch)``.
 
     Score 2: both source and target match the classifier-emitted names.
     Score 1: one side matches, other side has no name to check (empty
              classifier emission). Falls back rather than dropping.
-    Score 0: at least one side has a name that *doesn't* match — reject.
+    Score 0: either at least one side has a name that *doesn't* match
+             (``explicit_mismatch=True``), or both sides are empty
+             (``explicit_mismatch=False``).
     """
     src_match = name_index.matches(src_id, src_name) if src_name else None
     tgt_match = name_index.matches(tgt_id, tgt_name) if tgt_name else None
 
     if src_match is False or tgt_match is False:
-        return 0
+        return 0, True
 
     score = 0
     if src_match:
         score += 1
     if tgt_match:
         score += 1
-    # Both names empty → unmatched (caller treats as no-route).
-    return score
+    return score, False
 
 
 def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
@@ -233,6 +242,64 @@ def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
     }
     with _UNROUTED_LOG_PATH.open("a") as fh:
         fh.write(json.dumps(record) + "\n")
+
+
+# ── AE attribution helpers ──────────────────────────────────────────────
+
+
+def _ae_support_bucket(
+    treatment_pct: float | None,
+    control_pct: float | None,
+) -> SupportBucket:
+    """Map per-arm AE incidence to a SupportBucket for the causes_ae edge.
+
+    No treatment-arm rate → AMBIGUOUS (we can't even say the trial saw it).
+    Control rate missing is treated as 0 — a conservative read that says
+    "no reported background", which lets unilateral safety signals from
+    single-arm Phase 1s contribute (with the bucket downgrade reflecting
+    the missing comparator).
+
+    Thresholds are deliberately coarse:
+      - delta ≥ 20pp OR RR ≥ 3 → strong_support
+      - delta ≥ 10pp OR RR ≥ 2 → moderate_support
+      - delta ≥ 5pp  OR RR ≥ 1.5 → weak_support
+      - delta ≤ -5pp           → weak_contradict (drug arm safer than control)
+      - otherwise              → ambiguous (background rate)
+
+    Calibration of these cutoffs is downstream of the calibration harness
+    (NEXT_SESSION follow-up #1) just like the bucket→p_obs table.
+    """
+    if treatment_pct is None:
+        return SupportBucket.AMBIGUOUS
+    c = control_pct if control_pct is not None else 0.0
+    delta = treatment_pct - c
+    # 0.5pp floor on the denominator avoids div-by-zero and keeps RR
+    # finite when control = 0; an AE seen in 30% of treated patients
+    # with 0% control still gets RR = 60, well into strong territory.
+    rr = treatment_pct / max(c, 0.5)
+
+    if delta >= 20 or rr >= 3:
+        return SupportBucket.STRONG_SUPPORT
+    if delta >= 10 or rr >= 2:
+        return SupportBucket.MODERATE_SUPPORT
+    if delta >= 5 or rr >= 1.5:
+        return SupportBucket.WEAK_SUPPORT
+    if delta <= -5:
+        return SupportBucket.WEAK_CONTRADICT
+    return SupportBucket.AMBIGUOUS
+
+
+def _format_ae_note(ae: StructuredAE, preferred_term: str) -> str:
+    bits = [f"AE: {preferred_term} (raw: {ae.term!r})"]
+    if ae.grade:
+        bits.append(f"grade {ae.grade}")
+    if ae.incidence_treatment_pct is not None:
+        bits.append(f"tx {ae.incidence_treatment_pct:g}%")
+    if ae.incidence_control_pct is not None:
+        bits.append(f"ctrl {ae.incidence_control_pct:g}%")
+    if ae.serious:
+        bits.append("SAE")
+    return "; ".join(bits)
 
 
 # ── Output model ─────────────────────────────────────────────────────────
@@ -281,6 +348,14 @@ class Attributor:
         raw = getattr(classification, "_raw", {})
         raw_edges = raw.get("edges_to_update", [])
         rule = FAILURE_MODE_RULES.get(classification.primary_failure_mode)
+        # For trial_outcome=success, the failure-mode label is descriptive
+        # only — the schema forces a pick but mechanistic-failure rules
+        # don't apply when nothing failed. Disabling the cross-check lets
+        # the per-edge bucket drive the update directly; otherwise a
+        # successful subgroup trial labeled efficacy_in_subgroup_only loses
+        # its biology_drives validation to the cross-check.
+        if raw.get("trial_outcome") == "success":
+            rule = None
         phase = trial.phase
         evidence_type = _PHASE_TO_EVIDENCE.get(phase, EvidenceType.LITERATURE)
 
@@ -318,11 +393,22 @@ class Attributor:
                 )
                 bucket = SupportBucket.AMBIGUOUS
 
-            src_id, tgt_id = self._route_to_chain_edge(
+            src_id, tgt_id, route_reason = self._route_to_chain_edge(
                 edge_type, trial, arm_by_id, name_index, item
             )
             if not src_id or not tgt_id:
-                _log_unrouted(trial.trial_id, item, reason="no_chain_match")
+                reason = route_reason or "no_chain_match"
+                if reason == "entity_not_in_trial":
+                    logger.warning(
+                        "Dropping classifier update for trial %s: "
+                        "%s %r → %r is not in the trial subgraph "
+                        "(possible LLM hallucination of off-trial entity)",
+                        trial.trial_id,
+                        edge_type_str,
+                        item.get("source_entity"),
+                        item.get("target_entity"),
+                    )
+                _log_unrouted(trial.trial_id, item, reason=reason)
                 continue
 
             # Cross-check with taxonomy rule. If the classifier picked a
@@ -379,6 +465,138 @@ class Attributor:
 
         return updates
 
+    async def attribute_adverse_events(
+        self,
+        trial: TrialSubgraph,
+        extraction: TrialExtraction,
+        client: Any,  # anthropic.AsyncAnthropic — kept loose to avoid import cost in attributor
+        meddra_cache: MeddraCache | None = None,
+    ) -> list[AppliedEdgeUpdate]:
+        """Update causes_ae edges from a trial's structured adverse events.
+
+        For each AE the extractor pulled from the trial:
+          1. Normalize the term to a MedDRA preferred term (cached LLM call).
+          2. Ensure an AdverseEventNode exists in the graph (create on miss).
+          3. Choose a SupportBucket from the per-arm incidence rates.
+          4. Update causes_ae from each treatment-arm compound to the AE.
+
+        Skips arms that look like placebo/sham/vehicle so the comparator's
+        background-rate mentions don't accumulate causes_ae evidence on
+        the wrong compound.
+        """
+        cache = meddra_cache or MeddraCache()
+        evidence_type = _PHASE_TO_EVIDENCE.get(trial.phase, EvidenceType.LITERATURE)
+        treatment_compound_ids = self._treatment_compound_ids(trial)
+        if not treatment_compound_ids:
+            return []
+
+        updates: list[AppliedEdgeUpdate] = []
+        for ae in extraction.adverse_events:
+            normalized = await normalize_ae_term(client, ae.term, cache)
+            preferred_term = normalized["preferred_term"]
+            soc = normalized.get("system_organ_class", "")
+            ae_id = ae_node_id(preferred_term)
+            self._ensure_ae_node(ae_id, preferred_term, soc, ae.grade)
+
+            bucket = _ae_support_bucket(
+                ae.incidence_treatment_pct, ae.incidence_control_pct
+            )
+            note = _format_ae_note(ae, preferred_term)
+
+            for compound_id in treatment_compound_ids:
+                self._ensure_causes_ae_edge(compound_id, ae_id)
+                evidence = EvidenceRecord(
+                    source_id=trial.trial_id,
+                    source_type=evidence_type,
+                    support=bucket.value,
+                    quality_score=1.0,  # incidence-rate evidence is structured, not LLM-judgment
+                    timestamp=datetime.now(timezone.utc),
+                    notes=note,
+                    context={"ae_term_raw": ae.term, "ae_grade": ae.grade},
+                )
+                pre = self.graph.get_edge_belief(
+                    compound_id, ae_id, EdgeType.CAUSES_AE
+                )
+                post = self.graph.update_edge_belief(
+                    compound_id, ae_id, EdgeType.CAUSES_AE, evidence
+                )
+                updates.append(AppliedEdgeUpdate(
+                    source_id=compound_id,
+                    target_id=ae_id,
+                    edge_type=EdgeType.CAUSES_AE,
+                    evidence=evidence,
+                    pre_update_belief=pre,
+                    post_update_belief=post,
+                ))
+
+        # After all causes_ae updates land, refresh target_associated_ae for
+        # each touched (compound, AE) pair. Propagation is idempotent —
+        # running it once per touched pair is enough even when the same
+        # AE was attributed to multiple compounds in this trial.
+        touched_pairs = {(u.source_id, u.target_id) for u in updates}
+        for compound_id, ae_id in touched_pairs:
+            propagate_to_target_associated_ae(self.graph, compound_id, ae_id)
+
+        return updates
+
+    def _treatment_compound_ids(self, trial: TrialSubgraph) -> list[str]:
+        """Compound ids on any non-placebo arm of the trial.
+
+        Returns the *constituent* ids (not the synthesized regimen id for
+        combos) so causes_ae attribution accumulates on the same Compound
+        node a different trial would attribute to.
+        """
+        seen: set[str] = set()
+        out: list[str] = []
+        for arm in trial.arms:
+            for cid in arm.compound_ids:
+                if cid in seen:
+                    continue
+                try:
+                    node = self.graph.get_node(cid)
+                except KeyError:
+                    continue
+                name = (node.get("name") or "").lower()
+                if any(token in name for token in ("placebo", "sham", "vehicle")):
+                    continue
+                seen.add(cid)
+                out.append(cid)
+        return out
+
+    def _ensure_ae_node(
+        self, ae_id: str, preferred_term: str, soc: str, grade: str
+    ) -> None:
+        try:
+            existing = self.graph.get_node(ae_id)
+        except KeyError:
+            self.graph.add_node(AdverseEventNode(
+                id=ae_id,
+                name=preferred_term,
+                system_organ_class=soc,
+                severity_range=grade or "",
+            ))
+            return
+        # Node exists — extend severity_range if this AE reported a new grade
+        # we haven't seen for this term before. SOC is locked in on first
+        # write; the normalizer should be deterministic for the same input.
+        if grade and grade not in (existing.get("severity_range") or ""):
+            existing_range = existing.get("severity_range") or ""
+            merged = f"{existing_range},{grade}".strip(",")
+            self.graph._graph.nodes[ae_id]["severity_range"] = merged
+
+    def _ensure_causes_ae_edge(self, compound_id: str, ae_id: str) -> None:
+        try:
+            self.graph.get_edge_belief(
+                compound_id, ae_id, EdgeType.CAUSES_AE
+            )
+        except KeyError:
+            self.graph.add_edge(GraphEdge(
+                source_id=compound_id,
+                target_id=ae_id,
+                edge_type=EdgeType.CAUSES_AE,
+                belief=EdgeBeliefState(),
+            ))
+
     def apply_updates(
         self, updates: list[AppliedEdgeUpdate]
     ) -> dict[str, Any]:
@@ -412,10 +630,22 @@ class Attributor:
         arm_by_id: dict[str, TrialArm],
         name_index: "_NameIndex",
         item: dict[str, Any],
-    ) -> tuple[str | None, str | None]:
+    ) -> tuple[str | None, str | None, str | None]:
         """Pick the chain whose canonical ids best match the classifier's
         free-text source/target entity names, then return that chain's
-        (source_id, target_id) for the given edge type.
+        ``(source_id, target_id, reason)`` for the given edge type.
+
+        Returns ``reason=None`` on success. On failure, ids are ``None``
+        and reason is one of:
+          - ``"no_chain_match"`` — no chain in the trial subgraph has
+            non-UNKNOWN candidates for this edge type. Means the trial
+            is too sparsely populated to verify the update.
+          - ``"entity_not_in_trial"`` — candidate pairs exist, but the
+            classifier's named source/target match nothing among them.
+            This is the hallucination guard: graph-build trusts only
+            entities derivable from the trial subgraph, so if the
+            classifier invents an off-trial entity the update is
+            dropped rather than misrouted.
 
         Open Targets-seeded biology_drives gets a special pass-through:
         OT writes a single (target_id, indication_id) edge during populate
@@ -425,13 +655,15 @@ class Attributor:
         if edge_type == EdgeType.BIOLOGY_DRIVES:
             ot_coords = trial.metadata.get("ot_biology_drives")
             if ot_coords:
-                return ot_coords.get("source_id"), ot_coords.get("target_id")
+                return ot_coords.get("source_id"), ot_coords.get("target_id"), None
 
         src_name = (item.get("source_entity") or "").strip()
         tgt_name = (item.get("target_entity") or "").strip()
 
         best: tuple[str, str] | None = None
         best_score = -1
+        any_candidate = False
+        any_explicit_mismatch = False
         for chain in trial.chains:
             arm = arm_by_id.get(chain.arm_id)
             if arm is None:
@@ -439,16 +671,22 @@ class Attributor:
             for src_id, tgt_id in _chain_edges_for_type(chain, arm, edge_type):
                 if src_id == _UNKNOWN_PLACEHOLDER or tgt_id == _UNKNOWN_PLACEHOLDER:
                     continue
-                score = _score_pair_against_names(
+                any_candidate = True
+                score, mismatched = _score_pair_against_names(
                     src_id, tgt_id, src_name, tgt_name, name_index,
                 )
+                if mismatched:
+                    any_explicit_mismatch = True
                 if score > best_score:
                     best_score = score
                     best = (src_id, tgt_id)
 
-        if best is None or best_score <= 0:
-            return None, None
-        return best
+        if best is not None and best_score >= 1:
+            return best[0], best[1], None
+
+        if any_candidate and any_explicit_mismatch:
+            return None, None, "entity_not_in_trial"
+        return None, None, "no_chain_match"
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────
@@ -467,10 +705,11 @@ def _load_classifications(annotations_dir: Path) -> list[tuple[dict, dict]]:
     return pairs
 
 
-def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
+async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
+    import anthropic
     from rich.console import Console
 
-    from src.annotation.taxonomy import TrialExtraction
+    from src.annotation.meddra import MeddraCache
 
     console = Console()
 
@@ -489,6 +728,12 @@ def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
     attributor = Attributor(graph)
     pairs = _load_classifications(Path(annotations_dir))
     console.print(f"\n[bold]Found {len(pairs)} annotated trials[/bold]")
+
+    # Shared resources for AE attribution: one Anthropic client + one
+    # MeddraCache reused across the whole batch so repeat AE terms hit
+    # the cache rather than the LLM.
+    client = anthropic.AsyncAnthropic(timeout=60.0)
+    meddra_cache = MeddraCache()
 
     total_updates: list[AppliedEdgeUpdate] = []
 
@@ -526,8 +771,29 @@ def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
 
         updates = attributor.attribute(classification, trial)
         total_updates.extend(updates)
+
+        # AE attribution from the cached extraction. Reconstruct the
+        # TrialExtraction model from JSON so structured AE / dose fields
+        # flow through; if validation fails (e.g. an old extraction
+        # cached before the schema change), skip silently — the next
+        # extraction run will refresh it.
+        try:
+            extraction = TrialExtraction.model_validate(ext_data)
+        except Exception as exc:  # noqa: BLE001 — pydantic ValidationError + others
+            logger.warning(
+                "Skipping AE attribution for %s: extraction JSON invalid (%s)",
+                trial_id, exc,
+            )
+            extraction = None
+
+        if extraction is not None and extraction.adverse_events:
+            ae_updates = await attributor.attribute_adverse_events(
+                trial, extraction, client=client, meddra_cache=meddra_cache,
+            )
+            total_updates.extend(ae_updates)
+
         if updates:
-            console.print(f"  {trial_id}: {len(updates)} edge updates")
+            console.print(f"  {trial_id}: {len(updates)} efficacy edge updates")
 
     # Summary
     summary = attributor.apply_updates(total_updates)
@@ -557,4 +823,4 @@ if __name__ == "__main__":
     parser.add_argument("--output", default="data/exports/oncology_annotated.json", help="Output graph snapshot")
     args = parser.parse_args()
 
-    _main(args.input, args.graph, args.output)
+    asyncio.run(_main(args.input, args.graph, args.output))

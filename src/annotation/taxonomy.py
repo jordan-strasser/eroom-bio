@@ -264,6 +264,44 @@ class ChainResult(BaseModel):
     outcome: str = "unknown"  # success | failure | partial | unknown
 
 
+class DoseInfo(BaseModel):
+    """Structured dose / schedule extracted from a trial.
+
+    All fields are optional because trial reports vary widely in how
+    much dosing detail they include; downstream consumers must handle
+    None gracefully. ``dose`` is a free string (the LLM emits whatever
+    units the report uses, e.g. "150 mg" or "10 mg/kg") rather than a
+    parsed numeric — calibration of dose-vs-response across trials needs
+    unit normalization that we don't have yet.
+    """
+
+    dose: str = ""
+    schedule: str = ""
+    max_tolerated_dose: str = ""
+    dose_modifications: str = ""
+
+
+class StructuredAE(BaseModel):
+    """One adverse event reported in a trial, with incidence vs control.
+
+    ``term`` is the raw term as the trial reported it; ``meddra_term`` is
+    the normalized MedDRA preferred term (populated by the MedDRA mapper
+    before attribution). The two are kept separate so we never lose the
+    original wording.
+
+    Incidence percentages may be missing when the report aggregates AEs
+    without per-arm breakdowns; attribution treats missing rates as
+    ambiguous evidence rather than supporting.
+    """
+
+    term: str = Field(min_length=1)
+    meddra_term: str = ""
+    grade: str = ""  # CTCAE grade or range, e.g. "3" or "1-2"
+    incidence_treatment_pct: float | None = None
+    incidence_control_pct: float | None = None
+    serious: bool = False
+
+
 class TrialExtraction(BaseModel):
     """Structured data extracted from a trial's results."""
 
@@ -280,12 +318,18 @@ class TrialExtraction(BaseModel):
     safety_signals: list[str] = Field(default_factory=list)
     subgroup_findings: list[str] = Field(default_factory=list)
     summary: str = ""
-    # New fields supporting combinatorial + subgroup-aware extraction.
+    # Combinatorial + subgroup-aware extraction.
     # Empty lists are tolerable — a trial with one arm and no reported
     # subgroups produces a single chain at the parent population.
     arms: list[ExtractedArm] = Field(default_factory=list)
     subgroups: list[ExtractedSubgroup] = Field(default_factory=list)
     results_by_chain: list[ChainResult] = Field(default_factory=list)
+    # Structured safety + exposure fields. Feed graph-native AE attribution
+    # (causes_ae edges) and let the mitigating-factor checklist on the
+    # contradict side reference real exposure data rather than narrative.
+    duration_weeks: float | None = None
+    dose_info: DoseInfo = Field(default_factory=DoseInfo)
+    adverse_events: list[StructuredAE] = Field(default_factory=list)
 
 
 class FailureClassification(BaseModel):

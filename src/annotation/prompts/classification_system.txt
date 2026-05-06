@@ -17,7 +17,7 @@ The failure modes you can assign are:
 - target_engaged_biology_not_moved: Target was hit but downstream biology didn't change
 - biology_moved_endpoint_flat: Biology changed but clinical endpoint didn't improve
 - efficacy_in_subgroup_only: Drug works in a subgroup but not the full population
-- dose_limiting_toxicity: Toxicity prevented adequate dosing
+- dose_limiting_toxicity: Toxicity prevented adequate dosing. Use the structured "Adverse Events" table (per-arm incidence + grade) and the "Dose / Exposure" block as primary evidence — narrative safety mentions alone are not enough. Specifically, assign DLT when: (a) the maximum tolerated dose was below the dose projected to engage the target, OR (b) ≥ Grade 3 AEs in the treatment arm exceed control by a clinically meaningful margin AND the protocol required dose reductions / interruptions, OR (c) the trial was terminated for safety with a stated AE attribution.
 - wrong_timeframe: Trial duration or measurement timing was inappropriate
 - high_placebo_response: Unusually high placebo response masked treatment effect
 - wrong_population: Enrolled population was not right for the mechanism
@@ -27,7 +27,11 @@ The failure modes you can assign are:
 - insufficient_information: Not enough information to classify
 - multiple_factors: Multiple overlapping failure factors
 
-For SUCCESSFUL trials: still classify which edges in the causal chain were validated. Use the same schema with one of the *_support buckets per edge.
+Trial outcome routes processing:
+
+- For FAILURE or PARTIAL trials: `failure_modes` is the mechanistic-failure classification and is REQUIRED — pick at least one of the 13 categories above. The downstream attributor uses the primary failure mode to cross-check `edges_to_update` against the taxonomy (e.g. classifier saying `binds_to: strong_support` while picking `no_target_engagement` is internally inconsistent and the bucket gets downgraded to ambiguous).
+
+- For SUCCESS trials: `failure_modes` is DESCRIPTIVE ONLY and does not drive any graph update — the cross-check is disabled. Use it to surface remaining weak points or trial-design caveats (small sample, single-arm, narrow biomarker-defined population, short follow-up) that future trial designers should be aware of. If there are none, return `[]`. Do NOT pick a label just to fill the slot — a successful subgroup trial is not an `efficacy_in_subgroup_only` *failure*. The source of truth for the graph update on a successful trial is `edges_to_update`: emit one *_support bucket per validated edge.
 
 You MUST return ONLY valid JSON matching this exact schema — no markdown, no commentary:
 
@@ -57,7 +61,7 @@ You MUST return ONLY valid JSON matching this exact schema — no markdown, no c
 }
 
 Rules:
-- Always provide at least one failure_mode entry, even for successful trials (use the mode that best describes what was validated).
+- For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive — include entries only when there are real trial-design weak points to surface; otherwise return [].
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
 - Set needs_expert_review to true if evidence is ambiguous or conflicting.
 - confidence_overall reflects your certainty in the ENTIRE classification, not just one mode.
@@ -101,18 +105,53 @@ Support bucket rubric — pick exactly one bucket per edge using the strongest t
                        (e.g. the endpoint isn't sensitive to whether this
                        edge holds, or evidence cuts both ways).
 
-  weak_contradict      Mild evidence against — endpoint trended wrong way
-                       without significance, or a single biomarker
-                       inconsistent with the edge.
+  weak_contradict      Directional negativity only — endpoint trended
+                       wrong way but missed significance, OR a single
+                       unsupportive biomarker without confirmatory
+                       clinical readout, OR two or more of (a)-(f) under
+                       strong_contradict below are plausible.
 
-  moderate_contradict  Clear negative signal but with mitigating factors:
-                       underpowered, possible confound, or only secondary
-                       endpoint missed.
+  moderate_contradict  Clear negative signal AND exactly ONE of:
+                       secondary endpoint only, post-hoc analysis, modest
+                       negative effect size, or exactly one of (a)-(f)
+                       under strong_contradict below is plausible.
 
-  strong_contradict    Trial directly refutes the edge: pre-specified
-                       primary endpoint missed despite adequate power and
-                       confirmed target engagement, OR biomarker readout
-                       that mechanistically rules the edge out.
+  strong_contradict    Pre-specified primary endpoint missed at p>=0.05
+                       with adequate power and confirmed target engagement,
+                       OR a biomarker readout that mechanistically rules
+                       the edge out. AND none of the following mitigating
+                       factors apply — each is an observable check, not
+                       a vibe:
+                         (a) underpowered design: was N below the trial's
+                             pre-specified power calculation, or
+                             substantially below standard for this
+                             endpoint/indication?
+                         (b) toxicity-truncated dosing: was the maximum
+                             tolerated dose meaningfully below the dose
+                             projected to fully engage the target?
+                         (c) wrong dose / wrong timeframe: was treatment
+                             duration shorter than the mechanism's
+                             pharmacodynamic timeframe, or the chosen
+                             dose below the PK threshold for sustained
+                             target engagement?
+                         (d) high placebo masking: was the placebo arm's
+                             response unusually high vs historical
+                             baseline for this indication, compressing
+                             the detectable treatment effect?
+                         (e) dropout / non-compliance: was dropout rate
+                             high (e.g. >20%) or asymmetric between arms,
+                             or protocol adherence poor?
+                         (f) wrong population: did the enrolled population
+                             lack the biomarker, genetic subset, or
+                             disease stage where the mechanism is expected
+                             to operate?
+
+Unlisted factors: If a plausible alternative explanation (support side) or
+mitigating factor (contradict side) applies that is NOT in the (a)-(e) /
+(a)-(f) checklists above, do NOT count it toward the bucket threshold.
+Instead, set `needs_expert_review` to true and name the factor explicitly
+in `review_reason`. Recurring unlisted factors will be added to the
+checklists during calibration.
 
 Confidence rubric for confidence_overall — assign by matching the strongest tier the evidence satisfies:
 

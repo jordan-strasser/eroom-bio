@@ -22,13 +22,29 @@ You MUST return ONLY valid JSON matching this exact schema — no markdown, no c
     "target_engagement_evidence": "string or null",
     "biomarker_changes": ["list of biomarker observations"],
     "subgroup_findings": ["list of notable subgroup results"],
-    "safety_signals": ["list of safety/toxicity findings"],
-    "dose_information": "string — dose, schedule, any dose modifications"
+    "safety_signals": ["list of safety/toxicity findings — keep for narrative context; the structured equivalent is `adverse_events` below"],
+    "dose_info": {
+      "dose": "string — dose with units (e.g. '150 mg', '10 mg/kg'); '' if not stated",
+      "schedule": "string — frequency/cycle (e.g. 'once daily', 'weekly x4 q28d'); '' if not stated",
+      "max_tolerated_dose": "string — MTD if reported; '' otherwise",
+      "dose_modifications": "string — protocol-specified or observed dose reductions / interruptions; '' otherwise"
+    },
+    "adverse_events": [
+      {
+        "term": "string — AE name as reported (e.g. 'Grade 3 transaminase elevation', 'rash', 'neutropenia')",
+        "grade": "string — CTCAE grade or range, e.g. '3', '1-2', '3-4'; '' if not reported",
+        "incidence_treatment_pct": float or null,
+        "incidence_control_pct": float or null,
+        "serious": true/false
+      }
+    ]
   },
   "context": {
-    "comparator": "string — control arm",
+    "indication": "string — disease/condition studied (e.g. 'metastatic melanoma', 'HER2+ breast cancer'). NOT the comparator arm.",
+    "comparator": "string — control arm (e.g. 'placebo', 'standard of care', 'ipilimumab alone')",
     "sample_size": integer,
-    "duration": "string — treatment/follow-up duration",
+    "duration": "string — treatment/follow-up duration as reported",
+    "duration_weeks": float or null,
     "investigator_commentary": "string or null"
   },
   "arms": [
@@ -87,7 +103,9 @@ A subgroup may have multiple features (e.g. PD-L1 high AND first-line) — list 
 - When the trial was TERMINATED or WITHDRAWN with no posted results but a "Why Stopped" reason is provided:
     * Quote it verbatim into context.investigator_commentary.
     * If futility / lack of efficacy / failure to meet endpoint → results.primary_endpoint_met=false.
-    * If safety / toxicity / adverse events → populate results.safety_signals.
+    * If safety / toxicity / adverse events → populate results.safety_signals AND, when per-arm incidence rates are reported, results.adverse_events.
     * If business / strategic / sponsor decision → leave primary_endpoint_met=null and capture in investigator_commentary.
     * If slow accrual / feasibility / enrollment problems → leave primary_endpoint_met=null and capture in investigator_commentary.
+- For `adverse_events`: include any AE for which the trial reports a treatment-arm incidence (number or percentage). If a control-arm rate is given, include it; otherwise leave `incidence_control_pct: null`. Convert raw counts to percentages using the arm's denominator. Do NOT invent rates the report doesn't state. If the trial reports only narrative safety mentions ("well tolerated", "no SAEs related to drug") without per-AE breakdown, leave `adverse_events` empty and put the narrative in `safety_signals`.
+- For `duration_weeks`: convert the reported treatment/follow-up duration to weeks (months × 4.345, days ÷ 7). Use null if duration isn't stated.
 - Return ONLY the JSON object. No explanation, no markdown fences.

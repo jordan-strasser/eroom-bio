@@ -12,6 +12,7 @@ import anthropic
 
 from src.annotation.attributor import AppliedEdgeUpdate, Attributor
 from src.annotation.extractor import Extractor, _call_messages_with_backoff
+from src.annotation.meddra import MeddraCache
 from src.annotation.taxonomy import (
     FailureClassification,
     FailureMode,
@@ -53,6 +54,40 @@ def _format_classification_prompt(extraction: TrialExtraction) -> str:
     safety_str = "\n".join(f"- {s}" for s in extraction.safety_signals) if extraction.safety_signals else "No safety signals reported"
     subgroup_str = "\n".join(f"- {s}" for s in extraction.subgroup_findings) if extraction.subgroup_findings else "No subgroup findings reported"
 
+    if extraction.adverse_events:
+        ae_lines = []
+        for ae in extraction.adverse_events:
+            tx = (
+                f"{ae.incidence_treatment_pct:g}%"
+                if ae.incidence_treatment_pct is not None else "?"
+            )
+            ctrl = (
+                f"{ae.incidence_control_pct:g}%"
+                if ae.incidence_control_pct is not None else "?"
+            )
+            grade_part = f", grade {ae.grade}" if ae.grade else ""
+            sae_part = " [SAE]" if ae.serious else ""
+            ae_lines.append(
+                f"- {ae.term}{grade_part}: tx {tx} vs ctrl {ctrl}{sae_part}"
+            )
+        ae_str = "\n".join(ae_lines)
+    else:
+        ae_str = "No structured adverse-event data"
+
+    dose = extraction.dose_info
+    dose_lines = []
+    if dose.dose:
+        dose_lines.append(f"- Dose: {dose.dose}")
+    if dose.schedule:
+        dose_lines.append(f"- Schedule: {dose.schedule}")
+    if dose.max_tolerated_dose:
+        dose_lines.append(f"- MTD: {dose.max_tolerated_dose}")
+    if dose.dose_modifications:
+        dose_lines.append(f"- Modifications: {dose.dose_modifications}")
+    if extraction.duration_weeks is not None:
+        dose_lines.append(f"- Duration: {extraction.duration_weeks:g} weeks")
+    dose_str = "\n".join(dose_lines) if dose_lines else "No dose / duration data"
+
     return template.format(
         trial_id=extraction.trial_id,
         compound_name=extraction.compound_name or "Unknown",
@@ -63,6 +98,8 @@ def _format_classification_prompt(extraction: TrialExtraction) -> str:
         p_value=extraction.p_value,
         biomarker_data=biomarker_str,
         safety_signals=safety_str,
+        adverse_events=ae_str,
+        dose_info=dose_str,
         subgroup_findings=subgroup_str,
         summary=extraction.summary,
     )
@@ -116,10 +153,20 @@ def _parse_classification(
     raw: dict[str, Any], trial_id: str, extraction: TrialExtraction
 ) -> FailureClassification:
     modes = raw.get("failure_modes", [])
+    trial_outcome = raw.get("trial_outcome", "")
     if not modes:
         primary_mode = FailureMode.INSUFFICIENT_INFORMATION
         secondary = []
-        confidence = 0.0
+        # For successful trials, empty failure_modes is the expected
+        # state when there are no weak points to surface — use
+        # confidence_overall so the per-edge bucket updates aren't
+        # zeroed out via quality_score in the attributor. For
+        # failure/partial trials, an empty list still signals
+        # insufficient information and zeroes confidence.
+        if trial_outcome == "success":
+            confidence = raw.get("confidence_overall", 0.5)
+        else:
+            confidence = 0.0
     else:
         sorted_modes = sorted(modes, key=lambda m: m.get("confidence", 0), reverse=True)
         primary_mode = FailureMode(sorted_modes[0]["mode"])
@@ -243,14 +290,18 @@ async def annotate_trial(
     classifier: Classifier,
     attributor: Attributor | None = None,
     build_subgraph: Callable[[TrialRecord, TrialExtraction], TrialSubgraph] | None = None,
+    meddra_cache: MeddraCache | None = None,
 ) -> tuple[TrialExtraction, FailureClassification, list[AppliedEdgeUpdate]]:
     """Single annotation entry point: extract → classify → attribute → update.
 
-    The fourth step (Bayesian belief update) is performed inside
-    ``attributor.attribute`` via ``GraphStore.update_edge_belief``.
+    Belief updates land via ``GraphStore.update_edge_belief`` inside both
+    the classifier-driven ``attributor.attribute`` (efficacy edges) and
+    the structured ``attributor.attribute_adverse_events`` (causes_ae +
+    target_associated_ae propagation). The returned ``updates`` list is
+    the concatenation of both.
 
-    If ``attributor`` or ``build_subgraph`` is omitted, the attribute step
-    is skipped and an empty update list is returned.
+    If ``attributor`` or ``build_subgraph`` is omitted, both attribute
+    steps are skipped and an empty update list is returned.
     """
     extraction = await extractor.extract(trial)
     classification = await classifier.classify(extraction)
@@ -258,6 +309,17 @@ async def annotate_trial(
     if attributor is not None and build_subgraph is not None:
         subgraph = build_subgraph(trial, extraction)
         updates = attributor.attribute(classification, subgraph)
+        # Reuse the extractor's Anthropic client for MedDRA normalization;
+        # the cache (default at data/cache/meddra_terms.json) collapses
+        # repeat AE terms across the corpus.
+        if extraction.adverse_events:
+            ae_updates = await attributor.attribute_adverse_events(
+                subgraph,
+                extraction,
+                client=extractor._client,
+                meddra_cache=meddra_cache or MeddraCache(),
+            )
+            updates.extend(ae_updates)
     return extraction, classification, updates
 
 
