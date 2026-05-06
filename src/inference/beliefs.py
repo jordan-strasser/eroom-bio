@@ -75,19 +75,37 @@ BUCKET_TO_P_OBS: dict[SupportBucket, float] = {
 # Effective sample size per evidence class. These are pseudocount
 # contributions to (α + β) per record — i.e. how many virtual Bernoulli
 # trials this evidence is worth. Larger = stronger shrinkage of the
-# posterior mean and faster CI tightening. Ordering preserves the prior
-# clinical > genetic > preclinical > in vitro hierarchy; absolute values
-# are calibratable (see ``calibration.py``).
+# posterior mean and faster CI tightening.
+#
+# Defensible relative scaling pre-calibration:
+#   - Phase 3 ≈ 15× in vitro: registrational RCTs (N≥500, randomized,
+#     blinded) carry orders of magnitude more information than a single
+#     LINCS knockout in one cell line. With three Phase 3s ≈ 45 virtual
+#     trials, clinical evidence appropriately dominates a typical
+#     LINCS bundle (~10 cell-line hits per mechanism).
+#   - Genetic MR ≈ 10×: well-powered MR with strong instruments
+#     approaches Phase-2-trial-equivalent causal evidence (uses
+#     Mendelian randomization to identify causal effects, replicates
+#     better than GWAS).
+#   - GWAS ≈ 4×: ~50% replication rate in independent cohorts, no
+#     direct causal claim.
+#   - Phase 1 ≈ 2×: dosed primarily for safety/PK, not efficacy —
+#     drops below Phase 2 despite being clinical.
+#   - Literature/computational at <1×: nominal pseudocounts; should
+#     not move beliefs much absent corroborating evidence.
+#
+# These are pre-calibration defaults — once a labeled holdout of
+# ≥50 trials exists, refit via ``calibration.py`` to minimize Brier.
 EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
-    EvidenceType.CLINICAL_PHASE3:    5.0,
-    EvidenceType.CLINICAL_PHASE2:    3.0,
-    EvidenceType.CLINICAL_PHASE1:    1.5,
-    EvidenceType.GENETIC_MR:         4.0,
-    EvidenceType.GENETIC_GWAS:       2.5,
-    EvidenceType.PRECLINICAL_IN_VIVO: 1.5,
+    EvidenceType.CLINICAL_PHASE3:    15.0,
+    EvidenceType.CLINICAL_PHASE2:     6.0,
+    EvidenceType.CLINICAL_PHASE1:     2.0,
+    EvidenceType.GENETIC_MR:         10.0,
+    EvidenceType.GENETIC_GWAS:        4.0,
+    EvidenceType.PRECLINICAL_IN_VIVO: 2.0,
     EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
-    EvidenceType.COMPUTATIONAL:      0.5,
-    EvidenceType.LITERATURE:         0.3,
+    EvidenceType.COMPUTATIONAL:       0.3,
+    EvidenceType.LITERATURE:          0.2,
 }
 
 

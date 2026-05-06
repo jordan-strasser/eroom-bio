@@ -65,20 +65,37 @@ Rules:
 
 Support bucket rubric — pick exactly one bucket per edge using the strongest tier the trial evidence satisfies. The bucket maps deterministically to a Beta-Binomial update; do NOT inflate based on narrative tone.
 
-  strong_support       The trial directly demonstrates this edge holds with
-                       unambiguous data: pre-specified primary endpoint hit
-                       at p<0.05 with clinically meaningful effect, OR a
-                       biomarker readout that mechanistically requires this
-                       edge to be true. No alternative explanation plausible.
+  strong_support       Pre-specified primary endpoint hit at p<0.05 with
+                       clinically meaningful effect, OR a biomarker readout
+                       that mechanistically requires this edge to be true.
+                       AND none of the following alternative explanations
+                       apply — each is an observable check, not a vibe:
+                         (a) placebo-response inflation: was the placebo
+                             arm's response notably higher than historical
+                             baseline for this indication?
+                         (b) regression to the mean: was the population
+                             enriched for severity at baseline such that
+                             improvement is expected without treatment?
+                         (c) dose-response inconsistency: did higher doses
+                             NOT produce larger effects than lower doses
+                             when dose-ranging data is reported?
+                         (d) natural disease fluctuation: is this a
+                             relapsing-remitting or cyclic condition with
+                             trial duration shorter than the natural cycle?
+                         (e) concomitant medication effects: was there
+                             differential use of standard-of-care or rescue
+                             medications between arms?
 
-  moderate_support     Clear positive signal but with one of: secondary
-                       endpoint only, post-hoc analysis, modest effect size,
-                       or one alternative explanation that is plausible but
-                       not preferred.
+  moderate_support     Clear positive signal AND exactly ONE of:
+                       secondary endpoint only, post-hoc analysis, modest
+                       effect size, or exactly one of (a)-(e) above is
+                       plausible.
 
-  weak_support         Directional consistency only — endpoint trended right
-                       way but missed significance, OR a single supportive
-                       biomarker without confirmatory clinical readout.
+  weak_support         Directional consistency only — endpoint trended
+                       right way but missed significance, OR a single
+                       supportive biomarker without confirmatory clinical
+                       readout, OR two or more of (a)-(e) above are
+                       plausible.
 
   ambiguous            Trial provides no informative signal about this edge
                        (e.g. the endpoint isn't sensitive to whether this
