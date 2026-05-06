@@ -1,109 +1,131 @@
-# Next session — backtest pickup notes
+# Next session — pickup notes
 
-Context: 2026-04-30 session was interrupted mid-run on a flight. Caches all
-persisted. Pick up here.
+Last touched: 2026-05-05. Branch `main` is clean and pushed.
 
-## Where things left off
+## What landed this session
 
-- Weighted-geometric-mean aggregation is implemented and tested
-  (`src/prediction/path_query.py`, `tests/test_prediction.py`). Default
-  `predict()` method is now `weighted_geomean`; `product` is opt-in for
-  comparison.
-- `BacktestRunner.run_backtest` accepts `prediction_methods=("weighted_geomean", "product", ...)`
-  and returns a `dict[method, BacktestResult]`. CLI flag is `--methods`.
-- Side-by-side comparison printer is `print_method_comparison` in
-  `src/validation/backtest.py`.
-- The method-comparison run on n=100 training trials **did not finish** —
-  populate finished cleanly (10,875 nodes / 106k edges, 92 train + 99 test
-  subgraphs) but training annotation hung on `APITimeoutError` once the
-  plane lost wifi. 6 timeouts logged. `data/exports/backtest_n100_methods.json`
-  was never written.
-- The most recent **completed** backtest result on disk is
-  `data/exports/backtest_n100_v2.json` — that's product-method on the new
-  (LLM-classified-endpoint + mechanism + population) graph. 80 usable
-  predictions, AUC 0.591, calibration crammed at 0.01–0.30. No
-  weighted-geomean run on the same graph exists yet.
+Principled Beta-Binomial belief updates replacing the old
+`weight × quality × magnitude` heuristic. Two commits on `main`:
 
-## Cache state on disk (all preserved)
+- `22996b9` — Principled belief updates + accumulated branch work
+- `a434e73` — Ground rubric in observable checks; rescale N_eff for
+  clinical dominance
 
-| Cache | Path | Entries |
-|---|---|---|
-| Trial extractions | `data/annotations/*_extraction.json` | 318 |
-| Trial classifications | `data/annotations/*_classification.json` | 314 |
-| Endpoint classes | `data/cache/endpoint_classifications.json` | 721 |
-| Mechanism inferences | `data/cache/mechanism_inferences.json` | 429 |
-| Population inferences | `data/cache/population_inferences.json` | 434 |
+### The new update
 
-Cache loads are wired into `Extractor.extract`, `Classifier.classify`, and
-the structural inferencers in `src/graph/populate.py`.
+```
+α_post = α_prior + N_eff · p_obs
+β_post = β_prior + N_eff · (1 − p_obs)
+```
 
-## Action items, in priority order
+- `N_eff` per evidence class lives in `src/inference/beliefs.py`
+  (`EVIDENCE_TYPE_N_EFF`). Phase 3 = 15, MR = 10, P2 = 6, GWAS = 4,
+  P1 / in vivo = 2, in vitro = 1, computational = 0.3, literature = 0.2.
+- `p_obs` per `SupportBucket` lives in the same file (`BUCKET_TO_P_OBS`).
+  Seven buckets: strong / moderate / weak × support / contradict, plus
+  ambiguous = 0.5. Symmetric around 0.5; floors at 0.05 / 0.95.
+- `EvidenceRecord.support` is the bucket name (string for serialization,
+  enum at runtime). `quality_score` ∈ [0, 1] discounts `N_eff` and is
+  fed by the trial-level classifier confidence rubric. Defaults to 1.0
+  for non-LLM evidence streams (LINCS, GWAS).
+- Apply via `src/inference/beliefs.apply_virtual_evidence(belief, n_eff,
+  p_obs)`. The store / attributor / LINCS adapter all go through this.
 
-### 1. Make `_call_messages_with_backoff` resilient to `APITimeoutError`
+### The rubric
 
-`src/annotation/extractor.py:_call_messages_with_backoff` currently only
-catches `anthropic.RateLimitError`. Today's hang lost 2 training trials
-because the plane's flaky network surfaced as timeouts that propagated
-straight through. Catch `anthropic.APITimeoutError` and
-`anthropic.APIConnectionError` with the same exponential backoff. Same
-`max_retries=5`. Probably ~5 lines.
+`src/annotation/prompts/classification_system.txt` now grounds the
+support buckets in observable features. Strong/moderate/weak support
+all reference a five-item alternative-explanations checklist (placebo
+inflation, regression to the mean, dose-response inconsistency,
+natural disease fluctuation, concomitant meds). None apply →
+strong_support; one applies → moderate_support; two or more →
+weak_support. Every item is a feature the LLM can pull from the trial
+report rather than a judgment call.
 
-### 2. Lower the per-request HTTP timeout
+### Tests
 
-The Anthropic SDK default is 600s per attempt. That's what made today's
-hang painful — a single dropped request blocks a concurrency-2 slot for
-10 minutes. Pass `timeout=60.0` (or a tuple — connect 10 / read 60) when
-constructing `anthropic.AsyncAnthropic(...)` in
-`BacktestRunner.__init__` and any other call sites.
+347 non-integration tests passing. New `tests/test_beliefs.py` covers
+table invariants (monotonicity, symmetry around AMBIGUOUS, positivity)
+and conjugate-update properties (no-mutation, exact +N_eff growth in
+evidence_strength, ambiguous evidence preserves the mean).
 
-### 3. Add a disk cache for Open Targets responses
+## Key design decisions (don't relitigate)
 
-This is the long pole on every rerun: ~25–30 min for OT
-disease-association fetches. The trial pool's unique indications are
-mostly the same across runs, so an on-disk JSON cache keyed by
-`(efo_id, page_size)` would reduce subsequent runs from ~30 min to ~3–5
-min total.
+- Categorical 7-bucket emission, not free-form 0–1 confidence floats.
+  LLMs are notoriously miscalibrated on continuous probability outputs;
+  bucketed emissions are repeatable and calibratable later.
+- `EvidenceDirection` retained as a derived property of the bucket
+  (filtering / display only) — the bucket is the source of truth for
+  the update.
+- Trial-level `confidence_overall` modulates `N_eff`, not the per-edge
+  update. Low classification confidence → fewer effective virtual trials.
+- Endpoint→indication priors (Beta(3,1) for OS, etc.) stay as-is —
+  they're priors, not evidence. New machinery sits cleanly on top.
+- Single `quality_score` field replaces the old `magnitude` ×
+  `quality_score` product. No more compounded underspecified floats.
 
-Sketch:
+## Open follow-ups
 
-- New file `src/ingestion/_ot_cache.py` (or extend existing
-  `JSONCache` in `populate.py`).
-- Cache path: `data/cache/ot_disease_associations.json`. Key by EFO ID;
-  value is the full association list (already JSON-serializable).
-- Wrap `OpenTargetsClient.get_disease_associations` and the disease-search
-  call in `BacktestRunner._fetch_ot_for_indication`.
-- Bonus: cache the `SearchDisease` query (indication name → EFO ID) since
-  those names repeat across trials.
+### Calibration harness (the big one)
 
-### 4. Then rerun the actual method comparison
+`src/inference/calibration.py` is a stub. Once ≥50 annotated trials
+with known indication outcomes exist, fit `EVIDENCE_TYPE_N_EFF` and
+`BUCKET_TO_P_OBS` jointly to minimize Brier on held-out trials.
+Constraints: `N_eff > 0`, `p_obs` monotone in bucket strength,
+symmetric around AMBIGUOUS = 0.5. Module docstring sketches the
+recipe. Return refitted tables rather than mutating module-level
+constants so old vs. new is diff-able.
 
-Once 1–3 are in: `python -m src.validation.backtest --max-training 100 --cutoff 2022-01-01 --methods weighted_geomean,product --output data/exports/backtest_n100_methods.json`
+### Contradict-side rubric symmetry
 
-Expected behavior:
-- Fetch + populate: ~30s with OT cache
-- Training annotation: ~seconds (almost all cached; ~10 fresh)
-- Test annotation: ~seconds (most cached; ~10 fresh)
-- Two prediction passes (one per method): seconds
-- **Total: ~3–5 min on stable network**
+The five-item checklist only tightened the support side per user ask.
+The contradict side still says "with mitigating factors: underpowered,
+possible confound, or only secondary endpoint missed." If we want
+parity, list the symmetric concrete checks: underpowered design,
+toxicity-truncated dosing, wrong dose / wrong timeframe, high placebo
+masking, dropout / non-compliance, wrong population. Skipped this
+session — user only asked for support side.
 
-The output we care about is the side-by-side `print_method_comparison`
-table — AUC + calibration deltas per method on the same trained graph.
+### N_eff scaling with actual trial size
 
-## Open analysis questions (for after the rerun)
+Current `N_eff` is one-per-evidence-class (Phase 3 = 15 always).
+A registrational Phase 3 with N=2000 carries more information than
+one with N=80. Could fold trial sample size in as
+`N_eff_class × log(N / N_baseline)` or similar. Deferred — adds
+LLM-output complexity and the calibration loop will absorb most of
+this anyway.
 
-- Does weighted_geomean spread predictions out of the 0.01–0.30 cluster?
-- Does AUC move materially? (Product had 0.591 / 58.1% pairwise.)
-- Top-5-by-evidence and top-5-by-conflict tables: does
-  weighted_geomean's bottleneck-by-trust-weight identify any new "real
-  bottleneck" edges that product missed?
+### Predictor integration
 
-## Things known to be fine, no action needed
+`src/prediction/path_query.py` consumes edge beliefs but I didn't
+revisit it this session. Worth checking that `weighted_geomean` and
+`product` aggregations still behave sensibly given the larger `N_eff`
+values (edges now accumulate evidence faster, posteriors will tighten
+sooner — may shift the calibration curve).
 
-- Endpoint regex was replaced by LLM classifier with cache.
-- Mechanism + population nodes are created via LLM with cache.
-- `_resolve_subgraph_via_topology` has a fallback for direct
-  MODULATES_VIA neighbors of the target.
-- Per-trial annotation cache is automatic — re-runs of the same NCT IDs
-  cost zero LLM calls.
-- 259 tests pass, including 13 new ones for trust weights /
-  weighted_geomean / aggregation edge cases.
+### Backtest rerun
+
+The 2026-04-30 method-comparison run on n=100 trials was interrupted
+mid-flight. With the new belief math, that AUC / calibration baseline
+is no longer apples-to-apples — reruns become the new baseline. Most
+caches still warm (`data/annotations/`, `data/cache/endpoint_*`,
+`data/cache/mechanism_*`, `data/cache/population_*`). Open Targets
+disease-association cache was on the prior TODO; check if it was added.
+
+## Where to start next time
+
+1. Sanity-check: `pytest -m "not integration"` should be 347 passing.
+2. If picking up belief work: `src/inference/beliefs.py` is the entry
+   point. Update tables, calibration, or conjugate-update math there.
+3. If picking up rubric work: `src/annotation/prompts/classification_system.txt`.
+4. If picking up backtest work: `src/validation/backtest.py` (per the
+   prior session's notes — verify the OT cache and timeout-handling
+   TODOs first).
+
+## What was already addressed (no action needed)
+
+- `_call_messages_with_backoff` now catches `APITimeoutError` and
+  `APIConnectionError` (the prior NEXT_SESSION item 1).
+- Combinatorial therapy + clinical subgroup handling: done (per user,
+  prior to this session).
+- ClinicalTrials.gov "biological" vs "drug" terminology: done.
