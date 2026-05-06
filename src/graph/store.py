@@ -12,31 +12,34 @@ from pydantic import BaseModel
 from src.graph.models import (
     EdgeBeliefState,
     EdgeType,
-    EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
     GraphEdge,
     TrialSubgraph,
 )
-
-EVIDENCE_TYPE_WEIGHTS: dict[EvidenceType, float] = {
-    EvidenceType.CLINICAL_PHASE3: 5.0,
-    EvidenceType.CLINICAL_PHASE2: 3.0,
-    EvidenceType.CLINICAL_PHASE1: 1.5,
-    EvidenceType.GENETIC_MR: 4.0,
-    EvidenceType.GENETIC_GWAS: 2.5,
-    EvidenceType.PRECLINICAL_IN_VIVO: 1.5,
-    EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
-    EvidenceType.COMPUTATIONAL: 0.5,
-    EvidenceType.LITERATURE: 0.3,
-}
+from src.inference.beliefs import (
+    EVIDENCE_TYPE_N_EFF,
+    SupportBucket,
+    apply_virtual_evidence,
+    effective_n_for_evidence,
+    p_obs_for_bucket,
+)
 
 
 class GraphStore:
-    """In-process knowledge graph backed by NetworkX MultiDiGraph."""
+    """In-process knowledge graph backed by NetworkX MultiDiGraph.
+
+    Trial chains live in ``trial_subgraphs`` (sidecar) rather than as
+    additional nodes/edges, because a chain is a *measurement* (this
+    arm in this subgroup produced this outcome) rather than an entity
+    other things relate to. The TrialNode in the graph is just an
+    anchor; rich per-(arm × subgroup) data is reached via the sidecar
+    keyed by trial id.
+    """
 
     def __init__(self) -> None:
         self._graph = nx.MultiDiGraph()
+        self.trial_subgraphs: dict[str, TrialSubgraph] = {}
 
     # ── CRUD: nodes ──────────────────────────────────────────────────────
 
@@ -107,29 +110,26 @@ class GraphStore:
         if not stored.evidence:
             return stored
 
-        # Recompute alpha/beta from the prior + reweighted evidence.
-        # The "prior" is alpha/beta minus the contributions implied by the
-        # stored evidence. Since update_edge_belief monotonically adds, we
-        # back out by recomputing from Beta(1,1).
-        alpha, beta = 1.0, 1.0
+        # Replay every record through the conjugate update, scaling each
+        # one's effective sample size by tissue match. Off-tissue evidence
+        # still counts (the mechanism likely perturbs the same biology in
+        # a different cellular context) but at reduced N_eff. Records
+        # without a tissue tag are context-free and apply at full weight.
+        belief = EdgeBeliefState(alpha=1.0, beta=1.0)
         for ev in stored.evidence:
             tissue = (ev.context or {}).get("tissue")
-            if tissue is None:
-                tissue_weight = 1.0  # no tissue tag = context-free, full weight
-            elif tissue in relevant_tissues:
+            if tissue is None or tissue in relevant_tissues:
                 tissue_weight = 1.0
             else:
                 tissue_weight = off_tissue_weight
-            weight = EVIDENCE_TYPE_WEIGHTS[ev.source_type]
-            delta = weight * ev.quality_score * ev.magnitude * tissue_weight
-            if ev.direction == EvidenceDirection.SUPPORTING:
-                alpha += delta
-            elif ev.direction == EvidenceDirection.CONTRADICTING:
-                beta += delta
-            else:  # ambiguous
-                alpha += delta * 0.3
-                beta += delta * 0.3
-        return EdgeBeliefState(alpha=alpha, beta=beta, evidence=stored.evidence)
+            n_eff = effective_n_for_evidence(
+                ev.source_type, ev.quality_score
+            ) * tissue_weight
+            p_obs = p_obs_for_bucket(SupportBucket(ev.support))
+            belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
+        return EdgeBeliefState(
+            alpha=belief.alpha, beta=belief.beta, evidence=stored.evidence
+        )
 
     def update_edge_belief(
         self,
@@ -138,27 +138,21 @@ class GraphStore:
         edge_type: EdgeType,
         evidence: EvidenceRecord,
     ) -> EdgeBeliefState:
+        """Beta-Binomial conjugate update from one evidence record.
+
+        See ``src/inference/beliefs.py`` for the full recipe. This method
+        owns the I/O (reads the edge belief, computes the update, writes
+        it back, and appends the record to the replay log); the math
+        itself lives in ``apply_virtual_evidence``.
+        """
         data = self._get_edge_data(src_id, tgt_id, edge_type)
         belief = EdgeBeliefState.model_validate(data["belief"])
 
-        weight = EVIDENCE_TYPE_WEIGHTS[evidence.source_type]
-        delta = weight * evidence.quality_score * evidence.magnitude
-
-        if evidence.direction == EvidenceDirection.SUPPORTING:
-            belief = belief.model_copy(
-                update={"alpha": belief.alpha + delta}
-            )
-        elif evidence.direction == EvidenceDirection.CONTRADICTING:
-            belief = belief.model_copy(
-                update={"beta": belief.beta + delta}
-            )
-        else:  # ambiguous
-            belief = belief.model_copy(
-                update={
-                    "alpha": belief.alpha + delta * 0.3,
-                    "beta": belief.beta + delta * 0.3,
-                }
-            )
+        n_eff = effective_n_for_evidence(
+            evidence.source_type, evidence.quality_score
+        )
+        p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
+        belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
 
         belief.evidence.append(evidence)
         data["belief"] = belief.model_dump(mode="json")
@@ -179,17 +173,38 @@ class GraphStore:
             return []
 
     def get_trial_subgraph(self, trial: TrialSubgraph) -> nx.MultiDiGraph:
-        node_ids = [
-            trial.compound_id,
-            trial.target_id,
-            trial.mechanism_id,
-            trial.biology_id,
-            trial.indication_id,
-            trial.endpoint_id,
-            trial.population_id,
-        ]
+        """Return the union of nodes touched by any chain in the trial.
+
+        Aggregates each chain's compound/target/mechanism/biology/
+        indication/endpoint plus its subgroup population, plus the
+        parent enrollment population.
+        """
+        node_ids: set[str] = {trial.parent_population_id}
+        for arm in trial.arms:
+            node_ids.add(arm.regimen_compound_id)
+            node_ids.update(arm.compound_ids)
+        for chain in trial.chains:
+            node_ids.update([
+                chain.target_id,
+                chain.mechanism_id,
+                chain.biology_id,
+                chain.indication_id,
+                chain.endpoint_id,
+                chain.subgroup_population_id,
+            ])
         present = [n for n in node_ids if n in self._graph]
         return self._graph.subgraph(present).copy()
+
+    # ── Trial subgraph sidecar ───────────────────────────────────────────
+
+    def set_trial_subgraph(self, trial: TrialSubgraph) -> None:
+        """Persist (or overwrite) a trial's chain set."""
+        self.trial_subgraphs[trial.trial_id] = trial
+
+    def get_trial_subgraph_by_id(self, trial_id: str) -> TrialSubgraph:
+        if trial_id not in self.trial_subgraphs:
+            raise KeyError(f"No trial subgraph for '{trial_id}'")
+        return self.trial_subgraphs[trial_id]
 
     def get_neighboring_edges(
         self, node_id: str, edge_types: list[EdgeType] | None = None
@@ -222,12 +237,43 @@ class GraphStore:
     # ── Persistence ──────────────────────────────────────────────────────
 
     def export_snapshot(self, filepath: str) -> None:
-        data = nx.node_link_data(self._graph)
-        Path(filepath).write_text(json.dumps(data, indent=2, default=str))
+        """Serialize graph + trial_subgraphs sidecar to a single JSON file.
+
+        Format:
+            {
+              "graph": <node_link_data>,
+              "trial_subgraphs": {trial_id: TrialSubgraph.model_dump()}
+            }
+
+        Old-format snapshots (bare node_link_data) are still readable by
+        ``import_snapshot`` for backwards compatibility with previously
+        exported graphs that pre-date the sidecar.
+        """
+        graph_data = nx.node_link_data(self._graph)
+        trials_data = {
+            tid: ts.model_dump(mode="json")
+            for tid, ts in self.trial_subgraphs.items()
+        }
+        payload = {
+            "graph": graph_data,
+            "trial_subgraphs": trials_data,
+        }
+        Path(filepath).write_text(json.dumps(payload, indent=2, default=str))
 
     def import_snapshot(self, filepath: str) -> None:
         raw = json.loads(Path(filepath).read_text())
-        self._graph = nx.node_link_graph(raw, directed=True, multigraph=True)
+        # New format has the wrapper; old format is bare node_link_data.
+        if isinstance(raw, dict) and "graph" in raw and "trial_subgraphs" in raw:
+            self._graph = nx.node_link_graph(
+                raw["graph"], directed=True, multigraph=True
+            )
+            self.trial_subgraphs = {
+                tid: TrialSubgraph.model_validate(blob)
+                for tid, blob in raw.get("trial_subgraphs", {}).items()
+            }
+        else:
+            self._graph = nx.node_link_graph(raw, directed=True, multigraph=True)
+            self.trial_subgraphs = {}
 
     # ── Stats ────────────────────────────────────────────────────────────
 

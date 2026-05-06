@@ -39,12 +39,13 @@ from src.graph.models import (
     BiologyNode,
     EdgeBeliefState,
     EdgeType,
-    EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
     GraphEdge,
+    MechanismCategory,
     MechanismNode,
     MechanismType,
+    normalize_entity,
 )
 
 # Definitional prior for modulates_via edges synthesized by LINCS. The
@@ -55,6 +56,7 @@ from src.graph.models import (
 _MODULATES_VIA_PRIOR_ALPHA = 5.0
 _MODULATES_VIA_PRIOR_BETA = 1.0
 from src.graph.store import GraphStore
+from src.inference.beliefs import SupportBucket
 
 logger = logging.getLogger(__name__)
 
@@ -62,44 +64,31 @@ CLUE_BASE = "https://api.clue.io/api"
 REACTOME_BASE = "https://reactome.org/ContentService"
 CACHE_DIR = Path("data/cache")
 
-# MOA suffix → MechanismType. CLUE MOA strings are short and consistent
-# ("BRAF inhibitor", "PARP inhibitor", "dopamine receptor agonist"). We key
-# off the trailing word.
-_MOA_SUFFIX_TO_TYPE: dict[str, MechanismType] = {
-    "inhibitor": MechanismType.INHIBITION,
-    "antagonist": MechanismType.ANTAGONISM,
-    "agonist": MechanismType.AGONISM,
-    "blocker": MechanismType.ANTAGONISM,
-    "activator": MechanismType.AGONISM,
-    "degrader": MechanismType.DEGRADATION,
-    "modulator": MechanismType.MODULATION,
+# MOA suffix → canonical MechanismCategory. CLUE MOA strings are short and
+# consistent ("BRAF inhibitor", "PARP inhibitor", "dopamine receptor agonist").
+# We key off the trailing word and map directly to the controlled vocabulary.
+# Generic "inhibitor" defaults to enzyme_inhibition; we promote to
+# kinase_inhibition only when the MOA explicitly says "kinase".
+_MOA_SUFFIX_TO_CATEGORY: dict[str, MechanismCategory] = {
+    "inhibitor": MechanismCategory.ENZYME_INHIBITION,
+    "antagonist": MechanismCategory.RECEPTOR_ANTAGONISM,
+    "agonist": MechanismCategory.RECEPTOR_AGONISM,
+    "blocker": MechanismCategory.RECEPTOR_ANTAGONISM,
+    "activator": MechanismCategory.RECEPTOR_AGONISM,
+    "degrader": MechanismCategory.PROTEIN_DEGRADATION,
+    "modulator": MechanismCategory.OTHER,
 }
 
-# Word stem used in the synthesized mechanism id. Mirrors MechanismType but
-# kept separate so ids stay stable if MechanismType ever gains members.
-_TYPE_WORD: dict[MechanismType, str] = {
-    MechanismType.INHIBITION: "inhibition",
-    MechanismType.ANTAGONISM: "antagonism",
-    MechanismType.AGONISM: "agonism",
-    MechanismType.DEGRADATION: "degradation",
-    MechanismType.MODULATION: "modulation",
-    MechanismType.EDITING: "editing",
-    MechanismType.OTHER: "other",
-}
-
-# Stem variants that should resolve to the canonical type word when parsing
-# free-text mechanism names. "EGFR inhibitor" and "EGFR inhibition" both map
-# to ``inhibition``. We don't try to enumerate every plural/adjective form —
-# only stems common in CLUE MOA strings and curator-written mechanism names.
-_TYPE_STEM_TO_WORD: dict[str, str] = {
-    "inhibit": "inhibition",
-    "antagon": "antagonism",
-    "agonist": "agonism",
-    "block": "antagonism",
-    "activat": "agonism",
-    "degrad": "degradation",
-    "modulat": "modulation",
-    "edit": "editing",
+# Stem variants used to recognize a category from a free-text MOA. "EGFR
+# inhibitor" and "EGFR inhibition" both map to enzyme_inhibition.
+_TYPE_STEM_TO_CATEGORY: dict[str, MechanismCategory] = {
+    "inhibit": MechanismCategory.ENZYME_INHIBITION,
+    "antagon": MechanismCategory.RECEPTOR_ANTAGONISM,
+    "agonist": MechanismCategory.RECEPTOR_AGONISM,
+    "block": MechanismCategory.RECEPTOR_ANTAGONISM,
+    "activat": MechanismCategory.RECEPTOR_AGONISM,
+    "degrad": MechanismCategory.PROTEIN_DEGRADATION,
+    "edit": MechanismCategory.GENE_EDITING,
 }
 
 # Bidirectional aliases between common drug-target names (CLUE) and HGNC
@@ -506,34 +495,46 @@ def _safe_filename(s: str) -> str:
 
 
 def derive_mechanism_id(target_gene: str, moa: str | None) -> str | None:
-    """Compose the mechanism node id from a (target, MOA) pair.
+    """Map a (target, MOA) pair to a canonical MechanismCategory id.
 
-    Returns ``"{gene_lower}_{type_word}"`` (e.g. ``"braf_inhibition"``) or
-    None if the MOA doesn't match a known suffix or stem.
+    The mechanism node id is the ``MechanismCategory`` value (e.g.
+    ``"kinase_inhibition"``); gene-specificity lives in the
+    ``modulates_via`` edge from target → mechanism, not on the mechanism
+    node itself. Returns the category value, or None if the MOA doesn't
+    map to any recognized category.
     """
-    type_word = _mechanism_type_from_text(moa)
-    if type_word is None:
+    category = _mechanism_category_from_text(moa)
+    if category is None:
         return None
-    return f"{target_gene.lower()}_{type_word}"
+    # Promote generic "inhibitor" to kinase_inhibition when the MOA or target
+    # text identifies a kinase. Keeps the spec's distinction between
+    # kinase_inhibition and enzyme_inhibition without requiring a curated
+    # kinase list at the call site.
+    if category is MechanismCategory.ENZYME_INHIBITION and (
+        "kinase" in (moa or "").lower() or "kinase" in target_gene.lower()
+    ):
+        category = MechanismCategory.KINASE_INHIBITION
+    return category.value
 
 
-def _mechanism_type_from_text(text: str | None) -> str | None:
-    """Best-effort: map free-text MOA / mechanism names → canonical type word.
+def _mechanism_category_from_text(text: str | None) -> MechanismCategory | None:
+    """Best-effort: map free-text MOA / mechanism name → MechanismCategory.
 
     Tries the trailing word against the suffix table first (fast path for
     CLUE MOAs like "BRAF inhibitor"), then falls back to scanning for any
-    known stem ("partial agonist" → agonism, "BRAF inhibition" → inhibition).
+    known stem ("partial agonist" → receptor_agonism, "BRAF inhibition" →
+    enzyme_inhibition).
     """
     if not text or not text.strip():
         return None
     lowered = text.strip().lower()
     last = lowered.split()[-1]
-    mech_type = _MOA_SUFFIX_TO_TYPE.get(last)
-    if mech_type is not None:
-        return _TYPE_WORD[mech_type]
-    for stem, canonical in _TYPE_STEM_TO_WORD.items():
+    cat = _MOA_SUFFIX_TO_CATEGORY.get(last)
+    if cat is not None:
+        return cat
+    for stem, category in _TYPE_STEM_TO_CATEGORY.items():
         if stem in lowered:
-            return canonical
+            return category
     return None
 
 
@@ -650,23 +651,26 @@ async def populate_lincs_signatures(
                 continue
             _target_id, canonical_gene = target_hit
             for moa in compound.moas:
-                type_word = _mechanism_type_from_text(moa)
-                if type_word is None:
+                category_value = derive_mechanism_id(canonical_gene, moa)
+                if category_value is None:
                     continue
-                synthesized = f"{canonical_gene.lower()}_{type_word}"
-                mech_id = mechanism_lookup.get(synthesized)
-                if mech_id is None:
+                # Canonical mechanism node id = the MechanismCategory value.
+                # Many (target, MOA) pairs share a single mechanism node;
+                # gene-specificity is captured in the modulates_via edge.
+                mech_id = normalize_entity(category_value, "MechanismNode")
+                if mech_id not in mechanism_lookup:
                     if not create_missing_mechanism:
                         continue
-                    mech_id = synthesized
                     graph.add_node(
                         MechanismNode(
                             id=mech_id,
-                            name=f"{canonical_gene} {type_word}",
-                            mechanism_type=_word_to_mechanism_type(type_word),
+                            name=mech_id.replace("_", " "),
+                            mechanism_type=_category_to_mechanism_type(
+                                MechanismCategory(mech_id)
+                            ),
                         )
                     )
-                    mechanism_lookup[synthesized] = mech_id
+                    mechanism_lookup[mech_id] = mech_id
                 # Always wire target → mechanism. The mechanism may have
                 # existed for another target before; the link from THIS
                 # target is what closes the path.
@@ -707,8 +711,9 @@ async def populate_lincs_signatures(
             # Emit one evidence record per (cell line that hit the pathway).
             # Cell-line provenance lives in EvidenceRecord.context so query-
             # time conditioning can downweight off-tissue evidence per
-            # indication; magnitude reflects how strongly *that one cell
-            # line's* signature hit the pathway, not a cross-cell mean.
+            # indication. Each hit is one positive perturbation observation
+            # — strength comes from the count of records (one per hitting
+            # cell line) rather than a per-record magnitude.
             hitting_cells = per_cell_hits.get(pathway_id, [])
             for mech_id, _gene, moa in matched:
                 _ensure_edge(graph, mech_id, biology_id)
@@ -720,17 +725,10 @@ async def populate_lincs_signatures(
                             f"{biology_id}:{cell_id}"
                         ),
                         source_type=EvidenceType.PRECLINICAL_IN_VITRO,
-                        # Per-cell quality: the signature reproducibility
-                        # within the cell line (we don't carry distil_cc here,
-                        # so use a flat 1.0 — this is one cell-line replicate
-                        # consensus, treated as fully informative for that line)
-                        quality_score=1.0,
-                        direction=EvidenceDirection.SUPPORTING,
-                        # Per-cell magnitude: this cell line either hit or
-                        # didn't (already filtered to hitting cells), so
-                        # magnitude=1.0. Variation across cells now lives in
-                        # the *count of records*, not in per-record magnitude.
-                        magnitude=1.0,
+                        # One cell-line replicate consensus that hit the
+                        # pathway → strong directional support for the
+                        # mechanism→biology edge in this context.
+                        support=SupportBucket.STRONG_SUPPORT.value,
                         timestamp=datetime.now(timezone.utc),
                         provenance_url=(
                             f"https://clue.io/command?q={compound.pert_id}"
@@ -830,43 +828,41 @@ def _build_target_lookup(graph: GraphStore) -> dict[str, tuple[str, str]]:
 
 
 def _build_mechanism_lookup(graph: GraphStore) -> dict[str, str]:
-    """Map ``"{gene_lower}_{type_word}"`` → MechanismNode id.
+    """Map MechanismCategory value → existing MechanismNode id.
 
-    Sources both the node's id (already canonical when synthesized by
-    LINCS) and its ``name``. Names like "EGFR inhibition" or
-    "EGFR inhibitor" collapse to the same key ``egfr_inhibition`` so a
-    user-curated node is reused in place of a duplicate synthesized one.
+    Mechanism nodes are now canonical: their id is a ``MechanismCategory``
+    value. We still look up by id so a graph that already has the node
+    isn't duplicated.
     """
     out: dict[str, str] = {}
     for node in graph.get_nodes_by_type("MechanismNode"):
         node_id = node["id"]
-        out.setdefault(node_id.lower(), node_id)
-
-        name = (node.get("name") or "").lower()
-        type_word = _mechanism_type_from_text(name)
-        if not type_word:
-            continue
-        # Strip the type word and any pre-existing type-stem suffix off the
-        # tail to find the "gene" part. "egfr inhibitor" → "egfr"; "braf
-        # inhibition" → "braf".
-        tokens = [t for t in re.split(r"[^A-Za-z0-9]+", name) if t]
-        if not tokens:
-            continue
-        # Drop trailing tokens that look like a type stem.
-        while tokens and any(stem in tokens[-1] for stem in _TYPE_STEM_TO_WORD):
-            tokens.pop()
-        if not tokens:
-            continue
-        gene = tokens[-1]
-        out.setdefault(f"{gene}_{type_word}", node_id)
+        out.setdefault(node_id, node_id)
     return out
 
 
-def _word_to_mechanism_type(word: str) -> MechanismType:
-    for mech_type, w in _TYPE_WORD.items():
-        if w == word:
-            return mech_type
-    return MechanismType.OTHER
+# How each canonical category maps to the broader MechanismType enum stored
+# on the node. Keeps existing ``mechanism_type`` field semantics consistent.
+_CATEGORY_TO_MECHANISM_TYPE: dict[MechanismCategory, MechanismType] = {
+    MechanismCategory.CHECKPOINT_BLOCKADE: MechanismType.ANTAGONISM,
+    MechanismCategory.KINASE_INHIBITION: MechanismType.INHIBITION,
+    MechanismCategory.ENZYME_INHIBITION: MechanismType.INHIBITION,
+    MechanismCategory.RECEPTOR_ANTAGONISM: MechanismType.ANTAGONISM,
+    MechanismCategory.RECEPTOR_AGONISM: MechanismType.AGONISM,
+    MechanismCategory.PROTEIN_DEGRADATION: MechanismType.DEGRADATION,
+    MechanismCategory.GENE_EDITING: MechanismType.EDITING,
+    MechanismCategory.ANTIBODY_DEPENDENT_CYTOTOXICITY: MechanismType.OTHER,
+    MechanismCategory.HORMONE_MODULATION: MechanismType.MODULATION,
+    MechanismCategory.ANTIMETABOLITE: MechanismType.OTHER,
+    MechanismCategory.DNA_DAMAGE: MechanismType.OTHER,
+    MechanismCategory.ANGIOGENESIS_INHIBITION: MechanismType.INHIBITION,
+    MechanismCategory.IMMUNE_COSTIMULATION: MechanismType.AGONISM,
+    MechanismCategory.OTHER: MechanismType.OTHER,
+}
+
+
+def _category_to_mechanism_type(category: MechanismCategory) -> MechanismType:
+    return _CATEGORY_TO_MECHANISM_TYPE.get(category, MechanismType.OTHER)
 
 
 def _ensure_edge(graph: GraphStore, src_id: str, tgt_id: str) -> None:
@@ -908,32 +904,15 @@ def _ensure_modulates_via_edge(
 
 
 def backfill_modulates_via_for_lincs(graph: GraphStore) -> int:
-    """Patch a graph that already has LINCS-materialized MechanismNodes to
-    add the missing target→mechanism modulates_via edges.
+    """No-op stub kept for API compatibility.
 
-    Walks every MechanismNode whose id matches the synthesized
-    ``{gene_lower}_{type_word}`` shape, finds the matching TargetNode (using
-    the same alias-aware lookup as the LINCS orchestrator), and adds the
-    missing edge with a definitional Beta prior. Returns the count added.
+    Under the canonical-id regime, mechanism nodes are MechanismCategory
+    values (e.g. ``"kinase_inhibition"``) rather than ``"{gene}_{type}"``,
+    so the gene→mechanism mapping cannot be inferred from a node id alone.
+    The link is created at population time in the same loop that creates
+    the mechanism node. Returns 0.
     """
-    target_lookup = _build_target_lookup(graph)
-    type_words = set(_TYPE_WORD.values())
-    added = 0
-    for mech in graph.get_nodes_by_type("MechanismNode"):
-        mid = mech["id"]
-        # LINCS-materialized id format: '{gene}_{type_word}', single underscore
-        if mid != mid.lower() or "_" not in mid:
-            continue
-        gene_part, _, type_part = mid.rpartition("_")
-        if not gene_part or type_part not in type_words:
-            continue
-        target_hit = target_lookup.get(gene_part.upper())
-        if target_hit is None:
-            continue
-        target_id, _canonical = target_hit
-        if _ensure_modulates_via_edge(graph, target_id, mid):
-            added += 1
-    return added
+    return 0
 
 
 # ── Biology → Indication wiring ──────────────────────────────────────────

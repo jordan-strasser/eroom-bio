@@ -119,6 +119,110 @@ class TestSearchTarget:
             await client.search_target("FAKEGENE")
 
 
+_MOCK_DRUG_NIVO = {
+    "search": {
+        "hits": [{
+            "id": "CHEMBL1742982",
+            "name": "Nivolumab",
+            "object": {
+                "id": "CHEMBL1742982",
+                "name": "Nivolumab",
+                "synonyms": ["BMS-936558", "MDX-1106", "ONO-4538", "Nivolumab"],
+                "tradeNames": ["Opdivo"],
+            },
+        }],
+    }
+}
+
+_MOCK_DRUG_EMPTY = {"search": {"hits": []}}
+
+
+class TestSearchDrug:
+    @pytest.mark.asyncio
+    async def test_returns_chembl_id_and_aliases(self):
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=_MOCK_DRUG_NIVO)
+        result = await client.search_drug("Nivolumab")
+        assert result["chembl_id"] == "CHEMBL1742982"
+        assert result["name"] == "Nivolumab"
+        # Cap at 3, trade name first, no canonical
+        assert len(result["aliases"]) == 3
+        assert result["aliases"][0] == "Opdivo"
+        assert "BMS-936558" in result["aliases"]
+        assert "Nivolumab" not in result["aliases"]
+
+    @pytest.mark.asyncio
+    async def test_missing_drug_raises(self):
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=_MOCK_DRUG_EMPTY)
+        with pytest.raises(KeyError, match="No drug found"):
+            await client.search_drug("notarealdrug")
+
+    @pytest.mark.asyncio
+    async def test_capped_at_three_with_trade_name_first(self):
+        mock = {
+            "search": {"hits": [{
+                "id": "CHEMBL1", "name": "TestDrug",
+                "object": {
+                    "id": "CHEMBL1", "name": "TestDrug",
+                    "synonyms": ["AliasA", "AliasB", "AliasC", "AliasD", "AliasE"],
+                    "tradeNames": ["BrandX"],
+                },
+            }]}
+        }
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.search_drug("TestDrug")
+        # Trade name takes the first slot, then 2 synonyms in order.
+        assert result["aliases"] == ["BrandX", "AliasA", "AliasB"]
+
+    @pytest.mark.asyncio
+    async def test_filters_relationship_descriptors_and_canonical_decorations(self):
+        # Real-world ChEMBL noise: "X component of Y", "X bms", etc.
+        mock = {
+            "search": {"hits": [{
+                "id": "CHEMBL1", "name": "Nivolumab",
+                "object": {
+                    "id": "CHEMBL1", "name": "Nivolumab",
+                    "synonyms": [
+                        "BMS-936558",
+                        "Nivolumab bms",                          # canonical decoration
+                        "Nivolumab component of bms-986213",      # relationship
+                        "MDX-1106",
+                        "Nivolumab Solution",                     # canonical decoration
+                        "ONO-4538",
+                    ],
+                    "tradeNames": ["Opdivo"],
+                },
+            }]}
+        }
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.search_drug("Nivolumab")
+        # Junk dropped → Opdivo + BMS-936558 + MDX-1106 (3 total)
+        assert result["aliases"] == ["Opdivo", "BMS-936558", "MDX-1106"]
+        assert all("of " not in a for a in result["aliases"])
+        assert all("nivolumab" not in a.lower() for a in result["aliases"])
+
+    @pytest.mark.asyncio
+    async def test_punctuation_insensitive_dedup(self):
+        # MDX-1106 and MDX1106 should collapse to one entry.
+        mock = {
+            "search": {"hits": [{
+                "id": "CHEMBL1", "name": "TestDrug",
+                "object": {
+                    "id": "CHEMBL1", "name": "TestDrug",
+                    "synonyms": ["MDX-1106", "MDX1106", "BMS-936558", "BMS936558"],
+                    "tradeNames": [],
+                },
+            }]}
+        }
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.search_drug("TestDrug")
+        assert result["aliases"] == ["MDX-1106", "BMS-936558"]
+
+
 class TestGetAssociations:
     @pytest.mark.asyncio
     async def test_returns_filtered_by_min_score(self):
@@ -246,7 +350,14 @@ class TestPopulateGraph:
             ]
         )
         graph = GraphStore()
-        added = await populate_target_disease_edges(client, graph, "EFO_0003060")
+        # Pre-create the canonical indication node — populate_target_disease_edges
+        # writes against the canonical id, not the EFO id.
+        from src.graph.models import IndicationNode
+
+        graph.add_node(IndicationNode(id="non_small_cell_lung_carcinoma", name="NSCLC"))
+        added = await populate_target_disease_edges(
+            client, graph, "EFO_0003060", "non_small_cell_lung_carcinoma"
+        )
         assert added == 2
 
         # Target nodes created
@@ -255,13 +366,11 @@ class TestPopulateGraph:
         kras = graph.get_node("ENSG00000133703")
         assert kras["gene_symbol"] == "KRAS"
 
-        # Indication node created
-        ind = graph.get_node("EFO_0003060")
-        assert ind["node_type"] == "IndicationNode"
-
-        # Edges with beliefs
+        # Edges land on the canonical indication node
         belief = graph.get_edge_belief(
-            "ENSG00000146648", "EFO_0003060", EdgeType.BIOLOGY_DRIVES
+            "ENSG00000146648",
+            "non_small_cell_lung_carcinoma",
+            EdgeType.BIOLOGY_DRIVES,
         )
         expected = score_to_prior(0.89, 3)
         assert belief.alpha == pytest.approx(expected.alpha)
@@ -295,10 +404,12 @@ class TestPopulateGraph:
             )
         )
         graph.add_node(
-            IndicationNode(id="EFO_0003060", name="non-small cell lung carcinoma")
+            IndicationNode(id="non_small_cell_lung_carcinoma", name="NSCLC")
         )
 
-        await populate_target_disease_edges(client, graph, "EFO_0003060")
+        await populate_target_disease_edges(
+            client, graph, "EFO_0003060", "non_small_cell_lung_carcinoma"
+        )
 
         # Original richer data preserved (not overwritten)
         node = graph.get_node("ENSG00000146648")
@@ -309,7 +420,9 @@ class TestPopulateGraph:
         client = OpenTargetsClient()
         client.get_disease_associations = AsyncMock(return_value=[])
         graph = GraphStore()
-        added = await populate_target_disease_edges(client, graph, "EFO_9999999")
+        added = await populate_target_disease_edges(
+            client, graph, "EFO_9999999", "no_disease"
+        )
         assert added == 0
 
 

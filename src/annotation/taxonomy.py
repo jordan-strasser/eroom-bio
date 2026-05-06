@@ -235,6 +235,35 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
 # ── Output models ────────────────────────────────────────────────────────
 
 
+class ExtractedArm(BaseModel):
+    """An LLM-emitted arm definition from the extraction call."""
+
+    arm_id: str = Field(min_length=1)
+    compounds: list[str] = Field(default_factory=list)
+
+
+class ExtractedSubgroup(BaseModel):
+    """An LLM-canonicalized subgroup with its raw descriptor + features."""
+
+    raw_descriptor: str = Field(min_length=1)
+    # Free-form list of {axis, key, level} dicts; the populator runs each
+    # through ``subgroup_taxonomy.canonicalize_feature`` to produce the
+    # SubgroupFeatures that compose the PopulationNode id.
+    features: list[dict[str, str]] = Field(default_factory=list)
+
+
+class ChainResult(BaseModel):
+    """Per-(arm × subgroup) result the LLM emits, used to populate chains."""
+
+    arm_id: str = Field(min_length=1)
+    # null subgroup_descriptor → result applies to the parent enrollment population
+    subgroup_descriptor: str | None = None
+    endpoint: str = ""
+    effect_size: float | None = None
+    p_value: float | None = None
+    outcome: str = "unknown"  # success | failure | partial | unknown
+
+
 class TrialExtraction(BaseModel):
     """Structured data extracted from a trial's results."""
 
@@ -251,6 +280,12 @@ class TrialExtraction(BaseModel):
     safety_signals: list[str] = Field(default_factory=list)
     subgroup_findings: list[str] = Field(default_factory=list)
     summary: str = ""
+    # New fields supporting combinatorial + subgroup-aware extraction.
+    # Empty lists are tolerable — a trial with one arm and no reported
+    # subgroups produces a single chain at the parent population.
+    arms: list[ExtractedArm] = Field(default_factory=list)
+    subgroups: list[ExtractedSubgroup] = Field(default_factory=list)
+    results_by_chain: list[ChainResult] = Field(default_factory=list)
 
 
 class FailureClassification(BaseModel):

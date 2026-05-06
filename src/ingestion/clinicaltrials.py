@@ -11,11 +11,9 @@ from pydantic import BaseModel, Field
 
 from src.graph.models import (
     CompoundNode,
-    EndpointNode,
-    EndpointType,
     IndicationNode,
     Modality,
-    RegulatoryStatus,
+    normalize_entity,
 )
 
 BASE_URL = "https://clinicaltrials.gov/api/v2/studies"
@@ -33,6 +31,31 @@ class OutcomeMeasure(BaseModel):
     measure: str
     timeframe: str = ""
     description: str = ""
+
+
+class ArmGroup(BaseModel):
+    """One treatment-arm group as reported in the trial results section.
+
+    Sourced from ``outcomeMeasuresModule.outcomeMeasures[*].groups`` (and
+    deduped across outcomes within the trial). The ``intervention_names``
+    are the Intervention names this group received — that's how we
+    reconstruct combo arms ("Nivolumab + Ipilimumab" group → both drugs).
+    """
+    group_id: str
+    title: str
+    description: str = ""
+    intervention_names: list[str] = Field(default_factory=list)
+
+
+# Intervention types that should produce a CompoundNode. ClinicalTrials.gov
+# splits drug-like therapies between DRUG (small molecules) and BIOLOGICAL
+# (antibodies, fusion proteins, cell therapies). Both belong in the graph;
+# the original DRUG-only filter dropped every checkpoint inhibitor.
+DRUG_LIKE_INTERVENTION_TYPES: frozenset[str] = frozenset({"DRUG", "BIOLOGICAL"})
+
+
+def is_drug_like(intervention: "Intervention") -> bool:
+    return intervention.type in DRUG_LIKE_INTERVENTION_TYPES
 
 
 class TrialRecord(BaseModel):
@@ -55,6 +78,14 @@ class TrialRecord(BaseModel):
     # "safety concerns", "futility", "business decision". Often the only
     # mechanistic signal available for trials with no posted results.
     why_stopped: str | None = None
+    # Treatment arm groups parsed from the results section. Empty when the
+    # trial has no posted results or only one arm.
+    arm_groups: list[ArmGroup] = Field(default_factory=list)
+    # Free-text subgroup stratifier titles parsed from the outcome
+    # measures' ``classes`` (e.g. "PD-L1 Expression Level >= 1%"). The
+    # extractor canonicalizes these into SubgroupFeature lists; here they
+    # are kept as raw strings for provenance.
+    subgroup_descriptors: list[str] = Field(default_factory=list)
 
 
 # ── Parsing helpers ──────────────────────────────────────────────────────
@@ -130,6 +161,17 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
 
     why_stopped = status_mod.get("whyStopped") or None
 
+    # Arm groups: prefer protocolSection.armsInterventionsModule.armGroups
+    # (always present for multi-arm trials, includes intervention_names).
+    # Backfill with the results-section group titles for trials where the
+    # protocol omitted them but reported results by arm.
+    arm_groups = _parse_protocol_arm_groups(arms_mod)
+    if not arm_groups and results_section:
+        arm_groups = _parse_results_arm_groups(results_section)
+
+    # Subgroup stratifier descriptors only appear in posted results.
+    subgroup_descriptors = _parse_subgroup_descriptors(results_section)
+
     return TrialRecord(
         nct_id=ident.get("nctId", ""),
         title=ident.get("briefTitle", ""),
@@ -146,7 +188,129 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
         has_results=has_results,
         results_summary=results_section,
         why_stopped=why_stopped,
+        arm_groups=arm_groups,
+        subgroup_descriptors=subgroup_descriptors,
     )
+
+
+def _slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", text.strip().lower()).strip("_")
+
+
+# CT.gov v2 prefixes interventionNames with the human-readable type
+# ("Biological: Nivolumab", "Drug: Imatinib"). The case isn't always
+# upper — Title case is the most common form — so match against a known
+# allowlist rather than checking isupper().
+_INTERVENTION_TYPE_PREFIXES: frozenset[str] = frozenset({
+    "drug", "biological", "behavioral", "device", "diagnostic test",
+    "dietary supplement", "genetic", "procedure", "radiation",
+    "combination product", "other",
+})
+
+
+def _strip_intervention_prefix(name: str) -> str:
+    """Drop the ``<Type>: `` prefix from CT.gov intervention names.
+
+    Returns the cleaned name (or the original input when no known
+    prefix matches).
+    """
+    if ":" not in name:
+        return name
+    prefix, rest = name.split(":", 1)
+    if prefix.strip().lower() in _INTERVENTION_TYPE_PREFIXES:
+        return rest.strip()
+    return name
+
+
+# Placebos appear as their own intervention rows in blinded trials
+# (e.g. CheckMate 067 lists "Biological: Placebo for Nivolumab" so the
+# control arm receives a matching infusion). They are not a therapy
+# under test — exclude them from the arm's ``compound_ids`` so combo
+# detection isn't fooled by placebo rows and attribution doesn't try
+# to route binds_to evidence to a non-existent placebo CompoundNode.
+_PLACEBO_RE = re.compile(r"^\s*(placebo|sham)\b", re.IGNORECASE)
+
+
+def is_placebo_name(name: str) -> bool:
+    return bool(_PLACEBO_RE.search(name))
+
+
+def _parse_protocol_arm_groups(
+    arms_mod: dict[str, Any],
+) -> list[ArmGroup]:
+    """Read the canonical arm-group definitions from protocolSection.
+
+    The ``intervention_names`` list is what tells us a combo from a mono
+    arm. Type prefixes are stripped, and placebo rows are dropped — so
+    a "nivo + placebo + placebo" arm collapses to a single-drug arm
+    rather than a fake combo.
+    """
+    out: list[ArmGroup] = []
+    for ag in arms_mod.get("armGroups", []) or []:
+        label = (ag.get("label") or "").strip()
+        if not label:
+            continue
+        cleaned: list[str] = []
+        for raw in ag.get("interventionNames", []) or []:
+            name = _strip_intervention_prefix((raw or "").strip())
+            if not name or is_placebo_name(name):
+                continue
+            cleaned.append(name)
+        arm_id = _slug(label) or f"arm_{len(out)}"
+        out.append(ArmGroup(
+            group_id=arm_id,
+            title=label,
+            description=(ag.get("description") or "").strip(),
+            intervention_names=cleaned,
+        ))
+    return out
+
+
+def _parse_results_arm_groups(
+    results_section: dict[str, Any],
+) -> list[ArmGroup]:
+    """Fallback: derive arm groups from the results section.
+
+    No intervention_names available here — those will be reconstructed
+    later by matching against the trial's ``interventions`` list.
+    """
+    seen: dict[str, ArmGroup] = {}
+    om_module = results_section.get("outcomeMeasuresModule", {}) or {}
+    for om in om_module.get("outcomeMeasures", []) or []:
+        for g in om.get("groups", []) or []:
+            gid = g.get("id", "")
+            if not gid or gid in seen:
+                continue
+            seen[gid] = ArmGroup(
+                group_id=gid,
+                title=g.get("title", "") or "",
+                description=g.get("description", "") or "",
+            )
+    return list(seen.values())
+
+
+def _parse_subgroup_descriptors(
+    results_section: dict[str, Any] | None,
+) -> list[str]:
+    """Unique subgroup stratifier titles from outcome measures."""
+    if not results_section:
+        return []
+    om_module = results_section.get("outcomeMeasuresModule", {}) or {}
+    raw_titles: list[str] = []
+    seen: set[str] = set()
+    for om in om_module.get("outcomeMeasures", []) or []:
+        for cls in om.get("classes", []) or []:
+            title = (cls.get("title") or "").strip()
+            if not title:
+                continue
+            lower = title.lower()
+            if lower in {"total", "overall", "all participants", "all patients"}:
+                continue
+            if lower in seen:
+                continue
+            seen.add(lower)
+            raw_titles.append(title)
+    return raw_titles
 
 
 # ── Client ───────────────────────────────────────────────────────────────
@@ -255,7 +419,7 @@ class ClinicalTrialsClient:
         for record in records:
             if not record.why_stopped:
                 continue
-            if not any(iv.type == "DRUG" for iv in record.interventions):
+            if not any(is_drug_like(iv) for iv in record.interventions):
                 continue
             kept.append(record)
             if len(kept) >= max_results:
@@ -283,42 +447,34 @@ def _guess_modality(intervention: Intervention) -> Modality:
 
 def map_trial_to_graph_nodes(
     trial: TrialRecord,
-) -> dict[str, list[IndicationNode | CompoundNode | EndpointNode]]:
+) -> dict[str, list[IndicationNode | CompoundNode]]:
+    """Emit canonical Compound + Indication nodes for a trial.
+
+    EndpointNodes are intentionally not produced here: their canonical id is
+    ``{EndpointClass}_{indication_id}`` (e.g. ``OS_melanoma``), which depends
+    on an LLM classification step. Endpoint creation lives in the population
+    pipeline so we never seed an endpoint node from raw outcome text.
+    """
     indications = [
         IndicationNode(
-            id=f"IND_{trial.nct_id}_{i}",
+            id=normalize_entity(cond, "IndicationNode"),
             name=cond,
         )
-        for i, cond in enumerate(trial.conditions)
+        for cond in trial.conditions
     ]
 
     compounds = [
         CompoundNode(
-            id=f"COMP_{trial.nct_id}_{i}",
+            id=normalize_entity(iv.name, "CompoundNode"),
             name=iv.name,
             modality=_guess_modality(iv),
-            metadata={"source_trial": trial.nct_id, "intervention_type": iv.type},
+            metadata={"intervention_type": iv.type},
         )
-        for i, iv in enumerate(trial.interventions)
-        if iv.type == "DRUG"
-    ]
-
-    endpoints = [
-        EndpointNode(
-            id=f"EP_{trial.nct_id}_{i}",
-            name=om.measure,
-            endpoint_type=EndpointType.PRIMARY,
-            regulatory_status=RegulatoryStatus.EXPLORATORY,
-            measurement_properties={
-                "timeframe": om.timeframe,
-                "description": om.description,
-            },
-        )
-        for i, om in enumerate(trial.primary_outcomes)
+        for iv in trial.interventions
+        if is_drug_like(iv)
     ]
 
     return {
         "indications": indications,
         "compounds": compounds,
-        "endpoints": endpoints,
     }

@@ -12,14 +12,17 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from src.graph.models import (
+    CausalChain,
     EdgeBeliefState,
     EdgeType,
     EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
+    TrialArm,
     TrialSubgraph,
 )
 from src.graph.store import GraphStore
+from src.inference.beliefs import SupportBucket, bucket_to_direction
 from src.annotation.taxonomy import (
     FAILURE_MODE_RULES,
     FailureClassification,
@@ -29,6 +32,10 @@ from src.annotation.taxonomy import (
 logger = logging.getLogger(__name__)
 
 _ANNOTATIONS_DIR = Path("data/annotations")
+# Misrouted-update audit log — written when a classifier-emitted edge update
+# can't be matched to any chain in the trial subgraph. The expected use is
+# vocab/extraction-prompt review, not silent drop.
+_UNROUTED_LOG_PATH = Path("data/dev/unrouted_attribution_updates.jsonl")
 
 # Map trial phase string to EvidenceType
 _PHASE_TO_EVIDENCE: dict[str, EvidenceType] = {
@@ -40,16 +47,192 @@ _PHASE_TO_EVIDENCE: dict[str, EvidenceType] = {
     "4": EvidenceType.CLINICAL_PHASE3,
 }
 
-# Map edge_type string to the (source_field, target_field) on TrialSubgraph
-_EDGE_TYPE_TO_SUBGRAPH_FIELDS: dict[str, tuple[str, str]] = {
-    "binds_to": ("compound_id", "target_id"),
-    "modulates_via": ("target_id", "mechanism_id"),
-    "mechanism_affects": ("mechanism_id", "biology_id"),
-    "biology_drives": ("biology_id", "indication_id"),
-    "reflects_biology": ("biology_id", "endpoint_id"),
-    "endpoint_captures": ("endpoint_id", "indication_id"),
-    "responds_differently": ("population_id", "indication_id"),
+# Node-type pairs each edge type connects (source_type, target_type). Used to
+# constrain free-text entity-name → canonical-id resolution to plausible
+# node types.
+_EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
+    EdgeType.BINDS_TO:             ("CompoundNode", "TargetNode"),
+    EdgeType.MODULATES_VIA:        ("TargetNode", "MechanismNode"),
+    EdgeType.MECHANISM_AFFECTS:    ("MechanismNode", "BiologyNode"),
+    EdgeType.BIOLOGY_DRIVES:       ("BiologyNode", "IndicationNode"),
+    EdgeType.REFLECTS_BIOLOGY:     ("BiologyNode", "EndpointNode"),
+    EdgeType.ENDPOINT_CAPTURES:    ("EndpointNode", "IndicationNode"),
+    EdgeType.RESPONDS_DIFFERENTLY: ("PopulationNode", "IndicationNode"),
 }
+
+
+# Sentinel used in CausalChain fields when a graph id wasn't yet resolved
+# (e.g. by populate.py before extraction filled in the biology id).
+_UNKNOWN_PLACEHOLDER = "UNKNOWN"
+
+
+# ── Routing helpers ──────────────────────────────────────────────────────
+
+
+_NON_ALNUM_RE = __import__("re").compile(r"[^a-z0-9]+")
+
+
+def _norm_name(text: str) -> str:
+    """Lowercase, strip non-alphanumerics. PD-1 / PD1 / pd_1 → 'pd1'."""
+    return _NON_ALNUM_RE.sub("", (text or "").lower())
+
+
+class _NameIndex:
+    """Case-insensitive, punctuation-insensitive name → node-id index.
+
+    Built once per ``attribute()`` call. ``matches`` returns True for an
+    exact normalized match or a substring containment (length-gated to
+    avoid 1-2 char noise). Normalization strips dashes and spaces so
+    "CTLA-4" / "CTLA4" / "ctla 4" all collapse to "ctla4".
+    """
+    def __init__(self) -> None:
+        # node_id -> list of normalized names
+        self._names_by_id: dict[str, list[str]] = {}
+
+    def add(self, node_type: str, node_id: str, names: list[str]) -> None:
+        normed: list[str] = []
+        for name in names:
+            n = _norm_name(name)
+            if n:
+                normed.append(n)
+        # Always include the id itself as a fallback name to match against
+        # — some classifier emissions reuse the canonical id directly.
+        normed.append(_norm_name(node_id))
+        self._names_by_id.setdefault(node_id, []).extend(normed)
+
+    def matches(self, node_id: str, query: str) -> bool:
+        q = _norm_name(query)
+        if not q:
+            return False
+        names = self._names_by_id.get(node_id, [])
+        for name in names:
+            if name == q:
+                return True
+        if len(q) < 3:
+            return False
+        for name in names:
+            if len(name) < 3:
+                continue
+            if q in name or name in q:
+                return True
+        return False
+
+
+def _build_name_index(
+    graph: GraphStore, *, node_types: set[str]
+) -> _NameIndex:
+    """Build a name → node-id index for lookup at attribution time.
+
+    For TargetNodes, also seed the index with HGNC aliases of the
+    canonical gene_symbol (so a classifier emitting "PD-1" routes to
+    the same node as its HUGO canonical "PDCD1"). HGNC lookup is
+    best-effort — when the resolver isn't loaded the index falls back
+    to name + gene_symbol only.
+    """
+    from src.graph.hgnc_resolver import (
+        _ALIAS_TO_CANONICAL,
+        canonical_symbol,
+        is_loaded as hgnc_loaded,
+    )
+
+    idx = _NameIndex()
+
+    # Reverse the HGNC dict once: canonical → list[alias]. Cheap because
+    # HGNC has ~50k canonicals and we only iterate Targets here.
+    canonical_to_aliases: dict[str, list[str]] = {}
+    if hgnc_loaded() and _ALIAS_TO_CANONICAL is not None:
+        for alias_norm, canonical in _ALIAS_TO_CANONICAL.items():
+            canonical_to_aliases.setdefault(canonical, []).append(alias_norm)
+
+    for node_type in node_types:
+        for node in graph.get_nodes_by_type(node_type):
+            names = [node.get("name", "")]
+            if node_type == "TargetNode":
+                gs = node.get("gene_symbol", "") or ""
+                if gs:
+                    names.append(gs)
+                # Alias expansion: if gene_symbol resolves through HGNC,
+                # add every known alias so any classifier-emitted variant
+                # ("PD-1", "PDL1", "B7-H1") matches the same TargetNode.
+                if gs:
+                    canonical = canonical_symbol(gs) or gs.upper()
+                    for alias_norm in canonical_to_aliases.get(canonical, []):
+                        names.append(alias_norm)
+            idx.add(node_type, node["id"], names)
+    return idx
+
+
+def _chain_edges_for_type(
+    chain: CausalChain,
+    arm: TrialArm,
+    edge_type: EdgeType,
+) -> list[tuple[str, str]]:
+    """All (source_id, target_id) candidates this chain implies for the edge type.
+
+    binds_to gets one candidate per constituent compound on the arm — that
+    way the classifier-emitted ``Ipilimumab → CTLA-4`` update routes to the
+    ipi mono chain (or the combo chain's ipi side), never to the nivo→PD-1
+    pair.
+    """
+    if edge_type == EdgeType.BINDS_TO:
+        return [(cid, chain.target_id) for cid in arm.compound_ids]
+    if edge_type == EdgeType.MODULATES_VIA:
+        return [(chain.target_id, chain.mechanism_id)]
+    if edge_type == EdgeType.MECHANISM_AFFECTS:
+        return [(chain.mechanism_id, chain.biology_id)]
+    if edge_type == EdgeType.BIOLOGY_DRIVES:
+        return [(chain.biology_id, chain.indication_id)]
+    if edge_type == EdgeType.REFLECTS_BIOLOGY:
+        return [(chain.biology_id, chain.endpoint_id)]
+    if edge_type == EdgeType.ENDPOINT_CAPTURES:
+        return [(chain.endpoint_id, chain.indication_id)]
+    if edge_type == EdgeType.RESPONDS_DIFFERENTLY:
+        return [(chain.subgroup_population_id, chain.indication_id)]
+    return []
+
+
+def _score_pair_against_names(
+    src_id: str,
+    tgt_id: str,
+    src_name: str,
+    tgt_name: str,
+    name_index: _NameIndex,
+) -> int:
+    """Higher = better fit. Both sides must match for the pair to win.
+
+    Score 2: both source and target match the classifier-emitted names.
+    Score 1: one side matches, other side has no name to check (empty
+             classifier emission). Falls back rather than dropping.
+    Score 0: at least one side has a name that *doesn't* match — reject.
+    """
+    src_match = name_index.matches(src_id, src_name) if src_name else None
+    tgt_match = name_index.matches(tgt_id, tgt_name) if tgt_name else None
+
+    if src_match is False or tgt_match is False:
+        return 0
+
+    score = 0
+    if src_match:
+        score += 1
+    if tgt_match:
+        score += 1
+    # Both names empty → unmatched (caller treats as no-route).
+    return score
+
+
+def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
+    _UNROUTED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "trial_id": trial_id,
+        "edge_type": item.get("edge_type"),
+        "source_entity": item.get("source_entity"),
+        "target_entity": item.get("target_entity"),
+        "support": item.get("support"),
+        "reason": reason,
+        "logged_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with _UNROUTED_LOG_PATH.open("a") as fh:
+        fh.write(json.dumps(record) + "\n")
 
 
 # ── Output model ─────────────────────────────────────────────────────────
@@ -85,12 +268,33 @@ class Attributor:
         classification: FailureClassification,
         trial: TrialSubgraph,
     ) -> list[AppliedEdgeUpdate]:
-        """Translate a classification into concrete edge updates."""
+        """Translate a classification into concrete edge updates.
+
+        Each classifier-emitted edge update is routed to the specific chain
+        whose canonical ids match the classifier's free-text source/target
+        entity names — preventing the misrouting bug where (e.g.)
+        Ipilimumab→CTLA-4 evidence lands on the nivolumab→PD-1 edge in a
+        combo trial. Updates that don't match any chain are logged to
+        ``data/dev/unrouted_attribution_updates.jsonl`` rather than
+        silently misapplied.
+        """
         raw = getattr(classification, "_raw", {})
         raw_edges = raw.get("edges_to_update", [])
         rule = FAILURE_MODE_RULES.get(classification.primary_failure_mode)
         phase = trial.phase
         evidence_type = _PHASE_TO_EVIDENCE.get(phase, EvidenceType.LITERATURE)
+
+        # Pre-compute name-resolution helpers from the graph's nodes (one
+        # pass per node type used here).
+        name_index = _build_name_index(
+            self.graph,
+            node_types={
+                "CompoundNode", "TargetNode", "MechanismNode",
+                "BiologyNode", "EndpointNode", "IndicationNode",
+                "PopulationNode",
+            },
+        )
+        arm_by_id = {arm.arm_id: arm for arm in trial.arms}
 
         updates: list[AppliedEdgeUpdate] = []
 
@@ -101,49 +305,50 @@ class Attributor:
             except ValueError:
                 logger.warning("Unknown edge type '%s', skipping", edge_type_str)
                 continue
-
-            direction_str = item.get("direction", "neutral")
-            magnitude = item.get("magnitude", 0.5)
-
-            # Resolve entity names to node IDs via trial subgraph
-            src_id, tgt_id = self._resolve_edge_nodes(
-                edge_type, trial, item
-            )
-            if not src_id or not tgt_id:
-                logger.debug(
-                    "Could not resolve nodes for %s edge, skipping", edge_type_str
-                )
+            if edge_type == EdgeType.COMPOSED_OF:
+                # Structural edges aren't classifier-modulable.
                 continue
 
-            # Map direction to EvidenceDirection
-            if direction_str == "strengthen":
-                ev_direction = EvidenceDirection.SUPPORTING
-            elif direction_str == "weaken":
-                ev_direction = EvidenceDirection.CONTRADICTING
-            else:
-                ev_direction = EvidenceDirection.AMBIGUOUS
+            support_str = item.get("support", "ambiguous")
+            try:
+                bucket = SupportBucket(support_str)
+            except ValueError:
+                logger.warning(
+                    "Unknown support bucket %r, defaulting to ambiguous", support_str,
+                )
+                bucket = SupportBucket.AMBIGUOUS
 
-            # Cross-check with taxonomy rule
+            src_id, tgt_id = self._route_to_chain_edge(
+                edge_type, trial, arm_by_id, name_index, item
+            )
+            if not src_id or not tgt_id:
+                _log_unrouted(trial.trial_id, item, reason="no_chain_match")
+                continue
+
+            # Cross-check with taxonomy rule. If the classifier picked a
+            # bucket whose coarse direction disagrees with the taxonomy's
+            # expectation for this failure mode, downgrade to AMBIGUOUS —
+            # the conjugate update then contributes only neutral pseudocounts.
+            ev_direction = bucket_to_direction(bucket)
             if rule:
                 if ev_direction == EvidenceDirection.CONTRADICTING and edge_type in rule.edges_to_strengthen:
                     logger.debug(
-                        "Classifier says weaken %s but taxonomy says strengthen — using ambiguous",
+                        "Classifier says contradict %s but taxonomy says strengthen — using ambiguous",
                         edge_type_str,
                     )
-                    ev_direction = EvidenceDirection.AMBIGUOUS
+                    bucket = SupportBucket.AMBIGUOUS
                 elif ev_direction == EvidenceDirection.SUPPORTING and edge_type in rule.edges_to_weaken:
                     logger.debug(
-                        "Classifier says strengthen %s but taxonomy says weaken — using ambiguous",
+                        "Classifier says support %s but taxonomy says weaken — using ambiguous",
                         edge_type_str,
                     )
-                    ev_direction = EvidenceDirection.AMBIGUOUS
+                    bucket = SupportBucket.AMBIGUOUS
 
             evidence = EvidenceRecord(
                 source_id=trial.trial_id,
                 source_type=evidence_type,
+                support=bucket.value,
                 quality_score=min(classification.confidence, 1.0),
-                direction=ev_direction,
-                magnitude=magnitude * classification.confidence,
                 timestamp=datetime.now(timezone.utc),
                 notes=item.get("reasoning", ""),
             )
@@ -200,35 +405,50 @@ class Attributor:
             "largest_changes": largest,
         }
 
-    def _resolve_edge_nodes(
+    def _route_to_chain_edge(
         self,
         edge_type: EdgeType,
         trial: TrialSubgraph,
+        arm_by_id: dict[str, TrialArm],
+        name_index: "_NameIndex",
         item: dict[str, Any],
     ) -> tuple[str | None, str | None]:
-        """Resolve source/target entity names to graph node IDs."""
-        # Open Targets seeds biology_drives as target_id → indication_id.
-        # The subgraph resolver stashes those coordinates in metadata so we
-        # can update the real OT edge here instead of a phantom one keyed
-        # on the trial's (BIO/MECH-labelled) biology_id.
+        """Pick the chain whose canonical ids best match the classifier's
+        free-text source/target entity names, then return that chain's
+        (source_id, target_id) for the given edge type.
+
+        Open Targets-seeded biology_drives gets a special pass-through:
+        OT writes a single (target_id, indication_id) edge during populate
+        and the trial-time biology id may be a different node, so we
+        update the OT-keyed edge instead.
+        """
         if edge_type == EdgeType.BIOLOGY_DRIVES:
             ot_coords = trial.metadata.get("ot_biology_drives")
             if ot_coords:
                 return ot_coords.get("source_id"), ot_coords.get("target_id")
 
-        mapping = _EDGE_TYPE_TO_SUBGRAPH_FIELDS.get(edge_type.value)
-        if not mapping:
+        src_name = (item.get("source_entity") or "").strip()
+        tgt_name = (item.get("target_entity") or "").strip()
+
+        best: tuple[str, str] | None = None
+        best_score = -1
+        for chain in trial.chains:
+            arm = arm_by_id.get(chain.arm_id)
+            if arm is None:
+                continue
+            for src_id, tgt_id in _chain_edges_for_type(chain, arm, edge_type):
+                if src_id == _UNKNOWN_PLACEHOLDER or tgt_id == _UNKNOWN_PLACEHOLDER:
+                    continue
+                score = _score_pair_against_names(
+                    src_id, tgt_id, src_name, tgt_name, name_index,
+                )
+                if score > best_score:
+                    best_score = score
+                    best = (src_id, tgt_id)
+
+        if best is None or best_score <= 0:
             return None, None
-
-        src_field, tgt_field = mapping
-        src_id = getattr(trial, src_field, None)
-        tgt_id = getattr(trial, tgt_field, None)
-
-        # Skip UNKNOWN placeholders
-        if src_id == "UNKNOWN" or tgt_id == "UNKNOWN":
-            return None, None
-
-        return src_id, tgt_id
+        return best
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────
@@ -251,7 +471,6 @@ def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
     from rich.console import Console
 
     from src.annotation.taxonomy import TrialExtraction
-    from src.graph.models import TrialOutcome
 
     console = Console()
 
@@ -276,33 +495,16 @@ def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
     for ext_data, clf_data in pairs:
         trial_id = clf_data.get("nct_id", ext_data.get("nct_id", "unknown"))
 
-        # Build a minimal TrialSubgraph — use graph node lookups where possible
-        # For now, use the extraction data to find nodes
-        hypothesis = ext_data.get("therapeutic_hypothesis", {})
-        compound_name = hypothesis.get("compound", "")
-        target_name = hypothesis.get("claimed_target", "")
-
-        # Try to find matching nodes
-        compound_id = _find_node_by_name(graph, compound_name, "CompoundNode") or "UNKNOWN"
-        target_id = _find_node_by_name(graph, target_name, "TargetNode") or "UNKNOWN"
-        indication_id = _find_node_by_name(
-            graph,
-            ext_data.get("therapeutic_hypothesis", {}).get("target_population", ""),
-            "IndicationNode",
-        ) or "UNKNOWN"
-
-        trial = TrialSubgraph(
-            trial_id=trial_id,
-            compound_id=compound_id,
-            target_id=target_id,
-            mechanism_id="UNKNOWN",
-            biology_id="UNKNOWN",
-            indication_id=indication_id,
-            endpoint_id="UNKNOWN",
-            population_id="UNKNOWN",
-            outcome=TrialOutcome.UNKNOWN,
-            phase=ext_data.get("therapeutic_hypothesis", {}).get("phase", "3") or "3",
-        )
+        # The trial subgraph (with arms + chains) must already exist in the
+        # graph sidecar — produced by populate.build_trial_subgraphs and
+        # extended by add_subgroup_chains during the extraction pipeline.
+        try:
+            trial = graph.get_trial_subgraph_by_id(trial_id)
+        except KeyError:
+            console.print(
+                f"  [yellow]Skipped {trial_id}:[/yellow] no trial_subgraph in sidecar"
+            )
+            continue
 
         # Build classification
         modes = clf_data.get("failure_modes", [])
@@ -344,20 +546,6 @@ def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     graph.export_snapshot(output_path)
     console.print(f"\n[bold]Saved annotated graph to {output_path}[/bold]")
-
-
-def _find_node_by_name(
-    graph: GraphStore, name: str, node_type: str
-) -> str | None:
-    """Find a node ID by name substring match."""
-    if not name:
-        return None
-    name_lower = name.lower()
-    for node in graph.get_nodes_by_type(node_type):
-        node_name = node.get("name", "").lower()
-        if node_name and (name_lower in node_name or node_name in name_lower):
-            return node.get("id")
-    return None
 
 
 if __name__ == "__main__":

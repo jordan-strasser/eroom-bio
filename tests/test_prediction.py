@@ -12,6 +12,7 @@ from src.graph.models import (
     EdgeType,
     EndpointNode,
     EndpointType,
+    CausalChain,
     GraphEdge,
     IndicationNode,
     MechanismNode,
@@ -21,7 +22,6 @@ from src.graph.models import (
     RegulatoryStatus,
     TargetNode,
     TrialOutcome,
-    TrialSubgraph,
 )
 from src.graph.store import GraphStore
 from src.prediction.path_query import (
@@ -54,7 +54,7 @@ def _make_graph(
     g.add_node(BiologyNode(id="b1", name="BioA"))
     g.add_node(IndicationNode(id="i1", name="DiseaseA"))
     g.add_node(EndpointNode(id="e1", name="EndpointA", endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED))
-    g.add_node(PopulationNode(id="p1", name="PopA"))
+    g.add_node(PopulationNode(id="i1__unselected", name="PopA"))
 
     edges = [
         ("c1", "t1", EdgeType.BINDS_TO, binds_to),
@@ -63,7 +63,7 @@ def _make_graph(
         ("b1", "i1", EdgeType.BIOLOGY_DRIVES, biology_drives),
         ("b1", "e1", EdgeType.REFLECTS_BIOLOGY, reflects_biology),
         ("e1", "i1", EdgeType.ENDPOINT_CAPTURES, endpoint_captures),
-        ("p1", "i1", EdgeType.RESPONDS_DIFFERENTLY, responds_differently),
+        ("i1__unselected", "i1", EdgeType.RESPONDS_DIFFERENTLY, responds_differently),
     ]
     for src, tgt, etype, (a, b) in edges:
         g.add_edge(GraphEdge(
@@ -74,18 +74,23 @@ def _make_graph(
     return g
 
 
-def _make_trial() -> TrialSubgraph:
-    return TrialSubgraph(
-        trial_id="NCT_TEST",
+def _make_trial() -> CausalChain:
+    """Build a CausalChain matching the _make_graph topology.
+
+    Named ``_make_trial`` for backwards compatibility with the existing
+    test file; what it actually returns is a single CausalChain that the
+    PredictionEngine consumes directly.
+    """
+    return CausalChain(
+        arm_id="arm_test",
         compound_id="c1",
+        subgroup_population_id="i1__unselected",
         target_id="t1",
         mechanism_id="m1",
         biology_id="b1",
         indication_id="i1",
         endpoint_id="e1",
-        population_id="p1",
         outcome=TrialOutcome.UNKNOWN,
-        phase="3",
     )
 
 
@@ -180,16 +185,15 @@ class TestPredict:
         g.add_node(BiologyNode(id="b1", name="BioA"))
         g.add_node(IndicationNode(id="i1", name="DiseaseA"))
 
-        trial = TrialSubgraph(
-            trial_id="NCT_TEST",
-            compound_id="c1", target_id="t1",
-            mechanism_id="m1", biology_id="b1",
-            indication_id="i1",
-            endpoint_id="UNKNOWN", population_id="UNKNOWN",
-            outcome=TrialOutcome.UNKNOWN, phase="3",
+        chain = CausalChain(
+            arm_id="arm_test", compound_id="c1",
+            subgroup_population_id="UNKNOWN",
+            target_id="t1", mechanism_id="m1", biology_id="b1",
+            indication_id="i1", endpoint_id="UNKNOWN",
+            outcome=TrialOutcome.UNKNOWN,
         )
         engine = PredictionEngine(g)
-        result = engine.predict(trial, n_samples=10_000)
+        result = engine.predict(chain, n_samples=10_000)
         # binds_to has strong belief, others default to 0.5
         # Only 4 causal chain edges (no endpoint/population since UNKNOWN)
         assert len(result.edge_contributions) == 4
@@ -296,13 +300,12 @@ class TestCompareHypotheses:
         engine = PredictionEngine(g_strong)
 
         trial_strong = _make_trial()
-        trial_weak = TrialSubgraph(
-            trial_id="NCT_WEAK",
-            compound_id="c1", target_id="t1",
-            mechanism_id="m1", biology_id="b1",
+        trial_weak = CausalChain(
+            arm_id="arm_weak", compound_id="c1",
+            subgroup_population_id="UNKNOWN",
+            target_id="t1", mechanism_id="m1", biology_id="b1",
             indication_id="i1", endpoint_id="UNKNOWN",
-            population_id="UNKNOWN",
-            outcome=TrialOutcome.UNKNOWN, phase="3",
+            outcome=TrialOutcome.UNKNOWN,
         )
 
         results = engine.compare_hypotheses(
@@ -410,7 +413,7 @@ class TestPredictClinicalHypothesis:
         )
         result = predict_clinical_hypothesis(
             graph, "c1", "i1",
-            endpoint_id="e1", population_id="p1",
+            endpoint_id="e1", population_id="i1__unselected",
             n_samples=2_000,
         )
         assert len(result.edge_contributions) == 7

@@ -14,7 +14,6 @@ from src.graph.models import (
     EdgeType,
     EndpointNode,
     EndpointType,
-    EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
     GraphEdge,
@@ -28,6 +27,7 @@ from src.graph.models import (
     TrialOutcome,
     TrialSubgraph,
 )
+from src.inference.beliefs import SupportBucket
 
 
 # ── Fixtures ─────────────────────────────────────────────────────────────
@@ -37,9 +37,8 @@ def evidence_record():
     return EvidenceRecord(
         source_id="NCT00001234",
         source_type=EvidenceType.CLINICAL_PHASE3,
+        support=SupportBucket.STRONG_SUPPORT.value,
         quality_score=0.9,
-        direction=EvidenceDirection.SUPPORTING,
-        magnitude=2.5,
         timestamp=datetime(2024, 1, 15, tzinfo=timezone.utc),
         provenance_url="https://clinicaltrials.gov/ct2/show/NCT00001234",
     )
@@ -129,14 +128,38 @@ class TestBiomarkerNode:
 
 class TestPopulationNode:
     def test_create(self):
+        from src.graph.models import SubgroupFeature
+        feats = [
+            SubgroupFeature(axis="gene", key="EGFR", level="mutant"),
+            SubgroupFeature(axis="line", level="first"),
+        ]
+        pop_id = PopulationNode.compose_id("nsclc", feats)
         node = PopulationNode(
-            id="POP_001",
-            name="EGFR-mutant NSCLC",
-            defining_features=["NSCLC", "EGFR L858R or exon 19 del"],
+            id=pop_id,
+            name="EGFR-mutant first-line NSCLC",
+            defining_features=feats,
             estimated_size=50000,
-            genomic_features=["EGFR_L858R", "EGFR_EX19DEL"],
         )
         assert node.estimated_size == 50000
+        assert pop_id == "nsclc__egfr_mutant__line_first"
+
+    def test_compose_id_parent_population(self):
+        assert PopulationNode.compose_id("melanoma", []) == "melanoma__unselected"
+
+    def test_compose_id_is_order_independent(self):
+        from src.graph.models import SubgroupFeature
+        feats_a = [
+            SubgroupFeature(axis="gene", key="CD274", level="high"),
+            SubgroupFeature(axis="line", level="first"),
+        ]
+        feats_b = [
+            SubgroupFeature(axis="line", level="first"),
+            SubgroupFeature(axis="gene", key="CD274", level="high"),
+        ]
+        assert (
+            PopulationNode.compose_id("nsclc", feats_a)
+            == PopulationNode.compose_id("nsclc", feats_b)
+        )
 
 
 class TestEndpointNode:
@@ -169,16 +192,25 @@ class TestIndicationNode:
 class TestEvidenceRecord:
     def test_create(self, evidence_record):
         assert evidence_record.source_type == EvidenceType.CLINICAL_PHASE3
+        assert evidence_record.support == SupportBucket.STRONG_SUPPORT.value
         assert evidence_record.quality_score == 0.9
 
-    def test_quality_score_bounds(self):
+    def test_quality_score_default_is_one(self):
+        ev = EvidenceRecord(
+            source_id="S1",
+            source_type=EvidenceType.LITERATURE,
+            support=SupportBucket.WEAK_SUPPORT.value,
+            timestamp=datetime.now(timezone.utc),
+        )
+        assert ev.quality_score == 1.0
+
+    def test_quality_score_upper_bound(self):
         with pytest.raises(ValidationError):
             EvidenceRecord(
                 source_id="S1",
                 source_type=EvidenceType.LITERATURE,
+                support=SupportBucket.WEAK_SUPPORT.value,
                 quality_score=1.5,
-                direction=EvidenceDirection.SUPPORTING,
-                magnitude=1.0,
                 timestamp=datetime.now(timezone.utc),
             )
 
@@ -187,20 +219,8 @@ class TestEvidenceRecord:
             EvidenceRecord(
                 source_id="S1",
                 source_type=EvidenceType.LITERATURE,
+                support=SupportBucket.WEAK_SUPPORT.value,
                 quality_score=-0.1,
-                direction=EvidenceDirection.SUPPORTING,
-                magnitude=1.0,
-                timestamp=datetime.now(timezone.utc),
-            )
-
-    def test_negative_magnitude_rejected(self):
-        with pytest.raises(ValidationError):
-            EvidenceRecord(
-                source_id="S1",
-                source_type=EvidenceType.LITERATURE,
-                quality_score=0.5,
-                direction=EvidenceDirection.SUPPORTING,
-                magnitude=-1.0,
                 timestamp=datetime.now(timezone.utc),
             )
 
@@ -209,9 +229,16 @@ class TestEvidenceRecord:
             EvidenceRecord(
                 source_id="",
                 source_type=EvidenceType.LITERATURE,
-                quality_score=0.5,
-                direction=EvidenceDirection.SUPPORTING,
-                magnitude=1.0,
+                support=SupportBucket.WEAK_SUPPORT.value,
+                timestamp=datetime.now(timezone.utc),
+            )
+
+    def test_empty_support_rejected(self):
+        with pytest.raises(ValidationError):
+            EvidenceRecord(
+                source_id="S1",
+                source_type=EvidenceType.LITERATURE,
+                support="",
                 timestamp=datetime.now(timezone.utc),
             )
 
@@ -299,48 +326,129 @@ class TestGraphEdge:
 # ── Trial subgraph tests ────────────────────────────────────────────────
 
 class TestTrialSubgraph:
-    def test_create(self):
-        trial = TrialSubgraph(
-            trial_id="NCT03456789",
-            compound_id="COMPOUND_001",
-            target_id="TARGET_EGFR",
-            mechanism_id="MECH_001",
-            biology_id="BIO_001",
-            indication_id="IND_001",
-            endpoint_id="EP_001",
-            population_id="POP_001",
-            outcome=TrialOutcome.SUCCESS,
-            phase="3",
+    def _make_arm_and_chain(self, outcome: TrialOutcome = TrialOutcome.SUCCESS):
+        from src.graph.models import CausalChain, TrialArm
+        arm = TrialArm(
+            arm_id="arm1", compound_ids=["c1"], regimen_compound_id="c1",
+            is_combination=False,
         )
-        assert trial.outcome == TrialOutcome.SUCCESS
+        chain = CausalChain(
+            arm_id="arm1", compound_id="c1",
+            subgroup_population_id="ind__unselected",
+            target_id="t1", mechanism_id="m1", biology_id="b1",
+            indication_id="ind", endpoint_id="e1",
+            outcome=outcome,
+        )
+        return arm, chain
+
+    def test_create(self):
+        arm, chain = self._make_arm_and_chain()
+        ts = TrialSubgraph(
+            trial_id="NCT03456789",
+            phase="3", arms=[arm], chains=[chain],
+            parent_population_id="ind__unselected",
+        )
+        assert len(ts.chains) == 1
+        assert ts.chains[0].outcome == TrialOutcome.SUCCESS
 
     def test_empty_trial_id_rejected(self):
+        arm, chain = self._make_arm_and_chain()
         with pytest.raises(ValidationError):
             TrialSubgraph(
-                trial_id="",
-                compound_id="C1",
-                target_id="T1",
-                mechanism_id="M1",
-                biology_id="B1",
-                indication_id="I1",
-                endpoint_id="E1",
-                population_id="P1",
-                outcome=TrialOutcome.UNKNOWN,
-                phase="1",
+                trial_id="", phase="1", arms=[arm], chains=[chain],
+                parent_population_id="ind__unselected",
             )
 
     def test_all_outcomes(self):
         for outcome in TrialOutcome:
-            trial = TrialSubgraph(
+            arm, chain = self._make_arm_and_chain(outcome=outcome)
+            ts = TrialSubgraph(
                 trial_id="NCT00000001",
-                compound_id="C1",
-                target_id="T1",
-                mechanism_id="M1",
-                biology_id="B1",
-                indication_id="I1",
-                endpoint_id="E1",
-                population_id="P1",
-                outcome=outcome,
-                phase="2",
+                phase="2", arms=[arm], chains=[chain],
+                parent_population_id="ind__unselected",
             )
-            assert trial.outcome == outcome
+            assert ts.chains[0].outcome == outcome
+
+
+class TestNormalizeEntity:
+    def test_compound_lowercases(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("Pembrolizumab", "CompoundNode") == "pembrolizumab"
+        assert normalize_entity("KEYTRUDA", "CompoundNode") == "keytruda"
+
+    def test_compound_drugbank_passthrough(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("DB00001", "CompoundNode") == "DB00001"
+
+    def test_target_ensg_passthrough(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("ENSG00000169245", "TargetNode") == "ENSG00000169245"
+
+    def test_target_symbol_uppercased(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("PD-1", "TargetNode") == "PD1"
+
+    def test_mechanism_validates_against_enum(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("kinase_inhibition", "MechanismNode") == "kinase_inhibition"
+
+    def test_mechanism_unknown_falls_back_to_other(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("magic_pixie_dust", "MechanismNode") == "other"
+
+    def test_biology_requires_reactome_id(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("R-HSA-9006934", "BiologyNode") == "R-HSA-9006934"
+        with pytest.raises(ValueError):
+            normalize_entity("free text pathway", "BiologyNode")
+
+    def test_biomarker_uppercased(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("PD-L1", "BiomarkerNode") == "PD_L1"
+        assert normalize_entity("EGFR mutation", "BiomarkerNode") == "EGFR_MUTATION"
+
+    def test_population_requires_indication_double_underscore_features(self):
+        from src.graph.models import normalize_entity
+
+        # Composed-id form passes through as-is.
+        assert (
+            normalize_entity("melanoma__cd274_high__line_first", "PopulationNode")
+            == "melanoma__cd274_high__line_first"
+        )
+        # Parent population (no subgroup features) is "{indication}__unselected".
+        assert (
+            normalize_entity("melanoma__unselected", "PopulationNode")
+            == "melanoma__unselected"
+        )
+        # Bare indication slug (no "__feature" tail) is invalid.
+        with pytest.raises(ValueError):
+            normalize_entity("melanoma", "PopulationNode")
+
+    def test_endpoint_requires_class_and_indication(self):
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("OS_melanoma", "EndpointNode") == "OS_melanoma"
+        with pytest.raises(ValueError):
+            normalize_entity("badclass_melanoma", "EndpointNode")
+
+    def test_indication_slug(self):
+        from src.graph.models import normalize_entity
+
+        assert (
+            normalize_entity("Non-Small Cell Lung Cancer", "IndicationNode")
+            == "non_small_cell_lung_cancer"
+        )
+
+    def test_unknown_node_type_raises(self):
+        from src.graph.models import normalize_entity
+
+        with pytest.raises(ValueError, match="Unknown node_type"):
+            normalize_entity("foo", "FooNode")

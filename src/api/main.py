@@ -20,10 +20,17 @@ from src.annotation.classifier import Classifier, annotate_trial
 from src.annotation.extractor import Extractor
 from src.annotation.taxonomy import FailureClassification, TrialExtraction
 from src.graph.models import (
+    CausalChain,
     EdgeBeliefState,
     EdgeType,
     TrialOutcome,
     TrialSubgraph,
+)
+from src.graph.populate import (
+    build_arms,
+    ensure_parent_population,
+    seed_trial_node,
+    synthesize_combo_compounds,
 )
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import ClinicalTrialsClient
@@ -253,21 +260,20 @@ def predict(req: PredictRequest) -> PredictionResult:
     endpoint_id = _find_node_by_name(req.endpoint, "EndpointNode") or "UNKNOWN"
     population_id = _find_node_by_name(req.population, "PopulationNode") or "UNKNOWN"
 
-    trial = TrialSubgraph(
-        trial_id="api_query",
+    chain = CausalChain(
+        arm_id="api_query",
         compound_id=compound_id,
+        subgroup_population_id=population_id,
         target_id=target_id,
         mechanism_id=mechanism_id,
         biology_id="UNKNOWN",
         indication_id=indication_id,
         endpoint_id=endpoint_id,
-        population_id=population_id,
         outcome=TrialOutcome.UNKNOWN,
-        phase="3",
     )
 
     engine = PredictionEngine(state.graph)
-    return engine.predict(trial, n_samples=req.n_samples)
+    return engine.predict(chain, n_samples=req.n_samples)
 
 
 @app.post("/annotate", response_model=AnnotateResponse)
@@ -286,33 +292,57 @@ async def annotate(req: AnnotateRequest) -> AnnotateResponse:
         )
 
     def _build_subgraph(trial_rec, extraction) -> TrialSubgraph:
-        compound_id = (
-            _find_node_by_name(extraction.compound_name, "CompoundNode") or "UNKNOWN"
-        )
-        target_id = (
-            _find_node_by_name(extraction.target_name, "TargetNode") or "UNKNOWN"
-        )
+        # Build the multi-arm shape from the trial's parsed arm groups,
+        # synthesize a combo CompoundNode if needed, and create one chain
+        # per arm at the parent enrollment population. Per-subgroup chains
+        # are added later (extractor task) once subgroup features are
+        # available from the LLM call.
+        seed_trial_node(state.graph, trial_rec)
+        arms = build_arms(trial_rec)
+        synthesize_combo_compounds(state.graph, arms)
+
         indication_id = "UNKNOWN"
         for cond in trial_rec.conditions:
             resolved = _find_node_by_name(cond, "IndicationNode")
             if resolved:
                 indication_id = resolved
                 break
+
+        target_id = (
+            _find_node_by_name(extraction.target_name, "TargetNode") or "UNKNOWN"
+        )
         endpoint_id = (
             _find_node_by_name(extraction.primary_endpoint, "EndpointNode") or "UNKNOWN"
         )
-        return TrialSubgraph(
-            trial_id=req.nct_id,
-            compound_id=compound_id,
-            target_id=target_id,
-            mechanism_id="UNKNOWN",
-            biology_id="UNKNOWN",
-            indication_id=indication_id,
-            endpoint_id=endpoint_id,
-            population_id="UNKNOWN",
-            outcome=TrialOutcome.UNKNOWN,
-            phase=trial_rec.phase or "3",
+        parent_pop = (
+            ensure_parent_population(state.graph, indication_id, indication_name=None)
+            if indication_id != "UNKNOWN"
+            else "UNKNOWN__unselected"
         )
+
+        chains = [
+            CausalChain(
+                arm_id=arm.arm_id,
+                compound_id=arm.regimen_compound_id,
+                subgroup_population_id=parent_pop,
+                target_id=target_id,
+                mechanism_id="UNKNOWN",
+                biology_id="UNKNOWN",
+                indication_id=indication_id,
+                endpoint_id=endpoint_id,
+                outcome=TrialOutcome.UNKNOWN,
+            )
+            for arm in arms
+        ]
+        ts = TrialSubgraph(
+            trial_id=req.nct_id,
+            phase=trial_rec.phase or "3",
+            arms=arms,
+            chains=chains,
+            parent_population_id=parent_pop,
+        )
+        state.graph.set_trial_subgraph(ts)
+        return ts
 
     try:
         extraction, classification, updates = await annotate_trial(

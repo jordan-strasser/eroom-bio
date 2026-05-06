@@ -12,7 +12,6 @@ from src.graph.models import (
     EdgeType,
     EndpointNode,
     EndpointType,
-    EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
     GraphEdge,
@@ -26,7 +25,12 @@ from src.graph.models import (
     TrialOutcome,
     TrialSubgraph,
 )
-from src.graph.store import EVIDENCE_TYPE_WEIGHTS, GraphStore
+from src.graph.store import GraphStore
+from src.inference.beliefs import (
+    BUCKET_TO_P_OBS,
+    EVIDENCE_TYPE_N_EFF,
+    SupportBucket,
+)
 
 
 @pytest.fixture
@@ -56,17 +60,15 @@ def edge(compound, target):
 
 
 def _make_evidence(
-    direction: EvidenceDirection = EvidenceDirection.SUPPORTING,
+    support: SupportBucket = SupportBucket.STRONG_SUPPORT,
     source_type: EvidenceType = EvidenceType.CLINICAL_PHASE3,
     quality: float = 1.0,
-    magnitude: float = 1.0,
 ) -> EvidenceRecord:
     return EvidenceRecord(
         source_id="SRC_001",
         source_type=source_type,
+        support=support.value,
         quality_score=quality,
-        direction=direction,
-        magnitude=magnitude,
         timestamp=datetime(2024, 6, 1, tzinfo=timezone.utc),
     )
 
@@ -151,85 +153,101 @@ class TestEdgeCRUD:
 
 
 class TestBayesianUpdates:
-    def test_supporting_updates_alpha(self, store, compound, target, edge):
+    """Beta-Binomial conjugate updates: α += N_eff·p_obs, β += N_eff·(1−p_obs)."""
+
+    def test_strong_support_lifts_alpha(self, store, compound, target, edge):
         store.add_node(compound)
         store.add_node(target)
         store.add_edge(edge)
         ev = _make_evidence(
-            direction=EvidenceDirection.SUPPORTING,
+            support=SupportBucket.STRONG_SUPPORT,
             source_type=EvidenceType.CLINICAL_PHASE3,
             quality=0.9,
-            magnitude=2.0,
         )
         belief = store.update_edge_belief(
             compound.id, target.id, EdgeType.BINDS_TO, ev
         )
-        expected_delta = 5.0 * 0.9 * 2.0  # weight * quality * magnitude
-        assert belief.alpha == pytest.approx(1.0 + expected_delta)
-        assert belief.beta == 1.0
+        n_eff = EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE3] * 0.9
+        p_obs = BUCKET_TO_P_OBS[SupportBucket.STRONG_SUPPORT]
+        assert belief.alpha == pytest.approx(1.0 + n_eff * p_obs)
+        assert belief.beta == pytest.approx(1.0 + n_eff * (1.0 - p_obs))
         assert len(belief.evidence) == 1
 
-    def test_contradicting_updates_beta(self, store, compound, target, edge):
+    def test_strong_contradict_lifts_beta(self, store, compound, target, edge):
         store.add_node(compound)
         store.add_node(target)
         store.add_edge(edge)
         ev = _make_evidence(
-            direction=EvidenceDirection.CONTRADICTING,
+            support=SupportBucket.STRONG_CONTRADICT,
             source_type=EvidenceType.PRECLINICAL_IN_VITRO,
             quality=0.8,
-            magnitude=1.5,
         )
         belief = store.update_edge_belief(
             compound.id, target.id, EdgeType.BINDS_TO, ev
         )
-        expected_delta = 1.0 * 0.8 * 1.5
-        assert belief.alpha == 1.0
-        assert belief.beta == pytest.approx(1.0 + expected_delta)
+        n_eff = EVIDENCE_TYPE_N_EFF[EvidenceType.PRECLINICAL_IN_VITRO] * 0.8
+        p_obs = BUCKET_TO_P_OBS[SupportBucket.STRONG_CONTRADICT]
+        assert belief.alpha == pytest.approx(1.0 + n_eff * p_obs)
+        assert belief.beta == pytest.approx(1.0 + n_eff * (1.0 - p_obs))
+        # STRONG_CONTRADICT has p_obs=0.05, so beta should pick up most of it.
+        assert belief.beta > belief.alpha
 
-    def test_ambiguous_updates_both(self, store, compound, target, edge):
+    def test_ambiguous_splits_evenly(self, store, compound, target, edge):
         store.add_node(compound)
         store.add_node(target)
         store.add_edge(edge)
         ev = _make_evidence(
-            direction=EvidenceDirection.AMBIGUOUS,
+            support=SupportBucket.AMBIGUOUS,
             source_type=EvidenceType.LITERATURE,
-            quality=0.5,
-            magnitude=1.0,
+            quality=1.0,
         )
         belief = store.update_edge_belief(
             compound.id, target.id, EdgeType.BINDS_TO, ev
         )
-        expected_delta = 0.3 * 0.5 * 1.0 * 0.3
-        assert belief.alpha == pytest.approx(1.0 + expected_delta)
-        assert belief.beta == pytest.approx(1.0 + expected_delta)
+        # AMBIGUOUS bucket has p_obs = 0.5, so the update splits N_eff
+        # evenly between α and β — the principled successor of the old
+        # 0.3-each ad-hoc split.
+        half = EVIDENCE_TYPE_N_EFF[EvidenceType.LITERATURE] * 0.5
+        assert belief.alpha == pytest.approx(1.0 + half)
+        assert belief.beta == pytest.approx(1.0 + half)
 
     def test_sequential_updates_accumulate(self, store, compound, target, edge):
         store.add_node(compound)
         store.add_node(target)
         store.add_edge(edge)
         ev1 = _make_evidence(
-            direction=EvidenceDirection.SUPPORTING,
+            support=SupportBucket.STRONG_SUPPORT,
             source_type=EvidenceType.GENETIC_MR,
             quality=1.0,
-            magnitude=1.0,
         )
         ev2 = _make_evidence(
-            direction=EvidenceDirection.CONTRADICTING,
+            support=SupportBucket.MODERATE_CONTRADICT,
             source_type=EvidenceType.CLINICAL_PHASE2,
             quality=0.7,
-            magnitude=1.0,
         )
         store.update_edge_belief(compound.id, target.id, EdgeType.BINDS_TO, ev1)
         belief = store.update_edge_belief(
             compound.id, target.id, EdgeType.BINDS_TO, ev2
         )
-        assert belief.alpha == pytest.approx(1.0 + 4.0)  # GENETIC_MR weight
-        assert belief.beta == pytest.approx(1.0 + 3.0 * 0.7)  # PHASE2 weight * quality
+        n1 = EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_MR] * 1.0
+        p1 = BUCKET_TO_P_OBS[SupportBucket.STRONG_SUPPORT]
+        n2 = EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2] * 0.7
+        p2 = BUCKET_TO_P_OBS[SupportBucket.MODERATE_CONTRADICT]
+        assert belief.alpha == pytest.approx(1.0 + n1 * p1 + n2 * p2)
+        assert belief.beta == pytest.approx(
+            1.0 + n1 * (1.0 - p1) + n2 * (1.0 - p2)
+        )
         assert len(belief.evidence) == 2
 
-    def test_all_evidence_weights_present(self):
+    def test_all_evidence_types_have_n_eff(self):
         for et in EvidenceType:
-            assert et in EVIDENCE_TYPE_WEIGHTS
+            assert et in EVIDENCE_TYPE_N_EFF
+            assert EVIDENCE_TYPE_N_EFF[et] > 0
+
+    def test_all_buckets_have_p_obs(self):
+        for b in SupportBucket:
+            assert b in BUCKET_TO_P_OBS
+            assert 0.0 < BUCKET_TO_P_OBS[b] < 1.0
 
 
 # ── Path finding ─────────────────────────────────────────────────────────
@@ -276,6 +294,7 @@ class TestPathFinding:
 
 class TestTrialSubgraph:
     def test_get_trial_subgraph(self, store):
+        from src.graph.models import CausalChain, TrialArm
         nodes = [
             CompoundNode(id="C1", name="C", modality=Modality.OTHER),
             TargetNode(id="T1", name="T", gene_symbol="T"),
@@ -287,24 +306,50 @@ class TestTrialSubgraph:
                 endpoint_type=EndpointType.PRIMARY,
                 regulatory_status=RegulatoryStatus.ACCEPTED,
             ),
-            PopulationNode(id="P1", name="P"),
+            PopulationNode(id="i1__unselected", name="P"),
         ]
         for n in nodes:
             store.add_node(n)
-        trial = TrialSubgraph(
-            trial_id="NCT123",
-            compound_id="C1",
-            target_id="T1",
-            mechanism_id="M1",
-            biology_id="B1",
-            indication_id="I1",
-            endpoint_id="E1",
-            population_id="P1",
+        arm = TrialArm(
+            arm_id="arm1", compound_ids=["C1"], regimen_compound_id="C1",
+            is_combination=False,
+        )
+        chain = CausalChain(
+            arm_id="arm1", compound_id="C1",
+            subgroup_population_id="i1__unselected",
+            target_id="T1", mechanism_id="M1", biology_id="B1",
+            indication_id="I1", endpoint_id="E1",
             outcome=TrialOutcome.SUCCESS,
-            phase="3",
+        )
+        trial = TrialSubgraph(
+            trial_id="NCT123", phase="3",
+            arms=[arm], chains=[chain],
+            parent_population_id="i1__unselected",
         )
         sg = store.get_trial_subgraph(trial)
+        # 7 nodes: 1 compound + 1 target + 1 mechanism + 1 biology + 1 indication + 1 endpoint + 1 population
         assert sg.number_of_nodes() == 7
+
+    def test_set_and_get_trial_subgraph_sidecar(self, store):
+        from src.graph.models import CausalChain, TrialArm
+        arm = TrialArm(
+            arm_id="arm1", compound_ids=["C1"], regimen_compound_id="C1",
+        )
+        chain = CausalChain(
+            arm_id="arm1", compound_id="C1",
+            subgroup_population_id="i__unselected",
+            target_id="T1", mechanism_id="M1", biology_id="B1",
+            indication_id="I1", endpoint_id="E1",
+            outcome=TrialOutcome.SUCCESS,
+        )
+        ts = TrialSubgraph(
+            trial_id="NCT_X", phase="3", arms=[arm], chains=[chain],
+            parent_population_id="i__unselected",
+        )
+        store.set_trial_subgraph(ts)
+        roundtrip = store.get_trial_subgraph_by_id("NCT_X")
+        assert roundtrip.trial_id == "NCT_X"
+        assert len(roundtrip.chains) == 1
 
 
 # ── Persistence ──────────────────────────────────────────────────────────
@@ -334,7 +379,10 @@ class TestPersistence:
         filepath = str(tmp_path / "snapshot.json")
         store.export_snapshot(filepath)
         data = json.loads((tmp_path / "snapshot.json").read_text())
-        assert "nodes" in data
+        # New snapshot wrapper: {"graph": <node_link_data>, "trial_subgraphs": {}}.
+        assert "graph" in data
+        assert "trial_subgraphs" in data
+        assert "nodes" in data["graph"]
 
 
 # ── Stats ────────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.graph.models import EndpointType, Modality
+from src.graph.models import Modality
 from src.ingestion.clinicaltrials import (
     ClinicalTrialsClient,
     Intervention,
@@ -227,18 +227,19 @@ class TestMapTrialToNodes:
         nodes = map_trial_to_graph_nodes(antibody_trial)
         assert nodes["compounds"][0].modality == Modality.ANTIBODY
 
-    def test_endpoints(self, trial_record):
+    def test_no_endpoint_nodes_emitted(self, trial_record):
+        # Endpoint nodes are intentionally not produced here; their canonical
+        # id requires LLM classification + indication pairing.
         nodes = map_trial_to_graph_nodes(trial_record)
-        assert len(nodes["endpoints"]) == 1
-        ep = nodes["endpoints"][0]
-        assert ep.endpoint_type == EndpointType.PRIMARY
-        assert ep.measurement_properties["timeframe"] == "12 months"
+        assert "endpoints" not in nodes
 
-    def test_node_ids_include_nct(self, trial_record):
+    def test_canonical_compound_id(self, trial_record):
         nodes = map_trial_to_graph_nodes(trial_record)
-        for group in nodes.values():
-            for node in group:
-                assert "NCT00000001" in node.id
+        assert nodes["compounds"][0].id == "imatinib"
+
+    def test_canonical_indication_id(self, trial_record):
+        nodes = map_trial_to_graph_nodes(trial_record)
+        assert nodes["indications"][0].id == "chronic_myeloid_leukemia"
 
 
 # ── Integration test ─────────────────────────────────────────────────────

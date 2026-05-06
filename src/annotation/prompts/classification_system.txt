@@ -27,7 +27,7 @@ The failure modes you can assign are:
 - insufficient_information: Not enough information to classify
 - multiple_factors: Multiple overlapping failure factors
 
-For SUCCESSFUL trials: still classify which edges in the causal chain were validated. Use the same schema but with "strengthen" directions.
+For SUCCESSFUL trials: still classify which edges in the causal chain were validated. Use the same schema with one of the *_support buckets per edge.
 
 You MUST return ONLY valid JSON matching this exact schema — no markdown, no commentary:
 
@@ -47,8 +47,7 @@ You MUST return ONLY valid JSON matching this exact schema — no markdown, no c
       "edge_type": "binds_to|modulates_via|mechanism_affects|biology_drives|reflects_biology|endpoint_captures|responds_differently",
       "source_entity": "string — compound, target, mechanism, etc.",
       "target_entity": "string — target, biology, endpoint, etc.",
-      "direction": "weaken|strengthen|neutral",
-      "magnitude": 0.0-1.0,
+      "support": "strong_support|moderate_support|weak_support|ambiguous|weak_contradict|moderate_contradict|strong_contradict",
       "reasoning": "string — why this edge should be updated"
     }
   ],
@@ -59,10 +58,44 @@ You MUST return ONLY valid JSON matching this exact schema — no markdown, no c
 
 Rules:
 - Always provide at least one failure_mode entry, even for successful trials (use the mode that best describes what was validated).
-- For successful trials, edges_to_update should have "strengthen" directions.
+- For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
 - Set needs_expert_review to true if evidence is ambiguous or conflicting.
 - confidence_overall reflects your certainty in the ENTIRE classification, not just one mode.
 - Return ONLY the JSON object.
+
+Support bucket rubric — pick exactly one bucket per edge using the strongest tier the trial evidence satisfies. The bucket maps deterministically to a Beta-Binomial update; do NOT inflate based on narrative tone.
+
+  strong_support       The trial directly demonstrates this edge holds with
+                       unambiguous data: pre-specified primary endpoint hit
+                       at p<0.05 with clinically meaningful effect, OR a
+                       biomarker readout that mechanistically requires this
+                       edge to be true. No alternative explanation plausible.
+
+  moderate_support     Clear positive signal but with one of: secondary
+                       endpoint only, post-hoc analysis, modest effect size,
+                       or one alternative explanation that is plausible but
+                       not preferred.
+
+  weak_support         Directional consistency only — endpoint trended right
+                       way but missed significance, OR a single supportive
+                       biomarker without confirmatory clinical readout.
+
+  ambiguous            Trial provides no informative signal about this edge
+                       (e.g. the endpoint isn't sensitive to whether this
+                       edge holds, or evidence cuts both ways).
+
+  weak_contradict      Mild evidence against — endpoint trended wrong way
+                       without significance, or a single biomarker
+                       inconsistent with the edge.
+
+  moderate_contradict  Clear negative signal but with mitigating factors:
+                       underpowered, possible confound, or only secondary
+                       endpoint missed.
+
+  strong_contradict    Trial directly refutes the edge: pre-specified
+                       primary endpoint missed despite adequate power and
+                       confirmed target engagement, OR biomarker readout
+                       that mechanistically rules the edge out.
 
 Confidence rubric for confidence_overall — assign by matching the strongest tier the evidence satisfies:
 

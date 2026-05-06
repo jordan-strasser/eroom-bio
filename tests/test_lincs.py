@@ -153,25 +153,34 @@ class TestParsePathway:
 
 
 class TestDeriveMechanismId:
-    def test_inhibitor(self):
-        assert derive_mechanism_id("BRAF", "BRAF inhibitor") == "braf_inhibition"
+    def test_kinase_inhibitor_promoted(self):
+        # MOA mentions "kinase" → kinase_inhibition specifically
+        assert (
+            derive_mechanism_id("BRAF", "BRAF kinase inhibitor")
+            == "kinase_inhibition"
+        )
+
+    def test_generic_inhibitor_falls_back_to_enzyme(self):
+        assert derive_mechanism_id("PARP1", "PARP inhibitor") == "enzyme_inhibition"
 
     def test_agonist(self):
         assert (
-            derive_mechanism_id("DRD2", "dopamine receptor agonist") == "drd2_agonism"
+            derive_mechanism_id("DRD2", "dopamine receptor agonist")
+            == "receptor_agonism"
         )
 
     def test_antagonist(self):
-        assert derive_mechanism_id("AR", "androgen antagonist") == "ar_antagonism"
+        assert (
+            derive_mechanism_id("AR", "androgen antagonist") == "receptor_antagonism"
+        )
 
     def test_inhibition_via_stem(self):
-        # "BRAF inhibition" — trailing word "inhibition" isn't in the suffix
-        # table, but the "inhibit" stem fires.
-        assert derive_mechanism_id("BRAF", "BRAF inhibition") == "braf_inhibition"
+        assert (
+            derive_mechanism_id("BRAF", "BRAF inhibition") == "enzyme_inhibition"
+        )
 
     def test_partial_agonist(self):
-        # Trailing "agonist" hits the suffix table directly.
-        assert derive_mechanism_id("OPRM1", "partial agonist") == "oprm1_agonism"
+        assert derive_mechanism_id("OPRM1", "partial agonist") == "receptor_agonism"
 
     def test_unknown_moa_returns_none(self):
         assert derive_mechanism_id("BRAF", "antihypertensive") is None
@@ -308,7 +317,7 @@ def _seed_graph() -> GraphStore:
     )
     g.add_node(
         MechanismNode(
-            id="braf_inhibition",
+            id="enzyme_inhibition",
             name="BRAF inhibition",
             mechanism_type=MechanismType.INHIBITION,
         )
@@ -368,7 +377,7 @@ class TestPopulateLincsSignatures:
         # One evidence record per (cell_line) hit — A375 + MCF7 both hit MAPK
         assert added == 2
         belief = graph.get_edge_belief(
-            "braf_inhibition", "bio_mapk", EdgeType.MECHANISM_AFFECTS
+            "enzyme_inhibition", "bio_mapk", EdgeType.MECHANISM_AFFECTS
         )
         assert belief.alpha > 1.0
         assert len(belief.evidence) == 2
@@ -377,10 +386,10 @@ class TestPopulateLincsSignatures:
         # Cell-line provenance lives in source_id and context.tissue
         a375 = ev_by_cell["A375"]
         assert a375.source_id == (
-            "lincs:BRD-VEM:braf_inhibition:bio_mapk:A375"
+            "lincs:BRD-VEM:enzyme_inhibition:bio_mapk:A375"
         )
         assert a375.source_type.value == "preclinical_in_vitro"
-        assert a375.magnitude == pytest.approx(1.0)
+        assert a375.support == "strong_support"
         assert a375.context["tissue"] == "skin"
         assert ev_by_cell["MCF7"].context["tissue"] == "breast"
 
@@ -407,7 +416,7 @@ class TestPopulateLincsSignatures:
 
     @pytest.mark.asyncio
     async def test_skips_when_mechanism_missing_and_flag_false(self, tmp_path: Path):
-        # With create_missing_mechanism=False, "BRAF blocker" → braf_antagonism
+        # With create_missing_mechanism=False, "BRAF blocker" → receptor_antagonism
         # has no matching MechanismNode → skip without fetching sigs.
         graph = _seed_graph()
         client = LINCSClient(api_key="fake", cache_dir=tmp_path)
@@ -430,11 +439,11 @@ class TestPopulateLincsSignatures:
         assert added == 0
         # No MechanismNode materialized
         mech_nodes = graph.get_nodes_by_type("MechanismNode")
-        assert {n["id"] for n in mech_nodes} == {"braf_inhibition"}
+        assert {n["id"] for n in mech_nodes} == {"enzyme_inhibition"}
 
     @pytest.mark.asyncio
     async def test_creates_missing_mechanism_by_default(self, tmp_path: Path):
-        # With the default flag, "BRAF blocker" → braf_antagonism gets
+        # With the default flag, "BRAF blocker" → receptor_antagonism gets
         # materialized as a new MechanismNode, then evidence is added.
         graph = GraphStore()
         graph.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
@@ -468,27 +477,26 @@ class TestPopulateLincsSignatures:
         added = await populate_lincs_signatures(client, graph)
         # 2 cells (A375, MCF7) hit → 2 records
         assert added == 2
-        node = graph.get_node("braf_antagonism")
+        node = graph.get_node("receptor_antagonism")
         assert node["node_type"] == "MechanismNode"
         assert node["mechanism_type"] == "antagonism"
-        assert node["name"] == "BRAF antagonism"
         # modulates_via edge target → mechanism with definitional prior
         belief = graph.get_edge_belief(
-            "ENSG_BRAF", "braf_antagonism", EdgeType.MODULATES_VIA
+            "ENSG_BRAF", "receptor_antagonism", EdgeType.MODULATES_VIA
         )
         assert belief.alpha == 5.0 and belief.beta == 1.0
 
     @pytest.mark.asyncio
-    async def test_reuses_existing_mechanism_by_name(self, tmp_path: Path):
-        # User has a curated MechanismNode with custom id but its NAME
-        # parses to the same canonical key. LINCS should reuse it instead
-        # of creating a duplicate.
+    async def test_reuses_existing_canonical_mechanism(self, tmp_path: Path):
+        # MechanismNodes are deduplicated by their canonical id (the
+        # MechanismCategory value). A pre-existing canonical node should
+        # be reused rather than overwritten.
         graph = GraphStore()
         graph.add_node(TargetNode(id="ENSG_EGFR", name="EGFR", gene_symbol="EGFR"))
         graph.add_node(
             MechanismNode(
-                id="MECH_EGFR_CUSTOM",
-                name="EGFR inhibition",
+                id="enzyme_inhibition",
+                name="enzyme inhibition",
                 mechanism_type=MechanismType.INHIBITION,
             )
         )
@@ -520,14 +528,11 @@ class TestPopulateLincsSignatures:
         )
 
         added = await populate_lincs_signatures(client, graph)
-        # 2 cells hit → 2 records on the same edge
         assert added == 2
-        # No duplicate "egfr_inhibition" node — the curated one was reused
         mech_ids = {n["id"] for n in graph.get_nodes_by_type("MechanismNode")}
-        assert mech_ids == {"MECH_EGFR_CUSTOM"}
-        # Edge attached to the curated id
+        assert mech_ids == {"enzyme_inhibition"}
         belief = graph.get_edge_belief(
-            "MECH_EGFR_CUSTOM", "R-HSA-RTK", EdgeType.MECHANISM_AFFECTS
+            "enzyme_inhibition", "R-HSA-RTK", EdgeType.MECHANISM_AFFECTS
         )
         assert len(belief.evidence) == 2
 
@@ -569,7 +574,7 @@ class TestPopulateLincsSignatures:
         # 2 cells hit → 2 records
         assert added == 2
         # Mechanism uses canonical gene_symbol from graph (PDCD1), not CLUE alias
-        node = graph.get_node("pdcd1_antagonism")
+        node = graph.get_node("receptor_antagonism")
         assert node["node_type"] == "MechanismNode"
 
     @pytest.mark.asyncio
@@ -633,7 +638,7 @@ class TestPopulateLincsSignatures:
         graph.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
         graph.add_node(
             MechanismNode(
-                id="braf_inhibition",
+                id="enzyme_inhibition",
                 name="BRAF inhibition",
                 mechanism_type=MechanismType.INHIBITION,
             )
@@ -685,7 +690,7 @@ class TestPopulateLincsSignatures:
         assert node["name"] == "RAF/MAP kinase cascade"
         assert node["pathway_ids"] == ["R-HSA-5673001"]
         belief = graph.get_edge_belief(
-            "braf_inhibition", "R-HSA-5673001", EdgeType.MECHANISM_AFFECTS
+            "enzyme_inhibition", "R-HSA-5673001", EdgeType.MECHANISM_AFFECTS
         )
         assert len(belief.evidence) == 2
 
@@ -695,7 +700,7 @@ class TestPopulateLincsSignatures:
         graph.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
         graph.add_node(
             MechanismNode(
-                id="braf_inhibition",
+                id="enzyme_inhibition",
                 name="BRAF inhibition",
                 mechanism_type=MechanismType.INHIBITION,
             )
@@ -741,7 +746,7 @@ class TestPopulateLincsSignatures:
         graph = GraphStore()
         graph.add_node(
             MechanismNode(
-                id="braf_inhibition",
+                id="enzyme_inhibition",
                 name="BRAF inhibition",
                 mechanism_type=MechanismType.INHIBITION,
             )
@@ -972,69 +977,14 @@ from src.ingestion.lincs import backfill_modulates_via_for_lincs  # noqa: E402
 
 
 class TestBackfillModulatesVia:
-    def test_adds_missing_edges_for_lincs_mechanisms(self):
+    def test_is_a_noop_under_canonical_ids(self):
+        # Under the canonical-id regime, mechanism nodes are
+        # MechanismCategory values; the gene→mechanism mapping cannot be
+        # recovered from a node id alone, so backfill is intentionally a stub.
         g = GraphStore()
         g.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
-        g.add_node(TargetNode(id="ENSG_EGFR", name="EGFR", gene_symbol="EGFR"))
         g.add_node(MechanismNode(
-            id="braf_inhibition", name="BRAF inhibition",
+            id="enzyme_inhibition", name="enzyme inhibition",
             mechanism_type=MechanismType.INHIBITION,
         ))
-        g.add_node(MechanismNode(
-            id="egfr_inhibition", name="EGFR inhibition",
-            mechanism_type=MechanismType.INHIBITION,
-        ))
-
-        added = backfill_modulates_via_for_lincs(g)
-        assert added == 2
-        # Re-running is idempotent
         assert backfill_modulates_via_for_lincs(g) == 0
-
-        belief = g.get_edge_belief(
-            "ENSG_BRAF", "braf_inhibition", EdgeType.MODULATES_VIA
-        )
-        assert belief.alpha == 5.0 and belief.beta == 1.0
-
-    def test_skips_non_lincs_mechanisms(self):
-        g = GraphStore()
-        g.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
-        # Curator-style id, not '{gene}_{type}' format
-        g.add_node(MechanismNode(
-            id="MECH_CHECKPOINT", name="Checkpoint blockade",
-            mechanism_type=MechanismType.INHIBITION,
-        ))
-        added = backfill_modulates_via_for_lincs(g)
-        assert added == 0
-
-    def test_resolves_via_alias(self):
-        g = GraphStore()
-        # Graph has TargetNode with gene_symbol PDCD1; mechanism uses same
-        g.add_node(TargetNode(id="ENSG_PDCD1", name="PD-1", gene_symbol="PDCD1"))
-        g.add_node(MechanismNode(
-            id="pdcd1_antagonism", name="PDCD1 antagonism",
-            mechanism_type=MechanismType.ANTAGONISM,
-        ))
-        added = backfill_modulates_via_for_lincs(g)
-        assert added == 1
-
-    def test_idempotent_when_edge_already_exists(self):
-        g = GraphStore()
-        g.add_node(TargetNode(id="ENSG_BRAF", name="BRAF", gene_symbol="BRAF"))
-        g.add_node(MechanismNode(
-            id="braf_inhibition", name="BRAF inhibition",
-            mechanism_type=MechanismType.INHIBITION,
-        ))
-        # Pre-existing curator-set edge with different prior
-        from src.graph.models import GraphEdge, EdgeBeliefState
-        g.add_edge(GraphEdge(
-            source_id="ENSG_BRAF", target_id="braf_inhibition",
-            edge_type=EdgeType.MODULATES_VIA,
-            belief=EdgeBeliefState(alpha=2.0, beta=1.0),
-        ))
-        added = backfill_modulates_via_for_lincs(g)
-        assert added == 0
-        # Original belief preserved
-        belief = g.get_edge_belief(
-            "ENSG_BRAF", "braf_inhibition", EdgeType.MODULATES_VIA
-        )
-        assert belief.alpha == 2.0

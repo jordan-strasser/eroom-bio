@@ -10,7 +10,12 @@ from typing import Any
 
 import anthropic
 
-from src.annotation.taxonomy import TrialExtraction
+from src.annotation.taxonomy import (
+    ChainResult,
+    ExtractedArm,
+    ExtractedSubgroup,
+    TrialExtraction,
+)
 from src.ingestion.clinicaltrials import TrialRecord
 
 logger = logging.getLogger(__name__)
@@ -167,6 +172,22 @@ def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
 
     results_section = _format_results_summary(trial.results_summary)
 
+    if trial.arm_groups:
+        arm_lines = []
+        for ag in trial.arm_groups:
+            ivs = ", ".join(ag.intervention_names) or "(no intervention names)"
+            arm_lines.append(f"- {ag.title}: {ivs}")
+        arm_groups_section = "\n".join(arm_lines)
+    else:
+        arm_groups_section = "(no arm groups reported)"
+
+    if trial.subgroup_descriptors:
+        subgroup_descriptors_section = "\n".join(
+            f"- {s}" for s in trial.subgroup_descriptors
+        )
+    else:
+        subgroup_descriptors_section = "(no subgroup stratifiers reported)"
+
     return template.format(
         nct_id=trial.nct_id,
         title=trial.title,
@@ -184,6 +205,8 @@ def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
         why_stopped=trial.why_stopped or "(not stated)",
         results_section=results_section,
         abstract_section=abstract_section,
+        arm_groups_section=arm_groups_section,
+        subgroup_descriptors_section=subgroup_descriptors_section,
     )
 
 
@@ -203,6 +226,59 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         if match:
             effect_size = float(match.group())
 
+    arms_raw = raw_json.get("arms") or []
+    arms: list[ExtractedArm] = []
+    for a in arms_raw:
+        arm_id = a.get("arm_id") or ""
+        compounds = [c for c in (a.get("compounds") or []) if c]
+        if not arm_id or not compounds:
+            continue
+        arms.append(ExtractedArm(arm_id=arm_id, compounds=compounds))
+
+    subgroups_raw = raw_json.get("subgroups") or []
+    subgroups: list[ExtractedSubgroup] = []
+    for s in subgroups_raw:
+        descriptor = s.get("raw_descriptor") or ""
+        if not descriptor:
+            continue
+        # features arrive as list of {axis, key, level}; we keep them as
+        # plain dicts here and let the populator canonicalize via
+        # subgroup_taxonomy when building PopulationNodes.
+        features = [
+            {
+                "axis": (f.get("axis") or "").strip(),
+                "key": (f.get("key") or "").strip(),
+                "level": (f.get("level") or "").strip(),
+            }
+            for f in (s.get("features") or [])
+            if (f.get("axis") or "").strip() and (f.get("level") or "").strip()
+        ]
+        subgroups.append(ExtractedSubgroup(raw_descriptor=descriptor, features=features))
+
+    chain_results_raw = raw_json.get("results_by_chain") or []
+    chain_results: list[ChainResult] = []
+    for cr in chain_results_raw:
+        arm_id = cr.get("arm_id") or ""
+        if not arm_id:
+            continue
+        es = cr.get("effect_size")
+        es_value: float | None = None
+        if isinstance(es, (int, float)):
+            es_value = float(es)
+        elif isinstance(es, str) and es:
+            import re
+            match = re.search(r"[-+]?\d*\.?\d+", es)
+            if match:
+                es_value = float(match.group())
+        chain_results.append(ChainResult(
+            arm_id=arm_id,
+            subgroup_descriptor=cr.get("subgroup_descriptor"),
+            endpoint=cr.get("endpoint", "") or "",
+            effect_size=es_value,
+            p_value=cr.get("p_value"),
+            outcome=(cr.get("outcome") or "unknown").lower(),
+        ))
+
     return TrialExtraction(
         trial_id=raw_json.get("nct_id", trial_id),
         compound_name=hypothesis.get("compound", ""),
@@ -221,6 +297,9 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         safety_signals=results.get("safety_signals", []),
         subgroup_findings=results.get("subgroup_findings", []),
         summary=json.dumps(raw_json, indent=2),
+        arms=arms,
+        subgroups=subgroups,
+        results_by_chain=chain_results,
     )
 
 

@@ -12,16 +12,17 @@ from pydantic import BaseModel, Field
 from scipy import stats as sp_stats
 
 from src.graph.models import (
+    CausalChain,
     EdgeBeliefState,
     EdgeType,
     TrialOutcome,
-    TrialSubgraph,
 )
 from src.graph.store import GraphStore
 
 logger = logging.getLogger(__name__)
 
-# The canonical causal chain edges in order
+# The canonical causal chain edges in order. Each entry maps a pair of
+# CausalChain field names to its edge type.
 _CAUSAL_CHAIN: list[tuple[str, str, EdgeType]] = [
     ("compound_id", "target_id", EdgeType.BINDS_TO),
     ("target_id", "mechanism_id", EdgeType.MODULATES_VIA),
@@ -33,7 +34,7 @@ _CAUSAL_CHAIN: list[tuple[str, str, EdgeType]] = [
 _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
     ("biology_id", "endpoint_id", EdgeType.REFLECTS_BIOLOGY),
     ("endpoint_id", "indication_id", EdgeType.ENDPOINT_CAPTURES),
-    ("population_id", "indication_id", EdgeType.RESPONDS_DIFFERENTLY),
+    ("subgroup_population_id", "indication_id", EdgeType.RESPONDS_DIFFERENTLY),
 ]
 
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
@@ -111,17 +112,19 @@ class PredictionEngine:
 
     def predict(
         self,
-        trial: TrialSubgraph,
+        chain: CausalChain,
         n_samples: int = 10_000,
     ) -> PredictionResult:
-        """Compositional prediction via Monte Carlo sampling along the causal chain.
+        """Compositional prediction via Monte Carlo sampling along one causal chain.
 
         Aggregation: trust-weighted geometric mean. Edges with no evidence
         beyond the prior contribute little; edges with substantial evidence
-        dominate.
+        dominate. Trial-level prediction (across multiple arms × subgroups)
+        is the caller's responsibility — predict each chain and aggregate
+        as appropriate (e.g. per arm, per subgroup, or trial-wide).
         """
         # 1. Collect edges and their beliefs
-        edges = self._collect_edges(trial)
+        edges = self._collect_edges(chain)
 
         # 2. Sample from each edge's Beta and compute per-edge trust weights
         rng = np.random.default_rng()
@@ -173,9 +176,9 @@ class PredictionEngine:
         )
 
         hypothesis = (
-            f"{trial.compound_id} -> {trial.target_id} -> "
-            f"{trial.mechanism_id} -> {trial.biology_id} -> "
-            f"{trial.indication_id}"
+            f"{chain.compound_id} -> {chain.target_id} -> "
+            f"{chain.mechanism_id} -> {chain.biology_id} -> "
+            f"{chain.indication_id}"
         )
 
         return PredictionResult(
@@ -190,11 +193,11 @@ class PredictionEngine:
 
     def compare_hypotheses(
         self,
-        trials: list[TrialSubgraph],
+        chains: list[CausalChain],
         n_samples: int = 10_000,
     ) -> list[PredictionResult]:
-        """Predict and rank multiple hypotheses by probability."""
-        results = [self.predict(trial, n_samples=n_samples) for trial in trials]
+        """Predict and rank multiple chains by probability."""
+        results = [self.predict(chain, n_samples=n_samples) for chain in chains]
         results.sort(key=lambda r: r.overall_probability, reverse=True)
         return results
 
@@ -254,7 +257,7 @@ class PredictionEngine:
         return suggestions
 
     def _collect_edges(
-        self, trial: TrialSubgraph
+        self, chain: CausalChain
     ) -> list[tuple[str, str, EdgeType, EdgeBeliefState]]:
         """Collect belief states for all edges in the causal chain.
 
@@ -265,11 +268,11 @@ class PredictionEngine:
         Other edge types are context-free at retrieval.
         """
         edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
-        relevant_tissues = self._tissues_for_trial(trial)
+        relevant_tissues = self._tissues_for_chain(chain)
 
         for src_field, tgt_field, edge_type in _CAUSAL_CHAIN + _AUXILIARY_EDGES:
-            src_id = getattr(trial, src_field)
-            tgt_id = getattr(trial, tgt_field)
+            src_id = getattr(chain, src_field)
+            tgt_id = getattr(chain, tgt_field)
 
             if src_id == "UNKNOWN" or tgt_id == "UNKNOWN":
                 continue
@@ -288,14 +291,14 @@ class PredictionEngine:
 
         return edges
 
-    def _tissues_for_trial(self, trial: TrialSubgraph) -> set[str]:
-        """Resolve the trial's indication name to the tissues whose
+    def _tissues_for_chain(self, chain: CausalChain) -> set[str]:
+        """Resolve the chain's indication name to the tissues whose
         cell-line evidence is relevant. Empty set = no conditioning.
         """
-        if trial.indication_id == "UNKNOWN":
+        if chain.indication_id == "UNKNOWN":
             return set()
         try:
-            ind_node = self.graph.get_node(trial.indication_id)
+            ind_node = self.graph.get_node(chain.indication_id)
         except KeyError:
             return set()
         # Lazy import to avoid src.prediction → src.ingestion dependency at
@@ -432,20 +435,19 @@ def predict_clinical_hypothesis(
         graph, target_id, indication_id
     )
 
-    trial = TrialSubgraph(
-        trial_id=f"hypothesis:{compound_id}->{indication_id}",
+    chain = CausalChain(
+        arm_id="hypothesis",
         compound_id=compound_id,
+        subgroup_population_id=population_id or "UNKNOWN",
         target_id=target_id,
         mechanism_id=mechanism_id,
         biology_id=biology_id,
         indication_id=indication_id,
         endpoint_id=endpoint_id or "UNKNOWN",
-        population_id=population_id or "UNKNOWN",
         outcome=TrialOutcome.UNKNOWN,
-        phase="hypothesis",
     )
     engine = PredictionEngine(graph)
-    return engine.predict(trial, n_samples=n_samples)
+    return engine.predict(chain, n_samples=n_samples)
 
 
 # ── CLI ─────────────────────────────────────────────────────────────────
@@ -508,21 +510,20 @@ def _main(
     console.print(f"  Indication: {indication} → {indication_id}")
     console.print(f"  Endpoint: {endpoint or 'any'} → {endpoint_id}")
 
-    trial = TrialSubgraph(
-        trial_id="prediction_query",
+    chain = CausalChain(
+        arm_id="cli_query",
         compound_id=compound_id,
+        subgroup_population_id="UNKNOWN",
         target_id=target_id,
         mechanism_id="UNKNOWN",
         biology_id="UNKNOWN",
         indication_id=indication_id,
         endpoint_id=endpoint_id,
-        population_id="UNKNOWN",
         outcome=TrialOutcome.UNKNOWN,
-        phase="3",
     )
 
     engine = PredictionEngine(graph)
-    result = engine.predict(trial)
+    result = engine.predict(chain)
 
     # Display results
     console.print(Panel(

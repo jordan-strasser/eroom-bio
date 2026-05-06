@@ -17,9 +17,19 @@ from src.graph.models import (
     TargetNode,
     TrialOutcome,
 )
-from src.graph.populate import PopulationPipeline, _normalize
+from src.graph.populate import (
+    PopulationPipeline,
+    _normalize,
+    build_trial_subgraph_from_extraction,
+    classify_endpoint_deterministic,
+)
 from src.graph.store import GraphStore
-from src.ingestion.clinicaltrials import Intervention, OutcomeMeasure, TrialRecord
+from src.ingestion.clinicaltrials import (
+    ArmGroup,
+    Intervention,
+    OutcomeMeasure,
+    TrialRecord,
+)
 
 
 # ── Fixtures ─────────────────────────────────────────────────────────────
@@ -31,8 +41,18 @@ def graph():
 
 
 @pytest.fixture
-def pipeline(graph):
-    return PopulationPipeline(graph)
+def pipeline(graph, tmp_path):
+    """Pipeline with a mocked anthropic client so endpoint classification runs."""
+    client = AsyncMock()
+
+    async def fake_create(**kwargs):
+        # Default to a valid EndpointClass value; tests that need different
+        # behavior can override pipeline._anthropic.
+        from types import SimpleNamespace
+        return SimpleNamespace(content=[SimpleNamespace(text="OS")])
+
+    client.messages.create = fake_create
+    return PopulationPipeline(graph, anthropic_client=client, cache_dir=tmp_path)
 
 
 def _make_trial(
@@ -45,6 +65,7 @@ def _make_trial(
     title: str = "A Phase 3 Study of Imatinib in CML",
     status: str = "COMPLETED",
 ) -> TrialRecord:
+    # Single-arm trial: one arm group with one drug.
     return TrialRecord(
         nct_id=nct_id,
         title=title,
@@ -60,6 +81,9 @@ def _make_trial(
         ],
         enrollment=400,
         has_results=True,
+        arm_groups=[
+            ArmGroup(group_id=drug_name.lower(), title=drug_name, intervention_names=[drug_name]),
+        ],
     )
 
 
@@ -105,9 +129,8 @@ class TestResolveEntity:
 class TestBuildTrialSubgraphs:
     def test_builds_subgraph_when_all_resolve(self, pipeline, graph):
         trial = _make_trial()
-        # Simulate what populate_oncology does: add nodes and index them
-        graph.add_node(CompoundNode(id="COMP_001", name="Imatinib", modality=Modality.SMALL_MOLECULE))
-        pipeline._index_node("COMP_001", "Imatinib", "compound")
+        graph.add_node(CompoundNode(id="imatinib", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        pipeline._index_node("imatinib", "Imatinib", "compound")
         graph.add_node(IndicationNode(id="IND_001", name="Chronic Myeloid Leukemia"))
         pipeline._index_node("IND_001", "Chronic Myeloid Leukemia", "indication")
         graph.add_node(EndpointNode(
@@ -121,11 +144,17 @@ class TestBuildTrialSubgraphs:
         assert len(subgraphs) == 1
         sg = subgraphs[0]
         assert sg.trial_id == "NCT00000001"
-        assert sg.compound_id == "COMP_001"
-        assert sg.indication_id == "IND_001"
-        assert sg.endpoint_id == "EP_001"
-        assert sg.outcome == TrialOutcome.UNKNOWN
         assert sg.phase == "3"
+        # One arm with the drug; one chain at the parent population.
+        assert len(sg.arms) == 1
+        assert sg.arms[0].compound_ids == ["imatinib"]
+        assert not sg.arms[0].is_combination
+        assert len(sg.chains) == 1
+        chain = sg.chains[0]
+        assert chain.compound_id == "imatinib"
+        assert chain.indication_id == "IND_001"
+        assert chain.endpoint_id == "EP_001"
+        assert sg.parent_population_id == "IND_001__unselected"
 
     def test_skips_unresolvable_trial(self, pipeline):
         trial = _make_trial()
@@ -135,14 +164,16 @@ class TestBuildTrialSubgraphs:
 
     def test_skips_if_only_compound_resolves(self, pipeline):
         trial = _make_trial()
-        pipeline._index_node("COMP_001", "Imatinib", "compound")
+        pipeline._index_node("imatinib", "Imatinib", "compound")
         subgraphs = pipeline.build_trial_subgraphs([trial])
         assert len(subgraphs) == 0
 
-    def test_placeholder_ids_for_unresolved_fields(self, pipeline, graph):
+    def test_placeholder_ids_for_unresolved_backbone(self, pipeline, graph):
+        # target/mechanism/biology start as UNKNOWN; subgroup populations
+        # are added later by extraction. Parent population is created.
         trial = _make_trial()
-        graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
-        pipeline._index_node("C1", "Imatinib", "compound")
+        graph.add_node(CompoundNode(id="imatinib", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        pipeline._index_node("imatinib", "Imatinib", "compound")
         graph.add_node(IndicationNode(id="I1", name="Chronic Myeloid Leukemia"))
         pipeline._index_node("I1", "Chronic Myeloid Leukemia", "indication")
         graph.add_node(EndpointNode(
@@ -154,10 +185,70 @@ class TestBuildTrialSubgraphs:
 
         subgraphs = pipeline.build_trial_subgraphs([trial])
         sg = subgraphs[0]
-        assert sg.target_id == "UNKNOWN"
-        assert sg.mechanism_id == "UNKNOWN"
-        assert sg.biology_id == "UNKNOWN"
-        assert sg.population_id == "UNKNOWN"
+        chain = sg.chains[0]
+        assert chain.target_id == "UNKNOWN"
+        assert chain.mechanism_id == "UNKNOWN"
+        assert chain.biology_id == "UNKNOWN"
+        assert chain.subgroup_population_id == "I1__unselected"
+
+    def test_combo_arm_synthesizes_combo_compound(self, pipeline, graph):
+        # A combo arm (two intervention names) gets a synthesized
+        # CompoundNode + composed_of edges and a chain rooted on it.
+        trial = _make_trial()
+        trial.arm_groups.append(ArmGroup(
+            group_id="imatinib_dasatinib",
+            title="Imatinib + Dasatinib",
+            intervention_names=["Imatinib", "Dasatinib"],
+        ))
+        graph.add_node(CompoundNode(id="imatinib", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        graph.add_node(CompoundNode(id="dasatinib", name="Dasatinib", modality=Modality.SMALL_MOLECULE))
+        pipeline._index_node("imatinib", "Imatinib", "compound")
+        pipeline._index_node("dasatinib", "Dasatinib", "compound")
+        graph.add_node(IndicationNode(id="I1", name="Chronic Myeloid Leukemia"))
+        pipeline._index_node("I1", "Chronic Myeloid Leukemia", "indication")
+        graph.add_node(EndpointNode(
+            id="E1", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("E1", "Overall Survival", "endpoint")
+
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        sg = subgraphs[0]
+        combo_arms = [a for a in sg.arms if a.is_combination]
+        assert len(combo_arms) == 1
+        assert combo_arms[0].regimen_compound_id == "dasatinib+imatinib"
+        # Combo CompoundNode synthesized
+        combo_node = graph.get_node("dasatinib+imatinib")
+        assert combo_node["node_type"] == "CompoundNode"
+        # composed_of edges to both constituents
+        composed = graph.get_edges_by_type(EdgeType.COMPOSED_OF)
+        targets = sorted(e["target_id"] for e in composed if e["source_id"] == "dasatinib+imatinib")
+        assert targets == ["dasatinib", "imatinib"]
+        # Chain count: 2 arms (mono Imatinib + combo) × 1 parent population
+        assert len(sg.chains) == 2
+
+    def test_trial_node_persisted_in_sidecar(self, pipeline, graph):
+        trial = _make_trial()
+        graph.add_node(CompoundNode(id="imatinib", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        pipeline._index_node("imatinib", "Imatinib", "compound")
+        graph.add_node(IndicationNode(id="I1", name="Chronic Myeloid Leukemia"))
+        pipeline._index_node("I1", "Chronic Myeloid Leukemia", "indication")
+        graph.add_node(EndpointNode(
+            id="E1", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("E1", "Overall Survival", "endpoint")
+
+        pipeline.build_trial_subgraphs([trial])
+        # TrialNode was added to the graph as a marker
+        node = graph.get_node("NCT00000001")
+        assert node["node_type"] == "TrialNode"
+        # And the full TrialSubgraph is in the sidecar
+        ts = graph.get_trial_subgraph_by_id("NCT00000001")
+        assert ts.trial_id == "NCT00000001"
+        assert len(ts.chains) >= 1
 
 
 # ── Compound-target cross-reference ──────────────────────────────────────
@@ -284,3 +375,142 @@ class TestPopulateOncology:
         # Should not raise — just logs and continues
         summary = await pipeline.populate_oncology(max_trials=10)
         assert summary["trials_fetched"] == 1
+
+
+# ── Endpoint classifier (deterministic, no LLM) ─────────────────────────
+
+
+class TestClassifyEndpointDeterministic:
+    @pytest.mark.parametrize("text,expected", [
+        ("Progression Free Survival (PFS)", "PFS"),
+        ("Progression-Free Survival", "PFS"),
+        ("Median PFS", "PFS"),
+        ("Overall Survival (OS)", "OS"),
+        ("OS at 24 months", "OS"),
+        ("Overall Survival", "OS"),
+        ("Disease-Free Survival", "DFS"),
+        ("Time to Progression", "TTP"),
+        ("Objective Response Rate", "ORR"),
+        ("Overall Response Rate", "ORR"),
+        ("Complete Response Rate", "CR"),
+    ])
+    def test_known_endpoints(self, text, expected):
+        assert classify_endpoint_deterministic(text) == expected
+
+    def test_unknown_text_returns_other(self):
+        assert classify_endpoint_deterministic("Quality of Life Score") == "other"
+
+    def test_empty_text_returns_other(self):
+        assert classify_endpoint_deterministic("") == "other"
+
+
+# ── build_trial_subgraph_from_extraction (multi-arm × multi-subgroup × multi-endpoint) ─
+
+
+class TestBuildTrialSubgraphFromExtraction:
+    def test_fans_chains_across_arms_subgroups_and_endpoints(self, graph):
+        """3 arms × 2 subgroups × 2 endpoints = 12 chains, each routed to the
+        correct endpoint_id and carrying the matching effect_size."""
+        from src.annotation.taxonomy import (
+            ExtractedArm, ExtractedSubgroup, ChainResult, TrialExtraction,
+        )
+        from src.graph.models import (
+            BiologyNode, MechanismNode, MechanismType,
+            EndpointNode, EndpointType, RegulatoryStatus,
+            IndicationNode, CompoundNode, Modality, TargetNode,
+        )
+        from src.ingestion.clinicaltrials import ArmGroup
+
+        # Trial with 3 arms (mono A, mono B, combo) and 2 primary outcomes
+        trial = TrialRecord(
+            nct_id="NCT_FAN", title="Fan test", phase="3", status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=[
+                Intervention(name="Nivolumab", type="BIOLOGICAL"),
+                Intervention(name="Ipilimumab", type="BIOLOGICAL"),
+            ],
+            primary_outcomes=[
+                OutcomeMeasure(measure="Progression Free Survival (PFS)"),
+                OutcomeMeasure(measure="Overall Survival"),
+            ],
+            arm_groups=[
+                ArmGroup(group_id="nivo", title="Nivolumab", intervention_names=["Nivolumab"]),
+                ArmGroup(group_id="combo", title="Nivo+Ipi", intervention_names=["Nivolumab", "Ipilimumab"]),
+                ArmGroup(group_id="ipi", title="Ipilimumab", intervention_names=["Ipilimumab"]),
+            ],
+            has_results=True,
+        )
+
+        # Seed nodes
+        graph.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        graph.add_node(CompoundNode(id="ipilimumab", name="Ipilimumab", modality=Modality.ANTIBODY))
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        graph.add_node(TargetNode(id="ENSG_PD1", name="PD-1", gene_symbol="PD-1"))
+        graph.add_node(TargetNode(id="ENSG_CTLA4", name="CTLA-4", gene_symbol="CTLA4"))
+        graph.add_node(MechanismNode(id="checkpoint_blockade", name="cb", mechanism_type=MechanismType.ANTAGONISM))
+        graph.add_node(BiologyNode(id="R-HSA-389948", name="PD-1 sig"))
+        graph.add_node(EndpointNode(
+            id="PFS_melanoma", name="PFS",
+            endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+        graph.add_node(EndpointNode(
+            id="OS_melanoma", name="OS",
+            endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+
+        # Extraction with 2 reported subgroups, results filled for one cell
+        extraction = TrialExtraction(
+            trial_id="NCT_FAN",
+            arms=[
+                ExtractedArm(arm_id="nivo", compounds=["Nivolumab"]),
+                ExtractedArm(arm_id="combo", compounds=["Nivolumab", "Ipilimumab"]),
+                ExtractedArm(arm_id="ipi", compounds=["Ipilimumab"]),
+            ],
+            subgroups=[
+                ExtractedSubgroup(raw_descriptor="PD-L1 ≥1%",
+                                 features=[{"axis": "gene", "key": "CD274", "level": "high"}]),
+                ExtractedSubgroup(raw_descriptor="PD-L1 <1%",
+                                 features=[{"axis": "gene", "key": "CD274", "level": "low"}]),
+            ],
+            results_by_chain=[
+                ChainResult(arm_id="nivo", subgroup_descriptor="PD-L1 ≥1%",
+                           endpoint="PFS", effect_size=0.42, outcome="success"),
+                ChainResult(arm_id="combo", subgroup_descriptor="PD-L1 ≥1%",
+                           endpoint="OS", effect_size=0.55, outcome="success"),
+            ],
+        )
+
+        ts = build_trial_subgraph_from_extraction(
+            graph, trial, extraction,
+            target_by_arm={
+                "nivo": "ENSG_PD1",
+                "combo": "ENSG_PD1",
+                "ipi": "ENSG_CTLA4",
+            },
+            mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948",
+            indication_id="melanoma",
+            endpoint_ids={"PFS": "PFS_melanoma", "OS": "OS_melanoma"},
+        )
+
+        # 3 arms × 2 subgroups × 2 endpoints = 12 chains
+        assert len(ts.chains) == 12
+        # Each chain carries its endpoint_class in metadata
+        ep_classes = {c.metadata.get("endpoint_class") for c in ts.chains}
+        assert ep_classes == {"PFS", "OS"}
+        # The two filled results landed on the correct chains
+        nivo_pfs_high = [
+            c for c in ts.chains
+            if c.arm_id == "nivo" and c.endpoint_id == "PFS_melanoma"
+            and c.subgroup_population_id == "melanoma__cd274_high"
+        ]
+        assert len(nivo_pfs_high) == 1 and nivo_pfs_high[0].effect_size == 0.42
+        combo_os_high = [
+            c for c in ts.chains
+            if c.arm_id == "combo" and c.endpoint_id == "OS_melanoma"
+            and c.subgroup_population_id == "melanoma__cd274_high"
+        ]
+        assert len(combo_os_high) == 1 and combo_os_high[0].effect_size == 0.55
+        # Cells with no reported result default to UNKNOWN outcome
+        unknowns = [c for c in ts.chains if c.outcome == TrialOutcome.UNKNOWN]
+        assert len(unknowns) == 10  # 12 total - 2 filled
