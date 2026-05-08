@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT02230306",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement of MEK/BRAF. However, the combination of cobimetinib (MEK inhibitor) and vemurafenib (BRAF inhibitor) at standard doses (60mg and 960mg respectively) suggests likely target engagement based on established pharmacology. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm MAPK pathway suppression. 3. CLINICAL TRANSLATION: Primary endpoint (OIRR) showed mixed results - 3 of 4 evaluable patients had tumor shrinkage (-2.01, -0.8, -2.12 cm) while 1 patient had progression (+0.6 cm). However, the trial was terminated early due to slow accrual with only 5 patients enrolled, making it severely underpowered. 4. POPULATION EFFECTS: Individual patient responses varied significantly, suggesting potential heterogeneity in response. 5. CONFOUNDERS: The trial was closed due to slow accrual with only 5 patients enrolled, making it severely underpowered to detect treatment effects. This is the primary reason for failure rather than lack of efficacy.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Trial closed due to slow accrual with only 5 patients enrolled, far below what would be needed for statistical power to detect treatment effects in brain metastases"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_active_melanoma_brain_metastases",
+      "target_entity": "active_melanoma_brain_metastases",
+      "support": "ambiguous",
+      "reasoning": "Primary endpoint showed mixed individual responses (3/4 patients had tumor shrinkage) but trial was severely underpowered with only 5 patients, making interpretation of clinical benefit unclear"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT00587964",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a radiation therapy trial targeting residual tumor cells. No biomarker data is available to confirm target engagement, but stereotactic radiosurgery by design delivers high-dose focused radiation to the target tissue. The dose range of 15-22 Gy is within standard therapeutic ranges for brain metastases. 2. PATHWAY MODULATION: No pathway biomarkers were measured. The mechanism is DNA damage leading to cell death in residual tumor cells. Without biomarker data, we cannot confirm downstream biological changes. 3. CLINICAL TRANSLATION: The primary endpoint of Local Control at 1 year was met. The trial reports 13/39 patients achieved local control (33.3%), with additional data showing 23/39 patients achieved no evidence of disease (59.0%). Only 2/39 patients had progression (5.1%) and 1/39 had relapse (2.6%). This suggests clinical benefit was achieved. 4. POPULATION EFFECTS: This was a single-arm trial in patients with brain metastases from various solid tumors. No subgroup analyses were reported that would suggest differential responses. 5. CONFOUNDERS: This is a single-arm Phase II trial without a control group, which limits the strength of evidence. However, the local control rate appears reasonable for this indication and the safety profile was manageable with mostly low-grade adverse events.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "Single-arm trial design without control group limits ability to definitively attribute efficacy to treatment. No biomarker data available to confirm target engagement or pathway modulation."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_testicular_cancer",
+      "target_entity": "brain_metastasis",
+      "support": "moderate_support",
+      "reasoning": "Local control endpoint was achieved with 33.3% of patients maintaining local control and 59% achieving no evidence of disease. This is a clinically meaningful outcome for brain metastases, though single-arm design limits strength of evidence."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial design without biomarker data makes mechanistic assessment difficult. The endpoint mapping to 'other_testicular_cancer' seems mismatched for a brain metastases trial, suggesting potential entity resolution issues."
+}

@@ -388,10 +388,10 @@ class ClinicalTrialsClient:
             return _parse_study(resp.json())
 
     async def fetch_oncology_with_results(
-        self, max_results: int = 1000
+        self, max_results: int = 1000, condition: str = "cancer"
     ) -> list[TrialRecord]:
         return await self.search(
-            condition="cancer",
+            condition=condition,
             phase="PHASE2,PHASE3",
             status="COMPLETED,TERMINATED",
             has_results=True,
@@ -399,7 +399,7 @@ class ClinicalTrialsClient:
         )
 
     async def fetch_oncology_terminated_with_reason(
-        self, max_results: int = 1000
+        self, max_results: int = 1000, condition: str = "cancer"
     ) -> list[TrialRecord]:
         """Terminated/withdrawn trials that have a sponsor-stated reason.
 
@@ -410,7 +410,7 @@ class ClinicalTrialsClient:
         compound.
         """
         records = await self.search(
-            condition="cancer",
+            condition=condition,
             phase="PHASE2,PHASE3",
             status="TERMINATED,WITHDRAWN",
             max_results=max_results * 2,  # over-fetch; many will be filtered out

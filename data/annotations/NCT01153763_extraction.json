@@ -1,0 +1,195 @@
+{
+  "nct_id": "NCT01153763",
+  "therapeutic_hypothesis": {
+    "compound": "GSK2118436 (dabrafenib)",
+    "claimed_target": "BRAF",
+    "proposed_mechanism": "BRAF kinase inhibition",
+    "intended_biology": "blocking oncogenic BRAF signaling in BRAF-mutant tumors",
+    "target_population": "BRAF mutant metastatic melanoma patients",
+    "primary_endpoint": "overall response rate (CR + PR) in BRAF V600E mutation patients",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "59% ORR (95% CI: 48.2-70.3) in BRAF V600E patients",
+    "p_value": null,
+    "target_engagement_evidence": "differential response rates between V600E (59%) and V600K (13%) mutations suggest target specificity",
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "BRAF V600E patients had 59% ORR vs 13% in V600K patients",
+      "Median PFS 6.3 weeks in V600E vs 4.0 weeks in V600K",
+      "Median OS 13.1 weeks in V600E vs 12.9 weeks in V600K"
+    ],
+    "safety_signals": [
+      "87/92 patients experienced any AE",
+      "33/92 patients had serious AEs",
+      "Common lab abnormalities included glucose elevation (51/90), phosphorus changes (36/91), alkaline phosphatase elevation (23/91)"
+    ],
+    "dose_info": {
+      "dose": "150 mg",
+      "schedule": "twice daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "arrhythmia supraventricular",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "atrial flutter",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "hypothyroidism",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "intestinal obstruction",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "nausea",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 3.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "adverse drug reaction",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "BRAF mutant metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 92,
+    "duration": "up to 60 months",
+    "duration_weeks": 260.9,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "gsk2118436",
+      "compounds": [
+        "GSK2118436"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF V600E mutation",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600E"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "BRAF V600K mutation",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600K"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600E mutation",
+      "endpoint": "ORR",
+      "effect_size": 59.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600K mutation",
+      "endpoint": "ORR",
+      "effect_size": 13.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600E mutation",
+      "endpoint": "PFS",
+      "effect_size": 6.3,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600K mutation",
+      "endpoint": "PFS",
+      "effect_size": 4.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600E mutation",
+      "endpoint": "OS",
+      "effect_size": 13.1,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "gsk2118436",
+      "subgroup_descriptor": "BRAF V600K mutation",
+      "endpoint": "OS",
+      "effect_size": 12.9,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

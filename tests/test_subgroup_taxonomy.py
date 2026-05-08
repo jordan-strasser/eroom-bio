@@ -88,6 +88,38 @@ class TestNonGeneAxes:
         assert f.raw_descriptor == "BMI > 30"
 
 
+# ── Response axis (RECIST strata) ───────────────────────────────────────
+
+
+class TestResponseAxis:
+    @pytest.mark.parametrize("level_in,expected", [
+        ("complete_response", "complete_response"),
+        ("partial_response", "partial_response"),
+        ("stable_disease", "stable_disease"),
+        ("progressive_disease", "progressive_disease"),
+        ("Complete Response", "complete_response"),
+        ("CR", "complete_response"),
+        ("PR", "partial_response"),
+        ("SD", "stable_disease"),
+        ("PD", "progressive_disease"),
+        ("responder", "responder"),
+        ("non_responder", "non_responder"),
+    ])
+    def test_response_levels_canonicalize(self, level_in, expected):
+        f = canonicalize_feature("response", "", level_in, "Best response")
+        assert f.axis == "response"
+        assert f.level == expected
+        assert is_canonical(f)
+
+    def test_unknown_response_level_falls_to_other(self):
+        f = canonicalize_feature("response", "", "mixed_response")
+        assert f.axis == "other"
+
+    def test_response_slug_round_trip(self):
+        f = canonicalize_feature("response", "", "CR", "Complete Response")
+        assert f.slug() == "response_complete_response"
+
+
 # ── Slug rendering (used to compose PopulationNode ids) ─────────────────
 
 

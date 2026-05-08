@@ -1,0 +1,194 @@
+{
+  "nct_id": "NCT03834623",
+  "therapeutic_hypothesis": {
+    "compound": "CC-122 plus nivolumab",
+    "claimed_target": "PD-1 and cereblon",
+    "proposed_mechanism": "PD-1 checkpoint inhibition combined with cereblon modulation",
+    "intended_biology": "immune checkpoint blockade enhanced by immunomodulatory effects",
+    "target_population": "advanced melanoma patients (anti-PD1 naive and refractory)",
+    "primary_endpoint": "objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "ORR 54.5% (anti-PD1 naive) vs 0% (anti-PD1 refractory)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Anti-PD1 naive patients showed 54.5% ORR",
+      "Anti-PD1 refractory patients showed 0% ORR"
+    ],
+    "safety_signals": [
+      "Treatment-related adverse events occurred in 11/11 anti-PD1 naive and 12/12 anti-PD1 refractory patients"
+    ],
+    "dose_info": {
+      "dose": "CC-122 2 mg daily, nivolumab 240 mg",
+      "schedule": "CC-122 5 days out of 7, nivolumab days 1 and 15 q28d",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Non-cardiac chest pain",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neoplasms benign, malignant and unspecified",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Gait disturbance",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyponatremia",
+        "grade": "",
+        "incidence_treatment_pct": 8.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Confusion",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 8.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lung infection",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac troponin T increased",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypertension",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ],
+    "primary_endpoint_met_source": "reask"
+  },
+  "context": {
+    "indication": "advanced melanoma",
+    "comparator": "none",
+    "sample_size": 23,
+    "duration": "up to 52 weeks",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "compounds": [
+        "CC-122",
+        "nivolumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Anti-PD1 Naive",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Anti-PD1 Refractory",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Naive",
+      "endpoint": "ORR",
+      "effect_size": 0.545,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Refractory",
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Naive",
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Refractory",
+      "endpoint": "PFS",
+      "effect_size": 2.7,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Naive",
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cc122_plus_nivolumab",
+      "subgroup_descriptor": "Anti-PD1 Refractory",
+      "endpoint": "OS",
+      "effect_size": 11.5,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

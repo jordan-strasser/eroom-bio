@@ -1,0 +1,246 @@
+{
+  "nct_id": "NCT00670748",
+  "therapeutic_hypothesis": {
+    "compound": "Anti-NY ESO-1 T-cell receptor PBL + aldesleukin + cyclophosphamide + fludarabine",
+    "claimed_target": "NY-ESO-1",
+    "proposed_mechanism": "Adoptive T-cell therapy with engineered T-cells targeting NY-ESO-1 antigen",
+    "intended_biology": "T-cell mediated tumor recognition and destruction",
+    "target_population": "Patients with metastatic melanoma, renal cell cancer, and other cancers",
+    "primary_endpoint": "Clinical Response Per RECIST",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "Overall response rate varied by arm: 9/17 (53%) in arm 1, 8/16 (50%) in arm 2, 2/7 (29%) in arm 3, 3/5 (60%) in arm 4",
+    "p_value": null,
+    "target_engagement_evidence": "TCR-engineered cells demonstrated in vivo survival at 1 month post treatment",
+    "biomarker_changes": [
+      "In vivo survival of TCR-engineered cells detected at 1 month"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Thrombosis/embolism",
+      "Hypoxia",
+      "Infection",
+      "Nausea",
+      "Colitis",
+      "Death not associated with CTCAE term"
+    ],
+    "dose_info": {
+      "dose": "1x10e8 to 1x10e11 cells; aldesleukin 720,000 IU/kg; cyclophosphamide 60 mg/kg/day; fludarabine 25 mg/m2/day",
+      "schedule": "Cells infused on day 0; aldesleukin every 8 hours for up to 5 days; cyclophosphamide x 2 days; fludarabine daily x 5 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Thrombosis/thrombus/embolism",
+        "grade": "",
+        "incidence_treatment_pct": 5.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Infection",
+        "grade": "",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypoxia",
+        "grade": "",
+        "incidence_treatment_pct": 46.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Death not associated with CTCAE term",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Colitis",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Metastatic melanoma, metastatic renal cell cancer, metastatic cancer",
+    "comparator": "None",
+    "sample_size": 45,
+    "duration": "Approximately 3 years",
+    "duration_weeks": 156.0,
+    "investigator_commentary": "A more highly selected protocol with ESO TCR opened for pts with melanoma"
+  },
+  "arms": [
+    {
+      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "compounds": [
+        "Anti-NY ESO-1 T-cell receptor PBL",
+        "aldesleukin",
+        "cyclophosphamide",
+        "fludarabine phosphate"
+      ]
+    },
+    {
+      "arm_id": "tcr_pbl_il2_other_ca",
+      "compounds": [
+        "Anti-NY ESO-1 T-cell receptor PBL",
+        "aldesleukin",
+        "cyclophosphamide",
+        "fludarabine phosphate"
+      ]
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "compounds": [
+        "Anti-NY ESO-1 T-cell receptor PBL",
+        "aldesleukin",
+        "cyclophosphamide",
+        "fludarabine phosphate",
+        "ALVAC NY ESO-1 vaccine"
+      ]
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "compounds": [
+        "Anti-NY ESO-1 T-cell receptor PBL",
+        "aldesleukin",
+        "cyclophosphamide",
+        "fludarabine phosphate",
+        "ALVAC NY ESO-1 vaccine"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Not Evaluable",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "not_evaluable"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 3.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_il2_other_ca",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_il2_other_ca",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "RECIST Response",
+      "effect_size": 3.0,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ]
+}

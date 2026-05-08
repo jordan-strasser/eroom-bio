@@ -1,0 +1,215 @@
+{
+  "nct_id": "NCT01844505",
+  "therapeutic_hypothesis": {
+    "compound": "Nivolumab and Ipilimumab combination",
+    "claimed_target": "PD-1 and CTLA-4",
+    "proposed_mechanism": "Dual checkpoint inhibition to enhance T-cell activation and anti-tumor immunity",
+    "intended_biology": "Immune checkpoint blockade to restore T-cell mediated anti-tumor responses",
+    "target_population": "Previously untreated advanced melanoma patients",
+    "primary_endpoint": "Progression-free survival and overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "PFS: 11.50 months (combination) vs 2.89 months (ipilimumab alone), HR=0.42; OS: median not reached (combination) vs 19.98 months (ipilimumab alone), HR=0.55",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "PD-L1 expression levels stratified outcomes with higher expression associated with better responses"
+    ],
+    "subgroup_findings": [
+      "PD-L1 \u22651% patients showed superior PFS with nivolumab (16.20 months) vs ipilimumab (3.48 months)",
+      "PD-L1 \u22655% patients had even greater benefit with combination therapy"
+    ],
+    "safety_signals": [
+      "Combination therapy associated with higher rates of immune-related adverse events",
+      "Treatment-related serious adverse events more frequent in combination arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 1.6,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Haemolytic anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Unresectable or metastatic melanoma",
+    "comparator": "Ipilimumab alone",
+    "sample_size": 945,
+    "duration": "approximately 128 months follow-up",
+    "duration_weeks": 556.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "nivo_only",
+      "compounds": [
+        "Nivolumab"
+      ]
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "compounds": [
+        "Nivolumab",
+        "Ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "ipi_only",
+      "compounds": [
+        "Ipilimumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "PD-L1 < 1%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 1%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 < 5%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 5%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 < 10%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 10%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "high"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.93,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.5,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "ipi_only",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.86,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 36.93,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 71.92,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "ipi_only",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 19.94,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": "PD-L1 >= 1%",
+      "endpoint": "PFS",
+      "effect_size": 16.72,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": "PD-L1 >= 5%",
+      "endpoint": "PFS",
+      "effect_size": 22.11,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ]
+}

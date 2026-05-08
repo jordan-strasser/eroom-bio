@@ -1,0 +1,168 @@
+{
+  "nct_id": "NCT00940225",
+  "therapeutic_hypothesis": {
+    "compound": "Cabozantinib (XL184)",
+    "claimed_target": "MET, VEGFR2, RET",
+    "proposed_mechanism": "Multi-kinase inhibition targeting angiogenesis and tumor growth pathways",
+    "intended_biology": "Inhibition of angiogenesis and tumor cell proliferation",
+    "target_population": "Adults with advanced solid tumors",
+    "primary_endpoint": "Objective Response Rate (ORR), Bone Scan Response (BSR), Progression-Free Survival (PFS)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "ORR varied by tumor type: 0-21.7%; PFS improvement vs placebo across multiple tumor types",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Bone scan lesion area reduction >30% in 74.2% of CRPC patients (100mg) and 47.1% (39.4mg)"
+    ],
+    "subgroup_findings": [
+      "CRPC showed notable bone scan response",
+      "Ovarian cancer had highest ORR at 21.7%",
+      "Pancreatic cancer showed no objective responses"
+    ],
+    "safety_signals": [
+      "Serious cardiac events including myocardial infarction",
+      "Hematologic toxicities including anemia and thrombocytopenia"
+    ],
+    "dose_info": {
+      "dose": "100 mg, 39.4 mg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute Myocardial Infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Angina Pectoris",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Atrial Fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Advanced solid tumors",
+    "comparator": "placebo",
+    "sample_size": 730,
+    "duration": "up to 44 months",
+    "duration_weeks": 191.6,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "lead_in_cabo",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    },
+    {
+      "arm_id": "randomized_cabo",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    },
+    {
+      "arm_id": "randomized_placebo",
+      "compounds": [
+        "Placebo"
+      ]
+    },
+    {
+      "arm_id": "open_label_cabo",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    },
+    {
+      "arm_id": "nre_crpc_100mg",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    },
+    {
+      "arm_id": "nre_crpc_39mg",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    },
+    {
+      "arm_id": "nre_ovarian",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "randomized_cabo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.5,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "randomized_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.4,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "lead_in_cabo",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 10.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nre_crpc_100mg",
+      "subgroup_descriptor": null,
+      "endpoint": "BSR",
+      "effect_size": 74.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nre_crpc_39mg",
+      "subgroup_descriptor": null,
+      "endpoint": "BSR",
+      "effect_size": 47.1,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ]
+}

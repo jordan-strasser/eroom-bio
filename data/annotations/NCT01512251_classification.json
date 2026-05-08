@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT01512251",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial reports biomarker changes including 'PI3K-pathway signaling reduction' and 'MAPK pathway gene expression', suggesting both PI3K and BRAF targets were engaged by the combination therapy. 2. PATHWAY MODULATION: The biomarker data shows reduction in PI3K pathway signaling and analysis of both PI3K and MAPK pathway gene expression, indicating downstream biology was modulated as predicted. 3. CLINICAL TRANSLATION: This was a Phase 1 dose-escalation study with a primary endpoint of safety and RP2D determination. The MTD was established at BKM120 60 mg daily, but the trial appears to have been limited by severe toxicities. 4. POPULATION EFFECTS: No subgroup efficacy data reported, though the trial included both vemurafenib-naive and vemurafenib-resistant patients. 5. CONFOUNDERS: The major limiting factor was dose-limiting toxicity - with 33.3% incidence each of seizure, renal insufficiency, and hypotension (all SAEs), plus 20% each of febrile neutropenia and biliary fistula. This high rate of severe adverse events prevented adequate dosing to achieve therapeutic benefit.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "High incidence of serious adverse events: 33.3% seizure, 33.3% renal insufficiency, 33.3% hypotension, 20% febrile neutropenia, 20% biliary fistula. MTD was established at BKM120 60 mg daily, suggesting toxicity limited dose escalation."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "UNKNOWN",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "reasoning": "Biomarker data shows PI3K-pathway signaling reduction and MAPK pathway gene expression changes, confirming pathway modulation despite toxicity limitations"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "kinase_inhibition__braf_mutant_metastatic_melanoma",
+      "support": "weak_support",
+      "reasoning": "Pathway biomarkers suggest biological activity, but clinical benefit was not assessed due to dose-limiting toxicity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_braf_mutant_metastatic_melanoma",
+      "target_entity": "braf_mutant_metastatic_melanoma",
+      "support": "strong_support",
+      "reasoning": "Safety endpoint was the primary endpoint and was clearly assessed - high toxicity rates demonstrate the endpoint captured the relevant safety signal for this indication"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

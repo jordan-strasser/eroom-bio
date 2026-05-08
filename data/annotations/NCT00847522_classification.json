@@ -1,0 +1,31 @@
+{
+  "nct_id": "NCT00847522",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial achieved fluorescent visualization of lymphatic drainage, indicating the fluorescein successfully reached and engaged lymphatic vessels as intended. 2. PATHWAY MODULATION: The fluorescein successfully visualized lymphatic pathways, demonstrating the expected biological activity of fluorescent tracing. 3. CLINICAL TRANSLATION: Despite successful target engagement and pathway visualization, the primary endpoint failed - only 69.7% agreement between fluorescein and technetium-99m for sentinel lymph node detection, which appears to be below the threshold for clinical utility. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: This appears to be a diagnostic accuracy study comparing two imaging modalities. The failure seems to be that fluorescein was not sufficiently accurate compared to the gold standard technetium-99m for reliable sentinel lymph node detection.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Fluorescein successfully engaged lymphatic vessels and visualized lymphatic drainage pathways as intended, but the primary endpoint of diagnostic agreement with technetium-99m was only 69.7%, indicating insufficient clinical utility despite biological activity"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "fluorescein",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "reasoning": "Fluorescent visualization of lymphatic drainage was achieved, confirming fluorescein successfully engaged lymphatic vessels"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_cancer",
+      "target_entity": "cancer",
+      "support": "weak_contradict",
+      "reasoning": "The diagnostic agreement endpoint of 69.7% suggests this biomarker approach may not adequately capture clinical benefit for sentinel lymph node detection in cancer patients"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

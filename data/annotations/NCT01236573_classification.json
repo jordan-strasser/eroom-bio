@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT01236573",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess IL-12 target engagement. The compound is IL-12 transduced TIL cells, but no IL-12 levels or downstream cytokine measurements were reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm immune costimulation pathway activation. 3. CLINICAL TRANSLATION: Primary endpoint (response rate) was not met. Overall response rate was only 14.7% (5/34 patients), which is modest for metastatic melanoma. However, there was notable dose-response relationship with most responses (4/5) occurring in the highest dose group (3x10^9 cells). 4. POPULATION EFFECTS: Clear dose-response signal - Group 10 (bulk TIL 3x10^9) had 1 CR + 3 PR out of limited patients, while lower dose groups had minimal responses. This suggests efficacy may exist at higher doses. 5. CONFOUNDERS: Major safety issues limited dosing. MTD was established at 1x10^9 cells due to unexpected toxicities including thrombotic microangiopathy (25%), pneumonitis (25%), thrombosis (33.3%), and other serious adverse events. The trial had to stop dose escalation before reaching potentially more effective doses.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "MTD established at 1x10^9 cells due to unexpected toxicities. Multiple serious adverse events occurred at high rates: thrombotic microangiopathy (25%), pneumonitis (25%), thrombosis (33.3%), hypoxia (25%), with investigator noting 'unexpected toxicities likely due to TIL/IL-12'. Dose escalation was stopped before reaching potentially more effective doses, as evidenced by the dose-response signal in the highest tested dose group."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_metastatic_melanoma",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "reasoning": "Response rate endpoint showed modest activity (14.7% ORR) with clear dose-response relationship, but was limited by toxicity preventing adequate dosing. The endpoint captured some signal of potential benefit at higher doses."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "No target engagement or pathway biomarker data available to assess mechanism. Classification based primarily on safety profile limiting dose escalation and modest efficacy signal with dose-response relationship."
+}

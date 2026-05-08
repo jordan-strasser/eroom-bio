@@ -19,6 +19,7 @@ from src.annotation.taxonomy import (
     TrialExtraction,
 )
 from src.graph.models import TrialSubgraph
+from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import TrialRecord
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,77 @@ def _load_prompt(name: str) -> str:
 # ── Prompt formatting ────────────────────────────────────────────────────
 
 
-def _format_classification_prompt(extraction: TrialExtraction) -> str:
+def _format_trial_entities(
+    graph: GraphStore | None,
+    trial_subgraph: TrialSubgraph | None,
+) -> str:
+    """Render the trial's resolved graph node IDs as a prompt block.
+
+    Used to ground the classifier in canonical IDs so its `edges_to_update`
+    entries reference real nodes instead of free-text. Falls back to a
+    single-line stub when no graph context is available (offline tests).
+    """
+    if graph is None or trial_subgraph is None or not trial_subgraph.chains:
+        return "(no graph context — emit edges_to_update only when confident in entity names)"
+
+    chains = trial_subgraph.chains
+    sample = chains[0]
+
+    # Fan compounds across arms — combo chains can have different
+    # compound_ids than the trial-level pick.
+    compounds: list[str] = []
+    seen_comp: set[str] = set()
+    for c in chains:
+        if c.compound_id and c.compound_id not in seen_comp:
+            seen_comp.add(c.compound_id)
+            compounds.append(c.compound_id)
+
+    populations: list[str] = []
+    seen_pop: set[str] = set()
+    for c in chains:
+        if c.subgroup_population_id and c.subgroup_population_id not in seen_pop:
+            seen_pop.add(c.subgroup_population_id)
+            populations.append(c.subgroup_population_id)
+
+    endpoints: list[str] = []
+    seen_ep: set[str] = set()
+    for c in chains:
+        if c.endpoint_id and c.endpoint_id not in seen_ep:
+            seen_ep.add(c.endpoint_id)
+            endpoints.append(c.endpoint_id)
+
+    def _annotate(node_id: str, hint_attr: str = "") -> str:
+        if node_id == "UNKNOWN":
+            return "UNKNOWN"
+        try:
+            n = graph.get_node(node_id)
+        except KeyError:
+            return node_id
+        if hint_attr and n.get(hint_attr):
+            return f"{node_id}  ({n[hint_attr]})"
+        name = n.get("name")
+        if name and name != node_id:
+            return f"{node_id}  ({name})"
+        return node_id
+
+    lines = [
+        f"- compound_ids:    {', '.join(compounds) if compounds else 'UNKNOWN'}",
+        f"- target_id:       {_annotate(sample.target_id, 'gene_symbol')}",
+        f"- mechanism_id:    {_annotate(sample.mechanism_id)}",
+        f"- biology_id:      {_annotate(sample.biology_id)}",
+        f"- indication_id:   {_annotate(sample.indication_id)}",
+        f"- endpoint_ids:    {', '.join(endpoints) if endpoints else 'UNKNOWN'}",
+        f"- population_ids:  {', '.join(populations) if populations else 'UNKNOWN'}",
+    ]
+    return "\n".join(lines)
+
+
+def _format_classification_prompt(
+    extraction: TrialExtraction,
+    *,
+    graph: GraphStore | None = None,
+    trial_subgraph: TrialSubgraph | None = None,
+) -> str:
     template = _load_prompt("classification_user.txt")
 
     biomarker_lines = []
@@ -102,6 +173,7 @@ def _format_classification_prompt(extraction: TrialExtraction) -> str:
         dose_info=dose_str,
         subgroup_findings=subgroup_str,
         summary=extraction.summary,
+        graph_entities=_format_trial_entities(graph, trial_subgraph),
     )
 
 
@@ -205,7 +277,13 @@ class Classifier:
         self._client = client
         self._system_prompt = _load_prompt("classification_system.txt")
 
-    async def classify(self, extraction: TrialExtraction) -> FailureClassification:
+    async def classify(
+        self,
+        extraction: TrialExtraction,
+        *,
+        graph: GraphStore | None = None,
+        trial_subgraph: TrialSubgraph | None = None,
+    ) -> FailureClassification:
         # Cache hit: load the saved classification and skip the LLM call.
         cache_path = _ANNOTATIONS_DIR / f"{extraction.trial_id}_classification.json"
         if cache_path.exists():
@@ -218,7 +296,9 @@ class Classifier:
                     extraction.trial_id, exc,
                 )
 
-        user_message = _format_classification_prompt(extraction)
+        user_message = _format_classification_prompt(
+            extraction, graph=graph, trial_subgraph=trial_subgraph,
+        )
         raw_json = await self._call_with_retries(user_message, extraction.trial_id)
         classification = _parse_classification(raw_json, extraction.trial_id, extraction)
         self._save_annotation(extraction.trial_id, raw_json)

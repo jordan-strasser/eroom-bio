@@ -1,0 +1,29 @@
+{
+  "nct_id": "NCT00591734",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether everolimus engaged mTOR or bevacizumab engaged VEGF. Cannot assess target engagement. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether mTOR inhibition or angiogenesis inhibition occurred. 3. CLINICAL TRANSLATION: This was a single-arm Phase 2 trial with 4.0 months median PFS, 12.3% ORR, and 43% 1-year OS rate. Without a control arm or historical comparator context, it's difficult to assess clinical benefit, but these appear to be modest results for metastatic melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm trial without a control group, making efficacy assessment challenging. Additionally, there were significant safety concerns with 5.3% death rate and multiple serious cardiac events (3.5% cardiac ischemia/infarction, 1.8% cardiopulmonary arrest), suggesting potential dose-limiting toxicity issues.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Single-arm design without control group makes efficacy assessment difficult."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "High rate of serious adverse events including 5.3% death rate, 3.5% cardiac ischemia/infarction, and 1.8% cardiopulmonary arrest, suggesting the combination may have been too toxic for optimal dosing."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "metastatic_melanoma",
+      "support": "ambiguous",
+      "reasoning": "Single-arm trial reported 4.0 months median PFS but without control arm or clear historical benchmark comparison, cannot determine if this represents clinical benefit"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial with no biomarker data and significant safety signals. Cannot adequately assess mechanistic chain without target engagement data or control arm for efficacy comparison."
+}

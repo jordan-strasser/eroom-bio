@@ -1,0 +1,21 @@
+{
+  "nct_id": "NCT01973608",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether MSB0010445 engaged the IL-2 receptor. The target_id is listed as UNKNOWN, indicating insufficient evidence of target engagement. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological changes from IL-2 receptor engagement. 3. CLINICAL TRANSLATION: The primary endpoint was dose limiting toxicity (safety), not efficacy. However, efficacy was assessed as a secondary measure with 0% response rate across all dose cohorts (0.3-2.4 mg/kg), indicating no clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported that showed differential responses. All dose cohorts showed 0% response rates. 5. CONFOUNDERS: This was a dose-escalation Phase I study with only 12 patients total, making it underpowered for efficacy assessment. The trial was terminated early due to sponsor's commercial decision to discontinue the NHS-IL2 program. The safety profile showed concerning signals including 50% incidence of serious cardiomyopathy and multiple other serious adverse events, though only 1 DLT was formally recorded at the 1.8 mg/kg dose level.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial was terminated prematurely because sponsor decided to discontinue the NHS-IL2 program, not due to scientific findings from this specific trial"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation; target_id listed as UNKNOWN"
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated early for commercial reasons before adequate assessment of mechanism could be completed. Limited sample size (n=12) and lack of biomarker data make mechanistic classification difficult. The primary endpoint was safety-focused rather than efficacy-focused."
+}

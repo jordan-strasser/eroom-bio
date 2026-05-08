@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT04032704",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether ladiratuzumab vedotin engaged LIV-1 target. No PK/PD data or target engagement biomarkers reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers or pharmacodynamic markers reported to assess whether target engagement led to biological activity. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) failed across all cohorts with very low response rates (0-20% range, specific values 10-11% in Parts A and B). The trial clearly missed its primary efficacy endpoint. 4. POPULATION EFFECTS: Some signal in prostate cancer subgroup with 23% PSA response rate, but this was not the primary endpoint and represents a different biomarker. 5. CONFOUNDERS: Trial was terminated for 'portfolio prioritization' which suggests commercial rather than scientific reasons. However, the low ORR across multiple tumor types and lack of any target engagement data suggests the primary issue was insufficient efficacy rather than just commercial decisions.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine if failure was due to lack of target engagement, inadequate biology modulation, or poor clinical translation without PD/PK data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "reasoning": "ORR was measured as primary endpoint but showed very low response rates (10-11%) across multiple solid tumor cohorts, suggesting ORR may not be capturing meaningful clinical benefit in this heterogeneous advanced solid tumor population"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "No target engagement or pathway biomarker data available to determine mechanistic failure point. Classification relies solely on endpoint results and investigator commentary about portfolio prioritization."
+}

@@ -1,0 +1,161 @@
+{
+  "nct_id": "NCT01307618",
+  "therapeutic_hypothesis": {
+    "compound": "NA17.A2 Peptide Vaccine + MAGE-3.1 Antigen + MART-1 Antigen \u00b1 IL-12",
+    "claimed_target": "MAGE-3, MART-1, NA17.A2 tumor antigens",
+    "proposed_mechanism": "Peptide vaccination to induce tumor antigen-specific CD8+ T cell responses",
+    "intended_biology": "Adaptive immune activation against melanoma tumor antigens",
+    "target_population": "Patients with metastatic melanoma",
+    "primary_endpoint": "Frequency of vaccine-induced CD8+ T cells by ELISPOT",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS: 130 days (vaccine alone) vs 64 days (vaccine + IL-12)",
+    "p_value": null,
+    "target_engagement_evidence": "CD8+ T cell responses measured by ELISPOT",
+    "biomarker_changes": [
+      "CD4+CD25+FoxP3+ regulatory T cells monitored",
+      "Gene expression profiles analyzed"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 5 death in IL-12 arm",
+      "Higher toxicity profile with IL-12 addition",
+      "Multiple grade 1-2 adverse events"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Abdominal pain",
+        "grade": "1",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Anxiety",
+        "grade": "1",
+        "incidence_treatment_pct": 40.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Fatigue",
+        "grade": "1",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Injection site reaction",
+        "grade": "1",
+        "incidence_treatment_pct": 120.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Death NOS",
+        "grade": "5",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnea",
+        "grade": "2",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Psychiatric disorders",
+        "grade": "2",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Bone pain",
+        "grade": "1",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "1",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "vaccine therapy alone",
+    "sample_size": 10,
+    "duration": "Up to 4 years",
+    "duration_weeks": 208.0,
+    "investigator_commentary": "Due to lack of clinical efficacy and lack of drug supply, trial was closed early and correlative studies were not pursued further."
+  },
+  "arms": [
+    {
+      "arm_id": "vaccine_only",
+      "compounds": [
+        "NA17.A2 Peptide Vaccine",
+        "Recombinant MAGE-3.1 Antigen",
+        "MART-1 Antigen"
+      ]
+    },
+    {
+      "arm_id": "vaccine_plus_il12",
+      "compounds": [
+        "NA17.A2 Peptide Vaccine",
+        "Recombinant MAGE-3.1 Antigen",
+        "MART-1 Antigen",
+        "Recombinant Interleukin-12"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "vaccine_only",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 130.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "vaccine_plus_il12",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 64.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "vaccine_only",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 804.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "vaccine_plus_il12",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 199.0,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ]
+}

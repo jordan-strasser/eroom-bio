@@ -1,0 +1,168 @@
+{
+  "nct_id": "NCT00111007",
+  "therapeutic_hypothesis": {
+    "compound": "Sorafenib plus Carboplatin/Paclitaxel",
+    "claimed_target": "RAF kinase, VEGFR, PDGFR",
+    "proposed_mechanism": "Multi-kinase inhibition combined with cytotoxic chemotherapy",
+    "intended_biology": "Angiogenesis inhibition and tumor cell proliferation arrest",
+    "target_population": "Patients with unresectable stage III or stage IV melanoma",
+    "primary_endpoint": "Progression Free Survival (PFS)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.906 (95% CI: 0.627-1.310)",
+    "p_value": 0.492,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Increased neutropenia in sorafenib arm",
+      "Increased hemoglobin decrease in control arm"
+    ],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "twice daily days 2-19",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "allergic reaction",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": 1.5,
+        "serious": true
+      },
+      {
+        "term": "neutrophils",
+        "grade": "",
+        "incidence_treatment_pct": 11.2,
+        "incidence_control_pct": 5.2,
+        "serious": true
+      },
+      {
+        "term": "hemoglobin",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": 6.0,
+        "serious": true
+      },
+      {
+        "term": "platelets",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.2,
+        "serious": true
+      },
+      {
+        "term": "leukocytes",
+        "grade": "",
+        "incidence_treatment_pct": 1.5,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "unresectable stage III or stage IV melanoma",
+    "comparator": "carboplatin/paclitaxel alone",
+    "sample_size": 270,
+    "duration": "maximum treatment duration of 68.3 weeks",
+    "duration_weeks": 68.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "sorafenib_combo",
+      "compounds": [
+        "Sorafenib",
+        "Carboplatin",
+        "Paclitaxel"
+      ]
+    },
+    {
+      "arm_id": "carboplatin_paclitaxel",
+      "compounds": [
+        "Carboplatin",
+        "Paclitaxel"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "missing",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "missing_ecog"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "better",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ecog_improved"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "no change",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ecog_stable"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "worse",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ecog_worsened"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "sorafenib_combo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 122.0,
+      "p_value": 0.492,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "carboplatin_paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 125.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "sorafenib_combo",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 294.0,
+      "p_value": 0.979,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "carboplatin_paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 294.0,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "nct_id": "NCT02366195",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial measured CD8+ T cell density changes in tumor biopsies as a proxy for target engagement, but this is indirect evidence for an oncolytic virus mechanism. The virus itself wasn't directly measured for tumor infection or replication. 2. PATHWAY MODULATION: The intended mechanism was oncolytic viral therapy with immune activation through CD8+ T cell infiltration. However, baseline CD8+ cell density showed no significant correlation with objective response (OR 1.11, p=0.387), and changes from baseline at week 6 also showed no correlation with response. This suggests the immune activation pathway was not effectively modulated. 3. CLINICAL TRANSLATION: The primary endpoint examining the relationship between CD8+ density and response was not met (p=0.387). While secondary efficacy endpoints showed modest activity (ORR 27-28.8%, DRR 13.5-21.6%), these are single-arm results without historical context for this specific population. 4. POPULATION EFFECTS: No meaningful subgroup differences were identified. The trend toward association in primary completion analysis (OR 1.40, p=0.056) weakened in final analysis (OR 1.18, p=0.222). 5. CONFOUNDERS: This was a single-arm study examining a biomarker-response relationship rather than drug efficacy per se. The failure appears mechanistic - the drug did not effectively modulate the intended immune pathway as measured by CD8+ infiltration.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.8,
+      "evidence": "While the oncolytic virus was administered and some clinical activity was observed (ORR ~28%), the intended biological mechanism of immune activation through CD8+ T cell infiltration was not demonstrated. Baseline CD8+ density did not correlate with response (OR 1.11, p=0.387) and changes in CD8+ density at week 6 showed no correlation with outcomes."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "other__unresected_stage_iiib_to_ivm1c_melanoma",
+      "support": "weak_contradict",
+      "reasoning": "The oncolytic viral mechanism was intended to enhance anti-tumor immune response through CD8+ T cell infiltration, but biomarker data showed no significant correlation between CD8+ density and clinical response, suggesting the mechanism did not effectively modulate the intended biology."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_unresected_stage_iiib_to_ivm1c_melanoma",
+      "target_entity": "unresected_stage_iiib_to_ivm1c_melanoma",
+      "support": "ambiguous",
+      "reasoning": "Single-arm trial showed ORR of 27-28.8% but without a control arm or clear historical benchmark for this specific population (unresected Stage IIIb to IVM1c melanoma), the clinical benefit translation cannot be definitively assessed."
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

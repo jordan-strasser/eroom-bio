@@ -150,7 +150,10 @@ class TestPredict:
         result = engine.predict(_make_trial())
         assert result.weakest_link is not None
         assert result.weakest_link.edge_type == EdgeType.BINDS_TO
-        assert result.weakest_link.bottleneck_score > 0.9
+        # Under log-scaled trust: strength=19 → trust ≈ 0.77, mean ≈ 0.048,
+        # so bottleneck = (1 - 0.048) * 0.77 ≈ 0.73. Old linear trust at
+        # this strength saturated to 1.0 producing ≈0.95.
+        assert result.weakest_link.bottleneck_score > 0.6
 
     def test_edge_contributions_count(self):
         """Full chain has 7 edges."""
@@ -213,14 +216,26 @@ class TestTrustWeight:
         assert _trust_weight(belief) == pytest.approx(0.0)
 
     def test_strong_evidence_saturates_at_one(self):
-        # alpha + beta - 2 = 18; 18/10 capped at 1.0
-        belief = EdgeBeliefState(alpha=15.0, beta=5.0)
+        # Log-scaled: trust = log(strength+1)/log(50). Saturation at strength=49.
+        # Beta(50, 1): strength=49 → trust = log(50)/log(50) = 1.0.
+        belief = EdgeBeliefState(alpha=50.0, beta=1.0)
         assert _trust_weight(belief) == pytest.approx(1.0)
 
-    def test_modest_evidence_scales_linearly(self):
-        # alpha + beta - 2 = 4; 4/10 = 0.4
+    def test_strong_evidence_below_saturation(self):
+        # Beta(15, 5): strength=18 → trust = log(19)/log(50) ≈ 0.752
+        import math
+        belief = EdgeBeliefState(alpha=15.0, beta=5.0)
+        assert _trust_weight(belief) == pytest.approx(
+            math.log(19) / math.log(50), abs=1e-6
+        )
+
+    def test_modest_evidence(self):
+        # Beta(3, 3): strength=4 → trust = log(5)/log(50) ≈ 0.411
+        import math
         belief = EdgeBeliefState(alpha=3.0, beta=3.0)
-        assert _trust_weight(belief) == pytest.approx(0.4)
+        assert _trust_weight(belief) == pytest.approx(
+            math.log(5) / math.log(50), abs=1e-6
+        )
 
 
 class TestAggregateSamples:

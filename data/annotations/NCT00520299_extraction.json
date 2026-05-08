@@ -1,0 +1,273 @@
+{
+  "nct_id": "NCT00520299",
+  "therapeutic_hypothesis": {
+    "compound": "ADI-PEG 20",
+    "claimed_target": "arginine",
+    "proposed_mechanism": "arginine depletion via pegylated arginine deiminase",
+    "intended_biology": "amino acid metabolism disruption in arginine-auxotrophic tumors",
+    "target_population": "patients with advanced metastatic melanoma",
+    "primary_endpoint": "safety and tolerability, best overall clinical tumor response",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0% objective response rate (0/31 patients achieved CR/PR)",
+    "p_value": null,
+    "target_engagement_evidence": "arginine depletion achieved (baseline ~55 \u03bcM reduced to 2-9 \u03bcM by day 4)",
+    "biomarker_changes": [
+      "Arginine levels decreased from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4",
+      "Citrulline levels increased from baseline 23-38 \u03bcM to 158-225 \u03bcM by day 4",
+      "Anti-ADI antibodies developed over time (0.1-0.2 log U/mL at baseline to 3.0-4.5 log U/mL by day 120)"
+    ],
+    "subgroup_findings": [
+      "No objective responses in any dose cohort",
+      "Stable disease achieved in 9/31 patients (29%)",
+      "ASS-negative tumors showed no better response than ASS-positive tumors"
+    ],
+    "safety_signals": [
+      "Dose-dependent increase in treatment-related adverse events",
+      "One grade 5 event (death) in highest dose cohort",
+      "Treatment discontinuation due to adverse events in 4/31 patients"
+    ],
+    "dose_info": {
+      "dose": "40, 80, or 160 IU/m\u00b2",
+      "schedule": "weekly intramuscular injections",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Any TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 3 TEAE",
+        "grade": "3",
+        "incidence_treatment_pct": 22.6,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 4 TEAE",
+        "grade": "4",
+        "incidence_treatment_pct": 6.5,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 5 TEAE (Death)",
+        "grade": "5",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Treatment-related TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 87.1,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "SAE",
+        "grade": "",
+        "incidence_treatment_pct": 35.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Musculoskeletal pain",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Headache",
+        "grade": "",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 8.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 8.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnoea",
+        "grade": "",
+        "incidence_treatment_pct": 8.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 31,
+    "duration": "up to 12 months",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_1_40",
+      "compounds": [
+        "ADI-PEG 20"
+      ]
+    },
+    {
+      "arm_id": "cohort_2_80",
+      "compounds": [
+        "ADI-PEG 20"
+      ]
+    },
+    {
+      "arm_id": "cohort_3_160",
+      "compounds": [
+        "ADI-PEG 20"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete/partial response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "\u22645% Positive ASS & Progressive Disease",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ASS1",
+          "level": "low"
+        },
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Negative ASS & Stable Disease",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ASS1",
+          "level": "negative"
+        },
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Negative ASS & Progressive Disease",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ASS1",
+          "level": "negative"
+        },
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "cohort_1_40",
+      "subgroup_descriptor": "Complete/partial response",
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cohort_2_80",
+      "subgroup_descriptor": "Complete/partial response",
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cohort_3_160",
+      "subgroup_descriptor": "Complete/partial response",
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cohort_1_40",
+      "subgroup_descriptor": "Stable disease",
+      "endpoint": "DCR",
+      "effect_size": 50.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "cohort_2_80",
+      "subgroup_descriptor": "Stable disease",
+      "endpoint": "DCR",
+      "effect_size": 33.3,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "cohort_3_160",
+      "subgroup_descriptor": "Stable disease",
+      "endpoint": "DCR",
+      "effect_size": 23.5,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

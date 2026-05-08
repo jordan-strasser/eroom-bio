@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT00289016",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement. The compound is an oncolytic herpes simplex virus designed to selectively replicate in tumor cells, but no viral replication markers or target engagement biomarkers were reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biological activity from viral replication and immune activation. 3. CLINICAL TRANSLATION: Primary endpoint was met with 28% objective response rate in Stage IIIc/IV melanoma patients. This is a clinically meaningful response rate for advanced melanoma. The trial also showed encouraging overall survival (448 days median) and time to progression (146 days). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This was a single-arm Phase II trial with 50 patients. While the response rate is encouraging, the lack of a control arm limits interpretation. Only 2 patients discontinued due to adverse events, suggesting tolerability was acceptable despite high AE rates.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No biomarker data available to confirm target engagement or pathway modulation. Single-arm design limits ability to assess true treatment effect versus natural disease course."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "reasoning": "28% ORR in advanced melanoma is clinically meaningful and above historical benchmarks for this population. ORR is a regulatory-accepted endpoint for melanoma, though single-arm design limits interpretation."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm Phase II design with no biomarker data makes mechanistic assessment difficult. The 28% ORR is encouraging but lacks controlled comparison to definitively establish treatment effect."
+}

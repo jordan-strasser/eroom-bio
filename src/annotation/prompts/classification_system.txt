@@ -63,6 +63,47 @@ You MUST return ONLY valid JSON matching this exact schema — no markdown, no c
 Rules:
 - For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive — include entries only when there are real trial-design weak points to surface; otherwise return [].
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
+
+Edge schema — every `edges_to_update` entry MUST follow these source→target node-type pairings. The attributor drops any edge whose endpoints don't match the schema or aren't in the trial subgraph (it can't update an edge that doesn't exist). Source / target are NODE NAMES the trial subgraph already knows about, not free-text re-statements.
+
+  edge_type             source node type   →   target node type    notes
+  ────────────────────────────────────────────────────────────────────────
+  binds_to              Compound           →   Target              the drug binds the target
+  modulates_via         Target             →   Mechanism           target acts via this MoA
+  mechanism_affects     Mechanism          →   Biology             MoA changes biology
+  biology_drives        Biology            →   Indication          biology drives disease
+  reflects_biology      Biology            →   Endpoint            endpoint reflects biology
+  endpoint_captures     Endpoint           →   Indication          endpoint captures benefit
+  responds_differently  Population         →   Indication          subgroup responds differently
+                                                                   for this disease
+
+Critical rules for `responds_differently`:
+  - Source MUST be a patient-subgroup PopulationNode (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.
+  - Target MUST be the indication (e.g. "melanoma", "metastatic_melanoma"), not a drug or biology slug.
+  - Use this when the trial reports a subgroup analysis with a different effect size than the overall population — that observation is what `responds_differently` captures. If the trial only reports the overall result, do NOT emit a responds_differently edge.
+
+Critical rules for `endpoint_captures` (independent of mechanistic data):
+  `endpoint_captures` answers a different question from the upstream causal-chain edges (binds_to, modulates_via, mechanism_affects, biology_drives). Those ask "did the drug work mechanistically." This edge asks "did the endpoint that was measured actually translate to clinical benefit in this indication." Those are orthogonal — answer them independently.
+
+  - **You MUST emit one `endpoint_captures` update whenever the trial reported a primary efficacy endpoint with a numeric or qualitative result.** This holds EVEN WHEN the upstream edges can't be assessed (e.g. no biomarker data, no control arm, single-arm Phase 2, `insufficient_information` for the mechanistic chain). Picking `insufficient_information` as a failure mode is NOT a reason to skip endpoint_captures — they are decoupled.
+  - The ONLY cases where you legitimately skip endpoint_captures are:
+      (a) The trial's primary endpoint is a pure safety/tolerability/PK measure (DLT, MTD, AE incidence, Cmax) — those don't speak to indication-level clinical benefit at all.
+      (b) The trial reported zero efficacy results because it was terminated before any readout.
+  - Bucket selection — judge whether the endpoint MOVEMENT translates to benefit, not whether the drug worked:
+      strong_support      Endpoint hit at p<0.05 AND independent evidence of clinical benefit (e.g. OS hit alongside PFS, regulatory approval based on this endpoint).
+      moderate_support    Endpoint hit AND directional clinical-benefit signal, OR endpoint is regulator-accepted surrogate for this indication and was hit cleanly.
+      weak_support        Endpoint trended right way; endpoint relevance for this indication is plausible but not strongly established.
+      ambiguous           Endpoint result is reported but interpretation requires comparators we don't have (e.g. single-arm 21% ORR — could be drug or chance), OR endpoint moved but clinical benefit didn't follow.
+      weak_contradict     Endpoint moved/hit but clinical benefit clearly didn't translate (the canonical "biology_moved_endpoint_flat" signal — endpoint is a poor surrogate here).
+      moderate_contradict Endpoint result actively contradicts clinical-benefit translation (e.g. ORR was achieved but PFS / OS did NOT improve, suggesting ORR is a poor surrogate).
+      strong_contradict   Multiple within-trial endpoints contradict each other in a way that proves the chosen primary doesn't capture benefit (rare).
+
+  Do NOT confuse:
+    - "drug failed" + "primary endpoint missed" → that's a `binds_to` / `mechanism_affects` signal, NOT an `endpoint_captures` signal. Skip endpoint_captures here (the endpoint's translatability wasn't tested — drug never moved it).
+    - "drug worked on endpoint" + "no clinical benefit" → THIS is the endpoint_captures contradict signal. Always emit.
+    - "single-arm trial with mid-tier ORR" → endpoint was measured; emit `ambiguous` or `weak_support` based on whether it beats historical benchmarks for this indication.
+
+Do not invent entities. If the subgroup, target, or biology you want to reference isn't in the extraction's structured fields, omit that edge — the attributor will drop hallucinated entities anyway.
 - Set needs_expert_review to true if evidence is ambiguous or conflicting.
 - confidence_overall reflects your certainty in the ENTIRE classification, not just one mode.
 - Return ONLY the JSON object.

@@ -147,7 +147,26 @@ async def normalize_ae_term(
     return parsed
 
 
+def _strip_code_fence(text: str) -> str:
+    """Remove a leading/trailing ```json ... ``` markdown fence if present.
+
+    Haiku occasionally wraps its JSON response in fences despite the
+    prompt asking for a bare object. Mirrors the same fence-strip used in
+    ``extractor._call_messages_with_backoff``'s caller.
+    """
+    text = text.strip()
+    if text.startswith("```"):
+        # Drop the opening fence (``` or ```json) — keep everything after
+        # the first newline if there is one, else drop the literal "```".
+        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+    return text
+
+
 def _safe_parse(text: str) -> dict[str, str] | None:
+    text = _strip_code_fence(text)
     try:
         obj: Any = json.loads(text)
     except json.JSONDecodeError:

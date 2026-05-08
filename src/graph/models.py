@@ -59,14 +59,18 @@ class EndpointClass(str, Enum):
     """Canonical endpoint classes used in EndpointNode ids."""
     OS = "OS"
     DFS = "DFS"
+    RFS = "RFS"
+    DMFS = "DMFS"
     PFS = "PFS"
     TTP = "TTP"
     CR = "CR"
     ORR = "ORR"
+    DOR = "DOR"
     COMPOSITE_SURVIVAL = "composite_survival"
     COMPOSITE_RESPONSE = "composite_response"
     BIOMARKER = "biomarker"
     PRO = "PRO"
+    SAFETY = "safety"
     OTHER = "other"
 
 
@@ -506,12 +510,35 @@ def normalize_entity(name: str, node_type: str) -> str:
             return MechanismCategory.OTHER.value
 
     if node_type == "BiologyNode":
-        if not _REACTOME_PATTERN.match(raw):
-            raise ValueError(
-                f"BiologyNode id '{name}' must be a Reactome stable ID "
-                f"(e.g. R-HSA-9006934)"
-            )
-        return raw
+        # Two valid id forms:
+        #   1. Reactome stable ID (canonical, ground truth from LINCS).
+        #   2. ``{mechanism_category}__{indication_slug}`` synthetic slug,
+        #      used as a fallback when LINCS/Reactome data isn't available
+        #      for a given (mechanism, indication) pair. Lets the
+        #      prediction engine traverse the full chain even without
+        #      CLUE_API_KEY.
+        if _REACTOME_PATTERN.match(raw):
+            return raw
+        if "__" in raw:
+            mech_part, ind_part = raw.split("__", 1)
+            try:
+                MechanismCategory(mech_part)
+            except ValueError:
+                raise ValueError(
+                    f"BiologyNode '{name}': '{mech_part}' is not a "
+                    f"MechanismCategory; slug-form ids must be "
+                    f"'{{mechanism}}__{{indication}}'"
+                )
+            ind_slug = _slugify_lower(ind_part)
+            if not ind_slug:
+                raise ValueError(
+                    f"BiologyNode '{name}': missing indication suffix"
+                )
+            return f"{mech_part}__{ind_slug}"
+        raise ValueError(
+            f"BiologyNode id '{name}' must be a Reactome stable ID "
+            f"(e.g. R-HSA-9006934) or a '{{mechanism}}__{{indication}}' slug"
+        )
 
     if node_type == "BiomarkerNode":
         cleaned = re.sub(r"[^A-Za-z0-9]+", "_", raw).strip("_").upper()
@@ -535,24 +562,27 @@ def normalize_entity(name: str, node_type: str) -> str:
         return candidate
 
     if node_type == "EndpointNode":
-        # Expect {EndpointClass}_{indication_id}
+        # Expect {EndpointClass}_{indication_id}. Multi-word class values
+        # like 'composite_response' contain underscores, so split on the
+        # *first* '_' is wrong — match against EndpointClass values
+        # longest-first instead.
         if "_" not in raw:
             raise ValueError(
                 f"EndpointNode id '{name}' must be '{{class}}_{{indication}}'"
             )
-        cls_part, indication_part = raw.split("_", 1)
-        try:
-            cls = EndpointClass(cls_part)
-        except ValueError:
-            raise ValueError(
-                f"EndpointNode '{name}': '{cls_part}' is not an EndpointClass"
-            )
-        ind = _slugify_lower(indication_part)
-        if not ind:
-            raise ValueError(
-                f"EndpointNode '{name}': missing indication suffix"
-            )
-        return f"{cls.value}_{ind}"
+        for cls in sorted(EndpointClass, key=lambda c: -len(c.value)):
+            prefix = f"{cls.value}_"
+            if raw.startswith(prefix):
+                ind = _slugify_lower(raw[len(prefix):])
+                if not ind:
+                    raise ValueError(
+                        f"EndpointNode '{name}': missing indication suffix"
+                    )
+                return f"{cls.value}_{ind}"
+        cls_part = raw.split("_", 1)[0]
+        raise ValueError(
+            f"EndpointNode '{name}': '{cls_part}' is not an EndpointClass"
+        )
 
     if node_type == "IndicationNode":
         slug = _slugify_lower(raw)

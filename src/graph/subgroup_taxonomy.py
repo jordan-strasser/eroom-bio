@@ -40,6 +40,24 @@ NON_GENE_AXES: dict[str, list[str]] = {
     "age":         ["pediatric", "adult", "elderly", "unknown"],
     # Non-gene molecular signatures: MSI, TMB, HRD-style aggregate scores
     "signature":   ["msi_high", "mss", "tmb_high", "tmb_low", "hrd", "unknown"],
+    # RECIST response strata. Trials report subgroup outcomes by best
+    # response category (CR/PR/SD/PD); collapsing them onto a canonical
+    # axis lets evidence aggregate across trials instead of producing
+    # one-off "other_complete_response" populations per study.
+    "response":    [
+        "complete_response", "partial_response",
+        "stable_disease", "progressive_disease",
+        "responder", "non_responder", "unknown",
+    ],
+}
+
+
+# Short-form aliases for the response axis (LLM emits "CR" / "PR" / etc.).
+_RESPONSE_ALIASES: dict[str, str] = {
+    "cr": "complete_response",
+    "pr": "partial_response",
+    "sd": "stable_disease",
+    "pd": "progressive_disease",
 }
 
 
@@ -126,6 +144,10 @@ def canonicalize_feature(
         )
 
     if axis in NON_GENE_AXES:
+        # Resolve common short-forms before membership check so "CR" /
+        # "PR" / "SD" / "PD" land on the canonical level.
+        if axis == "response":
+            level = _RESPONSE_ALIASES.get(level, level)
         if level in NON_GENE_AXES[axis]:
             return SubgroupFeature(
                 axis=axis, key="", level=level, raw_descriptor=descriptor,

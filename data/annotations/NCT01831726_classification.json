@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT01831726",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement. The compound is dovitinib (TKI258), a multi-targeted tyrosine kinase inhibitor, but no PK/PD data or target engagement biomarkers were reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological activity. 3. CLINICAL TRANSLATION: Primary endpoint was Clinical Benefit Rate (CBR) at 16 weeks. The trial achieved 11/80 patients (13.8%) CBR, with ORR of 1.25%, PFS of 2.4 months, and OS of 13.5 months. No p-values reported and no comparator arm, making it difficult to assess statistical significance, but these response rates appear low for most oncology indications. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a single-arm Phase 2 trial with no control group, making interpretation challenging. The serious adverse event rate was notable with multiple hematologic and GI toxicities, though individual SAE rates were relatively low (1.25-2.5% each).",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data for target engagement, no PK/PD data, no p-values reported, single-arm design with no historical control comparison provided, and unclear indication definition ('tumor pathway activations inhibited by dovitinib')"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response_tumor_pathway_activations_inhibited_by_dovitinib",
+      "target_entity": "tumor_pathway_activations_inhibited_by_dovitinib",
+      "support": "ambiguous",
+      "reasoning": "CBR of 13.8% and ORR of 1.25% were reported but without comparator or historical benchmarks, cannot determine if this translates to clinical benefit in this undefined indication"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Insufficient information to properly classify mechanistic failure - no target engagement data, no biomarkers, single-arm design, and poorly defined indication make it impossible to assess the causal chain adequately"
+}

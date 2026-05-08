@@ -1,0 +1,248 @@
+{
+  "nct_id": "NCT03068455",
+  "therapeutic_hypothesis": {
+    "compound": "nivolumab + ipilimumab vs nivolumab",
+    "claimed_target": "PD-1 and CTLA-4",
+    "proposed_mechanism": "dual checkpoint inhibition to enhance anti-tumor immune response",
+    "intended_biology": "T-cell activation and immune surveillance restoration",
+    "target_population": "patients with completely resected stage IIIb/c/d or stage IV melanoma",
+    "primary_endpoint": "recurrence-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.90 (95% CI: 0.78-1.04) for RFS overall population",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "PD-L1 <1% subgroup: RFS HR 0.92 (95% CI: 0.75-1.14)",
+      "PD-L1 \u22651% subgroup showed no median RFS reached in either arm",
+      "Combination showed numerical benefit in PD-L1 <1% patients (33.18 vs 25.33 months median RFS)"
+    ],
+    "safety_signals": [
+      "Higher incidence of serious adverse events in combination arm",
+      "Cardiac events including acute coronary syndrome and myocardial infarction",
+      "Hematologic toxicities including anemia, neutropenia, thrombocytopenia"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.22,
+        "incidence_control_pct": 0.22,
+        "serious": true
+      },
+      {
+        "term": "Haemolytic anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.11,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenopathy",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.33,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenopathy mediastinal",
+        "grade": "",
+        "incidence_treatment_pct": 0.22,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.22,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Splenic lesion",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.11,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.22,
+        "incidence_control_pct": 0.11,
+        "serious": true
+      },
+      {
+        "term": "Acute coronary syndrome",
+        "grade": "",
+        "incidence_treatment_pct": 0.11,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.11,
+        "incidence_control_pct": 0.11,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.44,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "completely resected stage IIIb/c/d or stage IV melanoma",
+    "comparator": "nivolumab monotherapy",
+    "sample_size": 1844,
+    "duration": "up to approximately 45 months",
+    "duration_weeks": 195.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "nivo_plus_ipi",
+      "compounds": [
+        "nivolumab",
+        "ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "nivo_only",
+      "compounds": [
+        "nivolumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "< 1% Tumor PD-L1 Expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "\u2265 1% Tumor PD-L1 Expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "\u2265 5% Tumor PD-L1 Expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "< 5% Tumor PD-L1 Expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Non-quantifiable Tumor PD-L1 Expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "unknown"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": 0.9,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": "< 1% Tumor PD-L1 Expression",
+      "endpoint": "RFS",
+      "effect_size": 0.92,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": "< 1% Tumor PD-L1 Expression",
+      "endpoint": "RFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 1.03,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "nivo_plus_ipi",
+      "subgroup_descriptor": "< 1% Tumor PD-L1 Expression",
+      "endpoint": "OS",
+      "effect_size": 1.22,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "nivo_only",
+      "subgroup_descriptor": "< 1% Tumor PD-L1 Expression",
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ]
+}

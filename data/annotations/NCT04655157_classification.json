@@ -1,0 +1,24 @@
+{
+  "nct_id": "NCT04655157",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement of BRAF, PD-1, CTLA-4, or MEK. Cannot determine if drugs reached intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological changes. 3. CLINICAL TRANSLATION: This was a dose-finding Phase I trial with primary endpoint of determining recommended Phase II dose (RP2D). The RP2D could not be determined due to insufficient enrollment - only 2 patients enrolled before study termination. One patient achieved stable disease in CNS with triple therapy, but this is insufficient to assess clinical translation. 4. POPULATION EFFECTS: With only 2 patients total, no meaningful subgroup analysis possible. 5. CONFOUNDERS: Study was terminated due to slow enrollment, preventing completion of dose-finding objectives. The 100% incidence rates for all AEs likely reflect the extremely small sample size (n=2) rather than true toxicity profile.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Study terminated due to slow enrollment with only 2 patients enrolled, far below what would be needed for dose-finding objectives or any meaningful efficacy assessment"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "reasoning": "Primary endpoint was RP2D determination which could not be assessed due to insufficient enrollment. Safety endpoint results are uninterpretable with n=2"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

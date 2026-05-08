@@ -1,0 +1,196 @@
+{
+  "nct_id": "NCT03873818",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab + pembrolizumab",
+    "claimed_target": "CTLA-4 + PD-1",
+    "proposed_mechanism": "dual checkpoint inhibition to enhance T-cell activation and anti-tumor immunity",
+    "intended_biology": "immune checkpoint blockade",
+    "target_population": "melanoma patients with brain metastases",
+    "primary_endpoint": "clinical benefit rate in PD-1 naive patients",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "68.4% CBR in PD-1 naive patients",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "PD-1 naive patients had 68.4% CBR vs 25% (1/4) in PD-1 pretreated patients",
+      "Median PFS 11.8 months in PD-1 naive vs 1.4 months in PD-1 pretreated",
+      "Median OS not reached in PD-1 naive vs 11.0 months in PD-1 pretreated"
+    ],
+    "safety_signals": [
+      "5/20 treatment-related grade 3-4 AEs in PD-1 naive cohort",
+      "0/4 treatment-related grade 3-4 AEs in PD-1 pretreated cohort",
+      "No CNS-specific safety concerns in either cohort"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Fall",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cough/dyspnea",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thromboembolic event",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Rash maculopapular",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pruritis",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "ALT increased",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "AST increased",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphocyte count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anorexia",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "melanoma with brain metastases",
+    "comparator": "none",
+    "sample_size": 24,
+    "duration": "2 years",
+    "duration_weeks": 104.6,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "ipi_pembro_combo",
+      "compounds": [
+        "ipilimumab",
+        "pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Treatment Na\u00efve",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Previously Progressed on PD-1 Inhibitors",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Treatment Na\u00efve",
+      "endpoint": "CBR",
+      "effect_size": 68.4,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Previously Progressed on PD-1 Inhibitors",
+      "endpoint": "CBR",
+      "effect_size": 25.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Treatment Na\u00efve",
+      "endpoint": "PFS",
+      "effect_size": 11.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Previously Progressed on PD-1 Inhibitors",
+      "endpoint": "PFS",
+      "effect_size": 1.4,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Treatment Na\u00efve",
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "ipi_pembro_combo",
+      "subgroup_descriptor": "Previously Progressed on PD-1 Inhibitors",
+      "endpoint": "OS",
+      "effect_size": 11.0,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "nct_id": "NCT00019682",
+  "therapeutic_hypothesis": {
+    "compound": "aldesleukin with or without gp100 antigen vaccine",
+    "claimed_target": "IL-2 receptor and melanoma-associated gp100 antigen",
+    "proposed_mechanism": "IL-2 stimulates T-cell proliferation and activation; gp100 vaccine induces tumor-specific T-cell responses",
+    "intended_biology": "enhancement of anti-tumor immune response through cytokine stimulation and antigen-specific vaccination",
+    "target_population": "patients with locally advanced or metastatic melanoma",
+    "primary_endpoint": "best response rate (partial response + complete response)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "14 vs 6 responders (combination vs aldesleukin alone)",
+    "p_value": 0.035,
+    "target_engagement_evidence": "7 patients in combination arm developed positive T-cell precursor assays vs 0 in aldesleukin alone arm",
+    "biomarker_changes": [
+      "T-cell precursor reactivity increased in 7/85 patients receiving combination therapy vs 0/93 receiving aldesleukin alone"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "1 death in aldesleukin arm",
+      "2 deaths in combination arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "death",
+        "grade": "5",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": 1.1,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "locally advanced or metastatic melanoma",
+    "comparator": "aldesleukin alone",
+    "sample_size": 185,
+    "duration": "up to 12 years follow-up",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "aldesleukin_alone",
+      "compounds": [
+        "aldesleukin"
+      ]
+    },
+    {
+      "arm_id": "combination",
+      "compounds": [
+        "aldesleukin",
+        "gp100 antigen",
+        "montanide ISA 51 VG"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "aldesleukin_alone",
+      "subgroup_descriptor": null,
+      "endpoint": "response rate",
+      "effect_size": 6.0,
+      "p_value": 0.035,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "combination",
+      "subgroup_descriptor": null,
+      "endpoint": "response rate",
+      "effect_size": 14.0,
+      "p_value": 0.035,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "aldesleukin_alone",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.6,
+      "p_value": 0.008,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "combination",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.2,
+      "p_value": 0.008,
+      "outcome": "success"
+    }
+  ]
+}

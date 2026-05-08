@@ -1,0 +1,104 @@
+{
+  "nct_id": "NCT01369888",
+  "therapeutic_hypothesis": {
+    "compound": "IL-15 with tumor infiltrating lymphocytes",
+    "claimed_target": "IL-15 receptor",
+    "proposed_mechanism": "IL-15 stimulates T cell proliferation and activation to enhance anti-tumor immune response",
+    "intended_biology": "T cell expansion and activation following adoptive cell transfer",
+    "target_population": "metastatic melanoma patients",
+    "primary_endpoint": "maximum tolerated dose of IL-15",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "MTD not determined",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "autoimmune toxicity",
+      "trial terminated due to autoimmune toxicity"
+    ],
+    "dose_info": {
+      "dose": "0.25-0.50 mcg/kg/day",
+      "schedule": "daily for 10 days",
+      "max_tolerated_dose": "not determined",
+      "dose_modifications": "dose escalation planned but not completed due to toxicity"
+    },
+    "adverse_events": [
+      {
+        "term": "autoimmune reaction",
+        "grade": "",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "",
+    "sample_size": 3,
+    "duration": "2 years",
+    "duration_weeks": 104.0,
+    "investigator_commentary": "Closed this protocol due to autoimmune toxicity."
+  },
+  "arms": [
+    {
+      "arm_id": "il15_025mcg",
+      "compounds": [
+        "Cyclophosphamide",
+        "Fludarabine",
+        "Tumor Infiltrating Lymphocytes",
+        "IL-15"
+      ]
+    },
+    {
+      "arm_id": "il15_050mcg",
+      "compounds": [
+        "Cyclophosphamide",
+        "Fludarabine",
+        "Tumor Infiltrating Lymphocytes",
+        "IL-15"
+      ]
+    },
+    {
+      "arm_id": "il15_1mcg",
+      "compounds": [
+        "Cyclophosphamide",
+        "Fludarabine",
+        "Tumor Infiltrating Lymphocytes",
+        "IL-15"
+      ]
+    },
+    {
+      "arm_id": "il15_2mcg",
+      "compounds": [
+        "Cyclophosphamide",
+        "Fludarabine",
+        "Tumor Infiltrating Lymphocytes",
+        "IL-15"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "il15_025mcg",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "il15_050mcg",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ]
+}

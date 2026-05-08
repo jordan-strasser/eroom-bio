@@ -772,13 +772,14 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
         updates = attributor.attribute(classification, trial)
         total_updates.extend(updates)
 
-        # AE attribution from the cached extraction. Reconstruct the
-        # TrialExtraction model from JSON so structured AE / dose fields
-        # flow through; if validation fails (e.g. an old extraction
-        # cached before the schema change), skip silently — the next
-        # extraction run will refresh it.
+        # AE attribution from the cached extraction. The saved JSON is the
+        # LLM's nested response (nct_id / therapeutic_hypothesis / results /
+        # context / arms / subgroups / results_by_chain) — not the flat
+        # TrialExtraction shape. Use the extractor's parser to unwrap it
+        # the same way the cache-load path does.
+        from src.annotation.extractor import _parse_extraction_response
         try:
-            extraction = TrialExtraction.model_validate(ext_data)
+            extraction = _parse_extraction_response(ext_data, trial_id)
         except Exception as exc:  # noqa: BLE001 — pydantic ValidationError + others
             logger.warning(
                 "Skipping AE attribution for %s: extraction JSON invalid (%s)",

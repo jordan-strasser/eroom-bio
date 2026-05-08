@@ -1,0 +1,104 @@
+{
+  "nct_id": "NCT00515528",
+  "therapeutic_hypothesis": {
+    "compound": "4-peptide melanoma vaccine + Ontak (denileukin diftitox)",
+    "claimed_target": "T-regulatory cells and melanoma antigens",
+    "proposed_mechanism": "Ontak depletes regulatory T cells to enhance vaccine-induced immune response against melanoma peptides",
+    "intended_biology": "Enhanced anti-tumor immune response through Treg depletion and melanoma antigen presentation",
+    "target_population": "patients with metastatic melanoma",
+    "primary_endpoint": "clinical response rate (PR + SD + PD proportion)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0/7 responses in combination arm vs 1/10 in vaccine alone arm",
+    "p_value": null,
+    "target_engagement_evidence": "immune monitoring data failed to demonstrate improvement in any biologic endpoint",
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "syncope",
+      "chest pain",
+      "abdominal pain",
+      "pericardial tamponade"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "vaccine every 2 weeks, Ontak single dose 4 days before first vaccine",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "syncope",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      },
+      {
+        "term": "chest pain",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      },
+      {
+        "term": "abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pericardial tamponade",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "4-peptide melanoma vaccine alone",
+    "sample_size": 17,
+    "duration": "6 weeks",
+    "duration_weeks": 6.0,
+    "investigator_commentary": "The immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox."
+  },
+  "arms": [
+    {
+      "arm_id": "vaccine_alone",
+      "compounds": [
+        "4-peptide melanoma vaccine"
+      ]
+    },
+    {
+      "arm_id": "vaccine_plus_ontak",
+      "compounds": [
+        "4-peptide melanoma vaccine",
+        "Ontak"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "vaccine_alone",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "vaccine_plus_ontak",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ]
+}

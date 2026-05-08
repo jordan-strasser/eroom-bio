@@ -87,9 +87,15 @@ axis="prior_tx" — prior treatment status. level ∈ {naive, treated, unknown}.
 axis="performance" — ECOG/Karnofsky performance status. level ∈ {good, poor, unknown}. (good = ECOG 0–1; poor = ≥2)
 axis="age" — age band. level ∈ {pediatric, adult, elderly, unknown}.
 axis="signature" — non-gene molecular signatures. level ∈ {msi_high, mss, tmb_high, tmb_low, hrd, unknown}.
+axis="response" — RECIST best-response strata, when the trial reports per-response-category subgroup outcomes (e.g. "subjects who achieved CR vs PD"). level ∈ {complete_response, partial_response, stable_disease, progressive_disease, responder, non_responder, unknown}. Use the long form (e.g. "complete_response") not the short form (e.g. "CR").
 axis="other" — anything that doesn't fit. Preserve the raw descriptor in `raw_descriptor` and use `level` for a brief slug.
 
 A subgroup may have multiple features (e.g. PD-L1 high AND first-line) — list each as a separate object in `features`.
+
+DO NOT emit a subgroup for the following — these are not patient subgroups and should be left out entirely:
+  - Continuous biomarker measurements at trial timepoints (e.g. "CD8 T cells per mm² day 22", "ctDNA at week 6"). These are pharmacodynamic readouts, not subgroup definitions. If the trial reports them as endpoint values they belong in `results.biomarker_changes`, not `subgroups`.
+  - Analysis timepoints / interim looks (e.g. "Primary completion", "Final analysis", "Month 3", "12-week landmark"). These are reporting milestones, not patient strata.
+  - Whole-population descriptions ("All enrolled patients", "ITT population") — leave `subgroups` empty in that case.
 
 # Rules
 

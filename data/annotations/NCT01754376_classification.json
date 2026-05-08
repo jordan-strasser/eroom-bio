@@ -1,0 +1,43 @@
+{
+  "nct_id": "NCT01754376",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The biomarker data shows clear target engagement - CD8/Treg ratio decreased from 43.9 pre-treatment to 20.5 after vemurafenib alone to 4.04 after aldesleukin, indicating both BRAF inhibition and IL-2 receptor activation occurred. 2. PATHWAY MODULATION: The dramatic decrease in CD8/Treg ratio suggests the combination actually had immunosuppressive rather than immunostimulatory effects, opposite to the intended mechanism of enhancing anti-tumor immune response. 3. CLINICAL TRANSLATION: Despite an 83.3% ORR suggesting some clinical activity, the median PFS of 35.8 weeks in a 6-patient single-arm study provides insufficient evidence of clinical benefit without historical controls. 4. POPULATION EFFECTS: No subgroup analysis reported in this small study. 5. CONFOUNDERS: This was severely underpowered with only 6 patients, and all patients experienced grade 3 adverse events with dose reductions (aldesleukin completion dropped from 73% to 54% across courses), indicating dose-limiting toxicity prevented optimal dosing.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "All 6 participants experienced grade 3 severe adverse events, with serious AEs including delirium (16.7%) and myocarditis (16.7%). Mean aldesleukin dose completion decreased from 73% in course 1 to 54% in course 2, indicating dose reductions were required."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 6 patients enrolled in this single-arm study, far below any reasonable power calculation for detecting treatment effects in metastatic melanoma."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "aldesleukin+vemurafenib",
+      "target_entity": "ENSG00000134460",
+      "support": "moderate_support",
+      "reasoning": "Clear biomarker evidence of target engagement with CD8/Treg ratio changes after aldesleukin administration, though toxicity limited optimal dosing."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "receptor_agonism__melanoma",
+      "support": "weak_contradict",
+      "reasoning": "The CD8/Treg ratio decreased dramatically (from 43.9 to 4.04), suggesting immunosuppressive rather than immunostimulatory effects, opposite to the intended mechanism."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "reasoning": "Single-arm study with 35.8 weeks median PFS cannot be interpreted without historical controls - could represent drug effect or natural variation in this small sample."
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Small single-arm study with conflicting signals - high ORR but concerning immunosuppressive biomarker changes and severe toxicity. The biological mechanism appears to contradict the intended immunostimulatory effect."
+}

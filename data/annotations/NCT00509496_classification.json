@@ -1,0 +1,29 @@
+{
+  "nct_id": "NCT00509496",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether the TCR gene-engineered lymphocytes successfully engaged gp100 on melanoma cells. Without target engagement evidence, cannot confirm the first step of the causal chain. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether T-cell activation and tumor antigen recognition occurred as intended. 3. CLINICAL TRANSLATION: Primary endpoint of clinical tumor regression by RECIST was not met. Overall response rate was only 19% (4/21 patients), which is modest for this indication. No p-value reported and no statistical significance achieved. 4. POPULATION EFFECTS: Limited subgroup analysis showed PBL arm had higher response rate (3/19, 15.8%) compared to TIL arm (1/2, 50%), but sample sizes are too small to draw meaningful conclusions. 5. CONFOUNDERS: Trial had very high incidence of serious adverse events (>50% of patients experienced SAEs including hypotension 10.5%, renal failure 10.5%, acute vascular leak syndrome 10.5%, creatinine elevation 15.8%). The investigator noted 'low accrual' suggesting recruitment challenges. Small sample size (n=21) may have contributed to underpowering.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine if failure was due to lack of target engagement, inadequate biological response, or other factors."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 21 patients with investigator commentary noting 'low accrual' suggests the trial may have been underpowered to detect treatment effects."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR_melanoma",
+      "target_entity": "skin_cancer",
+      "support": "ambiguous",
+      "reasoning": "Primary endpoint was measured (19% ORR) but without historical comparator or statistical significance, cannot determine if this level of response translates to clinical benefit in metastatic melanoma"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to assess mechanistic failure mode. High SAE rate and small sample size create multiple confounding factors that prevent clear mechanistic classification."
+}

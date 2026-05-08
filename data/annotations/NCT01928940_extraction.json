@@ -1,0 +1,88 @@
+{
+  "nct_id": "NCT01928940",
+  "therapeutic_hypothesis": {
+    "compound": "dabrafenib + trametinib",
+    "claimed_target": "BRAF V600E/K",
+    "proposed_mechanism": "BRAF kinase inhibition combined with MEK inhibition",
+    "intended_biology": "dual blockade of MAPK pathway to overcome resistance",
+    "target_population": "BRAF V600E/K mutation positive advanced solid tumors (Phase I) or cutaneous melanoma (Phase II)",
+    "primary_endpoint": "Phase I: safety and tolerability; Phase II: confirmed overall response rate",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "83% confirmed ORR (95% CI: 35.9-99.6)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": "pharmacokinetic data showing drug exposure and accumulation",
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "pneumonitis",
+      "grade 3 laboratory abnormalities",
+      "hypertension",
+      "cardiac effects"
+    ],
+    "dose_info": {
+      "dose": "dabrafenib 150 mg twice daily + trametinib 2 mg once daily",
+      "schedule": "continuous daily dosing",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "pneumonitis",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "BRAF V600E/K mutation positive advanced solid tumors and cutaneous melanoma",
+    "comparator": "",
+    "sample_size": 12,
+    "duration": "average of 1.38 years",
+    "duration_weeks": 71.8,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "compounds": [
+        "dabrafenib",
+        "trametinib"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF V600E/K mutation positive",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "mutant"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "subgroup_descriptor": null,
+      "endpoint": "confirmed ORR",
+      "effect_size": 83.0,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "subgroup_descriptor": null,
+      "endpoint": "DLT",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ]
+}

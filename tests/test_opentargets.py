@@ -223,6 +223,97 @@ class TestSearchDrug:
         assert result["aliases"] == ["MDX-1106", "BMS-936558"]
 
 
+class TestGetDrugWithTargetsDisambiguation:
+    """Top-1 OT search picks ranking, not name match. We widened to 5 +
+    prefer hits whose canonical/synonym/tradeName matches the queried
+    name. These tests pin that behavior."""
+
+    def _make_hit(self, chembl_id: str, name: str, synonyms=None, trade_names=None):
+        return {
+            "id": chembl_id,
+            "name": name,
+            "object": {
+                "id": chembl_id,
+                "name": name,
+                "synonyms": synonyms or [],
+                "tradeNames": trade_names or [],
+                "mechanismsOfAction": {"rows": [{
+                    "actionType": "INHIBITOR",
+                    "mechanismOfAction": "stub",
+                    "targets": [{
+                        "id": f"ENS_{chembl_id}",
+                        "approvedSymbol": f"SYM_{chembl_id}",
+                        "approvedName": f"Approved {chembl_id}",
+                    }],
+                }]},
+            },
+        }
+
+    @pytest.mark.asyncio
+    async def test_prefers_exact_canonical_name_over_first_hit(self):
+        # OT ranks "AvastinBio" first but the user asked for "Avastin".
+        mock = {"search": {"hits": [
+            self._make_hit("CHEMBLBIO", "AvastinBio"),
+            self._make_hit("CHEMBLAVA", "Avastin"),
+        ]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("Avastin")
+        assert result["chembl_id"] == "CHEMBLAVA"
+        assert result["name"] == "Avastin"
+        assert result["targets"][0]["target_id"] == "ENS_CHEMBLAVA"
+
+    @pytest.mark.asyncio
+    async def test_prefers_synonym_match_over_first_hit(self):
+        mock = {"search": {"hits": [
+            self._make_hit("CHEMBL_OTHER", "OtherDrug"),
+            self._make_hit("CHEMBL_NIVO", "Nivolumab", synonyms=["BMS-936558"]),
+        ]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("BMS-936558")
+        assert result["chembl_id"] == "CHEMBL_NIVO"
+
+    @pytest.mark.asyncio
+    async def test_prefers_trade_name_match_over_first_hit(self):
+        mock = {"search": {"hits": [
+            self._make_hit("CHEMBL_OTHER", "OtherDrug"),
+            self._make_hit(
+                "CHEMBL_NIVO", "Nivolumab", trade_names=["Opdivo"],
+            ),
+        ]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("Opdivo")
+        assert result["chembl_id"] == "CHEMBL_NIVO"
+
+    @pytest.mark.asyncio
+    async def test_punctuation_insensitive_match(self):
+        # "BMS936558" should match "BMS-936558" once punctuation is stripped.
+        mock = {"search": {"hits": [
+            self._make_hit("CHEMBL_OTHER", "OtherDrug"),
+            self._make_hit(
+                "CHEMBL_NIVO", "Nivolumab", synonyms=["BMS-936558"],
+            ),
+        ]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("BMS936558")
+        assert result["chembl_id"] == "CHEMBL_NIVO"
+
+    @pytest.mark.asyncio
+    async def test_falls_back_to_first_when_no_exact_match(self):
+        # No hit matches "Mystery" — keep OT's ranking.
+        mock = {"search": {"hits": [
+            self._make_hit("CHEMBL_FIRST", "FirstDrug"),
+            self._make_hit("CHEMBL_SECOND", "SecondDrug"),
+        ]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("Mystery")
+        assert result["chembl_id"] == "CHEMBL_FIRST"
+
+
 class TestGetAssociations:
     @pytest.mark.asyncio
     async def test_returns_filtered_by_min_score(self):

@@ -326,31 +326,57 @@ class TestPopulateOncology:
             return_value=[]
         )
 
-        # Mock OT: disease search returns EFO ID, then disease associations
-        call_count = 0
-
+        # Mock OT for the trial-driven flow:
+        #   DrugWithTargets → returns linkedTargets containing EGFR
+        #   SearchDisease   → returns the EFO id
+        #   TargetAssociations → returns the (target, disease) score
         async def mock_post(query, variables):
-            nonlocal call_count
-            call_count += 1
-            if "SearchDisease" in query or "search" in query.lower() and "disease" in query.lower():
-                return {"search": {"hits": [{"id": "EFO_0003060"}]}}
-            # DiseaseAssociations query
-            return {
-                "disease": {
-                    "id": "EFO_0003060",
-                    "name": "non-small cell lung carcinoma",
-                    "associatedTargets": {
-                        "count": 1,
-                        "rows": [
-                            {
-                                "target": {"id": "ENSG00000146648", "approvedSymbol": "EGFR"},
-                                "score": 0.89,
-                                "datatypeScores": [{"id": "clinical", "score": 0.99}],
-                            }
-                        ],
+            if "DrugWithTargets" in query or "mechanismsOfAction" in query:
+                return {
+                    "search": {
+                        "hits": [{
+                            "id": "CHEMBL941",
+                            "name": "Imatinib",
+                            "object": {
+                                "id": "CHEMBL941",
+                                "name": "Imatinib",
+                                "synonyms": [],
+                                "tradeNames": ["Gleevec"],
+                                "mechanismsOfAction": {
+                                    "rows": [{
+                                        "actionType": "INHIBITOR",
+                                        "mechanismOfAction": "EGFR inhibitor",
+                                        "targets": [{
+                                            "id": "ENSG00000146648",
+                                            "approvedSymbol": "EGFR",
+                                            "approvedName": "epidermal growth factor receptor",
+                                        }],
+                                    }],
+                                },
+                            },
+                        }],
                     },
                 }
-            }
+            if "SearchDisease" in query:
+                return {"search": {"hits": [{"id": "EFO_0003060"}]}}
+            if "TargetAssociations" in query:
+                return {
+                    "target": {
+                        "associatedDiseases": {
+                            "count": 1,
+                            "rows": [{
+                                "disease": {
+                                    "id": "EFO_0003060",
+                                    "name": "non-small cell lung carcinoma",
+                                },
+                                "score": 0.89,
+                                "datatypeScores": [{"id": "clinical", "score": 0.99}],
+                            }],
+                        },
+                    },
+                }
+            # SearchDrug (without targets) — fall through with a generic hit
+            return {"search": {"hits": []}}
 
         pipeline._ot_client._post = mock_post
 
@@ -402,6 +428,57 @@ class TestClassifyEndpointDeterministic:
 
     def test_empty_text_returns_other(self):
         assert classify_endpoint_deterministic("") == "other"
+
+    @pytest.mark.parametrize("text,expected", [
+        # Cases pulled from real n=50 skips: stripped trailing reviewer
+        # suffix and parenthetical clarifiers should not block matching.
+        ("Progression-Free Survival (PFS) by investigator", "PFS"),
+        ("Progression-Free Survival by investigator assessment", "PFS"),
+        ("PFS by BICR", "PFS"),
+        ("OS by Independent Review Committee", "OS"),
+        ("Disease-Free Survival (DFS), as Assessed by Investigator", "DFS"),
+        ("ORR by independent central review", "ORR"),
+        ("overall response rate (CR + PR) in BRAF V600E", "ORR"),
+        ("Best Overall Response (BOR) [Phase 2 cohort]", "ORR"),
+    ])
+    def test_qualifier_stripping(self, text, expected):
+        assert classify_endpoint_deterministic(text) == expected
+
+
+class TestEndpointReindexing:
+    """Pin the n=50 root-cause: a second trial whose primary outcome maps to
+    the same EndpointClass as an earlier trial's outcome — but with
+    different wording — used to be silently skipped because resolve_entity
+    couldn't find the new measure string in the index."""
+
+    @pytest.mark.asyncio
+    async def test_second_measure_string_indexes_existing_endpoint(
+        self, pipeline, graph,
+    ):
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        pipeline._index_node("melanoma", "Melanoma", "indication")
+
+        # Two trials, two different PFS phrasings — both should resolve to
+        # the same EndpointNode after _create_canonical_endpoints runs.
+        # Deterministic regex catches "PFS" so no LLM call is made.
+        t1 = TrialRecord(
+            nct_id="NCT_A", title="A", phase="3", status="COMPLETED",
+            conditions=["Melanoma"],
+            primary_outcomes=[OutcomeMeasure(measure="Progression-Free Survival (PFS)")],
+        )
+        t2 = TrialRecord(
+            nct_id="NCT_B", title="B", phase="3", status="COMPLETED",
+            conditions=["Melanoma"],
+            primary_outcomes=[OutcomeMeasure(measure="Progression-Free Survival (PFS) by investigator")],
+        )
+        await pipeline._populate_canonical_endpoints([t1, t2])
+
+        ep_id_a = pipeline.resolve_entity(t1.primary_outcomes[0].measure, "endpoint")
+        ep_id_b = pipeline.resolve_entity(t2.primary_outcomes[0].measure, "endpoint")
+        assert ep_id_a is not None
+        assert ep_id_b is not None
+        # Both measure strings must resolve to the same canonical PFS node.
+        assert ep_id_a == ep_id_b
 
 
 # ── build_trial_subgraph_from_extraction (multi-arm × multi-subgroup × multi-endpoint) ─
@@ -514,3 +591,76 @@ class TestBuildTrialSubgraphFromExtraction:
         # Cells with no reported result default to UNKNOWN outcome
         unknowns = [c for c in ts.chains if c.outcome == TrialOutcome.UNKNOWN]
         assert len(unknowns) == 10  # 12 total - 2 filled
+
+    def test_skips_subgroup_when_all_features_canonicalize_to_other(self, graph):
+        """Continuous PD readouts and analysis-timepoint markers aren't
+        real subgroups. When canonicalization can't place any feature on
+        a known axis, the subgroup is dropped from the chain fan-out so
+        we don't pollute the graph with one-off
+        ``melanoma__other_baseline_cd8_tumor`` populations."""
+        from src.annotation.taxonomy import (
+            ExtractedArm, ExtractedSubgroup, TrialExtraction,
+        )
+        from src.graph.models import (
+            BiologyNode, MechanismNode, MechanismType,
+            EndpointNode, EndpointType, RegulatoryStatus,
+            IndicationNode, CompoundNode, Modality, TargetNode,
+        )
+
+        trial = TrialRecord(
+            nct_id="NCT_OTHER", title="OtherOnly", phase="2", status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=[Intervention(name="Nivolumab", type="BIOLOGICAL")],
+            primary_outcomes=[OutcomeMeasure(measure="Overall Survival")],
+            arm_groups=[
+                ArmGroup(group_id="A1", title="Mono", intervention_names=["Nivolumab"]),
+            ],
+        )
+        graph.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        graph.add_node(TargetNode(id="ENSG_PD1", name="PD-1", gene_symbol="PD-1"))
+        graph.add_node(MechanismNode(id="cb", name="cb", mechanism_type=MechanismType.ANTAGONISM))
+        graph.add_node(BiologyNode(id="bio", name="bio"))
+        graph.add_node(EndpointNode(
+            id="OS_mel", name="OS",
+            endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+
+        extraction = TrialExtraction(
+            trial_id="NCT_OTHER",
+            arms=[ExtractedArm(arm_id="A1", compounds=["Nivolumab"])],
+            subgroups=[
+                # PD readout — not a real subgroup, no canonical axis fits.
+                ExtractedSubgroup(
+                    raw_descriptor="CD8 T cells per mm² day 22",
+                    features=[{"axis": "biomarker", "key": "CD8", "level": "day22"}],
+                ),
+                # Analysis timepoint — also not a subgroup.
+                ExtractedSubgroup(
+                    raw_descriptor="Final analysis",
+                    features=[{"axis": "timepoint", "key": "", "level": "final"}],
+                ),
+            ],
+            results_by_chain=[],
+        )
+
+        ts = build_trial_subgraph_from_extraction(
+            graph, trial, extraction,
+            target_by_arm={"A1": "ENSG_PD1"},
+            mechanism_id="cb",
+            biology_id="bio",
+            indication_id="melanoma",
+            endpoint_ids={"OS": "OS_mel"},
+        )
+
+        # No subgroup PopulationNodes created.
+        pop_ids = [c.subgroup_population_id for c in ts.chains]
+        assert all(pid == "melanoma__unselected" for pid in pop_ids)
+        # No "other_*" PopulationNode leaked into the graph.
+        other_pops = [
+            n for n in graph._graph.nodes
+            if isinstance(n, str) and "__other_" in n
+        ]
+        assert other_pops == []
+        # Only the parent-population fan: 1 arm × 1 endpoint = 1 chain.
+        assert len(ts.chains) == 1

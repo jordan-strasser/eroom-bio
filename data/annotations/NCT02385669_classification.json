@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT02385669",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows target engagement - CD4+ T cell responses were detected in 2/3 participants by ELIspot assay, indicating the combination therapy engaged the immune system as intended. 2. PATHWAY MODULATION: Downstream biology was modulated - CD4+ T cell responses to melanoma helper peptides were detected in 2/3 participants, with 1/3 showing response in sentinel lymph node, confirming immune activation. 3. CLINICAL TRANSLATION: This was a Phase I safety study with safety and immunological response as primary endpoints, not clinical efficacy. The trial cannot be evaluated for clinical translation to disease outcomes. 4. POPULATION EFFECTS: No subgroup analysis reported in this small 3-patient study. 5. CONFOUNDERS: The trial was terminated due to dose-limiting toxicities - 2/3 participants experienced DLTs including serious uveitis in 1 patient. All participants had treatment-related adverse events. This prevented continuation at the planned dose level.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "2/3 participants (67%) experienced DLTs, with 1 case of serious uveitis (33% SAE rate). All 3 participants had treatment-related adverse events. The trial was stopped due to safety concerns."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "binds_to",
+      "source_entity": "6mhp+ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "moderate_support",
+      "reasoning": "CD4+ T cell responses detected in 2/3 participants by ELIspot assay demonstrates target engagement, though limited by small sample size"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "reasoning": "CD4+ T cell responses to melanoma peptides in 2/3 participants confirms checkpoint blockade mechanism activation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "checkpoint_blockade__melanoma",
+      "support": "weak_support",
+      "reasoning": "Immune responses were detected but trial was terminated for toxicity before full biological assessment could be completed"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -39,16 +40,24 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
 
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
-_TRUST_FULL_AT = 10.0  # evidence_strength at which trust_weight saturates to 1.0
+# Log-scaled trust: trust = min(1, log(strength + 1) / log(saturation + 1)).
+# Saturation at evidence_strength = 49 → trust = 1.0. Compared to the old
+# linear cap at strength=10, this gives weak edges (strength ~0.5–2)
+# meaningfully more trust (0.18–0.28 vs 0.05–0.20 before) while preventing
+# heavily-loaded edges from drowning out the rest. Important here because
+# `endpoint_captures` priors only carry strength ~0.5–2.0 while
+# `mechanism_affects` clinical updates can hit 45+ in a few trials.
+_TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
 
 
 def _trust_weight(belief: EdgeBeliefState) -> float:
     """Map an edge's evidence_strength to a [0, 1] trust weight.
 
-    Beta(1,1) (no evidence) → 0; Beta(11,1) or stronger → 1.0.
+    Beta(1,1) (no evidence) → 0; saturates to 1.0 at evidence_strength=49.
     """
-    return min(1.0, max(0.0, belief.evidence_strength) / _TRUST_FULL_AT)
+    s = max(0.0, belief.evidence_strength)
+    return min(1.0, math.log(s + 1.0) / _TRUST_LOG_SAT)
 
 
 def _aggregate_samples(

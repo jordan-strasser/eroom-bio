@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
@@ -14,6 +15,8 @@ from src.graph.models import (
     TargetNode,
 )
 from src.graph.store import GraphStore
+
+logger = logging.getLogger(__name__)
 
 GRAPHQL_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
@@ -49,6 +52,46 @@ query SearchDrug($name: String!) {
           name
           synonyms
           tradeNames
+        }
+      }
+    }
+  }
+}
+"""
+
+# Search for a drug AND fetch its known targets in one call. Used by the
+# trial-driven population pipeline to go compound → target without bulk-
+# loading every disease-association row from Open Targets. Targets come
+# from ChEMBL-curated mechanisms-of-action, surfaced as one row per
+# (mechanism, action) tuple — many rows can list the same target.
+#
+# Page size is 5 (not 1) so ``get_drug_with_targets`` can prefer a hit
+# whose canonical name / synonym / tradeName actually matches the query
+# over OT's relevance-rank top hit. Ambiguous names (e.g. "Avastin"
+# matching multiple biosimilars) otherwise silently pick the first hit.
+_DRUG_WITH_TARGETS_QUERY = """
+query DrugWithTargets($name: String!) {
+  search(queryString: $name, entityNames: ["drug"], page: {size: 5, index: 0}) {
+    hits {
+      id
+      name
+      object {
+        ... on Drug {
+          id
+          name
+          synonyms
+          tradeNames
+          mechanismsOfAction {
+            rows {
+              actionType
+              mechanismOfAction
+              targets {
+                id
+                approvedSymbol
+                approvedName
+              }
+            }
+          }
         }
       }
     }
@@ -151,6 +194,66 @@ class OpenTargetsClient:
             "aliases": _clean_aliases(synonyms, trade_names, canonical_name),
         }
 
+    async def get_drug_with_targets(self, name: str) -> dict[str, Any]:
+        """Resolve a drug name to its ChEMBL id + ChEMBL-curated targets.
+
+        Returns ``{"chembl_id": str, "name": str, "aliases": list[str],
+        "targets": [{"target_id": str, "approved_symbol": str,
+        "approved_name": str}]}``. Targets are flattened + deduped across
+        the drug's ``mechanismsOfAction.rows`` — many rows can list the
+        same target (one per mechanism phrasing).
+
+        Disambiguation: queries OT for the top 5 hits and prefers one
+        whose canonical name, a synonym, or a tradeName matches ``name``
+        case-insensitively. Falls back to the OT-ranked first hit if no
+        exact match. Logs at INFO level when overriding the first hit so
+        ambiguous matches are auditable.
+
+        Raises ``KeyError`` if no drug matches.
+        """
+        data = await self._post(_DRUG_WITH_TARGETS_QUERY, {"name": name})
+        hits = data["search"]["hits"]
+        if not hits:
+            raise KeyError(f"No drug found for name '{name}'")
+        best_idx = _pick_best_drug_hit(hits, name)
+        if best_idx != 0:
+            top_obj = (hits[0].get("object") or {})
+            chosen_obj = (hits[best_idx].get("object") or {})
+            logger.info(
+                "OT drug disambiguation for '%s': overriding top hit '%s' "
+                "with name-matched hit '%s' (idx=%d)",
+                name,
+                top_obj.get("name") or hits[0].get("name"),
+                chosen_obj.get("name") or hits[best_idx].get("name"),
+                best_idx,
+            )
+        hit = hits[best_idx]
+        obj = hit.get("object") or {}
+        chembl_id = obj.get("id") or hit.get("id")
+        canonical_name = obj.get("name") or hit.get("name") or name
+        synonyms = obj.get("synonyms") or []
+        trade_names = obj.get("tradeNames") or []
+        moa = (obj.get("mechanismsOfAction") or {}).get("rows") or []
+        seen_ids: set[str] = set()
+        targets: list[dict[str, str]] = []
+        for row in moa:
+            for t in row.get("targets") or []:
+                tid = t.get("id")
+                if not tid or tid in seen_ids:
+                    continue
+                seen_ids.add(tid)
+                targets.append({
+                    "target_id": tid,
+                    "approved_symbol": t.get("approvedSymbol", "") or "",
+                    "approved_name": t.get("approvedName", "") or "",
+                })
+        return {
+            "chembl_id": chembl_id,
+            "name": canonical_name,
+            "aliases": _clean_aliases(synonyms, trade_names, canonical_name),
+            "targets": targets,
+        }
+
     async def get_associations(
         self,
         target_id: str,
@@ -202,6 +305,38 @@ class OpenTargetsClient:
                 "datatypes": datatypes,
             })
         return results
+
+
+# ── Drug-hit disambiguation ──────────────────────────────────────────────
+
+
+def _pick_best_drug_hit(hits: list[dict[str, Any]], queried_name: str) -> int:
+    """Return the index of the hit whose names best match ``queried_name``.
+
+    Match policy: the first hit whose canonical name OR any synonym OR
+    any tradeName equals ``queried_name`` case-insensitively (after
+    punctuation-insensitive normalization) wins. If none match, returns
+    0 — the OT-ranked top hit.
+    """
+    if not hits:
+        return 0
+    target = _DEDUP_NORM.sub("", queried_name.strip().lower())
+    if not target:
+        return 0
+    for i, hit in enumerate(hits):
+        obj = hit.get("object") or {}
+        candidates: list[str] = []
+        for v in (obj.get("name"), hit.get("name")):
+            if v:
+                candidates.append(v)
+        candidates.extend(obj.get("synonyms") or [])
+        candidates.extend(obj.get("tradeNames") or [])
+        for c in candidates:
+            if not c:
+                continue
+            if _DEDUP_NORM.sub("", c.strip().lower()) == target:
+                return i
+    return 0
 
 
 # ── Drug alias cleanup ───────────────────────────────────────────────────

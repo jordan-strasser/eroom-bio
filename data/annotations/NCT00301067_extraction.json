@@ -1,0 +1,201 @@
+{
+  "nct_id": "NCT00301067",
+  "therapeutic_hypothesis": {
+    "compound": "Calcitriol plus Temozolomide",
+    "claimed_target": "Vitamin D receptor",
+    "proposed_mechanism": "High-dose calcitriol enhances temozolomide efficacy through vitamin D receptor activation",
+    "intended_biology": "Vitamin D receptor-mediated enhancement of DNA alkylating agent activity",
+    "target_population": "Patients with metastatic melanoma",
+    "primary_endpoint": "Dose limiting toxicities and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Overall response rate 10% (2/20 patients)",
+    "p_value": null,
+    "target_engagement_evidence": "VDR gene polymorphism analysis completed",
+    "biomarker_changes": [
+      "VDR genotype analysis showed differential survival outcomes"
+    ],
+    "subgroup_findings": [
+      "VDR genotype non tt+/-ff had longer OS (7.4 vs 3.8 months)"
+    ],
+    "safety_signals": [
+      "Grade 3-4 hematologic toxicities",
+      "Serious adverse events including thrombocytopenia, confusion, pneumonia"
+    ],
+    "dose_info": {
+      "dose": "Calcitriol 0.2-0.5 mcg/kg, Temozolomide standard dosing",
+      "schedule": "Calcitriol days 1 and 15, Temozolomide days 2-8 and 16-22 of 28-day cycles",
+      "max_tolerated_dose": "0.5 mcg/kg calcitriol",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Thrombocytopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Lymphopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Leukopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Nausea and vomiting",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Hemorrhage",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Rash",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anorexia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 20,
+    "duration": "up to 12 cycles of 28 days each",
+    "duration_weeks": 48.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_1",
+      "compounds": [
+        "Calcitriol",
+        "Temozolomide"
+      ]
+    },
+    {
+      "arm_id": "cohort_2",
+      "compounds": [
+        "Calcitriol",
+        "Temozolomide"
+      ]
+    },
+    {
+      "arm_id": "cohort_3",
+      "compounds": [
+        "Calcitriol",
+        "Temozolomide"
+      ]
+    },
+    {
+      "arm_id": "expansion",
+      "compounds": [
+        "Calcitriol",
+        "Temozolomide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "VDR genotype (tt+/-ff)",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "VDR",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "non tt+/-ff VDR genotype",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "VDR",
+          "level": "negative"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "expansion",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 10.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "expansion",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 1.81,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "expansion",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 5.5,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "expansion",
+      "subgroup_descriptor": "VDR genotype (tt+/-ff)",
+      "endpoint": "OS",
+      "effect_size": 3.8,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "expansion",
+      "subgroup_descriptor": "non tt+/-ff VDR genotype",
+      "endpoint": "OS",
+      "effect_size": 7.4,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}
