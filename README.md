@@ -13,17 +13,12 @@ Named after [Eroom's Law](https://www.nature.com/articles/nrd3681): the cost of 
 Every clinical trial tests a causal hypothesis across seven canonical node types — **Compound, Target, Mechanism, Biology, Endpoint, Indication, Population** — connected by typed directed edges:
 
 ```
-Compound ──► Target ──► Mechanism ──► Biology ──► Indication
-                                         │           ▲
-                                         ▼           │
-                                      Endpoint ──────┘
-                                                     ▲
-                                                Population
+Compound → Target → Mechanism → Biology → Endpoint → Indication → Population
 ```
 
 *"This drug, binding this target, through this mechanism, will change this biology, captured by this endpoint, treating this indication in this patient population."*
 
-The chain decomposes into four main causal edges (`binds_to`, `modulates_via`, `mechanism_affects`, `biology_drives`) plus three auxiliary edges (`reflects_biology`, `endpoint_captures`, `responds_differently`) that capture endpoint translatability and subgroup response. Each edge carries an independent Beta-distributed belief — so a trial can validate one part of the hypothesis while contradicting another.
+Each edge carries an independent Beta-distributed belief — so a trial can validate one part of the hypothesis while contradicting another.
 
 Most systems record whether trials pass or fail. Eroom Bio records **where in the chain** they passed or failed, and accumulates that evidence across trials that share the same targets, mechanisms, and biology.
 
