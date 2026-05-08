@@ -50,12 +50,12 @@ def _format_trial_entities(
     single-line stub when no graph context is available (offline tests).
     """
     if graph is None or trial_subgraph is None or not trial_subgraph.chains:
-        return "(no graph context — emit edges_to_update only when confident in entity names)"
+        return "(no graph context—emit edges_to_update only when confident in entity names)"
 
     chains = trial_subgraph.chains
     sample = chains[0]
 
-    # Fan compounds across arms — combo chains can have different
+    # Fan compounds across arms—combo chains can have different
     # compound_ids than the trial-level pick.
     compounds: list[str] = []
     seen_comp: set[str] = set()
@@ -187,7 +187,7 @@ def _needs_expert_review(
     confidence = raw.get("confidence_overall", 0.0)
     modes = raw.get("failure_modes", [])
 
-    # Low overall confidence — flags the rubric's "no PD biomarker" tier (0.5-0.7)
+    # Low overall confidence—flags the rubric's "no PD biomarker" tier (0.5-0.7)
     # and below, since clinical-trial evidence is weighted 5x in the inference layer
     if confidence < 0.7:
         return True, f"Low classification confidence ({confidence:.2f})"
@@ -230,7 +230,7 @@ def _parse_classification(
         primary_mode = FailureMode.INSUFFICIENT_INFORMATION
         secondary = []
         # For successful trials, empty failure_modes is the expected
-        # state when there are no weak points to surface — use
+        # state when there are no weak points to surface—use
         # confidence_overall so the per-edge bucket updates aren't
         # zeroed out via quality_score in the attributor. For
         # failure/partial trials, an empty list still signals
@@ -448,7 +448,7 @@ async def _main(nct_id: str) -> None:
 
     mode_lines = []
     for m in raw.get("failure_modes", []):
-        mode_lines.append(f"  {m['mode']} (conf: {m.get('confidence', '?')}) — {m.get('evidence', '')[:80]}")
+        mode_lines.append(f"  {m['mode']} (conf: {m.get('confidence', '?')})—{m.get('evidence', '')[:80]}")
 
     edge_lines = []
     for e in raw.get("edges_to_update", []):

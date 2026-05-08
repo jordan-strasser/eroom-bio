@@ -38,7 +38,7 @@ from src.annotation.taxonomy import (
 logger = logging.getLogger(__name__)
 
 _ANNOTATIONS_DIR = Path("data/annotations")
-# Misrouted-update audit log — written when a classifier-emitted edge update
+# Misrouted-update audit log—written when a classifier-emitted edge update
 # can't be matched to any chain in the trial subgraph. The expected use is
 # vocab/extraction-prompt review, not silent drop.
 _UNROUTED_LOG_PATH = Path("data/dev/unrouted_attribution_updates.jsonl")
@@ -104,7 +104,7 @@ class _NameIndex:
             if n:
                 normed.append(n)
         # Always include the id itself as a fallback name to match against
-        # — some classifier emissions reuse the canonical id directly.
+        #—some classifier emissions reuse the canonical id directly.
         normed.append(_norm_name(node_id))
         self._names_by_id.setdefault(node_id, []).extend(normed)
 
@@ -134,7 +134,7 @@ def _build_name_index(
     For TargetNodes, also seed the index with HGNC aliases of the
     canonical gene_symbol (so a classifier emitting "PD-1" routes to
     the same node as its HUGO canonical "PDCD1"). HGNC lookup is
-    best-effort — when the resolver isn't loaded the index falls back
+    best-effort—when the resolver isn't loaded the index falls back
     to name + gene_symbol only.
     """
     from src.graph.hgnc_resolver import (
@@ -177,7 +177,7 @@ def _chain_edges_for_type(
 ) -> list[tuple[str, str]]:
     """All (source_id, target_id) candidates this chain implies for the edge type.
 
-    binds_to gets one candidate per constituent compound on the arm — that
+    binds_to gets one candidate per constituent compound on the arm—that
     way the classifier-emitted ``Ipilimumab → CTLA-4`` update routes to the
     ipi mono chain (or the combo chain's ipi side), never to the nivo→PD-1
     pair.
@@ -254,7 +254,7 @@ def _ae_support_bucket(
     """Map per-arm AE incidence to a SupportBucket for the causes_ae edge.
 
     No treatment-arm rate → AMBIGUOUS (we can't even say the trial saw it).
-    Control rate missing is treated as 0 — a conservative read that says
+    Control rate missing is treated as 0—a conservative read that says
     "no reported background", which lets unilateral safety signals from
     single-arm Phase 1s contribute (with the bucket downgrade reflecting
     the missing comparator).
@@ -339,7 +339,7 @@ class Attributor:
 
         Each classifier-emitted edge update is routed to the specific chain
         whose canonical ids match the classifier's free-text source/target
-        entity names — preventing the misrouting bug where (e.g.)
+        entity names—preventing the misrouting bug where (e.g.)
         Ipilimumab→CTLA-4 evidence lands on the nivolumab→PD-1 edge in a
         combo trial. Updates that don't match any chain are logged to
         ``data/dev/unrouted_attribution_updates.jsonl`` rather than
@@ -349,7 +349,7 @@ class Attributor:
         raw_edges = raw.get("edges_to_update", [])
         rule = FAILURE_MODE_RULES.get(classification.primary_failure_mode)
         # For trial_outcome=success, the failure-mode label is descriptive
-        # only — the schema forces a pick but mechanistic-failure rules
+        # only—the schema forces a pick but mechanistic-failure rules
         # don't apply when nothing failed. Disabling the cross-check lets
         # the per-edge bucket drive the update directly; otherwise a
         # successful subgroup trial labeled efficacy_in_subgroup_only loses
@@ -419,13 +419,13 @@ class Attributor:
             if rule:
                 if ev_direction == EvidenceDirection.CONTRADICTING and edge_type in rule.edges_to_strengthen:
                     logger.debug(
-                        "Classifier says contradict %s but taxonomy says strengthen — using ambiguous",
+                        "Classifier says contradict %s but taxonomy says strengthen—using ambiguous",
                         edge_type_str,
                     )
                     bucket = SupportBucket.AMBIGUOUS
                 elif ev_direction == EvidenceDirection.SUPPORTING and edge_type in rule.edges_to_weaken:
                     logger.debug(
-                        "Classifier says support %s but taxonomy says weaken — using ambiguous",
+                        "Classifier says support %s but taxonomy says weaken—using ambiguous",
                         edge_type_str,
                     )
                     bucket = SupportBucket.AMBIGUOUS
@@ -469,7 +469,7 @@ class Attributor:
         self,
         trial: TrialSubgraph,
         extraction: TrialExtraction,
-        client: Any,  # anthropic.AsyncAnthropic — kept loose to avoid import cost in attributor
+        client: Any,  # anthropic.AsyncAnthropic—kept loose to avoid import cost in attributor
         meddra_cache: MeddraCache | None = None,
     ) -> list[AppliedEdgeUpdate]:
         """Update causes_ae edges from a trial's structured adverse events.
@@ -576,7 +576,7 @@ class Attributor:
                 severity_range=grade or "",
             ))
             return
-        # Node exists — extend severity_range if this AE reported a new grade
+        # Node exists—extend severity_range if this AE reported a new grade
         # we haven't seen for this term before. SOC is locked in on first
         # write; the normalizer should be deterministic for the same input.
         if grade and grade not in (existing.get("severity_range") or ""):
@@ -637,10 +637,10 @@ class Attributor:
 
         Returns ``reason=None`` on success. On failure, ids are ``None``
         and reason is one of:
-          - ``"no_chain_match"`` — no chain in the trial subgraph has
+          - ``"no_chain_match"``—no chain in the trial subgraph has
             non-UNKNOWN candidates for this edge type. Means the trial
             is too sparsely populated to verify the update.
-          - ``"entity_not_in_trial"`` — candidate pairs exist, but the
+          - ``"entity_not_in_trial"``—candidate pairs exist, but the
             classifier's named source/target match nothing among them.
             This is the hallucination guard: graph-build trusts only
             entities derivable from the trial subgraph, so if the
@@ -741,7 +741,7 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
         trial_id = clf_data.get("nct_id", ext_data.get("nct_id", "unknown"))
 
         # The trial subgraph (with arms + chains) must already exist in the
-        # graph sidecar — produced by populate.build_trial_subgraphs and
+        # graph sidecar—produced by populate.build_trial_subgraphs and
         # extended by add_subgroup_chains during the extraction pipeline.
         try:
             trial = graph.get_trial_subgraph_by_id(trial_id)
@@ -774,13 +774,13 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
 
         # AE attribution from the cached extraction. The saved JSON is the
         # LLM's nested response (nct_id / therapeutic_hypothesis / results /
-        # context / arms / subgroups / results_by_chain) — not the flat
+        # context / arms / subgroups / results_by_chain)—not the flat
         # TrialExtraction shape. Use the extractor's parser to unwrap it
         # the same way the cache-load path does.
         from src.annotation.extractor import _parse_extraction_response
         try:
             extraction = _parse_extraction_response(ext_data, trial_id)
-        except Exception as exc:  # noqa: BLE001 — pydantic ValidationError + others
+        except Exception as exc:  # noqa: BLE001—pydantic ValidationError + others
             logger.warning(
                 "Skipping AE attribution for %s: extraction JSON invalid (%s)",
                 trial_id, exc,

@@ -126,7 +126,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
         scope="trial_design",
         description=(
             "Trial duration or measurement timing was inappropriate. "
-            "No mechanistic edges are updated — this is purely a "
+            "No mechanistic edges are updated—this is purely a "
             "trial design issue."
         ),
     ),
@@ -142,7 +142,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
         scope="trial_design",
         description=(
             "Unusually high placebo response eroded the treatment effect. "
-            "No mechanistic edges are updated — the signal may exist but "
+            "No mechanistic edges are updated—the signal may exist but "
             "was masked by trial design."
         ),
     ),
@@ -170,7 +170,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
         scope="trial_design",
         description=(
             "Trial was underpowered to detect the treatment effect. "
-            "No mechanistic edges are updated — insufficient statistical "
+            "No mechanistic edges are updated—insufficient statistical "
             "power is not evidence of absence."
         ),
     ),
@@ -271,7 +271,7 @@ class DoseInfo(BaseModel):
     much dosing detail they include; downstream consumers must handle
     None gracefully. ``dose`` is a free string (the LLM emits whatever
     units the report uses, e.g. "150 mg" or "10 mg/kg") rather than a
-    parsed numeric — calibration of dose-vs-response across trials needs
+    parsed numeric—calibration of dose-vs-response across trials needs
     unit normalization that we don't have yet.
     """
 
@@ -319,7 +319,7 @@ class TrialExtraction(BaseModel):
     subgroup_findings: list[str] = Field(default_factory=list)
     summary: str = ""
     # Combinatorial + subgroup-aware extraction.
-    # Empty lists are tolerable — a trial with one arm and no reported
+    # Empty lists are tolerable—a trial with one arm and no reported
     # subgroups produces a single chain at the parent population.
     arms: list[ExtractedArm] = Field(default_factory=list)
     subgroups: list[ExtractedSubgroup] = Field(default_factory=list)
@@ -364,5 +364,5 @@ class EdgeUpdate(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0, default=1.0)
 
 
-# Fix forward reference — EdgeAttribution references EdgeUpdate
+# Fix forward reference—EdgeAttribution references EdgeUpdate
 EdgeAttribution.model_rebuild()

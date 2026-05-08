@@ -52,7 +52,7 @@ from src.graph.models import (
 # (target, mechanism) link is asserted by the compound's MOA annotation
 # itself ("EGFR inhibitor" defines that EGFR is modulated via inhibition),
 # so we bias toward "true" without overclaiming. evidence_strength = 4 puts
-# trust_weight at 0.4 in the predictor — material but not dominant.
+# trust_weight at 0.4 in the predictor—material but not dominant.
 _MODULATES_VIA_PRIOR_ALPHA = 5.0
 _MODULATES_VIA_PRIOR_BETA = 1.0
 from src.graph.store import GraphStore
@@ -124,7 +124,7 @@ _GENE_ALIASES: dict[str, set[str]] = {
 
 
 # Core L1000 Phase 1 cell lines → canonical tissue tag. We intentionally use
-# a broad tissue label rather than full ontology terms — this is the level
+# a broad tissue label rather than full ontology terms—this is the level
 # at which indication-relevance can be reasoned about ("melanoma trial cares
 # about skin-lineage signatures"). Cells present in CLUE but not listed here
 # fall through to "unknown" and are treated as off-tissue at query time.
@@ -170,7 +170,7 @@ INDICATION_KEYWORD_TO_TISSUES: dict[str, set[str]] = {
     "glioblastoma":      {"neural"},
     "glioma":            {"neural"},
     "neuroblastoma":     {"neural"},
-    # Pan-tumor indications — accept any tissue's evidence.
+    # Pan-tumor indications—accept any tissue's evidence.
     "solid tumor":       {"skin", "lung", "breast", "colon", "liver",
                           "prostate", "kidney", "neural"},
     "advanced solid":    {"skin", "lung", "breast", "colon", "liver",
@@ -349,7 +349,7 @@ class LINCSClient:
         numeric Reactome dbId (= the integer suffix of the stable id, e.g.
         ``R-HSA-1227986`` → ``1227986``) and returns participant entities.
         Each participant has ``refEntities`` with ``displayName`` strings
-        like ``"UniProt:P07947 YES1"`` — the trailing token is the gene
+        like ``"UniProt:P07947 YES1"``—the trailing token is the gene
         symbol.
         """
         cache_path = self._participants_dir / f"{_safe_filename(stable_id)}.json"
@@ -382,7 +382,7 @@ class LINCSClient:
         symbols: set[str] = set()
         for participant in payload:
             for ref in participant.get("refEntities") or []:
-                # displayName format: "UniProt:P07947 YES1" — trailing token
+                # displayName format: "UniProt:P07947 YES1"—trailing token
                 # after the last whitespace is the gene symbol.
                 dn = ref.get("displayName") or ""
                 if not dn or " " not in dn:
@@ -413,7 +413,7 @@ class LINCSClient:
             logger.warning("Reactome lookup failed for %s: %s", gene_symbol, exc)
             return []
         if resp.status_code in (404, 500):
-            # 404 = "No pathways found" — the gene exists but isn't in any
+            # 404 = "No pathways found"—the gene exists but isn't in any
             # Reactome pathway. 500 occasionally appears for deprecated ids.
             return []
         resp.raise_for_status()
@@ -712,7 +712,7 @@ async def populate_lincs_signatures(
             # Cell-line provenance lives in EvidenceRecord.context so query-
             # time conditioning can downweight off-tissue evidence per
             # indication. Each hit is one positive perturbation observation
-            # — strength comes from the count of records (one per hitting
+            #—strength comes from the count of records (one per hitting
             # cell line) rather than a per-record magnitude.
             hitting_cells = per_cell_hits.get(pathway_id, [])
             for mech_id, _gene, moa in matched:
@@ -802,7 +802,7 @@ def _build_target_lookup(graph: GraphStore) -> dict[str, tuple[str, str]]:
 
     Indexed by ``gene_symbol`` (upper-case), the node ``name`` (upper-case),
     and any aliases declared in ``_GENE_ALIASES``. The first node registered
-    for a given key wins — later collisions are ignored, so a direct
+    for a given key wins—later collisions are ignored, so a direct
     ``gene_symbol`` match always beats an alias match.
     """
     out: dict[str, tuple[str, str]] = {}
@@ -866,7 +866,7 @@ def _category_to_mechanism_type(category: MechanismCategory) -> MechanismType:
 
 
 def _ensure_edge(graph: GraphStore, src_id: str, tgt_id: str) -> None:
-    if not graph._graph.has_edge(  # noqa: SLF001 — no public has_edge on GraphStore
+    if not graph._graph.has_edge(  # noqa: SLF001—no public has_edge on GraphStore
         src_id, tgt_id, key=EdgeType.MECHANISM_AFFECTS.value
     ):
         graph.add_edge(
@@ -986,7 +986,7 @@ def _match_indication(
 
 async def populate_biology_indication_edges(
     lincs_client: "LINCSClient",
-    ot_client,  # OpenTargetsClient — typed loose to avoid import cycle
+    ot_client,  # OpenTargetsClient—typed loose to avoid import cycle
     graph: GraphStore,
     only_lincs_created: bool = True,
     min_pathway_genes: int = 3,
@@ -1002,10 +1002,10 @@ async def populate_biology_indication_edges(
     any IndicationNode whose name fuzzy-matches an associated disease.
 
     Two thresholds gate edge creation:
-      • ``min_pathway_genes`` — pathway as a whole must have at least this
+      • ``min_pathway_genes``—pathway as a whole must have at least this
         many genes resolving to OT (otherwise we don't trust *any* of its
         edges).
-      • ``min_genes_per_indication`` — each (pathway, indication) edge must
+      • ``min_genes_per_indication``—each (pathway, indication) edge must
         have at least this many co-supporting genes. Single-gene edges are
         just a target→disease association in disguise and double-count
         evidence already present at the target layer; the whole point of

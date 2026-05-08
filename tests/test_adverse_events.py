@@ -249,7 +249,7 @@ class _FakeAnthropicClient:
 
     def __getattr__(self, name: str) -> Any:
         raise AssertionError(
-            f"FakeAnthropicClient.{name} called — test should hit cache instead"
+            f"FakeAnthropicClient.{name} called—test should hit cache instead"
         )
 
 
@@ -546,7 +546,7 @@ class TestPredictionSafetyRisks:
         """
         g, chain = _build_prediction_graph()
         # Add a target_associated_ae entry for the same AE the compound
-        # already covers (rash) — should NOT show up twice.
+        # already covers (rash)—should NOT show up twice.
         g.add_edge(GraphEdge(
             source_id="ENSG_BRAF", target_id="AE:rash",
             edge_type=EdgeType.TARGET_ASSOCIATED_AE,

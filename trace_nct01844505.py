@@ -166,13 +166,13 @@ async def main() -> None:
     parsed = trial.model_dump()
     print(jdump({
         **{k: v for k, v in parsed.items() if k != "results_summary"},
-        "results_summary": "<<dict — see formatted prompt below>>",
+        "results_summary": "<<dict—see formatted prompt below>>",
     }))
 
     # ─────────────────────────────────────────────────────────────────────
-    # STEP 2: Extraction — exact JSON sent and returned
+    # STEP 2: Extraction—exact JSON sent and returned
     # ─────────────────────────────────────────────────────────────────────
-    section(2, "Extraction — exact prompt sent to Claude, exact response")
+    section(2, "Extraction—exact prompt sent to Claude, exact response")
     system_prompt_ext = _extractor_load_prompt("extraction_system.txt")
     user_prompt_ext = _format_trial_for_prompt(trial, abstract=None)
 
@@ -228,9 +228,9 @@ async def main() -> None:
     print(jdump(extraction.model_dump()))
 
     # ─────────────────────────────────────────────────────────────────────
-    # STEP 3: Classification — exact JSON sent and returned
+    # STEP 3: Classification—exact JSON sent and returned
     # ─────────────────────────────────────────────────────────────────────
-    section(3, "Classification — exact prompt sent to Claude, exact response")
+    section(3, "Classification—exact prompt sent to Claude, exact response")
     system_prompt_cls = _classifier_load_prompt("classification_system.txt")
     user_prompt_cls = _format_classification_prompt(extraction)
 
@@ -339,7 +339,7 @@ async def main() -> None:
     # Arm → primary target. Derived from each arm's compound_ids (which
     # depend on what the CT.gov arm-group labels slugify to). Mono arms
     # take the constituent compound's target; combo arms pick the first
-    # constituent's target as a sentinel — binding evidence per-compound
+    # constituent's target as a sentinel—binding evidence per-compound
     # routes through the chain-aware attributor, so combo→constituent
     # alignment via composed_of is what carries the combo's distinct
     # synergy beliefs downstream.
@@ -356,7 +356,7 @@ async def main() -> None:
     for aid, tid in target_by_arm.items():
         print(f"    {aid:>50s} → {tid}")
 
-    # Constituent compound nodes — enrich with ChEMBL IDs + aliases via OT
+    # Constituent compound nodes—enrich with ChEMBL IDs + aliases via OT
     # so each compound carries downstream-useful identifiers (ChEMBL for
     # cross-database joins, aliases for matching brand / code names).
     subhead("Resolving CompoundNode ChEMBL IDs + aliases via Open Targets")
@@ -384,8 +384,8 @@ async def main() -> None:
         id=indication_id, name=trial.conditions[0] if trial.conditions else indication_id,
     ))
 
-    # ── EndpointNodes — one per primary outcome the trial reported ────────
-    # Deterministic keyword match — no extra Anthropic call. CheckMate 067
+    # ── EndpointNodes—one per primary outcome the trial reported ────────
+    # Deterministic keyword match—no extra Anthropic call. CheckMate 067
     # has both PFS and OS as primary endpoints; both become EndpointNodes
     # and chains fan across them.
     subhead("Creating EndpointNodes from trial.primary_outcomes")
@@ -397,7 +397,7 @@ async def main() -> None:
             continue
         ep_id = normalize_entity(f"{ep_class}_{indication_id}", "EndpointNode")
         if ep_class in endpoint_ids:
-            continue  # dedupe — the same class can repeat across multiple outcomes
+            continue  # dedupe—the same class can repeat across multiple outcomes
         endpoint_ids[ep_class] = ep_id
         try:
             graph.get_node(ep_id)
@@ -411,7 +411,7 @@ async def main() -> None:
 
     if not endpoint_ids:
         raise RuntimeError(
-            f"No EndpointNodes created for {NCT_ID} — "
+            f"No EndpointNodes created for {NCT_ID}—"
             "deterministic classifier matched none of the primary outcomes"
         )
 
@@ -472,7 +472,7 @@ async def main() -> None:
         feats = node.get("defining_features", [])
         feat_str = ", ".join(
             f"{f.get('axis')}/{f.get('key') or '-'}={f.get('level')}" for f in feats
-        ) or "(none — parent enrollment population)"
+        ) or "(none—parent enrollment population)"
         print(f"    {pid}: {feat_str}")
 
     n_subgroups = len(pop_nodes) - 1 if len(pop_nodes) > 1 else 1
@@ -487,7 +487,7 @@ async def main() -> None:
         print(f"    arm={c.arm_id:>22s}  pop={c.subgroup_population_id:<48s}  ep={ep_class:<4s} → {c.endpoint_id}{es}{out}")
 
     # ─────────────────────────────────────────────────────────────────────
-    # STEP 5: Prediction BEFORE attribution — one prediction per chain
+    # STEP 5: Prediction BEFORE attribution—one prediction per chain
     # ─────────────────────────────────────────────────────────────────────
     section(5, "Prediction BEFORE attribution (per chain)")
     engine = PredictionEngine(graph)
@@ -498,9 +498,9 @@ async def main() -> None:
         print(f"  arm={c.arm_id:>22s}  pop={c.subgroup_population_id:<48s}  P={r.overall_probability:.4f}  CI=[{r.ci_lower:.3f},{r.ci_upper:.3f}]  weakest={r.weakest_link.edge_type.value if r.weakest_link else 'n/a'}")
 
     # ─────────────────────────────────────────────────────────────────────
-    # STEP 6: Attribution — chain-aware routing
+    # STEP 6: Attribution—chain-aware routing
     # ─────────────────────────────────────────────────────────────────────
-    section(6, "Attribution — chain-aware routing of classifier edge updates")
+    section(6, "Attribution—chain-aware routing of classifier edge updates")
 
     subhead("Classifier-suggested edge updates (raw)")
     raw_edges = getattr(classification, "_raw", {}).get("edges_to_update", [])
@@ -534,7 +534,7 @@ async def main() -> None:
         print(f"     before: {belief_str(pre)}")
         print(f"     after : {belief_str(post)}")
 
-    # Surface anything that didn't route — the original CTLA-4-onto-PD-1 bug
+    # Surface anything that didn't route—the original CTLA-4-onto-PD-1 bug
     # would now appear here instead of silently corrupting the wrong edge.
     unrouted_log = Path("data/dev/unrouted_attribution_updates.jsonl")
     if unrouted_log.exists():
@@ -543,7 +543,7 @@ async def main() -> None:
             if NCT_ID in line
         ]
         if recent:
-            subhead(f"Unrouted updates ({len(recent)}) — logged to {unrouted_log}")
+            subhead(f"Unrouted updates ({len(recent)})—logged to {unrouted_log}")
             for r in recent[-10:]:
                 print(f"  {r.get('source_entity')} → {r.get('target_entity')}  ({r.get('reason')})")
 

@@ -3,7 +3,7 @@
 The two tables in ``beliefs.py`` are the only knobs in the conjugate
 update. With a labeled holdout set of trials (each carrying the actual
 binary outcome of the predicted indication-success), we can refit them
-to maximize a calibration target — Brier score and expected calibration
+to maximize a calibration target—Brier score and expected calibration
 error are the natural choices.
 
 Approach (deferred until ≥50 annotated trials are available):
@@ -19,8 +19,8 @@ Approach (deferred until ≥50 annotated trials are available):
 3. Report calibration plot (predicted-bin vs observed-frequency) and
    ECE alongside the new tables.
 
-Returning the refitted tables — rather than mutating the module-level
-constants — lets callers diff old vs new and snapshot for reproducibility.
+Returning the refitted tables—rather than mutating the module-level
+constants—lets callers diff old vs new and snapshot for reproducibility.
 """
 
 from __future__ import annotations

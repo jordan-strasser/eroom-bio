@@ -63,7 +63,7 @@ query SearchDrug($name: String!) {
 # trial-driven population pipeline to go compound → target without bulk-
 # loading every disease-association row from Open Targets. Targets come
 # from ChEMBL-curated mechanisms-of-action, surfaced as one row per
-# (mechanism, action) tuple — many rows can list the same target.
+# (mechanism, action) tuple—many rows can list the same target.
 #
 # Page size is 5 (not 1) so ``get_drug_with_targets`` can prefer a hit
 # whose canonical name / synonym / tradeName actually matches the query
@@ -200,7 +200,7 @@ class OpenTargetsClient:
         Returns ``{"chembl_id": str, "name": str, "aliases": list[str],
         "targets": [{"target_id": str, "approved_symbol": str,
         "approved_name": str}]}``. Targets are flattened + deduped across
-        the drug's ``mechanismsOfAction.rows`` — many rows can list the
+        the drug's ``mechanismsOfAction.rows``—many rows can list the
         same target (one per mechanism phrasing).
 
         Disambiguation: queries OT for the top 5 hits and prefers one
@@ -316,7 +316,7 @@ def _pick_best_drug_hit(hits: list[dict[str, Any]], queried_name: str) -> int:
     Match policy: the first hit whose canonical name OR any synonym OR
     any tradeName equals ``queried_name`` case-insensitively (after
     punctuation-insensitive normalization) wins. If none match, returns
-    0 — the OT-ranked top hit.
+    0—the OT-ranked top hit.
     """
     if not hits:
         return 0
@@ -436,7 +436,7 @@ async def populate_target_disease_edges(
     associations = await client.get_disease_associations(disease_efo_id)
     added = 0
     for assoc in associations:
-        target_id = assoc["target_id"]  # Ensembl ID — canonical TargetNode id
+        target_id = assoc["target_id"]  # Ensembl ID—canonical TargetNode id
         # Ensure target node exists
         try:
             graph.get_node(target_id)

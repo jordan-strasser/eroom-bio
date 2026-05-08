@@ -103,7 +103,7 @@ class EdgeType(str, Enum):
     ENDPOINT_CAPTURES = "endpoint_captures"
     RESPONDS_DIFFERENTLY = "responds_differently"
     # Structural edge: links a synthesized combo CompoundNode to each of its
-    # constituent CompoundNodes. Carries no Beta belief — used purely to make
+    # constituent CompoundNodes. Carries no Beta belief—used purely to make
     # the combo's composition queryable from the graph.
     COMPOSED_OF = "composed_of"
     # Compound → AdverseEvent. Belief = P(this compound causes this AE).
@@ -111,7 +111,7 @@ class EdgeType(str, Enum):
     CAUSES_AE = "causes_ae"
     # Target → AdverseEvent. Belief = P(modulating this target causes this AE).
     # Evidence: ≥2 distinct compounds binding the target with strong causes_ae
-    # to the same AE — the cross-trial signal that an AE is on-mechanism
+    # to the same AE—the cross-trial signal that an AE is on-mechanism
     # rather than compound-specific.
     TARGET_ASSOCIATED_AE = "target_associated_ae"
 
@@ -275,7 +275,7 @@ class AdverseEventNode(BaseModel):
 
     The id format is ``AE:{lowercase_underscored_meddra_term}`` (e.g.
     ``AE:hepatotoxicity``) so the same AE shared across trials and
-    compounds collapses to a single node — the precondition for
+    compounds collapses to a single node—the precondition for
     cross-trial learning of mechanism-associated toxicities.
     """
     id: str = Field(min_length=1)
@@ -292,7 +292,7 @@ class AdverseEventNode(BaseModel):
 class TrialNode(BaseModel):
     """Marker node anchoring a trial in the graph.
 
-    No outgoing graph edges — the rich per-(arm × subgroup) chain data lives
+    No outgoing graph edges—the rich per-(arm × subgroup) chain data lives
     on ``GraphStore.trial_subgraphs[id]``. The node exists so the graph
     itself records that the trial happened and so id-based joins from
     other places (e.g. Open Targets clinical evidence rows) have a
@@ -316,7 +316,7 @@ class EvidenceRecord(BaseModel):
     ``source_type`` selects the effective virtual sample size (N_eff)
     from ``EVIDENCE_TYPE_N_EFF``, and ``support`` selects the implied
     success probability (p_obs) from ``BUCKET_TO_P_OBS``. ``quality_score``
-    is an optional [0, 1] discount on N_eff — used for LLM-derived
+    is an optional [0, 1] discount on N_eff—used for LLM-derived
     records to fold in the classifier's own self-reported confidence
     rubric tier; defaults to 1.0 for evidence streams (LINCS, GWAS)
     that have no classification step to be uncertain about.
@@ -390,7 +390,7 @@ class TrialArm(BaseModel):
 
     For mono arms, ``compound_ids`` has one entry and ``regimen_compound_id``
     equals it. For combo arms, ``regimen_compound_id`` is the synthesized
-    combo CompoundNode id (e.g. ``ipilimumab+nivolumab``) — that's the node
+    combo CompoundNode id (e.g. ``ipilimumab+nivolumab``)—that's the node
     chains use as their compound, so combo evidence accumulates on a
     distinct beliefs surface and divergence vs. P(A)·P(B) measures
     non-linear synergy.
@@ -411,7 +411,7 @@ class CausalChain(BaseModel):
     so attribution and prediction can reason about them independently.
 
     ``compound_id`` denormalizes the arm's regimen_compound_id onto the
-    chain — convenient for prediction, which walks binds_to from compound
+    chain—convenient for prediction, which walks binds_to from compound
     to target and otherwise would have to traverse arms by ``arm_id``.
     For mono arms it equals the single constituent; for combo arms it's
     the synthesized combo CompoundNode id.
@@ -564,7 +564,7 @@ def normalize_entity(name: str, node_type: str) -> str:
     if node_type == "EndpointNode":
         # Expect {EndpointClass}_{indication_id}. Multi-word class values
         # like 'composite_response' contain underscores, so split on the
-        # *first* '_' is wrong — match against EndpointClass values
+        # *first* '_' is wrong—match against EndpointClass values
         # longest-first instead.
         if "_" not in raw:
             raise ValueError(

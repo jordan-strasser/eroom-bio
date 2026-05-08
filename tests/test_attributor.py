@@ -215,7 +215,7 @@ class TestChainAwareRouting:
     def test_off_trial_entity_is_dropped_as_hallucination(self):
         """Classifier emits an entity (Pembrolizumab) that is nowhere in
         the trial subgraph. Candidate (compound, target) pairs exist but
-        none match the classifier names — graph-build trusts only
+        none match the classifier names—graph-build trusts only
         trial-derived entities, so this is rejected as a hallucination
         rather than misrouted to whichever pair happened to be present.
         """
@@ -237,7 +237,7 @@ class TestChainAwareRouting:
     def test_sparse_chain_logs_no_chain_match_not_hallucination(self):
         """When the trial subgraph has UNKNOWN placeholders so no
         candidate (src, tgt) pairs can be formed for the requested edge
-        type, the update is still dropped — but logged as
+        type, the update is still dropped—but logged as
         ``no_chain_match`` (chain too sparse to verify) rather than
         ``entity_not_in_trial`` (classifier hallucinated). The
         distinction matters: hallucination is a model-quality signal,
@@ -291,7 +291,7 @@ class TestChainAwareRouting:
             {"edge_type": "composed_of", "source_entity": "ipi+nivo",
              "target_entity": "Nivolumab", "support": "moderate_support"},
         ])
-        # composed_of is a structural edge — classifier-driven updates on it
+        # composed_of is a structural edge—classifier-driven updates on it
         # are dropped silently (not applied, not logged as unrouted).
         updates = Attributor(g).attribute(clf, ts)
         assert updates == []

@@ -6,7 +6,7 @@ that all bind the same target, that's evidence the AE is mechanism-related
 This module rebuilds ``target_associated_ae`` beliefs by aggregating the
 ``causes_ae`` beliefs of every compound binding the target.
 
-Idempotent by design — the target_associated_ae belief is rebuilt from
+Idempotent by design—the target_associated_ae belief is rebuilt from
 scratch on every call rather than incrementally updated, so re-running
 after every causes_ae attribution doesn't double-count.
 """
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 # Each compound binding a target contributes one vote about the target's
 # AE liability. The target-class hypothesis is one step removed from any
 # single trial, so each compound's vote carries less weight than a single
-# Phase-3 trial — anchor at GWAS-tier (N_eff = 4) by default.
+# Phase-3 trial—anchor at GWAS-tier (N_eff = 4) by default.
 _VOTE_N_EFF_PER_COMPOUND = 4.0
 # Compound→AE beliefs with very little underlying evidence don't get a
 # vote. Threshold = 1.0 of accumulated pseudo-counts (alpha+beta-2 ≥ 1)

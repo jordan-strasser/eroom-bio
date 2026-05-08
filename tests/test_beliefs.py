@@ -148,7 +148,7 @@ class TestApplyVirtualEvidence:
 
     def test_ambiguous_evidence_preserves_mean(self):
         # Ambiguous evidence (p_obs=0.5) on a uniform prior leaves the
-        # posterior mean at 0.5 — variance shrinks but the point estimate
+        # posterior mean at 0.5—variance shrinks but the point estimate
         # stays put.
         b = EdgeBeliefState()
         post = apply_virtual_evidence(b, n_eff=10.0, p_obs=0.5)

@@ -2,9 +2,9 @@
 
 **A meta-learning system for medicine.**
 
-Eroom Bio decomposes clinical trials into mechanistic causal chains, accumulates evidence across trials on a shared knowledge graph, and surfaces patterns that no single trial can reveal — which mechanisms translate, which endpoints capture clinical benefit, and where the real scientific disagreements are.
+Eroom Bio decomposes clinical trials into mechanistic causal chains, accumulates evidence across trials on a shared knowledge graph, and surfaces patterns that no single trial can reveal—which mechanisms translate, which endpoints capture clinical benefit, and where the real scientific disagreements are.
 
-Named after [Eroom's Law](https://www.nature.com/articles/nrd3681): the cost of developing a new drug has doubled every nine years since 1950. Unlike chip fabrication — where every production run updates a collective yield-learning model — biotech has never had a centralized system that accumulates mechanistic knowledge from every trial and builds on it over time. This is that system.
+Named after [Eroom's Law](https://www.nature.com/articles/nrd3681): the cost of developing a new drug has doubled every nine years since 1950. Unlike chip fabrication—where every production run updates a collective yield-learning model—biotech has never had a centralized system that accumulates mechanistic knowledge from every trial and builds on it over time. This is that system.
 
 ---
 
@@ -24,17 +24,17 @@ Most systems record whether trials pass or fail. Eroom Bio records **where in th
 
 **Cross-trial knowledge accumulation.** When multiple independent trials test the same mechanistic link, evidence accumulates on the shared edge. After processing 145 melanoma trials:
 
-- **PD-1 → checkpoint blockade** (`modulates_via`): 7 independent trials, all concordant support, posterior belief 0.50 → 0.88. The system learned that PD-1 inhibition reliably produces checkpoint blockade — from data, not from a hard-coded rule.
+- **PD-1 → checkpoint blockade** (`modulates_via`): 7 independent trials, all concordant support, posterior belief 0.50 → 0.88. The system learned that PD-1 inhibition reliably produces checkpoint blockade—from data, not from a hard-coded rule.
 - **Nivolumab → anemia** (`causes_ae`): 9 trials contributing to the same adverse event edge. Cross-trial AE signal that no single trial could establish.
 - 77 edges with 3+ contributing trials. 15 edges with 5+ trials.
 
 **Conflict detection.** When trials disagree about the same mechanistic link, the system flags it:
 
-- **ORR → clinical benefit in cutaneous melanoma** (`endpoint_captures`): 2 trials, both contradicting. ORR doesn't reliably translate to clinical benefit in this subtype — a finding with direct implications for endpoint selection in future trials.
+- **ORR → clinical benefit in cutaneous melanoma** (`endpoint_captures`): 2 trials, both contradicting. ORR doesn't reliably translate to clinical benefit in this subtype—a finding with direct implications for endpoint selection in future trials.
 - **Checkpoint blockade → melanoma biology** (`mechanism_affects`): 8 trials, 7 supporting, 1 contradicting (NCT02752074). A real scientific outlier worth investigating.
 - 7 disagreement edges total at n=145, with 6 representing genuine scientific conflict.
 
-**Structured failure decomposition.** When a trial fails, the system classifies *where* in the causal chain it broke — using a 13-category mechanistic taxonomy:
+**Structured failure decomposition.** When a trial fails, the system classifies *where* in the causal chain it broke—using a 13-category mechanistic taxonomy:
 
 | Failure mode | What it means | Which edges update |
 |---|---|---|
@@ -45,7 +45,7 @@ Most systems record whether trials pass or fail. Eroom Bio records **where in th
 | Dose-limiting toxicity | Can't reach therapeutic dose | Compound-specific |
 | Wrong population | Mechanism valid, patients lack driving biology | Strengthens mechanism, weakens population |
 
-A single failed trial produces *opposing* updates on different edges — strengthening the links that worked, weakening the one that broke.
+A single failed trial produces *opposing* updates on different edges—strengthening the links that worked, weakening the one that broke.
 
 ---
 
@@ -53,14 +53,14 @@ A single failed trial produces *opposing* updates on different edges — strengt
 
 ### The knowledge graph
 
-Typed nodes (Compound, Target, Mechanism, Biology, Indication, Endpoint, Population, Biomarker, AdverseEvent) connected by typed directed edges. Every edge carries a **Beta(α, β) belief state** — a probability distribution representing both the expected probability and the strength of evidence.
+Typed nodes (Compound, Target, Mechanism, Biology, Indication, Endpoint, Population, Biomarker, AdverseEvent) connected by typed directed edges. Every edge carries a **Beta(α, β) belief state**—a probability distribution representing both the expected probability and the strength of evidence.
 
 - `Beta(1, 1)` = no evidence, total ignorance
 - `Beta(18, 3)` = strong evidence supporting this link (probability ~0.86)
 - `Beta(4, 11)` = evidence mostly against this link (probability ~0.27)
 - `Beta(15, 12)` = substantial evidence, genuinely conflicted (probability ~0.56, high conflict score)
 
-Every update records its source trial, evidence type, and support bucket — full provenance on every belief.
+Every update records its source trial, evidence type, and support bucket—full provenance on every belief.
 
 ### Evidence weighting
 
@@ -77,7 +77,7 @@ Updates use a principled Beta-Binomial conjugate model. Each evidence record con
 | Preclinical in vitro | 1.0 | Cell line data |
 | Computational | 0.3 | Predicted, not measured |
 
-The support direction (how much the evidence supports or contradicts the edge) is classified into 7 buckets by the LLM using a rubric grounded in observable features — not subjective confidence scores.
+The support direction (how much the evidence supports or contradicts the edge) is classified into 7 buckets by the LLM using a rubric grounded in observable features—not subjective confidence scores.
 
 ### Data sources
 
@@ -90,7 +90,7 @@ The support direction (how much the evidence supports or contradicts the edge) i
 
 ### Prediction
 
-Given a therapeutic hypothesis (compound, target, mechanism, biology, indication, endpoint, population), the system computes P(success) as a weighted geometric mean of edge beliefs along the causal chain. Each edge's contribution is weighted by a trust score reflecting evidence strength. The prediction identifies the **weakest link** — the edge most likely to cause failure — and explains why.
+Given a therapeutic hypothesis (compound, target, mechanism, biology, indication, endpoint, population), the system computes P(success) as a weighted geometric mean of edge beliefs along the causal chain. Each edge's contribution is weighted by a trust score reflecting evidence strength. The prediction identifies the **weakest link**—the edge most likely to cause failure—and explains why.
 
 Current OOS discrimination (n=145 melanoma, temporal split): modest. The prediction layer improves with data density and will be the focus of scaling work. The knowledge accumulation, conflict detection, and failure decomposition are production-quality now.
 
@@ -158,10 +158,10 @@ docs/           # Architecture spec
 
 Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produces:
 
-1. **Edge-level Bayesian beliefs** with evidence provenance — not a single probability, but a decomposed view of where the evidence is strong and where it's weak.
-2. **A mechanistic failure taxonomy** — 13 categories that map failure modes to specific edges in the causal chain. This taxonomy does not exist elsewhere.
-3. **Cross-trial knowledge accumulation** — shared edges that compound evidence from independent trials. 77 edges with 3+ contributing trials after 145 melanoma trials.
-4. **Scientific conflict detection** — edges where trials disagree, flagged automatically. These are the interesting questions, not the settled ones.
+1. **Edge-level Bayesian beliefs** with evidence provenance—not a single probability, but a decomposed view of where the evidence is strong and where it's weak.
+2. **A mechanistic failure taxonomy**—13 categories that map failure modes to specific edges in the causal chain. This taxonomy does not exist elsewhere.
+3. **Cross-trial knowledge accumulation**—shared edges that compound evidence from independent trials. 77 edges with 3+ contributing trials after 145 melanoma trials.
+4. **Scientific conflict detection**—edges where trials disagree, flagged automatically. These are the interesting questions, not the settled ones.
 
 ---
 

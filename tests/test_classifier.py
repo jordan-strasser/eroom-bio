@@ -236,7 +236,7 @@ class TestParseClassification:
 
     def test_empty_modes_on_success_uses_confidence_overall(self):
         # Empty failure_modes on a successful trial is the legitimate
-        # "no remaining weak points" case — confidence must NOT be
+        # "no remaining weak points" case—confidence must NOT be
         # zeroed, otherwise quality_score would null out the per-edge
         # bucket updates downstream in the attributor.
         raw = {**VALID_CLASSIFICATION_JSON, "failure_modes": []}

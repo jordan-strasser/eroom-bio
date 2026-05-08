@@ -17,7 +17,7 @@ The failure modes you can assign are:
 - target_engaged_biology_not_moved: Target was hit but downstream biology didn't change
 - biology_moved_endpoint_flat: Biology changed but clinical endpoint didn't improve
 - efficacy_in_subgroup_only: Drug works in a subgroup but not the full population
-- dose_limiting_toxicity: Toxicity prevented adequate dosing. Use the structured "Adverse Events" table (per-arm incidence + grade) and the "Dose / Exposure" block as primary evidence — narrative safety mentions alone are not enough. Specifically, assign DLT when: (a) the maximum tolerated dose was below the dose projected to engage the target, OR (b) ≥ Grade 3 AEs in the treatment arm exceed control by a clinically meaningful margin AND the protocol required dose reductions / interruptions, OR (c) the trial was terminated for safety with a stated AE attribution.
+- dose_limiting_toxicity: Toxicity prevented adequate dosing. Use the structured "Adverse Events" table (per-arm incidence + grade) and the "Dose / Exposure" block as primary evidence—narrative safety mentions alone are not enough. Specifically, assign DLT when: (a) the maximum tolerated dose was below the dose projected to engage the target, OR (b) ≥ Grade 3 AEs in the treatment arm exceed control by a clinically meaningful margin AND the protocol required dose reductions / interruptions, OR (c) the trial was terminated for safety with a stated AE attribution.
 - wrong_timeframe: Trial duration or measurement timing was inappropriate
 - high_placebo_response: Unusually high placebo response masked treatment effect
 - wrong_population: Enrolled population was not right for the mechanism
@@ -29,42 +29,42 @@ The failure modes you can assign are:
 
 Trial outcome routes processing:
 
-- For FAILURE or PARTIAL trials: `failure_modes` is the mechanistic-failure classification and is REQUIRED — pick at least one of the 13 categories above. The downstream attributor uses the primary failure mode to cross-check `edges_to_update` against the taxonomy (e.g. classifier saying `binds_to: strong_support` while picking `no_target_engagement` is internally inconsistent and the bucket gets downgraded to ambiguous).
+- For FAILURE or PARTIAL trials: `failure_modes` is the mechanistic-failure classification and is REQUIRED—pick at least one of the 13 categories above. The downstream attributor uses the primary failure mode to cross-check `edges_to_update` against the taxonomy (e.g. classifier saying `binds_to: strong_support` while picking `no_target_engagement` is internally inconsistent and the bucket gets downgraded to ambiguous).
 
-- For SUCCESS trials: `failure_modes` is DESCRIPTIVE ONLY and does not drive any graph update — the cross-check is disabled. Use it to surface remaining weak points or trial-design caveats (small sample, single-arm, narrow biomarker-defined population, short follow-up) that future trial designers should be aware of. If there are none, return `[]`. Do NOT pick a label just to fill the slot — a successful subgroup trial is not an `efficacy_in_subgroup_only` *failure*. The source of truth for the graph update on a successful trial is `edges_to_update`: emit one *_support bucket per validated edge.
+- For SUCCESS trials: `failure_modes` is DESCRIPTIVE ONLY and does not drive any graph update—the cross-check is disabled. Use it to surface remaining weak points or trial-design caveats (small sample, single-arm, narrow biomarker-defined population, short follow-up) that future trial designers should be aware of. If there are none, return `[]`. Do NOT pick a label just to fill the slot—a successful subgroup trial is not an `efficacy_in_subgroup_only` *failure*. The source of truth for the graph update on a successful trial is `edges_to_update`: emit one *_support bucket per validated edge.
 
-You MUST return ONLY valid JSON matching this exact schema — no markdown, no commentary:
+You MUST return ONLY valid JSON matching this exact schema—no markdown, no commentary:
 
 {
   "nct_id": "string",
   "trial_outcome": "success"|"failure"|"partial",
-  "reasoning": "string — step-by-step reasoning through the 5 causal chain steps above",
+  "reasoning": "string—step-by-step reasoning through the 5 causal chain steps above",
   "failure_modes": [
     {
-      "mode": "string — one of the failure mode enum values above",
+      "mode": "string—one of the failure mode enum values above",
       "confidence": 0.0-1.0,
-      "evidence": "string — specific evidence supporting this classification"
+      "evidence": "string—specific evidence supporting this classification"
     }
   ],
   "edges_to_update": [
     {
       "edge_type": "binds_to|modulates_via|mechanism_affects|biology_drives|reflects_biology|endpoint_captures|responds_differently",
-      "source_entity": "string — compound, target, mechanism, etc.",
-      "target_entity": "string — target, biology, endpoint, etc.",
+      "source_entity": "string—compound, target, mechanism, etc.",
+      "target_entity": "string—target, biology, endpoint, etc.",
       "support": "strong_support|moderate_support|weak_support|ambiguous|weak_contradict|moderate_contradict|strong_contradict",
-      "reasoning": "string — why this edge should be updated"
+      "reasoning": "string—why this edge should be updated"
     }
   ],
   "confidence_overall": 0.0-1.0,
   "needs_expert_review": true|false,
-  "review_reason": "string or null — why expert review is needed"
+  "review_reason": "string or null—why expert review is needed"
 }
 
 Rules:
-- For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive — include entries only when there are real trial-design weak points to surface; otherwise return [].
+- For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive—include entries only when there are real trial-design weak points to surface; otherwise return [].
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
 
-Edge schema — every `edges_to_update` entry MUST follow these source→target node-type pairings. The attributor drops any edge whose endpoints don't match the schema or aren't in the trial subgraph (it can't update an edge that doesn't exist). Source / target are NODE NAMES the trial subgraph already knows about, not free-text re-statements.
+Edge schema—every `edges_to_update` entry MUST follow these source→target node-type pairings. The attributor drops any edge whose endpoints don't match the schema or aren't in the trial subgraph (it can't update an edge that doesn't exist). Source / target are NODE NAMES the trial subgraph already knows about, not free-text re-statements.
 
   edge_type             source node type   →   target node type    notes
   ────────────────────────────────────────────────────────────────────────
@@ -80,41 +80,41 @@ Edge schema — every `edges_to_update` entry MUST follow these source→target 
 Critical rules for `responds_differently`:
   - Source MUST be a patient-subgroup PopulationNode (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.
   - Target MUST be the indication (e.g. "melanoma", "metastatic_melanoma"), not a drug or biology slug.
-  - Use this when the trial reports a subgroup analysis with a different effect size than the overall population — that observation is what `responds_differently` captures. If the trial only reports the overall result, do NOT emit a responds_differently edge.
+  - Use this when the trial reports a subgroup analysis with a different effect size than the overall population—that observation is what `responds_differently` captures. If the trial only reports the overall result, do NOT emit a responds_differently edge.
 
 Critical rules for `endpoint_captures` (independent of mechanistic data):
-  `endpoint_captures` answers a different question from the upstream causal-chain edges (binds_to, modulates_via, mechanism_affects, biology_drives). Those ask "did the drug work mechanistically." This edge asks "did the endpoint that was measured actually translate to clinical benefit in this indication." Those are orthogonal — answer them independently.
+  `endpoint_captures` answers a different question from the upstream causal-chain edges (binds_to, modulates_via, mechanism_affects, biology_drives). Those ask "did the drug work mechanistically." This edge asks "did the endpoint that was measured actually translate to clinical benefit in this indication." Those are orthogonal—answer them independently.
 
-  - **You MUST emit one `endpoint_captures` update whenever the trial reported a primary efficacy endpoint with a numeric or qualitative result.** This holds EVEN WHEN the upstream edges can't be assessed (e.g. no biomarker data, no control arm, single-arm Phase 2, `insufficient_information` for the mechanistic chain). Picking `insufficient_information` as a failure mode is NOT a reason to skip endpoint_captures — they are decoupled.
+  - **You MUST emit one `endpoint_captures` update whenever the trial reported a primary efficacy endpoint with a numeric or qualitative result.** This holds EVEN WHEN the upstream edges can't be assessed (e.g. no biomarker data, no control arm, single-arm Phase 2, `insufficient_information` for the mechanistic chain). Picking `insufficient_information` as a failure mode is NOT a reason to skip endpoint_captures—they are decoupled.
   - The ONLY cases where you legitimately skip endpoint_captures are:
-      (a) The trial's primary endpoint is a pure safety/tolerability/PK measure (DLT, MTD, AE incidence, Cmax) — those don't speak to indication-level clinical benefit at all.
+      (a) The trial's primary endpoint is a pure safety/tolerability/PK measure (DLT, MTD, AE incidence, Cmax)—those don't speak to indication-level clinical benefit at all.
       (b) The trial reported zero efficacy results because it was terminated before any readout.
-  - Bucket selection — judge whether the endpoint MOVEMENT translates to benefit, not whether the drug worked:
+  - Bucket selection—judge whether the endpoint MOVEMENT translates to benefit, not whether the drug worked:
       strong_support      Endpoint hit at p<0.05 AND independent evidence of clinical benefit (e.g. OS hit alongside PFS, regulatory approval based on this endpoint).
       moderate_support    Endpoint hit AND directional clinical-benefit signal, OR endpoint is regulator-accepted surrogate for this indication and was hit cleanly.
       weak_support        Endpoint trended right way; endpoint relevance for this indication is plausible but not strongly established.
-      ambiguous           Endpoint result is reported but interpretation requires comparators we don't have (e.g. single-arm 21% ORR — could be drug or chance), OR endpoint moved but clinical benefit didn't follow.
-      weak_contradict     Endpoint moved/hit but clinical benefit clearly didn't translate (the canonical "biology_moved_endpoint_flat" signal — endpoint is a poor surrogate here).
+      ambiguous           Endpoint result is reported but interpretation requires comparators we don't have (e.g. single-arm 21% ORR—could be drug or chance), OR endpoint moved but clinical benefit didn't follow.
+      weak_contradict     Endpoint moved/hit but clinical benefit clearly didn't translate (the canonical "biology_moved_endpoint_flat" signal—endpoint is a poor surrogate here).
       moderate_contradict Endpoint result actively contradicts clinical-benefit translation (e.g. ORR was achieved but PFS / OS did NOT improve, suggesting ORR is a poor surrogate).
       strong_contradict   Multiple within-trial endpoints contradict each other in a way that proves the chosen primary doesn't capture benefit (rare).
 
   Do NOT confuse:
-    - "drug failed" + "primary endpoint missed" → that's a `binds_to` / `mechanism_affects` signal, NOT an `endpoint_captures` signal. Skip endpoint_captures here (the endpoint's translatability wasn't tested — drug never moved it).
+    - "drug failed" + "primary endpoint missed" → that's a `binds_to` / `mechanism_affects` signal, NOT an `endpoint_captures` signal. Skip endpoint_captures here (the endpoint's translatability wasn't tested—drug never moved it).
     - "drug worked on endpoint" + "no clinical benefit" → THIS is the endpoint_captures contradict signal. Always emit.
     - "single-arm trial with mid-tier ORR" → endpoint was measured; emit `ambiguous` or `weak_support` based on whether it beats historical benchmarks for this indication.
 
-Do not invent entities. If the subgroup, target, or biology you want to reference isn't in the extraction's structured fields, omit that edge — the attributor will drop hallucinated entities anyway.
+Do not invent entities. If the subgroup, target, or biology you want to reference isn't in the extraction's structured fields, omit that edge—the attributor will drop hallucinated entities anyway.
 - Set needs_expert_review to true if evidence is ambiguous or conflicting.
 - confidence_overall reflects your certainty in the ENTIRE classification, not just one mode.
 - Return ONLY the JSON object.
 
-Support bucket rubric — pick exactly one bucket per edge using the strongest tier the trial evidence satisfies. The bucket maps deterministically to a Beta-Binomial update; do NOT inflate based on narrative tone.
+Support bucket rubric—pick exactly one bucket per edge using the strongest tier the trial evidence satisfies. The bucket maps deterministically to a Beta-Binomial update; do NOT inflate based on narrative tone.
 
   strong_support       Pre-specified primary endpoint hit at p<0.05 with
                        clinically meaningful effect, OR a biomarker readout
                        that mechanistically requires this edge to be true.
                        AND none of the following alternative explanations
-                       apply — each is an observable check, not a vibe:
+                       apply—each is an observable check, not a vibe:
                          (a) placebo-response inflation: was the placebo
                              arm's response notably higher than historical
                              baseline for this indication?
@@ -136,7 +136,7 @@ Support bucket rubric — pick exactly one bucket per edge using the strongest t
                        effect size, or exactly one of (a)-(e) above is
                        plausible.
 
-  weak_support         Directional consistency only — endpoint trended
+  weak_support         Directional consistency only—endpoint trended
                        right way but missed significance, OR a single
                        supportive biomarker without confirmatory clinical
                        readout, OR two or more of (a)-(e) above are
@@ -146,7 +146,7 @@ Support bucket rubric — pick exactly one bucket per edge using the strongest t
                        (e.g. the endpoint isn't sensitive to whether this
                        edge holds, or evidence cuts both ways).
 
-  weak_contradict      Directional negativity only — endpoint trended
+  weak_contradict      Directional negativity only—endpoint trended
                        wrong way but missed significance, OR a single
                        unsupportive biomarker without confirmatory
                        clinical readout, OR two or more of (a)-(f) under
@@ -161,7 +161,7 @@ Support bucket rubric — pick exactly one bucket per edge using the strongest t
                        with adequate power and confirmed target engagement,
                        OR a biomarker readout that mechanistically rules
                        the edge out. AND none of the following mitigating
-                       factors apply — each is an observable check, not
+                       factors apply—each is an observable check, not
                        a vibe:
                          (a) underpowered design: was N below the trial's
                              pre-specified power calculation, or
@@ -194,7 +194,7 @@ Instead, set `needs_expert_review` to true and name the factor explicitly
 in `review_reason`. Recurring unlisted factors will be added to the
 checklists during calibration.
 
-Confidence rubric for confidence_overall — assign by matching the strongest tier the evidence satisfies:
+Confidence rubric for confidence_overall—assign by matching the strongest tier the evidence satisfies:
 
   0.9+    Target engagement biomarker data explicitly reported AND
           downstream pathway biomarker explicitly reported AND
@@ -213,4 +213,4 @@ Confidence rubric for confidence_overall — assign by matching the strongest ti
           "insufficient_information", set needs_expert_review to true,
           and explain in review_reason what specific evidence is missing.
 
-Be conservative: when evidence sits between tiers, choose the lower one. The rubric is the source of truth — do not inflate confidence based on narrative tone in the trial report.
+Be conservative: when evidence sits between tiers, choose the lower one. The rubric is the source of truth—do not inflate confidence based on narrative tone in the trial report.

@@ -168,5 +168,5 @@ class TestSubgroupTaxonomyIntegration:
         from src.graph.subgroup_taxonomy import canonicalize_feature
         load(cache_path=hgnc_tsv_path, download_if_missing=False)
         f = canonicalize_feature("gene", "FOOBAR_NOT_A_GENE", "high")
-        # Resolver loaded but doesn't know this — strict reject.
+        # Resolver loaded but doesn't know this—strict reject.
         assert f.axis == "other"

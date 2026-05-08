@@ -59,7 +59,7 @@ logger = logging.getLogger(__name__)
 console = Console()
 
 # Haiku is fast + cheap for short categorical labels. The structural inferences
-# (endpoint type, mechanism, population) are short — Haiku is more than enough.
+# (endpoint type, mechanism, population) are short—Haiku is more than enough.
 INFERENCE_MODEL = "claude-haiku-4-5-20251001"
 
 
@@ -82,7 +82,7 @@ _ENDPOINT_KEYWORDS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\btime\s+to\s+progression\b|\bttp\b", re.I), "TTP"),
     (re.compile(r"\bobjective\s+response\s+rate\b|\boverall\s+response\s+rate\b|\bbest\s+overall\s+response\b|\borr\b", re.I), "ORR"),
     (re.compile(r"\bcomplete\s+response\b|\bcomplete\s+remission\b|\bcr\s+rate\b", re.I), "CR"),
-    # Phase I / PD-safety primaries — AE counts, DLTs, MTD, ECOG, vitals,
+    # Phase I / PD-safety primaries—AE counts, DLTs, MTD, ECOG, vitals,
     # routine labs. These are legitimate primary endpoints that don't
     # directly capture indication-level efficacy; they get a low-but-non-
     # zero prior so the graph still has an EndpointNode pointing
@@ -132,7 +132,7 @@ def _normalize_endpoint_text(measure_text: str) -> str:
       "OS [Phase 2 cohort]" → "OS"
 
     Done so the deterministic classifier and Haiku cache see canonical
-    text — different reviewer suffixes for the same trial's PFS read no
+    text—different reviewer suffixes for the same trial's PFS read no
     longer cause cache misses or class mismatches.
     """
     text = re.sub(r"\s*[\(\[][^)\]]*[\)\]]", "", measure_text or "")
@@ -144,7 +144,7 @@ def classify_endpoint_deterministic(measure_text: str) -> str:
     """Map an outcome-measure string to an EndpointClass value.
 
     Returns the EndpointClass enum *value* (e.g. "PFS", "OS"). Falls back
-    to "other" when no keyword matches — same fallback the LLM-driven
+    to "other" when no keyword matches—same fallback the LLM-driven
     classifier uses. Tries the raw text first, then a normalized
     pass with parentheticals + reviewer suffixes stripped, so e.g.
     "Disease-Free Survival (DFS), as Assessed by Investigator" still
@@ -182,7 +182,7 @@ ENDPOINT_PRIORS_BY_CLASS: dict[str, tuple[float, float]] = {
     "PRO": (1.0, 1.0),
     # Safety endpoints are legitimate primary outcomes (Phase I, dose-finding)
     # but don't directly capture efficacy at the indication level. Beta(1, 1.5)
-    # → mean ~0.4 — slightly biased toward "doesn't capture clinical benefit"
+    # → mean ~0.4—slightly biased toward "doesn't capture clinical benefit"
     # with low evidence so trial outcomes can still update.
     "safety": (1.0, 1.5),
     "other": (1.0, 1.0),
@@ -229,7 +229,7 @@ async def classify_endpoint_with_llm(
     Order: cache → deterministic keyword pattern → LLM. The keyword
     short-circuit handles unambiguous strings (OS, ORR, DLT, heart rate,
     …) without burning an LLM call AND without letting the LLM override
-    a clear match — e.g. 'heart rate' belongs to safety regardless of
+    a clear match—e.g. 'heart rate' belongs to safety regardless of
     how the model decides to interpret 'change from baseline' framing.
     """
     # Cache by both raw name and normalized form. The raw key preserves
@@ -268,7 +268,7 @@ async def classify_endpoint_with_llm(
         "  - patient-reported outcomes (QoL, fatigue scales) → PRO\n"
         "  - safety/tolerability primary endpoints (AEs, SAEs, DLTs, MTD, "
         "ECOG, vital signs, ECG findings) → safety\n"
-        "Use 'other' ONLY when the endpoint genuinely fits no category — "
+        "Use 'other' ONLY when the endpoint genuinely fits no category—"
         "rare. Phase I tolerability primaries belong in 'safety', not "
         "'other'.\n\n"
         "Reply with only the category name. No other text."
@@ -502,7 +502,7 @@ class PopulationPipeline:
         )
 
         # Step 3: Canonical EndpointNodes via LLM classification.
-        # One node per (EndpointClass, indication) — id = "{class}_{indication}".
+        # One node per (EndpointClass, indication)—id = "{class}_{indication}".
         console.print("[bold]Classifying endpoints into canonical classes...[/bold]")
         ep_added = await self._populate_canonical_endpoints(trials)
         console.print(f"  Added {ep_added} canonical endpoint nodes")
@@ -628,7 +628,7 @@ class PopulationPipeline:
 
         Returns ``(compound_targets, binds_added)`` where compound_targets
         maps compound_id → list of Ensembl target ids. Adds TargetNodes
-        and binds_to edges (alpha=4, beta=1 — strong prior since OT-sourced).
+        and binds_to edges (alpha=4, beta=1—strong prior since OT-sourced).
         """
         cache_path = self._cache_dir / "ot_drug_targets.json"
         cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -772,7 +772,7 @@ class PopulationPipeline:
                 cache_path.write_text(json.dumps(cache, indent=2, sort_keys=True))
 
             if not row:
-                # No association evidence — skip rather than fabricating
+                # No association evidence—skip rather than fabricating
                 # a uniform prior for a target-disease pair OT has no
                 # data on. Trial outcomes will still update the edge if
                 # one is added by attribution.
@@ -807,7 +807,7 @@ class PopulationPipeline:
         """Infer one mechanism per trial; add MechanismNode + modulates_via edge.
 
         For each trial:
-          1. Pick the trial's primary target — first OT-resolved target of
+          1. Pick the trial's primary target—first OT-resolved target of
              the first arm's first compound. Falls back to ``UNKNOWN`` only
              when no compound resolves to any target; mechanism inference
              still runs (the LLM uses intervention text as well).
@@ -938,7 +938,7 @@ class PopulationPipeline:
             try:
                 MechanismCategory(mech_id)
             except ValueError:
-                # Mechanism inferred but not canonical — skip rather than
+                # Mechanism inferred but not canonical—skip rather than
                 # silently producing an invalid slug.
                 continue
 
@@ -1070,7 +1070,7 @@ class PopulationPipeline:
                             },
                         ))
                         added += 1
-                    # Always index the measure string — even when reusing an
+                    # Always index the measure string—even when reusing an
                     # existing (class, indication) node. Otherwise the second
                     # trial whose primary outcome maps to the same EndpointClass
                     # but uses different wording (e.g. "PFS by investigator" vs
@@ -1134,7 +1134,7 @@ class PopulationPipeline:
 
         Produces one chain per arm at the parent (unselected) population.
         Subgroup-specific chains are added later when extraction provides
-        canonicalized subgroup features — see ``add_subgroup_chains``.
+        canonicalized subgroup features—see ``add_subgroup_chains``.
         """
         subgraphs: list[TrialSubgraph] = []
         for trial in trials:
@@ -1245,7 +1245,7 @@ def build_arms(
                 cid = normalize_entity(iv_name, "CompoundNode")
             compound_ids.append(cid)
 
-        # Drop duplicates while preserving order — some trials list the same
+        # Drop duplicates while preserving order—some trials list the same
         # intervention twice in an arm group description.
         seen_ids: set[str] = set()
         unique_ids: list[str] = []
@@ -1288,7 +1288,7 @@ def _slug_for_arm(compound_ids: list[str]) -> str:
 def synthesize_combo_compounds(graph: GraphStore, arms: list[TrialArm]) -> int:
     """For each combo arm, create a synthesized CompoundNode + composed_of edges.
 
-    Idempotent — if the combo CompoundNode already exists, only missing
+    Idempotent—if the combo CompoundNode already exists, only missing
     composed_of edges are added. Returns the count of new combo nodes
     created (not counting edges).
     """
@@ -1367,7 +1367,7 @@ def ensure_parent_population(
     """Create (if missing) the trial's parent enrollment PopulationNode.
 
     The parent represents "all patients meeting trial enrollment criteria"
-    — used as the default subgroup_population_id when no biomarker
+   —used as the default subgroup_population_id when no biomarker
     stratifier was reported.
     """
     pop_id = PopulationNode.compose_id(indication_id, [])
@@ -1413,7 +1413,7 @@ def build_trial_subgraph_from_extraction(
             stays free of network/API concerns.
         endpoint_ids: maps EndpointClass value (e.g. "PFS", "OS") to the
             corresponding EndpointNode id already in the graph. The keys
-            of this dict drive the endpoint fan-out — one chain per
+            of this dict drive the endpoint fan-out—one chain per
             (arm × subgroup × endpoint) cell.
 
     The result is persisted to ``graph.trial_subgraphs[trial.nct_id]``.
@@ -1448,7 +1448,7 @@ def build_trial_subgraph_from_extraction(
 
     # Canonicalize subgroup features: descriptor → list[SubgroupFeature].
     # Unknown axes get logged for vocabulary-extension review. Subgroups
-    # whose features all collapse to ``axis="other"`` are dropped — these
+    # whose features all collapse to ``axis="other"`` are dropped—these
     # are typically PD readouts ("CD8 T cells per mm² day 22") or analysis
     # timepoints ("Primary completion") that aren't real patient subgroups.
     # Letting them through produces one-off PopulationNodes that no other
@@ -1483,7 +1483,7 @@ def build_trial_subgraph_from_extraction(
 
     # Index per-chain results by (arm_id, pop_id, endpoint_class).
     # Multiple raw descriptors may collapse onto the same canonical pop_id
-    # (e.g. PD-L1 ≥1% and PD-L1 ≥5% both → cd274_high) — keying on pop_id
+    # (e.g. PD-L1 ≥1% and PD-L1 ≥5% both → cd274_high)—keying on pop_id
     # rather than descriptor lets results across those descriptors land
     # on the same chain. Last-write-wins on collision.
     results_index: dict[tuple[str, str | None, str], Any] = {}
@@ -1494,7 +1494,7 @@ def build_trial_subgraph_from_extraction(
         else:
             pop_key = subgroup_pop_ids.get(cr.subgroup_descriptor)
             if pop_key is None:
-                # Descriptor wasn't extracted as a subgroup — skip.
+                # Descriptor wasn't extracted as a subgroup—skip.
                 continue
         results_index[(cr.arm_id, pop_key, ep_class)] = cr
 
@@ -1702,7 +1702,7 @@ def add_subgroup_chains(
 ) -> int:
     """Add (arm × subgroup) chains to an existing TrialSubgraph.
 
-    ``subgroup_features`` is a list of feature compositions — one composition
+    ``subgroup_features`` is a list of feature compositions—one composition
     per reported subgroup. Each composition produces one PopulationNode
     (created if missing) and one chain *per arm*.
 

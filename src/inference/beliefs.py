@@ -8,19 +8,19 @@ posterior parameters are::
     α_post = α_prior + N_eff · p_obs
     β_post = β_prior + N_eff · (1 - p_obs)
 
-Two tables drive the update — and they are the only two knobs in the
+Two tables drive the update—and they are the only two knobs in the
 system, which makes the update both **principled** (real conjugate
 update with a clear generative interpretation: α-1 and β-1 count
 effective virtual successes and failures) and **repeatable** (deterministic
 function of the evidence type and the categorical bucket).
 
-`EVIDENCE_TYPE_N_EFF` — how many virtual trials a single piece of
+`EVIDENCE_TYPE_N_EFF`—how many virtual trials a single piece of
 evidence of each class is worth. Calibrated against per-class historical
 replication / predictive value; defaults below mirror the prior weight
 ordering (clinical > genetic > preclinical > in vitro) but now carry
 explicit "effective sample size" semantics rather than ad-hoc multipliers.
 
-`BUCKET_TO_P_OBS` — the LLM picks one of seven discrete buckets per
+`BUCKET_TO_P_OBS`—the LLM picks one of seven discrete buckets per
 evidence record; the bucket maps to a fixed probability. Free-floating
 0–1 confidence floats from an LLM are notoriously miscalibrated; bucketed
 emissions are far more repeatable, and the seven values can be empirically
@@ -46,7 +46,7 @@ class SupportBucket(str, Enum):
 
     Symmetric around AMBIGUOUS. The classifier picks exactly one bucket
     per (edge, evidence) pair using the rubric in the classification
-    prompt — never a free-form float.
+    prompt—never a free-form float.
     """
     STRONG_SUPPORT = "strong_support"
     MODERATE_SUPPORT = "moderate_support"
@@ -73,7 +73,7 @@ BUCKET_TO_P_OBS: dict[SupportBucket, float] = {
 
 
 # Effective sample size per evidence class. These are pseudocount
-# contributions to (α + β) per record — i.e. how many virtual Bernoulli
+# contributions to (α + β) per record—i.e. how many virtual Bernoulli
 # trials this evidence is worth. Larger = stronger shrinkage of the
 # posterior mean and faster CI tightening.
 #
@@ -94,7 +94,7 @@ BUCKET_TO_P_OBS: dict[SupportBucket, float] = {
 #   - Literature/computational at <1×: nominal pseudocounts; should
 #     not move beliefs much absent corroborating evidence.
 #
-# These are pre-calibration defaults — once a labeled holdout of
+# These are pre-calibration defaults—once a labeled holdout of
 # ≥50 trials exists, refit via ``calibration.py`` to minimize Brier.
 EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.CLINICAL_PHASE3:    15.0,
@@ -119,10 +119,10 @@ def effective_n_for_evidence(
 ) -> float:
     """Effective virtual sample size for one evidence record.
 
-    ``quality_score`` ∈ [0, 1] discounts the base N_eff — used to fold in
+    ``quality_score`` ∈ [0, 1] discounts the base N_eff—used to fold in
     the trial-level classification confidence (e.g., when the LLM's
     classification rubric tier was low, the evidence is downweighted).
-    Default 1.0 means "no discount" — appropriate for non-LLM-derived
+    Default 1.0 means "no discount"—appropriate for non-LLM-derived
     evidence (LINCS signatures, GWAS hits, etc.) where there is no
     classification step to be uncertain about.
     """
@@ -160,7 +160,7 @@ def flip_bucket(bucket: SupportBucket) -> SupportBucket:
 
     Used by the attributor when the taxonomy rule disagrees with the
     classifier's direction: instead of silently dropping to AMBIGUOUS
-    (which discards strength information), we can opt to flip — though
+    (which discards strength information), we can opt to flip—though
     the current attributor downgrades to AMBIGUOUS to be conservative.
     Provided here for completeness.
     """

@@ -3,15 +3,15 @@
 Three analyses, designed to validate a graph snapshot before scaling
 the corpus up:
 
-  #1  Coverage audit         — which trials made it into trial_subgraphs,
+  #1  Coverage audit        —which trials made it into trial_subgraphs,
                                 and for those that didn't, what was missing
                                 (no arms / no targets / no endpoints / etc.).
 
-  #2  Belief calibration     — per-edge-type evidence_strength + posterior
+  #2  Belief calibration    —per-edge-type evidence_strength + posterior
                                 distribution, and the top-N edges that
                                 moved most from prior → posterior.
 
-  #1.5 Cross-trial accumulation — for each edge updated by ≥2 distinct
+  #1.5 Cross-trial accumulation—for each edge updated by ≥2 distinct
                                 trials, replay the trajectory and flag
                                 concordance vs. disagreement. This is
                                 the system's value proposition: edges
@@ -361,7 +361,7 @@ def cross_trial_accumulation(graph_path: Path, top_n: int = 10) -> None:
         console.print("[yellow]No edges yet have multiple-trial evidence.[/yellow]")
         return
 
-    # Use a wide console for this table — trajectory strings can be long.
+    # Use a wide console for this table—trajectory strings can be long.
     wide_console = Console(width=200)
     summary = Table(
         title=f"Top {top_n} edges by # distinct contributing trials",
@@ -401,7 +401,7 @@ def cross_trial_accumulation(graph_path: Path, top_n: int = 10) -> None:
         prior_p = start.expected_probability
 
         # Now replay trial-derived records, grouping by NCT id (one trial
-        # may emit multiple records on the same edge — collapse to one
+        # may emit multiple records on the same edge—collapse to one
         # symbolic entry per trial, taking the strongest signed bucket).
         trial_records_in_order: list[tuple[str, str]] = []
         seen: set[str] = set()
@@ -446,7 +446,7 @@ def cross_trial_accumulation(graph_path: Path, top_n: int = 10) -> None:
         "−− = strong_contradict.[/dim]"
     )
 
-    # Concordance rollup — across ALL multi-trial edges (not just top N)
+    # Concordance rollup—across ALL multi-trial edges (not just top N)
     rollup = Counter()
     for _, _, b in multi_trial:
         trial_buckets = [

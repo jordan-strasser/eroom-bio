@@ -399,7 +399,7 @@ class TestPredictClinicalHypothesis:
             mechanism_affects=(20.0, 1.0),
             biology_drives=(20.0, 1.0),
         )
-        # endpoint/population edges exist but we don't pass them — they're
+        # endpoint/population edges exist but we don't pass them—they're
         # auxiliary, not required for the causal-chain prediction.
         result = predict_clinical_hypothesis(
             graph, "c1", "i1", n_samples=5_000

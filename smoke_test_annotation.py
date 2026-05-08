@@ -1,5 +1,5 @@
 """
-Eroom Bio — Annotation Pipeline Smoke Test (Sprints 6-8)
+Eroom Bio—Annotation Pipeline Smoke Test (Sprints 6-8)
 Tests the full pipeline: real trial -> extraction -> classification -> edge attribution
 Requires ANTHROPIC_API_KEY env var.
 
@@ -24,7 +24,7 @@ results = []
 def check(name, condition, detail=""):
     status = PASS if condition else FAIL
     results.append((name, condition))
-    print(f"  {status} {name}" + (f" — {detail}" if detail else ""))
+    print(f"  {status} {name}" + (f"—{detail}" if detail else ""))
     return condition
 
 
@@ -175,7 +175,7 @@ async def test_extraction_failure():
         return None
 
     trial = trials[0]
-    print(f"\n  Testing: {trial.nct_id} — {trial.title[:60]}...")
+    print(f"\n  Testing: {trial.nct_id}—{trial.title[:60]}...")
 
     extraction = await extractor.extract(trial)
     check("Failed trial extraction works", extraction is not None)

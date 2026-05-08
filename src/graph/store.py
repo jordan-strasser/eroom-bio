@@ -96,7 +96,7 @@ class GraphStore:
         Records with no ``tissue`` context are treated as fully relevant
         (context-free evidence applies regardless of indication). Records
         whose tissue *is* tagged but doesn't match get weighted by
-        ``off_tissue_weight`` rather than dropped entirely — they're still
+        ``off_tissue_weight`` rather than dropped entirely—they're still
         partial evidence that the mechanism perturbs the biology, just in a
         different cellular context.
 

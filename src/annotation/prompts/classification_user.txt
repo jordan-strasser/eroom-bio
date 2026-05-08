@@ -30,8 +30,8 @@ Classify this trial's outcome by reasoning through the mechanistic causal chain.
 ## Resolved Graph Entities for This Trial
 {graph_entities}
 
-When emitting `edges_to_update`, use ONLY the IDs listed above as `source_entity` and `target_entity`. Do NOT invent free-text names — the attributor drops any edge whose endpoints don't match a node in the trial subgraph.
+When emitting `edges_to_update`, use ONLY the IDs listed above as `source_entity` and `target_entity`. Do NOT invent free-text names—the attributor drops any edge whose endpoints don't match a node in the trial subgraph.
 
-If you would have referenced a target/biology/population that isn't listed here, that update probably doesn't belong on this trial — omit it rather than substitute.
+If you would have referenced a target/biology/population that isn't listed here, that update probably doesn't belong on this trial—omit it rather than substitute.
 
 Return ONLY the JSON classification.

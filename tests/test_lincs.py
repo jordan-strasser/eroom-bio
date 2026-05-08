@@ -232,7 +232,7 @@ class TestCandidatePathwayConsistencies:
         )
         # MAPK: sig1 (4 genes), sig2 (3 genes) hit; sig3 has none
         assert result["R-HSA-MAPK"] == (pytest.approx(2 / 3), 2)
-        # RTK: only DUSP6 maps in any sig — never reaches min_genes=2
+        # RTK: only DUSP6 maps in any sig—never reaches min_genes=2
         assert "R-HSA-RTK" not in result
 
     def test_below_threshold_excluded(self):
@@ -374,7 +374,7 @@ class TestPopulateLincsSignatures:
         )
 
         added = await populate_lincs_signatures(client, graph)
-        # One evidence record per (cell_line) hit — A375 + MCF7 both hit MAPK
+        # One evidence record per (cell_line) hit—A375 + MCF7 both hit MAPK
         assert added == 2
         belief = graph.get_edge_belief(
             "enzyme_inhibition", "bio_mapk", EdgeType.MECHANISM_AFFECTS
@@ -803,7 +803,7 @@ class TestMatchIndication:
         assert _match_indication("non small cell lung cancer", idx) == "ind_nsclc"
 
     def test_too_short_no_match(self):
-        # "ar" is 2 chars — substring matching disabled below 4
+        # "ar" is 2 chars—substring matching disabled below 4
         idx = {"androgen receptor cancer": "ind_x"}
         assert _match_indication("AR", idx) is None
 
@@ -871,7 +871,7 @@ class TestPopulateBiologyIndicationEdges:
         )
 
         lincs = LINCSClient(api_key="fake", cache_dir=tmp_path)
-        # Only 2 genes resolve to OT — below default threshold of 3
+        # Only 2 genes resolve to OT—below default threshold of 3
         lincs.get_pathway_gene_symbols = AsyncMock(return_value=["BRAF", "EGFR"])
 
         ot = OpenTargetsClient()

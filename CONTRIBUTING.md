@@ -3,7 +3,7 @@
 The most valuable contributions are **trial annotations** that extend the
 knowledge graph into new indications, mechanisms, and trial designs. Every
 trial run through the pipeline produces a structured annotation that
-accumulates evidence on the shared causal-chain edges — the more diverse
+accumulates evidence on the shared causal-chain edges—the more diverse
 the corpus, the more cross-trial signal the system can surface.
 
 This guide covers running the pipeline on new trials, submitting
@@ -44,7 +44,7 @@ exact 145 NCT ids used for the v0.1.0 baseline. Cached annotations under
 
 ## Running the pipeline on new trials
 
-The four-phase pipeline — **fetch → populate → annotate → attribute** —
+The four-phase pipeline—**fetch → populate → annotate → attribute** —
 lives in `scripts/build_graph.py`. The simplest way to add new trials is
 to define a frozen corpus.
 
@@ -63,7 +63,7 @@ to define a frozen corpus.
 
 2. Run the pipeline against the new corpus. The `--corpus` flag tells the
    script to fetch trials by NCT id from the file (skipping the
-   ClinicalTrials.gov search query — this is what makes builds
+   ClinicalTrials.gov search query—this is what makes builds
    reproducible across runs):
 
    ```bash
@@ -83,7 +83,7 @@ to define a frozen corpus.
 ### Option 2: a brand-new indication
 
 The same flow, but with a fresh condition filter at first fetch (the
-search query path runs when the corpus file does NOT exist yet — the
+search query path runs when the corpus file does NOT exist yet—the
 script writes the resulting NCT list back to that path so future runs are
 reproducible):
 
@@ -100,10 +100,10 @@ loads the same NCT ids deterministically.
 
 Each trial produces two files under `data/annotations/`:
 
-- `<NCT>_extraction.json` — structured extraction (compound, target, arms,
+- `<NCT>_extraction.json`—structured extraction (compound, target, arms,
   endpoints, results, AEs, subgroups). Cached on disk; deterministic re-runs
   hit cache and skip the Anthropic API.
-- `<NCT>_classification.json` — failure-mode classification + edge updates
+- `<NCT>_classification.json`—failure-mode classification + edge updates
   (one per causal-chain edge the trial provides evidence for). Cached the
   same way.
 
@@ -119,7 +119,7 @@ If you want to **force a re-classify** after editing prompts in
 Annotations are checked in. To contribute:
 
 1. **Run the pipeline locally** on the trials you want to add (instructions
-   above). Confirm the build is clean — no `Skipped NCT*: no trial_subgraph
+   above). Confirm the build is clean—no `Skipped NCT*: no trial_subgraph
    in sidecar` lines, or if there are, document the reasons.
 
 2. **Inspect what changed.** Run `analyze_run.py` against the new snapshot
@@ -140,7 +140,7 @@ Annotations are checked in. To contribute:
    files reflect the old prompt's reasoning.
 
 PRs that only add a corpus file (without committing the regenerated
-annotations) are also welcome — annotations are reproducible from the
+annotations) are also welcome—annotations are reproducible from the
 corpus + an Anthropic API key, just slower for reviewers to verify.
 
 ---
@@ -184,7 +184,7 @@ indications.
 
 - **Python 3.11+**, type hints on every public function
 - **Pydantic v2** for all models (no dataclasses)
-- **Async** for any I/O — Anthropic, OT, CT.gov
+- **Async** for any I/O—Anthropic, OT, CT.gov
 - **NetworkX** MultiDiGraph for graph storage (in-process, not Neo4j)
 - **Beta(α, β) beliefs** with full evidence-record provenance on every edge
 - **Tests live in `tests/`**; integration tests that hit external APIs are
@@ -204,7 +204,7 @@ and adapter PRs are unblocked.
   corpus file + the failing build log)
 - Questions about a specific trial's classification: open an issue
   referencing the NCT id and what you expected vs. what the system
-  produced — disagreements with classifier output are how the prompts
+  produced—disagreements with classifier output are how the prompts
   get sharper
 - Architectural proposals: open a discussion before opening a PR; the
   v1.0 baseline is intentionally locked

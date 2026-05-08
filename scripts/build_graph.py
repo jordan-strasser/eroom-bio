@@ -2,11 +2,11 @@
 
 Single fetch, four phases:
   1. Pull trials from ClinicalTrials.gov (one network call, reused below).
-  2. PopulationPipeline.populate_oncology — initial graph + skeleton
+  2. PopulationPipeline.populate_oncology—initial graph + skeleton
      trial subgraphs.
-  3. Extractor + Classifier — write per-trial annotations to
+  3. Extractor + Classifier—write per-trial annotations to
      data/annotations/.
-  4. attributor._main — apply efficacy + AE updates and save the
+  4. attributor._main—apply efficacy + AE updates and save the
      final snapshot.
 
 Default: melanoma, n=10, with-results only. The four-step pipeline is
@@ -102,7 +102,7 @@ async def fetch_trials(
     """Fetch trials from CT.gov, with optional frozen-corpus support.
 
     If ``corpus_path`` is given and the file exists, fetch each listed
-    NCT id individually via ``ClinicalTrialsClient.get_study`` — this is
+    NCT id individually via ``ClinicalTrialsClient.get_study``—this is
     the reproducible path. CT.gov ranking drift between runs can shuffle
     which trials a query returns, so a fresh search query at the same
     ``--max-trials`` may produce a different cohort. Pinning the corpus
@@ -167,7 +167,7 @@ async def extract_all(
     concurrency: int = 5,
 ) -> list[TrialRecord]:
     """Run Extractor on each trial concurrently. Returns trials whose
-    extraction succeeded — classification is split into a separate phase
+    extraction succeeded—classification is split into a separate phase
     so the seeder can populate subgroup populations + entity context
     between them.
     """
@@ -341,12 +341,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--keep-annotations", action="store_true",
         help="Skip wiping data/annotations/. Reuses cached extract+classify "
-             "results from a prior run — useful when iterating on the "
+             "results from a prior run—useful when iterating on the "
              "attribute step.",
     )
     parser.add_argument(
         "--corpus", default=None,
-        help="Frozen corpus name. Reads/writes data/corpora/<name>.txt — "
+        help="Frozen corpus name. Reads/writes data/corpora/<name>.txt—"
              "if the file exists, fetches the listed NCT ids by id "
              "instead of issuing a CT.gov search query (reproducible). "
              "If absent, runs the standard search and saves the result "

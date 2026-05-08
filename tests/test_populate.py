@@ -300,7 +300,7 @@ class TestPopulateOncology:
             return_value=[]
         )
 
-        # Mock Open Targets — disease search returns nothing (simplify)
+        # Mock Open Targets—disease search returns nothing (simplify)
         pipeline._ot_client._post = AsyncMock(
             return_value={"search": {"hits": []}}
         )
@@ -375,7 +375,7 @@ class TestPopulateOncology:
                         },
                     },
                 }
-            # SearchDrug (without targets) — fall through with a generic hit
+            # SearchDrug (without targets)—fall through with a generic hit
             return {"search": {"hits": []}}
 
         pipeline._ot_client._post = mock_post
@@ -398,7 +398,7 @@ class TestPopulateOncology:
         # OT raises on every call
         pipeline._ot_client._post = AsyncMock(side_effect=RuntimeError("API down"))
 
-        # Should not raise — just logs and continues
+        # Should not raise—just logs and continues
         summary = await pipeline.populate_oncology(max_trials=10)
         assert summary["trials_fetched"] == 1
 
@@ -447,8 +447,8 @@ class TestClassifyEndpointDeterministic:
 
 class TestEndpointReindexing:
     """Pin the n=50 root-cause: a second trial whose primary outcome maps to
-    the same EndpointClass as an earlier trial's outcome — but with
-    different wording — used to be silently skipped because resolve_entity
+    the same EndpointClass as an earlier trial's outcome—but with
+    different wording—used to be silently skipped because resolve_entity
     couldn't find the new measure string in the index."""
 
     @pytest.mark.asyncio
@@ -458,7 +458,7 @@ class TestEndpointReindexing:
         graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
         pipeline._index_node("melanoma", "Melanoma", "indication")
 
-        # Two trials, two different PFS phrasings — both should resolve to
+        # Two trials, two different PFS phrasings—both should resolve to
         # the same EndpointNode after _create_canonical_endpoints runs.
         # Deterministic regex catches "PFS" so no LLM call is made.
         t1 = TrialRecord(
@@ -630,12 +630,12 @@ class TestBuildTrialSubgraphFromExtraction:
             trial_id="NCT_OTHER",
             arms=[ExtractedArm(arm_id="A1", compounds=["Nivolumab"])],
             subgroups=[
-                # PD readout — not a real subgroup, no canonical axis fits.
+                # PD readout—not a real subgroup, no canonical axis fits.
                 ExtractedSubgroup(
                     raw_descriptor="CD8 T cells per mm² day 22",
                     features=[{"axis": "biomarker", "key": "CD8", "level": "day22"}],
                 ),
-                # Analysis timepoint — also not a subgroup.
+                # Analysis timepoint—also not a subgroup.
                 ExtractedSubgroup(
                     raw_descriptor="Final analysis",
                     features=[{"axis": "timepoint", "key": "", "level": "final"}],

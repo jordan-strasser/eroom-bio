@@ -205,7 +205,7 @@ class TestBayesianUpdates:
             compound.id, target.id, EdgeType.BINDS_TO, ev
         )
         # AMBIGUOUS bucket has p_obs = 0.5, so the update splits N_eff
-        # evenly between α and β — the principled successor of the old
+        # evenly between α and β—the principled successor of the old
         # 0.3-each ad-hoc split.
         half = EVIDENCE_TYPE_N_EFF[EvidenceType.LITERATURE] * 0.5
         assert belief.alpha == pytest.approx(1.0 + half)

@@ -5,7 +5,7 @@ we look up the trial's first chain in the graph, take its
 (compound_id, indication_id), run predict_clinical_hypothesis, and compare
 the predicted P(success) against the boolean outcome.
 
-CAVEAT — IN-SAMPLE: every trial we predict on contributed evidence to the
+CAVEAT—IN-SAMPLE: every trial we predict on contributed evidence to the
 graph it's being predicted against. Numbers here are an upper bound on
 generalization, not a real benchmark. Real OOS validation requires a
 temporal or LOO split (separate script).
@@ -150,7 +150,7 @@ def main() -> None:
     n_pos = sum(labels)
     n_neg = len(labels) - n_pos
 
-    console.rule("[bold]In-sample prediction eval — primary_endpoint_met[/bold]")
+    console.rule("[bold]In-sample prediction eval—primary_endpoint_met[/bold]")
     console.print(f"Labeled trials evaluated: {len(rows)}  |  successes: {n_pos}  |  failures: {n_neg}")
     console.print(f"Skipped: {len(skipped)}")
     for nct, reason in skipped[:10]:

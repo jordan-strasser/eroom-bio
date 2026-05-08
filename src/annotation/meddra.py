@@ -1,6 +1,6 @@
 """MedDRA-style normalization for adverse-event terms.
 
-Trial reports use heterogeneous AE wording — "transaminase elevation",
+Trial reports use heterogeneous AE wording—"transaminase elevation",
 "elevated ALT", "hepatic enzyme increased", "hepatotoxicity" all
 describe the same on-mechanism toxicity. To accumulate evidence across
 trials we need a shared key: a single ``AdverseEventNode`` id per
@@ -116,7 +116,7 @@ async def normalize_ae_term(
 
     Hits the cache when present; otherwise calls Claude Haiku, parses the
     JSON response, and writes through. On a parsing failure we fall back
-    to using the raw term as the preferred term (no SOC) — better to
+    to using the raw term as the preferred term (no SOC)—better to
     create a slightly noisy node than to lose the AE entirely.
     """
     cached = cache.get(raw_term)
@@ -156,7 +156,7 @@ def _strip_code_fence(text: str) -> str:
     """
     text = text.strip()
     if text.startswith("```"):
-        # Drop the opening fence (``` or ```json) — keep everything after
+        # Drop the opening fence (``` or ```json)—keep everything after
         # the first newline if there is one, else drop the literal "```".
         text = text.split("\n", 1)[1] if "\n" in text else text[3:]
         if text.endswith("```"):

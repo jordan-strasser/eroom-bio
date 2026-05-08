@@ -1,14 +1,14 @@
 """Resolve free-text gene names to canonical HUGO (HGNC) symbols.
 
 Canonical lookups are essential for the subgroup vocabulary: the LLM may
-emit "PD-L1", "PDL1", "B7-H1" — all aliases for the same gene — and we
+emit "PD-L1", "PDL1", "B7-H1"—all aliases for the same gene—and we
 need them to collapse onto the same node id (``cd274_high``) so two
 trials reporting the same biomarker actually link to the same
 PopulationNode.
 
 Source of truth: HGNC's complete_set TSV (~15 MB), downloaded once and
 cached at ``data/cache/hgnc_complete_set.tsv``. The in-memory dict is
-~10 MB after parsing — every approved symbol plus every alias_symbol /
+~10 MB after parsing—every approved symbol plus every alias_symbol /
 prev_symbol entry maps to the canonical ``symbol`` column.
 
 If the cache file is absent and ``download_if_missing=True`` is passed

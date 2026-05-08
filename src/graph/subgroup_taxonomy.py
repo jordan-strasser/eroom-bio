@@ -6,11 +6,11 @@ that two trials reporting *equivalent* subgroups land on the same
 PopulationNode and can share evidence.
 
 Two axis flavors:
-  - **Open-vocab gene axis** (axis="gene"): key is a HUGO symbol — the
+  - **Open-vocab gene axis** (axis="gene"): key is a HUGO symbol—the
     vocabulary grows automatically with new genes. Levels are limited to a
     small canonical set plus pass-through specific variants (G12C, V600E).
   - **Closed-vocab non-gene axes** (line, performance, age, prior_tx,
-    signature): small, slow-growing — extending requires editing this file.
+    signature): small, slow-growing—extending requires editing this file.
 
 Anything that doesn't canonicalize falls into ``axis="other"`` with the
 raw descriptor preserved AND appended to
@@ -69,12 +69,12 @@ GENE_LEVELS: set[str] = {
     "mutant", "wildtype", "unselected", "unknown",
 }
 
-# Specific point mutations like G12C, V600E, T790M, R248Q* — single letter,
+# Specific point mutations like G12C, V600E, T790M, R248Q*—single letter,
 # one to four digits, single letter (or '*' for nonsense). Pass-through.
 VARIANT_PATTERN = re.compile(r"^[A-Z]\d{1,4}[A-Z*]$")
 
 # HUGO symbol shape: starts with a letter, alphanumerics + dashes, 1–20 chars.
-# Permissive on purpose — we don't ship the full HUGO table here, this is a
+# Permissive on purpose—we don't ship the full HUGO table here, this is a
 # format gate not a membership check.
 HUGO_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{0,19}$")
 
@@ -134,7 +134,7 @@ def canonicalize_feature(
             if not HUGO_PATTERN.match(key):
                 return _other(axis_raw, level_raw, descriptor)
             if is_loaded():
-                # Resolver is loaded but doesn't know this symbol — likely
+                # Resolver is loaded but doesn't know this symbol—likely
                 # not a real HUGO gene. Reject rather than silently accept
                 # an unrecognized name as if it were canonical.
                 return _other(axis_raw, level_raw, descriptor)
@@ -182,7 +182,7 @@ def log_unmapped(
 ) -> None:
     """Append an unmapped feature to the dev log (jsonl, one record per line).
 
-    No-op for canonical features. Caller decides when to invoke — typically
+    No-op for canonical features. Caller decides when to invoke—typically
     only when ``feature.axis == "other"``. The log is the input for vocab
     expansion: terms that show up often get promoted into ``NON_GENE_AXES``
     or ``GENE_LEVELS``.
@@ -208,14 +208,14 @@ def vocabulary_for_prompt() -> str:
     """
     lines = ["Canonical subgroup feature vocabulary:"]
     lines.append("")
-    lines.append("axis='gene' — key=HUGO gene symbol; level one of:")
+    lines.append("axis='gene'—key=HUGO gene symbol; level one of:")
     lines.append(
         "  " + ", ".join(sorted(GENE_LEVELS))
         + ", or a specific variant like G12C / V600E / T790M"
     )
     lines.append("")
     for axis, levels in NON_GENE_AXES.items():
-        lines.append(f"axis='{axis}' — key=''; level one of: {', '.join(levels)}")
+        lines.append(f"axis='{axis}'—key=''; level one of: {', '.join(levels)}")
     lines.append("")
     lines.append(
         "If a subgroup descriptor doesn't fit any of the above, "

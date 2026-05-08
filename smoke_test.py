@@ -1,5 +1,5 @@
 """
-Eroom Bio — Smoke Test Suite
+Eroom Bio—Smoke Test Suite
 Run this after Sprints 1-5 to verify the system actually works
 with real data, not just mocked unit tests.
 
@@ -25,7 +25,7 @@ results = []
 def check(name, condition, detail=""):
     status = PASS if condition else FAIL
     results.append((name, condition))
-    print(f"  {status} {name}" + (f" — {detail}" if detail else ""))
+    print(f"  {status} {name}" + (f"—{detail}" if detail else ""))
     return condition
 
 

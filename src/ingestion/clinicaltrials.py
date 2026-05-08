@@ -38,7 +38,7 @@ class ArmGroup(BaseModel):
 
     Sourced from ``outcomeMeasuresModule.outcomeMeasures[*].groups`` (and
     deduped across outcomes within the trial). The ``intervention_names``
-    are the Intervention names this group received — that's how we
+    are the Intervention names this group received—that's how we
     reconstruct combo arms ("Nivolumab + Ipilimumab" group → both drugs).
     """
     group_id: str
@@ -74,7 +74,7 @@ class TrialRecord(BaseModel):
     has_results: bool = False
     results_summary: dict[str, Any] | None = None
     # Sponsor's stated reason a trial was stopped early (TERMINATED/WITHDRAWN).
-    # Coarse free text — typically one phrase like "lack of efficacy",
+    # Coarse free text—typically one phrase like "lack of efficacy",
     # "safety concerns", "futility", "business decision". Often the only
     # mechanistic signal available for trials with no posted results.
     why_stopped: str | None = None
@@ -110,7 +110,7 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
     outcomes_mod = proto.get("outcomesModule", {})
     sponsor_mod = proto.get("sponsorCollaboratorsModule", {})
 
-    # Phase — join multiple phases (e.g. ["PHASE2", "PHASE3"] → "2/3")
+    # Phase—join multiple phases (e.g. ["PHASE2", "PHASE3"] → "2/3")
     raw_phases = design.get("phases", [])
     phase = "/".join(_PHASE_MAP.get(p, p) for p in raw_phases)
 
@@ -199,7 +199,7 @@ def _slug(text: str) -> str:
 
 # CT.gov v2 prefixes interventionNames with the human-readable type
 # ("Biological: Nivolumab", "Drug: Imatinib"). The case isn't always
-# upper — Title case is the most common form — so match against a known
+# upper—Title case is the most common form—so match against a known
 # allowlist rather than checking isupper().
 _INTERVENTION_TYPE_PREFIXES: frozenset[str] = frozenset({
     "drug", "biological", "behavioral", "device", "diagnostic test",
@@ -225,7 +225,7 @@ def _strip_intervention_prefix(name: str) -> str:
 # Placebos appear as their own intervention rows in blinded trials
 # (e.g. CheckMate 067 lists "Biological: Placebo for Nivolumab" so the
 # control arm receives a matching infusion). They are not a therapy
-# under test — exclude them from the arm's ``compound_ids`` so combo
+# under test—exclude them from the arm's ``compound_ids`` so combo
 # detection isn't fooled by placebo rows and attribution doesn't try
 # to route binds_to evidence to a non-existent placebo CompoundNode.
 _PLACEBO_RE = re.compile(r"^\s*(placebo|sham)\b", re.IGNORECASE)
@@ -241,7 +241,7 @@ def _parse_protocol_arm_groups(
     """Read the canonical arm-group definitions from protocolSection.
 
     The ``intervention_names`` list is what tells us a combo from a mono
-    arm. Type prefixes are stripped, and placebo rows are dropped — so
+    arm. Type prefixes are stripped, and placebo rows are dropped—so
     a "nivo + placebo + placebo" arm collapses to a single-drug arm
     rather than a fake combo.
     """
@@ -271,7 +271,7 @@ def _parse_results_arm_groups(
 ) -> list[ArmGroup]:
     """Fallback: derive arm groups from the results section.
 
-    No intervention_names available here — those will be reconstructed
+    No intervention_names available here—those will be reconstructed
     later by matching against the trial's ``interventions`` list.
     """
     seen: dict[str, ArmGroup] = {}

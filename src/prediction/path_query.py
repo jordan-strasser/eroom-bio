@@ -71,7 +71,7 @@ def _aggregate_samples(
     sum_w = float(sum(weights))
     log_sum = np.zeros(n_samples)
     if sum_w <= 0.0:
-        # No evidence anywhere — back off to unweighted geomean so we
+        # No evidence anywhere—back off to unweighted geomean so we
         # don't blow up; conceptually "everyone abstains, take the mean
         # of the priors."
         for s in edge_samples:
@@ -105,7 +105,7 @@ class SafetyRisk(BaseModel):
 
     ``source`` distinguishes compound-specific risk (this drug has caused
     this AE in past trials) from target-class risk (other drugs binding
-    the same target have caused this AE — likely on-mechanism). The two
+    the same target have caused this AE—likely on-mechanism). The two
     travel together so the consumer can decide whether the risk is
     chemistry-related (changeable) or mechanism-related (intrinsic).
     """
@@ -130,7 +130,7 @@ class PredictionResult(BaseModel):
     n_samples: int
     # Adverse-event risks the graph attaches to this compound or its
     # target. Surfaced for the consumer; does NOT factor into
-    # ``overall_probability`` — efficacy and safety are scored independently.
+    # ``overall_probability``—efficacy and safety are scored independently.
     safety_risks: list[SafetyRisk] = Field(default_factory=list)
 
 
@@ -151,7 +151,7 @@ class PredictionEngine:
         Aggregation: trust-weighted geometric mean. Edges with no evidence
         beyond the prior contribute little; edges with substantial evidence
         dominate. Trial-level prediction (across multiple arms × subgroups)
-        is the caller's responsibility — predict each chain and aggregate
+        is the caller's responsibility—predict each chain and aggregate
         as appropriate (e.g. per arm, per subgroup, or trial-wide).
         """
         # 1. Collect edges and their beliefs
@@ -346,20 +346,20 @@ class PredictionEngine:
             if ec.belief.evidence_strength < 2.0:
                 suggestions.append(
                     f"[DATA GAP] {ec.edge_type.value} ({ec.source_id} → {ec.target_id}): "
-                    f"P={p:.2f} {belief_str} — insufficient evidence. "
+                    f"P={p:.2f} {belief_str}—insufficient evidence. "
                     f"Need direct experimental validation."
                 )
                 continue
             if ec.bottleneck_score > 0.5:
                 suggestions.append(
                     f"[WEAK LINK] {ec.edge_type.value} ({ec.source_id} → {ec.target_id}): "
-                    f"P={p:.2f} {belief_str} — evidence contradicts this link. "
+                    f"P={p:.2f} {belief_str}—evidence contradicts this link. "
                     f"Consider alternative targets or mechanisms."
                 )
             elif ec.bottleneck_score >= 0.2:
                 suggestions.append(
                     f"[MODERATE] {ec.edge_type.value} ({ec.source_id} → {ec.target_id}): "
-                    f"P={p:.2f} {belief_str} — could be strengthened with "
+                    f"P={p:.2f} {belief_str}—could be strengthened with "
                     f"additional supporting evidence."
                 )
 
@@ -377,7 +377,7 @@ class PredictionEngine:
         """Collect belief states for all edges in the causal chain.
 
         For ``mechanism_affects`` specifically, retrieves a belief that has
-        been conditioned on the indication's relevant tissues — so cell-line
+        been conditioned on the indication's relevant tissues—so cell-line
         evidence from the wrong tissue (e.g. a melanoma signature when the
         trial is in NSCLC) gets downweighted rather than counted equally.
         Other edge types are context-free at retrieval.
@@ -446,7 +446,7 @@ def _resolve_target_for_compound(
         belief_data = data.get("belief") or {}
         try:
             belief = EdgeBeliefState.model_validate(belief_data)
-        except Exception:  # noqa: BLE001 — defensive against legacy snapshots
+        except Exception:  # noqa: BLE001—defensive against legacy snapshots
             belief = _DEFAULT_BELIEF
         score = belief.expected_probability * (1.0 + belief.evidence_strength)
         if score > best_score:
@@ -468,7 +468,7 @@ def _resolve_chain_via_topology(
     encountered. Returns ("UNKNOWN", "UNKNOWN") if no path exists.
 
     Falls back to the first modulates_via neighbor of the target when no
-    simple path resolves a mechanism — in graphs where target→mechanism
+    simple path resolves a mechanism—in graphs where target→mechanism
     edges are dead-ends (no mechanism→indication wiring), this is the only
     way to recover the mechanism node.
     """
@@ -525,14 +525,14 @@ def predict_clinical_hypothesis(
 ) -> PredictionResult:
     """Stateless prediction for a (compound, indication) pair.
 
-    Walks the graph to assemble the full causal chain — target via binds_to,
-    then mechanism + biology by walking target→indication paths — and runs
+    Walks the graph to assemble the full causal chain—target via binds_to,
+    then mechanism + biology by walking target→indication paths—and runs
     the standard engine on the resulting subgraph. No in-memory trial cache
     needed: the graph snapshot itself is the source of truth.
 
     ``endpoint_id`` / ``population_id`` are optional. When omitted, the
     auxiliary edges (``reflects_biology``, ``endpoint_captures``,
-    ``responds_differently``) are skipped at engine time — so the prediction
+    ``responds_differently``) are skipped at engine time—so the prediction
     reflects the causal chain only, not endpoint translatability or
     population responsiveness.
 

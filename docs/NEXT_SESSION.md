@@ -1,10 +1,10 @@
-# Next session — pickup notes
+# Next session—pickup notes
 
 Last touched: 2026-05-06. Branch `main`.
 
 ## What landed this session
 
-Built `scripts/build_graph.py` — an end-to-end driver that fetches trials,
+Built `scripts/build_graph.py`—an end-to-end driver that fetches trials,
 populates the graph, annotates, and attributes in one command. Along the
 way we made the graph trial-driven instead of catalog-driven: OT lookups
 now pull only the targets bound by trial compounds (~19 vs ~955 before),
@@ -17,7 +17,7 @@ works, and Phase-I safety/vitals/labs route to a `safety` endpoint class
 deterministically. At n=10 melanoma the graph is 158 nodes / 239 edges
 with every causal-chain edge type populated.
 
-## Where to start next time — n=100 run
+## Where to start next time—n=100 run
 
 ```bash
 # Wipe and run full pipeline at n=100 melanoma
@@ -45,5 +45,5 @@ To iterate on attribute-only changes after a run, use:
 - `_populate_compound_targets` picks the first OT drug-search hit; fine
   for well-known drugs, may pick wrong target for ambiguous names.
 - One trial in our n=10 (NCT00162123) has no primary outcome that
-  resolves to an endpoint — gets skipped during attribution. Expect a
+  resolves to an endpoint—gets skipped during attribution. Expect a
   small number of similar skips at n=100.

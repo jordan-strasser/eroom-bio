@@ -303,7 +303,7 @@ class TestGetDrugWithTargetsDisambiguation:
 
     @pytest.mark.asyncio
     async def test_falls_back_to_first_when_no_exact_match(self):
-        # No hit matches "Mystery" — keep OT's ranking.
+        # No hit matches "Mystery"—keep OT's ranking.
         mock = {"search": {"hits": [
             self._make_hit("CHEMBL_FIRST", "FirstDrug"),
             self._make_hit("CHEMBL_SECOND", "SecondDrug"),
@@ -441,7 +441,7 @@ class TestPopulateGraph:
             ]
         )
         graph = GraphStore()
-        # Pre-create the canonical indication node — populate_target_disease_edges
+        # Pre-create the canonical indication node—populate_target_disease_edges
         # writes against the canonical id, not the EFO id.
         from src.graph.models import IndicationNode
 

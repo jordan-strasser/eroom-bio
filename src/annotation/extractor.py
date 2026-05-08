@@ -129,7 +129,7 @@ def _format_results_summary(results_summary: dict[str, Any] | None) -> str:
             ci_hi = analysis.get("ciUpperLimit", "")
             ci_pct = analysis.get("ciPctValue", "")
             ci_str = f" ({ci_pct}% CI: {ci_lo}–{ci_hi})" if ci_lo and ci_hi else ""
-            lines.append(f"  Analysis: {method} — {param} = {value}{ci_str}, p = {pval}")
+            lines.append(f"  Analysis: {method}—{param} = {value}{ci_str}, p = {pval}")
 
     # Adverse events summary
     ae_module = results_summary.get("adverseEventsModule", {})
@@ -242,7 +242,7 @@ def _parse_dose_info(raw: Any) -> DoseInfo:
 def _parse_adverse_events(raw: Any) -> list[StructuredAE]:
     """Parse the LLM-emitted adverse_events list into StructuredAE models.
 
-    Drops malformed entries (missing or empty term) silently — incidence
+    Drops malformed entries (missing or empty term) silently—incidence
     rates can legitimately be missing when the report doesn't break them
     out per arm, but a term-less AE row is unusable for attribution.
     """
