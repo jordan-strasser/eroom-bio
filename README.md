@@ -10,13 +10,20 @@ Named after [Eroom's Law](https://www.nature.com/articles/nrd3681): the cost of 
 
 ## What it does
 
-Every clinical trial tests a causal hypothesis:
+Every clinical trial tests a causal hypothesis across seven canonical node types — **Compound, Target, Mechanism, Biology, Endpoint, Indication, Population** — connected by typed directed edges:
 
 ```
-Compound → Target → Mechanism → Biology → Endpoint
+Compound ──► Target ──► Mechanism ──► Biology ──► Indication
+                                         │           ▲
+                                         ▼           │
+                                      Endpoint ──────┘
+                                                     ▲
+                                                Population
 ```
 
-*"This drug, binding this target, through this mechanism, will change this biology, detectable by this endpoint, in this patient population, for this disease."*
+*"This drug, binding this target, through this mechanism, will change this biology, captured by this endpoint, treating this indication in this patient population."*
+
+The chain decomposes into four main causal edges (`binds_to`, `modulates_via`, `mechanism_affects`, `biology_drives`) plus three auxiliary edges (`reflects_biology`, `endpoint_captures`, `responds_differently`) that capture endpoint translatability and subgroup response. Each edge carries an independent Beta-distributed belief — so a trial can validate one part of the hypothesis while contradicting another.
 
 Most systems record whether trials pass or fail. Eroom Bio records **where in the chain** they passed or failed, and accumulates that evidence across trials that share the same targets, mechanisms, and biology.
 
@@ -110,14 +117,18 @@ export ANTHROPIC_API_KEY=your_key
 export CLUE_API_KEY=your_key  # optional, for LINCS data
 ```
 
-Build a melanoma knowledge graph:
+Reproduce the v0.1.0 melanoma baseline from the frozen 145-trial corpus:
 ```bash
-python scripts/build_graph.py --indication melanoma --max-trials 50
+python -m scripts.build_graph \
+    --condition melanoma --max-trials 200 \
+    --keep-annotations --corpus melanoma_145
 ```
 
-Analyze the graph:
+Analyze the resulting snapshot (coverage audit, belief calibration, cross-trial accumulation):
 ```bash
-python scripts/analyze_run.py --snapshot data/exports/melanoma_n50.json
+python -m scripts.analyze_run \
+    --graph data/exports/oncology_annotated.json \
+    --annotations data/annotations
 ```
 
 Run the API:
@@ -147,7 +158,7 @@ data/
   corpora/      # Frozen trial lists for reproducible builds
   annotations/  # Per-trial structured annotations
   exports/      # Graph snapshots
-tests/          # 261 tests
+tests/          # 428 tests
 scripts/        # Build and analysis tools
 docs/           # Architecture spec
 ```
