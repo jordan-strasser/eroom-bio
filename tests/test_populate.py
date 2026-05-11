@@ -579,13 +579,13 @@ class TestBuildTrialSubgraphFromExtraction:
         nivo_pfs_high = [
             c for c in ts.chains
             if c.arm_id == "nivo" and c.endpoint_id == "PFS_melanoma"
-            and c.subgroup_population_id == "melanoma__cd274_high"
+            and c.subgroup_population_id == "melanoma__cd274_positive"
         ]
         assert len(nivo_pfs_high) == 1 and nivo_pfs_high[0].effect_size == 0.42
         combo_os_high = [
             c for c in ts.chains
             if c.arm_id == "combo" and c.endpoint_id == "OS_melanoma"
-            and c.subgroup_population_id == "melanoma__cd274_high"
+            and c.subgroup_population_id == "melanoma__cd274_positive"
         ]
         assert len(combo_os_high) == 1 and combo_os_high[0].effect_size == 0.55
         # Cells with no reported result default to UNKNOWN outcome

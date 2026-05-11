@@ -321,32 +321,33 @@ def _sanitize_label(text: str, fallback: str = "unknown") -> str:
     return cleaned[:60] or fallback
 
 
-async def infer_mechanism_for_trial(
+async def infer_mechanism_for_arm(
     client: anthropic.AsyncAnthropic,
     trial: TrialRecord,
+    arm_label: str,
+    arm_compound_names: list[str],
     target_node: dict[str, Any],
     cache: JSONCache,
+    cache_key: str,
 ) -> str:
-    """Map a trial+target pair to a MechanismCategory value.
+    """Map an (arm, target) pair to a MechanismCategory value.
 
-    LLM output is forced through ``normalize_entity(..., "MechanismNode")``,
-    which validates against ``MechanismCategory`` and falls back to "other"
-    on any unknown response.
+    Each arm of a trial gets its own mechanism—a combo arm's mechanism may
+    differ from its constituent mono arms (e.g. ipilimumab+nivolumab is
+    ``checkpoint_blockade`` even though only nivolumab is on the PD-1 path).
     """
-    cached = cache.get(trial.nct_id)
+    cached = cache.get(cache_key)
     if cached is not None:
         return cached
-    intervention_text = "; ".join(
-        f"{iv.name}: {iv.description}".strip()
-        for iv in trial.interventions
-        if is_drug_like(iv) and iv.name
-    ) or "unknown"
+    intervention_text = "; ".join(n for n in arm_compound_names if n) or "unknown"
     target_symbol = target_node.get("gene_symbol") or target_node.get("name") or ""
     categories = ", ".join(c.value for c in MechanismCategory)
     user_msg = (
-        f"Drug intervention: {intervention_text}\n"
-        f"Target gene/protein: {target_symbol}\n\n"
-        f"Classify the mechanism of action into ONE of these categories:\n"
+        f"Trial: {trial.title}\n"
+        f"Arm: {arm_label}\n"
+        f"Drug(s) on this arm: {intervention_text}\n"
+        f"Primary target on this arm: {target_symbol or '(unresolved)'}\n\n"
+        f"Classify the MECHANISM OF ACTION FOR THIS ARM into ONE of these categories:\n"
         f"{categories}\n\n"
         "Reply with only the category value (e.g. 'kinase_inhibition'). "
         "If none fit, reply 'other'. No other text."
@@ -360,7 +361,7 @@ async def infer_mechanism_for_trial(
     )
     raw = response.content[0].text.strip()
     label = normalize_entity(raw or "other", "MechanismNode")
-    cache.set(trial.nct_id, label)
+    cache.set(cache_key, label)
     return label
 
 
@@ -429,6 +430,9 @@ class PopulationPipeline:
         self._cache_dir = cache_dir
         # name → node_id index, keyed by (normalized_name, node_type)
         self._entity_index: dict[tuple[str, str], str] = {}
+        # raw CT.gov condition string → (canonical_slug, display_name).
+        # Lazily initialized when canonicalization is first needed.
+        self._indication_canon: JSONCache | None = None
 
     # ── Entity resolution ────────────────────────────────────────────────
 
@@ -480,17 +484,149 @@ class PopulationPipeline:
         else:
             console.print(f"[bold]Using {len(trials)} pre-fetched trials[/bold]")
 
-        # Step 2: Extract and add canonical compound + indication nodes per trial.
-        # Endpoint nodes are created in step 3 after LLM classification, so
-        # their canonical id ({EndpointClass}_{indication}) is well-formed.
+        # Step 2: Canonicalize conditions and seed Indication + default
+        # Population nodes per trial.
+        #
+        # CT.gov free-text condition strings fragment evidence: "Stage IIIC
+        # Cutaneous Melanoma AJCC v7" and "Unresectable or Metastatic
+        # Melanoma" describe the same disease but used to produce two
+        # separate IndicationNodes, so endpoint slugs and cross-trial
+        # learning didn't share. Now we:
+        #
+        #   (a) LLM-canonicalize raw condition → base disease (melanoma,
+        #       breast_cancer, multiple_sclerosis, ...). One IndicationNode
+        #       per canonical disease, with metadata accumulating every raw
+        #       phrasing and qualifier we've seen.
+        #   (b) Deterministically parse qualifiers from the raw condition
+        #       (stage, histology, extent, line, severity, ...) and compose
+        #       the trial's default PopulationNode id, e.g.
+        #       ``melanoma__histology_cutaneous__stage_iii``. Biomarker
+        #       subgroups (BRAF V600E, PD-L1 high) extracted later add
+        #       additional PopulationNodes that fork off this default.
+        #
+        # Endpoint nodes are created in step 3 after LLM classification so
+        # their canonical id ({EndpointClass}_{canonical_indication}) is
+        # stable across phrasing variants.
+        from src.graph.indication_taxonomy import (
+            extract_indication_qualifiers,
+        )
+
         console.print("[bold]Extracting graph nodes from trials...[/bold]")
-        seen_indications: dict[str, str] = {}  # canonical_id → original name
+        seen_indications: dict[str, str] = {}  # canonical_id → display name
+
+        # Per-canonical-indication metadata accumulator. Keeps track of
+        # observed raw phrasings and the qualifier levels each axis saw —
+        # useful for surfacing "this canonical disease appears as stage
+        # III + IV across our corpus" downstream.
+        ind_metadata: dict[str, dict[str, Any]] = {}
+
+        # Trial id → (canonical_indication_id, default_population_id)
+        # for build_trial_subgraphs to pick up.
+        self._trial_default_population: dict[str, str] = {}
+        self._trial_canonical_indication: dict[str, str] = {}
+
+        # First pass: canonicalize, build IndicationNodes and default
+        # PopulationNodes, index raw cond text → canonical id.
         for trial in trials:
+            chosen_canonical: str | None = None
+            chosen_population: str | None = None
+            for cond in trial.conditions:
+                canonical_id, canonical_name = await self._canonicalize_indication(cond)
+                if not canonical_id:
+                    continue
+                qualifiers = extract_indication_qualifiers(cond)
+
+                # Create / update IndicationNode for this canonical disease.
+                try:
+                    existing = self.graph.get_node(canonical_id)
+                    md = dict(existing.get("metadata") or {})
+                except KeyError:
+                    md = {}
+                    existing = None
+                variants: list[str] = list(md.get("observed_variants") or [])
+                if cond and cond not in variants:
+                    variants.append(cond)
+                md["observed_variants"] = variants
+                axis_map: dict[str, list[str]] = {
+                    k: list(v) for k, v in (md.get("qualifier_axes") or {}).items()
+                }
+                for f in qualifiers:
+                    levels = axis_map.setdefault(f.axis, [])
+                    if f.level not in levels:
+                        levels.append(f.level)
+                md["qualifier_axes"] = axis_map
+                md["canonical_name"] = canonical_name
+
+                if existing is None:
+                    self.graph.add_node(IndicationNode(
+                        id=canonical_id,
+                        name=canonical_name,
+                        metadata=md,
+                    ))
+                else:
+                    # Update metadata on the existing node in place. The
+                    # graph store exposes nodes as dict views, so we mutate
+                    # the stored metadata directly.
+                    existing["metadata"] = md
+                ind_metadata[canonical_id] = md
+
+                # Index BOTH the canonical id and the raw cond text →
+                # canonical id so downstream resolve_entity(cond, "indication")
+                # returns the canonical IndicationNode regardless of which
+                # variant the trial used.
+                self._index_node(canonical_id, canonical_name, "indication")
+                self._index_node(canonical_id, cond, "indication")
+                seen_indications.setdefault(canonical_id, canonical_name)
+
+                # Compose the trial's default PopulationNode id from the
+                # canonical disease + parsed qualifiers. With no qualifiers
+                # this falls back to ``{indication}__unselected``.
+                default_pop_id = PopulationNode.compose_id(
+                    canonical_id, qualifiers,
+                )
+                try:
+                    self.graph.get_node(default_pop_id)
+                except KeyError:
+                    self.graph.add_node(PopulationNode(
+                        id=default_pop_id,
+                        name=(
+                            cond if qualifiers
+                            else f"All patients ({canonical_name})"
+                        ),
+                        defining_features=list(qualifiers),
+                    ))
+                # responds_differently: default_population → indication.
+                # The trial's enrollment is itself a stratification of the
+                # disease (stage III cutaneous melanoma is not the same as
+                # melanoma overall), and downstream prediction walks this
+                # edge to score population fit.
+                if qualifiers and not self.graph._graph.has_edge(  # noqa: SLF001
+                    default_pop_id, canonical_id,
+                    key=EdgeType.RESPONDS_DIFFERENTLY.value,
+                ):
+                    self.graph.add_edge(GraphEdge(
+                        source_id=default_pop_id,
+                        target_id=canonical_id,
+                        edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                        belief=EdgeBeliefState(alpha=1.5, beta=1.0),
+                        metadata={
+                            "source": "indication_qualifiers",
+                            "raw_descriptor": cond,
+                        },
+                    ))
+
+                if chosen_canonical is None:
+                    chosen_canonical = canonical_id
+                    chosen_population = default_pop_id
+
+            if chosen_canonical is not None:
+                self._trial_canonical_indication[trial.nct_id] = chosen_canonical
+            if chosen_population is not None:
+                self._trial_default_population[trial.nct_id] = chosen_population
+
+            # Compound nodes still come from the trial's interventions —
+            # no canonicalization needed here, just indexing.
             nodes = map_trial_to_graph_nodes(trial)
-            for ind in nodes["indications"]:
-                self.graph.add_node(ind)
-                self._index_node(ind.id, ind.name, "indication")
-                seen_indications.setdefault(ind.id, ind.name)
             for comp in nodes["compounds"]:
                 self.graph.add_node(comp)
                 self._index_node(comp.id, comp.name, "compound")
@@ -563,12 +699,14 @@ class PopulationPipeline:
             console.print(f"  [yellow]Skipped LINCS:[/yellow] {exc}")
 
         # Step 6.5: Resolve a per-trial biology so chains can be traversed
-        # end-to-end. Uses a slug-form BiologyNode '{mech}__{indication}'
-        # for deterministic chain wiring; LINCS-derived Reactome biology
-        # nodes (when present) supply the upstream evidence. Independent
-        # of LINCS so chains close even without CLUE_API_KEY.
+        # end-to-end. Prefers real Reactome pathway BiologyNodes — first
+        # via existing LINCS-populated mechanism_affects edges, then via
+        # a Reactome API lookup keyed on the target gene symbol. Falls
+        # back to the legacy '{mech}__{indication}' slug only when both
+        # routes return nothing; falling-back chains are tagged
+        # ``metadata["unresolved_biology"] = True`` for audit.
         console.print("[bold]Resolving biology per trial...[/bold]")
-        bio_added = self._populate_trial_biology(trials)
+        bio_added = await self._populate_trial_biology(trials)
         console.print(f"  Added {bio_added} biology nodes / chain links")
 
         # Summary
@@ -591,6 +729,97 @@ class PopulationPipeline:
             f"{summary['trial_subgraphs']} trial subgraphs"
         )
         return summary
+
+    async def _canonicalize_indication(
+        self, cond: str
+    ) -> tuple[str, str]:
+        """Map a raw CT.gov condition string to a base-disease (slug, name).
+
+        Strips staging, subtype, severity, line-of-therapy, resectability,
+        and other modifiers — returns only the base disease. Cross-domain
+        examples (the LLM is told to handle each):
+
+          "Stage IIIC Cutaneous Melanoma AJCC v7"   → ("melanoma", "melanoma")
+          "Unresectable or Metastatic Melanoma"     → ("melanoma", "melanoma")
+          "Triple-Negative Breast Cancer"           → ("breast_cancer", "breast cancer")
+          "Severe Refractory Rheumatoid Arthritis"  → ("rheumatoid_arthritis", ...)
+          "Relapsing-Remitting Multiple Sclerosis"  → ("multiple_sclerosis", ...)
+          "Pediatric Acute Lymphoblastic Leukemia"  → ("acute_lymphoblastic_leukemia", ...)
+
+        Cached on disk at ``data/cache/indication_canonicalizations.json``
+        so each unique condition string costs at most one Haiku call.
+        Falls back to a slugified copy of the raw text when no Anthropic
+        client is configured (tests + offline mode).
+        """
+        from src.graph.indication_taxonomy import slugify_disease_name
+
+        if self._indication_canon is None:
+            self._indication_canon = JSONCache(
+                self._cache_dir / "indication_canonicalizations.json"
+            )
+        cache = self._indication_canon
+
+        cached = cache.get(cond)
+        if cached:
+            slug, _, name = cached.partition("|")
+            if slug:
+                return slug, name or slug.replace("_", " ")
+
+        if self._anthropic is None:
+            slug = slugify_disease_name(cond) or normalize_entity(
+                cond, "IndicationNode",
+            )
+            name = cond
+            cache.set(cond, f"{slug}|{name}")
+            return slug, name
+
+        user_msg = (
+            f"ClinicalTrials.gov condition string: {cond!r}\n\n"
+            "What is the BASE disease this trial is for? Strip staging, "
+            "subtype/histology, resectability/spread, severity, "
+            "line-of-therapy, treatment setting, and demographic modifiers."
+            "Return only the disease itself in snake_case. Examples:\n"
+            "  'Stage IIIC Cutaneous Melanoma AJCC v7' → melanoma\n"
+            "  'Unresectable or Metastatic Melanoma' → melanoma\n"
+            "  'Triple-Negative Breast Cancer' → breast_cancer\n"
+            "  'Non-Small Cell Lung Cancer (NSCLC)' → "
+            "non_small_cell_lung_cancer\n"
+            "  'Severe Refractory Rheumatoid Arthritis' → "
+            "rheumatoid_arthritis\n"
+            "  'Relapsing-Remitting Multiple Sclerosis' → multiple_sclerosis\n"
+            "  'Pediatric Acute Lymphoblastic Leukemia' → "
+            "acute_lymphoblastic_leukemia\n"
+            "  'Chronic Hepatitis B Infection' → hepatitis_b\n\n"
+            "Reply with only the snake_case base-disease name. No other "
+            "text."
+        )
+        try:
+            response = await _call_messages_with_backoff(
+                self._anthropic,
+                model=INFERENCE_MODEL,
+                max_tokens=30,
+                temperature=0,
+                messages=[{"role": "user", "content": user_msg}],
+            )
+            raw = response.content[0].text.strip()
+        except Exception:
+            logger.debug(
+                "Indication canonicalization LLM call failed for %r",
+                cond, exc_info=True,
+            )
+            raw = ""
+
+        slug = slugify_disease_name(raw)
+        if not slug:
+            slug = slugify_disease_name(cond) or normalize_entity(
+                cond, "IndicationNode",
+            )
+            name = cond
+        else:
+            name = slug.replace("_", " ")
+
+        cache.set(cond, f"{slug}|{name}")
+        return slug, name
 
     async def _lookup_efo_for_indication(self, indication_name: str) -> str | None:
         """Resolve an indication string to an EFO id via OT search.
@@ -804,17 +1033,28 @@ class PopulationPipeline:
         trials: list[TrialRecord],
         compound_targets: dict[str, list[str]],
     ) -> int:
-        """Infer one mechanism per trial; add MechanismNode + modulates_via edge.
+        """Resolve target + mechanism PER CONSTITUENT and rebuild chains.
 
-        For each trial:
-          1. Pick the trial's primary target—first OT-resolved target of
-             the first arm's first compound. Falls back to ``UNKNOWN`` only
-             when no compound resolves to any target; mechanism inference
-             still runs (the LLM uses intervention text as well).
-          2. Call ``infer_mechanism_for_trial`` to get a MechanismCategory.
-          3. Create the MechanismNode if missing (canonical id = category
-             value, e.g. ``checkpoint_blockade``).
-          4. Add ``target → mechanism`` modulates_via edge.
+        A combo arm tests N mechanism paths simultaneously, so it produces
+        N chains—one per constituent compound—rather than collapsing both
+        constituents onto a single chain backbone. Mono arms produce one
+        chain (unchanged).
+
+        Per constituent we:
+          1. Look up the constituent's primary target via OT-resolved
+             ``compound_targets`` (first entry; can be UNKNOWN if OT had
+             no hit).
+          2. Infer a MechanismCategory for that (constituent, target)
+             pair via Haiku.
+          3. Ensure the MechanismNode exists and add the constituent's
+             ``target → mechanism`` modulates_via edge (idempotent).
+
+        The chain list is then rebuilt: for every existing
+        subgroup_population_id × arm cell, emit one chain per
+        constituent. ``chain.compound_id`` is the constituent (not the
+        combo regimen) so binds_to lookup walks to the constituent's own
+        target. ``chain.metadata["regimen_id"]`` records the arm's
+        regimen for downstream grouping.
 
         Returns the number of new modulates_via edges added.
         """
@@ -825,98 +1065,302 @@ class PopulationPipeline:
         cache = JSONCache(self._cache_dir / "mechanism_inferences.json")
         added = 0
         for trial in trials:
-            # Pick the first drug-like intervention's compound id.
-            compound_id: str | None = None
-            for iv in trial.interventions:
-                if not is_drug_like(iv) or not iv.name:
-                    continue
-                cid = self.resolve_entity(iv.name, "compound")
-                if cid:
-                    compound_id = cid
-                    break
-            target_id: str | None = None
-            if compound_id:
-                tids = compound_targets.get(compound_id) or []
-                if tids:
-                    target_id = tids[0]
-
-            if target_id:
-                try:
-                    target_node = self.graph.get_node(target_id)
-                except KeyError:
-                    target_node = {}
-            else:
-                target_node = {}
-
-            mech_value = await infer_mechanism_for_trial(
-                self._anthropic, trial, target_node, cache,
-            )
-            mech_id = normalize_entity(mech_value, "MechanismNode")
-
-            try:
-                self.graph.get_node(mech_id)
-            except KeyError:
-                self.graph.add_node(MechanismNode(
-                    id=mech_id,
-                    name=mech_id.replace("_", " "),
-                    mechanism_type=_category_to_mechanism_type(
-                        MechanismCategory(mech_id)
-                    ),
-                ))
-
-            # Write the resolved ids back into the trial's chains so the
-            # prediction engine can traverse them. build_trial_subgraphs
-            # creates chains with target_id/mechanism_id = UNKNOWN; without
-            # this rewrite, PredictionEngine._collect_edges skips every
-            # causal-chain edge.
             try:
                 ts = self.graph.get_trial_subgraph_by_id(trial.nct_id)
             except KeyError:
-                ts = None
-            if ts is not None and (target_id is not None or mech_id):
-                updates: dict[str, str] = {}
-                if target_id is not None:
-                    updates["target_id"] = target_id
-                if mech_id:
-                    updates["mechanism_id"] = mech_id
-                new_chains = [c.model_copy(update=updates) for c in ts.chains]
-                self.graph.set_trial_subgraph(
-                    ts.model_copy(update={"chains": new_chains})
-                )
+                continue
+            if not ts.arms:
+                continue
 
-            if target_id is None:
-                continue
-            if self.graph._graph.has_edge(  # noqa: SLF001
-                target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
-            ):
-                continue
-            self.graph.add_edge(GraphEdge(
-                source_id=target_id,
-                target_id=mech_id,
-                edge_type=EdgeType.MODULATES_VIA,
-                belief=EdgeBeliefState(alpha=3.0, beta=1.0),
-                metadata={
-                    "source": "trial_inference",
-                    "trial_id": trial.nct_id,
-                },
-            ))
-            added += 1
+            # Per-(arm, constituent) backbones. Order within each arm
+            # follows arm.compound_ids so chain ordering is deterministic.
+            backbones: dict[str, list[dict[str, str]]] = {}
+
+            for arm in ts.arms:
+                arm_label = "combo" if arm.is_combination else "monotherapy"
+                arm_entries: list[dict[str, str]] = []
+                for cid in arm.compound_ids:
+                    target_id = (compound_targets.get(cid) or [None])[0]
+                    target_node: dict[str, Any] = {}
+                    if target_id:
+                        try:
+                            target_node = self.graph.get_node(target_id)
+                        except KeyError:
+                            target_node = {}
+
+                    constituent_name = cid
+                    try:
+                        constituent_name = (
+                            self.graph.get_node(cid).get("name") or cid
+                        )
+                    except KeyError:
+                        pass
+
+                    mech_value = await infer_mechanism_for_arm(
+                        self._anthropic,
+                        trial,
+                        arm_label=arm_label,
+                        arm_compound_names=[constituent_name],
+                        target_node=target_node,
+                        cache=cache,
+                        cache_key=f"{trial.nct_id}::{arm.arm_id}::{cid}",
+                    )
+                    mech_id = normalize_entity(mech_value, "MechanismNode")
+
+                    try:
+                        self.graph.get_node(mech_id)
+                    except KeyError:
+                        self.graph.add_node(MechanismNode(
+                            id=mech_id,
+                            name=mech_id.replace("_", " "),
+                            mechanism_type=_category_to_mechanism_type(
+                                MechanismCategory(mech_id)
+                            ),
+                        ))
+
+                    if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
+                        target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
+                    ):
+                        self.graph.add_edge(GraphEdge(
+                            source_id=target_id,
+                            target_id=mech_id,
+                            edge_type=EdgeType.MODULATES_VIA,
+                            belief=EdgeBeliefState(alpha=3.0, beta=1.0),
+                            metadata={
+                                "source": "trial_inference",
+                                "trial_id": trial.nct_id,
+                                "arm_id": arm.arm_id,
+                                "constituent_id": cid,
+                            },
+                        ))
+                        added += 1
+
+                    arm_entries.append({
+                        "compound_id": cid,
+                        "target_id": target_id or _UNKNOWN,
+                        "mechanism_id": mech_id,
+                    })
+                backbones[arm.arm_id] = arm_entries
+
+            # Rebuild chains: for every (arm, subgroup_pop) cell already
+            # in the trial subgraph, emit one chain per constituent. This
+            # is idempotent w.r.t. subgroup forks—if seed_responds_differently
+            # has already added subgroup pops, we preserve them and just
+            # multiply by constituent count.
+            arm_by_id = {a.arm_id: a for a in ts.arms}
+            seen_cells: dict[str, list[CausalChain]] = {}
+            for chain in ts.chains:
+                key = f"{chain.arm_id}::{chain.subgroup_population_id}::{chain.endpoint_id}"
+                seen_cells.setdefault(key, []).append(chain)
+
+            new_chains: list[CausalChain] = []
+            for cell_key, cell_chains in seen_cells.items():
+                # Use the first chain in the cell as the template for fields
+                # that don't change per constituent (subgroup_pop, endpoint,
+                # indication, outcome, effect_size, p_value, metadata).
+                template = cell_chains[0]
+                arm = arm_by_id.get(template.arm_id)
+                if arm is None:
+                    new_chains.extend(cell_chains)
+                    continue
+                entries = backbones.get(arm.arm_id, [])
+                if not entries:
+                    new_chains.extend(cell_chains)
+                    continue
+                for entry in entries:
+                    md = dict(template.metadata)
+                    md["regimen_id"] = arm.regimen_compound_id
+                    md["is_constituent"] = arm.is_combination
+                    new_chains.append(template.model_copy(update={
+                        "compound_id": entry["compound_id"],
+                        "target_id": entry["target_id"],
+                        "mechanism_id": entry["mechanism_id"],
+                        # biology_id will be set in _populate_trial_biology
+                        "biology_id": _UNKNOWN,
+                        "metadata": md,
+                    }))
+
+            self.graph.set_trial_subgraph(
+                ts.model_copy(update={"chains": new_chains})
+            )
+
         return added
 
-    def _populate_trial_biology(self, trials: list[TrialRecord]) -> int:
-        """Ensure every trial chain has a resolvable biology node.
+    # Cap on Reactome pathways used as distinct biology nodes per
+    # (target, mechanism) pair. A gene like BRAF is annotated to ~16
+    # pathways in Reactome; fanning out a chain into 16 biological
+    # hypotheses dilutes evidence and explodes the chain count when
+    # combined with per-constituent + per-subgroup fan-out. Keep the top
+    # K most-listed pathways (Reactome returns them ranked by relevance
+    # for the query gene). 3 is enough to capture both the canonical
+    # signaling pathway and one or two upstream / downstream pathways
+    # without runaway.
+    _BIOLOGY_PATHWAY_CAP = 3
 
-        For each trial whose mechanism + indication are resolved, build a
-        slug-form BiologyNode ``{mechanism}__{indication}``. Wire
-        ``mechanism → biology`` (mechanism_affects) and ``biology →
-        indication`` (biology_drives) with weak priors so trial outcomes
-        can update them through attribution. Then rewrite the trial's
-        chains so ``biology_id`` no longer references UNKNOWN.
+    async def _resolve_real_biology(
+        self,
+        target_id: str,
+        mechanism_id: str,
+        indication_id: str,
+        lincs_client: "LINCSClient | None",
+    ) -> tuple[list[str], bool]:
+        """Resolve a chain's biology to real Reactome pathway(s).
+
+        Always keyed on the chain's TARGET — same mechanism with a
+        different target maps to different pathways (e.g. nivo's PD-1
+        target → "Co-inhibition by PD-1", ipi's CTLA-4 target →
+        "Co-inhibition by CTLA4"). The graph's ``mechanism_affects``
+        edges accumulate pathways from many targets onto a shared
+        MechanismNode, so walking out from the mechanism would mix
+        target contexts — we go through Reactome directly instead.
+
+        Resolution order, per fixes.md priority 6 (the "Adding Real
+        biology nodes" follow-up):
+
+          1. Query Reactome via the target's gene symbol (cached on
+             disk by ``LINCSClient``). Materialize a BiologyNode per
+             pathway, capped at the top ``_BIOLOGY_PATHWAY_CAP``
+             entries (Reactome returns 3–16 pathways per gene; capping
+             prevents the chain count from exploding when combined with
+             per-constituent + per-subgroup fan-out). Add
+             ``mechanism_affects`` and ``biology_drives`` edges for
+             each pathway.
+          2. Fall back to the slug ``{mechanism}__{indication}`` only
+             as a last resort — when target is UNKNOWN, gene symbol is
+             missing, or Reactome has no pathways for the gene. The
+             caller tags the chain with
+             ``metadata["unresolved_biology"] = True``.
+
+        Returns ``(biology_ids, is_fallback)``. ``biology_ids`` is
+        ordered by Reactome's relevance ranking; ``is_fallback`` is
+        always False here (fallback is signalled by an empty list, and
+        the caller materializes the slug + tags the chain).
+        """
+        from src.graph.models import BiologyNode  # local: avoids forcing
+        # a top-level Pydantic import surface change.
+
+        if mechanism_id == _UNKNOWN or indication_id == _UNKNOWN:
+            return ([], False)
+        try:
+            MechanismCategory(mechanism_id)
+        except ValueError:
+            return ([], False)
+
+        # Reactome lookup via the target's gene symbol. Reactome is the
+        # source of truth for "which pathways contain this protein";
+        # LINCSClient already wraps the call + on-disk cache.
+        if (
+            target_id == _UNKNOWN
+            or lincs_client is None
+            or not target_id.startswith("ENSG")
+        ):
+            return ([], False)
+
+        try:
+            target_node = self.graph.get_node(target_id)
+        except KeyError:
+            return ([], False)
+        gene_symbol = target_node.get("gene_symbol") or ""
+        if not gene_symbol:
+            return ([], False)
+
+        try:
+            pathways = await lincs_client.get_pathways_for_gene(gene_symbol)
+        except Exception:
+            logger.debug(
+                "Reactome lookup failed for %s (target %s)",
+                gene_symbol, target_id, exc_info=True,
+            )
+            pathways = []
+
+        if not pathways:
+            return ([], False)
+
+        biology_ids: list[str] = []
+        for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
+            bio_id = pathway.stable_id
+            try:
+                self.graph.get_node(bio_id)
+            except KeyError:
+                self.graph.add_node(BiologyNode(
+                    id=bio_id,
+                    name=pathway.display_name or bio_id,
+                    pathway_ids=[bio_id],
+                    metadata={"source": "reactome_target_lookup"},
+                ))
+
+            if not self.graph._graph.has_edge(  # noqa: SLF001
+                mechanism_id, bio_id, key=EdgeType.MECHANISM_AFFECTS.value,
+            ):
+                self.graph.add_edge(GraphEdge(
+                    source_id=mechanism_id,
+                    target_id=bio_id,
+                    edge_type=EdgeType.MECHANISM_AFFECTS,
+                    belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                    metadata={
+                        "source": "reactome_target_lookup",
+                        "gene_symbol": gene_symbol,
+                    },
+                ))
+
+            if not self.graph._graph.has_edge(  # noqa: SLF001
+                bio_id, indication_id, key=EdgeType.BIOLOGY_DRIVES.value,
+            ):
+                prior = EdgeBeliefState(alpha=1.0, beta=1.0)
+                try:
+                    prior = self.graph.get_edge_belief(
+                        target_id, indication_id, EdgeType.BIOLOGY_DRIVES,
+                    )
+                except KeyError:
+                    pass
+                self.graph.add_edge(GraphEdge(
+                    source_id=bio_id,
+                    target_id=indication_id,
+                    edge_type=EdgeType.BIOLOGY_DRIVES,
+                    belief=EdgeBeliefState(
+                        alpha=prior.alpha, beta=prior.beta,
+                    ),
+                    metadata={
+                        "source": "reactome_target_lookup",
+                        "borrowed_from": f"{target_id}->{indication_id}",
+                    },
+                ))
+            biology_ids.append(bio_id)
+
+        return (biology_ids, False)
+
+    async def _populate_trial_biology(self, trials: list[TrialRecord]) -> int:
+        """Resolve every chain's biology to real Reactome pathways when
+        possible; fan chains out per pathway.
+
+        Resolution per chain:
+          1. LINCS-wired Reactome biology already on the graph (preferred).
+          2. Reactome API lookup keyed on the target's gene symbol
+             (``LINCSClient.get_pathways_for_gene``, cached).
+          3. ``{mechanism}__{indication}`` slug fallback, tagged
+             ``metadata["unresolved_biology"] = True`` for downstream
+             auditing.
+
+        When step 1 or 2 returns multiple pathway nodes, the chain fans
+        out one chain per pathway — each pathway is a distinct
+        biological hypothesis and accumulates its own evidence. Capped
+        at ``_BIOLOGY_PATHWAY_CAP`` per (target, mechanism) pair.
 
         Returns the count of new biology nodes + chain rewrites combined.
         """
-        from src.graph.models import BiologyNode  # local import: keeps
-        # the module's top-level Pydantic dependency surface unchanged.
+        from src.graph.models import BiologyNode  # local import
+
+        # One LINCSClient per pipeline run so the Reactome HTTP cache +
+        # on-disk JSON cache are shared across trials. If the env doesn't
+        # have CLUE_API_KEY set, LINCSClient construction may fail —
+        # but get_pathways_for_gene only uses the Reactome endpoint
+        # which is keyless, so we tolerate either path here.
+        lincs_client: "LINCSClient | None"
+        try:
+            lincs_client = LINCSClient()
+        except Exception:
+            logger.debug("LINCSClient unavailable", exc_info=True)
+            lincs_client = None
 
         added = 0
         for trial in trials:
@@ -927,89 +1371,129 @@ class PopulationPipeline:
             if not ts.chains:
                 continue
 
-            # Use the trial's first chain to read mech+indication. Within
-            # a trial, _populate_trial_mechanisms writes the same mech_id
-            # onto every chain, and indication is fixed per trial.
-            sample = ts.chains[0]
-            mech_id = sample.mechanism_id
-            ind_id = sample.indication_id
-            if mech_id == _UNKNOWN or ind_id == _UNKNOWN:
-                continue
-            try:
-                MechanismCategory(mech_id)
-            except ValueError:
-                # Mechanism inferred but not canonical—skip rather than
-                # silently producing an invalid slug.
-                continue
+            # Resolve once per (target, mechanism, indication) tuple so
+            # each Reactome lookup is amortized across all chains that
+            # share that backbone.
+            resolution_cache: dict[
+                tuple[str, str, str], tuple[list[str], bool]
+            ] = {}
 
-            biology_id = normalize_entity(
-                f"{mech_id}__{ind_id}", "BiologyNode"
-            )
-            try:
-                self.graph.get_node(biology_id)
-            except KeyError:
-                self.graph.add_node(BiologyNode(
-                    id=biology_id,
-                    name=f"{mech_id.replace('_', ' ')} biology in {ind_id}",
-                    pathway_ids=[],
-                ))
-                added += 1
+            new_chains: list[CausalChain] = []
+            for chain in ts.chains:
+                mech_id = chain.mechanism_id
+                ind_id = chain.indication_id
+                target_id = chain.target_id
+                if mech_id == _UNKNOWN or ind_id == _UNKNOWN:
+                    new_chains.append(chain)
+                    continue
 
-            # mechanism_affects: mech → biology
-            if not self.graph._graph.has_edge(  # noqa: SLF001
-                mech_id, biology_id, key=EdgeType.MECHANISM_AFFECTS.value,
-            ):
-                self.graph.add_edge(GraphEdge(
-                    source_id=mech_id,
-                    target_id=biology_id,
-                    edge_type=EdgeType.MECHANISM_AFFECTS,
-                    belief=EdgeBeliefState(alpha=2.0, beta=1.0),
-                    metadata={"source": "trial_biology_fallback"},
-                ))
+                key = (target_id, mech_id, ind_id)
+                if key in resolution_cache:
+                    biology_ids, _ = resolution_cache[key]
+                else:
+                    biology_ids, _ = await self._resolve_real_biology(
+                        target_id, mech_id, ind_id, lincs_client,
+                    )
+                    resolution_cache[key] = (biology_ids, False)
 
-            # biology_drives: biology → indication. Borrow the OT-derived
-            # target→indication prior when it exists (the slug biology
-            # represents that target's mechanism affecting this disease,
-            # so the strength of the target↔disease association is the
-            # right prior). Fall back to weak Beta(1, 1) otherwise.
-            if not self.graph._graph.has_edge(  # noqa: SLF001
-                biology_id, ind_id, key=EdgeType.BIOLOGY_DRIVES.value,
-            ):
-                prior = EdgeBeliefState(alpha=1.0, beta=1.0)
-                target_id = sample.target_id
-                if target_id != _UNKNOWN:
+                if not biology_ids:
+                    # Step 3: slug fallback. Seed the slug biology + its
+                    # mechanism_affects / biology_drives edges (same as
+                    # the legacy path), tag the chain as unresolved.
+                    slug_id = normalize_entity(
+                        f"{mech_id}__{ind_id}", "BiologyNode",
+                    )
                     try:
-                        prior = self.graph.get_edge_belief(
-                            target_id, ind_id, EdgeType.BIOLOGY_DRIVES,
-                        )
+                        self.graph.get_node(slug_id)
                     except KeyError:
-                        pass
-                self.graph.add_edge(GraphEdge(
-                    source_id=biology_id,
-                    target_id=ind_id,
-                    edge_type=EdgeType.BIOLOGY_DRIVES,
-                    belief=EdgeBeliefState(alpha=prior.alpha, beta=prior.beta),
-                    metadata={
-                        "source": "trial_biology_fallback",
-                        "borrowed_from": (
-                            f"{target_id}->{ind_id}"
-                            if target_id != _UNKNOWN else None
-                        ),
-                    },
-                ))
+                        self.graph.add_node(BiologyNode(
+                            id=slug_id,
+                            name=(
+                                f"{mech_id.replace('_', ' ')} biology in "
+                                f"{ind_id}"
+                            ),
+                            pathway_ids=[],
+                            metadata={"source": "trial_biology_fallback"},
+                        ))
+                        added += 1
 
-            # Rewrite chains with the resolved biology id.
-            new_chains = [
-                c.model_copy(update={"biology_id": biology_id})
-                if c.biology_id == _UNKNOWN else c
-                for c in ts.chains
-            ]
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        mech_id, slug_id,
+                        key=EdgeType.MECHANISM_AFFECTS.value,
+                    ):
+                        self.graph.add_edge(GraphEdge(
+                            source_id=mech_id,
+                            target_id=slug_id,
+                            edge_type=EdgeType.MECHANISM_AFFECTS,
+                            belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                            metadata={"source": "trial_biology_fallback"},
+                        ))
+
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        slug_id, ind_id,
+                        key=EdgeType.BIOLOGY_DRIVES.value,
+                    ):
+                        prior = EdgeBeliefState(alpha=1.0, beta=1.0)
+                        if target_id != _UNKNOWN:
+                            try:
+                                prior = self.graph.get_edge_belief(
+                                    target_id, ind_id,
+                                    EdgeType.BIOLOGY_DRIVES,
+                                )
+                            except KeyError:
+                                pass
+                        self.graph.add_edge(GraphEdge(
+                            source_id=slug_id,
+                            target_id=ind_id,
+                            edge_type=EdgeType.BIOLOGY_DRIVES,
+                            belief=EdgeBeliefState(
+                                alpha=prior.alpha, beta=prior.beta,
+                            ),
+                            metadata={
+                                "source": "trial_biology_fallback",
+                                "borrowed_from": (
+                                    f"{target_id}->{ind_id}"
+                                    if target_id != _UNKNOWN else None
+                                ),
+                            },
+                        ))
+
+                    md = dict(chain.metadata)
+                    md["unresolved_biology"] = True
+                    new_chains.append(chain.model_copy(update={
+                        "biology_id": slug_id,
+                        "metadata": md,
+                    }))
+                    continue
+
+                # One Reactome pathway → set biology_id. Multiple → fan
+                # out one chain per pathway (different biological
+                # hypotheses tested by the same trial cell).
+                if len(biology_ids) == 1:
+                    bio_id = biology_ids[0]
+                    if chain.biology_id == bio_id:
+                        new_chains.append(chain)
+                    else:
+                        md = dict(chain.metadata)
+                        md.pop("unresolved_biology", None)
+                        new_chains.append(chain.model_copy(update={
+                            "biology_id": bio_id,
+                            "metadata": md,
+                        }))
+                        added += 1
+                else:
+                    for bio_id in biology_ids:
+                        md = dict(chain.metadata)
+                        md.pop("unresolved_biology", None)
+                        new_chains.append(chain.model_copy(update={
+                            "biology_id": bio_id,
+                            "metadata": md,
+                        }))
+                        added += 1
+
             if new_chains != list(ts.chains):
                 self.graph.set_trial_subgraph(
                     ts.model_copy(update={"chains": new_chains})
-                )
-                added += sum(
-                    1 for c in new_chains if c.biology_id == biology_id
                 )
         return added
 
@@ -1132,17 +1616,25 @@ class PopulationPipeline:
     ) -> list[TrialSubgraph]:
         """Build skeleton TrialSubgraphs (TrialNode + arms + parent population).
 
-        Produces one chain per arm at the parent (unselected) population.
-        Subgroup-specific chains are added later when extraction provides
-        canonicalized subgroup features—see ``add_subgroup_chains``.
+        Produces one chain per arm at the trial's qualified default
+        PopulationNode (see step 2 of ``populate_oncology``). For a trial
+        whose condition is "Stage IIIC Cutaneous Melanoma", the parent
+        population is ``melanoma__histology_cutaneous__stage_iii``; for a
+        trial whose condition has no parseable qualifiers it falls back
+        to ``{indication}__unselected``. Biomarker-derived subgroups
+        added later fork off this qualified default.
         """
         subgraphs: list[TrialSubgraph] = []
+        canonical_lookup = getattr(self, "_trial_canonical_indication", {})
+        default_pop_lookup = getattr(self, "_trial_default_population", {})
+
         for trial in trials:
-            indication_id = None
-            for cond in trial.conditions:
-                indication_id = self.resolve_entity(cond, "indication")
-                if indication_id:
-                    break
+            indication_id = canonical_lookup.get(trial.nct_id)
+            if indication_id is None:
+                for cond in trial.conditions:
+                    indication_id = self.resolve_entity(cond, "indication")
+                    if indication_id:
+                        break
             if not indication_id:
                 continue
 
@@ -1160,9 +1652,15 @@ class PopulationPipeline:
                 continue
             synthesize_combo_compounds(self.graph, arms)
 
-            parent_pop_id = ensure_parent_population(
-                self.graph, indication_id, indication_name=trial.conditions[0],
-            )
+            parent_pop_id = default_pop_lookup.get(trial.nct_id)
+            if not parent_pop_id:
+                parent_pop_id = ensure_parent_population(
+                    self.graph,
+                    indication_id,
+                    indication_name=(
+                        trial.conditions[0] if trial.conditions else indication_id
+                    ),
+                )
 
             chains = [
                 CausalChain(
@@ -1568,7 +2066,7 @@ def build_trial_subgraph_from_extraction(
     return ts
 
 
-def seed_responds_differently_from_extractions(
+async def seed_responds_differently_from_extractions(
     graph: GraphStore,
     annotations_dir: Path,
 ) -> tuple[int, int]:
@@ -1580,13 +2078,24 @@ def seed_responds_differently_from_extractions(
          indication.
       3. Add a population→indication ``responds_differently`` edge with
          prior Beta(1.5, 1).
-      4. Fork the trial's chains: every parent-population chain is
-         duplicated with ``subgroup_population_id`` set to the new
-         subgroup population id, inheriting the parent chain's resolved
-         target/mechanism/biology. The prediction engine can then query
-         either the unselected or subgroup chain.
+      4. Fork the trial's chains. A chain is forked into the subgroup
+         population ONLY when the subgroup is mechanistically relevant
+         to the chain's target — that is, when the subgroup's biomarker
+         gene appears in any Reactome pathway containing the chain's
+         target gene. Subgroups with no gene biomarker (line of
+         therapy, performance status, age) are universally relevant and
+         fork every chain. (fixes.md #3 — PD-L1 stratification was
+         being forked onto ipilimumab chains where it isn't
+         mechanistically meaningful, since CTLA-4's pathways don't
+         contain CD274.)
 
     Returns ``(edges_added, chains_added)``.
+
+    Async because the relevance check needs Reactome lookups
+    (``LINCSClient.get_pathways_for_gene`` and
+    ``get_pathway_gene_symbols``, both on-disk cached). When LINCS
+    construction fails (no httpx, offline) we fall back to the legacy
+    "always fork" behaviour so tests can still run without network.
 
     Lookup expectations:
       - ``graph.trial_subgraphs[nct_id]`` exists (created by
@@ -1600,6 +2109,63 @@ def seed_responds_differently_from_extractions(
         is_canonical,
         log_unmapped,
     )
+
+    lincs_client: "LINCSClient | None"
+    try:
+        lincs_client = LINCSClient()
+    except Exception:
+        logger.debug("LINCSClient unavailable for subgroup relevance", exc_info=True)
+        lincs_client = None
+
+    # gene_symbol → set of pathway gene-symbol participants reached via
+    # this gene's Reactome pathways. Populated lazily; persists for the
+    # whole run.
+    pathway_gene_cache: dict[str, set[str]] = {}
+
+    async def _pathway_universe_for_gene(gene_symbol: str) -> set[str]:
+        """Genes that share a Reactome pathway with ``gene_symbol``.
+
+        Used to test mechanistic relatedness: if subgroup biomarker
+        gene G is in this set for the chain's target T, T and G are in
+        the same Reactome pathway and the subgroup is biologically
+        meaningful for this chain.
+        """
+        if not gene_symbol:
+            return set()
+        cached = pathway_gene_cache.get(gene_symbol)
+        if cached is not None:
+            return cached
+        if lincs_client is None:
+            pathway_gene_cache[gene_symbol] = set()
+            return set()
+        universe: set[str] = {gene_symbol}
+        try:
+            pathways = await lincs_client.get_pathways_for_gene(gene_symbol)
+        except Exception:
+            logger.debug(
+                "Reactome pathway lookup failed for %s",
+                gene_symbol, exc_info=True,
+            )
+            pathways = []
+        for pathway in pathways:
+            try:
+                participants = await lincs_client.get_pathway_gene_symbols(
+                    pathway.stable_id
+                )
+            except Exception:
+                logger.debug(
+                    "Reactome pathway participant lookup failed for %s",
+                    pathway.stable_id, exc_info=True,
+                )
+                participants = []
+            for s in participants:
+                if s:
+                    universe.add(s.upper())
+        pathway_gene_cache[gene_symbol] = universe
+        return universe
+
+    def _gene_biomarkers(features: list[SubgroupFeature]) -> list[str]:
+        return [f.key.upper() for f in features if f.axis == "gene" and f.key]
 
     edges_added = 0
     chains_added = 0
@@ -1624,7 +2190,27 @@ def seed_responds_differently_from_extractions(
 
         # Snapshot parent chains BEFORE forking so we don't fork copies.
         parent_chains = list(ts.chains)
-        new_subgroup_pop_ids: list[str] = []
+
+        # Resolve each parent chain's "target pathway universe" once —
+        # the set of genes that share a Reactome pathway with the
+        # chain's target. We test subgroup biomarker genes against this
+        # set to decide whether to fork.
+        chain_universes: dict[int, set[str]] = {}
+        for i, chain in enumerate(parent_chains):
+            if chain.target_id == _UNKNOWN:
+                chain_universes[i] = set()
+                continue
+            try:
+                tnode = graph.get_node(chain.target_id)
+            except KeyError:
+                chain_universes[i] = set()
+                continue
+            tgene = (tnode.get("gene_symbol") or "").upper()
+            chain_universes[i] = await _pathway_universe_for_gene(tgene)
+
+        # Per-subgroup forks. Each entry: (pop_id, list of biomarker
+        # genes); empty gene list means "universally relevant".
+        forks: list[tuple[str, list[str]]] = []
 
         for sg in data.get("subgroups") or []:
             descriptor = sg.get("raw_descriptor", "")
@@ -1641,8 +2227,7 @@ def seed_responds_differently_from_extractions(
                 features.append(cf)
             if not features:
                 continue
-            # Drop subgroups whose features all canonicalize to "other" —
-            # see the same guard in ``build_trial_subgraphs`` for context.
+            # Drop subgroups whose features all canonicalize to "other".
             if not any(is_canonical(f) for f in features):
                 continue
             pop_id = PopulationNode.compose_id(indication_id, features)
@@ -1670,19 +2255,34 @@ def seed_responds_differently_from_extractions(
                 ))
                 edges_added += 1
             if pop_id != ts.parent_population_id:
-                new_subgroup_pop_ids.append(pop_id)
+                forks.append((pop_id, _gene_biomarkers(features)))
 
-        if new_subgroup_pop_ids:
-            # Fork: parent chains stay; for each subgroup pop, append a
-            # copy of every parent chain with subgroup_population_id
-            # rebound. Skip subgroup pops we've already forked (idempotent
-            # if seeder runs twice).
+        if forks:
             existing_pops = {c.subgroup_population_id for c in parent_chains}
             forked: list[CausalChain] = list(parent_chains)
-            for pop_id in dict.fromkeys(new_subgroup_pop_ids):  # dedupe, preserve order
+            # Dedupe forks by pop_id (preserve first occurrence + its
+            # biomarker list).
+            seen_pops: set[str] = set()
+            ordered_forks: list[tuple[str, list[str]]] = []
+            for pop_id, biomarkers in forks:
+                if pop_id in seen_pops:
+                    continue
+                seen_pops.add(pop_id)
+                ordered_forks.append((pop_id, biomarkers))
+
+            for pop_id, biomarkers in ordered_forks:
                 if pop_id in existing_pops:
                     continue
-                for parent in parent_chains:
+                for i, parent in enumerate(parent_chains):
+                    if biomarkers:
+                        universe = chain_universes.get(i, set())
+                        # Relevance: at least one subgroup biomarker
+                        # gene must share a Reactome pathway with the
+                        # chain's target. If LINCS / Reactome couldn't
+                        # resolve the universe (empty), fall back to
+                        # forking — better noisy than missing.
+                        if universe and not any(b in universe for b in biomarkers):
+                            continue
                     forked.append(parent.model_copy(
                         update={"subgroup_population_id": pop_id}
                     ))

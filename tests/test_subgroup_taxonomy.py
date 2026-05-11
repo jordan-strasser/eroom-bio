@@ -36,11 +36,40 @@ def _clean_unmapped_log(tmp_path, monkeypatch):
 
 class TestGeneAxis:
     def test_general_level_canonicalizes(self):
+        # "high" collapses to "positive" so cd274_high and cd274_positive
+        # don't fragment for the same expression biology (fixes.md #5).
         f = canonicalize_feature("gene", "CD274", "high", "PD-L1 ≥1%")
         assert f.axis == "gene"
         assert f.key == "CD274"
-        assert f.level == "high"
+        assert f.level == "positive"
         assert f.raw_descriptor == "PD-L1 ≥1%"
+
+    def test_low_collapses_to_negative(self):
+        f = canonicalize_feature("gene", "CD274", "low", "PD-L1 < 1%")
+        assert f.axis == "gene"
+        assert f.level == "negative"
+
+    def test_positive_passes_through(self):
+        f = canonicalize_feature("gene", "CD274", "positive", "PD-L1 ≥1%")
+        assert f.level == "positive"
+
+    def test_threshold_variants_collapse_onto_one_pop_id(self):
+        # PD-L1 ≥ 1%, ≥ 5%, ≥ 10% all map to (cd274, positive). Different
+        # thresholds for the same direction should not fork the population.
+        from src.graph.models import PopulationNode
+        pop_ids = {
+            PopulationNode.compose_id(
+                "melanoma",
+                [canonicalize_feature("gene", "CD274", level, desc)],
+            )
+            for level, desc in [
+                ("high", "PD-L1 ≥ 1%"),
+                ("high", "PD-L1 ≥ 5%"),
+                ("high", "PD-L1 ≥ 10%"),
+                ("positive", "PD-L1 positive"),
+            ]
+        }
+        assert pop_ids == {"melanoma__cd274_positive"}
 
     def test_specific_variant_passes_through(self):
         f = canonicalize_feature("gene", "KRAS", "G12C")

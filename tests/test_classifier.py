@@ -246,9 +246,11 @@ class TestParseClassification:
         assert clf.primary_failure_mode == FailureMode.INSUFFICIENT_INFORMATION
         assert clf.confidence == raw["confidence_overall"]
 
-    def test_empty_modes_on_failure_zeros_confidence(self):
-        # Empty failure_modes on a non-success trial still signals
-        # insufficient information and zeros confidence.
+    def test_empty_modes_on_failure_uses_overall_confidence(self):
+        # Empty failure_modes on a non-success trial still flags
+        # insufficient_information, but confidence_overall is preserved
+        # so emitted contradict edges aren't zeroed out via the
+        # quality_score discount in the attributor (fixes.md #6).
         raw = {
             **VALID_CLASSIFICATION_JSON,
             "trial_outcome": "failure",
@@ -257,7 +259,7 @@ class TestParseClassification:
         ext = _make_extraction()
         clf = _parse_classification(raw, "NCT00000001", ext)
         assert clf.primary_failure_mode == FailureMode.INSUFFICIENT_INFORMATION
-        assert clf.confidence == 0.0
+        assert clf.confidence == raw["confidence_overall"]
 
     def test_stashes_raw_and_review_fields(self):
         ext = _make_extraction()

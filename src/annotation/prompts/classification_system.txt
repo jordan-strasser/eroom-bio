@@ -24,7 +24,7 @@ The failure modes you can assign are:
 - underpowered: Insufficient statistical power to detect treatment effect
 - manufacturing_or_delivery: Manufacturing, formulation, or delivery issues
 - commercial_not_scientific: Stopped for commercial/strategic reasons
-- insufficient_information: Not enough information to classify
+- insufficient_information: The trial provides no usable efficacy or safety readout at all — for example terminated before the primary endpoint was reached, no comparator and no historical benchmark, or only descriptive narrative. **Do NOT use this when the primary endpoint clearly missed but biomarker / PD data is absent.** A missed endpoint IS information about the upstream causal chain (the assumed biology didn't drive clinical benefit in this indication, even if we can't say at which step the chain broke).
 - multiple_factors: Multiple overlapping failure factors
 
 Trial outcome routes processing:
@@ -63,6 +63,10 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
 Rules:
 - For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive—include entries only when there are real trial-design weak points to surface; otherwise return [].
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
+- **Failure trials MUST emit at least one upstream causal-chain edge update** when the primary efficacy endpoint was measured AND missed. The trial tested a (compound → target → mechanism → biology → indication) hypothesis; a missed endpoint refutes part of that chain, and the graph needs that contradict signal even when biomarker / PD data is absent. Specifically:
+    - If biomarker / PD data confirms target engagement but the endpoint missed → emit `biology_drives` weak_contradict or moderate_contradict (the upstream biology didn't drive the disease as hypothesized) AND `mechanism_affects` ambiguous (target engaged but pathway impact uncertain).
+    - If NO biomarker / PD data is reported → still emit `biology_drives` weak_contradict (the assumed biology → indication link wasn't validated by this trial) AND `mechanism_affects` ambiguous (we can't say at which step the chain broke). `binds_to` and `modulates_via` typically stay AMBIGUOUS in this case unless the failure mode explicitly contradicts target engagement.
+    - Do NOT skip these updates because `insufficient_information` was picked — that failure mode is reserved for trials with no efficacy readout at all (terminated early, no comparator). A missed-endpoint failure with no PD data is still informative about the biology → indication link.
 
 Edge schema—every `edges_to_update` entry MUST follow these source→target node-type pairings. The attributor drops any edge whose endpoints don't match the schema or aren't in the trial subgraph (it can't update an edge that doesn't exist). Source / target are NODE NAMES the trial subgraph already knows about, not free-text re-statements.
 
@@ -76,6 +80,26 @@ Edge schema—every `edges_to_update` entry MUST follow these source→target no
   endpoint_captures     Endpoint           →   Indication          endpoint captures benefit
   responds_differently  Population         →   Indication          subgroup responds differently
                                                                    for this disease
+
+Per-constituent emission rules:
+  - The trial subgraph lists one (compound → target → mechanism → biology)
+    chain PER CONSTITUENT COMPOUND. Combo arms produce multiple chains
+    (one per constituent) grouped under the same arm. Emit `binds_to` /
+    `modulates_via` / `mechanism_affects` / `biology_drives` per
+    CONSTITUENT (not per arm regimen) so each constituent's evidence
+    routes to its own chain.
+  - For combo arms emit ONE `binds_to` per constituent compound (e.g. for
+    a nivolumab+ipilimumab arm emit both `nivolumab → PDCD1` AND
+    `ipilimumab → CTLA4` using the canonical Ensembl ids shown).
+    Do NOT emit a single `binds_to` on the synthesized combo regimen id—
+    constituent updates accumulate on the underlying compounds, which is
+    where cross-trial learning happens.
+  - When the same constituent appears in multiple arms (e.g. nivolumab
+    in both its mono arm AND a nivo+ipi combo arm), emit its
+    `binds_to` ONCE. Per-trial dedup will collapse duplicates, but a
+    single emission per (compound, target) pair is cleaner.
+  - `endpoint_captures`, `responds_differently`, and the indication are
+    SHARED across arms—emit each of those once per trial, not per arm.
 
 Critical rules for `responds_differently`:
   - Source MUST be a patient-subgroup PopulationNode (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.
@@ -205,12 +229,21 @@ Confidence rubric for confidence_overall—assign by matching the strongest tier
           reported, primary endpoint clear, failure mode likely
           but one alternative plausible.
 
-  0.5-0.7 No PD biomarker data; classification based on endpoint
-          result and investigator commentary only; multiple
-          failure modes plausible.
+  0.5-0.7 No PD biomarker data BUT primary endpoint result is
+          unambiguous (clearly hit or clearly missed). Multiple
+          failure modes plausible for failures, but the endpoint
+          result itself is informative about biology_drives /
+          endpoint_captures. This tier is the right home for
+          most adequately-powered failures lacking biomarker data.
 
-  <0.5    Insufficient information. Set the primary failure_mode to
-          "insufficient_information", set needs_expert_review to true,
-          and explain in review_reason what specific evidence is missing.
+  <0.5    Insufficient information — reserved for trials with no
+          usable efficacy readout (terminated before primary
+          analysis, single-arm with no historical benchmark, only
+          narrative results). Set the primary failure_mode to
+          "insufficient_information", set needs_expert_review to
+          true, and explain in review_reason what specific
+          evidence is missing. Do NOT use this tier just because
+          biomarker / PD data is absent — a clearly missed primary
+          endpoint is itself informative and belongs at 0.5-0.7.
 
 Be conservative: when evidence sits between tiers, choose the lower one. The rubric is the source of truth—do not inflate confidence based on narrative tone in the trial report.

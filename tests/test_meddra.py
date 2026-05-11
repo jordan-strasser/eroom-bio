@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from src.annotation.meddra import _safe_parse, _strip_code_fence, ae_node_id
+from src.annotation.meddra import (
+    _safe_parse,
+    _strip_code_fence,
+    ae_node_id,
+    is_meta_ae_term,
+)
 
 
 class TestStripCodeFence:
@@ -67,3 +72,46 @@ class TestAeNodeId:
 
     def test_empty_falls_back(self):
         assert ae_node_id("") == "AE:unspecified"
+
+    def test_british_to_american_collapse(self):
+        # haemo/anaem variants collapse onto the American slug so the
+        # same AE doesn't fragment across nodes (fixes.md #8).
+        assert ae_node_id("Haemolytic anaemia") == "AE:hemolytic_anemia"
+        assert ae_node_id("Hemolytic anemia") == "AE:hemolytic_anemia"
+        assert ae_node_id("Anaemia") == "AE:anemia"
+        assert ae_node_id("Oedema") == "AE:edema"
+        assert ae_node_id("Diarrhoea") == "AE:diarrhea"
+        assert ae_node_id("Leucopenia") == "AE:leukopenia"
+
+
+class TestIsMetaAeTerm:
+    """Pre-filter for trial-level summary rows (fixes.md #7). These have
+    no single clinical concept and shouldn't produce causes_ae edges."""
+
+    def test_grade_range_summary(self):
+        assert is_meta_ae_term("Grade 3-5 adverse events")
+        assert is_meta_ae_term("grade 3 AEs")
+        assert is_meta_ae_term("≥Grade 3 adverse events")
+
+    def test_serious_aes_summary(self):
+        assert is_meta_ae_term("Serious adverse events")
+        assert is_meta_ae_term("Serious AEs")
+
+    def test_treatment_emergent_summary(self):
+        assert is_meta_ae_term("Treatment-emergent adverse events")
+        assert is_meta_ae_term("Treatment related adverse events")
+
+    def test_bare_meta_terms(self):
+        assert is_meta_ae_term("Adverse events")
+        assert is_meta_ae_term("Toxicity")
+        assert is_meta_ae_term("All AEs")
+        assert is_meta_ae_term("")
+
+    def test_real_aes_not_meta(self):
+        # Real clinical concepts must NOT be rejected, even when the AE
+        # term carries a grade modifier — the LLM strips the grade.
+        assert not is_meta_ae_term("Hepatotoxicity")
+        assert not is_meta_ae_term("Grade 3 hepatotoxicity")
+        assert not is_meta_ae_term("Anaemia")
+        assert not is_meta_ae_term("Hemolytic anemia")
+        assert not is_meta_ae_term("Aspartate aminotransferase increased")

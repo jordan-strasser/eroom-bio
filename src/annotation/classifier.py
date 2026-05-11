@@ -43,40 +43,22 @@ def _format_trial_entities(
     graph: GraphStore | None,
     trial_subgraph: TrialSubgraph | None,
 ) -> str:
-    """Render the trial's resolved graph node IDs as a prompt block.
+    """Render the trial's resolved graph node IDs as a per-constituent block.
 
-    Used to ground the classifier in canonical IDs so its `edges_to_update`
-    entries reference real nodes instead of free-text. Falls back to a
-    single-line stub when no graph context is available (offline tests).
+    A combo arm has one causal chain per constituent compound, so each
+    constituent appears as its own ``compound → target → mechanism →
+    biology`` row grouped under the arm. The classifier can then emit
+    per-constituent ``binds_to`` / ``modulates_via`` /
+    ``mechanism_affects`` / ``biology_drives`` updates that route to the
+    matching constituent chain.
+
+    Indication, endpoints, and populations are shared across arms (same
+    disease, same measurement windows, same enrollment) and printed once.
+    Falls back to a single-line stub when no graph context is available
+    (offline tests).
     """
     if graph is None or trial_subgraph is None or not trial_subgraph.chains:
         return "(no graph context—emit edges_to_update only when confident in entity names)"
-
-    chains = trial_subgraph.chains
-    sample = chains[0]
-
-    # Fan compounds across arms—combo chains can have different
-    # compound_ids than the trial-level pick.
-    compounds: list[str] = []
-    seen_comp: set[str] = set()
-    for c in chains:
-        if c.compound_id and c.compound_id not in seen_comp:
-            seen_comp.add(c.compound_id)
-            compounds.append(c.compound_id)
-
-    populations: list[str] = []
-    seen_pop: set[str] = set()
-    for c in chains:
-        if c.subgroup_population_id and c.subgroup_population_id not in seen_pop:
-            seen_pop.add(c.subgroup_population_id)
-            populations.append(c.subgroup_population_id)
-
-    endpoints: list[str] = []
-    seen_ep: set[str] = set()
-    for c in chains:
-        if c.endpoint_id and c.endpoint_id not in seen_ep:
-            seen_ep.add(c.endpoint_id)
-            endpoints.append(c.endpoint_id)
 
     def _annotate(node_id: str, hint_attr: str = "") -> str:
         if node_id == "UNKNOWN":
@@ -86,21 +68,69 @@ def _format_trial_entities(
         except KeyError:
             return node_id
         if hint_attr and n.get(hint_attr):
-            return f"{node_id}  ({n[hint_attr]})"
+            return f"{node_id} ({n[hint_attr]})"
         name = n.get("name")
         if name and name != node_id:
-            return f"{node_id}  ({name})"
+            return f"{node_id} ({name})"
         return node_id
 
+    chains = trial_subgraph.chains
+    arm_by_id = {a.arm_id: a for a in trial_subgraph.arms}
+
+    # Shared trial-level entities (one indication, one endpoint set, one
+    # population set; same for every chain).
+    sample = chains[0]
+    endpoints: list[str] = []
+    populations: list[str] = []
+    seen_ep: set[str] = set()
+    seen_pop: set[str] = set()
+    for c in chains:
+        if c.endpoint_id and c.endpoint_id not in seen_ep:
+            seen_ep.add(c.endpoint_id)
+            endpoints.append(c.endpoint_id)
+        if c.subgroup_population_id and c.subgroup_population_id not in seen_pop:
+            seen_pop.add(c.subgroup_population_id)
+            populations.append(c.subgroup_population_id)
+
+    # Per-(arm, constituent) backbone: pick the first chain per
+    # (arm_id, compound_id) pair. Subgroup forks share the same backbone,
+    # so the first occurrence captures the full chain for prompt purposes.
+    arm_constituent_chain: dict[tuple[str, str], Any] = {}
+    for c in chains:
+        key = (c.arm_id, c.compound_id)
+        if key not in arm_constituent_chain:
+            arm_constituent_chain[key] = c
+
     lines = [
-        f"- compound_ids:    {', '.join(compounds) if compounds else 'UNKNOWN'}",
-        f"- target_id:       {_annotate(sample.target_id, 'gene_symbol')}",
-        f"- mechanism_id:    {_annotate(sample.mechanism_id)}",
-        f"- biology_id:      {_annotate(sample.biology_id)}",
-        f"- indication_id:   {_annotate(sample.indication_id)}",
-        f"- endpoint_ids:    {', '.join(endpoints) if endpoints else 'UNKNOWN'}",
-        f"- population_ids:  {', '.join(populations) if populations else 'UNKNOWN'}",
+        "Shared trial-level entities:",
+        f"- indication:    {_annotate(sample.indication_id)}",
+        f"- endpoints:     {', '.join(endpoints) if endpoints else 'UNKNOWN'}",
+        f"- populations:   {', '.join(populations) if populations else 'UNKNOWN'}",
+        "",
+        "Per-arm causal chains (use these canonical ids in edges_to_update):",
     ]
+
+    # Group constituent chains under their parent arm so combo arms are
+    # visually clustered.
+    seen_arms: set[str] = set()
+    for (arm_id, _), chain in arm_constituent_chain.items():
+        if arm_id in seen_arms:
+            continue
+        seen_arms.add(arm_id)
+        arm = arm_by_id.get(arm_id)
+        kind = (
+            "combo" if (arm is not None and arm.is_combination) else "monotherapy"
+        )
+        lines.append(f"- {arm_id} [{kind}]:")
+        for (a_id, _), c in arm_constituent_chain.items():
+            if a_id != arm_id:
+                continue
+            comp = _annotate(c.compound_id)
+            tgt = _annotate(c.target_id, "gene_symbol")
+            mech = _annotate(c.mechanism_id)
+            bio = _annotate(c.biology_id)
+            lines.append(f"    {comp} → {tgt} → {mech} → {bio}")
+
     return "\n".join(lines)
 
 
@@ -229,21 +259,21 @@ def _parse_classification(
     if not modes:
         primary_mode = FailureMode.INSUFFICIENT_INFORMATION
         secondary = []
-        # For successful trials, empty failure_modes is the expected
-        # state when there are no weak points to surface—use
-        # confidence_overall so the per-edge bucket updates aren't
-        # zeroed out via quality_score in the attributor. For
-        # failure/partial trials, an empty list still signals
-        # insufficient information and zeroes confidence.
-        if trial_outcome == "success":
-            confidence = raw.get("confidence_overall", 0.5)
-        else:
-            confidence = 0.0
+        # Use the LLM's confidence_overall regardless of outcome. Failure
+        # trials with empty failure_modes were previously zeroed, which
+        # also zeroed the quality_score on every emitted contradict edge
+        # — so a clearly missed primary endpoint contributed nothing to
+        # the graph. The per-edge bucket already encodes contradict
+        # strength; confidence just discounts the trial's overall
+        # certainty in its mechanistic attribution. Keep it.
+        confidence = float(raw.get("confidence_overall", 0.5))
     else:
         sorted_modes = sorted(modes, key=lambda m: m.get("confidence", 0), reverse=True)
         primary_mode = FailureMode(sorted_modes[0]["mode"])
         secondary = [FailureMode(m["mode"]) for m in sorted_modes[1:]]
-        confidence = raw.get("confidence_overall", sorted_modes[0].get("confidence", 0.5))
+        confidence = float(raw.get(
+            "confidence_overall", sorted_modes[0].get("confidence", 0.5),
+        ))
 
     # Apply our own review logic on top of Claude's
     needs_review, review_reason = _needs_expert_review(raw, extraction)

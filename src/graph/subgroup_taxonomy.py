@@ -63,10 +63,31 @@ _RESPONSE_ALIASES: dict[str, str] = {
 
 # ── Open vocabulary: gene axis ──────────────────────────────────────────
 
-# General levels common across genes
+# Canonical gene-axis levels. The expression-level axis uses a single
+# direction cut: positive (above threshold) / negative (below threshold).
+# Older inputs of "high" / "low" are accepted at the canonicalize step
+# and collapsed to positive / negative — the percentage threshold itself
+# (≥ 1% vs ≥ 5% vs ≥ 10% for PD-L1, for instance) lives in the raw
+# descriptor metadata, not the level. Forking populations on threshold
+# created cd274_low + cd274_positive + cd274_high nodes for the same
+# trial; positive/negative is the one consistent axis.
 GENE_LEVELS: set[str] = {
-    "high", "low", "positive", "negative",
+    "positive", "negative",
     "mutant", "wildtype", "unselected", "unknown",
+}
+
+
+# Expression-level synonyms — collapsed to the positive/negative axis
+# during canonicalization so cd274_high and cd274_positive don't
+# fragment into two nodes for the same biology.
+_GENE_LEVEL_SYNONYMS: dict[str, str] = {
+    "high": "positive",
+    "low": "negative",
+    "expressed": "positive",
+    "overexpressed": "positive",
+    "not_expressed": "negative",
+    "amplified": "positive",
+    "deleted": "negative",
 }
 
 # Specific point mutations like G12C, V600E, T790M, R248Q*—single letter,
@@ -116,6 +137,11 @@ def canonicalize_feature(
         variant_candidate = level_raw.strip().upper()
         if VARIANT_PATTERN.match(variant_candidate):
             level_out = variant_candidate
+        elif level in _GENE_LEVEL_SYNONYMS:
+            # Expression-level synonyms collapse to positive/negative —
+            # PD-L1 "high" / "low" / "≥1%" / "≥5%" all share one biology
+            # so cross-trial evidence should accumulate on one node.
+            level_out = _GENE_LEVEL_SYNONYMS[level]
         elif level in GENE_LEVELS:
             level_out = level
         else:

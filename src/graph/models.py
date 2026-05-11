@@ -268,6 +268,12 @@ class IndicationNode(BaseModel):
     prevalence: float | None = None
     standard_of_care: str | None = None
     unmet_need_score: float | None = None
+    # Accumulates the raw CT.gov condition strings, stages, subtypes, and
+    # other qualifiers observed across trials that canonicalize to this
+    # IndicationNode. Populated by the population pipeline; downstream
+    # readers can use it to recover the trial-specific phrasing for a
+    # canonical disease.
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class AdverseEventNode(BaseModel):

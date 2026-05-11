@@ -225,6 +225,28 @@ class TestBucketSelection:
     def test_bucket_boundaries(self, t, c, expected):
         assert _ae_support_bucket(t, c) is expected
 
+    def test_absolute_count_downgrades_low_n(self):
+        # 1.2% × n=85 ≈ 1 patient — RR=2.4 would have been moderate
+        # but the absolute-count gate drops it to AMBIGUOUS (fixes.md #9).
+        bucket = _ae_support_bucket(1.2, 0.5, treatment_n=85)
+        assert bucket is SupportBucket.AMBIGUOUS
+
+    def test_absolute_count_partial_downgrade(self):
+        # 4% × n=85 ≈ 3 patients — RR=8 would have been strong; gate
+        # caps at weak_support since 3 ≤ abs_count < 5.
+        bucket = _ae_support_bucket(4.0, 0.5, treatment_n=85)
+        assert bucket is SupportBucket.WEAK_SUPPORT
+
+    def test_absolute_count_preserves_high_n(self):
+        # 30% × n=200 = 60 patients — clearly above the gate.
+        bucket = _ae_support_bucket(30.0, 10.0, treatment_n=200)
+        assert bucket is SupportBucket.STRONG_SUPPORT
+
+    def test_absolute_count_optional_keeps_old_behavior(self):
+        # No treatment_n → legacy rate-only path.
+        bucket = _ae_support_bucket(1.2, 0.5)
+        assert bucket is SupportBucket.MODERATE_SUPPORT
+
     def test_format_ae_note_includes_grade_and_rates(self):
         ae = StructuredAE(
             term="rash", grade="3",

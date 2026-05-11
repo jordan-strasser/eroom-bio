@@ -144,13 +144,14 @@ class TestSubgroupTaxonomyIntegration:
     def test_pdl1_canonicalizes_to_cd274(self, hgnc_tsv_path: Path):
         from src.graph.subgroup_taxonomy import canonicalize_feature
         load(cache_path=hgnc_tsv_path, download_if_missing=False)
+        # "high" collapses to "positive" per fixes.md #5.
         f = canonicalize_feature("gene", "PD-L1", "high", "PD-L1 ≥1%")
         assert f.axis == "gene"
         assert f.key == "CD274"
-        assert f.level == "high"
+        assert f.level == "positive"
 
     def test_alias_collapse_yields_same_population_id(self, hgnc_tsv_path: Path):
-        """Different trials reporting PD-L1 high under different names
+        """Different trials reporting PD-L1 positive under different names
         ('PD-L1', 'PDL1', 'CD274') all yield the same PopulationNode id —
         which is the whole point of canonicalization."""
         from src.graph.models import PopulationNode
@@ -162,7 +163,7 @@ class TestSubgroupTaxonomyIntegration:
             )
             for name in ("PD-L1", "PDL1", "CD274", "B7-H1")
         }
-        assert ids == {"melanoma__cd274_high"}
+        assert ids == {"melanoma__cd274_positive"}
 
     def test_unknown_gene_falls_to_other_when_resolver_loaded(self, hgnc_tsv_path: Path):
         from src.graph.subgroup_taxonomy import canonicalize_feature

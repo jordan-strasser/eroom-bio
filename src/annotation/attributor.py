@@ -250,6 +250,7 @@ def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
 def _ae_support_bucket(
     treatment_pct: float | None,
     control_pct: float | None,
+    treatment_n: int | None = None,
 ) -> SupportBucket:
     """Map per-arm AE incidence to a SupportBucket for the causes_ae edge.
 
@@ -259,12 +260,20 @@ def _ae_support_bucket(
     single-arm Phase 1s contribute (with the bucket downgrade reflecting
     the missing comparator).
 
-    Thresholds are deliberately coarse:
+    Rate thresholds (deliberately coarse):
       - delta ≥ 20pp OR RR ≥ 3 → strong_support
       - delta ≥ 10pp OR RR ≥ 2 → moderate_support
       - delta ≥ 5pp  OR RR ≥ 1.5 → weak_support
       - delta ≤ -5pp           → weak_contradict (drug arm safer than control)
       - otherwise              → ambiguous (background rate)
+
+    Absolute-count gate (fixes.md #9): a 1.2% rate in an n=85 arm is
+    ~1 patient, which the rate-only path would label moderate_support
+    via RR ≥ 2. That's noise being graded as evidence. With
+    ``treatment_n`` available we additionally require:
+      - ≥ 5 affected patients to remain at strong / moderate support
+      - ≥ 3 affected patients to remain at weak support
+      - otherwise downgrade to AMBIGUOUS
 
     Calibration of these cutoffs is downstream of the calibration harness
     (NEXT_SESSION follow-up #1) just like the bucket→p_obs table.
@@ -279,14 +288,38 @@ def _ae_support_bucket(
     rr = treatment_pct / max(c, 0.5)
 
     if delta >= 20 or rr >= 3:
-        return SupportBucket.STRONG_SUPPORT
-    if delta >= 10 or rr >= 2:
-        return SupportBucket.MODERATE_SUPPORT
-    if delta >= 5 or rr >= 1.5:
-        return SupportBucket.WEAK_SUPPORT
-    if delta <= -5:
-        return SupportBucket.WEAK_CONTRADICT
-    return SupportBucket.AMBIGUOUS
+        bucket = SupportBucket.STRONG_SUPPORT
+    elif delta >= 10 or rr >= 2:
+        bucket = SupportBucket.MODERATE_SUPPORT
+    elif delta >= 5 or rr >= 1.5:
+        bucket = SupportBucket.WEAK_SUPPORT
+    elif delta <= -5:
+        bucket = SupportBucket.WEAK_CONTRADICT
+    else:
+        bucket = SupportBucket.AMBIGUOUS
+
+    if treatment_n is None or bucket == SupportBucket.AMBIGUOUS:
+        return bucket
+
+    # Absolute-count gate. round to ensure 1.2% × 85 = 1.02 → 1 patient,
+    # not 1.02 → moderate_support survives the float comparison.
+    abs_count = round(treatment_pct * treatment_n / 100.0)
+    if bucket in (SupportBucket.STRONG_SUPPORT, SupportBucket.MODERATE_SUPPORT):
+        if abs_count < 5:
+            if abs_count >= 3:
+                return SupportBucket.WEAK_SUPPORT
+            return SupportBucket.AMBIGUOUS
+    elif bucket == SupportBucket.WEAK_SUPPORT:
+        if abs_count < 3:
+            return SupportBucket.AMBIGUOUS
+    elif bucket == SupportBucket.WEAK_CONTRADICT:
+        # Drop in incidence: gate on absolute affected count in the
+        # CONTROL arm so a 5pp drop from "5% of 5 control patients" to
+        # 0% in treatment isn't graded as a real safety improvement.
+        ctrl_abs = round(c * treatment_n / 100.0)
+        if ctrl_abs < 3:
+            return SupportBucket.AMBIGUOUS
+    return bucket
 
 
 def _format_ae_note(ae: StructuredAE, preferred_term: str) -> str:
@@ -372,6 +405,12 @@ class Attributor:
         arm_by_id = {arm.arm_id: arm for arm in trial.arms}
 
         updates: list[AppliedEdgeUpdate] = []
+        # Per-trial dedup: an (edge_type, src_id, tgt_id) triple may be
+        # named by multiple classifier emissions (e.g. nivolumab → PD-1
+        # surfacing on both the mono-nivo and combo-arm chains). Apply
+        # the first matching update and skip the rest so a single trial
+        # never delivers 2× the conjugate evidence to the same edge.
+        applied_edges: set[tuple[str, str, str]] = set()
 
         for item in raw_edges:
             edge_type_str = item.get("edge_type", "")
@@ -410,6 +449,15 @@ class Attributor:
                     )
                 _log_unrouted(trial.trial_id, item, reason=reason)
                 continue
+
+            edge_key = (edge_type_str, src_id, tgt_id)
+            if edge_key in applied_edges:
+                logger.debug(
+                    "Skipping duplicate update for trial %s: %s %s → %s",
+                    trial.trial_id, edge_type_str, src_id, tgt_id,
+                )
+                continue
+            applied_edges.add(edge_key)
 
             # Cross-check with taxonomy rule. If the classifier picked a
             # bucket whose coarse direction disagrees with the taxonomy's
@@ -490,16 +538,38 @@ class Attributor:
         if not treatment_compound_ids:
             return []
 
+        # Estimate per-arm patient count from total enrollment / arm
+        # count. Trials rarely report exact per-arm n in CT.gov, but
+        # the trial-level enrollment IS reliable. Used by
+        # _ae_support_bucket to gate small-count AE signals (fixes.md
+        # #9 — a 1.2% rate in an n=85 arm is ~1 patient, which the
+        # rate-only path would still label moderate_support).
+        treatment_n: int | None = None
+        total_n = trial.metadata.get("enrollment") if trial.metadata else None
+        if isinstance(total_n, int) and total_n > 0 and trial.arms:
+            treatment_n = max(1, total_n // len(trial.arms))
+
         updates: list[AppliedEdgeUpdate] = []
         for ae in extraction.adverse_events:
             normalized = await normalize_ae_term(client, ae.term, cache)
+            if normalized is None:
+                # Meta / summary row (e.g. "Grade 3-5 adverse events") —
+                # no single clinical concept to attribute. Skip rather
+                # than collapse onto the meaningless "Unspecified" node.
+                logger.debug(
+                    "Skipping meta AE term %r for trial %s",
+                    ae.term, trial.trial_id,
+                )
+                continue
             preferred_term = normalized["preferred_term"]
             soc = normalized.get("system_organ_class", "")
             ae_id = ae_node_id(preferred_term)
             self._ensure_ae_node(ae_id, preferred_term, soc, ae.grade)
 
             bucket = _ae_support_bucket(
-                ae.incidence_treatment_pct, ae.incidence_control_pct
+                ae.incidence_treatment_pct,
+                ae.incidence_control_pct,
+                treatment_n=treatment_n,
             )
             note = _format_ae_note(ae, preferred_term)
 

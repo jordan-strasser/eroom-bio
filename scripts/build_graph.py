@@ -283,7 +283,7 @@ async def main(
     console.rule("[bold]Step 3b: seed populations + fork chains[/bold]")
     seed_graph = GraphStore()
     seed_graph.import_snapshot(str(initial_path))
-    rd_added, chains_added = seed_responds_differently_from_extractions(
+    rd_added, chains_added = await seed_responds_differently_from_extractions(
         seed_graph, ANNOTATIONS_DIR,
     )
     seed_graph.export_snapshot(str(initial_path))

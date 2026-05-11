@@ -79,8 +79,10 @@ Use this controlled vocabulary when filling the `subgroups[].features` array. Ma
 
 axis="gene"—for any biomarker tied to a specific gene/protein.
   - key = HUGO gene symbol (e.g. "PDCD1", "CD274", "EGFR", "KRAS", "HER2", "BRAF").
-  - level = one of "high", "low", "positive", "negative", "mutant", "wildtype", "unselected", "unknown",
+  - level = one of "positive", "negative", "mutant", "wildtype", "unselected", "unknown",
     OR a specific variant token like "G12C", "V600E", "T790M".
+  - For EXPRESSION-LEVEL biomarkers (PD-L1, HER2, ER, PR, CD274, ...): always use "positive" / "negative" regardless of the trial's percentage cutoff. Record the specific threshold in raw_descriptor (e.g. raw_descriptor="PD-L1 ≥ 1%" with level="positive"; raw_descriptor="PD-L1 < 5%" with level="negative"). Do NOT use "high" / "low" — the system collapses them onto positive/negative anyway, and forking populations on threshold creates spurious cd274_high vs cd274_positive splits for the same biology.
+  - For MUTATION biomarkers (BRAF, KRAS, EGFR mutational status): use "mutant" / "wildtype" or a specific variant token (V600E, G12C, T790M).
 
 axis="line"—line of therapy. level ∈ {first, second, later, unknown}.
 axis="prior_tx"—prior treatment status. level ∈ {naive, treated, unknown}.
