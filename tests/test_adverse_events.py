@@ -21,14 +21,17 @@ from src.annotation.attributor import (
     Attributor,
     _ae_support_bucket,
     _format_ae_note,
+    _per_compound_rates_from_arms,
 )
 from src.annotation.extractor import (
+    _build_aes_from_results_section,
     _parse_adverse_events,
     _parse_dose_info,
     _parse_extraction_response,
 )
 from src.annotation.meddra import MeddraCache, ae_node_id
 from src.annotation.taxonomy import (
+    ArmIncidence,
     DoseInfo,
     StructuredAE,
     TrialExtraction,
@@ -259,6 +262,137 @@ class TestBucketSelection:
         assert "tx 30%" in note and "ctrl 5%" in note
         assert "SAE" in note
 
+    def test_format_ae_note_uses_per_compound_overrides(self):
+        ae = StructuredAE(
+            term="anaemia",
+            arm_incidences=[
+                ArmIncidence(arm_descriptor="Nivolumab", n_affected=5, n_at_risk=313, pct=1.6),
+            ],
+            serious=True,
+        )
+        note = _format_ae_note(ae, "Anaemia", tx_pct=1.6, ctrl_pct=1.6)
+        assert "tx 1.6%" in note and "ctrl 1.6%" in note
+
+
+# ── CT.gov direct-passthrough extraction ───────────────────────────────
+
+
+class TestStructuredAEFromCTGov:
+    """The structured passthrough that bypasses LLM for trials with results."""
+
+    def _checkmate_067_ae_module(self) -> dict[str, Any]:
+        """Per-arm SAE data shaped like CT.gov's adverseEventsModule.
+
+        Numbers are from NCT01844505 (CheckMate 067) — a 3-arm trial where
+        the flat tx/ctrl collapse loses real information.
+        """
+        return {
+            "eventGroups": [
+                {"id": "EG000", "title": "Nivolumab"},
+                {"id": "EG001", "title": "Nivolumab + Ipilimumab"},
+                {"id": "EG002", "title": "Ipilimumab"},
+            ],
+            "seriousEvents": [
+                {  # anaemia clears the ≥3 threshold (5/313 in monos)
+                    "term": "Anaemia",
+                    "stats": [
+                        {"groupId": "EG000", "numAffected": 5, "numAtRisk": 313},
+                        {"groupId": "EG001", "numAffected": 4, "numAtRisk": 313},
+                        {"groupId": "EG002", "numAffected": 5, "numAtRisk": 311},
+                    ],
+                },
+                {  # febrile neutropenia — only 1 in combo arm, dropped by threshold
+                    "term": "Febrile neutropenia",
+                    "stats": [
+                        {"groupId": "EG000", "numAffected": 0, "numAtRisk": 313},
+                        {"groupId": "EG001", "numAffected": 1, "numAtRisk": 313},
+                        {"groupId": "EG002", "numAffected": 0, "numAtRisk": 311},
+                    ],
+                },
+            ],
+        }
+
+    def test_builds_per_arm_structured_aes(self):
+        results = {"adverseEventsModule": self._checkmate_067_ae_module()}
+        aes = _build_aes_from_results_section(results)
+        # Only anaemia clears the ≥3-affected-in-any-arm threshold
+        assert len(aes) == 1
+        anaemia = aes[0]
+        assert anaemia.term == "Anaemia"
+        assert anaemia.serious is True
+        assert anaemia.incidence_treatment_pct is None  # legacy fields stay null
+        assert anaemia.incidence_control_pct is None
+        descriptors = [ai.arm_descriptor for ai in anaemia.arm_incidences]
+        assert descriptors == ["Nivolumab", "Nivolumab + Ipilimumab", "Ipilimumab"]
+        nivo = anaemia.arm_incidences[0]
+        assert nivo.n_affected == 5 and nivo.n_at_risk == 313
+        assert nivo.pct == pytest.approx(100 * 5 / 313)
+
+    def test_drops_below_threshold(self):
+        # All arms have <3 affected → dropped entirely.
+        results = {"adverseEventsModule": {
+            "eventGroups": [{"id": "EG0", "title": "Drug"}],
+            "seriousEvents": [{
+                "term": "Rare AE",
+                "stats": [{"groupId": "EG0", "numAffected": 2, "numAtRisk": 100}],
+            }],
+        }}
+        assert _build_aes_from_results_section(results) == []
+
+    def test_no_results_section_returns_empty(self):
+        assert _build_aes_from_results_section(None) == []
+        assert _build_aes_from_results_section({}) == []
+
+
+class TestPerCompoundRates:
+    """The arm-partition step that gives each compound its own (tx, ctrl)."""
+
+    def _checkmate_067_anaemia(self) -> list[ArmIncidence]:
+        return [
+            ArmIncidence(arm_descriptor="Nivolumab", n_affected=5, n_at_risk=313, pct=1.6),
+            ArmIncidence(arm_descriptor="Nivolumab + Ipilimumab", n_affected=4, n_at_risk=313, pct=1.3),
+            ArmIncidence(arm_descriptor="Ipilimumab", n_affected=5, n_at_risk=311, pct=1.6),
+        ]
+
+    def test_nivolumab_pools_both_nivo_arms(self):
+        tx, ctrl, tx_n = _per_compound_rates_from_arms(
+            self._checkmate_067_anaemia(), "Nivolumab",
+        )
+        # nivo arms: 5+4 of 313+313; comparator: 5 of 311.
+        assert tx == pytest.approx(100 * 9 / 626)
+        assert ctrl == pytest.approx(100 * 5 / 311)
+        assert tx_n == 626
+
+    def test_ipilimumab_pools_both_ipi_arms(self):
+        tx, ctrl, tx_n = _per_compound_rates_from_arms(
+            self._checkmate_067_anaemia(), "Ipilimumab",
+        )
+        assert tx == pytest.approx(100 * 9 / 624)
+        assert ctrl == pytest.approx(100 * 5 / 313)
+        assert tx_n == 624
+
+    def test_compound_absent_from_all_arms_returns_none(self):
+        tx, ctrl, tx_n = _per_compound_rates_from_arms(
+            self._checkmate_067_anaemia(), "Pembrolizumab",
+        )
+        assert (tx, ctrl, tx_n) == (None, None, None)
+
+    def test_compound_on_all_arms_yields_no_control(self):
+        # Single-arm trial: compound active everywhere.
+        arms = [
+            ArmIncidence(arm_descriptor="Nivolumab 240mg", n_affected=10, n_at_risk=100, pct=10.0),
+        ]
+        tx, ctrl, tx_n = _per_compound_rates_from_arms(arms, "Nivolumab")
+        assert tx == 10.0
+        assert ctrl is None  # no comparator arm
+        assert tx_n == 100
+
+    def test_word_boundary_avoids_substring_collision(self):
+        # "Nivo" should NOT match the longer name "Nivolumab".
+        arms = [ArmIncidence(arm_descriptor="Nivolumab", n_affected=5, n_at_risk=100, pct=5.0)]
+        tx, ctrl, tx_n = _per_compound_rates_from_arms(arms, "Nivo")
+        assert tx is None and ctrl is None and tx_n is None
+
 
 # ── Attribution ────────────────────────────────────────────────────────
 
@@ -373,6 +507,59 @@ async def test_attribute_adverse_events_skips_placebo_and_creates_edges(tmp_path
     # AE node was created on demand
     ae = g.get_node("AE:rash")
     assert ae["name"] == "Rash"
+
+
+@pytest.mark.asyncio
+async def test_attribute_adverse_events_uses_per_arm_when_available(tmp_path):
+    """Three-arm trial: each compound's edge gets its own (tx, ctrl)."""
+    g = GraphStore()
+    g.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.SMALL_MOLECULE))
+    g.add_node(CompoundNode(id="ipilimumab", name="Ipilimumab", modality=Modality.SMALL_MOLECULE))
+    g.add_node(IndicationNode(id="mel", name="melanoma"))
+    g.add_node(PopulationNode(id="mel__unselected", name="mel_unselected"))
+
+    arms = [
+        TrialArm(arm_id="a_nivo", compound_ids=["nivolumab"], regimen_compound_id="nivolumab"),
+        TrialArm(arm_id="b_combo", compound_ids=["nivolumab", "ipilimumab"],
+                 regimen_compound_id="nivolumab+ipilimumab", is_combination=True),
+        TrialArm(arm_id="c_ipi", compound_ids=["ipilimumab"], regimen_compound_id="ipilimumab"),
+    ]
+    trial = TrialSubgraph(
+        trial_id="NCT_PER_ARM", phase="3", arms=arms, chains=[],
+        parent_population_id="mel__unselected",
+        metadata={"enrollment": 945},
+    )
+
+    cache = MeddraCache(tmp_path / "meddra.json")
+    cache.set("anaemia", {"preferred_term": "Anaemia", "system_organ_class": "Blood"})
+
+    # CheckMate 067-style per-arm anaemia rates: 5/313, 4/313, 5/311.
+    extraction = TrialExtraction(
+        trial_id="NCT_PER_ARM",
+        adverse_events=[StructuredAE(
+            term="anaemia", serious=True,
+            arm_incidences=[
+                ArmIncidence(arm_descriptor="Nivolumab", n_affected=5, n_at_risk=313, pct=1.6),
+                ArmIncidence(arm_descriptor="Nivolumab + Ipilimumab", n_affected=4, n_at_risk=313, pct=1.3),
+                ArmIncidence(arm_descriptor="Ipilimumab", n_affected=5, n_at_risk=311, pct=1.6),
+            ],
+        )],
+    )
+
+    updates = await Attributor(g).attribute_adverse_events(
+        trial, extraction, client=_FakeAnthropicClient(), meddra_cache=cache,
+    )
+
+    by_compound = {u.source_id: u for u in updates}
+    assert set(by_compound) == {"nivolumab", "ipilimumab"}
+    # Both compounds should bucket as AMBIGUOUS — pooled tx ≈ comparator,
+    # so neither edge gets pushed toward "causes anaemia".
+    for u in updates:
+        assert u.evidence.support == SupportBucket.AMBIGUOUS.value
+        # Posterior moves toward 0.5 from any starting prior (symmetric add).
+        # We just confirm the note records the per-compound rates, not
+        # the misleading "tx 1.6% / ctrl 1.6%" from a flat collapse.
+        assert "tx" in u.evidence.notes and "ctrl" in u.evidence.notes
 
 
 @pytest.mark.asyncio

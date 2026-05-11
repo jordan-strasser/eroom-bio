@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,7 @@ from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import SupportBucket, bucket_to_direction
 from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
 from src.annotation.taxonomy import (
+    ArmIncidence,
     FAILURE_MODE_RULES,
     FailureClassification,
     FailureMode,
@@ -322,14 +324,60 @@ def _ae_support_bucket(
     return bucket
 
 
-def _format_ae_note(ae: StructuredAE, preferred_term: str) -> str:
+def _per_compound_rates_from_arms(
+    arm_incidences: list[ArmIncidence],
+    compound_name: str,
+) -> tuple[float | None, float | None, int | None]:
+    """Partition per-arm AE counts on whether ``compound_name`` was active.
+
+    Arms whose ``arm_descriptor`` contains the compound name (word-boundary,
+    case-insensitive) contribute to the treatment pool; arms without it
+    contribute to the comparator pool. Returns ``(tx_pct, ctrl_pct, tx_n)``
+    where the pcts are pooled rates and tx_n is the total at-risk
+    population for the compound — fed to ``_ae_support_bucket`` for the
+    absolute-count gate.
+
+    Returns (None, None, None) when no arm matched the compound name —
+    callers should fall back to the legacy flat ``tx/ctrl`` pair in that
+    case.
+    """
+    if not compound_name:
+        return (None, None, None)
+    pattern = re.compile(rf"\b{re.escape(compound_name)}\b", re.IGNORECASE)
+    tx_affected = tx_at_risk = 0
+    ctrl_affected = ctrl_at_risk = 0
+    for ai in arm_incidences:
+        if pattern.search(ai.arm_descriptor):
+            tx_affected += ai.n_affected
+            tx_at_risk += ai.n_at_risk
+        else:
+            ctrl_affected += ai.n_affected
+            ctrl_at_risk += ai.n_at_risk
+    if tx_at_risk == 0:
+        return (None, None, None)
+    tx_pct = 100.0 * tx_affected / tx_at_risk
+    ctrl_pct = 100.0 * ctrl_affected / ctrl_at_risk if ctrl_at_risk > 0 else None
+    return (tx_pct, ctrl_pct, tx_at_risk)
+
+
+def _format_ae_note(
+    ae: StructuredAE,
+    preferred_term: str,
+    *,
+    tx_pct: float | None = None,
+    ctrl_pct: float | None = None,
+) -> str:
     bits = [f"AE: {preferred_term} (raw: {ae.term!r})"]
     if ae.grade:
         bits.append(f"grade {ae.grade}")
-    if ae.incidence_treatment_pct is not None:
-        bits.append(f"tx {ae.incidence_treatment_pct:g}%")
-    if ae.incidence_control_pct is not None:
-        bits.append(f"ctrl {ae.incidence_control_pct:g}%")
+    # Per-compound rates (computed by attributor from arm_incidences)
+    # win over the legacy flat fields; only fall back when missing.
+    tx = tx_pct if tx_pct is not None else ae.incidence_treatment_pct
+    ctrl = ctrl_pct if ctrl_pct is not None else ae.incidence_control_pct
+    if tx is not None:
+        bits.append(f"tx {tx:g}%")
+    if ctrl is not None:
+        bits.append(f"ctrl {ctrl:g}%")
     if ae.serious:
         bits.append("SAE")
     return "; ".join(bits)
@@ -566,14 +614,29 @@ class Attributor:
             ae_id = ae_node_id(preferred_term)
             self._ensure_ae_node(ae_id, preferred_term, soc, ae.grade)
 
-            bucket = _ae_support_bucket(
-                ae.incidence_treatment_pct,
-                ae.incidence_control_pct,
-                treatment_n=treatment_n,
-            )
-            note = _format_ae_note(ae, preferred_term)
-
             for compound_id in treatment_compound_ids:
+                # When arm_incidences is populated (CT.gov-structured path),
+                # compute per-compound tx/ctrl by partitioning arms on whether
+                # this compound was active. Otherwise fall back to the flat
+                # tx/ctrl pair from LLM-extracted narrative-only trials.
+                tx_pct, ctrl_pct, tx_n = (None, None, None)
+                if ae.arm_incidences:
+                    compound_name = self._compound_display_name(compound_id)
+                    tx_pct, ctrl_pct, tx_n = _per_compound_rates_from_arms(
+                        ae.arm_incidences, compound_name,
+                    )
+                if tx_pct is None:
+                    tx_pct = ae.incidence_treatment_pct
+                    ctrl_pct = ae.incidence_control_pct
+                    tx_n = treatment_n
+
+                bucket = _ae_support_bucket(
+                    tx_pct, ctrl_pct, treatment_n=tx_n,
+                )
+                note = _format_ae_note(
+                    ae, preferred_term, tx_pct=tx_pct, ctrl_pct=ctrl_pct,
+                )
+
                 self._ensure_causes_ae_edge(compound_id, ae_id)
                 evidence = EvidenceRecord(
                     source_id=trial.trial_id,
@@ -608,6 +671,19 @@ class Attributor:
             propagate_to_target_associated_ae(self.graph, compound_id, ae_id)
 
         return updates
+
+    def _compound_display_name(self, compound_id: str) -> str:
+        """Return the CompoundNode's display name, or '' if missing.
+
+        Used to match against CT.gov eventGroup titles (e.g. compound
+        name 'Nivolumab' against descriptor 'Nivolumab + Ipilimumab')
+        in ``_per_compound_rates_from_arms``.
+        """
+        try:
+            node = self.graph.get_node(compound_id)
+        except KeyError:
+            return ""
+        return str(node.get("name") or "")
 
     def _treatment_compound_ids(self, trial: TrialSubgraph) -> list[str]:
         """Compound ids on any non-placebo arm of the trial.

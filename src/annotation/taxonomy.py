@@ -281,17 +281,39 @@ class DoseInfo(BaseModel):
     dose_modifications: str = ""
 
 
+class ArmIncidence(BaseModel):
+    """One arm's reported incidence of a single adverse event.
+
+    Sourced from ``adverseEventsModule.seriousEvents[].stats[]`` on
+    ClinicalTrials.gov, where each arm gets ``numAffected`` over
+    ``numAtRisk``. ``arm_descriptor`` is the CT.gov eventGroup title
+    (e.g. "Nivolumab + Ipilimumab") — the attributor matches that
+    string against compound names in the graph to decide which compounds
+    were active on the arm.
+    """
+
+    arm_descriptor: str = Field(min_length=1)
+    n_affected: int = Field(ge=0)
+    n_at_risk: int = Field(ge=0)
+    pct: float | None = None  # derived: 100 * n_affected / n_at_risk
+
+
 class StructuredAE(BaseModel):
-    """One adverse event reported in a trial, with incidence vs control.
+    """One adverse event reported in a trial.
 
     ``term`` is the raw term as the trial reported it; ``meddra_term`` is
     the normalized MedDRA preferred term (populated by the MedDRA mapper
     before attribution). The two are kept separate so we never lose the
     original wording.
 
-    Incidence percentages may be missing when the report aggregates AEs
-    without per-arm breakdowns; attribution treats missing rates as
-    ambiguous evidence rather than supporting.
+    Per-arm rates (``arm_incidences``) are populated directly from
+    CT.gov's structured ``adverseEventsModule`` when a trial reports
+    results. They are the source of truth for attribution: the attributor
+    derives a per-compound ``(tx, ctrl)`` pair by partitioning arms on
+    whether the compound was active. ``incidence_treatment_pct`` and
+    ``incidence_control_pct`` remain as a fallback for trials whose
+    safety data is only available as narrative LLM extraction (no
+    structured results section).
     """
 
     term: str = Field(min_length=1)
@@ -299,6 +321,7 @@ class StructuredAE(BaseModel):
     grade: str = ""  # CTCAE grade or range, e.g. "3" or "1-2"
     incidence_treatment_pct: float | None = None
     incidence_control_pct: float | None = None
+    arm_incidences: list[ArmIncidence] = Field(default_factory=list)
     serious: bool = False
 
 

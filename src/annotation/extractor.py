@@ -11,6 +11,7 @@ from typing import Any
 import anthropic
 
 from src.annotation.taxonomy import (
+    ArmIncidence,
     ChainResult,
     DoseInfo,
     ExtractedArm,
@@ -239,6 +240,108 @@ def _parse_dose_info(raw: Any) -> DoseInfo:
     return DoseInfo()
 
 
+def _build_aes_from_results_section(
+    results_summary: dict[str, Any] | None,
+    *,
+    min_affected_any_arm: int = 3,
+) -> list[StructuredAE]:
+    """Build StructuredAE list directly from CT.gov adverseEventsModule.
+
+    For each serious AE term, emits one StructuredAE with one
+    ``ArmIncidence`` per reporting arm. AEs where no single arm has at
+    least ``min_affected_any_arm`` affected patients are dropped — those
+    can't clear the bucket thresholds in ``_ae_support_bucket`` anyway
+    (weak_support requires ≥3 affected, moderate ≥5), so they only add
+    ambiguous noise to the graph.
+
+    Bypasses the LLM entirely on the structured path: the per-arm counts
+    are exact CT.gov numbers, not LLM transcriptions. Trials without a
+    results section fall through to the LLM-emitted flat ``tx/ctrl``
+    pair via ``_parse_adverse_events``.
+    """
+    if not results_summary:
+        return []
+    ae_module = results_summary.get("adverseEventsModule", {})
+    if not isinstance(ae_module, dict):
+        return []
+    event_groups = {
+        g.get("id", ""): g.get("title", "")
+        for g in ae_module.get("eventGroups", [])
+        if isinstance(g, dict)
+    }
+    serious_events = ae_module.get("seriousEvents", [])
+    if not isinstance(serious_events, list):
+        return []
+
+    out: list[StructuredAE] = []
+    for event in serious_events:
+        if not isinstance(event, dict):
+            continue
+        term = str(event.get("term") or "").strip()
+        if not term:
+            continue
+        stats = event.get("stats", [])
+        if not isinstance(stats, list):
+            continue
+        incidences: list[ArmIncidence] = []
+        max_affected = 0
+        for s in stats:
+            if not isinstance(s, dict):
+                continue
+            descriptor = event_groups.get(s.get("groupId", ""), "").strip()
+            if not descriptor:
+                continue
+            try:
+                n_affected = int(s.get("numAffected") or 0)
+                n_at_risk = int(s.get("numAtRisk") or 0)
+            except (TypeError, ValueError):
+                continue
+            if n_at_risk <= 0:
+                continue
+            pct = 100.0 * n_affected / n_at_risk
+            incidences.append(ArmIncidence(
+                arm_descriptor=descriptor,
+                n_affected=n_affected,
+                n_at_risk=n_at_risk,
+                pct=pct,
+            ))
+            max_affected = max(max_affected, n_affected)
+        if max_affected < min_affected_any_arm:
+            continue
+        if not incidences:
+            continue
+        out.append(StructuredAE(
+            term=term,
+            grade="",
+            arm_incidences=incidences,
+            serious=True,
+        ))
+    return out
+
+
+def _parse_arm_incidences(raw: Any) -> list[ArmIncidence]:
+    """Parse cached arm_incidences from saved annotation JSON."""
+    out: list[ArmIncidence] = []
+    if not isinstance(raw, list):
+        return out
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        descriptor = str(entry.get("arm_descriptor") or "").strip()
+        if not descriptor:
+            continue
+        try:
+            out.append(ArmIncidence(
+                arm_descriptor=descriptor,
+                n_affected=int(entry.get("n_affected") or 0),
+                n_at_risk=int(entry.get("n_at_risk") or 0),
+                pct=_safe_float(entry.get("pct")),
+            ))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
 def _parse_adverse_events(raw: Any) -> list[StructuredAE]:
     """Parse the LLM-emitted adverse_events list into StructuredAE models.
 
@@ -265,6 +368,7 @@ def _parse_adverse_events(raw: Any) -> list[StructuredAE]:
                 incidence_control_pct=_safe_float(
                     entry.get("incidence_control_pct")
                 ),
+                arm_incidences=_parse_arm_incidences(entry.get("arm_incidences")),
                 serious=bool(entry.get("serious") or False),
             )
         )
@@ -434,6 +538,23 @@ def _parse_document_response(
     return extractions
 
 
+def _overlay_structured_aes(
+    extraction: TrialExtraction, trial: TrialRecord
+) -> TrialExtraction:
+    """Replace LLM-emitted AEs with structured per-arm AEs when available.
+
+    CT.gov's adverseEventsModule has exact per-arm counts that the LLM
+    would otherwise have to transcribe (and frequently flattens or
+    truncates). Whenever a trial has structured AE data, we use it
+    directly and discard the LLM's AE list. Trials without a results
+    section keep the LLM-emitted flat tx/ctrl pairs.
+    """
+    structured = _build_aes_from_results_section(trial.results_summary)
+    if not structured:
+        return extraction
+    return extraction.model_copy(update={"adverse_events": structured})
+
+
 # ── Extractor ────────────────────────────────────────────────────────────
 
 
@@ -451,7 +572,8 @@ class Extractor:
         if cache_path.exists():
             try:
                 cached_raw = json.loads(cache_path.read_text())
-                return _parse_extraction_response(cached_raw, trial.nct_id)
+                extraction = _parse_extraction_response(cached_raw, trial.nct_id)
+                return _overlay_structured_aes(extraction, trial)
             except (json.JSONDecodeError, KeyError) as exc:
                 logger.warning(
                     "Cached extraction for %s unreadable (%s); re-extracting",
@@ -469,7 +591,7 @@ class Extractor:
         ):
             extraction = await self._reask_endpoint_met(trial, extraction, raw_json)
         self._save_annotation(trial.nct_id, raw_json)
-        return extraction
+        return _overlay_structured_aes(extraction, trial)
 
     async def _reask_endpoint_met(
         self,

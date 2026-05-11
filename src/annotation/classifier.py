@@ -158,19 +158,33 @@ def _format_classification_prompt(
     if extraction.adverse_events:
         ae_lines = []
         for ae in extraction.adverse_events:
-            tx = (
-                f"{ae.incidence_treatment_pct:g}%"
-                if ae.incidence_treatment_pct is not None else "?"
-            )
-            ctrl = (
-                f"{ae.incidence_control_pct:g}%"
-                if ae.incidence_control_pct is not None else "?"
-            )
             grade_part = f", grade {ae.grade}" if ae.grade else ""
             sae_part = " [SAE]" if ae.serious else ""
-            ae_lines.append(
-                f"- {ae.term}{grade_part}: tx {tx} vs ctrl {ctrl}{sae_part}"
-            )
+            if ae.arm_incidences:
+                # Per-arm rates from CT.gov — preserve arm identity so the
+                # classifier can spot 3-arm signals the flat tx/ctrl
+                # collapse would hide (e.g. monotherapy-vs-combo).
+                arm_parts = [
+                    f"{ai.arm_descriptor}: {ai.n_affected}/{ai.n_at_risk}"
+                    f" ({ai.pct:g}%)" if ai.pct is not None else
+                    f"{ai.arm_descriptor}: {ai.n_affected}/{ai.n_at_risk}"
+                    for ai in ae.arm_incidences
+                ]
+                ae_lines.append(
+                    f"- {ae.term}{grade_part}: {'; '.join(arm_parts)}{sae_part}"
+                )
+            else:
+                tx = (
+                    f"{ae.incidence_treatment_pct:g}%"
+                    if ae.incidence_treatment_pct is not None else "?"
+                )
+                ctrl = (
+                    f"{ae.incidence_control_pct:g}%"
+                    if ae.incidence_control_pct is not None else "?"
+                )
+                ae_lines.append(
+                    f"- {ae.term}{grade_part}: tx {tx} vs ctrl {ctrl}{sae_part}"
+                )
         ae_str = "\n".join(ae_lines)
     else:
         ae_str = "No structured adverse-event data"
