@@ -47,6 +47,71 @@ ANNOTATIONS_DIR = Path("data/annotations")
 CORPORA_DIR = Path("data/corpora")
 
 
+def _chain_coverage(graph: GraphStore) -> dict[str, int | float]:
+    """Count how many of each trial's chains got at least one edge update.
+
+    A chain is "touched" when any of its 6 backbone edges (binds_to,
+    modulates_via, mechanism_affects, biology_drives, reflects_biology,
+    endpoint_captures) has an EvidenceRecord with the trial's id.
+    A trial with chains-built-but-zero-touched is a silent failure —
+    populated correctly but the classifier never emitted an edge that
+    routed there. Worth tracking run-over-run because it's the single
+    cleanest signal that classifier prompts and node canonicalization
+    are in sync.
+    """
+    from collections import defaultdict
+
+    edge_evidence_trials: dict[tuple[str, str, str], set[str]] = defaultdict(set)
+    for src, tgt, key, data in graph._graph.edges(keys=True, data=True):  # noqa: SLF001
+        belief = data.get("belief") or {}
+        if hasattr(belief, "evidence"):  # EdgeBeliefState instance
+            evidence = belief.evidence
+        else:  # plain dict from snapshot
+            evidence = belief.get("evidence", []) if isinstance(belief, dict) else []
+        for ev in evidence:
+            sid = ev.get("source_id") if isinstance(ev, dict) else getattr(ev, "source_id", None)
+            if sid:
+                edge_evidence_trials[(src, tgt, key)].add(sid)
+
+    chains_total = chains_touched = 0
+    trials_full = trials_partial = trials_zero = trials_with_chains = 0
+    for trial_id, sub in graph.trial_subgraphs.items():
+        chains = sub.chains
+        if not chains:
+            continue
+        trials_with_chains += 1
+        touched_in_trial = 0
+        for c in chains:
+            chains_total += 1
+            backbone = [
+                (c.compound_id, c.target_id, "binds_to"),
+                (c.target_id, c.mechanism_id, "modulates_via"),
+                (c.mechanism_id, c.biology_id, "mechanism_affects"),
+                (c.biology_id, c.indication_id, "biology_drives"),
+                (c.biology_id, c.endpoint_id, "reflects_biology"),
+                (c.endpoint_id, c.indication_id, "endpoint_captures"),
+            ]
+            if any(trial_id in edge_evidence_trials.get(k, set()) for k in backbone):
+                chains_touched += 1
+                touched_in_trial += 1
+        if touched_in_trial == 0:
+            trials_zero += 1
+        elif touched_in_trial == len(chains):
+            trials_full += 1
+        else:
+            trials_partial += 1
+
+    return {
+        "chains_total": chains_total,
+        "chains_touched": chains_touched,
+        "chain_pct": 100.0 * chains_touched / chains_total if chains_total else 0.0,
+        "trials_with_chains": trials_with_chains,
+        "trials_full": trials_full,
+        "trials_partial": trials_partial,
+        "trials_zero": trials_zero,
+    }
+
+
 def load_corpus(path: Path) -> list[str]:
     """Read a frozen NCT-id corpus file. Lines starting with ``#`` and
     blank lines are ignored. Order is preserved (insertion order matters
@@ -308,10 +373,20 @@ async def main(
     final = GraphStore()
     final.import_snapshot(str(annotated_path))
     stats = final.stats()
+    coverage = _chain_coverage(final)
     console.rule("[bold green]Done[/bold green]")
     console.print(f"Final snapshot: {annotated_path}")
     console.print(f"  nodes={stats['node_count']} edges={stats['edge_count']}")
     console.print(f"  node types: {stats['node_types']}")
+    console.print(
+        f"  chain coverage: {coverage['chains_touched']}/{coverage['chains_total']} "
+        f"chains ({coverage['chain_pct']:.0f}%) touched by ≥1 update from their own trial"
+    )
+    console.print(
+        f"                  {coverage['trials_full']}/{coverage['trials_with_chains']} "
+        f"trials full, {coverage['trials_partial']} partial, "
+        f"[red]{coverage['trials_zero']} zero[/red]"
+    )
 
 
 if __name__ == "__main__":
