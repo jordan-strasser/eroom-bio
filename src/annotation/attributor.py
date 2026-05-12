@@ -59,14 +59,14 @@ _PHASE_TO_EVIDENCE: dict[str, EvidenceType] = {
 # constrain free-text entity-name → canonical-id resolution to plausible
 # node types.
 _EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
-    EdgeType.BINDS_TO:             ("CompoundNode", "TargetNode"),
+    EdgeType.AFFECTS:              ("InterventionNode", "TargetNode"),
     EdgeType.MODULATES_VIA:        ("TargetNode", "MechanismNode"),
     EdgeType.MECHANISM_AFFECTS:    ("MechanismNode", "BiologyNode"),
     EdgeType.BIOLOGY_DRIVES:       ("BiologyNode", "IndicationNode"),
     EdgeType.REFLECTS_BIOLOGY:     ("BiologyNode", "EndpointNode"),
     EdgeType.ENDPOINT_CAPTURES:    ("EndpointNode", "IndicationNode"),
     EdgeType.RESPONDS_DIFFERENTLY: ("PopulationNode", "IndicationNode"),
-    EdgeType.CAUSES_AE:            ("CompoundNode", "AdverseEventNode"),
+    EdgeType.CAUSES_AE:            ("InterventionNode", "AdverseEventNode"),
     EdgeType.TARGET_ASSOCIATED_AE: ("TargetNode", "AdverseEventNode"),
 }
 
@@ -184,7 +184,7 @@ def _chain_edges_for_type(
     ipi mono chain (or the combo chain's ipi side), never to the nivo→PD-1
     pair.
     """
-    if edge_type == EdgeType.BINDS_TO:
+    if edge_type == EdgeType.AFFECTS:
         return [(cid, chain.target_id) for cid in arm.compound_ids]
     if edge_type == EdgeType.MODULATES_VIA:
         return [(chain.target_id, chain.mechanism_id)]
@@ -445,7 +445,8 @@ class Attributor:
         name_index = _build_name_index(
             self.graph,
             node_types={
-                "CompoundNode", "TargetNode", "MechanismNode",
+                "InterventionNode", "CompoundNode",  # accept both names
+                "TargetNode", "MechanismNode",
                 "BiologyNode", "EndpointNode", "IndicationNode",
                 "PopulationNode",
             },
@@ -462,6 +463,12 @@ class Attributor:
 
         for item in raw_edges:
             edge_type_str = item.get("edge_type", "")
+            # Round 3.3 renamed `binds_to` → `affects`. Cached classifier
+            # outputs from earlier rounds still emit `binds_to`; accept it
+            # as an alias so we don't need to re-classify every trial just
+            # for the rename.
+            if edge_type_str == "binds_to":
+                edge_type_str = "affects"
             try:
                 edge_type = EdgeType(edge_type_str)
             except ValueError:

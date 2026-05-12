@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from src.graph.models import (
     CompoundNode,
     IndicationNode,
+    InterventionType,
     Modality,
     normalize_entity,
 )
@@ -445,6 +446,33 @@ def _guess_modality(intervention: Intervention) -> Modality:
     return Modality.SMALL_MOLECULE
 
 
+_CTGOV_TYPE_MAP: dict[str, InterventionType] = {
+    "DRUG": InterventionType.DRUG,
+    "BIOLOGICAL": InterventionType.BIOLOGICAL,
+    "COMBINATION_PRODUCT": InterventionType.COMBINATION,
+    "COMBINATION": InterventionType.COMBINATION,
+    "RADIATION": InterventionType.RADIATION,
+    "DEVICE": InterventionType.DEVICE,
+    "PROCEDURE": InterventionType.PROCEDURE,
+    "DIAGNOSTIC_TEST": InterventionType.DIAGNOSTIC_TEST,
+    "BEHAVIORAL": InterventionType.BEHAVIORAL,
+    "GENETIC": InterventionType.BIOLOGICAL,  # CT.gov "Genetic" usually means gene/cell therapy
+    "DIETARY_SUPPLEMENT": InterventionType.OTHER,
+    "OTHER": InterventionType.OTHER,
+}
+
+
+def _map_ctgov_intervention_type(raw_type: str) -> InterventionType:
+    """Map a CT.gov intervention-type string onto the InterventionType enum.
+
+    CT.gov's enum varies slightly across API versions (`COMBINATION` vs
+    `COMBINATION_PRODUCT`); the table above normalizes the common forms.
+    Unknown / blank types fall back to ``UNKNOWN`` so the node still
+    records what type CT.gov claimed without losing the data.
+    """
+    return _CTGOV_TYPE_MAP.get(raw_type.strip().upper(), InterventionType.UNKNOWN)
+
+
 def map_trial_to_graph_nodes(
     trial: TrialRecord,
 ) -> dict[str, list[IndicationNode | CompoundNode]]:
@@ -465,10 +493,11 @@ def map_trial_to_graph_nodes(
 
     compounds = [
         CompoundNode(
-            id=normalize_entity(iv.name, "CompoundNode"),
+            id=normalize_entity(iv.name, "InterventionNode"),
             name=iv.name,
+            intervention_type=_map_ctgov_intervention_type(iv.type),
             modality=_guess_modality(iv),
-            metadata={"intervention_type": iv.type},
+            metadata={"intervention_type_raw": iv.type},
         )
         for iv in trial.interventions
         if is_drug_like(iv)

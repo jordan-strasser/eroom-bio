@@ -29,7 +29,7 @@ The failure modes you can assign are:
 
 Trial outcome routes processing:
 
-- For FAILURE or PARTIAL trials: `failure_modes` is the mechanistic-failure classification and is REQUIRED—pick at least one of the 13 categories above. The downstream attributor uses the primary failure mode to cross-check `edges_to_update` against the taxonomy (e.g. classifier saying `binds_to: strong_support` while picking `no_target_engagement` is internally inconsistent and the bucket gets downgraded to ambiguous).
+- For FAILURE or PARTIAL trials: `failure_modes` is the mechanistic-failure classification and is REQUIRED—pick at least one of the 13 categories above. The downstream attributor uses the primary failure mode to cross-check `edges_to_update` against the taxonomy (e.g. classifier saying `affects: strong_support` while picking `no_target_engagement` is internally inconsistent and the bucket gets downgraded to ambiguous).
 
 - For SUCCESS trials: `failure_modes` is DESCRIPTIVE ONLY and does not drive any graph update—the cross-check is disabled. Use it to surface remaining weak points or trial-design caveats (small sample, single-arm, narrow biomarker-defined population, short follow-up) that future trial designers should be aware of. If there are none, return `[]`. Do NOT pick a label just to fill the slot—a successful subgroup trial is not an `efficacy_in_subgroup_only` *failure*. The source of truth for the graph update on a successful trial is `edges_to_update`: emit one *_support bucket per validated edge.
 
@@ -48,7 +48,7 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to|modulates_via|mechanism_affects|biology_drives|reflects_biology|endpoint_captures|responds_differently",
+      "edge_type": "affects|modulates_via|mechanism_affects|biology_drives|reflects_biology|endpoint_captures|responds_differently",
       "source_entity": "string—compound, target, mechanism, etc.",
       "target_entity": "string—target, biology, endpoint, etc.",
       "support": "strong_support|moderate_support|weak_support|ambiguous|weak_contradict|moderate_contradict|strong_contradict",
@@ -65,7 +65,7 @@ Rules:
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; use *_support for edges the trial still validated (e.g. target engagement was confirmed even though the endpoint missed).
 - **Failure trials MUST emit at least one upstream causal-chain edge update** when the primary efficacy endpoint was measured AND missed. This rule is non-negotiable and overrides every other rule in this prompt, including the confidence rubric below. The trial tested a (compound → target → mechanism → biology → indication) hypothesis; a missed endpoint refutes part of that chain, and the graph needs that contradict signal even when biomarker / PD data is absent. Specifically:
     - If biomarker / PD data confirms target engagement but the endpoint missed → emit `biology_drives` weak_contradict or moderate_contradict (the upstream biology didn't drive the disease as hypothesized) AND `mechanism_affects` ambiguous (target engaged but pathway impact uncertain).
-    - If NO biomarker / PD data is reported → still emit `biology_drives` weak_contradict (the assumed biology → indication link wasn't validated by this trial) AND `mechanism_affects` ambiguous (we can't say at which step the chain broke). `binds_to` and `modulates_via` typically stay AMBIGUOUS in this case unless the failure mode explicitly contradicts target engagement.
+    - If NO biomarker / PD data is reported → still emit `biology_drives` weak_contradict (the assumed biology → indication link wasn't validated by this trial) AND `mechanism_affects` ambiguous (we can't say at which step the chain broke). `affects` and `modulates_via` typically stay AMBIGUOUS in this case unless the failure mode explicitly contradicts target engagement.
     - Do NOT skip these updates because `insufficient_information` was picked — that failure mode is reserved for trials with no efficacy readout at all (terminated early, no comparator). A missed-endpoint failure with no PD data is still informative about the biology → indication link.
     - Do NOT skip these updates because `confidence_overall` is low. A 0.3 or 0.4 confidence_overall is NOT a license to return `edges_to_update: []`. Confidence describes how certain you are in the *interpretation*; the directive to emit at least one upstream edge is about *participation* in the causal-chain graph — they are orthogonal. If you find yourself about to return zero edges on a failure trial that reported a measured endpoint result, you have made an error: set `biology_drives` to weak_contradict targeting the trial's canonical indication and emit it.
     - Worked example: a Phase 2 failure trial reports ORR 8% (missed the 25% bar), no biomarker readout, confidence_overall=0.4. Correct emission set: `biology_drives weak_contradict (R-HSA-389948 → melanoma)`, `mechanism_affects ambiguous (checkpoint_blockade → R-HSA-389948)`, `endpoint_captures moderate_support (ORR_melanoma → melanoma)` because the endpoint *was* measured (just missed). Three edges, not zero.
@@ -84,7 +84,7 @@ Any edge that references a non-canonical id will be silently dropped as `entity_
 
   edge_type             source node type   →   target node type    notes
   ────────────────────────────────────────────────────────────────────────
-  binds_to              Compound           →   Target              the drug binds the target
+  affects               Intervention       →   Target              the intervention affects the target (binds for drugs, recognizes for cell therapies, damages for radiation, etc.)
   modulates_via         Target             →   Mechanism           target acts via this MoA
   mechanism_affects     Mechanism          →   Biology             MoA changes biology
   biology_drives        Biology            →   Indication          biology drives disease
@@ -96,19 +96,19 @@ Any edge that references a non-canonical id will be silently dropped as `entity_
 Per-constituent emission rules:
   - The trial subgraph lists one (compound → target → mechanism → biology)
     chain PER CONSTITUENT COMPOUND. Combo arms produce multiple chains
-    (one per constituent) grouped under the same arm. Emit `binds_to` /
+    (one per constituent) grouped under the same arm. Emit `affects` /
     `modulates_via` / `mechanism_affects` / `biology_drives` per
     CONSTITUENT (not per arm regimen) so each constituent's evidence
     routes to its own chain.
-  - For combo arms emit ONE `binds_to` per constituent compound (e.g. for
+  - For combo arms emit ONE `affects` per constituent compound (e.g. for
     a nivolumab+ipilimumab arm emit both `nivolumab → PDCD1` AND
     `ipilimumab → CTLA4` using the canonical Ensembl ids shown).
-    Do NOT emit a single `binds_to` on the synthesized combo regimen id—
+    Do NOT emit a single `affects` on the synthesized combo regimen id—
     constituent updates accumulate on the underlying compounds, which is
     where cross-trial learning happens.
   - When the same constituent appears in multiple arms (e.g. nivolumab
     in both its mono arm AND a nivo+ipi combo arm), emit its
-    `binds_to` ONCE. Per-trial dedup will collapse duplicates, but a
+    `affects` ONCE. Per-trial dedup will collapse duplicates, but a
     single emission per (compound, target) pair is cleaner.
   - `endpoint_captures`, `responds_differently`, and the indication are
     SHARED across arms—emit each of those once per trial, not per arm.
@@ -119,7 +119,7 @@ Critical rules for `responds_differently`:
   - Use this when the trial reports a subgroup analysis with a different effect size than the overall population—that observation is what `responds_differently` captures. If the trial only reports the overall result, do NOT emit a responds_differently edge.
 
 Critical rules for `endpoint_captures` (independent of mechanistic data):
-  `endpoint_captures` answers a different question from the upstream causal-chain edges (binds_to, modulates_via, mechanism_affects, biology_drives). Those ask "did the drug work mechanistically." This edge asks "did the endpoint that was measured actually translate to clinical benefit in this indication." Those are orthogonal—answer them independently.
+  `endpoint_captures` answers a different question from the upstream causal-chain edges (affects, modulates_via, mechanism_affects, biology_drives). Those ask "did the drug work mechanistically." This edge asks "did the endpoint that was measured actually translate to clinical benefit in this indication." Those are orthogonal—answer them independently.
 
   - **You MUST emit one `endpoint_captures` update whenever the trial reported a primary efficacy endpoint with a numeric or qualitative result.** This holds EVEN WHEN the upstream edges can't be assessed (e.g. no biomarker data, no control arm, single-arm Phase 2, `insufficient_information` for the mechanistic chain). Picking `insufficient_information` as a failure mode is NOT a reason to skip endpoint_captures—they are decoupled.
   - The ONLY cases where you legitimately skip endpoint_captures are:
@@ -135,7 +135,7 @@ Critical rules for `endpoint_captures` (independent of mechanistic data):
       strong_contradict   Multiple within-trial endpoints contradict each other in a way that proves the chosen primary doesn't capture benefit (rare).
 
   Do NOT confuse:
-    - "drug failed" + "primary endpoint missed" → that's a `binds_to` / `mechanism_affects` signal, NOT an `endpoint_captures` signal. Skip endpoint_captures here (the endpoint's translatability wasn't tested—drug never moved it).
+    - "drug failed" + "primary endpoint missed" → that's a `affects` / `mechanism_affects` signal, NOT an `endpoint_captures` signal. Skip endpoint_captures here (the endpoint's translatability wasn't tested—drug never moved it).
     - "drug worked on endpoint" + "no clinical benefit" → THIS is the endpoint_captures contradict signal. Always emit.
     - "single-arm trial with mid-tier ORR" → endpoint was measured; emit `ambiguous` or `weak_support` based on whether it beats historical benchmarks for this indication.
 

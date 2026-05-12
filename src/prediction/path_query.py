@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # The canonical causal chain edges in order. Each entry maps a pair of
 # CausalChain field names to its edge type.
 _CAUSAL_CHAIN: list[tuple[str, str, EdgeType]] = [
-    ("compound_id", "target_id", EdgeType.BINDS_TO),
+    ("compound_id", "target_id", EdgeType.AFFECTS),
     ("target_id", "mechanism_id", EdgeType.MODULATES_VIA),
     ("mechanism_id", "biology_id", EdgeType.MECHANISM_AFFECTS),
     ("biology_id", "indication_id", EdgeType.BIOLOGY_DRIVES),
@@ -441,7 +441,7 @@ def _resolve_target_for_compound(
     best_id = "UNKNOWN"
     best_score = -1.0
     for _u, v, key, data in g.out_edges(compound_id, data=True, keys=True):
-        if key != EdgeType.BINDS_TO.value:
+        if key != EdgeType.AFFECTS.value:
             continue
         belief_data = data.get("belief") or {}
         try:
@@ -608,7 +608,7 @@ def _main(
     )
 
     # Resolve names to IDs
-    compound_id = _find_node_by_name(graph, compound, "CompoundNode") or "UNKNOWN"
+    compound_id = _find_node_by_name(graph, compound, "InterventionNode") or "UNKNOWN"
     target_id = _find_node_by_name(graph, target, "TargetNode") or "UNKNOWN"
     indication_id = _find_node_by_name(graph, indication, "IndicationNode") or "UNKNOWN"
     endpoint_id = _find_node_by_name(graph, endpoint or "", "EndpointNode") or "UNKNOWN"

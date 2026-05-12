@@ -713,7 +713,10 @@ class PopulationPipeline:
         final = self.graph.stats()
         summary = {
             "trials_fetched": len(trials),
-            "compounds": final["node_types"].get("CompoundNode", 0),
+            "compounds": (
+                final["node_types"].get("InterventionNode", 0)
+                + final["node_types"].get("CompoundNode", 0)  # legacy snapshots
+            ),
             "targets": final["node_types"].get("TargetNode", 0),
             "indications": final["node_types"].get("IndicationNode", 0),
             "endpoints": final["node_types"].get("EndpointNode", 0),
@@ -918,12 +921,12 @@ class PopulationPipeline:
                     ))
                     self._index_node(ensembl, symbol, "target")
                 if not self.graph._graph.has_edge(  # noqa: SLF001
-                    cid, ensembl, key=EdgeType.BINDS_TO.value,
+                    cid, ensembl, key=EdgeType.AFFECTS.value,
                 ):
                     self.graph.add_edge(GraphEdge(
                         source_id=cid,
                         target_id=ensembl,
-                        edge_type=EdgeType.BINDS_TO,
+                        edge_type=EdgeType.AFFECTS,
                         belief=EdgeBeliefState(alpha=4.0, beta=1.0),
                         metadata={
                             "source": "opentargets",
@@ -1153,6 +1156,14 @@ class PopulationPipeline:
                 key = f"{chain.arm_id}::{chain.subgroup_population_id}::{chain.endpoint_id}"
                 seen_cells.setdefault(key, []).append(chain)
 
+            # Filter to primary investigational interventions only.
+            # Supportive constituents (preconditioning chemo, growth-factor
+            # support, premedications) don't get their own causal-chain
+            # backbones — the trial isn't testing whether they modulate
+            # the indication. Empty primary_intervention_ids = "no info,
+            # chain everything" (back-compat fallback).
+            primary_ids = set(ts.primary_intervention_ids or [])
+
             new_chains: list[CausalChain] = []
             for cell_key, cell_chains in seen_cells.items():
                 # Use the first chain in the cell as the template for fields
@@ -1167,6 +1178,14 @@ class PopulationPipeline:
                 if not entries:
                     new_chains.extend(cell_chains)
                     continue
+                if primary_ids:
+                    entries = [e for e in entries if e["compound_id"] in primary_ids]
+                    if not entries:
+                        # Arm contains no primary intervention (rare — a
+                        # placebo-only or pure-supportive arm). Keep the
+                        # template chain so the arm is still represented.
+                        new_chains.extend(cell_chains)
+                        continue
                 for entry in entries:
                     md = dict(template.metadata)
                     md["regimen_id"] = arm.regimen_compound_id
@@ -1603,7 +1622,7 @@ class PopulationPipeline:
         edge = GraphEdge(
             source_id=compound_id,
             target_id=target_id,
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=2.0, beta=1.5),
             metadata={"source": "cross_reference", "method": "name_matching"},
         )
@@ -1764,7 +1783,7 @@ def build_arms(
                 else None
             )
             if not cid:
-                cid = normalize_entity(iv_name, "CompoundNode")
+                cid = normalize_entity(iv_name, "InterventionNode")
             compound_ids.append(cid)
 
         # Drop duplicates while preserving order—some trials list the same
@@ -1855,7 +1874,7 @@ def synthesize_combo_compounds(graph: GraphStore, arms: list[TrialArm]) -> int:
         propagated: set[str] = set()
         for cid in arm.compound_ids:
             for edge in graph.get_neighboring_edges(
-                cid, edge_types=[EdgeType.BINDS_TO],
+                cid, edge_types=[EdgeType.AFFECTS],
             ):
                 target_id = edge["target_id"]
                 if target_id in propagated:
@@ -1864,13 +1883,13 @@ def synthesize_combo_compounds(graph: GraphStore, arms: list[TrialArm]) -> int:
                 if graph._graph.has_edge(  # noqa: SLF001
                     arm.regimen_compound_id,
                     target_id,
-                    key=EdgeType.BINDS_TO.value,
+                    key=EdgeType.AFFECTS.value,
                 ):
                     continue
                 graph.add_edge(GraphEdge(
                     source_id=arm.regimen_compound_id,
                     target_id=target_id,
-                    edge_type=EdgeType.BINDS_TO,
+                    edge_type=EdgeType.AFFECTS,
                     belief=EdgeBeliefState(alpha=3.0, beta=1.5),
                     metadata={
                         "source": "combo_inherit",
@@ -2085,12 +2104,14 @@ def build_trial_subgraph_from_extraction(
                     metadata={"endpoint_class": ep_class},
                 ))
 
+    primary_ids = _identify_primary_intervention_ids(arms, extraction)
     ts = TrialSubgraph(
         trial_id=trial.nct_id,
         phase=trial.phase or "",
         arms=arms,
         chains=chains,
         parent_population_id=parent_pop_id,
+        primary_intervention_ids=primary_ids,
         metadata={
             "title": trial.title,
             "status": trial.status,
@@ -2099,6 +2120,62 @@ def build_trial_subgraph_from_extraction(
     )
     graph.set_trial_subgraph(ts)
     return ts
+
+
+def _identify_primary_intervention_ids(
+    arms: list[TrialArm], extraction: Any,
+) -> list[str]:
+    """Pick the primary investigational intervention ids for a trial.
+
+    Heuristic: a compound is "primary" if its display name (or substantial
+    word fragment) appears in the extraction's
+    ``therapeutic_hypothesis.compound`` text. Anything not mentioned is
+    treated as supportive (preconditioning chemo, growth factors, premeds).
+
+    Why this matters: a CAR-T trial like NCT01218867 lists 4+ compounds
+    per arm (the CAR-T cells + cyclophosphamide + fludarabine + IL-2) but
+    only the CAR-T is being investigated. Per-constituent chain fan-out
+    on all 4 generates 4x the chains, of which 3 are spurious — the
+    trial doesn't test whether cyclophosphamide modulates melanoma.
+
+    Empty result means "all compounds are primary" (conservative default
+    when extraction context is missing or the hypothesis text is empty).
+    Returning an empty list lets downstream chain fan-out fall back to
+    pre-round-3.3 behavior (chain every constituent).
+    """
+    if not arms:
+        return []
+    hypothesis = (extraction.compound_name or "").strip().lower()
+    if not hypothesis:
+        return []  # no signal → default to chain everything
+
+    all_compound_ids: list[str] = []
+    for arm in arms:
+        for cid in arm.compound_ids:
+            if cid not in all_compound_ids:
+                all_compound_ids.append(cid)
+
+    primary: list[str] = []
+    for cid in all_compound_ids:
+        # Match the canonical id slug against the hypothesis text. The
+        # compound_id is a snake_case slug ("anti_vegfr2_car_cd8_t_cells");
+        # break it on underscores and require at least one substantive
+        # word (>3 chars, not a digit-only) to appear in the hypothesis.
+        words = [w for w in cid.split("_") if len(w) > 3 and not w.isdigit()]
+        if not words:
+            # short / numeric-only id — fall back to whole-id substring match
+            if cid.replace("_", " ") in hypothesis or cid in hypothesis:
+                primary.append(cid)
+            continue
+        if any(w in hypothesis for w in words):
+            primary.append(cid)
+
+    # Sanity: if no compound matched the hypothesis at all, the extraction
+    # text may be too freeform to align. Fall back to "all primary" rather
+    # than killing every chain.
+    if not primary:
+        return []
+    return primary
 
 
 async def seed_responds_differently_from_extractions(
@@ -2217,6 +2294,41 @@ async def seed_responds_differently_from_extractions(
             ts = graph.get_trial_subgraph_by_id(nct_id)
         except KeyError:
             continue
+
+        # Set primary_intervention_ids on the subgraph from the
+        # extraction's therapeutic_hypothesis.compound text, and prune
+        # the per-constituent chains to drop supportive infrastructure
+        # (preconditioning chemo, growth factors, premeds). The
+        # per-constituent rebuild ran upstream during populate (Step 2)
+        # without extraction context, so it created chains for every
+        # arm constituent. Now that we know which were investigational,
+        # filter post-hoc.
+        hypothesis_compound = (
+            data.get("therapeutic_hypothesis", {}).get("compound", "")
+        )
+        if hypothesis_compound and ts.arms and not ts.primary_intervention_ids:
+            primary_ids = _identify_primary_intervention_ids(
+                ts.arms,
+                type("_ExtStub", (), {"compound_name": hypothesis_compound})(),
+            )
+            if primary_ids:
+                primary_set = set(primary_ids)
+                pruned_chains = [
+                    c for c in ts.chains if c.compound_id in primary_set
+                ]
+                # Sanity: don't strip chains for an arm whose only
+                # constituent is supportive (rare; keep template chain).
+                if pruned_chains:
+                    ts = ts.model_copy(update={
+                        "primary_intervention_ids": primary_ids,
+                        "chains": pruned_chains,
+                    })
+                else:
+                    ts = ts.model_copy(update={
+                        "primary_intervention_ids": primary_ids,
+                    })
+                graph.set_trial_subgraph(ts)
+
         if not ts.chains:
             continue
         indication_id = ts.chains[0].indication_id

@@ -303,9 +303,9 @@ class TestGraphEdge:
         edge = GraphEdge(
             source_id="COMPOUND_001",
             target_id="TARGET_EGFR",
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
         )
-        assert edge.edge_type == EdgeType.BINDS_TO
+        assert edge.edge_type == EdgeType.AFFECTS
         assert edge.belief.expected_probability == 0.5
 
     def test_with_belief(self, evidence_record):
@@ -313,14 +313,14 @@ class TestGraphEdge:
         edge = GraphEdge(
             source_id="C1",
             target_id="T1",
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             belief=belief,
         )
         assert len(edge.belief.evidence) == 1
 
     def test_empty_source_rejected(self):
         with pytest.raises(ValidationError):
-            GraphEdge(source_id="", target_id="T1", edge_type=EdgeType.BINDS_TO)
+            GraphEdge(source_id="", target_id="T1", edge_type=EdgeType.AFFECTS)
 
 
 # ── Trial subgraph tests ────────────────────────────────────────────────
@@ -374,13 +374,13 @@ class TestNormalizeEntity:
     def test_compound_lowercases(self):
         from src.graph.models import normalize_entity
 
-        assert normalize_entity("Pembrolizumab", "CompoundNode") == "pembrolizumab"
-        assert normalize_entity("KEYTRUDA", "CompoundNode") == "keytruda"
+        assert normalize_entity("Pembrolizumab", "InterventionNode") == "pembrolizumab"
+        assert normalize_entity("KEYTRUDA", "InterventionNode") == "keytruda"
 
     def test_compound_drugbank_passthrough(self):
         from src.graph.models import normalize_entity
 
-        assert normalize_entity("DB00001", "CompoundNode") == "DB00001"
+        assert normalize_entity("DB00001", "InterventionNode") == "DB00001"
 
     def test_target_ensg_passthrough(self):
         from src.graph.models import normalize_entity

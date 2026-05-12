@@ -23,6 +23,55 @@ class Modality(str, Enum):
     OTHER = "other"
 
 
+class InterventionType(str, Enum):
+    """Mirrors ClinicalTrials.gov's intervention type enumeration.
+
+    Stored on every InterventionNode so a single typed namespace covers
+    drugs, biologicals, radiation, devices, cell therapies, procedures,
+    and the misc categories CT.gov uses. Chain fan-out currently fires
+    only for interventions whose role is PRIMARY *and* whose type is one
+    of {DRUG, BIOLOGICAL, COMBINATION} — those are the ones that map
+    cleanly onto the `affects → Target → modulates_via → Mechanism → ...`
+    backbone. Radiation, device, and procedure primaries are tracked as
+    nodes (so the trial participates in the graph and accumulates AE
+    evidence) but their chain backbones land on UNKNOWN target / mechanism
+    until we add proper edge types for them.
+    """
+    DRUG = "drug"
+    BIOLOGICAL = "biological"
+    COMBINATION = "combination"
+    RADIATION = "radiation"
+    DEVICE = "device"
+    PROCEDURE = "procedure"
+    DIAGNOSTIC_TEST = "diagnostic_test"
+    BEHAVIORAL = "behavioral"
+    OTHER = "other"
+    UNKNOWN = "unknown"
+
+
+class InterventionRole(str, Enum):
+    """Per-trial role of an intervention.
+
+    PRIMARY = the intervention under investigation in this trial. Gets
+    a chain backbone (affects → Target → modulates_via → ...).
+
+    SUPPORTIVE = preconditioning, premedication, growth-factor support,
+    or other infrastructure that enables the primary intervention.
+    Tracked as an arm member (so AE attribution still fires on it) but
+    does NOT generate its own causal-chain backbone — the trial isn't
+    testing the supportive agent's hypothesis, so accumulating
+    `affects → mechanism → biology → indication` evidence on it would
+    be spurious.
+
+    UNKNOWN = role couldn't be determined from extraction. Default
+    treatment: same as SUPPORTIVE (don't chain), to avoid false-positive
+    evidence accumulation.
+    """
+    PRIMARY = "primary"
+    SUPPORTIVE = "supportive"
+    UNKNOWN = "unknown"
+
+
 class MechanismType(str, Enum):
     INHIBITION = "inhibition"
     AGONISM = "agonism"
@@ -95,24 +144,31 @@ class RegulatoryStatus(str, Enum):
 
 
 class EdgeType(str, Enum):
-    BINDS_TO = "binds_to"
+    # Intervention → Target. The intervention affects (binds, irradiates,
+    # recognizes, etc.) a biological target. Belief = P(this intervention
+    # measurably affects this target). For drug/biological interventions,
+    # this is classical molecular binding. For radiation, cell therapy,
+    # devices, etc., "affects" is the general action — the edge type
+    # doesn't presume binding chemistry. (Renamed from `binds_to` in
+    # round 3.3 to reflect the broader intervention namespace.)
+    AFFECTS = "affects"
     MODULATES_VIA = "modulates_via"
     MECHANISM_AFFECTS = "mechanism_affects"
     BIOLOGY_DRIVES = "biology_drives"
     REFLECTS_BIOLOGY = "reflects_biology"
     ENDPOINT_CAPTURES = "endpoint_captures"
     RESPONDS_DIFFERENTLY = "responds_differently"
-    # Structural edge: links a synthesized combo CompoundNode to each of its
-    # constituent CompoundNodes. Carries no Beta belief—used purely to make
-    # the combo's composition queryable from the graph.
+    # Structural edge: links a synthesized combo InterventionNode to each
+    # of its constituent InterventionNodes. Carries no Beta belief — used
+    # purely to make the combo's composition queryable from the graph.
     COMPOSED_OF = "composed_of"
-    # Compound → AdverseEvent. Belief = P(this compound causes this AE).
+    # Intervention → AdverseEvent. Belief = P(this intervention causes this AE).
     # Evidence: per-trial incidence-rate deltas vs control arm.
     CAUSES_AE = "causes_ae"
     # Target → AdverseEvent. Belief = P(modulating this target causes this AE).
-    # Evidence: ≥2 distinct compounds binding the target with strong causes_ae
-    # to the same AE—the cross-trial signal that an AE is on-mechanism
-    # rather than compound-specific.
+    # Evidence: ≥2 distinct interventions affecting the target with strong
+    # causes_ae to the same AE — the cross-trial signal that an AE is
+    # on-mechanism rather than intervention-specific.
     TARGET_ASSOCIATED_AE = "target_associated_ae"
 
 
@@ -143,22 +199,46 @@ class TrialOutcome(str, Enum):
 
 # ── Node models ──────────────────────────────────────────────────────────
 
-class CompoundNode(BaseModel):
+class InterventionNode(BaseModel):
+    """A trial intervention. Renamed from `CompoundNode` in round 3.3.
+
+    Covers every intervention type CT.gov tracks: small-molecule drugs,
+    biologicals, radiation, devices, cell/gene therapies, procedures,
+    behavioral interventions, and combinations. Drug-specific fields
+    (chembl_id, smiles, modality, targets_claimed) stay as optional
+    metadata — they're None for non-drug interventions.
+
+    `intervention_type` is the canonical CT.gov type and drives chain
+    fan-out: only DRUG/BIOLOGICAL/COMBINATION primaries get a full
+    `affects → Target → mechanism → biology → indication` backbone.
+    Other types are first-class graph citizens (they accumulate AE
+    evidence, appear in arm rosters, can be queried) but their chains
+    land on UNKNOWN target/mechanism until proper non-drug edge types
+    are added.
+    """
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
-    modality: Modality
+    intervention_type: InterventionType = InterventionType.UNKNOWN
+    modality: Modality | None = None
     # ChEMBL identifier (e.g. "CHEMBL1201580" for nivolumab) when known.
-    # Resolved via Open Targets' drug search; left None for synthesized
-    # combo regimens that don't correspond to a single ChEMBL entry.
+    # Resolved via Open Targets' drug search; None for non-drug
+    # interventions and for synthesized combo regimens that don't
+    # correspond to a single ChEMBL entry.
     chembl_id: str | None = None
     # Brand names, INN aliases, code names ("BMS-936558", "ONO-4538",
-    # "Opdivo") stored alongside the canonical compound name and the
-    # ChEMBL id so downstream queries can match on whatever name a
-    # paper / classifier / label happened to use.
+    # "Opdivo") stored alongside the canonical name and the ChEMBL id
+    # so downstream queries can match on whatever name a paper /
+    # classifier / label happened to use.
     aliases: list[str] = Field(default_factory=list)
     smiles: str | None = None
     targets_claimed: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# Backwards-compat alias. Code referencing `CompoundNode` continues to
+# work; new code should use `InterventionNode`. Remove this once all
+# call sites have migrated.
+CompoundNode = InterventionNode
 
 
 class TargetNode(BaseModel):
@@ -439,16 +519,23 @@ class CausalChain(BaseModel):
 class TrialSubgraph(BaseModel):
     """All chains a single trial contributes to the graph.
 
-    A trial produces N arms × M reported subgroups = N·M chains. The
-    object lives on ``GraphStore.trial_subgraphs[trial_id]``; it survives
-    snapshot/restore. Per-edge `EvidenceRecord.source_id` separately
-    carries the trial id for edge-side attribution.
+    A trial produces N arms × M reported subgroups × E endpoints chains,
+    but ONLY for primary investigational interventions. Supportive
+    interventions (preconditioning, premedication, growth factors) live
+    on the arms — they accumulate AE evidence and appear in queries —
+    but don't fan out their own causal-chain backbones.
+
+    ``primary_intervention_ids`` is the trial-level set of intervention
+    ids being investigated. Chains are built only for compounds in this
+    set. Empty means "all are primary" (back-compat for trials without
+    extraction context).
     """
     trial_id: str = Field(min_length=1)
     phase: str = ""
     arms: list[TrialArm] = Field(default_factory=list)
     chains: list[CausalChain] = Field(default_factory=list)
     parent_population_id: str = Field(min_length=1)
+    primary_intervention_ids: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -488,12 +575,14 @@ def normalize_entity(name: str, node_type: str) -> str:
         raise ValueError(f"Empty name for {node_type}")
     raw = name.strip()
 
-    if node_type == "CompoundNode":
+    if node_type in ("InterventionNode", "CompoundNode"):
+        # Accept either name during the round-3.3 rename window. New code
+        # uses InterventionNode; CompoundNode aliases through for back-compat.
         if _DRUGBANK_PATTERN.match(raw):
             return raw
         slug = _slugify_lower(raw)
         if not slug:
-            raise ValueError(f"Compound name '{name}' could not be normalized")
+            raise ValueError(f"Intervention name '{name}' could not be normalized")
         return slug
 
     if node_type == "TargetNode":

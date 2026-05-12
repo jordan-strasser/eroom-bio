@@ -246,7 +246,7 @@ def get_edge(src_id: str, tgt_id: str, edge_type: str) -> EdgeDetailView:
 
 @app.post("/predict", response_model=PredictionResult)
 def predict(req: PredictRequest) -> PredictionResult:
-    compound_id = _find_node_by_name(req.compound, "CompoundNode")
+    compound_id = _find_node_by_name(req.compound, "InterventionNode")
     if not compound_id:
         raise HTTPException(status_code=404, detail=f"Compound '{req.compound}' not found")
     target_id = _find_node_by_name(req.target, "TargetNode")

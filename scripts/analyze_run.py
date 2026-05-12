@@ -49,7 +49,7 @@ from src.inference.beliefs import (
 console = Console()
 
 _CHAIN_EDGE_TYPES = {
-    EdgeType.BINDS_TO,
+    EdgeType.AFFECTS,
     EdgeType.MODULATES_VIA,
     EdgeType.MECHANISM_AFFECTS,
     EdgeType.BIOLOGY_DRIVES,
@@ -116,7 +116,7 @@ def _diagnose_skip(
             any_compound_in_graph = True
             # Does this compound have any binds_to edges?
             for src, tgt, key in graph._graph.out_edges(cid, keys=True):
-                if key == EdgeType.BINDS_TO.value:
+                if key == EdgeType.AFFECTS.value:
                     any_compound_with_target = True
                     break
             if any_compound_with_target:

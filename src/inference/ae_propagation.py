@@ -102,7 +102,7 @@ def _binds_to_targets(graph: GraphStore, compound_id: str) -> list[str]:
         return []
     out: list[str] = []
     for _src, tgt, key in g.out_edges(compound_id, keys=True):
-        if key == EdgeType.BINDS_TO.value:
+        if key == EdgeType.AFFECTS.value:
             out.append(tgt)
     return out
 
@@ -114,7 +114,7 @@ def _compounds_binding_target(graph: GraphStore, target_id: str) -> list[str]:
         return []
     out: list[str] = []
     for src, _tgt, key in g.in_edges(target_id, keys=True):
-        if key == EdgeType.BINDS_TO.value:
+        if key == EdgeType.AFFECTS.value:
             out.append(src)
     return out
 

@@ -55,7 +55,7 @@ def edge(compound, target):
     return GraphEdge(
         source_id=compound.id,
         target_id=target.id,
-        edge_type=EdgeType.BINDS_TO,
+        edge_type=EdgeType.AFFECTS,
     )
 
 
@@ -81,7 +81,7 @@ class TestNodeCRUD:
         store.add_node(compound)
         data = store.get_node("COMPOUND_IMA")
         assert data["name"] == "Imatinib"
-        assert data["node_type"] == "CompoundNode"
+        assert data["node_type"] == "InterventionNode"
 
     def test_get_missing_raises(self, store):
         with pytest.raises(KeyError):
@@ -90,7 +90,7 @@ class TestNodeCRUD:
     def test_get_nodes_by_type(self, store, compound, target):
         store.add_node(compound)
         store.add_node(target)
-        compounds = store.get_nodes_by_type("CompoundNode")
+        compounds = store.get_nodes_by_type("InterventionNode")
         assert len(compounds) == 1
         assert compounds[0]["id"] == "COMPOUND_IMA"
         targets = store.get_nodes_by_type("TargetNode")
@@ -106,7 +106,7 @@ class TestEdgeCRUD:
         store.add_node(target)
         store.add_edge(edge)
         belief = store.get_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO
+            compound.id, target.id, EdgeType.AFFECTS
         )
         assert belief.alpha == 1.0
         assert belief.beta == 1.0
@@ -115,13 +115,13 @@ class TestEdgeCRUD:
         store.add_node(compound)
         store.add_node(target)
         with pytest.raises(KeyError):
-            store.get_edge_belief(compound.id, target.id, EdgeType.BINDS_TO)
+            store.get_edge_belief(compound.id, target.id, EdgeType.AFFECTS)
 
     def test_get_edges_by_type(self, store, compound, target, edge):
         store.add_node(compound)
         store.add_node(target)
         store.add_edge(edge)
-        edges = store.get_edges_by_type(EdgeType.BINDS_TO)
+        edges = store.get_edges_by_type(EdgeType.AFFECTS)
         assert len(edges) == 1
         assert edges[0]["source_id"] == compound.id
 
@@ -144,7 +144,7 @@ class TestEdgeCRUD:
         ) == 0
         assert len(
             store.get_neighboring_edges(
-                compound.id, edge_types=[EdgeType.BINDS_TO]
+                compound.id, edge_types=[EdgeType.AFFECTS]
             )
         ) == 1
 
@@ -165,7 +165,7 @@ class TestBayesianUpdates:
             quality=0.9,
         )
         belief = store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, ev
+            compound.id, target.id, EdgeType.AFFECTS, ev
         )
         n_eff = EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE3] * 0.9
         p_obs = BUCKET_TO_P_OBS[SupportBucket.STRONG_SUPPORT]
@@ -183,7 +183,7 @@ class TestBayesianUpdates:
             quality=0.8,
         )
         belief = store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, ev
+            compound.id, target.id, EdgeType.AFFECTS, ev
         )
         n_eff = EVIDENCE_TYPE_N_EFF[EvidenceType.PRECLINICAL_IN_VITRO] * 0.8
         p_obs = BUCKET_TO_P_OBS[SupportBucket.STRONG_CONTRADICT]
@@ -202,7 +202,7 @@ class TestBayesianUpdates:
             quality=1.0,
         )
         belief = store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, ev
+            compound.id, target.id, EdgeType.AFFECTS, ev
         )
         # AMBIGUOUS bucket has p_obs = 0.5, so the update splits N_eff
         # evenly between α and β—the principled successor of the old
@@ -225,9 +225,9 @@ class TestBayesianUpdates:
             source_type=EvidenceType.CLINICAL_PHASE2,
             quality=0.7,
         )
-        store.update_edge_belief(compound.id, target.id, EdgeType.BINDS_TO, ev1)
+        store.update_edge_belief(compound.id, target.id, EdgeType.AFFECTS, ev1)
         belief = store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, ev2
+            compound.id, target.id, EdgeType.AFFECTS, ev2
         )
         n1 = EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_MR] * 1.0
         p1 = BUCKET_TO_P_OBS[SupportBucket.STRONG_SUPPORT]
@@ -264,7 +264,7 @@ class TestPathFinding:
         ]
         for n in nodes:
             store.add_node(n)
-        store.add_edge(GraphEdge(source_id="A", target_id="B", edge_type=EdgeType.BINDS_TO))
+        store.add_edge(GraphEdge(source_id="A", target_id="B", edge_type=EdgeType.AFFECTS))
         store.add_edge(GraphEdge(source_id="B", target_id="C", edge_type=EdgeType.MODULATES_VIA))
         store.add_edge(GraphEdge(source_id="C", target_id="D", edge_type=EdgeType.MECHANISM_AFFECTS))
 
@@ -361,7 +361,7 @@ class TestPersistence:
         store.add_node(target)
         store.add_edge(edge)
         ev = _make_evidence()
-        store.update_edge_belief(compound.id, target.id, EdgeType.BINDS_TO, ev)
+        store.update_edge_belief(compound.id, target.id, EdgeType.AFFECTS, ev)
 
         filepath = str(tmp_path / "snapshot.json")
         store.export_snapshot(filepath)
@@ -370,7 +370,7 @@ class TestPersistence:
         store2.import_snapshot(filepath)
 
         assert store2.get_node("COMPOUND_IMA")["name"] == "Imatinib"
-        belief = store2.get_edge_belief(compound.id, target.id, EdgeType.BINDS_TO)
+        belief = store2.get_edge_belief(compound.id, target.id, EdgeType.AFFECTS)
         assert belief.alpha > 1.0
         assert len(belief.evidence) == 1
 
@@ -396,9 +396,9 @@ class TestStats:
         s = store.stats()
         assert s["node_count"] == 2
         assert s["edge_count"] == 1
-        assert s["node_types"]["CompoundNode"] == 1
+        assert s["node_types"]["InterventionNode"] == 1
         assert s["node_types"]["TargetNode"] == 1
-        assert s["edge_types"]["binds_to"] == 1
+        assert s["edge_types"]["affects"] == 1
         assert s["total_evidence"] == 0
 
     def test_stats_evidence_count(self, store, compound, target, edge):
@@ -406,10 +406,10 @@ class TestStats:
         store.add_node(target)
         store.add_edge(edge)
         store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, _make_evidence()
+            compound.id, target.id, EdgeType.AFFECTS, _make_evidence()
         )
         store.update_edge_belief(
-            compound.id, target.id, EdgeType.BINDS_TO, _make_evidence()
+            compound.id, target.id, EdgeType.AFFECTS, _make_evidence()
         )
         s = store.stats()
         assert s["total_evidence"] == 2
@@ -422,7 +422,7 @@ class TestStats:
         edge = GraphEdge(
             source_id=compound.id,
             target_id=target.id,
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             belief=belief,
         )
         store.add_edge(edge)

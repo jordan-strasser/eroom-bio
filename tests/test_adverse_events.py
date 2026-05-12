@@ -461,11 +461,11 @@ def _build_combo_trial_graph() -> tuple[GraphStore, TrialSubgraph]:
     g.add_node(PopulationNode(id="ind_x__unselected", name="ind_x_unselected"))
     g.add_edge(GraphEdge(
         source_id="vemurafenib", target_id="ENSG_BRAF",
-        edge_type=EdgeType.BINDS_TO,
+        edge_type=EdgeType.AFFECTS,
     ))
     g.add_edge(GraphEdge(
         source_id="cobimetinib", target_id="ENSG_MEK1",
-        edge_type=EdgeType.BINDS_TO,
+        edge_type=EdgeType.AFFECTS,
     ))
 
     arms = [
@@ -640,7 +640,7 @@ class TestPropagation:
             ))
             g.add_edge(GraphEdge(
                 source_id=cid, target_id="ENSG_BRAF",
-                edge_type=EdgeType.BINDS_TO,
+                edge_type=EdgeType.AFFECTS,
             ))
             g.add_edge(GraphEdge(
                 source_id=cid, target_id="AE:rash",
@@ -717,7 +717,7 @@ def _build_prediction_graph() -> tuple[GraphStore, CausalChain]:
     g.add_node(AdverseEventNode(id="AE:weak", name="Weak"))
 
     for s, t, et in [
-        ("vemu", "ENSG_BRAF", EdgeType.BINDS_TO),
+        ("vemu", "ENSG_BRAF", EdgeType.AFFECTS),
         ("ENSG_BRAF", "mech", EdgeType.MODULATES_VIA),
         ("mech", "bio", EdgeType.MECHANISM_AFFECTS),
         ("bio", "mel", EdgeType.BIOLOGY_DRIVES),

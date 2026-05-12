@@ -220,7 +220,7 @@ class TestBuildTrialSubgraphs:
         assert combo_arms[0].regimen_compound_id == "dasatinib+imatinib"
         # Combo CompoundNode synthesized
         combo_node = graph.get_node("dasatinib+imatinib")
-        assert combo_node["node_type"] == "CompoundNode"
+        assert combo_node["node_type"] == "InterventionNode"
         # composed_of edges to both constituents
         composed = graph.get_edges_by_type(EdgeType.COMPOSED_OF)
         targets = sorted(e["target_id"] for e in composed if e["source_id"] == "dasatinib+imatinib")
@@ -304,6 +304,84 @@ class TestBuildTrialSubgraphs:
             )
 
 
+# ── Primary intervention identification ──────────────────────────────────
+
+
+class TestIdentifyPrimaryInterventions:
+    """The round-3.3 primary-vs-supportive split. Per-constituent chains
+    only fan out for compounds whose name appears in the trial's
+    therapeutic_hypothesis.compound text. Supportive infrastructure
+    (preconditioning chemo, growth factors, premeds) is tracked as an
+    arm member but doesn't multiply chains."""
+
+    def _make_extraction(self, compound_name: str):
+        from src.annotation.taxonomy import TrialExtraction
+        return TrialExtraction(trial_id="NCT_TEST", compound_name=compound_name)
+
+    def _make_arms(self, compound_ids_per_arm):
+        from src.graph.models import TrialArm
+        return [
+            TrialArm(
+                arm_id=f"arm_{i}",
+                compound_ids=cids,
+                regimen_compound_id="+".join(sorted(cids)),
+                is_combination=len(cids) > 1,
+            )
+            for i, cids in enumerate(compound_ids_per_arm)
+        ]
+
+    def test_single_drug_hypothesis_picks_one_primary(self):
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([["nivolumab"]])
+        ext = self._make_extraction("Nivolumab for melanoma")
+        assert _identify_primary_intervention_ids(arms, ext) == ["nivolumab"]
+
+    def test_combo_hypothesis_picks_all_named_primaries(self):
+        """CheckMate-067-shaped case: hypothesis names both
+        investigational drugs."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([
+            ["nivolumab"],
+            ["nivolumab", "ipilimumab"],
+            ["ipilimumab"],
+        ])
+        ext = self._make_extraction("Nivolumab and Ipilimumab combination")
+        primaries = _identify_primary_intervention_ids(arms, ext)
+        assert set(primaries) == {"nivolumab", "ipilimumab"}
+
+    def test_car_t_with_supportive_drugs_picks_only_car_t(self):
+        """NCT01218867-shaped case: CAR-T is primary, lymphodepletion
+        chemo and IL-2 are supportive infrastructure."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([
+            ["anti_vegfr2_car_cd8_t_cells", "cyclophosphamide", "fludarabine", "aldesleukin"],
+        ])
+        ext = self._make_extraction(
+            "Anti-VEGFR2 CAR CD8+ T cells with lymphodepletion"
+        )
+        primaries = _identify_primary_intervention_ids(arms, ext)
+        # Only the CAR-T should be marked primary; cyclophosphamide /
+        # fludarabine / aldesleukin aren't named in the hypothesis text.
+        assert primaries == ["anti_vegfr2_car_cd8_t_cells"]
+
+    def test_empty_hypothesis_returns_empty_list_for_back_compat(self):
+        """No hypothesis text → back-compat: treat all as primary (return
+        empty list, which downstream interprets as 'no filter')."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([["nivolumab", "cyclophosphamide"]])
+        ext = self._make_extraction("")
+        assert _identify_primary_intervention_ids(arms, ext) == []
+
+    def test_no_match_falls_back_to_empty(self):
+        """If no arm compound matches the hypothesis (extraction text too
+        freeform), fall back to empty list rather than killing every
+        chain. The trial isn't silent — chains stay built per-constituent."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([["compound_x", "compound_y"]])
+        ext = self._make_extraction("Something completely unrelated")
+        assert _identify_primary_intervention_ids(arms, ext) == []
+
+
 # ── Indication slug normalization ────────────────────────────────────────
 
 
@@ -359,7 +437,7 @@ class TestCompoundTargetEdges:
         )
         added = pipeline._add_compound_target_edges([trial])
         assert added >= 1
-        belief = graph.get_edge_belief("C1", "T_ABL", EdgeType.BINDS_TO)
+        belief = graph.get_edge_belief("C1", "T_ABL", EdgeType.AFFECTS)
         assert belief.alpha == 2.0
 
     def test_no_edge_when_no_match(self, pipeline, graph):

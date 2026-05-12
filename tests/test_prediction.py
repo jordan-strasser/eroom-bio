@@ -57,7 +57,7 @@ def _make_graph(
     g.add_node(PopulationNode(id="i1__unselected", name="PopA"))
 
     edges = [
-        ("c1", "t1", EdgeType.BINDS_TO, binds_to),
+        ("c1", "t1", EdgeType.AFFECTS, binds_to),
         ("t1", "m1", EdgeType.MODULATES_VIA, modulates_via),
         ("m1", "b1", EdgeType.MECHANISM_AFFECTS, mechanism_affects),
         ("b1", "i1", EdgeType.BIOLOGY_DRIVES, biology_drives),
@@ -103,7 +103,7 @@ class TestEdgeContribution:
     def test_bottleneck_score(self):
         ec = EdgeContribution(
             source_id="a", target_id="b",
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=9.0, beta=1.0),
             sampled_mean=0.9,
             bottleneck_score=0.1,
@@ -114,7 +114,7 @@ class TestEdgeContribution:
         belief = EdgeBeliefState(alpha=3.0, beta=7.0)
         ec = EdgeContribution(
             source_id="a", target_id="b",
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             belief=belief,
             sampled_mean=0.3,
             bottleneck_score=1.0 - belief.expected_probability,
@@ -149,7 +149,7 @@ class TestPredict:
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial())
         assert result.weakest_link is not None
-        assert result.weakest_link.edge_type == EdgeType.BINDS_TO
+        assert result.weakest_link.edge_type == EdgeType.AFFECTS
         # Under log-scaled trust: strength=19 → trust ≈ 0.77, mean ≈ 0.048,
         # so bottleneck = (1 - 0.048) * 0.77 ≈ 0.73. Old linear trust at
         # this strength saturated to 1.0 producing ≈0.95.
@@ -180,7 +180,7 @@ class TestPredict:
         g.add_node(CompoundNode(id="c1", name="DrugA", modality=Modality.SMALL_MOLECULE))
         g.add_node(TargetNode(id="t1", name="TargetA", gene_symbol="TGTA"))
         g.add_edge(GraphEdge(
-            source_id="c1", target_id="t1", edge_type=EdgeType.BINDS_TO,
+            source_id="c1", target_id="t1", edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=20.0, beta=1.0),
         ))
         # Need mechanism, biology, indication nodes for non-UNKNOWN fields
@@ -201,7 +201,7 @@ class TestPredict:
         # Only 4 causal chain edges (no endpoint/population since UNKNOWN)
         assert len(result.edge_contributions) == 4
         # The binds_to edge should be strong
-        binds = [e for e in result.edge_contributions if e.edge_type == EdgeType.BINDS_TO]
+        binds = [e for e in result.edge_contributions if e.edge_type == EdgeType.AFFECTS]
         assert len(binds) == 1
         assert binds[0].belief.alpha == pytest.approx(20.0)
 
@@ -287,7 +287,7 @@ class TestWeightedGeomeanPredict:
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=10_000)
         assert result.weakest_link is not None
-        assert result.weakest_link.edge_type == EdgeType.BINDS_TO
+        assert result.weakest_link.edge_type == EdgeType.AFFECTS
 
     def test_uniform_priors_have_zero_bottleneck_score(self):
         graph = _make_graph()
@@ -356,7 +356,7 @@ class TestSuggestImprovements:
         result = engine.predict(_make_trial())
         suggestions = engine.suggest_improvements(result)
         assert any("[WEAK LINK]" in s for s in suggestions)
-        assert any("binds_to" in s for s in suggestions)
+        assert any("affects" in s for s in suggestions)
 
     def test_all_strong_no_action_needed(self):
         params = (50.0, 2.0)
@@ -405,7 +405,7 @@ class TestPredictClinicalHypothesis:
             graph, "c1", "i1", n_samples=5_000
         )
         edge_types = {ec.edge_type for ec in result.edge_contributions}
-        assert EdgeType.BINDS_TO in edge_types
+        assert EdgeType.AFFECTS in edge_types
         assert EdgeType.MODULATES_VIA in edge_types
         assert EdgeType.MECHANISM_AFFECTS in edge_types
         assert EdgeType.BIOLOGY_DRIVES in edge_types
@@ -452,17 +452,17 @@ class TestPredictClinicalHypothesis:
         g.add_node(TargetNode(id="t2", name="B", gene_symbol="B"))
         g.add_node(IndicationNode(id="i1", name="DiseaseA"))
         g.add_edge(GraphEdge(
-            source_id="c1", target_id="t1", edge_type=EdgeType.BINDS_TO,
+            source_id="c1", target_id="t1", edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=1.0, beta=1.0),
         ))
         g.add_edge(GraphEdge(
-            source_id="c1", target_id="t2", edge_type=EdgeType.BINDS_TO,
+            source_id="c1", target_id="t2", edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=18.0, beta=2.0),
         ))
         result = predict_clinical_hypothesis(g, "c1", "i1", n_samples=1_000)
         binds_edges = [
             ec for ec in result.edge_contributions
-            if ec.edge_type == EdgeType.BINDS_TO
+            if ec.edge_type == EdgeType.AFFECTS
         ]
         assert binds_edges and binds_edges[0].target_id == "t2"
 

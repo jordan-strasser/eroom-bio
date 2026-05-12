@@ -48,7 +48,7 @@ class EdgeUpdateRule(BaseModel):
 FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.NO_TARGET_ENGAGEMENT: EdgeUpdateRule(
         failure_mode=FailureMode.NO_TARGET_ENGAGEMENT,
-        edges_to_weaken=[EdgeType.BINDS_TO, EdgeType.MODULATES_VIA],
+        edges_to_weaken=[EdgeType.AFFECTS, EdgeType.MODULATES_VIA],
         edges_neutral=[
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -64,7 +64,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.TARGET_ENGAGED_BIOLOGY_NOT_MOVED: EdgeUpdateRule(
         failure_mode=FailureMode.TARGET_ENGAGED_BIOLOGY_NOT_MOVED,
         edges_to_weaken=[EdgeType.MECHANISM_AFFECTS],
-        edges_to_strengthen=[EdgeType.BINDS_TO],
+        edges_to_strengthen=[EdgeType.AFFECTS],
         edges_neutral=[EdgeType.BIOLOGY_DRIVES, EdgeType.ENDPOINT_CAPTURES],
         scope="target_level",
         description=(
@@ -76,7 +76,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.BIOLOGY_MOVED_ENDPOINT_FLAT: EdgeUpdateRule(
         failure_mode=FailureMode.BIOLOGY_MOVED_ENDPOINT_FLAT,
         edges_to_weaken=[EdgeType.ENDPOINT_CAPTURES, EdgeType.BIOLOGY_DRIVES],
-        edges_to_strengthen=[EdgeType.BINDS_TO, EdgeType.MECHANISM_AFFECTS],
+        edges_to_strengthen=[EdgeType.AFFECTS, EdgeType.MECHANISM_AFFECTS],
         scope="mechanism_level",
         description=(
             "Biology moved as expected but the clinical endpoint didn't improve. "
@@ -87,7 +87,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.EFFICACY_IN_SUBGROUP_ONLY: EdgeUpdateRule(
         failure_mode=FailureMode.EFFICACY_IN_SUBGROUP_ONLY,
         edges_to_strengthen=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.RESPONDS_DIFFERENTLY,
         ],
@@ -101,7 +101,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     ),
     FailureMode.DOSE_LIMITING_TOXICITY: EdgeUpdateRule(
         failure_mode=FailureMode.DOSE_LIMITING_TOXICITY,
-        edges_to_weaken=[EdgeType.BINDS_TO],
+        edges_to_weaken=[EdgeType.AFFECTS],
         edges_neutral=[
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -117,7 +117,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.WRONG_TIMEFRAME: EdgeUpdateRule(
         failure_mode=FailureMode.WRONG_TIMEFRAME,
         edges_neutral=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MODULATES_VIA,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -133,7 +133,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.HIGH_PLACEBO_RESPONSE: EdgeUpdateRule(
         failure_mode=FailureMode.HIGH_PLACEBO_RESPONSE,
         edges_neutral=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MODULATES_VIA,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -150,7 +150,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
         failure_mode=FailureMode.WRONG_POPULATION,
         edges_to_strengthen=[EdgeType.MECHANISM_AFFECTS],
         edges_to_weaken=[EdgeType.RESPONDS_DIFFERENTLY],
-        edges_neutral=[EdgeType.BINDS_TO, EdgeType.BIOLOGY_DRIVES],
+        edges_neutral=[EdgeType.AFFECTS, EdgeType.BIOLOGY_DRIVES],
         scope="mechanism_level",
         description=(
             "The enrolled population was not the right one for this mechanism. "
@@ -161,7 +161,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.UNDERPOWERED: EdgeUpdateRule(
         failure_mode=FailureMode.UNDERPOWERED,
         edges_neutral=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MODULATES_VIA,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -176,7 +176,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     ),
     FailureMode.MANUFACTURING_OR_DELIVERY: EdgeUpdateRule(
         failure_mode=FailureMode.MANUFACTURING_OR_DELIVERY,
-        edges_to_weaken=[EdgeType.BINDS_TO],
+        edges_to_weaken=[EdgeType.AFFECTS],
         edges_neutral=[
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -192,7 +192,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.COMMERCIAL_NOT_SCIENTIFIC: EdgeUpdateRule(
         failure_mode=FailureMode.COMMERCIAL_NOT_SCIENTIFIC,
         edges_neutral=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MODULATES_VIA,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -207,7 +207,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     FailureMode.INSUFFICIENT_INFORMATION: EdgeUpdateRule(
         failure_mode=FailureMode.INSUFFICIENT_INFORMATION,
         edges_neutral=[
-            EdgeType.BINDS_TO,
+            EdgeType.AFFECTS,
             EdgeType.MODULATES_VIA,
             EdgeType.MECHANISM_AFFECTS,
             EdgeType.BIOLOGY_DRIVES,
@@ -221,7 +221,7 @@ FAILURE_MODE_RULES: dict[FailureMode, EdgeUpdateRule] = {
     ),
     FailureMode.MULTIPLE_FACTORS: EdgeUpdateRule(
         failure_mode=FailureMode.MULTIPLE_FACTORS,
-        edges_to_weaken=[EdgeType.BINDS_TO, EdgeType.MECHANISM_AFFECTS],
+        edges_to_weaken=[EdgeType.AFFECTS, EdgeType.MECHANISM_AFFECTS],
         edges_neutral=[EdgeType.BIOLOGY_DRIVES, EdgeType.ENDPOINT_CAPTURES],
         scope="mechanism_level",
         description=(

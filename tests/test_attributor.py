@@ -80,10 +80,10 @@ def _seed_combo_trial_graph() -> tuple[GraphStore, TrialSubgraph]:
 
     # Per-compound binds_to edges with their own beliefs.
     g.add_edge(GraphEdge(source_id="nivolumab", target_id="ENSG00000188389",
-                        edge_type=EdgeType.BINDS_TO,
+                        edge_type=EdgeType.AFFECTS,
                         belief=EdgeBeliefState(alpha=4.0, beta=1.0)))
     g.add_edge(GraphEdge(source_id="ipilimumab", target_id="ENSG00000163599",
-                        edge_type=EdgeType.BINDS_TO,
+                        edge_type=EdgeType.AFFECTS,
                         belief=EdgeBeliefState(alpha=4.0, beta=1.0)))
 
     arms = [
@@ -383,7 +383,7 @@ class TestAppliedEdgeUpdate:
         post = EdgeBeliefState(alpha=2.0, beta=5.0)
         update = AppliedEdgeUpdate(
             source_id="a", target_id="b",
-            edge_type=EdgeType.BINDS_TO,
+            edge_type=EdgeType.AFFECTS,
             evidence=EvidenceRecord(
                 source_id="trial1",
                 source_type=EvidenceType.CLINICAL_PHASE3,
