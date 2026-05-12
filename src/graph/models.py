@@ -170,6 +170,14 @@ class EdgeType(str, Enum):
     # causes_ae to the same AE — the cross-trial signal that an AE is
     # on-mechanism rather than intervention-specific.
     TARGET_ASSOCIATED_AE = "target_associated_ae"
+    # Subtype IndicationNode → parent IndicationNode. Structural (no Beta
+    # belief), like composed_of. Lets cross-indication queries roll up
+    # specific subtypes (uveal_melanoma, mucosal_melanoma, ...) to a
+    # parent disease (melanoma) when the question is "what do we know
+    # about melanoma in general" rather than a specific subtype.
+    # Round 3.2 (#11) added this; populated from a hand-curated
+    # hierarchy in indication_taxonomy._INDICATION_HIERARCHY.
+    SUBTYPE_OF = "subtype_of"
 
 
 class EvidenceType(str, Enum):

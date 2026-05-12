@@ -430,6 +430,119 @@ class TestIdentifyPrimaryInterventions:
         assert primaries == ["cyclophosphamide"]
 
 
+# ── Round 3.2 scaling readiness: hierarchy + smoke tests ────────────────
+
+
+class TestParentIndicationHierarchy:
+    """Round 3.2 #11 — disease hierarchy via SUBTYPE_OF edges. Subtype
+    IndicationNodes (uveal_melanoma, cutaneous_melanoma, etc.) roll up to
+    a parent disease (melanoma) for cross-subtype queries. Hand-curated
+    table in indication_taxonomy._INDICATION_HIERARCHY."""
+
+    def test_known_subtypes_resolve_to_parent(self):
+        from src.graph.indication_taxonomy import parent_indication_for
+        # All anatomical/molecular melanoma subtypes share `melanoma` as
+        # parent.
+        for sub in [
+            "uveal_melanoma", "mucosal_melanoma", "intraocular_melanoma",
+            "choroidal_melanoma", "ocular_melanoma", "iris_melanoma",
+            "cutaneous_melanoma", "acral_melanoma",
+            "acral_lentiginous_melanoma", "mucosal_lentiginous_melanoma",
+        ]:
+            assert parent_indication_for(sub) == "melanoma", sub
+
+    def test_parent_itself_has_no_parent(self):
+        """`melanoma` is a parent in the hierarchy — it doesn't recurse
+        up further. (When the table grows to include broader categories
+        like `cancer`, this test will need to invert.)"""
+        from src.graph.indication_taxonomy import parent_indication_for
+        assert parent_indication_for("melanoma") is None
+
+    def test_suffix_heuristic_picks_known_parent(self):
+        """Slugs the hierarchy table doesn't enumerate but that suffix-
+        match a known parent (e.g. `advanced_melanoma`) get the parent
+        via the suffix heuristic."""
+        from src.graph.indication_taxonomy import parent_indication_for
+        assert parent_indication_for("advanced_melanoma") == "melanoma"
+        assert parent_indication_for("refractory_melanoma") == "melanoma"
+
+    def test_unknown_indication_returns_none(self):
+        """Diseases with no known parent return None — populator won't
+        add a SUBTYPE_OF edge."""
+        from src.graph.indication_taxonomy import parent_indication_for
+        assert parent_indication_for("crohns_disease") is None
+        assert parent_indication_for("type_2_diabetes") is None
+
+
+class TestNonOncologyCanonicalization:
+    """Round 3.2 #10 — smoke test that slug normalization handles
+    non-cancer condition strings cleanly. The LLM canonicalizer step
+    requires a live call (not exercised here); this verifies the
+    deterministic slug-level normalization works for non-oncology
+    terms too."""
+
+    @pytest.mark.parametrize("raw,expected", [
+        # Autoimmune / inflammatory — should normalize cleanly.
+        ("Rheumatoid Arthritis",            "rheumatoid_arthritis"),
+        ("Systemic Lupus Erythematosus",    "systemic_lupus_erythematosus"),
+        ("Ulcerative Colitis",              "ulcerative_colitis"),
+        ("Crohn's Disease",                 "crohn_s_disease"),
+        ("Psoriasis",                       "psoriasis"),
+        # Neurology — plurals collapse via the singular rule.
+        ("Multiple Sclerosis",              "multiple_sclerosis"),
+        ("Parkinson's Disease",             "parkinson_s_disease"),
+        ("Alzheimer's Disease",             "alzheimer_s_disease"),
+        # Infectious — chronic / acute qualifiers handled by LLM step,
+        # but slug normalization on the disease name itself works.
+        ("Hepatitis B",                     "hepatitis_b"),
+        ("Tuberculosis",                    "tuberculosis"),
+        ("HIV Infection",                   "hiv_infection"),
+        # Cardiology
+        ("Heart Failure",                   "heart_failure"),
+        ("Atrial Fibrillation",             "atrial_fibrillation"),
+        # Metabolic — plural-singular rule
+        ("Type 2 Diabetes Mellitus",        "type_2_diabetes_mellitus"),
+        ("Diabetic Neuropathies",           "diabetic_neuropathy"),
+    ])
+    def test_non_oncology_slugs_normalize(self, raw, expected):
+        from src.graph.indication_taxonomy import slugify_disease_name
+        assert slugify_disease_name(raw) == expected
+
+
+class TestSubtypePreservationRule:
+    """Round 3.2 #9 — distinct anatomical/molecular subtypes get their own
+    IndicationNode (don't collapse to bare parent). The cache fix and
+    LLM prompt update enforce this for melanoma subtypes; this test
+    documents the rule via the canonicalization cache contents."""
+
+    def test_known_melanoma_subtype_cache_entries_preserved(self):
+        """Verifies the cache sweep correctly maps each histologic
+        subtype of melanoma to its own canonical id rather than the
+        bare `melanoma` parent. Lock-in test so future cache
+        manipulations don't silently collapse subtypes back together."""
+        import json
+        from pathlib import Path
+        cache_path = Path("data/cache/indication_canonicalizations.json")
+        if not cache_path.exists():
+            pytest.skip("No canonicalization cache to verify")
+        m = json.loads(cache_path.read_text())
+        expected = {
+            "Cutaneous Melanoma": "cutaneous_melanoma",
+            "Acral Melanoma": "acral_melanoma",
+            "Acral Lentiginous Melanoma": "acral_lentiginous_melanoma",
+            "Mucosal Lentiginous Melanoma": "mucosal_lentiginous_melanoma",
+        }
+        for raw, want_slug in expected.items():
+            if raw not in m:
+                continue  # cache may not have this exact entry yet
+            got_slug = m[raw].split("|")[0]
+            assert got_slug == want_slug, (
+                f"{raw!r}: expected {want_slug}, got {got_slug}. "
+                "This subtype should be a distinct IndicationNode, "
+                "not collapsed to the bare parent."
+            )
+
+
 # ── Indication slug normalization ────────────────────────────────────────
 
 

@@ -68,6 +68,10 @@ _EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
     EdgeType.RESPONDS_DIFFERENTLY: ("PopulationNode", "IndicationNode"),
     EdgeType.CAUSES_AE:            ("InterventionNode", "AdverseEventNode"),
     EdgeType.TARGET_ASSOCIATED_AE: ("TargetNode", "AdverseEventNode"),
+    # Structural (no Beta belief, like COMPOSED_OF). Classifier never
+    # emits these directly — they're added by the populator from the
+    # _INDICATION_HIERARCHY table.
+    EdgeType.SUBTYPE_OF:           ("IndicationNode", "IndicationNode"),
 }
 
 
@@ -474,7 +478,7 @@ class Attributor:
             except ValueError:
                 logger.warning("Unknown edge type '%s', skipping", edge_type_str)
                 continue
-            if edge_type == EdgeType.COMPOSED_OF:
+            if edge_type in (EdgeType.COMPOSED_OF, EdgeType.SUBTYPE_OF):
                 # Structural edges aren't classifier-modulable.
                 continue
 

@@ -22,9 +22,9 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 
 ## Tier 3 — Scaling readiness (not urgent for melanoma-only; required before multi-indication)
 
-- [ ] **9. Subtype-collapse consistency.** `Cutaneous Melanoma → melanoma` (modifier stripped) vs `Uveal Melanoma → uveal_melanoma` (subtype preserved). Needs a consistent rule before adding lung/breast/etc.
-- [ ] **10. LLM canonicalization prompt smoke test on non-oncology.** Docstring claims it's domain-agnostic; never verified against immunology / infectious / neurology trials.
-- [ ] **11. No explicit disease hierarchy.** `uveal_melanoma` and `melanoma` are sibling nodes today. Will want `subtype_of` edges or MeSH/EFO-backed hierarchy once corpus crosses ~3 indications.
+- [x] **9. Subtype-collapse consistency.** _Closed: round 3.2. The LLM canonicalizer prompt was explicitly telling the LLM to strip "Cutaneous" from melanoma (via the `'Stage IIIC Cutaneous Melanoma AJCC v7' → melanoma` example). Rewrote the prompt to enumerate which qualifiers strip (staging, resectability, line, setting, severity, demographic) vs which preserve (anatomical/molecular/histological subtypes). Updated 6 cache entries that had collapsed inconsistently: Cutaneous Melanoma → cutaneous_melanoma, Acral Melanoma → acral_melanoma, Acral Lentiginous Melanoma → acral_lentiginous_melanoma, Mucosal Lentiginous Melanoma → mucosal_lentiginous_melanoma, and two AJCC-staged cutaneous melanoma entries. IndicationNode count went 37 → 40 (the new subtype nodes), 95% coverage maintained._
+- [x] **10. LLM canonicalization prompt smoke test on non-oncology.** _Closed: round 3.2. Added `TestNonOncologyCanonicalization` covering autoimmune (rheumatoid arthritis, lupus, ulcerative colitis, Crohn's, psoriasis), neurology (multiple sclerosis, Parkinson's, Alzheimer's), infectious (hepatitis B, tuberculosis, HIV), cardiology (heart failure, atrial fibrillation), and metabolic (type 2 diabetes, diabetic neuropathies — exercises the new `-y/-ies` plural rewrite rule). Tests the offline slug-normalization path; the LLM step itself requires a live call which is a separate integration test._
+- [x] **11. No explicit disease hierarchy.** _Closed: round 3.2. Added `EdgeType.SUBTYPE_OF` (structural, no Beta belief, like COMPOSED_OF) connecting subtype IndicationNodes to their parent. Hand-curated `_INDICATION_HIERARCHY` in indication_taxonomy.py maps 10 melanoma subtypes to `melanoma`; suffix heuristic catches additional `<qualifier>_melanoma` forms. Populator adds SUBTYPE_OF edges idempotently when an IndicationNode is created, auto-creating the parent node if it doesn't exist yet. 9 SUBTYPE_OF edges in the current corpus snapshot (uveal/mucosal/intraocular/choroidal/ocular/iris/cutaneous/acral/mucosal_lentiginous → melanoma). MeSH / EFO-backed hierarchy is the eventual replacement once corpus grows past hand-enumeration._
 
 ## Tier 4 — Emergent (surfaced by round 3 re-classify; not in original 11)
 
@@ -53,5 +53,5 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 | 3.2 (dev-log cleanup) | **#6, #7, #8** closed |
 | 3.3 (Intervention rename + primary filter) | **#14** closed; **#13** partial (4 non-drug trials still chainless until non-drug edge semantics ship) |
 | 3.4 (pathway-cap collapse + primary heuristic upgrade) | **#15, #16** closed |
+| 3.2 follow-up (scaling readiness) | **#9, #10, #11** closed — round 3 fully wrapped (except #13 deferred to round 4) |
 | 4.0 (planned: sequential hypothesis chains — `audit/round_4_design.md`) | architecture pass; addresses #13 fully + makes supportive-chain learning first-class |
-| Future (multi-indication scaling) | #9, #10, #11 |

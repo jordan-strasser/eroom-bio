@@ -570,6 +570,33 @@ class PopulationPipeline:
                     existing["metadata"] = md
                 ind_metadata[canonical_id] = md
 
+                # Subtype hierarchy: if this is a known subtype, ensure
+                # both the parent IndicationNode and a SUBTYPE_OF edge
+                # exist so cross-indication queries can roll up. Idempotent
+                # on repeat rebuilds — the edge add is skipped if it's
+                # already present.
+                from src.graph.indication_taxonomy import parent_indication_for
+                parent_id = parent_indication_for(canonical_id)
+                if parent_id and parent_id != canonical_id:
+                    try:
+                        self.graph.get_node(parent_id)
+                    except KeyError:
+                        self.graph.add_node(IndicationNode(
+                            id=parent_id,
+                            name=parent_id.replace("_", " "),
+                            metadata={"source": "subtype_hierarchy_parent"},
+                        ))
+                        self._index_node(parent_id, parent_id.replace("_", " "), "indication")
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        canonical_id, parent_id, key=EdgeType.SUBTYPE_OF.value,
+                    ):
+                        self.graph.add_edge(GraphEdge(
+                            source_id=canonical_id,
+                            target_id=parent_id,
+                            edge_type=EdgeType.SUBTYPE_OF,
+                            metadata={"source": "indication_taxonomy"},
+                        ))
+
                 # Index BOTH the canonical id and the raw cond text →
                 # canonical id so downstream resolve_entity(cond, "indication")
                 # returns the canonical IndicationNode regardless of which
@@ -778,13 +805,36 @@ class PopulationPipeline:
 
         user_msg = (
             f"ClinicalTrials.gov condition string: {cond!r}\n\n"
-            "What is the BASE disease this trial is for? Strip staging, "
-            "subtype/histology, resectability/spread, severity, "
-            "line-of-therapy, treatment setting, and demographic modifiers."
+            "What is the canonical disease this trial is for?\n\n"
+            "Strip these qualifiers (they describe progression, setting, "
+            "or demographics — not disease identity):\n"
+            "  - staging (Stage I/II/III/IV, AJCC v7/v8, etc.)\n"
+            "  - resectability / spread (unresectable, metastatic, "
+            "locally advanced, recurrent)\n"
+            "  - line of therapy (newly diagnosed, refractory, "
+            "previously treated, first-line)\n"
+            "  - treatment setting (adjuvant, neoadjuvant, maintenance)\n"
+            "  - severity (mild, moderate, severe, active)\n"
+            "  - demographic (pediatric, adult, elderly)\n\n"
+            "PRESERVE these qualifiers (they describe biologically "
+            "distinct subtypes with different driver biology, populations, "
+            "or treatment responses — each is its own canonical disease):\n"
+            "  - anatomical subtypes of melanoma: cutaneous, uveal, "
+            "mucosal, acral, ocular, intraocular, choroidal, iris\n"
+            "  - molecular subtypes of breast cancer: triple-negative, "
+            "HER2-positive, HR-positive\n"
+            "  - histological subtypes of lung cancer: non-small-cell, "
+            "small-cell, adenocarcinoma, squamous cell\n"
+            "  - leukemia / lymphoma subtypes: AML, CML, ALL, CLL, "
+            "Hodgkin, non-Hodgkin, DLBCL\n"
+            "  - other anatomically or molecularly distinct subtypes\n\n"
             "Return only the disease itself in snake_case. Examples:\n"
-            "  'Stage IIIC Cutaneous Melanoma AJCC v7' → melanoma\n"
+            "  'Stage IIIC Cutaneous Melanoma AJCC v7' → "
+            "cutaneous_melanoma\n"
             "  'Unresectable or Metastatic Melanoma' → melanoma\n"
-            "  'Triple-Negative Breast Cancer' → breast_cancer\n"
+            "  'Metastatic Uveal Melanoma' → uveal_melanoma\n"
+            "  'Triple-Negative Breast Cancer' → "
+            "triple_negative_breast_cancer\n"
             "  'Non-Small Cell Lung Cancer (NSCLC)' → "
             "non_small_cell_lung_cancer\n"
             "  'Severe Refractory Rheumatoid Arthritis' → "
@@ -793,8 +843,8 @@ class PopulationPipeline:
             "  'Pediatric Acute Lymphoblastic Leukemia' → "
             "acute_lymphoblastic_leukemia\n"
             "  'Chronic Hepatitis B Infection' → hepatitis_b\n\n"
-            "Reply with only the snake_case base-disease name. No other "
-            "text."
+            "Reply with only the snake_case canonical disease name. No "
+            "other text."
         )
         try:
             response = await _call_messages_with_backoff(

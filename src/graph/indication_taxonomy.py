@@ -161,6 +161,64 @@ _DISEASE_SLUG_ALIASES: dict[str, str] = {
 }
 
 
+# Disease hierarchy: subtype IndicationNode id → parent IndicationNode id.
+# Used by the populator to add SUBTYPE_OF edges after IndicationNodes are
+# created, so cross-indication queries can roll up specific subtypes to
+# their parent disease ("show me all melanoma trials" picks up uveal /
+# mucosal / cutaneous / etc. as well, not just the bare melanoma node).
+#
+# Added in round 3.2 (#11) as the scaling-readiness foundation. The map
+# is hand-curated for the current oncology corpus; multi-indication
+# scaling (#10) extends it as new diseases come in. A MeSH / EFO-backed
+# hierarchy is the eventual replacement, but a hand-curated dict is the
+# right scope while the corpus is small enough to enumerate.
+_INDICATION_HIERARCHY: dict[str, str] = {
+    # Melanoma subtypes — all biologically distinct (different driver
+    # mutations, different populations, different responses to checkpoint
+    # blockade) but all roll up under "melanoma" for cross-subtype
+    # queries.
+    "uveal_melanoma":                "melanoma",
+    "mucosal_melanoma":              "melanoma",
+    "intraocular_melanoma":          "melanoma",
+    "choroidal_melanoma":            "melanoma",
+    "ocular_melanoma":               "melanoma",
+    "iris_melanoma":                 "melanoma",
+    "cutaneous_melanoma":            "melanoma",
+    "acral_melanoma":                "melanoma",
+    "acral_lentiginous_melanoma":    "melanoma",
+    "mucosal_lentiginous_melanoma":  "melanoma",
+    # Future entries (multi-indication scaling):
+    # "triple_negative_breast_cancer":   "breast_cancer",
+    # "her2_positive_breast_cancer":     "breast_cancer",
+    # "non_small_cell_lung_cancer":      "lung_cancer",
+    # "small_cell_lung_cancer":          "lung_cancer",
+    # "esophageal_squamous_cell_carcinoma":  "esophageal_cancer",
+    # ...
+}
+
+
+def parent_indication_for(slug: str) -> str | None:
+    """Return the parent IndicationNode id for a subtype slug, or None.
+
+    First checks the hand-curated ``_INDICATION_HIERARCHY``. If that
+    misses, falls back to a simple suffix-pattern heuristic for cancers
+    that follow ``<qualifier>_<canonical>`` naming
+    (``triple_negative_breast_cancer`` → ``breast_cancer``) — only
+    fires when the suffix is a known parent disease in the hierarchy
+    map's values, so we don't invent novel parents.
+    """
+    parent = _INDICATION_HIERARCHY.get(slug)
+    if parent:
+        return parent
+    # Heuristic: suffix-match on known parents. E.g.
+    # "advanced_melanoma" → "melanoma" if "melanoma" is a known parent.
+    known_parents = set(_INDICATION_HIERARCHY.values())
+    for candidate in known_parents:
+        if slug != candidate and slug.endswith("_" + candidate):
+            return candidate
+    return None
+
+
 def slugify_disease_name(raw: str) -> str:
     """Coerce an LLM-emitted disease label into a stable snake_case slug.
 
@@ -190,6 +248,16 @@ def slugify_disease_name(raw: str) -> str:
         ("_sarcomas", "_sarcoma"),
         ("_lymphomas", "_lymphoma"),
         ("_leukemias", "_leukemia"),
+        # -y/-ies rule: covers neuropathy/neuropathies,
+        # arthropathy/arthropathies, retinopathy/retinopathies, etc.
+        # Disease terms ending in `-pathy` describe the disorder
+        # category; the plural is grammatical only.
+        ("_neuropathies", "_neuropathy"),
+        ("_arthropathies", "_arthropathy"),
+        ("_retinopathies", "_retinopathy"),
+        ("_myopathies", "_myopathy"),
+        ("_nephropathies", "_nephropathy"),
+        ("_encephalopathies", "_encephalopathy"),
     ]
     for suffix, replacement in plural_rewrites:
         if cleaned.endswith(suffix):
