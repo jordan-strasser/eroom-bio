@@ -16,9 +16,9 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 
 ## Tier 2 — Dev log noise (already covered by prompt rules but pre-fix caches don't)
 
-- [ ] **6. "Final analysis" / "Primary completion" still in extraction subgroups.** Prompt rule rejects them but cached pre-fix extractions still emit them. Same self-heal pattern as MedDRA cache (commit `1cc06ea`) would close this.
-- [ ] **7. HAHA (human anti-human antibody) positive/negative not in vocab.** Real immunogenicity stratifier for biologics; currently axis="other" → unmapped log.
-- [ ] **8. Likert change-from-baseline labels** ("missing", "better", "worse", "no change", 4× each in today's log). Either map to a new axis or filter as non-stratifying.
+- [x] **6. "Final analysis" / "Primary completion" still in extraction subgroups.** _Closed: round 3.2. Added `_KNOWN_NON_STRATIFIER_PATTERNS` regex set covering analysis time points (Final/Primary/Interim analysis, Month/Week/Day N, 12-week landmark), continuous biomarker PD measurements ("CD8 T cells per mm² day 22"), individual patient labels ("Patient #N"), Likert change-from-baseline outcomes ("better"/"worse"/"no change"/"missing"), generic yes/no, and non-evaluable RECIST partials. Pattern-matched descriptors return a `_known_non_stratifier` sentinel level that `log_unmapped` suppresses. Dev log dropped from 96 entries/run to 9._
+- [x] **7. HAHA (human anti-human antibody) positive/negative not in vocab.** _Closed: round 3.2. Added new axis `antibody_status` with levels positive/negative/unknown. Auto-promote patterns recognize HAHA / ADA / anti-drug-antibody descriptors at any timing context ("HAHA positive at baseline" → antibody_status=positive). HAHA-positive subgroups now fork chains as real patient strata._
+- [x] **8. Likert change-from-baseline labels** ("missing", "better", "worse", "no change"). _Closed: round 3.2 — folded into #6's non-stratifier patterns. These describe ECOG / QoL outcome changes post-treatment, not patient characteristics, so silent drop is correct._
 
 ## Tier 3 — Scaling readiness (not urgent for melanoma-only; required before multi-indication)
 
@@ -50,7 +50,7 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 | 2 (`fixes_round2.md`) | — (prompt fixes shipped but masked by cache until round 3.0 re-classify) |
 | 3.0 (full re-classify) | #1 |
 | 3.1 (5 round-3 priorities) | **#3, #4, #5, #12** closed; #2 partial (folded into #14) |
-| 3.2 (planned: dev-log cleanup) | #6, #7, #8 |
+| 3.2 (dev-log cleanup) | **#6, #7, #8** closed |
 | 3.3 (Intervention rename + primary filter) | **#14** closed; **#13** partial (4 non-drug trials still chainless until non-drug edge semantics ship) |
 | 3.4 (pathway-cap collapse + primary heuristic upgrade) | **#15, #16** closed |
 | 4.0 (planned: sequential hypothesis chains — `audit/round_4_design.md`) | architecture pass; addresses #13 fully + makes supportive-chain learning first-class |

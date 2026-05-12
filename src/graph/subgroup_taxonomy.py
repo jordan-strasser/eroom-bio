@@ -49,7 +49,62 @@ NON_GENE_AXES: dict[str, list[str]] = {
         "stable_disease", "progressive_disease",
         "responder", "non_responder", "unknown",
     ],
+    # Anti-drug antibody / immunogenicity status. Real stratifier for
+    # biologics trials — HAHA-positive patients can neutralize biologic
+    # drugs and respond differently. Round 3.2 added this axis after
+    # the dev-log audit surfaced HAHA-positive / HAHA-negative / ADA
+    # entries that were dropping to axis="other".
+    "antibody_status": ["positive", "negative", "unknown"],
 }
+
+
+# Hypothetical level → canonical level for the antibody_status axis.
+# LLM emissions like "haha_positive_baseline", "ada_positive", "haha_pos"
+# all collapse to the bare positive/negative level — the timing context
+# ("at baseline") lives in raw_descriptor metadata, not the level.
+_ANTIBODY_STATUS_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"^(haha|ada|anti[-_]drug[-_]antibody|antidrug)[-_]?(positive|pos)(?:[-_].*)?$", re.I), "positive"),
+    (re.compile(r"^(haha|ada|anti[-_]drug[-_]antibody|antidrug)[-_]?(negative|neg)(?:[-_].*)?$", re.I), "negative"),
+    (re.compile(r"^(positive|pos)[-_]?(haha|ada)(?:[-_].*)?$", re.I), "positive"),
+    (re.compile(r"^(negative|neg)[-_]?(haha|ada)(?:[-_].*)?$", re.I), "negative"),
+]
+
+
+# Raw descriptor patterns we silently drop (axis="other" feature with a
+# special sentinel level). These aren't patient subgroups — they're
+# analysis time points, individual patient identifiers, ECOG-change
+# Likert labels, generic yes/no markers without context. They reach
+# canonicalize_feature only because the extractor prompt isn't perfect;
+# rather than re-extract every trial, recognize them at canonicalization
+# time and skip the dev-log emission.
+_KNOWN_NON_STRATIFIER_PATTERNS: tuple[re.Pattern[str], ...] = (
+    # Analysis time points: "Final analysis", "Primary completion",
+    # "Month N", "Week N", "Day N", "Cycle N", "Interim analysis"
+    re.compile(r"^(final|primary|interim)\s+(analysis|completion)$", re.I),
+    re.compile(r"^(month|week|day|cycle)\s+\d+$", re.I),
+    re.compile(r"^\d+[-\s]?(week|month|day)s?\s+(landmark|follow[-\s]?up)$", re.I),
+    # Continuous biomarker measurements at time points (PD readouts)
+    re.compile(r"\bper\s+mm[²2]\b.*\bday\s*\d+", re.I),
+    re.compile(r"\b(pre|post)[-\s]?(vaccine|baseline|treatment)\b.*\bday\s*\d+", re.I),
+    re.compile(r"^cd\d+\s+t\s+cells?.*day\s*\d+", re.I),
+    # Individual patient identifiers
+    re.compile(r"^patient\s+#?\s*\d+$", re.I),
+    re.compile(r"^subject\s+#?\s*\d+$", re.I),
+    # Likert change-from-baseline outcome labels (ECOG / QoL change)
+    re.compile(r"^(better|worse|no\s+change|missing|improved|worsened|stable)$", re.I),
+    # Generic yes / no without context
+    re.compile(r"^(yes|no)$", re.I),
+    # Non-evaluable outcome states (RECIST partial — companion to the
+    # response-axis auto-promotion in round 3.1)
+    re.compile(r"^not\s+(evaluable|evaluated|assessed)(\s*\([a-z]+\))?$", re.I),
+)
+
+
+# Sentinel level used on returned SubgroupFeature when the raw_descriptor
+# matched _KNOWN_NON_STRATIFIER_PATTERNS. Picked up by log_unmapped to
+# skip logging — the populator drops these via the existing axis="other"
+# filter, so the only effect is suppressing dev-log noise.
+_NON_STRATIFIER_LEVEL = "_known_non_stratifier"
 
 
 # Short-form aliases for the response axis (LLM emits "CR" / "PR" / etc.).
@@ -131,6 +186,21 @@ def canonicalize_feature(
     axis = _normalize_axis_token(axis_raw)
     level = _normalize_level_token(level_raw)
 
+    # Drop known non-stratifier descriptors silently. These come through
+    # as axis="other" from the extractor (analysis time points, ECOG-
+    # change Likert labels, "Patient #N" labels, etc.) but the populator
+    # will discard them via the standard axis="other" filter anyway —
+    # so the only thing left to do is mark them with a sentinel level
+    # that suppresses the dev-log emission. Cheap stopgap; the proper
+    # fix would re-extract every trial under a stricter prompt.
+    if descriptor and any(
+        p.search(descriptor) for p in _KNOWN_NON_STRATIFIER_PATTERNS
+    ):
+        return SubgroupFeature(
+            axis="other", key="", level=_NON_STRATIFIER_LEVEL,
+            raw_descriptor=descriptor,
+        )
+
     # Self-heal stale axis labels. Older cached extractions (and Sonnet's
     # occasional miscategorization) emit RECIST states with axis="other" or
     # blank. Promote those to axis="response" when the level matches a
@@ -140,6 +210,15 @@ def canonicalize_feature(
         response_aliases = NON_GENE_AXES["response"]
         if level in response_aliases or level in _RESPONSE_ALIASES:
             axis = "response"
+        # Same self-heal for anti-drug antibody status. The extractor
+        # often emits HAHA / ADA descriptors as axis="other" with a
+        # level like "haha_positive_baseline". Promote to the dedicated
+        # antibody_status axis.
+        for pattern, canonical_level in _ANTIBODY_STATUS_PATTERNS:
+            if pattern.match(level) or pattern.match(descriptor):
+                axis = "antibody_status"
+                level = canonical_level
+                break
 
     if axis == "gene":
         # Variant tokens are case-sensitive; normalize the input but accept
@@ -218,13 +297,18 @@ def log_unmapped(
 ) -> None:
     """Append an unmapped feature to the dev log (jsonl, one record per line).
 
-    No-op for canonical features. Caller decides when to invoke—typically
-    only when ``feature.axis == "other"``. The log is the input for vocab
+    No-op for canonical features and for features whose descriptor was
+    recognized as a known non-stratifier pattern (analysis time points,
+    individual patient labels, etc.) — those don't carry vocab-extension
+    signal. Caller decides when to invoke; typically only when
+    ``feature.axis == "other"``. The log is the input for vocab
     expansion: terms that show up often get promoted into ``NON_GENE_AXES``
     or ``GENE_LEVELS``.
     """
     if feature.axis != "other":
         return
+    if feature.level == _NON_STRATIFIER_LEVEL:
+        return  # known non-stratifier pattern, suppressed
     log_path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "trial_id": trial_id,
