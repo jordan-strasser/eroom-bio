@@ -1726,14 +1726,38 @@ def build_arms(
     the compound id (the trace driver and tests can populate the graph
     accordingly). Combo arms get a synthesized regimen id of the form
     ``compoundA+compoundB`` (constituents sorted).
+
+    Non-drug intervention names (procedures, diagnostics, radiation,
+    devices) are filtered out before arm construction. CT.gov lists
+    these alongside actual drug interventions in each arm group's
+    intervention_names; without filtering they become orphan untyped
+    compound nodes that pollute the graph and confuse classifier routing.
+
+    Filter policy: drop an arm intervention name only when it is
+    *explicitly listed* in ``trial.interventions`` with a non-drug type
+    (PROCEDURE / RADIATION / DEVICE / DIAGNOSTIC_TEST / OTHER). Names
+    that aren't in the Intervention manifest at all pass through —
+    those include combo constituents listed only via arm groups (e.g.
+    "Dasatinib" referenced only in an arm description) where dropping
+    them would silently collapse a combo into a mono arm.
     """
+    non_drug_names = {
+        iv.name for iv in trial.interventions
+        if iv.name and not is_drug_like(iv)
+    }
+
     arms: list[TrialArm] = []
     seen_arm_ids: set[str] = set()
     for ag in trial.arm_groups:
         if not ag.intervention_names:
             continue
+        relevant_names = [
+            n for n in ag.intervention_names if n not in non_drug_names
+        ]
+        if not relevant_names:
+            continue
         compound_ids: list[str] = []
-        for iv_name in ag.intervention_names:
+        for iv_name in relevant_names:
             cid = (
                 resolve_compound(iv_name, "compound")
                 if resolve_compound is not None

@@ -250,6 +250,98 @@ class TestBuildTrialSubgraphs:
         assert ts.trial_id == "NCT00000001"
         assert len(ts.chains) >= 1
 
+    def test_non_drug_intervention_names_are_filtered_from_arms(self, pipeline, graph):
+        """CT.gov lists procedures, diagnostics, radiation and devices in
+        arm_groups[].intervention_names alongside actual drugs. Those
+        non-drug names previously became orphan untyped compound nodes
+        ("biopsy", "quality_of_life_assessment", "radiation_therapy", ...)
+        polluting the graph. The arm-building step must drop them when
+        they're explicitly typed non-drug in trial.interventions.
+        """
+        from src.ingestion.clinicaltrials import Intervention
+
+        trial = _make_trial()
+        # Procedures, radiation, biopsy — all non-drug per CT.gov type.
+        trial.interventions.extend([
+            Intervention(name="Biopsy", type="PROCEDURE", description=""),
+            Intervention(name="Radiation Therapy", type="RADIATION", description=""),
+            Intervention(name="Quality-of-Life Assessment", type="OTHER", description=""),
+        ])
+        trial.arm_groups.append(ArmGroup(
+            group_id="combined_treatment",
+            title="Imatinib + Radiation Therapy",
+            intervention_names=[
+                "Imatinib", "Radiation Therapy", "Biopsy",
+                "Quality-of-Life Assessment",
+            ],
+        ))
+        graph.add_node(CompoundNode(id="imatinib", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        pipeline._index_node("imatinib", "Imatinib", "compound")
+        graph.add_node(IndicationNode(id="I1", name="Chronic Myeloid Leukemia"))
+        pipeline._index_node("I1", "Chronic Myeloid Leukemia", "indication")
+        graph.add_node(EndpointNode(
+            id="E1", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("E1", "Overall Survival", "endpoint")
+
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        sg = subgraphs[0]
+        combined_arm = next(a for a in sg.arms if a.arm_id == "combined_treatment")
+        # Only the drug ("imatinib") survived the filter.
+        assert combined_arm.compound_ids == ["imatinib"]
+        # No orphan radiation/biopsy/qol nodes leaked into the graph as
+        # untyped CompoundNodes.
+        for orphan in ("biopsy", "radiation_therapy", "quality_of_life_assessment"):
+            try:
+                node = graph.get_node(orphan)
+            except KeyError:
+                continue  # not in graph — good
+            assert "node_type" in node, (
+                f"non-drug intervention {orphan!r} leaked into the graph "
+                "as an untyped node"
+            )
+
+
+# ── Indication slug normalization ────────────────────────────────────────
+
+
+class TestSlugifyDiseaseName:
+    """The canonicalizer-side normalization that collapses near-duplicate
+    IndicationNode ids (singular/plural, word-order variants)."""
+
+    @pytest.mark.parametrize("raw,expected", [
+        ("Solid Tumors",          "solid_tumor"),
+        ("solid tumor",           "solid_tumor"),       # already singular
+        ("Brain Metastases",      "brain_metastasis"),
+        ("Brain Metastasis",      "brain_metastasis"),
+        ("Pancreatic Cancers",    "pancreatic_cancer"),
+        ("Soft Tissue Sarcomas",  "soft_tissue_sarcoma"),
+        ("Non-Hodgkin Lymphomas", "non_hodgkin_lymphoma"),
+        ("Acute Leukemias",       "acute_leukemia"),
+        ("Squamous Cell Carcinomas", "squamous_cell_carcinoma"),
+        ("Benign Neoplasms",      "benign_neoplasm"),
+    ])
+    def test_plural_disease_nouns_collapse_to_singular(self, raw, expected):
+        from src.graph.indication_taxonomy import slugify_disease_name
+        assert slugify_disease_name(raw) == expected
+
+    def test_known_aliases_normalize_to_canonical_form(self):
+        """Word-order variants of the same disease — CT.gov phrases the
+        same disease two different ways across trials; the alias table
+        picks one canonical form so evidence accumulates together."""
+        from src.graph.indication_taxonomy import slugify_disease_name
+        canonical = "head_and_neck_squamous_cell_carcinoma"
+        assert slugify_disease_name(
+            "Head and Neck Squamous Cell Carcinoma"
+        ) == canonical
+        # The CT.gov variant "Carcinoma, Squamous Cell of Head and Neck"
+        # slugifies to a different word order; the alias dict maps it back.
+        assert slugify_disease_name(
+            "squamous cell carcinoma head and neck"
+        ) == canonical
+
 
 # ── Compound-target cross-reference ──────────────────────────────────────
 

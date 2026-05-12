@@ -149,12 +149,50 @@ def extract_indication_qualifiers(condition_text: str) -> list[SubgroupFeature]:
     return features
 
 
+# Known same-disease aliases the LLM canonicalizer emits inconsistently.
+# Each entry maps a non-preferred slug to its canonical equivalent. Surfaced
+# round-over-round by the duplicate-sweep diagnostic; add new entries here
+# as they appear in audit/checklist.md #5.
+_DISEASE_SLUG_ALIASES: dict[str, str] = {
+    # Word-order variants: "Carcinoma, Squamous Cell of Head and Neck" vs
+    # "Head and Neck Squamous Cell Carcinoma" — same disease, different
+    # CT.gov condition phrasings.
+    "squamous_cell_carcinoma_head_and_neck": "head_and_neck_squamous_cell_carcinoma",
+}
+
+
 def slugify_disease_name(raw: str) -> str:
     """Coerce an LLM-emitted disease label into a stable snake_case slug.
 
     Lowercases, collapses non-alphanumeric runs to single underscores,
-    and strips leading / trailing underscores. The result is used as the
-    canonical IndicationNode id.
+    strips leading / trailing underscores, then applies two normalizations:
+      1. Strip the trailing 's' on uncountable disease nouns
+         (``solid_tumors`` → ``solid_tumor``, ``brain_metastases`` →
+         ``brain_metastasis``). Disease names should be singular so
+         evidence accumulates on one node per disease.
+      2. Resolve known reorderings via ``_DISEASE_SLUG_ALIASES`` —
+         CT.gov condition strings sometimes invert word order
+         (``squamous_cell_carcinoma_head_and_neck`` vs
+         ``head_and_neck_squamous_cell_carcinoma``). The alias table
+         picks one canonical form.
+
+    The result is used as the canonical IndicationNode id.
     """
     cleaned = re.sub(r"[^a-zA-Z0-9]+", "_", raw.strip().lower()).strip("_")
-    return cleaned
+    # Plural → singular for uncountable disease nouns. Order matters:
+    # 'metastases' must be caught before the generic '_s' strip.
+    plural_rewrites = [
+        ("_metastases", "_metastasis"),
+        ("_tumors", "_tumor"),
+        ("_cancers", "_cancer"),
+        ("_carcinomas", "_carcinoma"),
+        ("_neoplasms", "_neoplasm"),
+        ("_sarcomas", "_sarcoma"),
+        ("_lymphomas", "_lymphoma"),
+        ("_leukemias", "_leukemia"),
+    ]
+    for suffix, replacement in plural_rewrites:
+        if cleaned.endswith(suffix):
+            cleaned = cleaned[: -len(suffix)] + replacement
+            break
+    return _DISEASE_SLUG_ALIASES.get(cleaned, cleaned)
