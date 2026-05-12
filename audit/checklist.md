@@ -30,6 +30,11 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 
 - [x] **12. Failure trials with `confidence_overall <0.5` emit zero edges_to_update.** 9 of 12 zero-coverage trials. The confidence rubric and the failure-trial-MUST-emit rule conflict; LLM resolves it the wrong way. _Closed: round 3.1. Prompt strengthened to mark the failure-emit rule as overriding the confidence tier; defensive backstop in `Attributor` auto-emits `biology_drives weak_contradict` on the parent chain when a failure trial returns zero edges. After fix: 0 zero-coverage trials._
 
+## Tier 6 — Emergent (surfaced by round 3.3 verification)
+
+- [ ] **15. Reactome biology-pathway fan-out (`_BIOLOGY_PATHWAY_CAP=3`) multiplies chain counts ~3×.** Each (intervention, target, mechanism) tuple gets up to 3 Reactome pathways as distinct BiologyNodes, so each (arm, population, endpoint) cell produces 3 chains rather than 1. For NCT01844505: 7 cells × 3 pathways = 24 chains (would be 8 at cap=1). The cap is defensible — Reactome pathways are real biological hypotheses, and per-pathway chains let us learn "PD-1 signaling effect" vs "T-cell-receptor signaling effect" separately — but it's the dominant chain-count multiplier corpus-wide. Decision needed: keep cap=3 (per-pathway hypothesis), drop to cap=1 (single biology node per target+mechanism), or make adaptive (cap=1 when fewer than N trials in the corpus, cap=3 once cross-pathway evidence is informative).
+- [ ] **16. Primary heuristic misses regimens where the hypothesis text names supportive drugs.** NCT00670748's hypothesis = "Anti-NY ESO-1 T-cell receptor PBL + aldesleukin + cyclophosphamide + fludarabine" — Sonnet phrased the regimen with `+` separators listing all four compounds, so the round-3.3 heuristic flagged aldesleukin (IL-2 cytokine support), cyclophosphamide (lymphodepletion), and fludarabine (lymphodepletion) as primary alongside the actual TCR-T product. Result: 32 chains where 8 would be correct. Fixes (in order of cleanness): (a) extraction-side schema change adding `primary_compounds: list[str]` and `supportive_compounds: list[str]` to `therapeutic_hypothesis`; (b) context-aware pattern recognizer for "with lymphodepletion", "with cytokine support", "preconditioning", etc.; (c) hand-curated "commonly supportive" allowlist (cyclophosphamide, fludarabine, aldesleukin in cell-therapy contexts).
+
 ## Tier 5 — Emergent (surfaced by round 3.1 verification)
 
 - [~] **13. Non-drug therapeutic trials get filtered to 0 chains.** _Partially closed: round 3.3. CompoundNode renamed to InterventionNode with `intervention_type` enum mirroring CT.gov (DRUG / BIOLOGICAL / RADIATION / DEVICE / PROCEDURE / DIAGNOSTIC_TEST / BEHAVIORAL / COMBINATION / OTHER / UNKNOWN). `binds_to` renamed to `affects` so the edge no longer presumes drug-binding chemistry. The 4 trials (NCT00587964 radiation, NCT01350401 cell therapy, NCT01473004 device, NCT00472459 PDT) still have no chains because non-drug interventions don't get chain backbones yet — proper edge semantics for radiation/cell-therapy/device chain backbones is round 3.4 work._
@@ -46,5 +51,6 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 | 3.0 (full re-classify) | #1 |
 | 3.1 (5 round-3 priorities) | **#3, #4, #5, #12** closed; #2 partial (folded into #14) |
 | 3.2 (planned: dev-log cleanup) | #6, #7, #8 |
-| 3.3 (planned: round-3.1 emergent) | #13, #14 |
+| 3.3 (Intervention rename + primary filter) | **#14** closed; **#13** partial (4 non-drug trials still chainless until non-drug edge semantics ship) |
+| 3.4 (planned: round-3.3 emergent) | #15, #16 |
 | Future (multi-indication scaling) | #9, #10, #11 |
