@@ -297,6 +297,83 @@ class TestChainAwareRouting:
         assert updates == []
 
 
+# ── Failure-trial backstop ──────────────────────────────────────────────
+
+
+class TestFailureBackstop:
+    """When a classifier returns zero `biology_drives` on a failure trial,
+    the attributor auto-emits a default weak_contradict on the parent
+    chain so the failure isn't completely silent. The classifier prompt
+    rule says this is mandatory, but the LLM ignores it at low confidence;
+    this is the defensive code-side enforcement."""
+
+    def _seed_with_biology_drives(self):
+        g, ts = _seed_combo_trial_graph()
+        # Production graphs always have this edge (populate.py builds it).
+        # The combo-trial fixture omits it, so add it here for backstop tests.
+        g.add_edge(GraphEdge(
+            source_id="R-HSA-389948", target_id="melanoma",
+            edge_type=EdgeType.BIOLOGY_DRIVES,
+            belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+        ))
+        return g, ts
+
+    def test_zero_edges_on_failure_emits_backstop_biology_drives(self):
+        g, ts = self._seed_with_biology_drives()
+        clf = _make_classification([])  # zero edges
+        clf._raw["trial_outcome"] = "failure"
+        updates = Attributor(g).attribute(clf, ts)
+        assert len(updates) == 1
+        u = updates[0]
+        assert u.edge_type == EdgeType.BIOLOGY_DRIVES
+        # Should target the parent chain's biology→indication edge.
+        parent_chain = ts.chains[0]
+        assert u.source_id == parent_chain.biology_id
+        assert u.target_id == parent_chain.indication_id
+        assert u.evidence.support == SupportBucket.WEAK_CONTRADICT.value
+        assert "backstop" in u.evidence.notes.lower()
+
+    def test_backstop_not_emitted_when_classifier_already_emitted_biology_drives(self):
+        """If the classifier did its job, the backstop must NOT fire — the
+        graph would otherwise get two contradict updates on the same edge
+        from one trial."""
+        g, ts = self._seed_with_biology_drives()
+        parent = ts.chains[0]
+        clf = _make_classification([{
+            "edge_type": "biology_drives",
+            "source_entity": parent.biology_id,
+            "target_entity": parent.indication_id,
+            "support": "moderate_contradict",
+        }])
+        clf._raw["trial_outcome"] = "failure"
+        updates = Attributor(g).attribute(clf, ts)
+        # Exactly one biology_drives update — the classifier's emission,
+        # not the backstop. Bucket is moderate (not the backstop's weak).
+        biology_drives_updates = [
+            u for u in updates if u.edge_type == EdgeType.BIOLOGY_DRIVES
+        ]
+        assert len(biology_drives_updates) == 1
+        assert biology_drives_updates[0].evidence.support == SupportBucket.MODERATE_CONTRADICT.value
+
+    def test_backstop_not_emitted_on_success(self):
+        """A success trial returning zero edges is suspect but not the
+        backstop's problem — only failure trials get the rule."""
+        g, ts = self._seed_with_biology_drives()
+        clf = _make_classification([])
+        clf._raw["trial_outcome"] = "success"
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
+
+    def test_backstop_not_emitted_on_partial(self):
+        """Partial-outcome trials don't get the backstop either — the
+        failure signal is too ambiguous to justify a structural default."""
+        g, ts = self._seed_with_biology_drives()
+        clf = _make_classification([])
+        clf._raw["trial_outcome"] = "partial"
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
+
+
 # ── AppliedEdgeUpdate ───────────────────────────────────────────────────
 
 

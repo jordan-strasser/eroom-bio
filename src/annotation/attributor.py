@@ -559,7 +559,84 @@ class Attributor:
                 post_update_belief=post_belief,
             ))
 
+        # Failure-trial backstop. The classifier prompt explicitly requires
+        # at least one upstream causal-chain edge update on a failure trial
+        # (a missed endpoint refutes part of the chain even when biomarker
+        # data is absent), but the LLM occasionally returns zero edges
+        # anyway, especially at confidence_overall <0.5. Without a backstop
+        # the trial is silent — 0 evidence on every chain, no learning from
+        # the failure. Inject a default `biology_drives weak_contradict`
+        # against the parent chain so the failure signal lands somewhere.
+        outcome = raw.get("trial_outcome")
+        if outcome == "failure":
+            biology_drives_applied = any(
+                et == EdgeType.BIOLOGY_DRIVES.value for et, _, _ in applied_edges
+            )
+            if not biology_drives_applied and trial.chains:
+                default_update = self._emit_failure_backstop(
+                    trial, classification, evidence_type,
+                )
+                if default_update is not None:
+                    updates.append(default_update)
+
         return updates
+
+    def _emit_failure_backstop(
+        self,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        evidence_type: EvidenceType,
+    ) -> AppliedEdgeUpdate | None:
+        """Auto-emit `biology_drives weak_contradict` for a silent failure trial.
+
+        Used only when the classifier returned zero `biology_drives` edges
+        on a failure trial — the prompt rule was violated, and the graph
+        otherwise gets no signal from the failure. Targets the parent
+        chain's (biology_id → indication_id) edge with a deliberately
+        low-strength bucket because the classifier didn't independently
+        reason about the contradict; we're back-filling the structural
+        expectation, not adding new mechanistic information.
+        """
+        parent_chain = trial.chains[0]
+        src_id = parent_chain.biology_id
+        tgt_id = parent_chain.indication_id
+        try:
+            pre = self.graph.get_edge_belief(src_id, tgt_id, EdgeType.BIOLOGY_DRIVES)
+        except KeyError:
+            logger.debug(
+                "Failure backstop skipped for %s: biology_drives %s → %s not in graph",
+                trial.trial_id, src_id, tgt_id,
+            )
+            return None
+        evidence = EvidenceRecord(
+            source_id=trial.trial_id,
+            source_type=evidence_type,
+            support=SupportBucket.WEAK_CONTRADICT.value,
+            quality_score=min(classification.confidence, 1.0),
+            timestamp=datetime.now(timezone.utc),
+            notes=(
+                "Failure-trial backstop: classifier returned zero "
+                "biology_drives edges on a failure outcome, so a default "
+                "weak_contradict is emitted on the parent chain."
+            ),
+        )
+        post = self.graph.update_edge_belief(
+            src_id, tgt_id, EdgeType.BIOLOGY_DRIVES, evidence,
+        )
+        logger.warning(
+            "Failure-trial backstop fired for %s: classifier emitted 0 "
+            "biology_drives on outcome=failure; auto-emitted weak_contradict "
+            "on %s → %s",
+            trial.trial_id, src_id, tgt_id,
+        )
+        return AppliedEdgeUpdate(
+            source_id=src_id,
+            target_id=tgt_id,
+            edge_type=EdgeType.BIOLOGY_DRIVES,
+            evidence=evidence,
+            pre_update_belief=pre,
+            post_update_belief=post,
+        )
 
     async def attribute_adverse_events(
         self,
