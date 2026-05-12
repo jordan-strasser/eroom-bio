@@ -210,6 +210,31 @@ class TestMedDRA:
             "preferred_term": "Rash", "system_organ_class": "Skin",
         }
 
+    @pytest.mark.asyncio
+    async def test_stale_unspecified_cache_entry_is_rejected(self, tmp_path):
+        """Pre-fix caches mapped meta-rows to 'Unspecified adverse event'.
+
+        The normalizer must treat those cache hits the same as a fresh
+        LLM 'Unspecified' fallback — reject, return None, rewrite the
+        cache to the empty-sentinel so the entry self-heals.
+        """
+        from src.annotation.meddra import normalize_ae_term
+        cache = MeddraCache(tmp_path / "meddra.json")
+        cache.set("any adverse event", {
+            "preferred_term": "Unspecified adverse event",
+            "system_organ_class": "General disorders and administration site conditions",
+        })
+        # _FakeAnthropicClient raises on any LLM call — proves we're not
+        # paying the network round-trip for the rejection.
+        result = await normalize_ae_term(
+            _FakeAnthropicClient(), "any adverse event", cache,
+        )
+        assert result is None
+        # Self-heal: the stale entry is now rewritten to the empty sentinel.
+        assert cache.get("any adverse event") == {
+            "preferred_term": "", "system_organ_class": "",
+        }
+
 
 # ── Bucket helper ──────────────────────────────────────────────────────
 

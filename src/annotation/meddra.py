@@ -192,6 +192,21 @@ system_organ_class="General disorders and administration site conditions".
 """
 
 
+# Vague fallback preferred_terms the normalizer should treat the same as a
+# pre-filter rejection. Applied both to fresh LLM output and to cached
+# entries written by pre-fix runs (which mapped many meta-rows here before
+# the rejection rule existed).
+_FALLBACK_PREFERRED_TERMS: frozenset[str] = frozenset({
+    "unspecified adverse event",
+    "adverse event",
+    "toxicity",
+})
+
+
+def _is_fallback_preferred_term(preferred_term: str) -> bool:
+    return preferred_term.strip().lower() in _FALLBACK_PREFERRED_TERMS
+
+
 async def normalize_ae_term(
     client: anthropic.AsyncAnthropic,
     raw_term: str,
@@ -214,6 +229,15 @@ async def normalize_ae_term(
     if cached is not None:
         # Sentinel: empty preferred_term means "rejected as meta term".
         if not cached.get("preferred_term"):
+            return None
+        # Re-check cached entries against the post-LLM rejection rule.
+        # Pre-fix cache files predate this filter; without this re-check
+        # those stale mappings (e.g. "any adverse event" → "Unspecified
+        # adverse event") would skate past the new logic and accumulate
+        # the meaningless AE:unspecified_adverse_event node again. Write
+        # the rejection back so the cache self-heals on first hit.
+        if _is_fallback_preferred_term(cached.get("preferred_term", "")):
+            cache.set(raw_term, {"preferred_term": "", "system_organ_class": ""})
             return None
         return cached
 
@@ -248,8 +272,7 @@ async def normalize_ae_term(
     # that the same as a pre-filter rejection. The LLM's fallback would
     # otherwise create the meaningless AE:unspecified_adverse_event node
     # that accumulates evidence across many trials (fixes.md #7).
-    pt_lower = parsed["preferred_term"].lower()
-    if pt_lower in ("unspecified adverse event", "adverse event", "toxicity"):
+    if _is_fallback_preferred_term(parsed["preferred_term"]):
         cache.set(raw_term, {"preferred_term": "", "system_organ_class": ""})
         return None
 
