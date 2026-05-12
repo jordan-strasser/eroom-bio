@@ -70,6 +70,9 @@ Rules:
 
 Edge schema—every `edges_to_update` entry MUST follow these source→target node-type pairings. The attributor drops any edge whose endpoints don't match the schema or aren't in the trial subgraph (it can't update an edge that doesn't exist). Source / target are NODE NAMES the trial subgraph already knows about, not free-text re-statements.
 
+CRITICAL — use the canonical ids verbatim:
+The "Resolved Graph Entities" block in the user prompt shows EVERY id you may reference. The indication, endpoint, biology, mechanism, target, and population ids have already been canonicalized by the populator. If the indication id is `melanoma`, use `melanoma` everywhere—NOT `metastatic_melanoma`, `unresectable_melanoma`, `advanced_melanoma`, `stage_iii_melanoma`, `malignant_melanoma`, `melanoma_skin`, `refractory_melanoma`, or any other qualifier you might infer from the trial's free-text condition string. The same applies to endpoint ids: use the exact id shown (e.g. `PFS_melanoma`), not a more specific variant like `PFS_refractory_melanoma` or `safety_metastatic_melanoma`. Any edge that references a non-canonical id will be silently dropped as `entity_not_in_trial` and the trial will contribute no evidence to that part of the chain.
+
   edge_type             source node type   →   target node type    notes
   ────────────────────────────────────────────────────────────────────────
   binds_to              Compound           →   Target              the drug binds the target
@@ -102,8 +105,8 @@ Per-constituent emission rules:
     SHARED across arms—emit each of those once per trial, not per arm.
 
 Critical rules for `responds_differently`:
-  - Source MUST be a patient-subgroup PopulationNode (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.
-  - Target MUST be the indication (e.g. "melanoma", "metastatic_melanoma"), not a drug or biology slug.
+  - Source MUST be a patient-subgroup PopulationNode shown in "Resolved Graph Entities" (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.
+  - Target MUST be the EXACT canonical indication id shown for this trial—do NOT add stage / line-of-therapy / metastatic / refractory / advanced / unresectable / cutaneous qualifiers. If the resolved indication id is `melanoma`, emit `melanoma` (NOT `metastatic_melanoma`, `advanced_melanoma`, `stage_iv_melanoma`, etc.).
   - Use this when the trial reports a subgroup analysis with a different effect size than the overall population—that observation is what `responds_differently` captures. If the trial only reports the overall result, do NOT emit a responds_differently edge.
 
 Critical rules for `endpoint_captures` (independent of mechanistic data):

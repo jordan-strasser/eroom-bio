@@ -102,10 +102,10 @@ def _format_trial_entities(
             arm_constituent_chain[key] = c
 
     lines = [
-        "Shared trial-level entities:",
-        f"- indication:    {_annotate(sample.indication_id)}",
-        f"- endpoints:     {', '.join(endpoints) if endpoints else 'UNKNOWN'}",
-        f"- populations:   {', '.join(populations) if populations else 'UNKNOWN'}",
+        "Shared trial-level entities (USE THESE EXACT IDs — do not add stage/refractory/metastatic/advanced qualifiers):",
+        f"- indication:    `{sample.indication_id}`  ← use this id verbatim for biology_drives target, endpoint_captures target, responds_differently target",
+        f"- endpoints:     {', '.join('`'+e+'`' for e in endpoints) if endpoints else 'UNKNOWN'}  ← use these ids verbatim for endpoint_captures source and reflects_biology target",
+        f"- populations:   {', '.join('`'+p+'`' for p in populations) if populations else 'UNKNOWN'}  ← use these ids verbatim for responds_differently source",
         "",
         "Per-arm causal chains (use these canonical ids in edges_to_update):",
     ]
