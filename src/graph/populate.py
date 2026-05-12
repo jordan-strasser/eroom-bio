@@ -1205,16 +1205,18 @@ class PopulationPipeline:
 
         return added
 
-    # Cap on Reactome pathways used as distinct biology nodes per
-    # (target, mechanism) pair. A gene like BRAF is annotated to ~16
-    # pathways in Reactome; fanning out a chain into 16 biological
-    # hypotheses dilutes evidence and explodes the chain count when
-    # combined with per-constituent + per-subgroup fan-out. Keep the top
-    # K most-listed pathways (Reactome returns them ranked by relevance
-    # for the query gene). 3 is enough to capture both the canonical
-    # signaling pathway and one or two upstream / downstream pathways
-    # without runaway.
-    _BIOLOGY_PATHWAY_CAP = 3
+    # Number of Reactome pathways materialized as distinct BiologyNodes
+    # per (target, mechanism) pair. Set to 1 in round 3.4: at single-
+    # indication corpus scale clinical trials don't report pathway-
+    # level biomarkers, so per-pathway evidence accumulation can't
+    # actually discriminate between Reactome pathways for the same
+    # target — the cap=3 fan-out just split the same trial signal
+    # across 3 nodes. Now we materialize one BiologyNode (the top
+    # Reactome match) but record the full pathway list in
+    # ``pathway_ids`` metadata so cross-pathway queries remain
+    # answerable (and round 4.0 can re-split selectively when pathway
+    # biomarker data justifies it).
+    _BIOLOGY_PATHWAY_CAP = 1
 
     async def _resolve_real_biology(
         self,
@@ -1295,17 +1297,34 @@ class PopulationPipeline:
         if not pathways:
             return ([], False)
 
+        # All Reactome pathway ids for this gene, ranked by relevance —
+        # used as metadata on the materialized BiologyNode so cross-
+        # pathway queries can still find this biology even when only
+        # the top pathway has its own node.
+        all_pathway_ids = [p.stable_id for p in pathways]
+
         biology_ids: list[str] = []
         for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
             bio_id = pathway.stable_id
             try:
-                self.graph.get_node(bio_id)
+                existing = self.graph.get_node(bio_id)
+                # Merge any newly-discovered pathway ids into the
+                # existing node's pathway_ids list. Idempotent on repeat
+                # rebuilds and lets the metadata grow as more trials
+                # touch the same target+mechanism.
+                current_pathways = set(existing.get("pathway_ids") or [])
+                merged = current_pathways | set(all_pathway_ids)
+                if merged != current_pathways:
+                    existing["pathway_ids"] = sorted(merged)
             except KeyError:
                 self.graph.add_node(BiologyNode(
                     id=bio_id,
                     name=pathway.display_name or bio_id,
-                    pathway_ids=[bio_id],
-                    metadata={"source": "reactome_target_lookup"},
+                    pathway_ids=all_pathway_ids,
+                    metadata={
+                        "source": "reactome_target_lookup",
+                        "primary_pathway": bio_id,
+                    },
                 ))
 
             if not self.graph._graph.has_edge(  # noqa: SLF001
@@ -2122,26 +2141,93 @@ def build_trial_subgraph_from_extraction(
     return ts
 
 
+# Compounds that almost always serve a supportive role in oncology trials
+# (lymphodepletion preconditioning for cell therapy, cytokine support,
+# common premedications, adjuvants). Listed by canonical slug. Used as a
+# tiebreaker when the extraction hypothesis text names a supportive drug
+# alongside the investigational compound — without this list, regimens
+# phrased as "TCR-T + cyclophosphamide + fludarabine + IL-2" would mark
+# all four as primary.
+#
+# Not a perfect proxy — cyclophosphamide IS the investigational drug in
+# some lymphoma trials. The override only kicks in when (a) the compound
+# is on this list AND (b) at least one *non*-supportive compound was
+# also matched, so a true cyclophosphamide-as-monotherapy trial isn't
+# silently filtered down to zero primaries.
+_COMMONLY_SUPPORTIVE_COMPOUNDS: frozenset[str] = frozenset({
+    # Lymphodepletion / preconditioning chemo
+    "cyclophosphamide",
+    "fludarabine",
+    "fludarabine_phosphate",
+    "busulfan",
+    "melphalan",
+    # Cytokine support
+    "aldesleukin",       # IL-2
+    "interleukin_2",
+    "interleukin_15",
+    "filgrastim",        # G-CSF
+    "pegfilgrastim",
+    "sargramostim",      # GM-CSF
+    "erythropoietin",
+    "epoetin_alfa",
+    # Common adjuvants / vehicles for vaccine trials
+    "montanide",
+    "montanide_isa_51",
+    "incomplete_freund_s_adjuvant",
+    "ifa",
+    "gm_csf",
+})
+
+
+# Lowercase substrings in the hypothesis text that signal a supportive
+# context — when a compound is named in conjunction with one of these
+# phrases, lean toward marking it supportive even if it's not in the
+# allowlist above.
+_SUPPORTIVE_CONTEXT_PHRASES: tuple[str, ...] = (
+    "with lymphodepletion",
+    "after lymphodepletion",
+    "following lymphodepletion",
+    "with preconditioning",
+    "after preconditioning",
+    "with conditioning",
+    "with cytokine support",
+    "with growth factor",
+    "premedication",
+    "as premedication",
+    "preceded by",
+    "concurrent with",
+)
+
+
 def _identify_primary_intervention_ids(
     arms: list[TrialArm], extraction: Any,
 ) -> list[str]:
     """Pick the primary investigational intervention ids for a trial.
 
-    Heuristic: a compound is "primary" if its display name (or substantial
-    word fragment) appears in the extraction's
-    ``therapeutic_hypothesis.compound`` text. Anything not mentioned is
-    treated as supportive (preconditioning chemo, growth factors, premeds).
+    Heuristic, in order:
+      1. A compound is a candidate primary if its name (or a
+         substantive word from its slug) appears in extraction's
+         ``therapeutic_hypothesis.compound`` text.
+      2. If candidates include any compound in
+         ``_COMMONLY_SUPPORTIVE_COMPOUNDS`` AND at least one
+         non-supportive candidate, drop the supportive ones —
+         lymphodepletion / cytokine support / premeds get demoted.
+      3. If the hypothesis text contains a
+         ``_SUPPORTIVE_CONTEXT_PHRASES`` marker ("with
+         lymphodepletion", "with cytokine support", etc.) AND at least
+         one non-supportive candidate, demote all
+         ``_COMMONLY_SUPPORTIVE_COMPOUNDS`` from the candidates even if
+         the substring matched.
 
-    Why this matters: a CAR-T trial like NCT01218867 lists 4+ compounds
-    per arm (the CAR-T cells + cyclophosphamide + fludarabine + IL-2) but
-    only the CAR-T is being investigated. Per-constituent chain fan-out
-    on all 4 generates 4x the chains, of which 3 are spurious — the
-    trial doesn't test whether cyclophosphamide modulates melanoma.
+    Empty result means "all compounds are primary" (conservative
+    fallback when extraction context is missing or the hypothesis text
+    yields no matches at all). Returning an empty list lets downstream
+    chain fan-out chain every constituent.
 
-    Empty result means "all compounds are primary" (conservative default
-    when extraction context is missing or the hypothesis text is empty).
-    Returning an empty list lets downstream chain fan-out fall back to
-    pre-round-3.3 behavior (chain every constituent).
+    The full extractor-side schema change (split
+    ``therapeutic_hypothesis`` into ``primary_compounds`` /
+    ``supportive_compounds`` lists) is round 4.0 work — this is the
+    cheaper heuristic stopgap.
     """
     if not arms:
         return []
@@ -2155,27 +2241,35 @@ def _identify_primary_intervention_ids(
             if cid not in all_compound_ids:
                 all_compound_ids.append(cid)
 
-    primary: list[str] = []
+    # Step 1: candidates by hypothesis substring match.
+    candidates: list[str] = []
     for cid in all_compound_ids:
-        # Match the canonical id slug against the hypothesis text. The
-        # compound_id is a snake_case slug ("anti_vegfr2_car_cd8_t_cells");
-        # break it on underscores and require at least one substantive
-        # word (>3 chars, not a digit-only) to appear in the hypothesis.
         words = [w for w in cid.split("_") if len(w) > 3 and not w.isdigit()]
         if not words:
-            # short / numeric-only id — fall back to whole-id substring match
             if cid.replace("_", " ") in hypothesis or cid in hypothesis:
-                primary.append(cid)
+                candidates.append(cid)
             continue
         if any(w in hypothesis for w in words):
-            primary.append(cid)
+            candidates.append(cid)
 
-    # Sanity: if no compound matched the hypothesis at all, the extraction
-    # text may be too freeform to align. Fall back to "all primary" rather
-    # than killing every chain.
-    if not primary:
+    if not candidates:
         return []
-    return primary
+
+    # Step 2: filter out commonly-supportive compounds when at least one
+    # non-supportive candidate exists.
+    non_supportive = [c for c in candidates if c not in _COMMONLY_SUPPORTIVE_COMPOUNDS]
+    if non_supportive:
+        candidates = non_supportive
+
+    # Step 3: supportive-context phrase filter. If the hypothesis names
+    # phrases that indicate adjunctive use, drop allowlist supportives
+    # from the candidates regardless of which step they survived.
+    if any(phrase in hypothesis for phrase in _SUPPORTIVE_CONTEXT_PHRASES):
+        non_supportive = [c for c in candidates if c not in _COMMONLY_SUPPORTIVE_COMPOUNDS]
+        if non_supportive:
+            candidates = non_supportive
+
+    return candidates
 
 
 async def seed_responds_differently_from_extractions(

@@ -32,8 +32,8 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 
 ## Tier 6 — Emergent (surfaced by round 3.3 verification)
 
-- [ ] **15. Reactome biology-pathway fan-out (`_BIOLOGY_PATHWAY_CAP=3`) multiplies chain counts ~3×.** Each (intervention, target, mechanism) tuple gets up to 3 Reactome pathways as distinct BiologyNodes, so each (arm, population, endpoint) cell produces 3 chains rather than 1. For NCT01844505: 7 cells × 3 pathways = 24 chains (would be 8 at cap=1). The cap is defensible — Reactome pathways are real biological hypotheses, and per-pathway chains let us learn "PD-1 signaling effect" vs "T-cell-receptor signaling effect" separately — but it's the dominant chain-count multiplier corpus-wide. Decision needed: keep cap=3 (per-pathway hypothesis), drop to cap=1 (single biology node per target+mechanism), or make adaptive (cap=1 when fewer than N trials in the corpus, cap=3 once cross-pathway evidence is informative).
-- [ ] **16. Primary heuristic misses regimens where the hypothesis text names supportive drugs.** NCT00670748's hypothesis = "Anti-NY ESO-1 T-cell receptor PBL + aldesleukin + cyclophosphamide + fludarabine" — Sonnet phrased the regimen with `+` separators listing all four compounds, so the round-3.3 heuristic flagged aldesleukin (IL-2 cytokine support), cyclophosphamide (lymphodepletion), and fludarabine (lymphodepletion) as primary alongside the actual TCR-T product. Result: 32 chains where 8 would be correct. Fixes (in order of cleanness): (a) extraction-side schema change adding `primary_compounds: list[str]` and `supportive_compounds: list[str]` to `therapeutic_hypothesis`; (b) context-aware pattern recognizer for "with lymphodepletion", "with cytokine support", "preconditioning", etc.; (c) hand-curated "commonly supportive" allowlist (cyclophosphamide, fludarabine, aldesleukin in cell-therapy contexts).
+- [x] **15. Reactome biology-pathway fan-out (`_BIOLOGY_PATHWAY_CAP=3`) multiplies chain counts ~3×.** _Closed: round 3.4. Dropped cap to 1; full Reactome pathway list preserved as `pathway_ids` metadata on the BiologyNode for cross-pathway query later. NCT01844505: 24 → 8 chains. Corpus-wide chains 829 → 363 (−56%); BiologyNodes 149 → 107. Re-splitting per pathway is round 4.0 work (when pathway-level biomarker data starts to discriminate)._
+- [x] **16. Primary heuristic misses regimens where the hypothesis text names supportive drugs.** _Closed: round 3.4. Added `_COMMONLY_SUPPORTIVE_COMPOUNDS` allowlist (lymphodepletion chemo, cytokine support, common adjuvants) + `_SUPPORTIVE_CONTEXT_PHRASES` ("with lymphodepletion", "with cytokine support", "preconditioning", etc.) — both demote candidates only when at least one non-supportive primary survives, so cyclophosphamide-as-monotherapy trials aren't silenced. NCT00670748: 32 → 4 chains, 4/4 covered. Full extractor-side `primary_compounds` / `supportive_compounds` schema change deferred to round 4.0._
 
 ## Tier 5 — Emergent (surfaced by round 3.1 verification)
 
@@ -52,5 +52,6 @@ Persistent tracker for issues surfaced by the iterative audit cycle. Updated as 
 | 3.1 (5 round-3 priorities) | **#3, #4, #5, #12** closed; #2 partial (folded into #14) |
 | 3.2 (planned: dev-log cleanup) | #6, #7, #8 |
 | 3.3 (Intervention rename + primary filter) | **#14** closed; **#13** partial (4 non-drug trials still chainless until non-drug edge semantics ship) |
-| 3.4 (planned: round-3.3 emergent) | #15, #16 |
+| 3.4 (pathway-cap collapse + primary heuristic upgrade) | **#15, #16** closed |
+| 4.0 (planned: sequential hypothesis chains — `audit/round_4_design.md`) | architecture pass; addresses #13 fully + makes supportive-chain learning first-class |
 | Future (multi-indication scaling) | #9, #10, #11 |

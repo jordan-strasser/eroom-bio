@@ -381,6 +381,54 @@ class TestIdentifyPrimaryInterventions:
         ext = self._make_extraction("Something completely unrelated")
         assert _identify_primary_intervention_ids(arms, ext) == []
 
+    def test_supportive_allowlist_drops_lymphodepletion_chemo(self):
+        """NCT00670748-shaped case: hypothesis names supportive drugs
+        alongside the investigational TCR-T product via `+` separators
+        ('Anti-NY ESO-1 TCR PBL + aldesleukin + cyclophosphamide +
+        fludarabine'). All 4 appear in the hypothesis text, but only
+        the TCR-T is being investigated — the rest are supportive."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([[
+            "anti_ny_eso_1_t_cell_receptor_pbl",
+            "aldesleukin",
+            "cyclophosphamide",
+            "fludarabine_phosphate",
+        ]])
+        ext = self._make_extraction(
+            "Anti-NY ESO-1 T-cell receptor PBL + aldesleukin + "
+            "cyclophosphamide + fludarabine"
+        )
+        primaries = _identify_primary_intervention_ids(arms, ext)
+        # Only the TCR-T survives; supportives are demoted.
+        assert primaries == ["anti_ny_eso_1_t_cell_receptor_pbl"]
+
+    def test_supportive_context_phrase_demotes_named_supportives(self):
+        """When the hypothesis says 'with lymphodepletion' or similar,
+        even supportive compounds outside the allowlist get demoted."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([[
+            "investigational_drug",
+            "aldesleukin",
+        ]])
+        ext = self._make_extraction("Investigational Drug with cytokine support (aldesleukin)")
+        primaries = _identify_primary_intervention_ids(arms, ext)
+        assert primaries == ["investigational_drug"]
+
+    def test_supportive_only_trial_keeps_allowlist_compound_as_primary(self):
+        """Edge case: a trial where the ONLY drug is on the
+        commonly-supportive list (e.g. a cyclophosphamide-as-
+        monotherapy lymphoma trial). Without the safety check, the
+        allowlist would silently filter every candidate. We keep the
+        candidate when no non-supportive alternative exists."""
+        from src.graph.populate import _identify_primary_intervention_ids
+        arms = self._make_arms([["cyclophosphamide"]])
+        ext = self._make_extraction("Cyclophosphamide for lymphoma")
+        primaries = _identify_primary_intervention_ids(arms, ext)
+        # Cyclophosphamide is on the allowlist but no other candidate
+        # was matched, so the allowlist override doesn't fire and the
+        # trial isn't silenced.
+        assert primaries == ["cyclophosphamide"]
+
 
 # ── Indication slug normalization ────────────────────────────────────────
 
