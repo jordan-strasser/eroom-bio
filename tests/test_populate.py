@@ -664,3 +664,78 @@ class TestBuildTrialSubgraphFromExtraction:
         assert other_pops == []
         # Only the parent-population fan: 1 arm × 1 endpoint = 1 chain.
         assert len(ts.chains) == 1
+
+    def test_skips_subgroup_when_only_feature_is_response_axis(self, graph):
+        """RECIST response strata (CR / PR / SD / PD) are outcome
+        stratifiers, not patient strata — they describe how subgroups
+        responded post-treatment, not who was enrolled. Forking the
+        arm × population matrix across them creates one chain per
+        response category × per arm with no a-priori meaning, and
+        none of them get classifier updates. Drop those subgroups
+        from the chain fan-out; the trial-level chain still carries
+        the real result.
+        """
+        from src.annotation.taxonomy import (
+            ExtractedArm, ExtractedSubgroup, TrialExtraction,
+        )
+        from src.graph.models import (
+            BiologyNode, MechanismNode, MechanismType,
+            EndpointNode, EndpointType, RegulatoryStatus,
+            IndicationNode, CompoundNode, Modality, TargetNode,
+        )
+
+        trial = TrialRecord(
+            nct_id="NCT_RESP", title="ResponseOnly", phase="2", status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=[Intervention(name="Nivolumab", type="BIOLOGICAL")],
+            primary_outcomes=[OutcomeMeasure(measure="Overall Survival")],
+            arm_groups=[
+                ArmGroup(group_id="A1", title="Mono", intervention_names=["Nivolumab"]),
+            ],
+        )
+        graph.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        graph.add_node(TargetNode(id="ENSG_PD1", name="PD-1", gene_symbol="PD-1"))
+        graph.add_node(MechanismNode(id="cb", name="cb", mechanism_type=MechanismType.ANTAGONISM))
+        graph.add_node(BiologyNode(id="bio", name="bio"))
+        graph.add_node(EndpointNode(
+            id="OS_mel", name="OS",
+            endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+
+        extraction = TrialExtraction(
+            trial_id="NCT_RESP",
+            arms=[ExtractedArm(arm_id="A1", compounds=["Nivolumab"])],
+            subgroups=[
+                ExtractedSubgroup(
+                    raw_descriptor="Complete Response",
+                    features=[{"axis": "response", "key": "", "level": "complete_response"}],
+                ),
+                # Stale-cache variant: axis="other" but RECIST level — should
+                # auto-promote in canonicalize_feature and be skipped here.
+                ExtractedSubgroup(
+                    raw_descriptor="Progressive Disease",
+                    features=[{"axis": "other", "key": "", "level": "progressive_disease"}],
+                ),
+            ],
+            results_by_chain=[],
+        )
+
+        ts = build_trial_subgraph_from_extraction(
+            graph, trial, extraction,
+            target_by_arm={"A1": "ENSG_PD1"},
+            mechanism_id="cb",
+            biology_id="bio",
+            indication_id="melanoma",
+            endpoint_ids={"OS": "OS_mel"},
+        )
+
+        # Only the parent-population chain — no response-strata forks.
+        assert len(ts.chains) == 1
+        assert ts.chains[0].subgroup_population_id == "melanoma__unselected"
+        # And no melanoma__response_* PopulationNode created.
+        response_pops = [
+            n for n in graph._graph.nodes
+            if isinstance(n, str) and "__response_" in n
+        ]
+        assert response_pops == []

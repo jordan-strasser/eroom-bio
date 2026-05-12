@@ -131,6 +131,16 @@ def canonicalize_feature(
     axis = _normalize_axis_token(axis_raw)
     level = _normalize_level_token(level_raw)
 
+    # Self-heal stale axis labels. Older cached extractions (and Sonnet's
+    # occasional miscategorization) emit RECIST states with axis="other" or
+    # blank. Promote those to axis="response" when the level matches a
+    # known response category — same effect as fresh extraction under the
+    # current prompt, no re-extraction cost.
+    if axis in ("", "other"):
+        response_aliases = NON_GENE_AXES["response"]
+        if level in response_aliases or level in _RESPONSE_ALIASES:
+            axis = "response"
+
     if axis == "gene":
         # Variant tokens are case-sensitive; normalize the input but accept
         # the canonical "G12C"/"V600E" capitalization.

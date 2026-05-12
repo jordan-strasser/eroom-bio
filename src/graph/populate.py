@@ -1967,6 +1967,17 @@ def build_trial_subgraph_from_extraction(
             feats.append(cf)
         if not any(is_canonical(f) for f in feats):
             continue
+        # Response-axis features (CR/PR/SD/PD) are outcome stratifiers,
+        # not patient strata — they describe what happened to subgroups
+        # of patients post-treatment, so they shouldn't fork the trial's
+        # arm × population chain matrix. Drop subgroups whose only
+        # canonical features are response-axis; keep them when paired
+        # with a patient-stratifying axis (gene, line, biomarker).
+        if all(
+            (not is_canonical(f)) or f.axis == "response"
+            for f in feats
+        ):
+            continue
         subgroup_features_by_descriptor[sg.raw_descriptor] = feats
         pop_id = PopulationNode.compose_id(indication_id, feats)
         try:
@@ -2229,6 +2240,14 @@ async def seed_responds_differently_from_extractions(
                 continue
             # Drop subgroups whose features all canonicalize to "other".
             if not any(is_canonical(f) for f in features):
+                continue
+            # Response-axis features (CR/PR/SD/PD) are outcome stratifiers,
+            # not patient strata — they describe what happened to subgroups
+            # of patients post-treatment, so they shouldn't fork chains.
+            if all(
+                (not is_canonical(f)) or f.axis == "response"
+                for f in features
+            ):
                 continue
             pop_id = PopulationNode.compose_id(indication_id, features)
             try:

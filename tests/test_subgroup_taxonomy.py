@@ -148,6 +148,21 @@ class TestResponseAxis:
         f = canonicalize_feature("response", "", "CR", "Complete Response")
         assert f.slug() == "response_complete_response"
 
+    @pytest.mark.parametrize("stale_axis", ["other", "", "  ", "OTHER"])
+    @pytest.mark.parametrize("level_in", [
+        "complete_response", "partial_response", "stable_disease",
+        "progressive_disease", "CR", "PR", "SD", "PD",
+    ])
+    def test_stale_axis_other_promotes_to_response(self, stale_axis, level_in):
+        """Cached extractions emitted RECIST states with axis='other' before
+        the response-axis prompt rule was added. Auto-promote so the dev log
+        doesn't fill with re-mappable noise and the populator can treat them
+        as response strata (and skip chain-forking on them per the patient-
+        strata rule)."""
+        f = canonicalize_feature(stale_axis, "", level_in, "Best response")
+        assert f.axis == "response"
+        assert is_canonical(f)
+
 
 # ── Slug rendering (used to compose PopulationNode ids) ─────────────────
 
