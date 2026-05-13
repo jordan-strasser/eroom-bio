@@ -1,18 +1,52 @@
 {
   "nct_id": "NCT03618641",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm TLR9 or PD-1 engagement. However, the combination includes nivolumab (established PD-1 inhibitor) and CMP-001 (TLR9 agonist), suggesting likely target engagement based on known pharmacology. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm immune activation or T-cell priming changes. 3. CLINICAL TRANSLATION: Primary endpoint (Major Pathologic Response Rate) was met with 14/30 patients (46.7%) achieving MPR. This is a clinically meaningful response rate for neoadjuvant melanoma therapy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm design limits interpretation, but the MPR rate appears favorable compared to historical controls. Safety profile shows various serious adverse events at low incidence (2.9% each), consistent with immune activation and checkpoint inhibition.",
-  "failure_modes": [],
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm TLR9 or PD-1 engagement, but the combination achieved the primary endpoint suggesting biological activity. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the achievement of major pathologic response (46.7% MPR rate) in a single-arm neoadjuvant setting suggests downstream immune activation occurred. 3. CLINICAL TRANSLATION: Primary endpoint was met with 14/30 patients (46.7%) achieving major pathologic response, which is clinically meaningful for neoadjuvant melanoma therapy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm design limits interpretation, but the MPR rate appears favorable compared to historical controls for this indication.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.3,
+      "evidence": "No biomarker data to confirm target engagement or pathway modulation, single-arm design limits definitive efficacy assessment"
+    }
+  ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "biomarker_lymph_node_cancer",
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "moderate_support",
+      "reasoning": "Primary endpoint achieved suggesting nivolumab engaged PD-1, though no direct biomarker confirmation"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "reasoning": "Clinical response achieved consistent with checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "reasoning": "MPR achievement suggests checkpoint blockade pathway was activated"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
       "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "MPR endpoint achieved 46.7% response rate in single-arm neoadjuvant melanoma trial. MPR is an accepted surrogate for clinical benefit in neoadjuvant melanoma, though single-arm design limits strength of evidence."
+      "reasoning": "46.7% MPR rate supports that PD-1 co-inhibition biology drives melanoma pathogenesis"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_lymphoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "reasoning": "Major pathologic response is an established surrogate endpoint for clinical benefit in neoadjuvant melanoma"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design with no biomarker data for target engagement assessment. Classification based solely on endpoint result without mechanistic confirmation."
+  "review_reason": "Single-arm design with no biomarker data limits mechanistic interpretation, though clinical endpoint was achieved"
 }
