@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -368,10 +369,15 @@ def _strip_trial_evidence(graph: GraphStore, nct_id: str) -> GraphStore:
         },
     })
     clone = GraphStore()
-    tmp = Path("/tmp") / f"_inspect_strip_{nct_id}.json"
-    tmp.write_text(snap_text)
-    clone.import_snapshot(str(tmp))
-    tmp.unlink(missing_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=f"_inspect_strip_{nct_id}.json", delete=False
+    ) as fh:
+        fh.write(snap_text)
+        tmp_path = fh.name
+    try:
+        clone.import_snapshot(tmp_path)
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
 
     for u, v, key, data in clone._graph.edges(data=True, keys=True):
         belief_data = data.get("belief") or {}
