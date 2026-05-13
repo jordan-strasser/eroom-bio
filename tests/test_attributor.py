@@ -16,11 +16,11 @@ from pathlib import Path
 
 import pytest
 
+from src.annotation import attributor as _attributor_module
 from src.annotation.attributor import (
     AppliedEdgeUpdate,
     Attributor,
     _PHASE_TO_EVIDENCE,
-    _UNROUTED_LOG_PATH,
     _norm_name,
 )
 from src.annotation.taxonomy import (
@@ -129,15 +129,13 @@ def _make_classification(raw_edges: list[dict]) -> FailureClassification:
 
 
 @pytest.fixture(autouse=True)
-def _clean_unrouted_log():
-    """Wipe the unrouted-attribution audit log between tests so each
-    test sees only its own emissions.
+def _isolated_unrouted_log(tmp_path, monkeypatch):
+    """Redirect the unrouted-attribution audit log to a per-test tmp
+    file so tests never read or unlink the real `data/dev/...jsonl`.
     """
-    if _UNROUTED_LOG_PATH.exists():
-        _UNROUTED_LOG_PATH.unlink()
-    yield
-    if _UNROUTED_LOG_PATH.exists():
-        _UNROUTED_LOG_PATH.unlink()
+    log_path = tmp_path / "unrouted_attribution_updates.jsonl"
+    monkeypatch.setattr(_attributor_module, "_UNROUTED_LOG_PATH", log_path)
+    yield log_path
 
 
 # ── Phase mapping (preserved from original test) ────────────────────────
@@ -226,9 +224,10 @@ class TestChainAwareRouting:
         ])
         updates = Attributor(g).attribute(clf, ts)
         assert updates == []
-        assert _UNROUTED_LOG_PATH.exists()
+        assert _attributor_module._UNROUTED_LOG_PATH.exists()
         records = [
-            json.loads(line) for line in _UNROUTED_LOG_PATH.read_text().splitlines()
+            json.loads(line)
+            for line in _attributor_module._UNROUTED_LOG_PATH.read_text().splitlines()
         ]
         hallucinations = [r for r in records if r["source_entity"] == "Pembrolizumab"]
         assert hallucinations, "expected the off-trial entity to be logged"
@@ -280,7 +279,8 @@ class TestChainAwareRouting:
         updates = Attributor(g).attribute(clf, ts)
         assert updates == []
         records = [
-            json.loads(line) for line in _UNROUTED_LOG_PATH.read_text().splitlines()
+            json.loads(line)
+            for line in _attributor_module._UNROUTED_LOG_PATH.read_text().splitlines()
         ]
         assert records
         assert all(r["reason"] == "no_chain_match" for r in records)
