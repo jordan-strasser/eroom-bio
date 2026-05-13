@@ -163,6 +163,7 @@ async def fetch_trials(
     include_terminated: bool,
     corpus_path: Path | None = None,
     corpus_concurrency: int = 8,
+    include_ncts: list[str] | None = None,
 ) -> list[TrialRecord]:
     """Fetch trials from CT.gov, with optional frozen-corpus support.
 
@@ -185,6 +186,35 @@ async def fetch_trials(
         console.print(
             f"  loading frozen corpus from {corpus_path} ({len(nct_ids)} ids)"
         )
+        if include_ncts:
+            corpus_set = set(nct_ids)
+            missing = [n for n in include_ncts if n not in corpus_set]
+            if missing:
+                raise SystemExit(
+                    f"--include lists {len(missing)} NCT id(s) not in corpus "
+                    f"{corpus_path.name}: {missing}"
+                )
+            if max_trials and len(include_ncts) > max_trials:
+                raise SystemExit(
+                    f"--include lists {len(include_ncts)} NCT ids but "
+                    f"--max-trials is {max_trials}; raise --max-trials or "
+                    f"shorten --include."
+                )
+            # Place included ids first (preserving include order), then the
+            # rest of the corpus in its original order. The downstream
+            # truncation to max_trials is then guaranteed to retain the
+            # included set.
+            include_order = {n: i for i, n in enumerate(include_ncts)}
+            nct_ids = sorted(
+                nct_ids,
+                key=lambda n: (
+                    0 if n in include_order else 1,
+                    include_order.get(n, 0),
+                ),
+            )
+            console.print(
+                f"  --include pinned {len(include_ncts)} NCT ids to the head of the slice"
+            )
         sem = asyncio.Semaphore(corpus_concurrency)
 
         async def _one(nct_id: str) -> TrialRecord | None:
@@ -298,6 +328,7 @@ async def main(
     area: str,
     keep_annotations: bool = False,
     corpus: str | None = None,
+    include_ncts: list[str] | None = None,
 ) -> None:
     console.rule(
         f"[bold]Rebuilding graph: condition={condition!r}, n={max_trials}"
@@ -305,16 +336,36 @@ async def main(
         + "[/bold]"
     )
 
-    console.print("[bold]Step 0:[/bold] wiping prior outputs")
-    wipe_outputs(area, keep_annotations=keep_annotations)
-
     initial_path = EXPORTS_DIR / f"{area}_initial.json"
     annotated_path = EXPORTS_DIR / f"{area}_annotated.json"
     corpus_path = (CORPORA_DIR / f"{corpus}.txt") if corpus else None
 
+    # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
+    # combo nukes data/annotations/ on its way to the SystemExit.
+    if include_ncts and corpus_path is None:
+        raise SystemExit("--include requires --corpus (frozen-corpus path only).")
+    if include_ncts and corpus_path is not None and corpus_path.exists():
+        corpus_ids = set(load_corpus(corpus_path))
+        missing = [n for n in include_ncts if n not in corpus_ids]
+        if missing:
+            raise SystemExit(
+                f"--include lists {len(missing)} NCT id(s) not in corpus "
+                f"{corpus_path.name}: {missing}"
+            )
+        if max_trials and len(include_ncts) > max_trials:
+            raise SystemExit(
+                f"--include lists {len(include_ncts)} NCT ids but "
+                f"--max-trials is {max_trials}; raise --max-trials or "
+                f"shorten --include."
+            )
+
+    console.print("[bold]Step 0:[/bold] wiping prior outputs")
+    wipe_outputs(area, keep_annotations=keep_annotations)
+
     console.rule("[bold]Step 1: fetch trials[/bold]")
     trials = await fetch_trials(
         condition, max_trials, include_terminated, corpus_path=corpus_path,
+        include_ncts=include_ncts,
     )
     if not trials:
         console.print("[red]No trials fetched. Aborting.[/red]")
@@ -427,7 +478,16 @@ if __name__ == "__main__":
              "If absent, runs the standard search and saves the result "
              "for future runs.",
     )
+    parser.add_argument(
+        "--include", default="",
+        help="Comma-separated NCT ids that must appear in the slice "
+             "(e.g. the standard inspection set). The included ids are "
+             "placed at the head of the corpus order so they survive the "
+             "--max-trials cap. Requires --corpus and all ids must be "
+             "present in the corpus file.",
+    )
     args = parser.parse_args()
+    include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     asyncio.run(main(
@@ -438,4 +498,5 @@ if __name__ == "__main__":
         concurrency=args.concurrency,
         area=args.area,
         corpus=args.corpus,
+        include_ncts=include_ncts or None,
     ))

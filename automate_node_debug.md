@@ -35,12 +35,15 @@ Each iteration is called a **round**. After round N completes (`fixes_roundN.md`
 ### 1. Build the graph
 
 ```bash
-python scripts/build_graph.py --corpus <CORPUS> --max-trials <N> --keep-annotations
+python scripts/build_graph.py --corpus <CORPUS> --max-trials <N> \
+    --include <NCT_A>,<NCT_B>,<NCT_C>,<NCT_D> \
+    --keep-annotations
 ```
 
 - `--corpus <CORPUS>` pins a frozen NCT id list so successive runs are reproducible. The file at `data/corpora/<CORPUS>.txt` is the source of truth for which trials this corpus contains.
 - `--max-trials <N>` caps how many of those trials are processed per build. **The exact number is not significant**; pick a value that makes the build fast enough that audit cadence is the bottleneck, not build time. Bigger numbers exercise more diversity at the cost of slower iteration.
   - **Be conservative with `--max-trials` during the debug loop.** This playbook is meant to run many rounds, and each round costs real Sonnet/Haiku tokens for any trial that needs (re-)annotation. Default to a small N (e.g. `--max-trials 10`) for intermediate verification builds; reserve larger N for round closeout or when you specifically need more archetype diversity than the small slice provides. Treat re-builds the same way: only rebuild when there's a concrete reason (prompt change, fix to verify, KPI check), not as a routine "let's see what it looks like now."
+- `--include <NCT_IDS>` pins the standard inspection set (or any other must-have NCTs) to the head of the corpus order so they survive the `--max-trials` cap. Without this, `--max-trials 10` just slices the first 10 ids alphabetically — and the round-over-round diff anchor (the standard set) won't be in the slice. Pair `--include` with the standard inspection set listed in "Current configuration" below.
 - `--keep-annotations` reuses cached Sonnet `_extraction.json` / `_classification.json`. **If you changed a classifier or extractor prompt, you must delete the affected cache files first** (see "Targeted re-classification" below) — otherwise the new prompt isn't being tested.
 - Watch the tail of the build output. The chain-coverage line is the headline KPI:
 
