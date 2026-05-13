@@ -194,13 +194,36 @@ def _describe_mechanism(node_id: str) -> str:
     return f"LLM inference → MechanismCategory.{node_id.upper()}"
 
 
-def _describe_biology(node_id: str) -> str:
-    if node_id.startswith("R-"):
-        return "Reactome stable id (LINCS/OT pathway resolution)"
-    if "__" in node_id:
-        return "synthetic '{mechanism}__{indication}' slug fallback (no Reactome match)"
+def _describe_biology(node_id: str, graph: GraphStore | None = None) -> str:
+    """One-line provenance summary for the chain's biology id.
+
+    When a graph is provided, looks up the BiologyNode to surface the
+    Reactome display name and the count of pathway_ids stored in
+    metadata — those are the round-3.4 "richer biology" outputs the
+    Reactome resolver attaches but that the bare id obscures. Without
+    a graph we fall back to id-shape inference.
+    """
     if node_id == "UNKNOWN":
         return "unresolved"
+
+    name = ""
+    extra_pathways = 0
+    if graph is not None:
+        try:
+            node = graph.get_node(node_id)
+            name = node.get("name") or ""
+            pathway_ids = node.get("pathway_ids") or []
+            extra_pathways = max(0, len(pathway_ids) - 1)
+        except KeyError:
+            pass
+
+    if node_id.startswith("R-"):
+        if name:
+            tail = f" (+ {extra_pathways} more Reactome pathway(s) in metadata)" if extra_pathways else ""
+            return f"Reactome: {name}{tail}"
+        return "Reactome stable id (LINCS/OT pathway resolution)"
+    if "__" in node_id:
+        return "synthetic '{mechanism}__{indication}' fallback (Reactome had no match)"
     return "unknown id form"
 
 
@@ -250,7 +273,7 @@ def section_node_mapping(graph: GraphStore, nct_id: str) -> TrialSubgraph | None
         table.add_row("compound_id", c.compound_id, "from arm.regimen_compound_id")
         table.add_row("target_id", c.target_id, _describe_target(c.target_id))
         table.add_row("mechanism_id", c.mechanism_id, _describe_mechanism(c.mechanism_id))
-        table.add_row("biology_id", c.biology_id, _describe_biology(c.biology_id))
+        table.add_row("biology_id", c.biology_id, _describe_biology(c.biology_id, graph))
         table.add_row("indication_id", c.indication_id, "lowercased MeSH-like slug from CT.gov condition")
         table.add_row("endpoint_id", c.endpoint_id, _describe_endpoint(c.endpoint_id))
         table.add_row("population_id", c.subgroup_population_id, _describe_population(c.subgroup_population_id))
