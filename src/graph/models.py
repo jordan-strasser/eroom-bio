@@ -527,23 +527,18 @@ class CausalChain(BaseModel):
 class TrialSubgraph(BaseModel):
     """All chains a single trial contributes to the graph.
 
-    A trial produces N arms × M reported subgroups × E endpoints chains,
-    but ONLY for primary investigational interventions. Supportive
-    interventions (preconditioning, premedication, growth factors) live
-    on the arms — they accumulate AE evidence and appear in queries —
-    but don't fan out their own causal-chain backbones.
-
-    ``primary_intervention_ids`` is the trial-level set of intervention
-    ids being investigated. Chains are built only for compounds in this
-    set. Empty means "all are primary" (back-compat for trials without
-    extraction context).
+    A trial produces N arms × M reported subgroups × E endpoints chains;
+    every constituent compound of every arm fans out a chain. Whether a
+    compound is "primary" vs supportive in a clinical sense isn't
+    represented here — that distinction needs explicit extractor-side
+    schema (primary_compounds / supportive_compounds lists from the LLM)
+    rather than a populator-side heuristic.
     """
     trial_id: str = Field(min_length=1)
     phase: str = ""
     arms: list[TrialArm] = Field(default_factory=list)
     chains: list[CausalChain] = Field(default_factory=list)
     parent_population_id: str = Field(min_length=1)
-    primary_intervention_ids: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

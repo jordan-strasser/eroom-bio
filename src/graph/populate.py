@@ -1219,14 +1219,6 @@ class PopulationPipeline:
                 key = f"{chain.arm_id}::{chain.subgroup_population_id}::{chain.endpoint_id}"
                 seen_cells.setdefault(key, []).append(chain)
 
-            # Filter to primary investigational interventions only.
-            # Supportive constituents (preconditioning chemo, growth-factor
-            # support, premedications) don't get their own causal-chain
-            # backbones — the trial isn't testing whether they modulate
-            # the indication. Empty primary_intervention_ids = "no info,
-            # chain everything" (back-compat fallback).
-            primary_ids = set(ts.primary_intervention_ids or [])
-
             new_chains: list[CausalChain] = []
             for cell_key, cell_chains in seen_cells.items():
                 # Use the first chain in the cell as the template for fields
@@ -1241,14 +1233,6 @@ class PopulationPipeline:
                 if not entries:
                     new_chains.extend(cell_chains)
                     continue
-                if primary_ids:
-                    entries = [e for e in entries if e["compound_id"] in primary_ids]
-                    if not entries:
-                        # Arm contains no primary intervention (rare — a
-                        # placebo-only or pure-supportive arm). Keep the
-                        # template chain so the arm is still represented.
-                        new_chains.extend(cell_chains)
-                        continue
                 for entry in entries:
                     md = dict(template.metadata)
                     md["regimen_id"] = arm.regimen_compound_id
@@ -2204,14 +2188,12 @@ def build_trial_subgraph_from_extraction(
                     metadata={"endpoint_class": ep_class},
                 ))
 
-    primary_ids = _identify_primary_intervention_ids(arms, extraction)
     ts = TrialSubgraph(
         trial_id=trial.nct_id,
         phase=trial.phase or "",
         arms=arms,
         chains=chains,
         parent_population_id=parent_pop_id,
-        primary_intervention_ids=primary_ids,
         metadata={
             "title": trial.title,
             "status": trial.status,
@@ -2220,137 +2202,6 @@ def build_trial_subgraph_from_extraction(
     )
     graph.set_trial_subgraph(ts)
     return ts
-
-
-# Compounds that almost always serve a supportive role in oncology trials
-# (lymphodepletion preconditioning for cell therapy, cytokine support,
-# common premedications, adjuvants). Listed by canonical slug. Used as a
-# tiebreaker when the extraction hypothesis text names a supportive drug
-# alongside the investigational compound — without this list, regimens
-# phrased as "TCR-T + cyclophosphamide + fludarabine + IL-2" would mark
-# all four as primary.
-#
-# Not a perfect proxy — cyclophosphamide IS the investigational drug in
-# some lymphoma trials. The override only kicks in when (a) the compound
-# is on this list AND (b) at least one *non*-supportive compound was
-# also matched, so a true cyclophosphamide-as-monotherapy trial isn't
-# silently filtered down to zero primaries.
-_COMMONLY_SUPPORTIVE_COMPOUNDS: frozenset[str] = frozenset({
-    # Lymphodepletion / preconditioning chemo
-    "cyclophosphamide",
-    "fludarabine",
-    "fludarabine_phosphate",
-    "busulfan",
-    "melphalan",
-    # Cytokine support
-    "aldesleukin",       # IL-2
-    "interleukin_2",
-    "interleukin_15",
-    "filgrastim",        # G-CSF
-    "pegfilgrastim",
-    "sargramostim",      # GM-CSF
-    "erythropoietin",
-    "epoetin_alfa",
-    # Common adjuvants / vehicles for vaccine trials
-    "montanide",
-    "montanide_isa_51",
-    "incomplete_freund_s_adjuvant",
-    "ifa",
-    "gm_csf",
-})
-
-
-# Lowercase substrings in the hypothesis text that signal a supportive
-# context — when a compound is named in conjunction with one of these
-# phrases, lean toward marking it supportive even if it's not in the
-# allowlist above.
-_SUPPORTIVE_CONTEXT_PHRASES: tuple[str, ...] = (
-    "with lymphodepletion",
-    "after lymphodepletion",
-    "following lymphodepletion",
-    "with preconditioning",
-    "after preconditioning",
-    "with conditioning",
-    "with cytokine support",
-    "with growth factor",
-    "premedication",
-    "as premedication",
-    "preceded by",
-    "concurrent with",
-)
-
-
-def _identify_primary_intervention_ids(
-    arms: list[TrialArm], extraction: Any,
-) -> list[str]:
-    """Pick the primary investigational intervention ids for a trial.
-
-    Heuristic, in order:
-      1. A compound is a candidate primary if its name (or a
-         substantive word from its slug) appears in extraction's
-         ``therapeutic_hypothesis.compound`` text.
-      2. If candidates include any compound in
-         ``_COMMONLY_SUPPORTIVE_COMPOUNDS`` AND at least one
-         non-supportive candidate, drop the supportive ones —
-         lymphodepletion / cytokine support / premeds get demoted.
-      3. If the hypothesis text contains a
-         ``_SUPPORTIVE_CONTEXT_PHRASES`` marker ("with
-         lymphodepletion", "with cytokine support", etc.) AND at least
-         one non-supportive candidate, demote all
-         ``_COMMONLY_SUPPORTIVE_COMPOUNDS`` from the candidates even if
-         the substring matched.
-
-    Empty result means "all compounds are primary" (conservative
-    fallback when extraction context is missing or the hypothesis text
-    yields no matches at all). Returning an empty list lets downstream
-    chain fan-out chain every constituent.
-
-    The full extractor-side schema change (split
-    ``therapeutic_hypothesis`` into ``primary_compounds`` /
-    ``supportive_compounds`` lists) is round 4.0 work — this is the
-    cheaper heuristic stopgap.
-    """
-    if not arms:
-        return []
-    hypothesis = (extraction.compound_name or "").strip().lower()
-    if not hypothesis:
-        return []  # no signal → default to chain everything
-
-    all_compound_ids: list[str] = []
-    for arm in arms:
-        for cid in arm.compound_ids:
-            if cid not in all_compound_ids:
-                all_compound_ids.append(cid)
-
-    # Step 1: candidates by hypothesis substring match.
-    candidates: list[str] = []
-    for cid in all_compound_ids:
-        words = [w for w in cid.split("_") if len(w) > 3 and not w.isdigit()]
-        if not words:
-            if cid.replace("_", " ") in hypothesis or cid in hypothesis:
-                candidates.append(cid)
-            continue
-        if any(w in hypothesis for w in words):
-            candidates.append(cid)
-
-    if not candidates:
-        return []
-
-    # Step 2: filter out commonly-supportive compounds when at least one
-    # non-supportive candidate exists.
-    non_supportive = [c for c in candidates if c not in _COMMONLY_SUPPORTIVE_COMPOUNDS]
-    if non_supportive:
-        candidates = non_supportive
-
-    # Step 3: supportive-context phrase filter. If the hypothesis names
-    # phrases that indicate adjunctive use, drop allowlist supportives
-    # from the candidates regardless of which step they survived.
-    if any(phrase in hypothesis for phrase in _SUPPORTIVE_CONTEXT_PHRASES):
-        non_supportive = [c for c in candidates if c not in _COMMONLY_SUPPORTIVE_COMPOUNDS]
-        if non_supportive:
-            candidates = non_supportive
-
-    return candidates
 
 
 async def seed_responds_differently_from_extractions(
@@ -2469,40 +2320,6 @@ async def seed_responds_differently_from_extractions(
             ts = graph.get_trial_subgraph_by_id(nct_id)
         except KeyError:
             continue
-
-        # Set primary_intervention_ids on the subgraph from the
-        # extraction's therapeutic_hypothesis.compound text, and prune
-        # the per-constituent chains to drop supportive infrastructure
-        # (preconditioning chemo, growth factors, premeds). The
-        # per-constituent rebuild ran upstream during populate (Step 2)
-        # without extraction context, so it created chains for every
-        # arm constituent. Now that we know which were investigational,
-        # filter post-hoc.
-        hypothesis_compound = (
-            data.get("therapeutic_hypothesis", {}).get("compound", "")
-        )
-        if hypothesis_compound and ts.arms and not ts.primary_intervention_ids:
-            primary_ids = _identify_primary_intervention_ids(
-                ts.arms,
-                type("_ExtStub", (), {"compound_name": hypothesis_compound})(),
-            )
-            if primary_ids:
-                primary_set = set(primary_ids)
-                pruned_chains = [
-                    c for c in ts.chains if c.compound_id in primary_set
-                ]
-                # Sanity: don't strip chains for an arm whose only
-                # constituent is supportive (rare; keep template chain).
-                if pruned_chains:
-                    ts = ts.model_copy(update={
-                        "primary_intervention_ids": primary_ids,
-                        "chains": pruned_chains,
-                    })
-                else:
-                    ts = ts.model_copy(update={
-                        "primary_intervention_ids": primary_ids,
-                    })
-                graph.set_trial_subgraph(ts)
 
         if not ts.chains:
             continue
