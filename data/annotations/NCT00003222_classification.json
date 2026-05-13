@@ -1,54 +1,61 @@
 {
   "nct_id": "NCT00003222",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial showed evidence of target engagement through immune responses detected by ELISPOT in PBMC and sentinel nodes. The GMCSF arm demonstrated superior immune responses in sentinel nodes (8/13 vs 1/13, p=0.004), indicating the vaccine successfully engaged melanoma-associated antigens and induced tumor-specific immunity. 2. PATHWAY MODULATION: The downstream biology was partially modulated - the GMCSF arm showed significant immune activation in sentinel nodes and moderate responses in PBMC (5/13 vs 1/13), demonstrating that the immune costimulation mechanism was activated. 3. CLINICAL TRANSLATION: Despite biological activity, clinical endpoints were poor. The DC arm had only 1/13 PR and 1/13 SD (15% response rate), while the GMCSF arm had 2/13 PR and 2/13 SD (31% response rate). Neither arm achieved clinically meaningful response rates for advanced melanoma. 4. POPULATION EFFECTS: The GMCSF formulation showed superior immune responses compared to DC-pulsed peptides, suggesting formulation matters, but overall clinical benefit remained limited across both approaches. 5. CONFOUNDERS: This was a small study (n=40 total) comparing two experimental approaches without a control arm, making it difficult to assess absolute efficacy. The study was likely underpowered to detect meaningful clinical differences.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial shows evidence of target engagement through immune responses detected by ELISPOT in PBMC and sentinel nodes. The GMCSF arm showed superior immune responses in sentinel nodes (8/13 vs 1/13, p=0.004), indicating the vaccine peptides were recognized and processed by the immune system. 2. PATHWAY MODULATION: Downstream biology was partially modulated - tumor-antigen-specific immunity was generated, particularly in the GMCSF arm (5/13 PBMC responses vs 1/13 in DC arm, and 8/13 sentinel node responses vs 1/13). This confirms the immune costimulation pathway was activated. 3. CLINICAL TRANSLATION: Despite biological activity, clinical endpoints were poor. DC arm: 1/13 PR, 1/13 SD (15% response rate). GMCSF arm: 2/13 PR, 2/13 SD (31% response rate). Both arms showed minimal clinical benefit despite immune activation. 4. POPULATION EFFECTS: The GMCSF formulation was superior to DC-pulsed peptides for immune responses, but neither achieved meaningful clinical responses in the overall population. 5. CONFOUNDERS: Small sample size (n=40 total, ~20 per arm) may have limited power to detect clinical benefit, but the immune biomarker responses were clearly measurable and differentiated between arms.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
       "confidence": 0.8,
-      "evidence": "The GMCSF arm showed significant immune activation in sentinel nodes (p=0.004) and moderate PBMC responses, but clinical response rates remained low (31% combined CR/PR/SD) with no statistical significance for clinical endpoints"
+      "evidence": "Clear immune activation (particularly in GMCSF arm with p=0.004 for sentinel node responses) but minimal clinical responses (15-31% response rates across arms)"
     },
     {
       "mode": "underpowered",
       "confidence": 0.6,
-      "evidence": "Small sample size of 40 patients split between two arms, with no formal statistical comparison of clinical endpoints and no control arm for absolute efficacy assessment"
+      "evidence": "Small sample size of ~20 patients per arm may have been insufficient to detect clinical benefit despite biological activity"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "aldesleukin+gp100_antigen+incomplete_freund_s_adjuvant+sargramostim+tetanus_peptide_melanoma_vaccine+tyrosinase_peptide",
-      "target_entity": "ENSG00000134460",
+      "edge_type": "affects",
+      "source_entity": "gp100_antigen",
+      "target_entity": "UNKNOWN",
       "support": "moderate_support",
-      "reasoning": "GMCSF formulation showed significant immune responses in sentinel nodes (p=0.004) and moderate PBMC responses, indicating successful target engagement"
+      "reasoning": "ELISPOT responses confirm gp100 peptide was recognized and processed by immune system, particularly in GMCSF arm"
     },
     {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000134460",
-      "target_entity": "immune_costimulation",
+      "edge_type": "affects",
+      "source_entity": "tyrosinase_peptide",
+      "target_entity": "UNKNOWN",
       "support": "moderate_support",
-      "reasoning": "Clear evidence of immune activation through the costimulation pathway, particularly in the GMCSF arm with significant sentinel node responses"
+      "reasoning": "ELISPOT responses confirm tyrosinase peptide was recognized and processed by immune system"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__melanoma_skin",
+      "target_entity": "immune_costimulation__melanoma",
       "support": "moderate_support",
-      "reasoning": "Demonstrated tumor-antigen-specific immunity in melanoma patients, with significant responses in sentinel nodes"
+      "reasoning": "Significant immune responses generated, particularly in sentinel nodes (p=0.004 for GMCSF arm)"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "immune_costimulation__melanoma_skin",
-      "target_entity": "melanoma_skin",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "melanoma",
       "support": "weak_contradict",
-      "reasoning": "Despite immune activation, clinical response rates were low (15-31%) suggesting immune costimulation alone may be insufficient to drive meaningful clinical benefit in advanced melanoma"
+      "reasoning": "Despite clear immune activation, clinical responses were minimal (15-31% response rates), suggesting immune costimulation alone insufficient for clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "composite_response_melanoma",
+      "support": "weak_contradict",
+      "reasoning": "Immune biomarkers showed activity but clinical response endpoint did not reflect this biological activity"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "composite_response_melanoma_skin",
-      "target_entity": "melanoma_skin",
-      "support": "ambiguous",
-      "reasoning": "Objective response rates were measured but remained low in both arms without statistical comparison or historical controls to assess clinical benefit translation"
+      "source_entity": "composite_response_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "reasoning": "Objective response rates were measured and are established endpoints for melanoma, though responses were low"
     }
   ],
   "confidence_overall": 0.7,
