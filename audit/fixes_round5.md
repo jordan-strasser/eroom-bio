@@ -135,16 +135,86 @@ Truncating at build start would lose round-over-round history and is not recomme
 
 `NEXT_SESSION.md` already proposes three approaches (per-constituent target resolution for combos; peptide-vaccine heuristic; mechanism-only fallback chain) and recommends approach 2 first. Nothing changed there this round — recommendation stands.
 
-## Priority list for round 6
+---
 
-| # | Bug | Severity | Effort | Quick fix? |
+## Four-layer pipeline audit on the 6 re-classified trials
+
+`NEXT_SESSION.md` framed round 5 as a KPI win (32/34 → 34/34) but the standard set was already at 0/4 unrouted before the rebuild — its diffs were always going to be tiny. The actual round-5 work happened on the 6 newly re-classified non-standard-set trials, which never had per-trial inspections in any earlier round. Generating `audit/inspection_*_post5.txt` for those trials (NCT00003222, 00003509, 00019682, 00072189, 00084656, 00109005) and walking each through the 4-layer audit per `automate_node_debug.md §3` surfaced four new findings the headline KPI hid.
+
+### Finding A — `predict_clinical_hypothesis` crashes on UNKNOWN-target hypothesis chains
+
+**Pattern**: `NCT00003509` (antineoplaston therapy, alternative cancer therapy not in Open Targets). The hypothesis is `compound=antineoplaston_therapy_atengenal_astugenal indication=melanoma endpoint=ORR_melanoma`. The chain's `target_id=UNKNOWN`, the chain shows 6 routed edge updates (full coverage) — but the prediction section reports:
+
+```
+predict KeyError: "Node 'UNKNOWN' not found"
+```
+
+for BOTH `WITH` and `WITHOUT` variants. The compound has no traversable path because `predict_clinical_hypothesis` dereferences `target_id` as a node id without checking for the `UNKNOWN` sentinel.
+
+**Severity**: HIGH. The chain-coverage KPI shows full coverage but the actual prediction the trial is supposed to support is a silent crash. This is currently invisible at the aggregate level.
+
+**Scope**: 11/34 chains (32.4%) in this slice have `target_id=UNKNOWN`. Hypothesis crashes happen whenever the picked compound's chain has that property. NCT00003509 hits it; NCT00003222 (`gp100_antigen` hypothesis), NCT00019682 (`gp100_antigen`), and NCT00084656 (`ipilimumab` — has a non-UNKNOWN sibling chain that the path query found) don't crash because either the hypothesis chain has a known target or the path query falls through to a sibling.
+
+**Suggested fix**: skip nodes equal to `UNKNOWN` (or use a sentinel constant) in the path-query traversal and treat the chain as biology-only (Δ from biology onwards). Two-line guard in `src/prediction/path_query.py`.
+
+### Finding B — `_COMMONLY_SUPPORTIVE_COMPOUNDS` over-filters when supportive compound has its own monotherapy arm
+
+**Pattern**: `NCT00019682` (Schwartzentruber 2011 — Phase 3 gp100 vaccine ± high-dose IL-2 vs IL-2 alone in advanced melanoma):
+
+| Arm | compound_ids | Has a chain? |
+|---|---|---|
+| `arm_i_aldesleukin` | `['aldesleukin']` | **No** |
+| `arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin` | `['aldesleukin', 'gp100_antigen', 'montanide_isa_51_vg']` | Yes — but only for `gp100_antigen` |
+
+The entire IL-2 monotherapy arm — a published Phase 3 result for a foundational melanoma cytokine therapy — produces zero chains. Same pattern in NCT00003222 (5-compound peptide+IL-2+GM-CSF combo): no chain for aldesleukin even though the classifier emits `aldesleukin → ENSG00000134460` (IL-2R alpha) binding.
+
+**Root cause**: `_identify_primary_intervention_ids` (`src/graph/populate.py:2341-2343`) demotes any compound in `_COMMONLY_SUPPORTIVE_COMPOUNDS` (aldesleukin, lymphodepletion chemo, common adjuvants) whenever any non-supportive candidate survives at the **trial** level. It doesn't check whether the demoted compound has its own monotherapy arm or is being studied as a comparator. Round 3.4's stopgap heuristic was correct for the cyclophosphamide-as-supportive case but is too aggressive for the "vs supportive-as-monotherapy comparator" case.
+
+**Severity**: HIGH. Phase 3 evidence is silently dropped. The classifier's per-constituent edge emissions for aldesleukin / IL-2 land in the unrouted log instead of strengthening real edges.
+
+**Suggested fix**: in `_identify_primary_intervention_ids`, before applying the supportive-allowlist demotion, scan arms for a monotherapy arm containing the candidate (`len(arm.compound_ids) == 1 and arm.compound_ids[0] == cid`). If yes, keep the compound as primary regardless of the allowlist. ~5-line patch. Add a regression test that NCT00019682 produces a chain for aldesleukin.
+
+### Finding C — Reactome top-1 ranking returns disease-irrelevant pathways
+
+**Pattern**: two cases in this slice where Reactome's default top-1 pathway has nothing to do with the trial's indication:
+
+| Trial | Compound | Target | Reactome top-1 (what we use) | What it should be |
 |---|---|---|---|---|
-| 1 | Peptide-vaccine compounds resolve to `target=UNKNOWN` (gp100, tyrosinase, MART-1, …). | MEDIUM | Small (curated dict + intervention-type/name pattern matcher). | Yes — `NEXT_SESSION.md` bucket B, approach 2. |
-| 2 | Per-constituent target resolution for combos (classifier already emits per-constituent edges; populator builds combined compound nodes only). | MEDIUM | Medium (populator change + chain backbone fan-out). | No — needs design pass. |
-| 3 | Document `data/dev/unrouted_attribution_updates.jsonl` append behavior in `automate_node_debug.md` step 3b. | LOW | Trivial. | Yes. |
-| 4 | Audit other tests for the same anti-pattern as #2 above: are any other tests `.unlink()`ing real production paths during setup/teardown? | LOW | Small (`grep -rn "unlink\|rmtree" tests/`). | Yes. |
+| `NCT00109005` | revlimid / lenalidomide | CRBN (ENSG00000113851) | `R-HSA-9679191` "Potential therapeutics for SARS" | CRBN E3 ligase / IKZF1-3 degradation / immune-modulatory pathway |
+| `NCT00072189` | 7-hydroxystaurosporine | CHEK1 (ENSG00000140992) | `R-HSA-114604` "GPVI-mediated activation cascade" (platelet signaling) | Cell-cycle / DNA damage response / kinase inhibition pathway |
 
-Items #3 and #4 are both <30 min of work and prevent future regressions; should ship alongside any bucket B work.
+**Root cause**: `_BIOLOGY_PATHWAY_CAP = 1` (set in round 3.4) takes Reactome's default ranking. The 19 alternative pathways for CHEK1 and the 0 alternatives for CRBN (CRBN has *only* one Reactome pathway, which is the COVID-19 one) are sitting in `BiologyNode.pathway_ids` metadata, unused for biology_drives edges.
+
+**Severity**: MEDIUM. Affects the biology_drives evidence routing but does not crash anything. Downstream effects: NCT00109005's "weakest link" flips between WITH/WITHOUT (the trial correctly weakens the wrong biology edge, so it becomes the bottleneck post-update). Confounds prediction interpretation.
+
+**Suggested fix** (not for round 6; needs design): re-rank Reactome candidates by either (a) curated mechanism→pathway mapping, (b) pathway-indication co-occurrence in literature, or (c) fall back to the `{mechanism}__{indication}` synthetic slug when no pathway in the candidate list contains the indication's MeSH/disease ontology context. Coverage gap is in Reactome data, not in our code.
+
+### Finding D — Subgroup populations anchor on parent disease, not trial indication
+
+**Pattern**: `NCT00084656` is an intraocular melanoma trial (`parent_population_id=intraocular_melanoma__unselected`), but its antibody-status subgroup chains use `population_id=melanoma__antibody_status_positive` / `__negative` — anchored on the parent disease (`melanoma`), not the trial's actual indication.
+
+**Severity**: LOW. Probably intentional cross-indication learning (antibody status is disease-axis-independent), but it's not documented anywhere. Worth flagging because a user querying `intraocular_melanoma__antibody_status_positive` would miss this trial's contribution.
+
+**Suggested fix**: either (a) document the parent-disease anchor convention in `automate_node_debug.md` so reviewers expect it, or (b) double-write to both `melanoma__*` and `intraocular_melanoma__*` so subtype queries find the trial. (a) is the lighter touch.
+
+## Priority list for round 6 (revised after the 4-layer audit)
+
+| # | Bug | Severity | Effort | Reference |
+|---|---|---|---|---|
+| 1 | **`predict_clinical_hypothesis` crashes on UNKNOWN-target hypothesis chains.** | HIGH | Small (2-line guard in path query traversal + 1 test). | Finding A |
+| 2 | **`_COMMONLY_SUPPORTIVE_COMPOUNDS` filter silently drops monotherapy/comparator arms** (aldesleukin in NCT00019682, NCT00003222). | HIGH | Small (~5-line check for monotherapy-arm existence + 1 test). | Finding B |
+| 3 | Peptide-vaccine compounds resolve to `target=UNKNOWN` (gp100, tyrosinase, MART-1). | MEDIUM | Small (curated dict + intervention-type/name pattern matcher). | NEXT_SESSION.md bucket B + this round's UNKNOWN-target prevalence (11/34 chains) |
+| 4 | Reactome top-1 ranking returns disease-irrelevant pathways (CRBN→SARS, CHEK1→GPVI). | MEDIUM | Medium (design pass on re-ranking; alternative: defer to round 7). | Finding C |
+| 5 | Per-constituent target resolution for combos (classifier emits combined edges; populator decomposes inconsistently). | MEDIUM | Medium (populator change + chain backbone fan-out). | NEXT_SESSION.md bucket B approach 1 |
+| 6 | Document `unrouted_attribution_updates.jsonl` append behavior in `automate_node_debug.md §3b`. | LOW | Trivial. | Round 5 finding |
+| 7 | Document parent-disease subgroup-population anchor convention. | LOW | Trivial. | Finding D |
+| 8 | Audit other tests for `.unlink()` / `rmtree` on production paths. | LOW | Small. | Round 5 commit `020cbe4` |
+
+**Recommended round-6 scope**: #1 + #2 + #3. Combined effort is ~half a session and they unblock the most evidence flow. Findings A and B are both HIGH and were invisible to all prior rounds because the chain-coverage KPI rolls them up as "covered". #3 (peptide vaccines) was already queued for round 6 and benefits from being landed alongside #2 since both touch the compound-resolution layer.
+
+#4 (Reactome relevance) and #5 (combo per-constituent decomp) need architectural design discussion and probably belong on a branch per `feedback_architecture_branches`.
+
+#6, #7, #8 are housekeeping; bundle them into a single small commit at round closeout.
 
 ## Artifacts from this round
 
@@ -161,8 +231,6 @@ Items #3 and #4 are both <30 min of work and prevent future regressions; should 
 
 ## Recommended next move
 
-Land the inspect_trial fix as its own small commit (one-line change, one regression-free verification), then either:
-- **(a)** open bucket B work on a branch (`peptide-vaccine-heuristic`) per `feedback_architecture_branches`, **or**
-- **(b)** ship the playbook documentation edit (#3 above) as a tiny commit and defer bucket B until a fresh session.
+The KPI is at 100% on the 10-trial slice but the 4-layer audit shows that "100% chain coverage" is a misleading top-line — Findings A and B are both *invisible* at the KPI level because the chain exists and is touched by ≥1 update, even though prediction crashes (A) or whole arms were dropped before chain creation (B).
 
-The KPI is at 100% on the 10-trial slice. There is no urgent corpus-quality reason to push further before user review.
+Round 6 should land #1 + #2 + #3 from the priority table. All three are small patches; combined they unblock 32% of the slice's chains (the UNKNOWN-target population) and recover an entire Phase 3 IL-2 monotherapy arm. Recommend a branch — `round-6-coverage-fixes` — since #2 touches the populator's chain-construction logic and that's the kind of change `feedback_architecture_branches` says to review on a branch first.
