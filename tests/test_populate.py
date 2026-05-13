@@ -474,6 +474,68 @@ class TestParentIndicationHierarchy:
         assert parent_indication_for("type_2_diabetes") is None
 
 
+class TestChainIndicationAnchoring:
+    """A trial whose canonical indication is a subtype still produces
+    chains anchored on the parent disease. The subtype IndicationNode
+    and SUBTYPE_OF edge are created upstream; the chain backbone uses
+    the parent so per-disease evidence accumulates at one place."""
+
+    def test_root_indication_helper(self):
+        from src.graph.populate import _root_indication
+        assert _root_indication("intraocular_melanoma") == "melanoma"
+        assert _root_indication("uveal_melanoma") == "melanoma"
+        assert _root_indication("melanoma") == "melanoma"
+        # Diseases with no parent passthrough unchanged.
+        assert _root_indication("crohns_disease") == "crohns_disease"
+
+    def test_subgroup_fork_chains_anchor_on_parent(self):
+        """``add_subgroup_chains`` — the seam ``seed_responds_differently``
+        relies on — must produce chains whose ``indication_id`` is the
+        parent even when called with a subtype id."""
+        from src.graph.models import (
+            EdgeBeliefState, IndicationNode, PopulationNode, TrialArm,
+            TrialSubgraph,
+        )
+        from src.graph.populate import add_subgroup_chains
+        from src.graph.store import GraphStore
+        from src.graph.subgroup_taxonomy import SubgroupFeature
+
+        graph = GraphStore()
+        # Seed the subtype + parent IndicationNodes so add_subgroup_chains
+        # doesn't fail upstream.
+        graph.add_node(IndicationNode(id="melanoma", name="melanoma"))
+        graph.add_node(IndicationNode(id="intraocular_melanoma", name="intraocular melanoma"))
+        graph.add_node(PopulationNode(
+            id="intraocular_melanoma__unselected",
+            name="all intraocular melanoma",
+            defining_features=[],
+        ))
+
+        ts = TrialSubgraph(
+            trial_id="NCT_test",
+            phase="2",
+            parent_population_id="intraocular_melanoma__unselected",
+            arms=[TrialArm(
+                arm_id="arm_a", regimen_compound_id="drug_x",
+                compound_ids=["drug_x"], is_combination=False,
+            )],
+            chains=[],
+        )
+
+        n = add_subgroup_chains(
+            graph, ts,
+            indication_id="intraocular_melanoma",
+            endpoint_id="PFS_melanoma",
+            subgroup_features=[[SubgroupFeature(axis="extent", level="metastatic")]],
+        )
+        assert n == 1
+        forked = graph.get_trial_subgraph_by_id("NCT_test").chains
+        assert all(c.indication_id == "melanoma" for c in forked), (
+            f"expected chains anchored on `melanoma`, got "
+            f"{[c.indication_id for c in forked]}"
+        )
+
+
 class TestNonOncologyCanonicalization:
     """Round 3.2 #10 — smoke test that slug normalization handles
     non-cancer condition strings cleanly. The LLM canonicalizer step

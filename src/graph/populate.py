@@ -37,6 +37,7 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.graph.indication_taxonomy import parent_indication_for
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import (
     ArmGroup,
@@ -45,6 +46,18 @@ from src.ingestion.clinicaltrials import (
     is_drug_like,
     map_trial_to_graph_nodes,
 )
+
+
+def _root_indication(indication_id: str) -> str:
+    """Return the parent IndicationNode id for a subtype slug, or the id
+    itself when there is no parent. Used at chain-construction time so
+    every chain's ``indication_id`` anchors on the top-level disease
+    (e.g. `melanoma`, not `intraocular_melanoma`). Subtype IndicationNodes
+    still exist and are linked by SUBTYPE_OF edges for cross-rollup
+    queries; the chain backbone just anchors on the parent so evidence
+    accumulates at one place per disease.
+    """
+    return parent_indication_for(indication_id) or indication_id
 from src.ingestion.lincs import (
     LINCSClient,
     _category_to_mechanism_type,
@@ -1625,8 +1638,13 @@ class PopulationPipeline:
                     cls = EndpointClass.OTHER
 
                 for ind_id, ind_name in indication_ids:
+                    # Anchor endpoints on the parent indication so a single
+                    # `PFS_melanoma` node serves every melanoma subtype.
+                    # Subtype-specific endpoints would fragment evidence
+                    # accumulation across nodes that mean the same thing.
+                    root_ind_id = _root_indication(ind_id)
                     ep_id = normalize_entity(
-                        f"{cls.value}_{ind_id}", "EndpointNode"
+                        f"{cls.value}_{root_ind_id}", "EndpointNode"
                     )
                     try:
                         self.graph.get_node(ep_id)
@@ -1638,7 +1656,7 @@ class PopulationPipeline:
                             regulatory_status=RegulatoryStatus.EXPLORATORY,
                             measurement_properties={
                                 "endpoint_class": cls.value,
-                                "indication_id": ind_id,
+                                "indication_id": root_ind_id,
                             },
                         ))
                         added += 1
@@ -1750,6 +1768,13 @@ class PopulationPipeline:
                     ),
                 )
 
+            # Chain backbone anchors on the parent disease so evidence
+            # from melanoma-subtype trials still accumulates on the
+            # `melanoma` node. The subtype IndicationNode + SUBTYPE_OF
+            # edge created upstream stay intact for cross-rollup queries,
+            # and the trial's population (built from the subtype id
+            # above) preserves the subtype distinction.
+            chain_indication_id = _root_indication(indication_id)
             chains = [
                 CausalChain(
                     arm_id=arm.arm_id,
@@ -1758,7 +1783,7 @@ class PopulationPipeline:
                     target_id=_UNKNOWN,
                     mechanism_id=_UNKNOWN,
                     biology_id=_UNKNOWN,
-                    indication_id=indication_id,
+                    indication_id=chain_indication_id,
                     endpoint_id=endpoint_id,
                     outcome=TrialOutcome.UNKNOWN,
                 )
@@ -2055,6 +2080,12 @@ def build_trial_subgraph_from_extraction(
     parent_pop_id = ensure_parent_population(
         graph, indication_id, indication_name=indication_name,
     )
+    # Chain backbone anchors on the parent disease — populations keep
+    # their subtype-keyed slug so subtype distinctions survive at the
+    # patient-cohort level, but the chain's indication_id collapses to
+    # the parent so melanoma-subtype trials all contribute to the same
+    # `melanoma` IndicationNode for evidence accumulation.
+    chain_indication_id = _root_indication(indication_id)
 
     # Canonicalize subgroup features: descriptor → list[SubgroupFeature].
     # Unknown axes get logged for vocabulary-extension review. Subgroups
@@ -2165,7 +2196,7 @@ def build_trial_subgraph_from_extraction(
                     target_id=arm_target_id,
                     mechanism_id=mechanism_id,
                     biology_id=biology_id,
-                    indication_id=indication_id,
+                    indication_id=chain_indication_id,
                     endpoint_id=ep_id,
                     outcome=outcome,
                     effect_size=effect_size,
@@ -2611,6 +2642,9 @@ def add_subgroup_chains(
     if not subgroup_features:
         return 0
 
+    # Subgroup-fork chains anchor on the parent disease (populations
+    # still encode subtype via the compose_id call below).
+    chain_indication_id = _root_indication(indication_id)
     new_chains: list[CausalChain] = []
     for features in subgroup_features:
         pop_id = PopulationNode.compose_id(indication_id, features)
@@ -2631,7 +2665,7 @@ def add_subgroup_chains(
                 target_id=_UNKNOWN,
                 mechanism_id=_UNKNOWN,
                 biology_id=_UNKNOWN,
-                indication_id=indication_id,
+                indication_id=chain_indication_id,
                 endpoint_id=endpoint_id,
                 outcome=TrialOutcome.UNKNOWN,
             ))
