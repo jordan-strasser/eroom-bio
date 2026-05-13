@@ -1,194 +1,105 @@
-# NEXT_SESSION — verify fixes.md fixes on a fresh build
+# NEXT_SESSION — continue the round-3 verification cleanup
 
-The previous session implemented every item in `fixes.md` (#1–#9 plus
-the "real biology nodes" priority-6 follow-up). The fixes are committed
-at `dc1ab95` — `git show --stat dc1ab95` for the file list, `fixes.md`
-itself for the original bug catalog, and the commit body for the
-fix-by-fix recap. **Read both before starting.**
+## Where we left off (2026-05-13)
 
-The on-disk graph snapshot at `data/exports/oncology_annotated.json`
-was built **before** those fixes landed, and the inspection files we
-have on disk (`inspection_01844505.txt`, `inspection_01950390.txt`,
-`inspection_extremes.txt`) capture that pre-fix state. Your job is to
-regenerate the snapshot + inspections with the new code, diff them
-against the originals, and audit whether every fix actually shipped.
+Today's session ran a post-round-3-wrap audit on `main` and shipped the structural fix that surfaced. Branch state at session close: `main` is **8 commits ahead of `origin/main`** with everything green (567 tests). The round-4 sub-chain branch (`round-4-sub-chains`) is still parked unmerged; today's stash `stash@{0}` holds its WIP and should be popped when you switch back.
 
-## 0. Don't overwrite the originals
+### What landed on main today
 
-The original pre-fix inspection files are the ground truth for
-comparison. **Do not let any command write to those paths.** Write the
-new captures to `*_post.txt`:
+| Commit | Purpose |
+|---|---|
+| `6d88b74` | Restore `scripts/inspect_trial.py` on main (was only on `round-4-sub-chains`). |
+| `6d1c38d` | Conservative-rebuild guidance in the debug playbook. |
+| `862f0ed` | `--include` flag in `build_graph.py` so `--max-trials N` slices retain the standard inspection set. |
+| `e35678b` | **Anchor chain `indication_id` on the parent disease** (the structural fix). |
+| `7ced85d` | Surface Reactome name + pathway count in `inspect_trial` (audit visibility). |
 
-```
-inspection_01844505.txt      ← keep   (pre-fix, ground truth)
-inspection_01950390.txt      ← keep   (pre-fix, ground truth)
-inspection_extremes.txt      ← keep   (pre-fix, ground truth)
-inspection_01844505_post.txt ← write  (fresh run)
-inspection_01950390_post.txt ← write  (fresh run)
-inspection_extremes_post.txt ← write  (fresh run)
-```
+### Headline KPI movement (10-trial slice, standard set)
 
-If the originals get clobbered the audit becomes much harder — `git
-checkout` will only recover them if they were ever tracked, and they
-aren't.
+| | Before fixes | After fixes |
+|---|---|---|
+| Chain coverage | 27/34 (79%) | **32/34 (94%)** |
+| Trials full / partial / zero | 5 / 2 / 3 | **8 / 0 / 2** |
+| Unrouted records | 30 | 11 |
+| Standard set in unrouted | 4 / 4 | **0 / 4** |
+| NCT01844505 backbone edges | 1 | **9** (full mechanistic backbone) |
 
-## 1. Rebuild the graph end-to-end against the frozen corpus
+Full write-up: `audit/fixes_round3.verification.md`. Snapshots: `audit/inspection_*_post3.final.txt`.
 
-```
-python scripts/build_graph.py --corpus melanoma_145 --keep-annotations
-```
+---
 
-- `--corpus melanoma_145` pins the 145-trial set so the rebuild is
-  reproducible. The corpus file is `data/corpora/melanoma_145.txt`.
-- `--keep-annotations` reuses cached extract+classify outputs in
-  `data/annotations/` instead of re-running every Sonnet call. The
-  fixes we care about live in the populate + classifier-prompt +
-  attributor layers; rerunning extraction would cost a lot of tokens
-  without changing the inputs to those layers.
-- Expect the snapshot at `data/exports/oncology_annotated.json` to be
-  overwritten — that's fine. (If you want to keep the old one for
-  side-by-side prediction, copy it to a `_pre.json` first.)
+## What's left
 
-## 2. Re-run the three inspections (writing to new files)
+Three concrete buckets. Tackle in this order — they get harder as you go.
 
-```
-python scripts/inspect_trial.py NCT01844505 > inspection_01844505_post.txt
-python scripts/inspect_trial.py NCT01950390 > inspection_01950390_post.txt
-python scripts/inspect_trial.py --best 2 --worst 2 > inspection_extremes_post.txt
+### A. Clear the remaining 11 unrouted records (LOW effort, cheap Sonnet)
+
+7 of 11 are stale-cache artifacts: non-standard-set trials whose classifications were generated against pre-round-3 indication/endpoint slugs (`stage_iv_melanoma`, `recurrent_melanoma`, `CR_stage_iv_skin_melanoma`, `ORR_stage_iv_melanoma`, synthetic biology slugs like `checkpoint_blockade__intraocular_melanoma`, `protein_degradation__melanoma`, `receptor_agonism__recurrent_melanoma`). They route nowhere because the post-fix populator anchors chains on `melanoma`.
+
+The classifier prompt already says "no qualifiers" (`classification_system.txt:118`) — the only reason these still appear is the cache. Delete + rebuild for the affected trials:
+
+```bash
+# Trials with stale-cache unrouted records (today's slice):
+for nct in NCT00003222 NCT00003509 NCT00019682 NCT00072189 NCT00084656 NCT00109005 NCT00110019; do
+  rm -f data/annotations/${nct}_classification.json
+done
+.venv/bin/python scripts/build_graph.py \
+  --corpus melanoma_145 --max-trials 10 \
+  --include "NCT01844505,NCT01950390,NCT03484923,NCT03618641" \
+  --keep-annotations
 ```
 
-For reference, the pre-fix originals are:
+Then regenerate inspections, re-grep the dev jsonl, expect the stale-cache records to vanish. Cost: ~7 Sonnet calls. Coverage should rise to 33–34/34.
 
+The remaining ~4 records will be the UNKNOWN-target archetype (B).
+
+### B. Resolve UNKNOWN entities + the 2 zero-coverage trials (HIGH effort, real fix)
+
+These three findings have one root cause: the compound→target resolver returns `UNKNOWN` for some intervention archetypes, and a chain with `target_id=UNKNOWN` can't take a `binds_to`/`affects` edge, can't reach a real Reactome biology, and degrades downstream.
+
+**Today's zero-coverage trials in the slice:**
+
+| Trial | Compound | Why UNKNOWN |
+|---|---|---|
+| `NCT00003509` | `antineoplaston_therapy_atengenal_astugenal` | Alternative/niche cancer therapy not in Open Targets. Mechanism falls back to `other` and biology to synthetic `other__melanoma`. |
+| `NCT00019682` | `gp100_antigen` | Peptide vaccine; gp100 is a melanoma differentiation antigen with no clean Ensembl gene id at the intervention level. Mechanism = `immune_costimulation`, biology = synthetic `immune_costimulation__melanoma`. |
+
+**Same archetype outside the slice (from `unrouted` log):**
+
+- `NCT00003222`, `NCT00019682`: classifier emits `binds_to: aldesleukin+gp100_antigen+... → ENSG00000134460` (IL-2R alpha) but the chain has `target=UNKNOWN` because the multi-component combo compound doesn't resolve to a single ENSG. Result: `no_chain_match`.
+
+**Suggested approach** (any one of these would help):
+
+1. **Per-constituent target resolution for combos**: when the regimen is a combo, resolve each constituent compound separately and attach a `binds_to` per (compound, target) pair on the chain. The classifier already emits per-constituent edges; the populator just isn't building per-constituent target lookups for combos.
+2. **Peptide-vaccine target heuristic**: trials with intervention type "biological" + name pattern matching `*_antigen|*_peptide|*_vaccine|*_idiotype` route to a known immunogenic-vaccine archetype with a curated default target (gp100→PMEL/ENSG00000185664, MART-1→MLANA, etc.) rather than UNKNOWN.
+3. **Mechanism-only fallback chain**: when target genuinely can't be resolved, let the chain skip `binds_to`/`affects` and start at `mechanism_affects` so the rest of the backbone still has a place to land. Today the whole chain is unrouteable past target=UNKNOWN.
+
+Approach 1 is the most architecturally aligned with the project goal (compositional decomposition) but takes the most work. Approach 2 is a 50-line patch and clears the peptide-vaccine archetype. Approach 3 is the smallest change and unlocks the most coverage immediately.
+
+**Recommended first move**: approach 2 for the peptide-vaccine archetype (covers ~3 trials in the corpus), then approach 1 for combos.
+
+### C. Re-classify the rest of the corpus (deferred, big-batch)
+
+The full melanoma_145 corpus still has 135 trials' worth of pre-round-3 cached classifications. Most are fine — round-3 changes only affect a subset of edges — but a final closeout pass at round 3 done would delete all classifications and re-run end-to-end against the current prompts.
+
+Per `feedback_conservative_rebuilds`: don't do this until you genuinely need it (round-3 final closeout, scaling readiness check, or before bumping the corpus to a different indication). One full corpus rebuild = ~145 Sonnet extract calls + ~145 Sonnet classify calls.
+
+---
+
+## Mechanical bootstrapping for the next session
+
+```bash
+# Verify clean state and recall what's queued:
+git status --short
+git log main --oneline -10
+git stash list                                  # stash@{0} from round-4 still parked
+
+# If returning to round-4:
+git checkout round-4-sub-chains && git stash pop
+
+# If staying on main and starting bucket (A):
+git checkout main
+# (follow the rm+rebuild commands in section A above)
 ```
-inspection_01844505.txt: 839 lines / 49 015 bytes
-inspection_01950390.txt: 583 lines / 31 552 bytes
-inspection_extremes.txt: 2406 lines / 133 658 bytes
-```
 
-`diff -u inspection_01844505.txt inspection_01844505_post.txt | less`
-is the easiest way to inspect the changes. The diffs will be huge —
-don't dump them to the conversation; summarize by section
-(extraction / classification / node mapping / edges / prediction).
-
-## 3. Verify each fix actually landed
-
-For each item below, check the new inspection files for the predicted
-new behavior. List anything that DIDN'T change as expected — that's a
-sign the fix didn't fire.
-
-### #1 + #2 — Per-constituent chains (NCT01844505)
-- `arm_c_ipilimumab_*` chain target should be `ENSG00000163599` (CTLA-4),
-  not `ENSG00000188389` (PD-1).
-- `arm_b_nivolumab_ipilimumab_*` should now appear as TWO chains in
-  the node mapping — one with `compound_id=nivolumab, target=PD-1`,
-  one with `compound_id=ipilimumab, target=CTLA-4`. (Pre-fix: one
-  chain with `compound_id=ipilimumab+nivolumab, target=PD-1`.)
-- Edge updates should now include `binds_to: ipilimumab → ENSG00000163599`.
-- Same edge should NOT be updated twice in the same trial (dedup).
-
-### #4 — Indication canonicalization
-- NCT01844505 `indication_id` and NCT01950390 `indication_id` should
-  both be `melanoma` (or whatever the canonicalizer chose) — not
-  `unresectable_or_metastatic_melanoma` vs
-  `stage_iiic_cutaneous_melanoma_ajcc_v7`.
-- The trial's parent population should be a qualified slug like
-  `melanoma__histology_cutaneous__stage_iii`, not `melanoma__unselected`.
-- Endpoint id should match: `OS_melanoma`, `PFS_melanoma`. The
-  classifier's `endpoint_captures` source/target should agree
-  (no more `OS_unresectable_melanoma → stage_iiic_*_v7` slug-bridge).
-- Open the canonicalization cache (`data/cache/indication_canonicalizations.json`)
-  to see what variants collapsed to what base disease.
-
-### #6 — Failed trial efficacy edges (NCT01950390)
-- Pre-fix: only 1 entry in `edges_to_update`, all 22 graph updates
-  are `causes_ae`. Post-fix: should see at least one `biology_drives`
-  contradict (weak_contradict or moderate_contradict) AND probably an
-  `endpoint_captures` ambiguous/weak_contradict.
-- The classifier's reasoning should reflect the new prompt rule that
-  a missed-endpoint failure with no PD data still informs the
-  upstream chain.
-
-### #7 + #8 — MedDRA pre-filter and British→American
-- Search for `AE:unspecified_adverse_event` in either inspection
-  file's edge-update section — should be **gone**. (Pre-fix:
-  ipilimumab → AE:unspecified_adverse_event with P ≈ 0.93.)
-- Search for `AE:anaemia` — should be gone, collapsed into
-  `AE:anemia`. Same for `haemo*` variants.
-- Look in `data/cache/meddra_terms.json` for empty-`preferred_term`
-  entries — those are the rejected meta rows.
-
-### #5 — PD-L1 vocab collapse
-- NCT01844505 node mapping should show subgroup populations only at
-  `cd274_positive` and `cd274_negative`, NOT `cd274_high`, `cd274_low`,
-  or a mix. (Pre-fix had all three.)
-
-### Priority-6 follow-up — Real Reactome biology
-- Every chain's `biology_id` should be either `R-HSA-*` (real
-  Reactome pathway) or a slug tagged with
-  `metadata.unresolved_biology = True`.
-- NCT01844505 nivolumab chains should point at `R-HSA-389948`
-  (Co-inhibition by PD-1); ipilimumab chains at `R-HSA-389513`
-  (Co-inhibition by CTLA4) or `R-HSA-389356` (Co-stim by CD28).
-- Count the slug-fallback chains vs Reactome chains — that ratio
-  tells us how much real-biology coverage we have.
-
-### #3 — Subgroup-relevance gate
-- NCT01844505 ipi-only arm chains should NOT be forked across PD-L1
-  subgroup populations anymore. Pre-fix: `arm_c_ipilimumab_*` had 4
-  chains across `unselected / cd274_low / cd274_positive / cd274_high`.
-  Post-fix: `arm_c` should only appear at the parent (qualified)
-  population.
-- Nivolumab chains SHOULD still fork across PD-L1 subgroups
-  (PDCD1 and CD274 share Reactome pathways).
-
-### #9 — AE absolute-count gate
-- In NCT01950390's edge updates, bevacizumab → AE edges for AEs at
-  ~1.2% incidence (gait disturbance, sudden death, erythema multiforme,
-  pruritus, skin ulceration) should now be **AMBIGUOUS**, not
-  moderate_support. With trial enrollment 169 and 2 arms, abs_count
-  ≈ 1 patient, which the new gate drops to AMBIGUOUS.
-
-## 4. Re-do the raw-text → JSON → node-embedding audit
-
-This is the open-ended part. Re-run the same kind of analysis fixes.md
-captured originally — pick a handful of trials (the four in fixes.md
-plus a couple from the `--best/--worst` extremes) and trace each
-through the four pipeline layers, looking for new failure modes:
-
-1. **Raw text vs extraction JSON** — does the extractor pick up arms,
-   subgroups, and AEs accurately? Watch for: hallucinated subgroups,
-   per-arm result misattribution, AE term that the LLM normalized
-   inconsistently across spelling/punctuation variants the
-   pre-filter didn't catch.
-2. **Extraction JSON vs node mapping** — does every arm/subgroup/AE
-   in the extraction resolve to a canonical graph node? Look in
-   `data/dev/unmapped_subgroup_features.jsonl` and
-   `data/dev/unrouted_attribution_updates.jsonl` for items that
-   should have routed but didn't.
-3. **Node mapping vs edge updates** — for each chain in a trial,
-   is there at least one corresponding edge update? Chains with
-   zero updates are silent failures (the classifier didn't emit
-   anything that routed there). Conversely, edge updates with
-   `evidence_type` not matching `_PHASE_TO_EVIDENCE[trial.phase]`
-   are a sign that phase routing is broken.
-4. **Edge updates vs prediction** — when WITHOUT-this-trial P(success)
-   barely moves from WITH, the trial isn't carrying any informative
-   signal. List those — they're the new "worst" bucket.
-
-Write the audit results to a fresh `fixes_round2.md` at the repo
-root (don't overwrite `fixes.md` — it documents the round-1 bugs that
-are now fixed). Group findings the same way fixes.md does — by
-pipeline stage, with a priority list at the end.
-
-## 5. Hand-back
-
-When you're done, leave a short summary in this turn's response:
-
-- which inspection files you wrote (paths)
-- which of the eight fixes verified vs which didn't
-- top 3 issues from the round-2 audit (if any), with severity
-
-Don't `git add` or commit anything by default — let the user pick the
-scope (same as last session). The new `inspection_*_post.txt` files
-and `fixes_round2.md` should stay untracked unless explicitly
-requested.
+The audit history (`audit/fixes_*.md`, `audit/inspection_*_post*.txt`, this file) is the long-form memory across sessions. Read `audit/fixes_round3.verification.md` first — it has the full per-trial table and the priority list.
