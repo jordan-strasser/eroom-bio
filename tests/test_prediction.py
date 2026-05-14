@@ -466,4 +466,21 @@ class TestPredictClinicalHypothesis:
         ]
         assert binds_edges and binds_edges[0].target_id == "t2"
 
+    def test_unknown_target_does_not_crash(self):
+        """A compound with no resolvable target (Open Targets miss — e.g.
+        peptide vaccines, alternative therapies, codename compounds)
+        produces target=UNKNOWN. The predictor must skip the AE neighbor
+        lookup for that node rather than raising KeyError. Regression
+        for NCT00003509 (antineoplaston therapy) and NCT03618641
+        (cmp_001 TLR9 codename) discovered in round 5/6 audit."""
+        g = GraphStore()
+        g.add_node(CompoundNode(id="c_orphan", name="Orphan", modality=Modality.SMALL_MOLECULE))
+        g.add_node(IndicationNode(id="i1", name="DiseaseA"))
+        # No TargetNode, no affects edge — _resolve_target_for_compound
+        # falls through to "UNKNOWN".
+        result = predict_clinical_hypothesis(g, "c_orphan", "i1", n_samples=500)
+        # No chain edges to sample → empty contributions, default 0.5.
+        assert result.overall_probability == 0.5
+        assert result.safety_risks == []
+
 

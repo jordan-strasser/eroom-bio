@@ -246,6 +246,9 @@ class PredictionEngine:
         risks: list[SafetyRisk] = []
         seen_ae_ids: set[str] = set()
 
+        if chain.compound_id == "UNKNOWN":
+            return risks
+
         for edge in self.graph.get_neighboring_edges(
             chain.compound_id, edge_types=[EdgeType.CAUSES_AE],
         ):
@@ -269,6 +272,9 @@ class PredictionEngine:
                 contributing_compound_ids=[chain.compound_id],
             ))
             seen_ae_ids.add(ae_id)
+
+        if chain.target_id == "UNKNOWN":
+            return risks
 
         for edge in self.graph.get_neighboring_edges(
             chain.target_id, edge_types=[EdgeType.TARGET_ASSOCIATED_AE],
