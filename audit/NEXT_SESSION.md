@@ -1,105 +1,84 @@
-# NEXT_SESSION — continue the round-3 verification cleanup
+# NEXT_SESSION — round 8: write the conditioning architecture design doc
 
-## Where we left off (2026-05-13)
+## Where we left off (2026-05-13 end of session)
 
-Today's session ran a post-round-3-wrap audit on `main` and shipped the structural fix that surfaced. Branch state at session close: `main` is **8 commits ahead of `origin/main`** with everything green (567 tests). The round-4 sub-chain branch (`round-4-sub-chains`) is still parked unmerged; today's stash `stash@{0}` holds its WIP and should be popped when you switch back.
+`main` is synced to `origin/main` at commit `f40f503` (Round 6.1: guard `predict_clinical_hypothesis` against UNKNOWN target). 560/560 tests pass. The pipeline structurally works on the 10-trial melanoma slice:
 
-### What landed on main today
+- Chain coverage: 47/48 chains (98%)
+- Trials: 9 full / 1 partial / **0 zero-coverage** ✓
+- All 10 trials produce P(success) predictions (no crashes)
+- Snapshot at `data/exports/oncology_annotated.json`: 216 nodes, 491 edges
 
-| Commit | Purpose |
-|---|---|
-| `6d88b74` | Restore `scripts/inspect_trial.py` on main (was only on `round-4-sub-chains`). |
-| `6d1c38d` | Conservative-rebuild guidance in the debug playbook. |
-| `862f0ed` | `--include` flag in `build_graph.py` so `--max-trials N` slices retain the standard inspection set. |
-| `e35678b` | **Anchor chain `indication_id` on the parent disease** (the structural fix). |
-| `7ced85d` | Surface Reactome name + pathway count in `inspect_trial` (audit visibility). |
+Round 7 was audit-only (no code changes). It produced `audit/fixes_round7.md` and identified the headline architectural question that round 8 must resolve before further shipping.
 
-### Headline KPI movement (10-trial slice, standard set)
+## The blocker for round 8
 
-| | Before fixes | After fixes |
-|---|---|---|
-| Chain coverage | 27/34 (79%) | **32/34 (94%)** |
-| Trials full / partial / zero | 5 / 2 / 3 | **8 / 0 / 2** |
-| Unrouted records | 30 | 11 |
-| Standard set in unrouted | 4 / 4 | **0 / 4** |
-| NCT01844505 backbone edges | 1 | **9** (full mechanistic backbone) |
+**Combo trials encode conditional dependence between constituents; the current per-constituent chain decomposition cannot represent it.**
 
-Full write-up: `audit/fixes_round3.verification.md`. Snapshots: `audit/inspection_*_post3.final.txt`.
+Concrete example: NCT00019682 (Schwartzentruber gp100 + IL-2 vs IL-2 alone) produces independent chains for `aldesleukin`, `gp100_antigen`, `montanide_isa_51_vg`. The trial's actual scientific finding is the **differential between arm I and arm II** — conditional information about gp100 *given* a high-dose IL-2 backbone. That conditioning is invisible to the inference today.
 
----
+Many smaller open issues from round 7 (Reactome biology relevance, classifier hypothesis-anchoring, headline chain picker) **depend on this decision** because the right shape of biology / chain selection / classifier output changes by architectural path. So they're paused.
 
-## What's left
+## Round 8's deliverable
 
-Three concrete buckets. Tackle in this order — they get harder as you go.
+A written design doc at `audit/round_8_architecture_design.md` covering three paths and recommending one for implementation:
 
-### A. Clear the remaining 11 unrouted records (LOW effort, cheap Sonnet)
+### Path 1 — Arm-level chains
+One chain per (arm × subgroup × endpoint) cell instead of per constituent. Chain compound = `arm.regimen_compound_id` (combo `CompoundNode` already created today). Mechanism / target / biology resolved at the arm level.
 
-7 of 11 are stale-cache artifacts: non-standard-set trials whose classifications were generated against pre-round-3 indication/endpoint slugs (`stage_iv_melanoma`, `recurrent_melanoma`, `CR_stage_iv_skin_melanoma`, `ORR_stage_iv_melanoma`, synthetic biology slugs like `checkpoint_blockade__intraocular_melanoma`, `protein_degradation__melanoma`, `receptor_agonism__recurrent_melanoma`). They route nowhere because the post-fix populator anchors chains on `melanoma`.
+### Path 2 — Context-conditional Beta beliefs
+Keep per-constituent chains. Add a `co_compounds` context dimension to evidence records. Extends the existing `get_edge_belief_conditioned` machinery (already conditions mechanism→biology on tissue).
 
-The classifier prompt already says "no qualifiers" (`classification_system.txt:118`) — the only reason these still appear is the cache. Delete + rebuild for the affected trials:
+### Path 3 — Explicit combination edges
+Keep per-constituent chains. Add new edge type `modulates_efficacy_of` between compound pairs. Combo trial evidence updates the combination edge based on arm differentials.
 
-```bash
-# Trials with stale-cache unrouted records (today's slice):
-for nct in NCT00003222 NCT00003509 NCT00019682 NCT00072189 NCT00084656 NCT00109005 NCT00110019; do
-  rm -f data/annotations/${nct}_classification.json
-done
-.venv/bin/python scripts/build_graph.py \
-  --corpus melanoma_145 --max-trials 10 \
-  --include "NCT01844505,NCT01950390,NCT03484923,NCT03618641" \
-  --keep-annotations
-```
+Full architectural analysis with pros/cons, v0.1.0 lock surface, sparsity behavior, and how each path would handle NCT00019682 + a cross-indication scenario: see the memory file `project_conditioning_question.md` in the user's Claude project memory dir.
 
-Then regenerate inspections, re-grep the dev jsonl, expect the stale-cache records to vanish. Cost: ~7 Sonnet calls. Coverage should rise to 33–34/34.
+### What the design doc must contain
 
-The remaining ~4 records will be the UNKNOWN-target archetype (B).
+For each path:
+1. Concrete schema diff (which Pydantic models, which `EdgeType` values, which fields).
+2. Worked example: how NCT00019682's chains, edges, and Beta updates look under the path.
+3. Worked example: how `ipi+nivo` combo learning in melanoma transfers to a hypothetical `ipi+nivo` NSCLC trial under the path. (This is the cross-indication test for whether compositional learning survives.)
+4. v0.1.0 architecture-lock surface touched (per CLAUDE.md).
+5. Estimated implementation cost (rough — lines of code touched, new tests, migration concerns).
 
-### B. Resolve UNKNOWN entities + the 2 zero-coverage trials (HIGH effort, real fix)
+Then a **decision section** picking one path with reasoning. Then a branch plan (probably `arch-conditioning-v0.2-{path}`).
 
-These three findings have one root cause: the compound→target resolver returns `UNKNOWN` for some intervention archetypes, and a chain with `target_id=UNKNOWN` can't take a `binds_to`/`affects` edge, can't reach a real Reactome biology, and degrades downstream.
+## Procedural notes
 
-**Today's zero-coverage trials in the slice:**
+- **Don't ship code in round 8.** Decision first, branch second, implementation third.
+- The headline-picker question that round 7 surfaced (`scripts/inspect_trial.py:401`, `eval_predictions.py:118`, `attributor.py:611`) is downstream of this decision. Don't fix it as an isolated quick-win — see memory `feedback_picker_is_symptom.md`.
+- Defer-to-shippable items that are orthogonal to the conditioning decision:
+  - Peptide-vaccine target heuristic (~30 lines; gp100→PMEL, tyrosinase→TYR, MART-1→MLANA). Reduces UNKNOWN-target chains, unrelated to architecture.
+  - Documentation: append-only behavior of `data/dev/unrouted_attribution_updates.jsonl` in `automate_node_debug.md §3b`.
+  - Documentation: subgroup population anchoring (round 5 Finding D).
 
-| Trial | Compound | Why UNKNOWN |
-|---|---|---|
-| `NCT00003509` | `antineoplaston_therapy_atengenal_astugenal` | Alternative/niche cancer therapy not in Open Targets. Mechanism falls back to `other` and biology to synthetic `other__melanoma`. |
-| `NCT00019682` | `gp100_antigen` | Peptide vaccine; gp100 is a melanoma differentiation antigen with no clean Ensembl gene id at the intervention level. Mechanism = `immune_costimulation`, biology = synthetic `immune_costimulation__melanoma`. |
-
-**Same archetype outside the slice (from `unrouted` log):**
-
-- `NCT00003222`, `NCT00019682`: classifier emits `binds_to: aldesleukin+gp100_antigen+... → ENSG00000134460` (IL-2R alpha) but the chain has `target=UNKNOWN` because the multi-component combo compound doesn't resolve to a single ENSG. Result: `no_chain_match`.
-
-**Suggested approach** (any one of these would help):
-
-1. **Per-constituent target resolution for combos**: when the regimen is a combo, resolve each constituent compound separately and attach a `binds_to` per (compound, target) pair on the chain. The classifier already emits per-constituent edges; the populator just isn't building per-constituent target lookups for combos.
-2. **Peptide-vaccine target heuristic**: trials with intervention type "biological" + name pattern matching `*_antigen|*_peptide|*_vaccine|*_idiotype` route to a known immunogenic-vaccine archetype with a curated default target (gp100→PMEL/ENSG00000185664, MART-1→MLANA, etc.) rather than UNKNOWN.
-3. **Mechanism-only fallback chain**: when target genuinely can't be resolved, let the chain skip `binds_to`/`affects` and start at `mechanism_affects` so the rest of the backbone still has a place to land. Today the whole chain is unrouteable past target=UNKNOWN.
-
-Approach 1 is the most architecturally aligned with the project goal (compositional decomposition) but takes the most work. Approach 2 is a 50-line patch and clears the peptide-vaccine archetype. Approach 3 is the smallest change and unlocks the most coverage immediately.
-
-**Recommended first move**: approach 2 for the peptide-vaccine archetype (covers ~3 trials in the corpus), then approach 1 for combos.
-
-### C. Re-classify the rest of the corpus (deferred, big-batch)
-
-The full melanoma_145 corpus still has 135 trials' worth of pre-round-3 cached classifications. Most are fine — round-3 changes only affect a subset of edges — but a final closeout pass at round 3 done would delete all classifications and re-run end-to-end against the current prompts.
-
-Per `feedback_conservative_rebuilds`: don't do this until you genuinely need it (round-3 final closeout, scaling readiness check, or before bumping the corpus to a different indication). One full corpus rebuild = ~145 Sonnet extract calls + ~145 Sonnet classify calls.
-
----
-
-## Mechanical bootstrapping for the next session
+## Mechanical bootstrap
 
 ```bash
-# Verify clean state and recall what's queued:
-git status --short
-git log main --oneline -10
-git stash list                                  # stash@{0} from round-4 still parked
-
-# If returning to round-4:
-git checkout round-4-sub-chains && git stash pop
-
-# If staying on main and starting bucket (A):
-git checkout main
-# (follow the rm+rebuild commands in section A above)
+git status --short                              # expect clean
+git log main --oneline -5                       # expect f40f503 at top
+git branch -a                                   # archive/round-4-sub-chains preserved
 ```
 
-The audit history (`audit/fixes_*.md`, `audit/inspection_*_post*.txt`, this file) is the long-form memory across sessions. Read `audit/fixes_round3.verification.md` first — it has the full per-trial table and the priority list.
+Memory to read in order:
+1. `CLAUDE.md` (project goals, v0.1.0 lock)
+2. `project_round7_state.md` (current state, what's safe to ship)
+3. `project_conditioning_question.md` (the architectural decision; the three paths in detail)
+4. `feedback_picker_is_symptom.md` (don't fix the picker in isolation)
+5. `audit/fixes_round7.md` (the full round-7 audit findings)
+6. This file
+
+## Standing context the playbook assumes
+
+- v0.1.0 architecture lock per CLAUDE.md: math, trust-weight, edge priors, aggregation, **edge topology** all frozen until corpus expands beyond melanoma. Paths 1 and 2 touch this surface significantly; Path 3 less so.
+- Per `feedback_architecture_branches`: large architecture changes land on a branch first.
+- Per `feedback_premature_classification`: don't add classification layers to trial decomposition before the architecture is ready. (Path 1 specifically risks this if shipped without scaffolding.)
+- Per `feedback_simple_faithful`: prefer the simplest change that serves the thesis (mechanistic chain decomposition, evidence flow, compositional predictions). This is the lens for evaluating the three paths.
+
+## Why this round matters for scaling
+
+The user wants to scale to 1000 trials. The conditioning gap is the architectural ceiling on combo-trial learning, which dominates the cross-indication phase. Resolving it now — before the v0.1.0 lock comes off — sets up the rest of the scaling work to inherit the right structure rather than retrofitting later.
+
+Round 7's audit explicitly said: "After round 8 (which should close the architecture decision), candidate next steps for scaling: bump slice to --max-trials 30, then 100, then add a second indication's corpus." Round 8 is the gate.
