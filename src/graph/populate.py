@@ -429,6 +429,47 @@ async def infer_population_for_trial(
 _UNKNOWN = "UNKNOWN"
 
 
+# Curated mapping for melanoma tumor-associated antigen (TAA) peptide
+# vaccines that Open Targets cannot resolve to a target. Each pattern is a
+# lowercase substring; if it appears in the intervention name, the listed
+# targets are wired in. Beta(3, 1) prior — confident curated mapping, below
+# OT-sourced (Beta(4, 1)) and above name-match heuristic (Beta(2, 1.5)).
+_PEPTIDE_VACCINE_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
+    # gp100 antigen → PMEL gene (premelanosome protein)
+    ("gp100", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein"),
+    ]),
+    ("imcgp100", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein"),
+    ]),
+    # Tyrosinase peptide → TYR gene
+    ("tyrosinase", [
+        ("ENSG00000077498", "TYR", "Tyrosinase"),
+    ]),
+    # MART-1 / Melan-A → MLANA gene
+    ("mart-1", [
+        ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+    ("mart1", [
+        ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+    ("melan-a", [
+        ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+    # Composite multi-epitope melanoma vaccines that target all three TAAs.
+    ("4-peptide melanoma vaccine", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein"),
+        ("ENSG00000077498", "TYR", "Tyrosinase"),
+        ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+    ("multi-epitope melanoma peptide vaccine", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein"),
+        ("ENSG00000077498", "TYR", "Tyrosinase"),
+        ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+]
+
+
 class PopulationPipeline:
     def __init__(
         self,
@@ -706,8 +747,16 @@ class PopulationPipeline:
         )
         console.print(f"  Added {ot_pair_added} biology_drives edges (trial-implied pairs)")
 
+        # Curated peptide-vaccine target heuristic: melanoma TAA vaccines
+        # (gp100, tyrosinase, MART-1, multi-epitope) that OT can't resolve.
+        # Runs before name-match fallback so the synthesized TargetNodes
+        # are available to the fallback for trial-text cross-references.
+        console.print("[bold]Wiring peptide-vaccine target edges...[/bold]")
+        peptide_added = self._add_peptide_vaccine_target_edges(trials)
+        console.print(f"  Added {peptide_added} AFFECTS edges (peptide-vaccine heuristic)")
+
         # Name-matching fallback: catches binds_to relationships for
-        # compounds OT couldn't resolve (e.g. peptide vaccines).
+        # compounds OT couldn't resolve from trial text.
         console.print("[bold]Cross-referencing compound-target edges...[/bold]")
         binds_added = self._add_compound_target_edges(trials)
         console.print(f"  Added {binds_added} binds_to edges (name-match fallback)")
@@ -1655,6 +1704,61 @@ class PopulationPipeline:
                     seed_endpoint_captures_edge(
                         self.graph, ep_id, om.measure, ind_id, cls.value
                     )
+        return added
+
+    def _add_peptide_vaccine_target_edges(self, trials: list[TrialRecord]) -> int:
+        """Wire AFFECTS edges for curated melanoma TAA peptide-vaccine targets.
+
+        Open Targets returns no targets for tumor-associated-antigen peptide
+        vaccines (gp100, tyrosinase, MART-1, multi-epitope vaccines).
+        ``_PEPTIDE_VACCINE_TARGETS`` is the curated mapping that fills in
+        those known biology connections so chains for these compounds
+        resolve past UNKNOWN_target. Creates TargetNodes when missing.
+        """
+        added = 0
+        seen_compounds: set[str] = set()
+        for trial in trials:
+            for iv in trial.interventions:
+                if not is_drug_like(iv) or not iv.name:
+                    continue
+                cid = self.resolve_entity(iv.name, "compound")
+                if not cid or cid in seen_compounds:
+                    continue
+                lowered = iv.name.lower()
+                matched_targets: dict[str, tuple[str, str]] = {}
+                for pattern, targets in _PEPTIDE_VACCINE_TARGETS:
+                    if pattern in lowered:
+                        for ens, symbol, name in targets:
+                            matched_targets.setdefault(ens, (symbol, name))
+                if not matched_targets:
+                    continue
+                seen_compounds.add(cid)
+                for ens, (symbol, name) in matched_targets.items():
+                    try:
+                        self.graph.get_node(ens)
+                    except KeyError:
+                        self.graph.add_node(TargetNode(
+                            id=ens,
+                            name=name,
+                            gene_symbol=symbol,
+                            metadata={"source": "peptide_vaccine_heuristic"},
+                        ))
+                        self._index_node(ens, symbol, "target")
+                    if self.graph._graph.has_edge(  # noqa: SLF001
+                        cid, ens, key=EdgeType.AFFECTS.value,
+                    ):
+                        continue
+                    self.graph.add_edge(GraphEdge(
+                        source_id=cid,
+                        target_id=ens,
+                        edge_type=EdgeType.AFFECTS,
+                        belief=EdgeBeliefState(alpha=3.0, beta=1.0),
+                        metadata={
+                            "source": "peptide_vaccine_heuristic",
+                            "pattern_matched": iv.name,
+                        },
+                    ))
+                    added += 1
         return added
 
     def _add_compound_target_edges(self, trials: list[TrialRecord]) -> int:

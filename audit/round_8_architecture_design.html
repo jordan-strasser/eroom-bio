@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Round 8 — Conditioning architecture decision</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-elev: #161d26;
+    --bg-elev-2: #1d2632;
+    --border: #2a3543;
+    --text: #d8e0e8;
+    --text-dim: #8b97a7;
+    --text-faint: #5a6776;
+    --accent: #7aa2f7;
+    --accent-2: #9ece6a;
+    --warn: #e0af68;
+    --bad: #f7768e;
+    --good: #73daca;
+    --neutral: #565f89;
+    --code-bg: #11161d;
+    --add: rgba(115, 218, 202, 0.10);
+    --add-border: #2f6f60;
+    --remove: rgba(247, 118, 142, 0.10);
+    --remove-border: #6f3a48;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  body { display: grid; grid-template-columns: 220px 1fr; }
+  nav {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+    padding: 24px 20px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-elev);
+    font-size: 13px;
+  }
+  nav h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin: 16px 0 6px;
+    font-weight: 600;
+  }
+  nav h2:first-child { margin-top: 0; }
+  nav a {
+    display: block;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 3px 0;
+    border-left: 2px solid transparent;
+    padding-left: 8px;
+    margin-left: -8px;
+  }
+  nav a:hover { color: var(--text); border-left-color: var(--accent); }
+  nav .pill {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-right: 6px;
+    vertical-align: 1px;
+    font-weight: 600;
+  }
+  nav .pill.p1 { background: rgba(247, 118, 142, 0.18); color: #f7768e; }
+  nav .pill.p2 { background: rgba(224, 175, 104, 0.18); color: #e0af68; }
+  nav .pill.p3 { background: rgba(115, 218, 202, 0.18); color: #73daca; }
+
+  main {
+    max-width: 1180px;
+    margin: 0;
+    padding: 48px 56px 96px;
+  }
+  h1 {
+    font-size: 28px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 56px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 17px;
+    margin: 32px 0 10px;
+    font-weight: 600;
+  }
+  h4 {
+    font-size: 14px;
+    margin: 22px 0 8px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+  p { margin: 0 0 14px; }
+  code, .mono {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  .callout {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 18px 0;
+  }
+  .callout.decision {
+    border-left-color: var(--good);
+    background: rgba(115, 218, 202, 0.05);
+  }
+  .callout.lock {
+    border-left-color: var(--warn);
+    background: rgba(224, 175, 104, 0.05);
+  }
+  .callout h4 { color: var(--text); margin-top: 0; }
+
+  /* Path block */
+  .path {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 24px 0 32px;
+    background: var(--bg-elev);
+    overflow: hidden;
+  }
+  .path-header {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev-2);
+  }
+  .path-header .label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-right: 12px;
+  }
+  .path.p1 .label { background: rgba(247, 118, 142, 0.18); color: #f7768e; }
+  .path.p2 .label { background: rgba(224, 175, 104, 0.18); color: #e0af68; }
+  .path.p3 .label { background: rgba(115, 218, 202, 0.18); color: #73daca; }
+  .path-header h3 { display: inline; margin: 0; font-size: 19px; }
+  .path-header .tagline {
+    margin-top: 8px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .path-body { padding: 20px 24px 24px; }
+
+  /* Two-column body sections inside a path */
+  .twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 18px 0;
+  }
+  @media (max-width: 1000px) { .twocol { grid-template-columns: 1fr; } }
+
+  /* Diff blocks */
+  .diff {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+  .diff .add { background: var(--add); color: var(--good); display: block; padding: 0 4px; margin: 0 -4px; }
+  .diff .rm  { background: var(--remove); color: var(--bad); display: block; padding: 0 4px; margin: 0 -4px; }
+  .diff .ctx { color: var(--text-dim); display: block; padding: 0 4px; }
+  .diff .file { color: var(--accent); display: block; padding: 0 4px; margin-bottom: 4px; }
+
+  /* Tables */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  th, td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg-elev);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  td.good { color: var(--good); }
+  td.bad { color: var(--bad); }
+  td.warn { color: var(--warn); }
+  td.neutral { color: var(--text-dim); }
+  td.pick { background: rgba(115, 218, 202, 0.08); }
+
+  /* Scoring matrix */
+  .matrix th:first-child, .matrix td:first-child {
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .matrix .p1head { color: #f7768e; }
+  .matrix .p2head { color: #e0af68; }
+  .matrix .p3head { color: #73daca; }
+
+  /* Pros/cons inside path */
+  .pc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 800px) { .pc { grid-template-columns: 1fr; } }
+  .pc ul { margin: 6px 0; padding-left: 20px; }
+  .pc li { margin: 4px 0; }
+  .pc .col h4 { margin-top: 0; }
+  .pc .pros h4 { color: var(--good); }
+  .pc .cons h4 { color: var(--bad); }
+
+  /* Lock badges */
+  .lockbadge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 11px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .lockbadge.high { background: rgba(247, 118, 142, 0.18); color: #f7768e; }
+  .lockbadge.medium { background: rgba(224, 175, 104, 0.18); color: #e0af68; }
+  .lockbadge.low { background: rgba(115, 218, 202, 0.18); color: #73daca; }
+
+  /* SVG containers */
+  .diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 14px 0;
+  }
+  .diagram-title {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  svg { display: block; max-width: 100%; height: auto; }
+
+  /* Branch plan ordered list */
+  ol.plan { padding-left: 22px; }
+  ol.plan li { margin-bottom: 8px; }
+  ol.plan li strong { color: var(--good); }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 36px 0;
+  }
+  a.refs { color: var(--accent); text-decoration: none; }
+  a.refs:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<nav>
+  <h2>Context</h2>
+  <a href="#question">The question</a>
+  <a href="#lock">v0.1.0 lock</a>
+  <a href="#current">Current state diagram</a>
+
+  <h2>Paths</h2>
+  <a href="#path1"><span class="pill p1">P1</span>Arm-level chains</a>
+  <a href="#path2"><span class="pill p2">P2</span>Context Betas</a>
+  <a href="#path3"><span class="pill p3">P3</span>Combination edges</a>
+
+  <h2>Decision</h2>
+  <a href="#matrix">Scoring matrix</a>
+  <a href="#decision">Decision</a>
+  <a href="#branch">Branch plan</a>
+  <a href="#notdecided">Out of scope</a>
+</nav>
+
+<main>
+
+<h1>Round 8 — Conditioning architecture decision</h1>
+<div class="subtitle">eroom-bio · 2026-05-14 · design doc, no shipping · companion to <code>audit/round_8_architecture_design.md</code></div>
+
+<section id="question">
+<h2>The question</h2>
+<p>Combo trials encode <strong>conditional dependence</strong> between constituents. Today's per-constituent chain decomposition treats each constituent's chain as independent. The trial's actual scientific finding — the <strong>arm-to-arm differential</strong> — has nowhere to live.</p>
+<p>NCT00019682 (Schwartzentruber 2011): arm I (high-dose IL-2 alone) vs arm II (high-dose IL-2 + gp100 + montanide). The differential is evidence about gp100 <em>given</em> an IL-2 backbone. The graph today cannot represent "gp100 helped because the IL-2 backbone existed," only "gp100 helped in this trial" and "IL-2 helped in this trial" as two independent claims.</p>
+<p>This is upstream of: the chain-picker question (<code>scripts/inspect_trial.py:395</code>, <code>scripts/eval_predictions.py:118</code>, <code>src/annotation/attributor.py:611</code>); Reactome biology per-constituent vs per-regimen; classifier per-arm vs per-hypothesis edge updates. All defer until this is settled.</p>
+</section>
+
+<section id="lock">
+<div class="callout lock">
+  <h4>v0.1.0 lock surface (CLAUDE.md)</h4>
+  <p style="margin:0">Prediction math, trust-weight function (log-scaled, saturation at <code>evidence_strength=49</code>), edge priors, aggregation method, and <strong>edge topology</strong> are frozen at v0.1.0 until the corpus expands beyond melanoma. Round 8 is part of the lock-removal review.</p>
+</div>
+</section>
+
+<section id="current">
+<h2>Current state — NCT00019682 on <code>main</code></h2>
+<div class="diagram">
+  <div class="diagram-title">Per-constituent fan-out · no representation of arm-to-arm differential</div>
+  <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6776"/>
+      </marker>
+    </defs>
+    <style>
+      .node { fill: #1d2632; stroke: #5a6776; stroke-width: 1.2; }
+      .lbl  { fill: #d8e0e8; font: 11px -apple-system, sans-serif; text-anchor: middle; }
+      .lbl-sm { fill: #8b97a7; font: 10px -apple-system, sans-serif; text-anchor: middle; }
+      .edge { stroke: #5a6776; stroke-width: 1.2; fill: none; }
+      .arm  { fill: #8b97a7; font: 11px -apple-system, sans-serif; font-weight: 600; }
+      .indep { stroke: #f7768e; stroke-dasharray: 4 3; }
+    </style>
+    <!-- Arm I label -->
+    <text x="30" y="60" class="arm">Arm I</text>
+    <text x="30" y="74" class="lbl-sm" text-anchor="start">IL-2 alone</text>
+    <!-- Arm I chain: aldesleukin -->
+    <rect x="80"  y="40" width="110" height="36" rx="4" class="node"/>
+    <text x="135" y="62" class="lbl">aldesleukin</text>
+    <rect x="240" y="40" width="80"  height="36" rx="4" class="node"/>
+    <text x="280" y="62" class="lbl">IL2RA</text>
+    <rect x="370" y="40" width="130" height="36" rx="4" class="node"/>
+    <text x="435" y="62" class="lbl">receptor_agonism</text>
+    <rect x="550" y="40" width="160" height="36" rx="4" class="node"/>
+    <text x="630" y="58" class="lbl">R-HSA-5673001</text>
+    <text x="630" y="72" class="lbl-sm">(MAPK — wrong)</text>
+    <rect x="760" y="40" width="100" height="36" rx="4" class="node"/>
+    <text x="810" y="62" class="lbl">melanoma</text>
+    <line x1="190" y1="58" x2="240" y2="58" class="edge" marker-end="url(#arr)"/>
+    <line x1="320" y1="58" x2="370" y2="58" class="edge" marker-end="url(#arr)"/>
+    <line x1="500" y1="58" x2="550" y2="58" class="edge" marker-end="url(#arr)"/>
+    <line x1="710" y1="58" x2="760" y2="58" class="edge" marker-end="url(#arr)"/>
+
+    <!-- Arm II label -->
+    <text x="30" y="160" class="arm">Arm II</text>
+    <text x="30" y="174" class="lbl-sm" text-anchor="start">gp100 + IL-2</text>
+
+    <!-- Arm II chain 1: aldesleukin (duplicate) -->
+    <rect x="80"  y="140" width="110" height="36" rx="4" class="node"/>
+    <text x="135" y="162" class="lbl">aldesleukin</text>
+    <rect x="240" y="140" width="80" height="36" rx="4" class="node"/>
+    <text x="280" y="162" class="lbl">IL2RA</text>
+    <text x="450" y="162" class="lbl-sm">… same chain as arm I …</text>
+    <rect x="760" y="140" width="100" height="36" rx="4" class="node"/>
+    <text x="810" y="162" class="lbl">melanoma</text>
+    <line x1="190" y1="158" x2="240" y2="158" class="edge" marker-end="url(#arr)"/>
+    <line x1="320" y1="158" x2="400" y2="158" class="edge"/>
+    <line x1="510" y1="158" x2="760" y2="158" class="edge" marker-end="url(#arr)"/>
+
+    <!-- Arm II chain 2: gp100 -->
+    <rect x="80"  y="200" width="110" height="36" rx="4" class="node"/>
+    <text x="135" y="222" class="lbl">gp100_antigen</text>
+    <rect x="240" y="200" width="80"  height="36" rx="4" class="node" stroke-dasharray="3 3"/>
+    <text x="280" y="222" class="lbl-sm">UNKNOWN</text>
+    <rect x="370" y="200" width="130" height="36" rx="4" class="node"/>
+    <text x="435" y="222" class="lbl">immune_costim</text>
+    <rect x="550" y="200" width="160" height="36" rx="4" class="node"/>
+    <text x="630" y="222" class="lbl-sm">immune_cost__melanoma</text>
+    <line x1="190" y1="218" x2="240" y2="218" class="edge" marker-end="url(#arr)"/>
+    <line x1="320" y1="218" x2="370" y2="218" class="edge" marker-end="url(#arr)"/>
+    <line x1="500" y1="218" x2="550" y2="218" class="edge" marker-end="url(#arr)"/>
+    <line x1="710" y1="218" x2="760" y2="172" class="edge" marker-end="url(#arr)"/>
+
+    <!-- Arm II chain 3: montanide -->
+    <rect x="80"  y="260" width="110" height="36" rx="4" class="node"/>
+    <text x="135" y="282" class="lbl">montanide</text>
+    <rect x="240" y="260" width="80"  height="36" rx="4" class="node" stroke-dasharray="3 3"/>
+    <text x="280" y="282" class="lbl-sm">UNKNOWN</text>
+    <text x="420" y="282" class="lbl-sm">… other / other__melanoma …</text>
+    <line x1="190" y1="278" x2="240" y2="278" class="edge" marker-end="url(#arr)"/>
+    <line x1="320" y1="278" x2="540" y2="278" class="edge"/>
+    <line x1="540" y1="278" x2="760" y2="172" class="edge" marker-end="url(#arr)"/>
+
+    <!-- The missing edge: arm-to-arm differential -->
+    <path d="M 135 80 Q 135 110 135 200" class="edge indep" stroke-width="0" fill="none"/>
+    <text x="455" y="313" class="lbl-sm" style="fill:#f7768e">No node, edge, or Beta represents "gp100's effect given IL-2 backbone." The differential is invisible.</text>
+  </svg>
+</div>
+</section>
+
+<!-- ──────────────── PATH 1 ──────────────── -->
+<section id="path1" class="path p1">
+  <div class="path-header">
+    <span class="label">Path 1</span>
+    <h3>Arm-level chains</h3>
+    <div class="tagline">One chain per (arm × subgroup × endpoint) cell, keyed by <code>regimen_compound_id</code>. Mechanism / target / biology resolved at the arm level.</div>
+  </div>
+  <div class="path-body">
+
+    <div class="diagram">
+      <div class="diagram-title">NCT00019682 under Path 1 · two arm-level chains</div>
+      <svg viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6776"/>
+          </marker>
+        </defs>
+        <style>
+          .n1 { fill: #1d2632; stroke: #5a6776; stroke-width: 1.2; }
+          .n1-regimen { fill: #2a1d24; stroke: #f7768e; stroke-width: 1.4; }
+          .l1 { fill: #d8e0e8; font: 11px sans-serif; text-anchor: middle; }
+          .l1s { fill: #8b97a7; font: 10px sans-serif; text-anchor: middle; }
+          .e1 { stroke: #5a6776; stroke-width: 1.2; fill: none; }
+          .a1 { fill: #8b97a7; font: 11px sans-serif; font-weight: 600; }
+        </style>
+        <text x="30" y="60" class="a1">Arm I</text>
+        <rect x="80" y="40" width="110" height="36" rx="4" class="n1"/>
+        <text x="135" y="62" class="l1">aldesleukin</text>
+        <rect x="240" y="40" width="80" height="36" rx="4" class="n1"/>
+        <text x="280" y="62" class="l1">IL2RA</text>
+        <rect x="370" y="40" width="130" height="36" rx="4" class="n1"/>
+        <text x="435" y="62" class="l1">receptor_agonism</text>
+        <rect x="550" y="40" width="160" height="36" rx="4" class="n1"/>
+        <text x="630" y="62" class="l1">R-HSA-...</text>
+        <rect x="760" y="40" width="100" height="36" rx="4" class="n1"/>
+        <text x="810" y="62" class="l1">melanoma</text>
+        <line x1="190" y1="58" x2="240" y2="58" class="e1" marker-end="url(#arr1)"/>
+        <line x1="320" y1="58" x2="370" y2="58" class="e1" marker-end="url(#arr1)"/>
+        <line x1="500" y1="58" x2="550" y2="58" class="e1" marker-end="url(#arr1)"/>
+        <line x1="710" y1="58" x2="760" y2="58" class="e1" marker-end="url(#arr1)"/>
+
+        <text x="30" y="160" class="a1">Arm II</text>
+        <rect x="60" y="140" width="160" height="36" rx="4" class="n1-regimen"/>
+        <text x="140" y="158" class="l1">aldesleukin+gp100</text>
+        <text x="140" y="170" class="l1s">+montanide_isa_51_vg</text>
+        <rect x="250" y="140" width="80" height="36" rx="4" class="n1" stroke-dasharray="3 3"/>
+        <text x="290" y="162" class="l1s">???-target</text>
+        <rect x="370" y="140" width="130" height="36" rx="4" class="n1" stroke-dasharray="3 3"/>
+        <text x="435" y="162" class="l1s">???-mechanism</text>
+        <rect x="550" y="140" width="160" height="36" rx="4" class="n1" stroke-dasharray="3 3"/>
+        <text x="630" y="162" class="l1s">???-biology</text>
+        <rect x="760" y="140" width="100" height="36" rx="4" class="n1"/>
+        <text x="810" y="162" class="l1">melanoma</text>
+        <line x1="220" y1="158" x2="250" y2="158" class="e1" marker-end="url(#arr1)"/>
+        <line x1="330" y1="158" x2="370" y2="158" class="e1" marker-end="url(#arr1)"/>
+        <line x1="500" y1="158" x2="550" y2="158" class="e1" marker-end="url(#arr1)"/>
+        <line x1="710" y1="158" x2="760" y2="158" class="e1" marker-end="url(#arr1)"/>
+
+        <text x="450" y="215" class="l1s">Arm-to-arm differential is directly available (the two chains differ). But arm II's middle nodes are degenerate — no clean "target of <code>aldesleukin + gp100 + montanide</code>."</text>
+      </svg>
+    </div>
+
+    <h4>Schema diff</h4>
+    <div class="diff">
+      <span class="file">src/graph/populate.py:1211-1251 — _populate_trial_mechanisms (chain rebuild)</span>
+      <span class="rm">- for each cell × constituent: emit one chain per constituent</span>
+      <span class="rm">- chain.compound_id = constituent_id; chain.metadata["regimen_id"] = arm.regimen_compound_id</span>
+      <span class="add">+ for each (arm × subgroup × endpoint) cell: emit ONE chain</span>
+      <span class="add">+ chain.compound_id = arm.regimen_compound_id</span>
+      <span class="add">+ target / mechanism / biology resolved at regimen level (NEW resolver)</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/graph/populate.py:1907 — synthesize_combo_compounds (already exists)</span>
+      <span class="ctx">  combo InterventionNode + composed_of edges + inherited affects edges already created</span>
+      <span class="add">+ NEW: per-regimen mechanism + biology resolver (LLM call OR primary-constituent heuristic)</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/graph/models.py — CausalChain (no schema change)</span>
+      <span class="ctx">  compound_id range now legitimately includes synthesized combo ids</span>
+    </div>
+
+    <h4>NCT00019682 worked example</h4>
+    <pre><code>arm I  → 1 chain: aldesleukin → IL2RA → receptor_agonism → R-HSA-... → melanoma
+arm II → 1 chain: aldesleukin+gp100_antigen+montanide_isa_51_vg
+                  → ???-target → ???-mechanism → ???-biology → melanoma</code></pre>
+    <p>Arm-to-arm differential is well-defined per chain. But arm II's middle nodes are fuzzy: no single "target of <code>aldesleukin + gp100 + montanide</code>." An LLM might pick <code>PMEL</code> (the gp100 antigen) and label the mechanism <code>immune_costimulation</code> — at which point aldesleukin's <code>IL2RA → receptor_agonism</code> contribution is invisible in the arm II chain.</p>
+
+    <h4>Cross-indication transfer — ipi+nivo melanoma → ipi+nivo NSCLC</h4>
+    <p>Today: melanoma's combo trial updates per-constituent edges (<code>ipilimumab → CTLA4</code>, <code>nivolumab → PDCD1</code>). NSCLC ipi+nivo trial inherits both via per-constituent compositional transfer.</p>
+    <p>Path 1: melanoma's combo trial updates <code>ipilimumab+nivolumab → ???-target → … → melanoma</code>. NSCLC trial's chain is rooted at the <strong>same regimen node</strong>, so its upstream edges transfer. <strong>But</strong> per-constituent <code>CTLA4 → checkpoint_blockade</code> doesn't get updated by the combo trial — it only sees evidence from the rarer mono-ipi trials. <span style="color:var(--bad)">The compositional thesis breaks.</span></p>
+
+    <h4>v0.1.0 lock surface — <span class="lockbadge high">High</span></h4>
+    <ul>
+      <li>Edge topology semantically changes — chain backbones route through combo regimen nodes.</li>
+      <li><code>affects</code> edge semantics: regimen → "primary target of regimen" is a new semantic.</li>
+      <li>The frozen mechanism (single chain backbone per <code>(compound, target, mechanism, biology, indication)</code>) loses one of its axes.</li>
+    </ul>
+
+    <h4>Pros / cons</h4>
+    <div class="pc">
+      <div class="col pros">
+        <h4>Pros</h4>
+        <ul>
+          <li>Honest about what trials actually measure (arm outcomes).</li>
+          <li>Eval scoring well-defined per arm.</li>
+          <li>Backbone construction simpler (1 chain per cell).</li>
+        </ul>
+      </div>
+      <div class="col cons">
+        <h4>Cons</h4>
+        <ul>
+          <li><strong>Breaks compositional learning</strong> — the core thesis.</li>
+          <li>Combo regimen nodes are unique; weak Betas forever.</li>
+          <li>"Primary target of a regimen" is fuzzy.</li>
+          <li>Loses constituent-level connection to AE/efficacy.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h4>Implementation cost</h4>
+    <p>Chain rebuild rewrite ~50→~25 lines, plus a new regimen-target resolver (~100-200 lines, LLM or heuristic — both have problems). Attributor routing changes. Migration: re-populate every trial subgraph in <code>oncology_annotated.json</code>. ~5-10 new tests.</p>
+  </div>
+</section>
+
+<!-- ──────────────── PATH 2 ──────────────── -->
+<section id="path2" class="path p2">
+  <div class="path-header">
+    <span class="label">Path 2</span>
+    <h3>Context-conditional Beta beliefs</h3>
+    <div class="tagline">Keep per-constituent chains. Tag <code>EvidenceRecord.context["co_compounds"]</code> at emission. Sample beliefs conditioned on the queried regimen's co-compounds.</div>
+  </div>
+  <div class="path-body">
+
+    <div class="diagram">
+      <div class="diagram-title">NCT00019682 under Path 2 · same chains, evidence records carry co-compound context</div>
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6776"/>
+          </marker>
+        </defs>
+        <style>
+          .n2 { fill: #1d2632; stroke: #5a6776; stroke-width: 1.2; }
+          .l2 { fill: #d8e0e8; font: 11px sans-serif; text-anchor: middle; }
+          .l2s { fill: #8b97a7; font: 10px sans-serif; text-anchor: middle; }
+          .e2 { stroke: #5a6776; stroke-width: 1.2; fill: none; }
+          .a2 { fill: #8b97a7; font: 11px sans-serif; font-weight: 600; }
+          .ev1 { fill: #1a2722; stroke: #73daca; stroke-width: 1; }
+          .ev2 { fill: #2a261b; stroke: #e0af68; stroke-width: 1; }
+          .evlbl { fill: #d8e0e8; font: 9px monospace; text-anchor: middle; }
+          .evlbl-good { fill: #73daca; font: 9px monospace; text-anchor: middle; }
+          .evlbl-warn { fill: #e0af68; font: 9px monospace; text-anchor: middle; }
+        </style>
+        <!-- aldesleukin chain -->
+        <rect x="50"  y="60" width="100" height="32" rx="4" class="n2"/>
+        <text x="100" y="80" class="l2">aldesleukin</text>
+        <rect x="190" y="60" width="70"  height="32" rx="4" class="n2"/>
+        <text x="225" y="80" class="l2">IL2RA</text>
+        <rect x="300" y="60" width="130" height="32" rx="4" class="n2"/>
+        <text x="365" y="80" class="l2">receptor_agonism</text>
+        <rect x="470" y="60" width="140" height="32" rx="4" class="n2"/>
+        <text x="540" y="80" class="l2">R-HSA-...</text>
+        <rect x="650" y="60" width="90" height="32" rx="4" class="n2"/>
+        <text x="695" y="80" class="l2">melanoma</text>
+        <line x1="150" y1="76" x2="190" y2="76" class="e2" marker-end="url(#arr2)"/>
+        <line x1="260" y1="76" x2="300" y2="76" class="e2" marker-end="url(#arr2)"/>
+        <line x1="430" y1="76" x2="470" y2="76" class="e2" marker-end="url(#arr2)"/>
+        <line x1="610" y1="76" x2="650" y2="76" class="e2" marker-end="url(#arr2)"/>
+
+        <!-- evidence records on mechanism_affects edge -->
+        <rect x="450" y="115" width="180" height="32" rx="4" class="ev1"/>
+        <text x="540" y="128" class="evlbl-good">arm I evidence</text>
+        <text x="540" y="140" class="evlbl-good">context.co_compounds = []</text>
+        <rect x="450" y="155" width="180" height="32" rx="4" class="ev2"/>
+        <text x="540" y="168" class="evlbl-warn">arm II evidence</text>
+        <text x="540" y="180" class="evlbl-warn">co_compounds = [gp100, montanide]</text>
+        <line x1="540" y1="92" x2="540" y2="115" class="e2"/>
+
+        <!-- gp100 chain below -->
+        <rect x="50" y="210" width="100" height="32" rx="4" class="n2"/>
+        <text x="100" y="230" class="l2">gp100_antigen</text>
+        <text x="200" y="230" class="l2s">→ ... → melanoma</text>
+        <rect x="370" y="210" width="350" height="32" rx="4" class="ev2"/>
+        <text x="545" y="223" class="evlbl-warn">arm II evidence</text>
+        <text x="545" y="235" class="evlbl-warn">context.co_compounds = [aldesleukin, montanide]</text>
+      </svg>
+    </div>
+
+    <h4>Schema diff</h4>
+    <div class="diff">
+      <span class="file">src/graph/models.py:406-434 — EvidenceRecord</span>
+      <span class="ctx">  context: dict[str, Any] = Field(default_factory=dict)  # already exists</span>
+      <span class="add">  # New convention: classifier emissions from combo arms populate context["co_compounds"]</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/annotation/attributor.py:540-547 — EvidenceRecord construction</span>
+      <span class="add">+ if arm.is_combination:</span>
+      <span class="add">+     context["co_compounds"] = sorted(set(arm.compound_ids) - {emitting_compound})</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/graph/store.py:85 — get_edge_belief_conditioned</span>
+      <span class="rm">- def get_edge_belief_conditioned(src, tgt, edge_type, relevant_tissues, off_tissue_weight=0.3)</span>
+      <span class="add">+ def get_edge_belief_conditioned(src, tgt, edge_type, context_filter: dict, off_context_weight=0.3)</span>
+      <span class="ctx">  # relevant_tissues becomes sugar for context_filter={"tissue": tissues}</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/prediction/path_query.py:523 — predict_clinical_hypothesis</span>
+      <span class="add">+ def predict_clinical_hypothesis(..., context: dict | None = None)</span>
+      <span class="add">+ caller specifies co_compounds for combo predictions; engine threads through _collect_edges</span>
+    </div>
+
+    <h4>NCT00019682 worked example</h4>
+    <p>aldesleukin's <code>mechanism_affects</code> edge accumulates two records: arm I outcome (<code>co_compounds=[]</code>) and arm II outcome (<code>co_compounds=["gp100_antigen", "montanide_isa_51_vg"]</code>). Querying "aldesleukin monotherapy in melanoma" uses filter <code>{co_compounds: []}</code> — arm I record at full weight, arm II at <code>off_context_weight ≈ 0.3</code>. Conditioning exists; learning is preserved.</p>
+
+    <h4>Cross-indication transfer — ipi+nivo melanoma → ipi+nivo NSCLC</h4>
+    <p>Per-constituent chains preserved. Melanoma's combo trial updates per-constituent edges with <code>co_compounds=["nivolumab"]</code> / <code>["ipilimumab"]</code>. NSCLC trial samples those same edges with matching filters — melanoma records at full weight, mono records at <code>off_context_weight</code>. <span style="color:var(--good)">Compositional learning preserved on paper.</span></p>
+    <p><span style="color:var(--warn)">In practice</span>: most context cells are empty. <code>aldesleukin given [gp100, montanide]</code> matches no other trial's evidence at full weight — the conditioned belief falls back to marginal-or-near-marginal almost always.</p>
+
+    <h4>v0.1.0 lock surface — <span class="lockbadge high">High</span> (math signature change)</h4>
+    <ul>
+      <li>Math doesn't change shape (Beta-Binomial conjugate), but the <strong>retrieval signature</strong> gains a context-filter argument.</li>
+      <li>Trust-weight calculation: conditioned belief has fewer effective records → <code>evidence_strength</code> drops → trust drops. Correct, but changes prediction behavior; new tests needed.</li>
+      <li>Empty <code>context_filter</code> reproduces today's <code>get_edge_belief</code> exactly. Back-compat clean.</li>
+    </ul>
+
+    <h4>Pros / cons</h4>
+    <div class="pc">
+      <div class="col pros">
+        <h4>Pros</h4>
+        <ul>
+          <li><strong>Compositional learning preserved</strong> — chains stay per-constituent.</li>
+          <li>Conditioning is explicit and queryable.</li>
+          <li>Extends machinery that already exists (<code>get_edge_belief_conditioned</code>).</li>
+          <li>Generalizes beyond combos — line of therapy, biomarker status, prior treatment.</li>
+        </ul>
+      </div>
+      <div class="col cons">
+        <h4>Cons</h4>
+        <ul>
+          <li><strong>Sparsity nightmare</strong> — most conditional cells empty; predictions fall back to marginals constantly.</li>
+          <li>Combinatorial cells (<code>gp100 | aldesleukin</code> vs <code>gp100 | aldesleukin + montanide</code> vs …).</li>
+          <li>Smoothing rules between partitions need design.</li>
+          <li>Serialization redundancy (every record carries a dict).</li>
+          <li>Prediction API messier (caller must specify context).</li>
+        </ul>
+      </div>
+    </div>
+
+    <h4>Implementation cost</h4>
+    <p>Generalize <code>get_edge_belief_conditioned</code> (~30 lines). Attributor co_compounds tagging (~20 lines). Path query threading (~30 lines + default decisions). ~15 new tests. Existing records have empty context → context-free behavior on retrieval → back-compat.</p>
+  </div>
+</section>
+
+<!-- ──────────────── PATH 3 ──────────────── -->
+<section id="path3" class="path p3">
+  <div class="path-header">
+    <span class="label">Path 3</span>
+    <h3>Explicit combination edges</h3>
+    <div class="tagline">Keep per-constituent chains. Add new <code>EdgeType.MODULATES_EFFICACY_OF</code> between compound pairs. Combo trial arm differentials update the combination edge.</div>
+  </div>
+  <div class="path-body">
+
+    <div class="diagram">
+      <div class="diagram-title">NCT00019682 under Path 3 · per-constituent chains preserved + combination edges (new)</div>
+      <svg viewBox="0 0 900 290" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6776"/>
+          </marker>
+          <marker id="arr3-new" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#73daca"/>
+          </marker>
+        </defs>
+        <style>
+          .n3 { fill: #1d2632; stroke: #5a6776; stroke-width: 1.2; }
+          .l3 { fill: #d8e0e8; font: 11px sans-serif; text-anchor: middle; }
+          .l3s { fill: #8b97a7; font: 10px sans-serif; text-anchor: middle; }
+          .e3 { stroke: #5a6776; stroke-width: 1.2; fill: none; }
+          .e3-new { stroke: #73daca; stroke-width: 1.8; fill: none; stroke-dasharray: 5 3; }
+          .a3 { fill: #8b97a7; font: 11px sans-serif; font-weight: 600; }
+          .new-label { fill: #73daca; font: 11px sans-serif; font-weight: 600; }
+        </style>
+        <!-- aldesleukin chain -->
+        <rect x="50"  y="50" width="100" height="32" rx="4" class="n3"/>
+        <text x="100" y="70" class="l3">aldesleukin</text>
+        <rect x="190" y="50" width="70"  height="32" rx="4" class="n3"/>
+        <text x="225" y="70" class="l3">IL2RA</text>
+        <rect x="300" y="50" width="130" height="32" rx="4" class="n3"/>
+        <text x="365" y="70" class="l3">receptor_agonism</text>
+        <rect x="470" y="50" width="140" height="32" rx="4" class="n3"/>
+        <text x="540" y="70" class="l3">R-HSA-...</text>
+        <rect x="650" y="50" width="90" height="32" rx="4" class="n3"/>
+        <text x="695" y="70" class="l3">melanoma</text>
+        <line x1="150" y1="66" x2="190" y2="66" class="e3" marker-end="url(#arr3)"/>
+        <line x1="260" y1="66" x2="300" y2="66" class="e3" marker-end="url(#arr3)"/>
+        <line x1="430" y1="66" x2="470" y2="66" class="e3" marker-end="url(#arr3)"/>
+        <line x1="610" y1="66" x2="650" y2="66" class="e3" marker-end="url(#arr3)"/>
+
+        <!-- gp100 chain -->
+        <rect x="50"  y="170" width="100" height="32" rx="4" class="n3"/>
+        <text x="100" y="190" class="l3">gp100_antigen</text>
+        <rect x="190" y="170" width="70"  height="32" rx="4" class="n3"/>
+        <text x="225" y="190" class="l3s">PMEL*</text>
+        <rect x="300" y="170" width="130" height="32" rx="4" class="n3"/>
+        <text x="365" y="190" class="l3">immune_costim</text>
+        <rect x="470" y="170" width="140" height="32" rx="4" class="n3"/>
+        <text x="540" y="190" class="l3s">immune_cost__mel</text>
+        <rect x="650" y="170" width="90" height="32" rx="4" class="n3"/>
+        <text x="695" y="190" class="l3">melanoma</text>
+        <line x1="150" y1="186" x2="190" y2="186" class="e3" marker-end="url(#arr3)"/>
+        <line x1="260" y1="186" x2="300" y2="186" class="e3" marker-end="url(#arr3)"/>
+        <line x1="430" y1="186" x2="470" y2="186" class="e3" marker-end="url(#arr3)"/>
+        <line x1="610" y1="186" x2="650" y2="186" class="e3" marker-end="url(#arr3)"/>
+
+        <!-- NEW combination edge -->
+        <path d="M 100 82 C 100 130 100 130 100 170" class="e3-new" marker-end="url(#arr3-new)"/>
+        <text x="200" y="128" class="new-label">modulates_efficacy_of</text>
+        <text x="200" y="142" class="l3s">(updated from arm I vs arm II differential)</text>
+
+        <text x="100" y="260" class="l3s">Per-constituent chains untouched.</text>
+        <text x="100" y="273" class="l3s">Combo evidence has a natural home on the new edge.</text>
+        <text x="540" y="260" class="new-label">Cross-indication transfer:</text>
+        <text x="540" y="273" class="l3s">the combination edge belief itself moves to NSCLC.</text>
+      </svg>
+    </div>
+
+    <h4>Schema diff</h4>
+    <div class="diff">
+      <span class="file">src/graph/models.py:146-180 — EdgeType enum</span>
+      <span class="ctx">  AFFECTS = "affects"</span>
+      <span class="ctx">  MODULATES_VIA = "modulates_via"</span>
+      <span class="ctx">  ...</span>
+      <span class="add">+ MODULATES_EFFICACY_OF = "modulates_efficacy_of"</span>
+      <span class="add">+ # Compound → Compound. Belief = P(adding B to A's regimen improves A's effect</span>
+      <span class="add">+ # on the indication). Direction: lex order on compound id. Treated as symmetric.</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/graph/models.py — GraphEdge (no schema change)</span>
+      <span class="ctx">  Standard EdgeBeliefState works.</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/annotation/attributor.py — NEW emission path</span>
+      <span class="add">+ if trial has arms where one is a strict subset of another (A vs A+B):</span>
+      <span class="add">+     compute arm II − arm I outcome differential</span>
+      <span class="add">+     emit MODULATES_EFFICACY_OF update on the (A, B) edge (lex-ordered)</span>
+      <span class="add">+ elif single-arm combo:</span>
+      <span class="add">+     emit weaker ambiguous/weak_* updates on every pair in the regimen</span>
+    </div>
+    <div class="diff">
+      <span class="file">src/prediction/path_query.py:380 — _collect_edges</span>
+      <span class="add">+ for regimen prediction: include MODULATES_EFFICACY_OF edges for each pair in the regimen</span>
+      <span class="ctx">  Aggregation uses existing trust-weighted geomean — no new math.</span>
+    </div>
+    <div class="diff">
+      <span class="file">EvidenceRecord context tag (defensive)</span>
+      <span class="add">+ combination-edge records carry context["indication"] = chain.indication_id</span>
+      <span class="add">+ → future indication-conditioning refinement is non-breaking</span>
+    </div>
+
+    <h4>NCT00019682 worked example</h4>
+    <pre><code>aldesleukin chain      : unchanged (gets evidence from arm I direct, arm II fan-out)
+gp100_antigen chain    : unchanged (gets evidence from arm II)
+
+NEW combination edges:
+  gp100_antigen ↔ aldesleukin  ← arm I vs arm II differential (moderate_support / etc)
+  montanide     ↔ aldesleukin  ← arm I vs arm II differential
+  gp100_antigen ↔ montanide    ← weaker (no monotherapy comparator for this pair)</code></pre>
+    <p>When predicting <code>aldesleukin + gp100 + montanide → melanoma</code>, the engine multiplies per-constituent path probabilities by the per-pair combination edge beliefs (geometric mean with trust weights). When predicting <code>aldesleukin → melanoma</code> alone, no combination edges are pulled in.</p>
+
+    <h4>Cross-indication transfer — ipi+nivo melanoma → ipi+nivo NSCLC</h4>
+    <p>Per-constituent chains preserved → per-constituent inheritance works as today. <strong>Plus</strong>: the <code>ipilimumab ↔ nivolumab</code> combination edge belief is updated by the melanoma trial and inherited by the NSCLC trial. <span style="color:var(--good)">"ipi+nivo synergy" learning transfers across indications, even without any NSCLC ipi+nivo trial having been observed.</span> This is the architectural payoff.</p>
+
+    <h4>Caveats</h4>
+    <ul>
+      <li><strong>Indication-agnostic by default.</strong> Honest version: combination edges carry <code>context["indication"]</code> per record, so a later refinement (Path 2 mechanism applied to one edge type) can introduce conditioning — bounded scope, clear payoff.</li>
+      <li><strong>Pairwise assumption.</strong> 3-way combos decompose into pairs; genuinely 3-way non-decomposable interactions can't be represented. Pairwise is the floor above "no representation."</li>
+      <li><strong>Symmetry convention.</strong> Store one direction by lex order; prediction code reads symmetrically.</li>
+    </ul>
+
+    <h4>v0.1.0 lock surface — <span class="lockbadge medium">Medium</span></h4>
+    <ul>
+      <li>New edge type added; existing edges keep their semantics.</li>
+      <li>Aggregation method (trust-weighted geomean) unchanged.</li>
+      <li>Edge topology technically perturbed, but the perturbation is additive (new edge type) rather than rewriting any existing edge's behavior.</li>
+    </ul>
+
+    <h4>Pros / cons</h4>
+    <div class="pc">
+      <div class="col pros">
+        <h4>Pros</h4>
+        <ul>
+          <li><strong>Compositional learning preserved</strong> (per-constituent chains untouched).</li>
+          <li>Combo evidence has a natural, queryable home.</li>
+          <li>Combination edges <em>themselves</em> transfer across indications.</li>
+          <li>Smallest v0.1.0 lock surface — one new edge type, no math change.</li>
+          <li>Aggregation reuses existing trust-weighted geomean.</li>
+        </ul>
+      </div>
+      <div class="col cons">
+        <h4>Cons</h4>
+        <ul>
+          <li>Pairwise assumption — 3-way interactions can't be expressed natively.</li>
+          <li>Combination edges are sparse, but bounded: <code>O(C²)</code> pairs, not combinatorial cells.</li>
+          <li>Indication-conditioning is a separate open question.</li>
+          <li>Symmetry convention needed.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h4>Implementation cost</h4>
+    <p>Enum + direction helper (~10 lines). Attributor arm-differential emission (~80-120 lines). Attributor single-arm-combo weaker emission (~30 lines). Path query inclusion (~30 lines). ~10-15 new tests. No migration required — existing trial subgraphs have no combination edges and predictions stay valid; retro-fit pass on cached classifications is optional.</p>
+  </div>
+</section>
+
+<!-- ──────────────── MATRIX ──────────────── -->
+<section id="matrix">
+<h2>Scoring matrix</h2>
+<table class="matrix">
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th class="p1head">Path 1 — arm chains</th>
+      <th class="p2head">Path 2 — context Betas</th>
+      <th class="p3head">Path 3 — combo edges</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>v0.1.0 lock impact</td>
+      <td class="bad">High</td>
+      <td class="bad">High (math signature)</td>
+      <td class="pick warn">Medium (new edge type)</td>
+    </tr>
+    <tr>
+      <td>Compositional preservation</td>
+      <td class="bad">Lost</td>
+      <td class="warn">Preserved on paper</td>
+      <td class="pick good">Preserved</td>
+    </tr>
+    <tr>
+      <td>Cross-indication transfer · mono evidence</td>
+      <td class="bad">Poor</td>
+      <td class="good">Strong</td>
+      <td class="pick good">Strong</td>
+    </tr>
+    <tr>
+      <td>Cross-indication transfer · combo evidence</td>
+      <td class="bad">Poor</td>
+      <td class="warn">Weak (sparse cells)</td>
+      <td class="pick good">Strong (edges transfer)</td>
+    </tr>
+    <tr>
+      <td>Conditioning honesty</td>
+      <td class="good">Excellent</td>
+      <td class="good">Excellent (theory)</td>
+      <td class="pick good">Good</td>
+    </tr>
+    <tr>
+      <td>Combo trial scoring</td>
+      <td class="good">Natural</td>
+      <td class="bad">Complex (caller context)</td>
+      <td class="pick good">Natural</td>
+    </tr>
+    <tr>
+      <td>Sparsity behavior</td>
+      <td class="bad">Very high (unique regimens)</td>
+      <td class="bad">Highest (combinatorial cells)</td>
+      <td class="pick warn">High but bounded · O(C²)</td>
+    </tr>
+    <tr>
+      <td>Implementation complexity</td>
+      <td class="warn">Med-High (fuzzy resolver)</td>
+      <td class="warn">High (API change)</td>
+      <td class="pick good">Medium (additive)</td>
+    </tr>
+    <tr>
+      <td>Generalizes beyond combos</td>
+      <td class="bad">No</td>
+      <td class="good">Yes (line, biomarker, etc.)</td>
+      <td class="pick neutral">No</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ──────────────── DECISION ──────────────── -->
+<section id="decision">
+<h2>Decision</h2>
+<div class="callout decision">
+  <h4>Path 3 — explicit combination edges</h4>
+  <p>One new edge type (<code>MODULATES_EFFICACY_OF</code>), no math change, no signature change to <code>predict_clinical_hypothesis</code>. Preserves the compositional thesis. Lets combo learning itself transfer across indications.</p>
+</div>
+
+<h3>Reasoning</h3>
+<ol>
+  <li><strong>Compositional thesis preserved.</strong> CLAUDE.md frames the goal as "decompose trial outcomes into mechanistic causal-chain updates" and produce "interpretable, compositional predictions." Path 1 sacrifices this. Path 2 nominally preserves it but sparsity makes the conditioned beliefs mostly empty — in practice it looks like Path 1 without admitting it.</li>
+  <li><strong>Smallest v0.1.0 lock perturbation.</strong> Adding an edge type is the most surgical change available. Paths 1 and 2 each touch the math or the chain-construction loop.</li>
+  <li><strong>Cross-indication transfer of combo learning is the architectural payoff.</strong> Path 3 makes "ipi+nivo synergy" first-class graph state that transfers across indications. Path 1 can't — regimen nodes are unique and don't inherit. Path 2 can't in practice — conditioned cells rarely fire.</li>
+  <li><strong>Bounded sparsity.</strong> Combination edges scale <code>O(C²)</code> in compounds, not combinatorial in context cells. At 100 compounds, ≤ 10,000 possible pairs; at the corpus's actual repeat rate, hundreds will see evidence within a few thousand trials.</li>
+  <li><strong>Faithful to <code>feedback_simple_faithful</code>.</strong> The simplest change that serves the thesis. Adding an edge type is simpler than changing the math.</li>
+</ol>
+
+<h3>Honest caveats (known followups, not blockers)</h3>
+<ul>
+  <li><strong>Pairwise restriction.</strong> Acceptable now — every existing combo trial in the slice is decomposable into pairs.</li>
+  <li><strong>Indication-conditioning of combination edges</strong> deferred. v1 is indication-agnostic with <code>context["indication"]</code> tagged on each evidence record so a later refinement can introduce conditioning. This is the right place for Path 2's mechanism to land — bounded scope, clear payoff.</li>
+  <li><strong>Symmetry.</strong> Store one direction by lex order; prediction code reads symmetrically.</li>
+</ul>
+</section>
+
+<!-- ──────────────── BRANCH PLAN ──────────────── -->
+<section id="branch">
+<h2>Branch plan</h2>
+<p>Branch: <code>arch-conditioning-v0.2-combo-edges</code>. Each step a separate commit; verify slice predictions after each.</p>
+<ol class="plan">
+  <li><strong>Add <code>EdgeType.MODULATES_EFFICACY_OF</code></strong> + canonical direction helper. Tests for enum validation. ~10 lines.</li>
+  <li><strong>Attributor: arm-differential emission</strong> for trials with a monotherapy comparator. Tests on NCT00019682 (arm I = <code>aldesleukin</code>, arm II = <code>aldesleukin + gp100 + montanide</code> → one combination edge per non-aldesleukin constituent, lex-ordered). ~80 lines + tests.</li>
+  <li><strong>Attributor: single-arm-combo weaker emission.</strong> Tests on NCT00003222 (single-arm 6-compound combo → emit 15 pair updates at <code>ambiguous</code>/<code>weak_*</code>). ~30 lines + tests.</li>
+  <li><strong>Path query: include combination edges</strong> in <code>_collect_edges</code> when the queried compound is a regimen or the caller passes a combo context. ~40 lines + tests.</li>
+  <li><strong>Tag <code>context["indication"]</code> on combination-edge evidence</strong> so future indication-conditioning is non-breaking. ~5 lines.</li>
+  <li><strong>Rebuild slice; re-run audit loop.</strong> Verify: (a) NCT00019682 combination edges have meaningful beliefs, (b) per-constituent chain coverage stays at 47/48, (c) all 10 predictions still succeed. No new audit findings on the slice.</li>
+  <li><strong>Bring back the headline-picker question.</strong> With architecture settled, the inspect_trial chain choice rule becomes well-defined (prefer chain matching the primary hypothesis OR the regimen prediction wired through combination edges). Follow-up PR off the same branch or main.</li>
+</ol>
+<p><strong>Merge gate</strong>: slice audit clean, all tests passing, snapshot diff inspected, user reviews on branch before merge per <code>feedback_architecture_branches</code>.</p>
+</section>
+
+<!-- ──────────────── OUT OF SCOPE ──────────────── -->
+<section id="notdecided">
+<h2>What this doc does NOT decide</h2>
+<p>Downstream of Path 3; tractable once it lands.</p>
+<ul>
+  <li><strong>Reactome biology re-ranking</strong> (round-7 Finding #2). Biology stays per-constituent; re-ranking can proceed without architectural blockage. Round 9 candidate.</li>
+  <li><strong>Classifier per-arm edge emission</strong> (round-7 Finding #3). Combination edges are derived from arm outcome data structurally, not from classifier-emitted edges. Per-arm classifier work drops in priority. Round 10+, scale-driven.</li>
+  <li><strong>Per-compound AE attribution density</strong> (round-7 Finding #4). Orthogonal. Defer until scale evidence demands.</li>
+  <li><strong>Peptide-vaccine target heuristic</strong> (round-7 Finding #5). Orthogonal. Could ship on <code>main</code> now, independent of this branch.</li>
+</ul>
+</section>
+
+</main>
+</body>
+</html>
