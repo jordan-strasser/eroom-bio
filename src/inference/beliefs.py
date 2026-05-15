@@ -175,6 +175,66 @@ def flip_bucket(bucket: SupportBucket) -> SupportBucket:
     }[bucket]
 
 
+def modulation_bucket(
+    direction: str,
+    confidence: float,
+) -> SupportBucket:
+    """Map LLM-emitted (direction, confidence) to a SupportBucket.
+
+    The v0.3.0 modulation classifier emits each modulation as a
+    ``direction`` (``amplifies`` | ``suppresses`` | ``neutral``) plus a
+    numeric ``confidence`` in [0, 1]. Direction picks the side
+    (support vs contradict); confidence picks the magnitude. Below the
+    ``AMBIGUOUS`` floor any modulation collapses to AMBIGUOUS — at that
+    point the LLM is unsure enough that we don't want it driving an
+    edge belief either way.
+
+    ``neutral`` ALWAYS maps to AMBIGUOUS — at any confidence. A trial
+    that didn't demonstrate amplification has many possible explanations
+    beyond "the modulator does nothing" (wrong dose, wrong population,
+    underpowered, AE-driven discontinuation, endpoint didn't capture the
+    modulation's effect, …). So "neutral" is genuinely "no information
+    about the modulation edge," not "evidence the modulation is false."
+
+    A *confident* neutral still does work, though — at AMBIGUOUS p_obs=0.5
+    the Beta-Binomial update shrinks the posterior toward 0.5 with weight
+    proportional to ``n_eff`` (Phase 3 = 15, etc.). So confident neutral
+    on a Phase 3 failed trial encodes "strong evidence we don't know"
+    rather than "we have no signal at all" — exactly the right epistemic
+    behavior given the failure-mode confounders above.
+
+    Thresholds:
+      - ``< 0.55`` confidence → AMBIGUOUS regardless of direction
+      - ``≥ 0.85`` + amplifies → STRONG_SUPPORT
+      - ``≥ 0.70`` + amplifies → MODERATE_SUPPORT
+      - ``≥ 0.55`` + amplifies → WEAK_SUPPORT
+      - ``≥ 0.85`` + suppresses → STRONG_CONTRADICT
+      - ``≥ 0.70`` + suppresses → MODERATE_CONTRADICT
+      - ``≥ 0.55`` + suppresses → WEAK_CONTRADICT
+      - neutral (any confidence ≥ 0.55) → AMBIGUOUS
+
+    Effective sample size for modulation edges is set by the trial's
+    evidence type (Phase 3 = 15, Phase 2 = 6, etc.) just like every
+    other LLM-attributed edge — the LLM doesn't estimate N_eff.
+    """
+    if direction == "neutral" or confidence < 0.55:
+        return SupportBucket.AMBIGUOUS
+    if direction == "amplifies":
+        if confidence >= 0.85:
+            return SupportBucket.STRONG_SUPPORT
+        if confidence >= 0.70:
+            return SupportBucket.MODERATE_SUPPORT
+        return SupportBucket.WEAK_SUPPORT
+    if direction == "suppresses":
+        if confidence >= 0.85:
+            return SupportBucket.STRONG_CONTRADICT
+        if confidence >= 0.70:
+            return SupportBucket.MODERATE_CONTRADICT
+        return SupportBucket.WEAK_CONTRADICT
+    # Unknown direction string → conservative AMBIGUOUS rather than crash.
+    return SupportBucket.AMBIGUOUS
+
+
 def apply_virtual_evidence(
     belief: EdgeBeliefState,
     *,
