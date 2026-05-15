@@ -585,6 +585,7 @@ class TrialSubgraph(BaseModel):
 
 _ENSG_PATTERN = re.compile(r"^ENSG\d{6,}$")
 _REACTOME_PATTERN = re.compile(r"^R-[A-Z]{3}-\d+$")
+_GO_PATTERN = re.compile(r"^GO:\d{7}$")
 _DRUGBANK_PATTERN = re.compile(r"^DB\d{5,}$")
 # {indication}__{feature_slug}[__{feature_slug}...]
 # Feature slugs may contain single underscores (e.g. "pdcd1_high",
@@ -647,14 +648,19 @@ def normalize_entity(name: str, node_type: str) -> str:
             return MechanismCategory.OTHER.value
 
     if node_type == "BiologyNode":
-        # Two valid id forms:
+        # Three valid id forms:
         #   1. Reactome stable ID (canonical, ground truth from LINCS).
-        #   2. ``{mechanism_category}__{indication_slug}`` synthetic slug,
-        #      used as a fallback when LINCS/Reactome data isn't available
-        #      for a given (mechanism, indication) pair. Lets the
-        #      prediction engine traverse the full chain even without
-        #      CLUE_API_KEY.
+        #   2. Gene Ontology term id (``GO:NNNNNNN``), used when a gene is
+        #      sparsely represented in Reactome but has rich GO biological-
+        #      process annotations (CRBN being the canonical example).
+        #      Resolved via QuickGO; see src/ingestion/quickgo.py.
+        #   3. ``{mechanism_category}__{indication_slug}`` synthetic slug,
+        #      used as a fallback when neither Reactome nor GO has useful
+        #      annotations. Lets the prediction engine traverse the full
+        #      chain even without external data.
         if _REACTOME_PATTERN.match(raw):
+            return raw
+        if _GO_PATTERN.match(raw):
             return raw
         if "__" in raw:
             mech_part, ind_part = raw.split("__", 1)
@@ -674,7 +680,8 @@ def normalize_entity(name: str, node_type: str) -> str:
             return f"{mech_part}__{ind_slug}"
         raise ValueError(
             f"BiologyNode id '{name}' must be a Reactome stable ID "
-            f"(e.g. R-HSA-9006934) or a '{{mechanism}}__{{indication}}' slug"
+            f"(e.g. R-HSA-9006934), a Gene Ontology term id (e.g. "
+            f"GO:0016567), or a '{{mechanism}}__{{indication}}' slug"
         )
 
     if node_type == "BiomarkerNode":

@@ -15,6 +15,7 @@ from src.graph.hgnc_resolver import (
     is_loaded,
     load,
     reset_for_test,
+    uniprot_for_symbol,
 )
 
 
@@ -22,12 +23,13 @@ from src.graph.hgnc_resolver import (
 
 
 _HGNC_FIXTURE = """\
-hgnc_id\tsymbol\tname\talias_symbol\tprev_symbol
-HGNC:17635\tCD274\tCD274 molecule\tB7-H1|PD-L1|PDCD1L1|PDCD1LG1|PDL1\t
-HGNC:8760\tPDCD1\tprogrammed cell death 1\tPD-1|hPD-1|hSLE1\tPD1
-HGNC:2376\tCTLA4\tcytotoxic T-lymphocyte associated protein 4\tCD152|CTLA-4\t
-HGNC:3236\tEGFR\tepidermal growth factor receptor\tERBB|HER1|ERBB1\tERBB
-HGNC:6407\tKRAS\tKRAS proto-oncogene\tNS3|RASK2|KRAS1|KRAS2\tKRAS2
+hgnc_id\tsymbol\tname\talias_symbol\tprev_symbol\tuniprot_ids
+HGNC:17635\tCD274\tCD274 molecule\tB7-H1|PD-L1|PDCD1L1|PDCD1LG1|PDL1\t\tQ9NZQ7
+HGNC:8760\tPDCD1\tprogrammed cell death 1\tPD-1|hPD-1|hSLE1\tPD1\tQ15116
+HGNC:2376\tCTLA4\tcytotoxic T-lymphocyte associated protein 4\tCD152|CTLA-4\t\tP16410
+HGNC:3236\tEGFR\tepidermal growth factor receptor\tERBB|HER1|ERBB1\tERBB\tP00533
+HGNC:6407\tKRAS\tKRAS proto-oncogene\tNS3|RASK2|KRAS1|KRAS2\tKRAS2\tP01116
+HGNC:30185\tCRBN\tcereblon\tAD-006\t\tQ96SW2
 """
 
 
@@ -67,13 +69,13 @@ class TestNormalize:
 
 class TestParseTsv:
     def test_canonical_maps_to_itself(self, hgnc_tsv_path: Path):
-        lookup, _ = _parse_hgnc_tsv(hgnc_tsv_path)
+        lookup, _, _ = _parse_hgnc_tsv(hgnc_tsv_path)
         assert lookup["cd274"] == "CD274"
         assert lookup["pdcd1"] == "PDCD1"
         assert lookup["egfr"] == "EGFR"
 
     def test_aliases_map_to_canonical(self, hgnc_tsv_path: Path):
-        lookup, originals = _parse_hgnc_tsv(hgnc_tsv_path)
+        lookup, originals, _ = _parse_hgnc_tsv(hgnc_tsv_path)
         # PD-L1 family
         assert lookup["pdl1"] == "CD274"
         assert lookup["b7h1"] == "CD274"
@@ -126,6 +128,27 @@ class TestCanonicalSymbol:
     def test_aliases_for_unknown_returns_empty(self, hgnc_tsv_path: Path):
         load(cache_path=hgnc_tsv_path, download_if_missing=False)
         assert aliases_for("FOOBAR_NOT_A_GENE") == []
+
+
+class TestUniProtLookup:
+    def test_canonical_symbol_returns_uniprot(self, hgnc_tsv_path: Path):
+        load(cache_path=hgnc_tsv_path, download_if_missing=False)
+        assert uniprot_for_symbol("CRBN") == "Q96SW2"
+        assert uniprot_for_symbol("CD274") == "Q9NZQ7"
+
+    def test_alias_resolves_through_canonical(self, hgnc_tsv_path: Path):
+        """uniprot_for_symbol should resolve aliases the same way
+        canonical_symbol does — PD-L1 → CD274 → Q9NZQ7."""
+        load(cache_path=hgnc_tsv_path, download_if_missing=False)
+        assert uniprot_for_symbol("PD-L1") == "Q9NZQ7"
+        assert uniprot_for_symbol("PD-1") == "Q15116"
+
+    def test_unknown_symbol_returns_none(self, hgnc_tsv_path: Path):
+        load(cache_path=hgnc_tsv_path, download_if_missing=False)
+        assert uniprot_for_symbol("FOOBAR_NOT_A_GENE") is None
+
+    def test_empty_input_returns_none(self):
+        assert uniprot_for_symbol("") is None
 
     def test_returns_none_when_resolver_disabled(self, tmp_path: Path):
         # Cache absent + download skipped → resolver becomes a no-op,

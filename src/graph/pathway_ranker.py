@@ -17,9 +17,24 @@ cross-indication queries against the alternates remain answerable.
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from typing import Iterable, Protocol, TypeVar
 
-from src.ingestion.lincs import ReactomePathway
+
+class BiologyCandidate(Protocol):
+    """Structural type for anything the ranker can score.
+
+    Both ``src.ingestion.lincs.ReactomePathway`` and
+    ``src.ingestion.quickgo.GOTerm`` satisfy this protocol — they each
+    carry a stable id and a human-readable display name. The ranker
+    works on any iterable of objects with these two fields, so the same
+    scoring rule applies whether we're picking among Reactome pathways
+    or GO biological-process terms.
+    """
+    stable_id: str
+    display_name: str
+
+
+_T = TypeVar("_T", bound=BiologyCandidate)
 
 
 # Generic English connectives + a handful of Reactome boilerplate tokens that
@@ -124,17 +139,50 @@ def _mechanism_expansion(mechanism_name: str) -> set[str]:
     return MECHANISM_PATHWAY_TOKENS.get(mechanism_name, set())
 
 
-def rerank_pathways(
-    pathways: Iterable[ReactomePathway],
+def _context_tokens(
+    mechanism_name: str, indication_name: str, gene_symbol: str
+) -> set[str]:
+    return (
+        _tokenize(mechanism_name)
+        | _mechanism_expansion(mechanism_name)
+        | _tokenize(indication_name)
+        | _tokenize(gene_symbol)
+    )
+
+
+def score_candidate(
+    candidate: BiologyCandidate,
     *,
     mechanism_name: str = "",
     indication_name: str = "",
     gene_symbol: str = "",
-) -> list[ReactomePathway]:
-    """Re-rank a list of Reactome pathways by relevance to the chain context.
+) -> int:
+    """Score a single biology candidate against the chain context.
 
-    The score is the number of context tokens that overlap any pathway token
-    via the boundary-aligned overlap rule. Context tokens are drawn from:
+    Exposed so the populator can decide whether Reactome's best pick has any
+    context signal at all, and whether GO's best pick beats it. Returns 0
+    when there's no meaningful overlap (the candidate is off-context — at
+    that point we should look for a different source).
+    """
+    context = _context_tokens(mechanism_name, indication_name, gene_symbol)
+    if not context:
+        return 0
+    return _overlap_score(_tokenize(candidate.display_name), context)
+
+
+def rerank_pathways(
+    pathways: Iterable[_T],
+    *,
+    mechanism_name: str = "",
+    indication_name: str = "",
+    gene_symbol: str = "",
+) -> list[_T]:
+    """Re-rank a list of biology candidates by relevance to the chain context.
+
+    Accepts any iterable of objects satisfying ``BiologyCandidate`` (a stable
+    id + a display name). The score is the number of context tokens that
+    overlap any name token via the boundary-aligned overlap rule. Context
+    tokens are drawn from:
       * the mechanism slug itself, tokenized (e.g. ``kinase_inhibition`` →
         {kinase, inhibition})
       * the mechanism's expansion vocabulary from ``MECHANISM_PATHWAY_TOKENS``
@@ -143,19 +191,14 @@ def rerank_pathways(
       * the gene symbol
 
     Higher score → higher rank. Ties preserve input order (stable sort), so
-    a context with no signal leaves Reactome's order unchanged.
+    a context with no signal leaves the original order unchanged.
     """
     items = list(pathways)
-    context_tokens = (
-        _tokenize(mechanism_name)
-        | _mechanism_expansion(mechanism_name)
-        | _tokenize(indication_name)
-        | _tokenize(gene_symbol)
-    )
-    if not context_tokens:
+    context = _context_tokens(mechanism_name, indication_name, gene_symbol)
+    if not context:
         return items
 
-    def key(p: ReactomePathway) -> int:
-        return -_overlap_score(_tokenize(p.display_name), context_tokens)
+    def key(p: _T) -> int:
+        return -_overlap_score(_tokenize(p.display_name), context)
 
     return sorted(items, key=key)
