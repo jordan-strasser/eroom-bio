@@ -724,6 +724,38 @@ class TestSingleArmComboModulation:
         assert mod_updates == []
 
 
+# ── Modulation evidence context (indication tagging) ────────────────────
+
+
+class TestModulationEvidenceContext:
+    def test_indication_tagged_on_differential_emission(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates
+        for u in mod_updates:
+            assert u.evidence.context.get("indication") == "melanoma"
+
+    def test_indication_tagged_on_single_arm_emission(self):
+        g, ts = _seed_single_arm_combo(("a", "b"), TrialOutcome.SUCCESS)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates
+        for u in mod_updates:
+            assert u.evidence.context.get("indication") == "melanoma"
+
+
 # ── AppliedEdgeUpdate ───────────────────────────────────────────────────
 
 

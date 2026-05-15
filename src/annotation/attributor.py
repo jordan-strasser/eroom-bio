@@ -903,7 +903,14 @@ class Attributor:
         note: str,
     ) -> AppliedEdgeUpdate:
         """Create the modulation edge with a neutral prior if absent, then
-        apply one evidence record. Returns the AppliedEdgeUpdate."""
+        apply one evidence record. Returns the AppliedEdgeUpdate.
+
+        Every modulation evidence record carries ``context["indication"]``
+        so a future v0.2.x refinement can apply Path-2-style conditioning
+        on this edge type (sample beliefs only under the queried
+        indication, downweight off-context records). v0.2.0 doesn't read
+        the context yet — it's tagged forward-compatibly.
+        """
         if not self.graph._graph.has_edge(  # noqa: SLF001
             src, tgt, key=EdgeType.MODULATES_EFFICACY_OF.value,
         ):
@@ -917,6 +924,10 @@ class Attributor:
         pre_belief = self.graph.get_edge_belief(
             src, tgt, EdgeType.MODULATES_EFFICACY_OF,
         )
+        indication_id = trial.chains[0].indication_id if trial.chains else None
+        evidence_context: dict[str, Any] = {}
+        if indication_id and indication_id != _UNKNOWN_PLACEHOLDER:
+            evidence_context["indication"] = indication_id
         evidence = EvidenceRecord(
             source_id=trial.trial_id,
             source_type=evidence_type,
@@ -924,6 +935,7 @@ class Attributor:
             quality_score=min(classification.confidence, 1.0),
             timestamp=datetime.now(timezone.utc),
             notes=note,
+            context=evidence_context,
         )
         post_belief = self.graph.update_edge_belief(
             src, tgt, EdgeType.MODULATES_EFFICACY_OF, evidence,
