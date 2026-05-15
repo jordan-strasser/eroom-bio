@@ -106,8 +106,8 @@ def _tokens_overlap(a: str, b: str) -> bool:
     return b.startswith(a) or b.endswith(a)
 
 
-def _overlap_score(path_tokens: set[str], context_tokens: set[str]) -> int:
-    """Count context tokens that overlap any pathway token.
+def _raw_overlap_count(path_tokens: set[str], context_tokens: set[str]) -> int:
+    """Count context tokens that overlap any pathway token (no length norm).
 
     Each context token contributes at most +1 (we break on first match), so
     a pathway with many overlapping mentions of the same context token
@@ -124,6 +124,29 @@ def _overlap_score(path_tokens: set[str], context_tokens: set[str]) -> int:
                 score += 1
                 break
     return score
+
+
+def _overlap_score(path_tokens: set[str], context_tokens: set[str]) -> float:
+    """Pathway-name-length-normalized overlap score.
+
+    Returns ``matches / len(path_tokens)`` — the fraction of the pathway's
+    own name that is on-topic for the chain context. Verbose specific names
+    (e.g. GO:0038033 "positive regulation of endothelial cell chemotaxis by
+    VEGF-activated vascular endothelial growth factor receptor signaling
+    pathway", 14 tokens) get penalized relative to short canonical names
+    (e.g. R-HSA-194138 "Signaling by VEGF", 2 tokens). Without this, longer
+    names win simply by giving more tokens chances to overlap, which biases
+    selection toward over-specific biology and fragments evidence pooling.
+
+    Returns 0.0 when the pathway has no scoreable tokens after filtering.
+    """
+    if not path_tokens:
+        return 0.0
+    scoreable = [t for t in path_tokens if len(t) >= _MIN_TOKEN_LEN]
+    if not scoreable:
+        return 0.0
+    matches = _raw_overlap_count(path_tokens, context_tokens)
+    return matches / len(scoreable)
 
 
 def _mechanism_expansion(mechanism_name: str) -> set[str]:
@@ -156,17 +179,18 @@ def score_candidate(
     mechanism_name: str = "",
     indication_name: str = "",
     gene_symbol: str = "",
-) -> int:
+) -> float:
     """Score a single biology candidate against the chain context.
 
-    Exposed so the populator can decide whether Reactome's best pick has any
-    context signal at all, and whether GO's best pick beats it. Returns 0
-    when there's no meaningful overlap (the candidate is off-context — at
-    that point we should look for a different source).
+    Returns the pathway-name-length-normalized overlap score (matches /
+    name_tokens, a fraction in [0, 1]). 0.0 means no context signal at all;
+    higher values mean a larger fraction of the pathway's own name is
+    on-topic for the chain context. Used by the populator to decide whether
+    a GO term outscores Reactome's best for the same gene.
     """
     context = _context_tokens(mechanism_name, indication_name, gene_symbol)
     if not context:
-        return 0
+        return 0.0
     return _overlap_score(_tokenize(candidate.display_name), context)
 
 
@@ -180,9 +204,16 @@ def rerank_pathways(
     """Re-rank a list of biology candidates by relevance to the chain context.
 
     Accepts any iterable of objects satisfying ``BiologyCandidate`` (a stable
-    id + a display name). The score is the number of context tokens that
-    overlap any name token via the boundary-aligned overlap rule. Context
-    tokens are drawn from:
+    id + a display name). The score is pathway-name-length-normalized: the
+    fraction of the pathway's own name tokens that overlap any context token
+    via the boundary-aligned overlap rule. Normalization keeps short canonical
+    names (e.g. "Signaling by VEGF") competitive against verbose specific
+    names (e.g. "positive regulation of endothelial cell chemotaxis by ...")
+    that would otherwise win simply by having more tokens to roll the dice on.
+    The downstream consequence is that biology nodes tend toward general,
+    re-usable terms — better evidence pooling across trials.
+
+    Context tokens are drawn from:
       * the mechanism slug itself, tokenized (e.g. ``kinase_inhibition`` →
         {kinase, inhibition})
       * the mechanism's expansion vocabulary from ``MECHANISM_PATHWAY_TOKENS``
@@ -198,7 +229,7 @@ def rerank_pathways(
     if not context:
         return items
 
-    def key(p: _T) -> int:
+    def key(p: _T) -> float:
         return -_overlap_score(_tokenize(p.display_name), context)
 
     return sorted(items, key=key)

@@ -1482,13 +1482,16 @@ class PopulationPipeline:
             gene_symbol=gene_symbol,
         )
 
-        # GO augmentation: when Reactome's best context-relevant pathway
-        # still scores 0 (no context-token overlap at all), Reactome's
-        # curation is failing this gene — fall back to QuickGO biological-
-        # process annotations. CRBN is the canonical case: Reactome only
-        # has "Potential therapeutics for SARS" for it, while GO has clean
-        # terms for protein ubiquitination, proteasome-mediated catabolism,
-        # CRL4 complex activity, etc.
+        # GO augmentation: always query QuickGO for the gene's BP annotations
+        # and let the scoring comparison decide whether Reactome's best
+        # candidate or GO's best is more context-relevant. The previous
+        # "trigger only when Reactome scores 0" rule was a false-negative
+        # trap — it kept Reactome whenever it had even a coincidental
+        # score-1 match, missing cases where GO offered a clearly stronger
+        # term. With strict ``>`` comparison, ties keep Reactome (the more
+        # heavily curated source by default); GO only wins on a real
+        # improvement. QuickGO results are cached on disk, so the per-gene
+        # cost is one HTTP call on first build, then zero.
         chosen_source = "reactome_target_lookup"
         reactome_candidates = pathways  # remember for metadata trace
         if quickgo_client is not None:
@@ -1498,37 +1501,36 @@ class PopulationPipeline:
                 indication_name=indication_id,
                 gene_symbol=gene_symbol,
             )
-            if top_reactome_score == 0:
-                from src.graph import hgnc_resolver
+            from src.graph import hgnc_resolver
 
-                uniprot_acc = hgnc_resolver.uniprot_for_symbol(gene_symbol)
-                if uniprot_acc:
-                    try:
-                        go_terms = await quickgo_client.get_terms_for_uniprot(
-                            uniprot_acc,
-                        )
-                    except Exception:
-                        logger.debug(
-                            "QuickGO lookup failed for %s (%s)",
-                            gene_symbol, uniprot_acc, exc_info=True,
-                        )
-                        go_terms = []
-                    if go_terms:
-                        go_terms = rerank_pathways(
-                            go_terms,
-                            mechanism_name=mechanism_id,
-                            indication_name=indication_id,
-                            gene_symbol=gene_symbol,
-                        )
-                        top_go_score = score_candidate(
-                            go_terms[0],
-                            mechanism_name=mechanism_id,
-                            indication_name=indication_id,
-                            gene_symbol=gene_symbol,
-                        )
-                        if top_go_score > top_reactome_score:
-                            pathways = go_terms
-                            chosen_source = "quickgo_target_lookup"
+            uniprot_acc = hgnc_resolver.uniprot_for_symbol(gene_symbol)
+            if uniprot_acc:
+                try:
+                    go_terms = await quickgo_client.get_terms_for_uniprot(
+                        uniprot_acc,
+                    )
+                except Exception:
+                    logger.debug(
+                        "QuickGO lookup failed for %s (%s)",
+                        gene_symbol, uniprot_acc, exc_info=True,
+                    )
+                    go_terms = []
+                if go_terms:
+                    go_terms = rerank_pathways(
+                        go_terms,
+                        mechanism_name=mechanism_id,
+                        indication_name=indication_id,
+                        gene_symbol=gene_symbol,
+                    )
+                    top_go_score = score_candidate(
+                        go_terms[0],
+                        mechanism_name=mechanism_id,
+                        indication_name=indication_id,
+                        gene_symbol=gene_symbol,
+                    )
+                    if top_go_score > top_reactome_score:
+                        pathways = go_terms
+                        chosen_source = "quickgo_target_lookup"
 
         # Build the alternate lists for whichever source won. When GO wins,
         # also keep the Reactome candidates we considered (by id+name) so

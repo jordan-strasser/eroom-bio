@@ -189,6 +189,46 @@ def test_unknown_mechanism_does_not_crash():
     assert [p.stable_id for p in ranked] == ["R-1", "R-2"]
 
 
+def test_short_canonical_name_beats_verbose_specific_name():
+    """The pathway-name-length normalization keeps short canonical names
+    competitive against verbose specific ones that incidentally contain
+    more context tokens via name length alone.
+
+    Concrete case from the slice rebuild: VEGFA + angiogenesis_inhibition +
+    melanoma. Reactome's "Signaling by VEGF" (2 tokens, 1 match → 50%)
+    should beat GO:0038033's 14-token specific term (2 matches → ~15%).
+    """
+    candidates = [
+        _p("R-HSA-194138", "Signaling by VEGF"),
+        _p(
+            "GO:0038033",
+            "positive regulation of endothelial cell chemotaxis by "
+            "VEGF-activated vascular endothelial growth factor receptor "
+            "signaling pathway",
+        ),
+    ]
+    ranked = rerank_pathways(
+        candidates,
+        mechanism_name="angiogenesis_inhibition",
+        indication_name="melanoma",
+        gene_symbol="VEGFA",
+    )
+    assert ranked[0].stable_id == "R-HSA-194138"
+
+
+def test_score_is_fractional_in_unit_interval():
+    """score_candidate must return a value in [0, 1] after normalization
+    so consumers (the populator) can rely on consistent ranges across
+    pathway-name lengths."""
+    from src.graph.pathway_ranker import score_candidate
+
+    short = _p("R-1", "Signaling by VEGF")
+    long = _p("R-2", "positive regulation of endothelial cell chemotaxis by VEGF receptor signaling")
+    s_short = score_candidate(short, mechanism_name="angiogenesis_inhibition", gene_symbol="VEGFA")
+    s_long = score_candidate(long, mechanism_name="angiogenesis_inhibition", gene_symbol="VEGFA")
+    assert 0.0 <= s_long <= s_short <= 1.0
+
+
 def test_metadata_order_reflects_reranking():
     """The reordered list, when serialized to pathway_ids, must put the
     context-relevant pathway before the off-context one. This is what makes
