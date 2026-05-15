@@ -45,6 +45,11 @@ _ALIAS_TO_CANONICAL: dict[str, str] | None = None
 # punctuation, e.g. "PD-1" with the hyphen rather than "pd1") so that
 # downstream graph nodes can carry the names a human or LLM would write.
 _CANONICAL_TO_ALIASES: dict[str, list[str]] = {}
+# canonical HUGO symbol → primary UniProt accession (first listed in
+# HGNC's ``uniprot_ids`` pipe-separated column). Populated alongside
+# the alias dicts so QuickGO / UniProt-keyed lookups don't need a
+# separate web round-trip per gene.
+_CANONICAL_TO_UNIPROT: dict[str, str] = {}
 
 
 _NORMALIZE_RE = re.compile(r"[^a-z0-9]+")
@@ -74,7 +79,7 @@ def load(
     Idempotent: subsequent calls with a populated dict are no-ops unless
     ``cache_path`` is missing and re-download succeeds.
     """
-    global _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES
+    global _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES, _CANONICAL_TO_UNIPROT
     with _LOCK:
         if _ALIAS_TO_CANONICAL is not None:
             return len(_ALIAS_TO_CANONICAL)
@@ -89,9 +94,10 @@ def load(
             )
             _ALIAS_TO_CANONICAL = {}
             _CANONICAL_TO_ALIASES = {}
+            _CANONICAL_TO_UNIPROT = {}
             return 0
 
-        _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES = _parse_hgnc_tsv(cache_path)
+        _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES, _CANONICAL_TO_UNIPROT = _parse_hgnc_tsv(cache_path)
         logger.info(
             "Loaded %d HGNC alias mappings from %s",
             len(_ALIAS_TO_CANONICAL), cache_path,
@@ -114,11 +120,14 @@ def _download_hgnc_tsv(cache_path: Path, timeout: float) -> None:
 
 def _parse_hgnc_tsv(
     cache_path: Path,
-) -> tuple[dict[str, str], dict[str, list[str]]]:
-    """Parse the HGNC TSV into two indexes:
+) -> tuple[dict[str, str], dict[str, list[str]], dict[str, str]]:
+    """Parse the HGNC TSV into three indexes:
 
     - ``alias_lookup`` (normalized alias → canonical symbol) for fast lookups
     - ``canonical_to_aliases`` (canonical → list of original-case aliases)
+    - ``canonical_to_uniprot`` (canonical → primary UniProt accession; the
+      first id in HGNC's pipe-separated ``uniprot_ids`` column). Used by
+      downstream GO / QuickGO lookups that need a UniProt key.
 
     Aliases pulled from three columns: ``symbol`` (the canonical itself,
     so symbol→symbol roundtrips), ``alias_symbol`` (pipe-separated), and
@@ -126,6 +135,7 @@ def _parse_hgnc_tsv(
     """
     alias_lookup: dict[str, str] = {}
     canonical_to_aliases: dict[str, list[str]] = {}
+    canonical_to_uniprot: dict[str, str] = {}
 
     with cache_path.open("r", encoding="utf-8") as fh:
         header = fh.readline().rstrip("\n").split("\t")
@@ -137,6 +147,7 @@ def _parse_hgnc_tsv(
             )
         alias_col = header.index("alias_symbol") if "alias_symbol" in header else None
         prev_col = header.index("prev_symbol") if "prev_symbol" in header else None
+        uniprot_col = header.index("uniprot_ids") if "uniprot_ids" in header else None
 
         for line in fh:
             cols = line.rstrip("\n").split("\t")
@@ -162,8 +173,13 @@ def _parse_hgnc_tsv(
                 seen: set[str] = set()
                 deduped = [a for a in originals if not (a in seen or seen.add(a))]
                 canonical_to_aliases[canonical] = deduped
+            if uniprot_col is not None and len(cols) > uniprot_col:
+                uniprots = _split_pipe(cols[uniprot_col])
+                if uniprots:
+                    # First listed = primary reviewed accession in HGNC's order.
+                    canonical_to_uniprot[canonical] = uniprots[0]
 
-    return alias_lookup, canonical_to_aliases
+    return alias_lookup, canonical_to_aliases, canonical_to_uniprot
 
 
 def _split_pipe(text: str) -> list[str]:
@@ -220,9 +236,22 @@ def aliases_for(symbol: str) -> list[str]:
     return list(_CANONICAL_TO_ALIASES.get(canonical, []))
 
 
+def uniprot_for_symbol(symbol: str) -> str | None:
+    """Return the primary UniProt accession for a HUGO symbol, or None.
+
+    Resolves aliases through the canonical first, so ``uniprot_for_symbol("PD-1")``
+    returns PDCD1's accession. Empty string and unknown symbols return None.
+    """
+    canonical = canonical_symbol(symbol)
+    if canonical is None:
+        return None
+    return _CANONICAL_TO_UNIPROT.get(canonical)
+
+
 def reset_for_test() -> None:
     """Reset module state. Use only from tests."""
-    global _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES
+    global _ALIAS_TO_CANONICAL, _CANONICAL_TO_ALIASES, _CANONICAL_TO_UNIPROT
     with _LOCK:
         _ALIAS_TO_CANONICAL = None
         _CANONICAL_TO_ALIASES = {}
+        _CANONICAL_TO_UNIPROT = {}

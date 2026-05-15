@@ -1392,6 +1392,7 @@ class PopulationPipeline:
         mechanism_id: str,
         indication_id: str,
         lincs_client: "LINCSClient | None",
+        quickgo_client: "QuickGOClient | None" = None,
     ) -> tuple[list[str], bool]:
         """Resolve a chain's biology to real Reactome pathway(s).
 
@@ -1472,7 +1473,7 @@ class PopulationPipeline:
         # degranulation). The full list is still preserved on
         # ``pathway_ids`` so cross-indication queries against the
         # alternates remain answerable.
-        from src.graph.pathway_ranker import rerank_pathways
+        from src.graph.pathway_ranker import rerank_pathways, score_candidate
 
         pathways = rerank_pathways(
             pathways,
@@ -1481,16 +1482,64 @@ class PopulationPipeline:
             gene_symbol=gene_symbol,
         )
 
-        # All Reactome pathway ids for this gene, ranked by context
-        # relevance — used as metadata on the materialized BiologyNode so
-        # cross-pathway queries can still find this biology even when only
-        # the top pathway has its own node.
+        # GO augmentation: when Reactome's best context-relevant pathway
+        # still scores 0 (no context-token overlap at all), Reactome's
+        # curation is failing this gene — fall back to QuickGO biological-
+        # process annotations. CRBN is the canonical case: Reactome only
+        # has "Potential therapeutics for SARS" for it, while GO has clean
+        # terms for protein ubiquitination, proteasome-mediated catabolism,
+        # CRL4 complex activity, etc.
+        chosen_source = "reactome_target_lookup"
+        reactome_candidates = pathways  # remember for metadata trace
+        if quickgo_client is not None:
+            top_reactome_score = score_candidate(
+                pathways[0],
+                mechanism_name=mechanism_id,
+                indication_name=indication_id,
+                gene_symbol=gene_symbol,
+            )
+            if top_reactome_score == 0:
+                from src.graph import hgnc_resolver
+
+                uniprot_acc = hgnc_resolver.uniprot_for_symbol(gene_symbol)
+                if uniprot_acc:
+                    try:
+                        go_terms = await quickgo_client.get_terms_for_uniprot(
+                            uniprot_acc,
+                        )
+                    except Exception:
+                        logger.debug(
+                            "QuickGO lookup failed for %s (%s)",
+                            gene_symbol, uniprot_acc, exc_info=True,
+                        )
+                        go_terms = []
+                    if go_terms:
+                        go_terms = rerank_pathways(
+                            go_terms,
+                            mechanism_name=mechanism_id,
+                            indication_name=indication_id,
+                            gene_symbol=gene_symbol,
+                        )
+                        top_go_score = score_candidate(
+                            go_terms[0],
+                            mechanism_name=mechanism_id,
+                            indication_name=indication_id,
+                            gene_symbol=gene_symbol,
+                        )
+                        if top_go_score > top_reactome_score:
+                            pathways = go_terms
+                            chosen_source = "quickgo_target_lookup"
+
+        # Build the alternate lists for whichever source won. When GO wins,
+        # also keep the Reactome candidates we considered (by id+name) so
+        # the audit trail isn't lost — the Reactome list is what Reactome
+        # *thinks* CRBN's biology is, even if we chose to rely on GO.
         all_pathway_ids = [p.stable_id for p in pathways]
-        # Display names indexed by stable id, so cross-indication queries
-        # can inspect alternate biology without re-hitting Reactome. Stored
-        # in BiologyNode.metadata["alternate_pathway_names"]; the primary
-        # pathway's name is already on the node's ``name`` field.
         pathway_display_names = {p.stable_id: p.display_name for p in pathways}
+        reactome_alternatives_meta = (
+            {p.stable_id: p.display_name for p in reactome_candidates}
+            if chosen_source == "quickgo_target_lookup" else {}
+        )
 
         biology_ids: list[str] = []
         for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
@@ -1515,16 +1564,26 @@ class PopulationPipeline:
                 for sid, name in alternate_names.items():
                     if sid not in existing_alts and name:
                         existing_alts[sid] = name
+                if reactome_alternatives_meta:
+                    existing_reactome = existing_meta.setdefault(
+                        "reactome_alternatives", {}
+                    )
+                    for sid, name in reactome_alternatives_meta.items():
+                        if sid not in existing_reactome and name:
+                            existing_reactome[sid] = name
             except KeyError:
+                node_metadata: dict[str, Any] = {
+                    "source": chosen_source,
+                    "primary_pathway": bio_id,
+                    "alternate_pathway_names": alternate_names,
+                }
+                if reactome_alternatives_meta:
+                    node_metadata["reactome_alternatives"] = reactome_alternatives_meta
                 self.graph.add_node(BiologyNode(
                     id=bio_id,
                     name=pathway.display_name or bio_id,
                     pathway_ids=all_pathway_ids,
-                    metadata={
-                        "source": "reactome_target_lookup",
-                        "primary_pathway": bio_id,
-                        "alternate_pathway_names": alternate_names,
-                    },
+                    metadata=node_metadata,
                 ))
 
             if not self.graph._graph.has_edge(  # noqa: SLF001
@@ -1536,7 +1595,7 @@ class PopulationPipeline:
                     edge_type=EdgeType.MECHANISM_AFFECTS,
                     belief=EdgeBeliefState(alpha=2.0, beta=1.0),
                     metadata={
-                        "source": "reactome_target_lookup",
+                        "source": chosen_source,
                         "gene_symbol": gene_symbol,
                     },
                 ))
@@ -1600,6 +1659,12 @@ class PopulationPipeline:
             logger.debug("LINCSClient unavailable", exc_info=True)
             lincs_client = None
 
+        # QuickGO is keyless and used only as a fallback when Reactome's
+        # best pathway has zero context overlap. Constructed once per run
+        # so the disk cache is shared.
+        from src.ingestion.quickgo import QuickGOClient
+        quickgo_client = QuickGOClient()
+
         added = 0
         for trial in trials:
             try:
@@ -1631,6 +1696,7 @@ class PopulationPipeline:
                 else:
                     biology_ids, _ = await self._resolve_real_biology(
                         target_id, mech_id, ind_id, lincs_client,
+                        quickgo_client=quickgo_client,
                     )
                     resolution_cache[key] = (biology_ids, False)
 

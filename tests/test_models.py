@@ -446,6 +446,23 @@ class TestNormalizeEntity:
 
         assert normalize_entity("magic_pixie_dust", "MechanismNode") == "other"
 
+    def test_biology_accepts_go_term_id(self):
+        """GO biological-process terms are valid BiologyNode ids — used when
+        Reactome's curation is missing/wrong for a gene (CRBN, etc.)."""
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("GO:0016567", "BiologyNode") == "GO:0016567"
+        assert normalize_entity("GO:0043161", "BiologyNode") == "GO:0043161"
+
+    def test_biology_rejects_malformed_go_term(self):
+        """Pattern is strict — exactly 7 digits after GO:."""
+        from src.graph.models import normalize_entity
+
+        with pytest.raises(ValueError):
+            normalize_entity("GO:123", "BiologyNode")
+        with pytest.raises(ValueError):
+            normalize_entity("GO:00165670", "BiologyNode")
+
     def test_biology_requires_reactome_id(self):
         from src.graph.models import normalize_entity
 
