@@ -28,6 +28,7 @@ from src.annotation.taxonomy import (
     ExtractedArm,
     FailureClassification,
     FailureMode,
+    ModulationEntry,
     TrialExtraction,
 )
 from src.graph.models import (
@@ -138,6 +139,14 @@ def _isolated_unrouted_log(tmp_path, monkeypatch):
     """
     log_path = tmp_path / "unrouted_attribution_updates.jsonl"
     monkeypatch.setattr(_attributor_module, "_UNROUTED_LOG_PATH", log_path)
+    yield log_path
+
+
+@pytest.fixture(autouse=True)
+def _isolated_unrouted_mod_log(tmp_path, monkeypatch):
+    """Same idea for the v0.3.0 modulation unrouted log."""
+    log_path = tmp_path / "unrouted_modulation_entries.jsonl"
+    monkeypatch.setattr(_attributor_module, "_UNROUTED_MOD_LOG_PATH", log_path)
     yield log_path
 
 
@@ -879,3 +888,200 @@ class TestAppliedEdgeUpdate:
         )
         # E[p] went from 0.5 to 2/7 ≈ 0.286 → Δ ≈ -0.214
         assert update.probability_change < 0
+
+
+# ── v0.3.0 LLM modulation emission (Phase B) ────────────────────────────
+
+
+def _layer_extraction(
+    modulator: str = "ipilimumab",
+    primary: str = "nivolumab",
+    layer: str = "biology",
+    direction: str = "amplifies",
+    confidence: float = 0.85,
+) -> TrialExtraction:
+    return TrialExtraction(
+        trial_id="NCT_TEST",
+        modulation_entries=[ModulationEntry(
+            modulator_compound_id=modulator,
+            primary_compound_id=primary,
+            affects_layer=layer,
+            direction=direction,
+            confidence=confidence,
+            hypothesis="test hypothesis",
+            citation="test citation",
+        )],
+    )
+
+
+class TestLLMModulationEmission:
+    def test_biology_layer_anchors_at_chain_biology_node(self):
+        """LLM names primary + biology layer; populator routes to that
+        primary's chain.biology_id (R-HSA-389948 for nivolumab in the
+        seeded combo trial)."""
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(
+            modulator="ipilimumab", primary="nivolumab", layer="biology",
+        )
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+            and "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mod_updates) == 1
+        u = llm_mod_updates[0]
+        assert u.source_id == "ipilimumab"
+        # The seeded chain for nivolumab has biology_id=R-HSA-389948
+        assert u.target_id == "R-HSA-389948"
+        ctx = u.evidence.context
+        assert ctx["primary_compound"] == "nivolumab"
+        assert ctx["affects_layer"] == "biology"
+        assert ctx["modulation_direction"] == "amplifies"
+        assert u.evidence.support == SupportBucket.STRONG_SUPPORT.value
+
+    def test_target_layer_anchors_at_chain_target_node(self):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(
+            modulator="ipilimumab", primary="nivolumab", layer="target",
+        )
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mods = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+            and "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mods) == 1
+        # Nivo's chain target is ENSG00000188389 (PD-1)
+        assert llm_mods[0].target_id == "ENSG00000188389"
+        assert llm_mods[0].evidence.context["affects_layer"] == "target"
+
+    def test_mechanism_layer_anchors_at_chain_mechanism_node(self):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(
+            modulator="ipilimumab", primary="nivolumab", layer="mechanism",
+        )
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mods = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+            and "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mods) == 1
+        assert llm_mods[0].target_id == "checkpoint_blockade"
+
+    def test_neutral_modulation_creates_ambiguous_evidence(self):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(direction="neutral", confidence=0.85)
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mods = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+            and "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mods) == 1
+        # neutral → AMBIGUOUS regardless of confidence per
+        # feedback_trial_failure_not_falsification.
+        assert llm_mods[0].evidence.support == SupportBucket.AMBIGUOUS.value
+
+    def test_unrouted_when_modulator_unknown(self, _isolated_unrouted_mod_log):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(modulator="some_fake_compound_xyz")
+        clf = _make_classification([])
+
+        attributor.attribute(clf, ts, extraction)
+        rows = [
+            json.loads(line)
+            for line in _isolated_unrouted_mod_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(r["reason"] == "modulator_not_in_graph" for r in rows)
+
+    def test_unrouted_when_primary_not_in_graph(self, _isolated_unrouted_mod_log):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = _layer_extraction(primary="some_fake_primary_xyz")
+        clf = _make_classification([])
+
+        attributor.attribute(clf, ts, extraction)
+        rows = [
+            json.loads(line)
+            for line in _isolated_unrouted_mod_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(r["reason"] == "primary_not_in_graph" for r in rows)
+
+    def test_unrouted_when_primary_not_in_trial(self, _isolated_unrouted_mod_log):
+        """Primary compound exists in graph but isn't in this trial's
+        chains/arms — modulation can't be anchored to a chain layer."""
+        g, ts = _seed_combo_trial_graph()
+        # Add a compound to the graph but NOT to the trial.
+        g.add_node(CompoundNode(
+            id="bevacizumab", name="Bevacizumab", modality=Modality.ANTIBODY,
+        ))
+        attributor = Attributor(g)
+        extraction = _layer_extraction(
+            modulator="ipilimumab", primary="bevacizumab", layer="biology",
+        )
+        clf = _make_classification([])
+
+        attributor.attribute(clf, ts, extraction)
+        rows = [
+            json.loads(line)
+            for line in _isolated_unrouted_mod_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(r["reason"] == "primary_chain_not_in_trial" for r in rows)
+
+    def test_combo_constituent_resolves_via_arm_membership(self):
+        """The primary may be one constituent of a combo regimen — the
+        chain's compound_id is the combo slug, not the constituent. The
+        resolver falls back to arm membership when chain.compound_id
+        doesn't match directly."""
+        g, ts = _seed_combo_trial_graph()
+        # Add the biology_drives edge so the routing succeeds.
+        attributor = Attributor(g)
+        # In the seeded combo trial, the "combo" arm has compound_ids
+        # ['nivolumab', 'ipilimumab'] but the chain's compound_id is the
+        # combo slug. Using "ipilimumab" as primary still routes because
+        # arm membership picks up the ipi-only chain.
+        extraction = _layer_extraction(
+            modulator="nivolumab", primary="ipilimumab", layer="biology",
+        )
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mods = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+            and "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mods) == 1
+        # ipi's chain has biology_id=R-HSA-389948 in the seed
+        assert llm_mods[0].target_id == "R-HSA-389948"
+
+    def test_empty_modulation_entries_is_noop(self):
+        g, ts = _seed_combo_trial_graph()
+        attributor = Attributor(g)
+        extraction = TrialExtraction(trial_id="NCT_TEST", modulation_entries=[])
+        clf = _make_classification([])
+
+        updates = attributor.attribute(clf, ts, extraction)
+        llm_mods = [
+            u for u in updates
+            if "LLM modulation" in (u.evidence.notes or "")
+        ]
+        assert len(llm_mods) == 0
