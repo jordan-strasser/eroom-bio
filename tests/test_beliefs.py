@@ -219,10 +219,18 @@ class TestModulationBucket:
         assert modulation_bucket("amplifies", 0.54) == SupportBucket.AMBIGUOUS
         assert modulation_bucket("amplifies", 0.0) == SupportBucket.AMBIGUOUS
 
-    def test_neutral_direction_is_ambiguous(self):
-        # Even at high confidence, "neutral" is the LLM saying "I'm sure
-        # this is not a modulation" — collapses to AMBIGUOUS, not a side.
+    def test_neutral_always_ambiguous(self):
+        """Neutral is ALWAYS AMBIGUOUS regardless of confidence. Trial
+        failure has many possible explanations beyond "the modulator did
+        nothing" (wrong dose / population / endpoint, underpowered, AE
+        confounders). High confidence on neutral still does work via the
+        Beta-Binomial path — AMBIGUOUS at high n_eff shrinks the posterior
+        toward 0.5, encoding "strong evidence we don't know" rather than
+        falsifying the modulation hypothesis."""
         assert modulation_bucket("neutral", 0.95) == SupportBucket.AMBIGUOUS
+        assert modulation_bucket("neutral", 0.85) == SupportBucket.AMBIGUOUS
+        assert modulation_bucket("neutral", 0.55) == SupportBucket.AMBIGUOUS
+        assert modulation_bucket("neutral", 0.0) == SupportBucket.AMBIGUOUS
 
     def test_unknown_direction_is_ambiguous(self):
         # Defensive: garbage direction string doesn't crash, falls to AMBIGUOUS.

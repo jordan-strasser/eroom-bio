@@ -189,12 +189,29 @@ def modulation_bucket(
     point the LLM is unsure enough that we don't want it driving an
     edge belief either way.
 
-    Thresholds are deliberate round numbers, calibrated to the
-    seven-bucket BUCKET_TO_P_OBS spacing:
-      - ``≥ 0.85`` confidence + clear direction → STRONG_*
-      - ``≥ 0.70`` → MODERATE_*
-      - ``≥ 0.55`` → WEAK_*
-      - ``< 0.55`` or direction=neutral → AMBIGUOUS
+    ``neutral`` ALWAYS maps to AMBIGUOUS — at any confidence. A trial
+    that didn't demonstrate amplification has many possible explanations
+    beyond "the modulator does nothing" (wrong dose, wrong population,
+    underpowered, AE-driven discontinuation, endpoint didn't capture the
+    modulation's effect, …). So "neutral" is genuinely "no information
+    about the modulation edge," not "evidence the modulation is false."
+
+    A *confident* neutral still does work, though — at AMBIGUOUS p_obs=0.5
+    the Beta-Binomial update shrinks the posterior toward 0.5 with weight
+    proportional to ``n_eff`` (Phase 3 = 15, etc.). So confident neutral
+    on a Phase 3 failed trial encodes "strong evidence we don't know"
+    rather than "we have no signal at all" — exactly the right epistemic
+    behavior given the failure-mode confounders above.
+
+    Thresholds:
+      - ``< 0.55`` confidence → AMBIGUOUS regardless of direction
+      - ``≥ 0.85`` + amplifies → STRONG_SUPPORT
+      - ``≥ 0.70`` + amplifies → MODERATE_SUPPORT
+      - ``≥ 0.55`` + amplifies → WEAK_SUPPORT
+      - ``≥ 0.85`` + suppresses → STRONG_CONTRADICT
+      - ``≥ 0.70`` + suppresses → MODERATE_CONTRADICT
+      - ``≥ 0.55`` + suppresses → WEAK_CONTRADICT
+      - neutral (any confidence ≥ 0.55) → AMBIGUOUS
 
     Effective sample size for modulation edges is set by the trial's
     evidence type (Phase 3 = 15, Phase 2 = 6, etc.) just like every
