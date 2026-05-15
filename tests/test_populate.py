@@ -20,6 +20,8 @@ from src.graph.models import (
 from src.graph.populate import (
     PopulationPipeline,
     _normalize,
+    _normalize_drug_lookup_name,
+    _strip_parenthetical_brand,
     build_trial_subgraph_from_extraction,
     classify_endpoint_deterministic,
 )
@@ -549,6 +551,58 @@ class TestCompoundTargetEdges:
         )
         added = pipeline._add_compound_target_edges([trial])
         assert added == 0
+
+
+# ── Drug-name normalization for OT cache lookup ─────────────────────────
+
+
+class TestNormalizeDrugLookupName:
+    def test_semicolon_normalized_to_comma(self):
+        assert _normalize_drug_lookup_name(
+            "Sorafenib (Nexavar; BAY43-9006)"
+        ) == "sorafenib (nexavar, bay43-9006)"
+
+    def test_already_comma_form_unchanged(self):
+        assert _normalize_drug_lookup_name(
+            "sorafenib (nexavar, bay43-9006)"
+        ) == "sorafenib (nexavar, bay43-9006)"
+
+    def test_whitespace_collapsed(self):
+        assert _normalize_drug_lookup_name(
+            "  Drug   X  (alias)  "
+        ) == "drug x (alias)"
+
+    def test_distinct_drug_names_stay_distinct(self):
+        # Parenthetical contents preserved — must not conflate
+        # "Drug X" with "Drug X (in combo with Drug Y)".
+        a = _normalize_drug_lookup_name("Drug X")
+        b = _normalize_drug_lookup_name("Drug X (in combo with Drug Y)")
+        assert a != b
+
+
+class TestStripParentheticalBrand:
+    def test_strips_brand_parenthetical(self):
+        assert _strip_parenthetical_brand(
+            "Sorafenib (Nexavar; BAY43-9006)"
+        ) == "Sorafenib"
+
+    def test_preserves_combination_with_modifier(self):
+        # "Drug X (in combo with Drug Y)" must NOT collapse to "Drug X"
+        # — they're different regimens.
+        assert _strip_parenthetical_brand(
+            "Drug X (in combo with Drug Y)"
+        ) is None
+
+    def test_preserves_plus_combination(self):
+        assert _strip_parenthetical_brand(
+            "Drug X (plus Drug Y)"
+        ) is None
+
+    def test_returns_none_when_no_parenthetical(self):
+        assert _strip_parenthetical_brand("Sorafenib") is None
+
+    def test_returns_none_when_only_parenthetical(self):
+        assert _strip_parenthetical_brand("(Nexavar)") is None
 
 
 # ── Peptide-vaccine target heuristic ─────────────────────────────────────

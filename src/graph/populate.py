@@ -48,6 +48,48 @@ from src.ingestion.clinicaltrials import (
 )
 
 
+def _normalize_drug_lookup_name(name: str) -> str:
+    """Normalize a compound name for OT cache lookup.
+
+    Trials report the same drug with different punctuation across reports:
+    "Sorafenib (Nexavar; BAY43-9006)" and "Sorafenib (Nexavar, BAY43-9006)"
+    are the same drug but produce different cache keys under a naive
+    ``.lower()``. We collapse the common variants so both forms hit the
+    same cache entry. Only touches casing, semicolons, and whitespace —
+    nothing that would conflate distinct drugs (e.g. parenthetical
+    contents stay so "Drug X (in combo with Y)" doesn't collapse to
+    "Drug X").
+    """
+    s = name.lower().strip()
+    s = s.replace(";", ",")
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def _strip_parenthetical_brand(name: str) -> str | None:
+    """Strip trailing parenthetical brand/synonym from a drug name.
+
+    "Sorafenib (Nexavar; BAY43-9006)" → "Sorafenib". The parenthetical is
+    usually a brand name + dev code that OT doesn't resolve directly.
+    Returns None when the stripped form would be empty, would equal the
+    original, or when the parenthetical content contains a
+    combination-indicator word ("with", "plus", "and", "+", "combo")
+    suggesting it encodes a regimen rather than a brand.
+    """
+    paren_match = re.search(r"\(([^)]*)\)", name)
+    if paren_match:
+        inside = paren_match.group(1).lower()
+        if any(
+            tok in inside
+            for tok in ("with", "plus", "and", "+", "combo", "combination")
+        ):
+            return None
+    stripped = re.sub(r"\s*\([^)]*\)\s*", " ", name).strip()
+    if not stripped or stripped.lower() == name.lower():
+        return None
+    return stripped
+
+
 def _root_indication(indication_id: str) -> str:
     """Return the parent IndicationNode id for a subtype slug, or the id
     itself when there is no parent. Used at chain-construction time so
@@ -1004,24 +1046,46 @@ class PopulationPipeline:
                     continue
                 seen[cid] = iv.name
 
+        async def _lookup_with_cache(name: str) -> dict[str, Any]:
+            key = _normalize_drug_lookup_name(name)
+            legacy = name.lower()
+            if key in cache:
+                return cache[key]
+            if legacy in cache:
+                return cache[legacy]
+            try:
+                fresh = await self._ot_client.get_drug_with_targets(name)
+            except KeyError:
+                fresh = {"chembl_id": None, "targets": []}
+            except Exception:
+                logger.debug(
+                    "OT drug lookup failed for '%s'", name, exc_info=True,
+                )
+                fresh = {"chembl_id": None, "targets": []}
+            cache[key] = fresh
+            cache_path.write_text(json.dumps(cache, indent=2, sort_keys=True))
+            return fresh
+
         compound_targets: dict[str, list[str]] = {}
         binds_added = 0
         for cid, iv_name in seen.items():
-            cache_key = iv_name.lower()
-            if cache_key in cache:
-                drug_data = cache[cache_key]
-            else:
-                try:
-                    drug_data = await self._ot_client.get_drug_with_targets(iv_name)
-                except KeyError:
-                    drug_data = {"chembl_id": None, "targets": []}
-                except Exception:
-                    logger.debug(
-                        "OT drug lookup failed for '%s'", iv_name, exc_info=True,
-                    )
-                    drug_data = {"chembl_id": None, "targets": []}
-                cache[cache_key] = drug_data
-                cache_path.write_text(json.dumps(cache, indent=2, sort_keys=True))
+            drug_data = await _lookup_with_cache(iv_name)
+            # Fallback: strip trailing brand parenthetical and retry —
+            # "Sorafenib (Nexavar; BAY43-9006)" returns 0 targets in OT,
+            # but plain "Sorafenib" resolves. Only adopts the fallback
+            # when it actually finds real targets.
+            if not drug_data.get("targets"):
+                stripped = _strip_parenthetical_brand(iv_name)
+                if stripped:
+                    stripped_data = await _lookup_with_cache(stripped)
+                    if stripped_data.get("targets"):
+                        drug_data = stripped_data
+                        # Pin the fallback under the original key so
+                        # future lookups skip the retry.
+                        cache[_normalize_drug_lookup_name(iv_name)] = stripped_data
+                        cache_path.write_text(
+                            json.dumps(cache, indent=2, sort_keys=True)
+                        )
 
             target_ids: list[str] = []
             for t in drug_data.get("targets") or []:
