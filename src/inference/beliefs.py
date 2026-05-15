@@ -175,6 +175,49 @@ def flip_bucket(bucket: SupportBucket) -> SupportBucket:
     }[bucket]
 
 
+def modulation_bucket(
+    direction: str,
+    confidence: float,
+) -> SupportBucket:
+    """Map LLM-emitted (direction, confidence) to a SupportBucket.
+
+    The v0.3.0 modulation classifier emits each modulation as a
+    ``direction`` (``amplifies`` | ``suppresses`` | ``neutral``) plus a
+    numeric ``confidence`` in [0, 1]. Direction picks the side
+    (support vs contradict); confidence picks the magnitude. Below the
+    ``AMBIGUOUS`` floor any modulation collapses to AMBIGUOUS — at that
+    point the LLM is unsure enough that we don't want it driving an
+    edge belief either way.
+
+    Thresholds are deliberate round numbers, calibrated to the
+    seven-bucket BUCKET_TO_P_OBS spacing:
+      - ``≥ 0.85`` confidence + clear direction → STRONG_*
+      - ``≥ 0.70`` → MODERATE_*
+      - ``≥ 0.55`` → WEAK_*
+      - ``< 0.55`` or direction=neutral → AMBIGUOUS
+
+    Effective sample size for modulation edges is set by the trial's
+    evidence type (Phase 3 = 15, Phase 2 = 6, etc.) just like every
+    other LLM-attributed edge — the LLM doesn't estimate N_eff.
+    """
+    if direction == "neutral" or confidence < 0.55:
+        return SupportBucket.AMBIGUOUS
+    if direction == "amplifies":
+        if confidence >= 0.85:
+            return SupportBucket.STRONG_SUPPORT
+        if confidence >= 0.70:
+            return SupportBucket.MODERATE_SUPPORT
+        return SupportBucket.WEAK_SUPPORT
+    if direction == "suppresses":
+        if confidence >= 0.85:
+            return SupportBucket.STRONG_CONTRADICT
+        if confidence >= 0.70:
+            return SupportBucket.MODERATE_CONTRADICT
+        return SupportBucket.WEAK_CONTRADICT
+    # Unknown direction string → conservative AMBIGUOUS rather than crash.
+    return SupportBucket.AMBIGUOUS
+
+
 def apply_virtual_evidence(
     belief: EdgeBeliefState,
     *,

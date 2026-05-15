@@ -39,6 +39,7 @@ from src.inference.beliefs import (
     SupportBucket,
     apply_virtual_evidence,
     effective_n_for_evidence,
+    modulation_bucket,
 )
 from src.ingestion.clinicaltrials import ClinicalTrialsClient
 from src.prediction.path_query import predict_clinical_hypothesis
@@ -163,6 +164,82 @@ def section_extraction(nct_id: str) -> dict[str, Any] | None:
     raw = json.loads(path.read_text())
     console.print(json.dumps(raw, indent=2))
     return raw
+
+
+def section_modulations(
+    nct_id: str,
+    extraction: dict[str, Any] | None,
+    graph: GraphStore,
+) -> None:
+    """v0.3.0 audit view: LLM-emitted modulation_entries with mapped buckets.
+
+    Shows each modulator → affected-edge claim from the extraction, the
+    SupportBucket it would map to (via modulation_bucket), and a
+    cross-check against any v0.2.0 MODULATES_EFFICACY_OF edges already
+    in the graph for the same compound pair. Lets the reviewer eyeball
+    whether the LLM is naming sensible edges and whether direction +
+    confidence align with arm-differential signal.
+    """
+    console.rule(f"[bold]2b. MODULATION ENTRIES — {nct_id}[/bold]")
+    if not extraction:
+        console.print("[yellow]No extraction available.[/yellow]")
+        return
+    entries = extraction.get("modulation_entries") or []
+    if not entries:
+        console.print(
+            "[dim]No modulation_entries emitted "
+            "(single-compound trial, or LLM declined).[/dim]"
+        )
+        return
+
+    # Index existing v0.2.0 modulation edges by canonical pair for cross-check.
+    from src.graph.models import EdgeType, canonical_modulation_endpoints
+    existing_edges: dict[tuple[str, str], dict[str, Any]] = {}
+    for u, v, key, data in graph._graph.edges(data=True, keys=True):  # noqa: SLF001
+        if key == EdgeType.MODULATES_EFFICACY_OF.value:
+            existing_edges[(u, v)] = data
+
+    for i, entry in enumerate(entries, 1):
+        modulator = entry.get("modulator_compound_id") or "?"
+        affects = entry.get("affects_edge") or {}
+        edge_repr = (
+            f"{affects.get('edge_type', '?')}: "
+            f"{affects.get('source_node_id', '?')} → "
+            f"{affects.get('target_node_id', '?')}"
+        )
+        direction = entry.get("direction") or "?"
+        try:
+            confidence = float(entry.get("confidence") or 0.0)
+        except (TypeError, ValueError):
+            confidence = 0.0
+        bucket = modulation_bucket(direction, confidence)
+
+        primary_candidate = affects.get("source_node_id") or ""
+        v02_repr = "[dim]—[/dim]"
+        if primary_candidate and modulator:
+            src, tgt = canonical_modulation_endpoints(modulator, primary_candidate)
+            v02_repr = (
+                "[green]yes (existing v0.2.0 edge)[/green]"
+                if (src, tgt) in existing_edges
+                else "[dim]no v0.2.0 arm-differential edge[/dim]"
+            )
+
+        console.print(
+            f"\n[bold cyan]#{i} {modulator}[/bold cyan] → "
+            f"[bold]{edge_repr}[/bold]"
+        )
+        console.print(
+            f"    direction=[bold]{direction}[/bold]  "
+            f"confidence=[bold]{confidence:.2f}[/bold]  "
+            f"→ bucket=[bold magenta]{bucket.value}[/bold magenta]"
+        )
+        console.print(f"    cross-check: {v02_repr}")
+        hypothesis = entry.get("hypothesis") or ""
+        if hypothesis:
+            console.print(f"    [dim]hypothesis:[/dim] {hypothesis}")
+        citation = entry.get("citation") or ""
+        if citation:
+            console.print(f"    [dim]citation:[/dim] [italic]\"{citation}\"[/italic]")
 
 
 def section_classification(nct_id: str) -> dict[str, Any] | None:
@@ -467,7 +544,8 @@ async def inspect_one(nct_id: str, graph: GraphStore) -> None:
     console.print()
     console.rule(f"[bold cyan]══  {nct_id}  ══[/bold cyan]")
     await section_raw_text(nct_id)
-    section_extraction(nct_id)
+    extraction = section_extraction(nct_id)
+    section_modulations(nct_id, extraction, graph)
     section_classification(nct_id)
     ts = section_node_mapping(graph, nct_id)
     section_edge_updates(graph, nct_id)

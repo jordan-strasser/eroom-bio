@@ -13,6 +13,7 @@ from src.inference.beliefs import (
     bucket_to_direction,
     effective_n_for_evidence,
     flip_bucket,
+    modulation_bucket,
     p_obs_for_bucket,
 )
 from src.graph.models import EvidenceDirection
@@ -190,3 +191,47 @@ class TestPObsHelper:
     def test_p_obs_for_bucket_matches_table(self):
         for b in SupportBucket:
             assert p_obs_for_bucket(b) == BUCKET_TO_P_OBS[b]
+
+
+class TestModulationBucket:
+    """Mapping from v0.3.0 LLM modulation output (direction, confidence)
+    to the seven-bucket SupportBucket system."""
+
+    def test_strong_support_at_high_confidence_amplifies(self):
+        assert modulation_bucket("amplifies", 0.95) == SupportBucket.STRONG_SUPPORT
+        assert modulation_bucket("amplifies", 0.85) == SupportBucket.STRONG_SUPPORT
+
+    def test_strong_contradict_at_high_confidence_suppresses(self):
+        assert modulation_bucket("suppresses", 0.95) == SupportBucket.STRONG_CONTRADICT
+        assert modulation_bucket("suppresses", 0.85) == SupportBucket.STRONG_CONTRADICT
+
+    def test_moderate_band(self):
+        assert modulation_bucket("amplifies", 0.84) == SupportBucket.MODERATE_SUPPORT
+        assert modulation_bucket("amplifies", 0.70) == SupportBucket.MODERATE_SUPPORT
+        assert modulation_bucket("suppresses", 0.75) == SupportBucket.MODERATE_CONTRADICT
+
+    def test_weak_band(self):
+        assert modulation_bucket("amplifies", 0.69) == SupportBucket.WEAK_SUPPORT
+        assert modulation_bucket("amplifies", 0.55) == SupportBucket.WEAK_SUPPORT
+        assert modulation_bucket("suppresses", 0.60) == SupportBucket.WEAK_CONTRADICT
+
+    def test_ambiguous_below_floor(self):
+        assert modulation_bucket("amplifies", 0.54) == SupportBucket.AMBIGUOUS
+        assert modulation_bucket("amplifies", 0.0) == SupportBucket.AMBIGUOUS
+
+    def test_neutral_direction_is_ambiguous(self):
+        # Even at high confidence, "neutral" is the LLM saying "I'm sure
+        # this is not a modulation" — collapses to AMBIGUOUS, not a side.
+        assert modulation_bucket("neutral", 0.95) == SupportBucket.AMBIGUOUS
+
+    def test_unknown_direction_is_ambiguous(self):
+        # Defensive: garbage direction string doesn't crash, falls to AMBIGUOUS.
+        assert modulation_bucket("sideways", 0.9) == SupportBucket.AMBIGUOUS
+
+    def test_symmetric_around_ambiguous(self):
+        """Bucket strengths should mirror across amplifies/suppresses for
+        the same confidence — the existing flip_bucket relationship."""
+        for conf in (0.55, 0.70, 0.85, 0.95):
+            amp = modulation_bucket("amplifies", conf)
+            sup = modulation_bucket("suppresses", conf)
+            assert flip_bucket(amp) == sup

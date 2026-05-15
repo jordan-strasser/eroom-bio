@@ -10,12 +10,15 @@ from typing import Any
 
 import anthropic
 
+from pydantic import ValidationError
+
 from src.annotation.taxonomy import (
     ArmIncidence,
     ChainResult,
     DoseInfo,
     ExtractedArm,
     ExtractedSubgroup,
+    ModulationEntry,
     StructuredAE,
     TrialExtraction,
 )
@@ -420,6 +423,21 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         ]
         subgroups.append(ExtractedSubgroup(raw_descriptor=descriptor, features=features))
 
+    # v0.3.0 modulation entries — defaulted to [] when the LLM omits the
+    # field (e.g. single-compound trials, or extractions cached before this
+    # field existed). Failed validation drops the entry rather than the
+    # whole extraction, matching how subgroups/results handle bad rows.
+    modulation_entries_raw = raw_json.get("modulation_entries") or []
+    modulation_entries: list[ModulationEntry] = []
+    for m in modulation_entries_raw:
+        try:
+            modulation_entries.append(ModulationEntry.model_validate(m))
+        except (ValidationError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Dropping invalid modulation_entry in %s: %s (%s)",
+                trial_id, exc, m,
+            )
+
     chain_results_raw = raw_json.get("results_by_chain") or []
     chain_results: list[ChainResult] = []
     for cr in chain_results_raw:
@@ -476,6 +494,7 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         duration_weeks=_safe_float(context.get("duration_weeks")),
         dose_info=dose_info,
         adverse_events=adverse_events,
+        modulation_entries=modulation_entries,
     )
 
 
