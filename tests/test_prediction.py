@@ -29,6 +29,8 @@ from src.prediction.path_query import (
     PredictionEngine,
     PredictionResult,
     _aggregate_samples,
+    _collect_modulation_edges,
+    _regimen_constituents,
     _trust_weight,
     predict_clinical_hypothesis,
 )
@@ -204,6 +206,139 @@ class TestPredict:
         binds = [e for e in result.edge_contributions if e.edge_type == EdgeType.AFFECTS]
         assert len(binds) == 1
         assert binds[0].belief.alpha == pytest.approx(20.0)
+
+# ============================================================
+# Modulation-edge collection (round 8 v0.2.0)
+# ============================================================
+
+
+def _build_regimen_with_modulation(
+    modulation_belief: tuple[float, float] = (5.0, 1.0),
+) -> GraphStore:
+    """Two-constituent regimen with a MODULATES_EFFICACY_OF edge."""
+    g = _make_graph()
+    g.add_node(CompoundNode(id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE))
+    g.add_node(CompoundNode(
+        id="c1+c2", name="DrugA + DrugB", modality=Modality.OTHER,
+    ))
+    for cid in ("c1", "c2"):
+        g.add_edge(GraphEdge(
+            source_id="c1+c2", target_id=cid,
+            edge_type=EdgeType.COMPOSED_OF,
+            belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+        ))
+    # Modulation edge stored lex-canonical (c1 < c2).
+    g.add_edge(GraphEdge(
+        source_id="c1", target_id="c2",
+        edge_type=EdgeType.MODULATES_EFFICACY_OF,
+        belief=EdgeBeliefState(
+            alpha=modulation_belief[0], beta=modulation_belief[1],
+        ),
+    ))
+    return g
+
+
+class TestModulationEdgeCollection:
+    def test_constituents_for_regimen(self):
+        g = _build_regimen_with_modulation()
+        assert sorted(_regimen_constituents(g, "c1+c2")) == ["c1", "c2"]
+
+    def test_constituents_for_mono_compound(self):
+        g = _make_graph()
+        assert _regimen_constituents(g, "c1") == ["c1"]
+
+    def test_collects_modulation_edge_for_regimen(self):
+        g = _build_regimen_with_modulation()
+        edges = _collect_modulation_edges(g, "c1+c2")
+        assert len(edges) == 1
+        src, tgt, etype, belief = edges[0]
+        assert (src, tgt) == ("c1", "c2")
+        assert etype == EdgeType.MODULATES_EFFICACY_OF
+        assert belief.alpha == 5.0
+
+    def test_mono_compound_collects_nothing(self):
+        g = _build_regimen_with_modulation()
+        assert _collect_modulation_edges(g, "c1") == []
+
+    def test_regimen_with_no_modulation_edge_returns_empty(self):
+        g = _make_graph()
+        g.add_node(CompoundNode(id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE))
+        g.add_node(CompoundNode(
+            id="c1+c2", name="DrugA + DrugB", modality=Modality.OTHER,
+        ))
+        for cid in ("c1", "c2"):
+            g.add_edge(GraphEdge(
+                source_id="c1+c2", target_id=cid,
+                edge_type=EdgeType.COMPOSED_OF,
+                belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+            ))
+        assert _collect_modulation_edges(g, "c1+c2") == []
+
+
+class TestRegimenPredictionWithModulation:
+    def _regimen_chain(self) -> CausalChain:
+        return CausalChain(
+            arm_id="regimen_arm", compound_id="c1+c2",
+            subgroup_population_id="i1__unselected",
+            target_id="t1", mechanism_id="m1", biology_id="b1",
+            indication_id="i1", endpoint_id="e1",
+            outcome=TrialOutcome.UNKNOWN,
+        )
+
+    def test_modulation_edge_appears_in_edge_contributions(self):
+        g = _build_regimen_with_modulation(modulation_belief=(8.0, 2.0))
+        engine = PredictionEngine(g)
+        result = engine.predict(self._regimen_chain(), n_samples=2_000)
+        mod_contribs = [
+            e for e in result.edge_contributions
+            if e.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_contribs) == 1
+
+    def test_neutral_modulation_does_not_change_prediction(self):
+        """Beta(1, 1) modulation contributes 0 trust weight and is a
+        no-op on the aggregate."""
+        g_with_neutral = _build_regimen_with_modulation(
+            modulation_belief=(1.0, 1.0),
+        )
+        g_without = _make_graph()
+        g_without.add_node(CompoundNode(
+            id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE,
+        ))
+        g_without.add_node(CompoundNode(
+            id="c1+c2", name="DrugA + DrugB", modality=Modality.OTHER,
+        ))
+        for cid in ("c1", "c2"):
+            g_without.add_edge(GraphEdge(
+                source_id="c1+c2", target_id=cid,
+                edge_type=EdgeType.COMPOSED_OF,
+                belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+            ))
+        chain = self._regimen_chain()
+        engine_with = PredictionEngine(g_with_neutral)
+        engine_without = PredictionEngine(g_without)
+        np.random.seed(0)
+        p_with = engine_with.predict(chain, n_samples=5_000).overall_probability
+        np.random.seed(0)
+        p_without = engine_without.predict(chain, n_samples=5_000).overall_probability
+        assert abs(p_with - p_without) < 0.02
+
+    def test_contradict_modulation_pulls_prediction_down(self):
+        """A strong contradict-leaning modulation edge should reduce
+        P(regimen success) relative to a strong support-leaning one."""
+        g_support = _build_regimen_with_modulation(modulation_belief=(45.0, 2.0))
+        g_contradict = _build_regimen_with_modulation(modulation_belief=(2.0, 45.0))
+        chain = self._regimen_chain()
+        np.random.seed(0)
+        p_support = PredictionEngine(g_support).predict(
+            chain, n_samples=5_000,
+        ).overall_probability
+        np.random.seed(0)
+        p_contradict = PredictionEngine(g_contradict).predict(
+            chain, n_samples=5_000,
+        ).overall_probability
+        assert p_support > p_contradict
+
 
 # ============================================================
 # Trust weights + weighted_geomean

@@ -40,6 +40,57 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
 
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
+
+def _regimen_constituents(
+    graph: GraphStore, compound_id: str,
+) -> list[str]:
+    """Return the constituent compound ids of a regimen.
+
+    A regimen exposes its constituents via outbound ``composed_of`` edges
+    (added by ``synthesize_combo_compounds`` during populate). For a mono
+    compound, no such edges exist; we return ``[compound_id]`` so callers
+    that just want "the relevant compound ids" don't need a special case.
+    """
+    g = graph._graph
+    if compound_id not in g:
+        return [compound_id]
+    constituents: list[str] = []
+    for _u, v, key in g.out_edges(compound_id, keys=True):
+        if key == EdgeType.COMPOSED_OF.value:
+            constituents.append(v)
+    return constituents if constituents else [compound_id]
+
+
+def _collect_modulation_edges(
+    graph: GraphStore, compound_id: str,
+) -> list[tuple[str, str, EdgeType, EdgeBeliefState]]:
+    """MODULATES_EFFICACY_OF edges between any pair of constituents.
+
+    For a regimen with N constituents, walks all C(N, 2) lex-ordered pairs
+    and pulls each pair's modulation belief if the edge exists. Returns
+    an empty list for mono compounds. The edges fold into the
+    trust-weighted geomean aggregation alongside the causal chain edges
+    — a contradict-leaning modulation pulls P(regimen success) down,
+    a support-leaning one lifts it.
+    """
+    constituents = sorted(_regimen_constituents(graph, compound_id))
+    if len(constituents) < 2:
+        return []
+    collected: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
+    for i, c1 in enumerate(constituents):
+        for c2 in constituents[i + 1:]:
+            # Endpoints stored lex-canonical (see
+            # canonical_modulation_endpoints), so (c1, c2) is the
+            # canonical direction.
+            try:
+                belief = graph.get_edge_belief(
+                    c1, c2, EdgeType.MODULATES_EFFICACY_OF,
+                )
+            except KeyError:
+                continue
+            collected.append((c1, c2, EdgeType.MODULATES_EFFICACY_OF, belief))
+    return collected
+
 # Log-scaled trust: trust = min(1, log(strength + 1) / log(saturation + 1)).
 # Saturation at evidence_strength = 49 → trust = 1.0. Compared to the old
 # linear cap at strength=10, this gives weak edges (strength ~0.5–2)
@@ -387,6 +438,13 @@ class PredictionEngine:
         evidence from the wrong tissue (e.g. a melanoma signature when the
         trial is in NSCLC) gets downweighted rather than counted equally.
         Other edge types are context-free at retrieval.
+
+        For regimens (``compound_id`` resolves to ≥2 constituents via
+        ``composed_of``), also folds in any MODULATES_EFFICACY_OF edges
+        between constituent pairs. Each modulation belief joins the
+        trust-weighted geomean alongside the causal-chain edges; an
+        edge with no evidence (neutral Beta(1,1) prior) contributes
+        zero trust weight and is effectively a no-op.
         """
         edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
         relevant_tissues = self._tissues_for_chain(chain)
@@ -409,6 +467,8 @@ class PredictionEngine:
                 belief = _DEFAULT_BELIEF
 
             edges.append((src_id, tgt_id, edge_type, belief))
+
+        edges.extend(_collect_modulation_edges(self.graph, chain.compound_id))
 
         return edges
 
