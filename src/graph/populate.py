@@ -1542,6 +1542,16 @@ class PopulationPipeline:
             {p.stable_id: p.display_name for p in reactome_candidates}
             if chosen_source == "quickgo_target_lookup" else {}
         )
+        # Top context-overlap score for the chosen primary. Stored on the
+        # node so a later biology-merge sweep can pick the higher-scored
+        # winner when two equivalent nodes (Reactome ↔ GO crosswalk) need
+        # to collapse, without re-running the chain context.
+        primary_score = score_candidate(
+            pathways[0],
+            mechanism_name=mechanism_id,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
 
         biology_ids: list[str] = []
         for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
@@ -1573,10 +1583,17 @@ class PopulationPipeline:
                     for sid, name in reactome_alternatives_meta.items():
                         if sid not in existing_reactome and name:
                             existing_reactome[sid] = name
+                # Keep the highest score seen across chains that landed on
+                # this node — represents the most context-relevant claim
+                # any chain made on this biology.
+                existing_score = existing_meta.get("primary_score", 0.0)
+                if primary_score > existing_score:
+                    existing_meta["primary_score"] = primary_score
             except KeyError:
                 node_metadata: dict[str, Any] = {
                     "source": chosen_source,
                     "primary_pathway": bio_id,
+                    "primary_score": primary_score,
                     "alternate_pathway_names": alternate_names,
                 }
                 if reactome_alternatives_meta:
@@ -1801,6 +1818,33 @@ class PopulationPipeline:
                 self.graph.set_trial_subgraph(
                     ts.model_copy(update={"chains": new_chains})
                 )
+
+        # After every chain has its biology assigned, sweep the graph for
+        # equivalent BiologyNodes (Reactome and GO terms that describe the
+        # same biology per Reactome's own curator-annotated crosswalk) and
+        # collapse them so evidence pools across the merged node instead
+        # of fragmenting across semantic twins. Idempotent on rebuild.
+        from src.graph.biology_merge import merge_equivalent_biology_nodes
+
+        if lincs_client is not None:
+            try:
+                merge_report = await merge_equivalent_biology_nodes(
+                    self.graph, lincs_client,
+                )
+                if merge_report.nodes_collapsed:
+                    logger.info(
+                        "Biology merge: collapsed %d nodes across %d "
+                        "equivalence classes; %d chains updated",
+                        merge_report.nodes_collapsed,
+                        merge_report.classes_merged,
+                        merge_report.chains_updated,
+                    )
+            except Exception:
+                logger.warning(
+                    "Biology merge step failed; graph is unchanged",
+                    exc_info=True,
+                )
+
         return added
 
     async def _populate_canonical_endpoints(

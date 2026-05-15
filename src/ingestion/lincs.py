@@ -242,7 +242,11 @@ class LINCSClient:
         self._sigs_dir = cache_dir / "lincs" / "sigs"
         self._reactome_dir = cache_dir / "lincs" / "reactome"
         self._participants_dir = cache_dir / "lincs" / "participants"
-        for d in (self._sigs_dir, self._reactome_dir, self._participants_dir):
+        self._pathway_go_dir = cache_dir / "lincs" / "pathway_go"
+        for d in (
+            self._sigs_dir, self._reactome_dir, self._participants_dir,
+            self._pathway_go_dir,
+        ):
             d.mkdir(parents=True, exist_ok=True)
 
     # ---- CLUE: compounds -------------------------------------------------
@@ -358,6 +362,54 @@ class LINCSClient:
         symbols = await self._fetch_pathway_gene_symbols(stable_id)
         cache_path.write_text(json.dumps(sorted(symbols)))
         return symbols
+
+    async def get_pathway_go_term(self, stable_id: str) -> str | None:
+        """Return the GO biological-process accession Reactome assigns to
+        this pathway, or None if Reactome doesn't crosswalk this pathway.
+
+        Used by the biology-merge step to detect equivalence between
+        Reactome BiologyNodes and GO BiologyNodes. Each Reactome pathway
+        record has a ``goBiologicalProcess`` field with a single GO
+        accession — Reactome's own curator-chosen canonical GO term for
+        the pathway. One-to-one mapping (or none), so the crosswalk is
+        unambiguous.
+
+        Cached per stable id; the cache file's contents are the bare
+        ``"GO:NNNNNNN"`` string or the literal ``""`` for "no crosswalk".
+        """
+        if not stable_id:
+            return None
+        cache_path = self._pathway_go_dir / f"{_safe_filename(stable_id)}.txt"
+        if cache_path.exists():
+            cached = cache_path.read_text().strip()
+            return cached or None
+        accession = await self._fetch_pathway_go_term(stable_id)
+        cache_path.write_text(accession or "")
+        return accession
+
+    async def _fetch_pathway_go_term(self, stable_id: str) -> str | None:
+        url = f"{REACTOME_BASE}/data/query/{stable_id}"
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                resp = await client.get(url)
+        except httpx.HTTPError as exc:
+            logger.warning("Reactome query failed for %s: %s", stable_id, exc)
+            return None
+        if resp.status_code in (404, 500):
+            return None
+        resp.raise_for_status()
+        try:
+            payload = resp.json()
+        except ValueError:
+            return None
+        go_bp = payload.get("goBiologicalProcess") or {}
+        acc = go_bp.get("accession") if isinstance(go_bp, dict) else None
+        if not acc:
+            return None
+        # Reactome returns the bare numeric accession; normalize to GO:NNNNNNN.
+        if str(acc).startswith("GO:"):
+            return str(acc)
+        return f"GO:{int(acc):07d}"
 
     async def _fetch_pathway_gene_symbols(self, stable_id: str) -> list[str]:
         m = re.search(r"(\d+)$", stable_id)
