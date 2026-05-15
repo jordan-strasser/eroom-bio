@@ -114,6 +114,22 @@ class TestBiologyNode:
         )
         assert node.pathway_ids == ["KEGG:hsa04010"]
 
+    def test_metadata_persists(self):
+        """metadata is where the populator records source + alternate pathway
+        names; before the field was added the kwarg was silently dropped."""
+        node = BiologyNode(
+            id="R-HSA-194138",
+            name="Signaling by VEGF",
+            pathway_ids=["R-HSA-194138", "R-HSA-114608"],
+            metadata={
+                "source": "reactome_target_lookup",
+                "primary_pathway": "R-HSA-194138",
+                "alternate_pathway_names": {"R-HSA-114608": "Platelet degranulation"},
+            },
+        )
+        assert node.metadata["source"] == "reactome_target_lookup"
+        assert node.metadata["alternate_pathway_names"]["R-HSA-114608"] == "Platelet degranulation"
+
 
 class TestBiomarkerNode:
     def test_create(self):

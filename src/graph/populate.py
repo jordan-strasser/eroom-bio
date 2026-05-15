@@ -1465,15 +1465,40 @@ class PopulationPipeline:
         if not pathways:
             return ([], False)
 
-        # All Reactome pathway ids for this gene, ranked by relevance —
-        # used as metadata on the materialized BiologyNode so cross-
-        # pathway queries can still find this biology even when only
+        # Re-rank by relevance to the chain context (mechanism + indication
+        # + gene symbol) before slicing the top-N. Reactome's default order
+        # is citation-frequency-driven and routinely puts off-context
+        # pathways first (CRBN → SARS therapeutics, VEGFA → platelet
+        # degranulation). The full list is still preserved on
+        # ``pathway_ids`` so cross-indication queries against the
+        # alternates remain answerable.
+        from src.graph.pathway_ranker import rerank_pathways
+
+        pathways = rerank_pathways(
+            pathways,
+            mechanism_name=mechanism_id,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
+
+        # All Reactome pathway ids for this gene, ranked by context
+        # relevance — used as metadata on the materialized BiologyNode so
+        # cross-pathway queries can still find this biology even when only
         # the top pathway has its own node.
         all_pathway_ids = [p.stable_id for p in pathways]
+        # Display names indexed by stable id, so cross-indication queries
+        # can inspect alternate biology without re-hitting Reactome. Stored
+        # in BiologyNode.metadata["alternate_pathway_names"]; the primary
+        # pathway's name is already on the node's ``name`` field.
+        pathway_display_names = {p.stable_id: p.display_name for p in pathways}
 
         biology_ids: list[str] = []
         for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
             bio_id = pathway.stable_id
+            alternate_names = {
+                sid: name for sid, name in pathway_display_names.items()
+                if sid != bio_id
+            }
             try:
                 existing = self.graph.get_node(bio_id)
                 # Merge any newly-discovered pathway ids into the
@@ -1484,6 +1509,12 @@ class PopulationPipeline:
                 merged = current_pathways | set(all_pathway_ids)
                 if merged != current_pathways:
                     existing["pathway_ids"] = sorted(merged)
+                # Merge alternate display names too — same idempotent shape.
+                existing_meta = existing.setdefault("metadata", {})
+                existing_alts = existing_meta.setdefault("alternate_pathway_names", {})
+                for sid, name in alternate_names.items():
+                    if sid not in existing_alts and name:
+                        existing_alts[sid] = name
             except KeyError:
                 self.graph.add_node(BiologyNode(
                     id=bio_id,
@@ -1492,6 +1523,7 @@ class PopulationPipeline:
                     metadata={
                         "source": "reactome_target_lookup",
                         "primary_pathway": bio_id,
+                        "alternate_pathway_names": alternate_names,
                     },
                 ))
 
