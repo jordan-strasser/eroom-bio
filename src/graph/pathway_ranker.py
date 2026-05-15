@@ -39,6 +39,35 @@ _STOPWORDS: frozenset[str] = frozenset({
 _MIN_TOKEN_LEN = 4
 
 
+# Mechanism-of-action → vocabulary that actually appears in Reactome pathway
+# names. The mechanism slug itself ("kinase_inhibition", "protein_degradation")
+# rarely matches anything because Reactome describes pathways in terms of the
+# specific signaling proteins involved, not the drug-mechanism category. This
+# map bridges that gap.
+#
+# Each entry is a tight set of tokens that are *biologically characteristic*
+# of the mechanism — kept small on purpose. Over-broad vocabularies create
+# spurious matches (e.g. adding "signaling" everywhere makes every
+# receptor-related pathway tie with every kinase pathway). Each token must be
+# at least ``_MIN_TOKEN_LEN`` chars or the overlap rule ignores it.
+MECHANISM_PATHWAY_TOKENS: dict[str, set[str]] = {
+    "checkpoint_blockade": {"checkpoint", "inhibition", "stimulation", "pdcd1", "ctla4", "lag3"},
+    "kinase_inhibition": {"kinase", "phosphorylation", "phosphorylates", "akt", "pi3k", "mapk"},
+    "receptor_antagonism": {"receptor", "antagonist"},
+    "receptor_agonism": {"receptor", "agonist", "interleukin", "cytokine"},
+    "enzyme_inhibition": {"enzyme", "catalysis", "metabolism", "hydrolysis"},
+    "protein_degradation": {"ubiquitin", "ubiquitination", "proteasome", "cullin", "ligase"},
+    "gene_editing": {"homologous", "recombination", "repair"},
+    "antibody_dependent_cytotoxicity": {"antibody", "complement", "natural", "killer"},
+    "hormone_modulation": {"hormone", "estrogen", "androgen", "steroid"},
+    "antimetabolite": {"nucleotide", "nucleoside", "purine", "pyrimidine"},
+    "dna_damage": {"damage", "repair", "double-strand", "break"},
+    "angiogenesis_inhibition": {"angiogenesis", "vascular", "vasculature"},
+    "immune_costimulation": {"costimulation", "interleukin", "tcr", "lymphocyte"},
+    "other": set(),
+}
+
+
 def _tokenize(text: str) -> set[str]:
     if not text:
         return set()
@@ -82,6 +111,19 @@ def _overlap_score(path_tokens: set[str], context_tokens: set[str]) -> int:
     return score
 
 
+def _mechanism_expansion(mechanism_name: str) -> set[str]:
+    """Look up the canonical Reactome-vocabulary tokens for a mechanism slug.
+
+    Reactome pathway names rarely contain mechanism slugs verbatim (no pathway
+    name says "kinase_inhibition"), so we expand the slug into the actual
+    protein-level terms Reactome uses (akt, pi3k, mapk, …). Returns an empty
+    set for unknown mechanisms — the caller falls back to slug tokenization.
+    """
+    if not mechanism_name:
+        return set()
+    return MECHANISM_PATHWAY_TOKENS.get(mechanism_name, set())
+
+
 def rerank_pathways(
     pathways: Iterable[ReactomePathway],
     *,
@@ -91,14 +133,22 @@ def rerank_pathways(
 ) -> list[ReactomePathway]:
     """Re-rank a list of Reactome pathways by relevance to the chain context.
 
-    The score is the number of context tokens (drawn from mechanism, indication,
-    gene symbol) that overlap any pathway token via the substring rule. Higher
-    score → higher rank. Ties preserve the input order (stable sort), so when
-    the context provides no signal the original Reactome ranking is unchanged.
+    The score is the number of context tokens that overlap any pathway token
+    via the boundary-aligned overlap rule. Context tokens are drawn from:
+      * the mechanism slug itself, tokenized (e.g. ``kinase_inhibition`` →
+        {kinase, inhibition})
+      * the mechanism's expansion vocabulary from ``MECHANISM_PATHWAY_TOKENS``
+        (e.g. ``kinase_inhibition`` → {kinase, phosphorylation, akt, pi3k, mapk})
+      * the indication slug
+      * the gene symbol
+
+    Higher score → higher rank. Ties preserve input order (stable sort), so
+    a context with no signal leaves Reactome's order unchanged.
     """
     items = list(pathways)
     context_tokens = (
         _tokenize(mechanism_name)
+        | _mechanism_expansion(mechanism_name)
         | _tokenize(indication_name)
         | _tokenize(gene_symbol)
     )

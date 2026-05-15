@@ -315,6 +315,7 @@ class BiologyNode(BaseModel):
     pathway_ids: list[str] = Field(default_factory=list)
     tissue_specificity: list[str] = Field(default_factory=list)
     known_redundancies: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class BiomarkerNode(BaseModel):

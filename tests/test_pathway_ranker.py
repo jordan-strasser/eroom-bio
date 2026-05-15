@@ -109,7 +109,9 @@ def test_vegfa_no_longer_picks_platelet_degranulation():
 
 
 def test_il2ra_no_longer_picks_raf_mapk():
-    """Real IL2RA pathway list. Top-1 must shift off RAF/MAP kinase cascade."""
+    """Real IL2RA pathway list. With receptor_agonism vocab expansion
+    (includes "interleukin"), Interleukin-2 signaling should now win directly.
+    """
     pathways = [
         _p("R-HSA-5673001", "RAF/MAP kinase cascade"),
         _p("R-HSA-8877330", "RUNX1 and FOXP3 control the development of regulatory T lymphocytes (Tregs)"),
@@ -125,6 +127,66 @@ def test_il2ra_no_longer_picks_raf_mapk():
     assert ranked[0].stable_id != "R-HSA-5673001", (
         "RAF/MAP kinase cascade should not be top-1 for IL2RA + receptor_agonism"
     )
+
+
+def test_pdpk1_kinase_inhibition_finds_akt_pathway():
+    """Real PDPK1 pathway list from data/cache/lincs/reactome/PDPK1.json. The
+    canonical PDK1 biology is PIP3/AKT signaling; Reactome's default top-1
+    is "GPVI-mediated activation cascade" (platelet-specific, wrong context).
+    The mechanism vocabulary expansion (kinase_inhibition → akt, pi3k, ...)
+    should pull an AKT-named pathway to the top.
+    """
+    pathways = [
+        _p("R-HSA-114604", "GPVI-mediated activation cascade"),
+        _p("R-HSA-1257604", "PIP3 activates AKT signaling"),
+        _p("R-HSA-165158", "Activation of AKT2"),
+        _p("R-HSA-202424", "Downstream TCR signaling"),
+        _p("R-HSA-389357", "CD28 dependent PI3K/Akt signaling"),
+        _p("R-HSA-5218921", "VEGFR2 mediated cell proliferation"),
+        _p("R-HSA-5674400", "Constitutive Signaling by AKT1 E17K in Cancer"),
+    ]
+    ranked = rerank_pathways(
+        pathways,
+        mechanism_name="kinase_inhibition",
+        indication_name="melanoma",
+        gene_symbol="PDPK1",
+    )
+    assert ranked[0].stable_id != "R-HSA-114604", (
+        "GPVI-mediated activation cascade should not be top-1 for PDPK1 + kinase_inhibition"
+    )
+    # Top pick should mention AKT or PI3K — the canonical PDPK1 biology.
+    top_name = ranked[0].display_name.lower()
+    assert "akt" in top_name or "pi3k" in top_name
+
+
+def test_protein_degradation_vocab_finds_ubiquitin_pathway():
+    """The CRBN gene itself has no rerankable pathways (Reactome only has the
+    SARS one), but the mechanism vocab itself should still work end-to-end:
+    given pathways that include ubiquitin/proteasome biology, the vocab
+    should pull them ahead of generic alternates.
+    """
+    pathways = [
+        _p("R-1", "Generic cellular response"),
+        _p("R-2", "Ubiquitin-mediated proteolysis"),
+        _p("R-3", "Cell cycle regulation"),
+    ]
+    ranked = rerank_pathways(
+        pathways,
+        mechanism_name="protein_degradation",
+        indication_name="multiple_myeloma",
+    )
+    assert ranked[0].stable_id == "R-2"
+
+
+def test_unknown_mechanism_does_not_crash():
+    """An off-vocab mechanism slug yields no expansion and the ranker falls
+    back to slug tokenization. No crash, no fabricated matches."""
+    pathways = [_p("R-1", "Alpha"), _p("R-2", "Beta")]
+    ranked = rerank_pathways(
+        pathways,
+        mechanism_name="some_made_up_mechanism",
+    )
+    assert [p.stable_id for p in ranked] == ["R-1", "R-2"]
 
 
 def test_metadata_order_reflects_reranking():
