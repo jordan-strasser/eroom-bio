@@ -123,6 +123,23 @@ def _arm_differential_bucket(
     return None
 
 
+def _single_arm_combo_bucket(
+    outcome: TrialOutcome,
+) -> SupportBucket | None:
+    """Map a standalone combo-arm outcome to a weak pairwise bucket.
+
+    No head-to-head signal, so even a clearly successful or failed combo
+    only contributes a weak update to each pairwise modulation edge.
+    """
+    if outcome == TrialOutcome.SUCCESS:
+        return SupportBucket.WEAK_SUPPORT
+    if outcome == TrialOutcome.PARTIAL:
+        return SupportBucket.AMBIGUOUS
+    if outcome == TrialOutcome.FAILURE:
+        return SupportBucket.WEAK_CONTRADICT
+    return None
+
+
 def _aggregate_arm_outcomes(
     trial: TrialSubgraph,
 ) -> dict[str, TrialOutcome]:
@@ -649,6 +666,15 @@ class Attributor:
             trial, classification, evidence_type, applied_edges,
         ))
 
+        # Single-arm-combo emission. For each combo arm whose compound
+        # set has no subset comparator in the trial, fall back to a
+        # weak pairwise signal across all C(n, 2) constituent pairs based
+        # on the arm's standalone outcome. Weaker than the differential
+        # path because we have no head-to-head signal.
+        updates.extend(self._emit_single_arm_combo_modulations(
+            trial, classification, evidence_type, applied_edges,
+        ))
+
         # Failure-trial backstop. The classifier prompt explicitly requires
         # at least one upstream causal-chain edge update on a failure trial
         # (a missed endpoint refutes part of the chain even when biomarker
@@ -800,6 +826,69 @@ class Attributor:
                             ),
                         )
                         emitted.append(update)
+        return emitted
+
+    def _emit_single_arm_combo_modulations(
+        self,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        evidence_type: EvidenceType,
+        applied_edges: set[tuple[str, str, str]],
+    ) -> list[AppliedEdgeUpdate]:
+        """Pairwise weak emission for combo arms with no subset comparator.
+
+        When a trial reports a combo arm's outcome but no monotherapy (or
+        smaller-subset) arm to compare against, we can't compute a
+        differential — but the combo arm's outcome is still evidence at
+        a much weaker level: each pair of constituents accumulates one
+        weak update in the direction of the arm's standalone outcome.
+        Triggered per-arm: only fires for combo arms (≥2 constituents)
+        whose compound set has no strict subset in any other arm.
+        """
+        outcomes = _aggregate_arm_outcomes(trial)
+        if not outcomes:
+            return []
+        all_compound_sets = [set(a.compound_ids) for a in trial.arms]
+
+        emitted: list[AppliedEdgeUpdate] = []
+        for arm in trial.arms:
+            if len(arm.compound_ids) < 2:
+                continue
+            outcome = outcomes.get(arm.arm_id)
+            if outcome is None:
+                continue
+            bucket = _single_arm_combo_bucket(outcome)
+            if bucket is None:
+                continue
+            arm_set = set(arm.compound_ids)
+            has_subset_comparator = any(
+                other < arm_set for other in all_compound_sets
+            )
+            if has_subset_comparator:
+                continue
+            sorted_compounds = sorted(arm_set)
+            for i, c1 in enumerate(sorted_compounds):
+                for c2 in sorted_compounds[i + 1:]:
+                    src, tgt = canonical_modulation_endpoints(c1, c2)
+                    edge_key = (
+                        EdgeType.MODULATES_EFFICACY_OF.value, src, tgt,
+                    )
+                    if edge_key in applied_edges:
+                        continue
+                    applied_edges.add(edge_key)
+                    emitted.append(self._upsert_modulation_edge(
+                        src=src,
+                        tgt=tgt,
+                        bucket=bucket,
+                        evidence_type=evidence_type,
+                        trial=trial,
+                        classification=classification,
+                        note=(
+                            f"Single-arm combo: {arm.arm_id} "
+                            f"(outcome={outcome.value}); no subset "
+                            f"comparator in trial."
+                        ),
+                    ))
         return emitted
 
     def _upsert_modulation_edge(

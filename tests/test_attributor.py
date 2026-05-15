@@ -512,12 +512,13 @@ class TestArmDifferentialModulation:
         assert mod_updates == []
 
     def test_no_subset_relation_skips_emission(self):
-        # Disjoint arms (no subset): emits nothing.
+        # Two disjoint mono arms (no subset, no combo): neither the
+        # differential path nor the single-arm-combo path fires.
         g, ts = _seed_subset_arm_pair(
             arm_a_outcome=TrialOutcome.FAILURE,
             arm_b_outcome=TrialOutcome.SUCCESS,
             arm_a_compounds=("drug_x",),
-            arm_b_compounds=("drug_y", "drug_z"),
+            arm_b_compounds=("drug_y",),
         )
         clf = _make_classification([])
         updates = Attributor(g).attribute(clf, ts)
@@ -595,6 +596,132 @@ class TestArmDifferentialModulation:
         ]
         pairs = [(u.source_id, u.target_id) for u in mod_updates]
         assert len(pairs) == len(set(pairs))
+
+
+# ── Single-arm combo modulation (round 8 v0.2.0) ────────────────────────
+
+
+def _seed_single_arm_combo(
+    compounds: tuple[str, ...],
+    outcome: TrialOutcome,
+) -> tuple[GraphStore, TrialSubgraph]:
+    """NCT00003222-shaped fixture: one combo arm with N constituents."""
+    g = GraphStore()
+    for cid in compounds:
+        g.add_node(CompoundNode(
+            id=cid, name=cid.replace("_", " "), modality=Modality.OTHER,
+        ))
+    g.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+    g.add_node(EndpointNode(
+        id="OS", name="OS",
+        endpoint_type=EndpointType.PRIMARY,
+        regulatory_status=RegulatoryStatus.ACCEPTED,
+    ))
+    g.add_node(PopulationNode(id="melanoma__unselected", name="All"))
+
+    arm = TrialArm(
+        arm_id="combo",
+        compound_ids=list(compounds),
+        regimen_compound_id="+".join(sorted(compounds)),
+        is_combination=True,
+    )
+    chain = CausalChain(
+        arm_id=arm.arm_id, compound_id=arm.regimen_compound_id,
+        subgroup_population_id="melanoma__unselected",
+        target_id="UNKNOWN", mechanism_id="UNKNOWN",
+        biology_id="UNKNOWN", indication_id="melanoma",
+        endpoint_id="OS", outcome=outcome,
+    )
+    ts = TrialSubgraph(
+        trial_id="NCT_SINGLE_ARM_COMBO", phase="2", arms=[arm], chains=[chain],
+        parent_population_id="melanoma__unselected",
+    )
+    g.set_trial_subgraph(ts)
+    return g, ts
+
+
+class TestSingleArmComboModulation:
+    def test_six_compound_combo_emits_15_pairs(self):
+        compounds = ("c1", "c2", "c3", "c4", "c5", "c6")
+        g, ts = _seed_single_arm_combo(compounds, TrialOutcome.SUCCESS)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # C(6, 2) = 15 pairs.
+        assert len(mod_updates) == 15
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.WEAK_SUPPORT.value
+
+    def test_failure_outcome_emits_weak_contradict(self):
+        g, ts = _seed_single_arm_combo(("a", "b", "c"), TrialOutcome.FAILURE)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_updates) == 3
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.WEAK_CONTRADICT.value
+
+    def test_partial_outcome_emits_ambiguous(self):
+        g, ts = _seed_single_arm_combo(("a", "b"), TrialOutcome.PARTIAL)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_updates) == 1
+        assert mod_updates[0].evidence.support == SupportBucket.AMBIGUOUS.value
+
+    def test_unknown_outcome_skips(self):
+        g, ts = _seed_single_arm_combo(("a", "b"), TrialOutcome.UNKNOWN)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates == []
+
+    def test_skipped_when_subset_comparator_exists(self):
+        """If any other arm's compound set is a strict subset of this
+        combo arm's set, the differential path handled it — single-arm
+        emission must not double-emit on top."""
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # Differential emits 2 (aldesleukin × gp100, aldesleukin × montanide).
+        # Single-arm path must not add the (gp100, montanide) pair on top
+        # since arm A's {aldesleukin} is a strict subset of arm B's set.
+        pairs = {(u.source_id, u.target_id) for u in mod_updates}
+        assert pairs == {
+            ("aldesleukin", "gp100_antigen"),
+            ("aldesleukin", "montanide_isa_51_vg"),
+        }
+
+    def test_mono_arm_skipped(self):
+        """Single-compound arms have nothing to pair, so they emit
+        nothing."""
+        g, ts = _seed_single_arm_combo(("solo",), TrialOutcome.SUCCESS)
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates == []
 
 
 # ── AppliedEdgeUpdate ───────────────────────────────────────────────────
