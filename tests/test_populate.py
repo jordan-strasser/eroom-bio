@@ -562,9 +562,10 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("gp100_antigen", "gp100 antigen", "compound")
 
         trial = _make_trial(drug_name="gp100 antigen", drug_desc="peptide vaccine")
-        added = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
 
         assert added == 1
+        assert comp_targets == {"gp100_antigen": ["ENSG00000185664"]}
         assert graph.get_node("ENSG00000185664")["gene_symbol"] == "PMEL"
         belief = graph.get_edge_belief(
             "gp100_antigen", "ENSG00000185664", EdgeType.AFFECTS,
@@ -586,9 +587,12 @@ class TestPeptideVaccineTargets:
             drug_name="Tyrosinase/gp100/MART-1 Peptides",
             drug_desc="three TAA peptides",
         )
-        added = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
 
         assert added == 3
+        assert set(comp_targets["combo_peptides"]) == {
+            "ENSG00000185664", "ENSG00000077498", "ENSG00000120215",
+        }
         for ens, symbol in [
             ("ENSG00000185664", "PMEL"),
             ("ENSG00000077498", "TYR"),
@@ -609,11 +613,11 @@ class TestPeptideVaccineTargets:
             _make_trial(nct_id="NCT01", drug_name="gp100 antigen"),
             _make_trial(nct_id="NCT02", drug_name="gp100 antigen"),
         ]
-        added_first = pipeline._add_peptide_vaccine_target_edges(trials)
-        added_second = pipeline._add_peptide_vaccine_target_edges(trials)
+        first_added, _ = pipeline._add_peptide_vaccine_target_edges(trials)
+        second_added, _ = pipeline._add_peptide_vaccine_target_edges(trials)
 
-        assert added_first == 1
-        assert added_second == 0
+        assert first_added == 1
+        assert second_added == 0
 
     def test_reuses_existing_target_node(self, pipeline, graph):
         # Pre-existing TargetNode from another source; our heuristic must
@@ -629,7 +633,7 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("gp100_antigen", "gp100 antigen", "compound")
 
         trial = _make_trial(drug_name="gp100 antigen")
-        added = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, _ = pipeline._add_peptide_vaccine_target_edges([trial])
 
         assert added == 1
         assert graph.get_node("ENSG00000185664")["name"] == "Pre-existing PMEL node from OT"
@@ -641,9 +645,10 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("C1", "Imatinib", "compound")
 
         trial = _make_trial(drug_name="Imatinib")
-        added = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
 
         assert added == 0
+        assert comp_targets == {}
 
 
 # ── Full pipeline (mocked I/O) ──────────────────────────────────────────

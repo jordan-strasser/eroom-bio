@@ -24,8 +24,11 @@ from src.annotation.attributor import (
     _norm_name,
 )
 from src.annotation.taxonomy import (
+    ChainResult,
+    ExtractedArm,
     FailureClassification,
     FailureMode,
+    TrialExtraction,
 )
 from src.graph.models import (
     BiologyNode,
@@ -754,6 +757,104 @@ class TestModulationEvidenceContext:
         assert mod_updates
         for u in mod_updates:
             assert u.evidence.context.get("indication") == "melanoma"
+
+
+# ── Extraction-driven per-arm outcomes (NCT00019682-shaped) ─────────────
+
+
+class TestExtractionDrivenArmOutcomes:
+    def test_extraction_outcomes_drive_emission_when_chain_outcomes_unknown(
+        self,
+    ):
+        """Chain.outcome is UNKNOWN in current populate flows. The
+        extraction-path reads per-arm outcomes from results_by_chain
+        and maps LLM arm_ids to graph arm_ids via compound-set match."""
+        # Graph arm_ids ("arm_i_aldesleukin" / "arm_ii_combo") differ from
+        # extraction arm_ids ("aldesleukin_alone" / "combination").
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.UNKNOWN,
+            arm_b_outcome=TrialOutcome.UNKNOWN,
+        )
+        # Re-label graph arm_ids to make the mismatch realistic.
+        from src.graph.models import TrialSubgraph as TSG
+        new_arms = [
+            ts.arms[0].model_copy(update={"arm_id": "arm_i_real_id"}),
+            ts.arms[1].model_copy(update={"arm_id": "arm_ii_real_id"}),
+        ]
+        new_chains = [
+            ts.chains[0].model_copy(update={"arm_id": "arm_i_real_id"}),
+            ts.chains[1].model_copy(update={"arm_id": "arm_ii_real_id"}),
+        ]
+        ts2 = TSG(
+            trial_id=ts.trial_id, phase=ts.phase,
+            arms=new_arms, chains=new_chains,
+            parent_population_id=ts.parent_population_id,
+        )
+        g.set_trial_subgraph(ts2)
+
+        extraction = TrialExtraction(
+            trial_id=ts.trial_id,
+            therapeutic_hypothesis="test",
+            arms=[
+                ExtractedArm(arm_id="ext_arm_a", compounds=["aldesleukin"]),
+                ExtractedArm(
+                    arm_id="ext_arm_b",
+                    compounds=[
+                        "aldesleukin", "gp100 antigen", "montanide ISA 51 VG",
+                    ],
+                ),
+            ],
+            results_by_chain=[
+                ChainResult(
+                    arm_id="ext_arm_a", subgroup_descriptor=None,
+                    endpoint="OS", outcome="failure",
+                ),
+                ChainResult(
+                    arm_id="ext_arm_b", subgroup_descriptor=None,
+                    endpoint="OS", outcome="success",
+                ),
+            ],
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts2, extraction)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_updates) == 2
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.STRONG_SUPPORT.value
+
+    def test_extraction_arm_with_no_compound_match_is_ignored(self):
+        """An extraction arm whose compounds don't match any graph arm
+        gets dropped; modulation emission falls back to other paths."""
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        # Extraction declares an arm with a compound the graph doesn't know.
+        extraction = TrialExtraction(
+            trial_id=ts.trial_id,
+            therapeutic_hypothesis="test",
+            arms=[
+                ExtractedArm(arm_id="ghost_arm", compounds=["mystery_drug"]),
+            ],
+            results_by_chain=[
+                ChainResult(
+                    arm_id="ghost_arm", subgroup_descriptor=None,
+                    endpoint="OS", outcome="success",
+                ),
+            ],
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts, extraction)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # Extraction yielded no usable mapping; chain-outcome fallback
+        # produces the standard 2 edges.
+        assert len(mod_updates) == 2
 
 
 # ── AppliedEdgeUpdate ───────────────────────────────────────────────────

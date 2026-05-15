@@ -751,8 +751,16 @@ class PopulationPipeline:
         # (gp100, tyrosinase, MART-1, multi-epitope) that OT can't resolve.
         # Runs before name-match fallback so the synthesized TargetNodes
         # are available to the fallback for trial-text cross-references.
+        # Merge the heuristic's compound→target mapping into the main
+        # compound_targets dict so per-constituent chain construction
+        # (_populate_trial_mechanisms) sees these compounds as targeted.
         console.print("[bold]Wiring peptide-vaccine target edges...[/bold]")
-        peptide_added = self._add_peptide_vaccine_target_edges(trials)
+        peptide_added, peptide_targets = self._add_peptide_vaccine_target_edges(trials)
+        for cid, tids in peptide_targets.items():
+            existing = compound_targets.setdefault(cid, [])
+            for tid in tids:
+                if tid not in existing:
+                    existing.append(tid)
         console.print(f"  Added {peptide_added} AFFECTS edges (peptide-vaccine heuristic)")
 
         # Name-matching fallback: catches binds_to relationships for
@@ -1706,7 +1714,9 @@ class PopulationPipeline:
                     )
         return added
 
-    def _add_peptide_vaccine_target_edges(self, trials: list[TrialRecord]) -> int:
+    def _add_peptide_vaccine_target_edges(
+        self, trials: list[TrialRecord],
+    ) -> tuple[int, dict[str, list[str]]]:
         """Wire AFFECTS edges for curated melanoma TAA peptide-vaccine targets.
 
         Open Targets returns no targets for tumor-associated-antigen peptide
@@ -1714,9 +1724,16 @@ class PopulationPipeline:
         ``_PEPTIDE_VACCINE_TARGETS`` is the curated mapping that fills in
         those known biology connections so chains for these compounds
         resolve past UNKNOWN_target. Creates TargetNodes when missing.
+
+        Returns ``(edges_added, compound_targets)`` where ``compound_targets``
+        maps each matched compound_id to its list of resolved Ensembl ids.
+        The caller merges this into the main ``compound_targets`` dict so
+        downstream chain construction (``_populate_trial_mechanisms``)
+        sees the peptide vaccines as having real targets.
         """
         added = 0
         seen_compounds: set[str] = set()
+        compound_targets: dict[str, list[str]] = {}
         for trial in trials:
             for iv in trial.interventions:
                 if not is_drug_like(iv) or not iv.name:
@@ -1733,6 +1750,7 @@ class PopulationPipeline:
                 if not matched_targets:
                     continue
                 seen_compounds.add(cid)
+                compound_targets[cid] = list(matched_targets.keys())
                 for ens, (symbol, name) in matched_targets.items():
                     try:
                         self.graph.get_node(ens)
@@ -1759,7 +1777,7 @@ class PopulationPipeline:
                         },
                     ))
                     added += 1
-        return added
+        return added, compound_targets
 
     def _add_compound_target_edges(self, trials: list[TrialRecord]) -> int:
         """For compounds with known targets in the graph, add binds_to edges."""

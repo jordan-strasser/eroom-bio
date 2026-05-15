@@ -142,22 +142,47 @@ def _single_arm_combo_bucket(
 
 def _aggregate_arm_outcomes(
     trial: TrialSubgraph,
+    extraction: "TrialExtraction | None" = None,
 ) -> dict[str, TrialOutcome]:
-    """Per-arm authoritative outcome.
+    """Per-arm authoritative outcome, keyed by graph arm_id.
 
-    Preference: a chain at the parent population (no subgroup) with a
-    non-UNKNOWN outcome. Falls back to any non-UNKNOWN chain outcome on
-    the arm. Returns {} for arms with no usable outcome data.
+    Reads from extraction.results_by_chain when provided, mapping the
+    LLM-emitted arm_ids onto graph arm_ids by compound-set match. This
+    is the primary path: chain.outcome is never written back from the
+    extraction in the current populate flow, so it stays UNKNOWN even
+    when the extraction reports per-arm outcomes.
+
+    Falls back to ``chain.outcome`` when the extraction is unavailable
+    or doesn't yield a mapping — exercised by unit tests that fixture
+    chain outcomes directly.
     """
     by_arm: dict[str, TrialOutcome] = {}
-    # First pass: parent-population chains.
+    if extraction is not None:
+        ext_to_graph = _map_extraction_arms_to_graph(trial, extraction)
+        for cr in getattr(extraction, "results_by_chain", []) or []:
+            # Parent-population results only (subgroup_descriptor is null).
+            if cr.subgroup_descriptor is not None:
+                continue
+            graph_arm_id = ext_to_graph.get(cr.arm_id)
+            if graph_arm_id is None:
+                continue
+            try:
+                outcome = TrialOutcome(cr.outcome)
+            except ValueError:
+                continue
+            if outcome == TrialOutcome.UNKNOWN:
+                continue
+            by_arm.setdefault(graph_arm_id, outcome)
+        if by_arm:
+            return by_arm
+
+    # Fallback: chain.outcome (used by tests + as a defensive path).
     for chain in trial.chains:
         if chain.subgroup_population_id != trial.parent_population_id:
             continue
         if chain.outcome == TrialOutcome.UNKNOWN:
             continue
         by_arm.setdefault(chain.arm_id, chain.outcome)
-    # Second pass: fill in arms with no parent-pop signal from any chain.
     for chain in trial.chains:
         if chain.arm_id in by_arm:
             continue
@@ -165,6 +190,39 @@ def _aggregate_arm_outcomes(
             continue
         by_arm[chain.arm_id] = chain.outcome
     return by_arm
+
+
+def _map_extraction_arms_to_graph(
+    trial: TrialSubgraph,
+    extraction: "TrialExtraction",
+) -> dict[str, str]:
+    """ext_arm_id → graph_arm_id by compound-set match.
+
+    Extraction arms carry LLM-emitted arm_ids ("aldesleukin_alone") plus
+    free-text compound names ("aldesleukin", "gp100 antigen"). Graph
+    arms carry CT.gov group_ids ("arm_i_aldesleukin") plus canonical
+    compound ids ("aldesleukin", "gp100_antigen"). The reconciliation
+    normalizes the extraction's compound names through `normalize_entity`
+    and matches by set equality.
+    """
+    from src.graph.models import normalize_entity
+
+    graph_arm_by_compounds: dict[frozenset[str], str] = {
+        frozenset(arm.compound_ids): arm.arm_id for arm in trial.arms
+    }
+    mapping: dict[str, str] = {}
+    for ea in getattr(extraction, "arms", []) or []:
+        compounds = ea.compounds or []
+        if not compounds:
+            continue
+        normalized = frozenset(
+            normalize_entity(c, "InterventionNode") for c in compounds
+        )
+        graph_arm_id = graph_arm_by_compounds.get(normalized)
+        if graph_arm_id is None:
+            continue
+        mapping[ea.arm_id] = graph_arm_id
+    return mapping
 
 
 # ── Routing helpers ──────────────────────────────────────────────────────
@@ -506,6 +564,7 @@ class Attributor:
         self,
         classification: FailureClassification,
         trial: TrialSubgraph,
+        extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
         """Translate a classification into concrete edge updates.
 
@@ -516,6 +575,13 @@ class Attributor:
         combo trial. Updates that don't match any chain are logged to
         ``data/dev/unrouted_attribution_updates.jsonl`` rather than
         silently misapplied.
+
+        ``extraction`` (optional) is the trial's structured extraction; if
+        present, modulation-edge emission reads per-arm outcomes from
+        ``results_by_chain`` (mapping LLM arm_ids to graph arm_ids by
+        compound-set match). Without it, modulation emission falls back
+        to ``chain.outcome``, which is UNKNOWN in current populate flows
+        — so production callers should always pass the extraction.
         """
         raw = getattr(classification, "_raw", {})
         raw_edges = raw.get("edges_to_update", [])
@@ -664,6 +730,7 @@ class Attributor:
         # v0.2.1 / v0.3.0 will promote to chain-node layers.
         updates.extend(self._emit_arm_differential_modulations(
             trial, classification, evidence_type, applied_edges,
+            extraction=extraction,
         ))
 
         # Single-arm-combo emission. For each combo arm whose compound
@@ -673,6 +740,7 @@ class Attributor:
         # path because we have no head-to-head signal.
         updates.extend(self._emit_single_arm_combo_modulations(
             trial, classification, evidence_type, applied_edges,
+            extraction=extraction,
         ))
 
         # Failure-trial backstop. The classifier prompt explicitly requires
@@ -760,6 +828,8 @@ class Attributor:
         classification: FailureClassification,
         evidence_type: EvidenceType,
         applied_edges: set[tuple[str, str, str]],
+        *,
+        extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
         """Emit MODULATES_EFFICACY_OF edges from arm-pair differentials.
 
@@ -777,7 +847,7 @@ class Attributor:
         """
         if len(trial.arms) < 2:
             return []
-        outcomes = _aggregate_arm_outcomes(trial)
+        outcomes = _aggregate_arm_outcomes(trial, extraction)
         if len(outcomes) < 2:
             return []
 
@@ -834,6 +904,8 @@ class Attributor:
         classification: FailureClassification,
         evidence_type: EvidenceType,
         applied_edges: set[tuple[str, str, str]],
+        *,
+        extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
         """Pairwise weak emission for combo arms with no subset comparator.
 
@@ -845,7 +917,7 @@ class Attributor:
         Triggered per-arm: only fires for combo arms (≥2 constituents)
         whose compound set has no strict subset in any other arm.
         """
-        outcomes = _aggregate_arm_outcomes(trial)
+        outcomes = _aggregate_arm_outcomes(trial, extraction)
         if not outcomes:
             return []
         all_compound_sets = [set(a.compound_ids) for a in trial.arms]
@@ -1303,23 +1375,22 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
         )
         classification._raw = clf_data  # type: ignore[attr-defined]
 
-        updates = attributor.attribute(classification, trial)
-        total_updates.extend(updates)
-
-        # AE attribution from the cached extraction. The saved JSON is the
-        # LLM's nested response (nct_id / therapeutic_hypothesis / results /
-        # context / arms / subgroups / results_by_chain)—not the flat
-        # TrialExtraction shape. Use the extractor's parser to unwrap it
-        # the same way the cache-load path does.
+        # Parse extraction once — passed to attribute() so modulation
+        # emission can read per-arm outcomes, then reused for AE
+        # attribution below.
         from src.annotation.extractor import _parse_extraction_response
         try:
             extraction = _parse_extraction_response(ext_data, trial_id)
         except Exception as exc:  # noqa: BLE001—pydantic ValidationError + others
             logger.warning(
-                "Skipping AE attribution for %s: extraction JSON invalid (%s)",
+                "Extraction JSON invalid for %s (%s); modulation emission "
+                "and AE attribution will be skipped",
                 trial_id, exc,
             )
             extraction = None
+
+        updates = attributor.attribute(classification, trial, extraction)
+        total_updates.extend(updates)
 
         if extraction is not None and extraction.adverse_events:
             ae_updates = await attributor.attribute_adverse_events(
