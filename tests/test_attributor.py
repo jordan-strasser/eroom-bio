@@ -374,6 +374,229 @@ class TestFailureBackstop:
         assert updates == []
 
 
+# ── Arm-differential modulation emission (round 8 v0.2.0) ───────────────
+
+
+def _seed_subset_arm_pair(
+    arm_a_outcome: TrialOutcome,
+    arm_b_outcome: TrialOutcome,
+    arm_a_compounds: tuple[str, ...] = ("aldesleukin",),
+    arm_b_compounds: tuple[str, ...] = (
+        "aldesleukin", "gp100_antigen", "montanide_isa_51_vg",
+    ),
+) -> tuple[GraphStore, TrialSubgraph]:
+    """NCT00019682-shaped 2-arm subset comparison fixture."""
+    g = GraphStore()
+    for cid in set(arm_a_compounds) | set(arm_b_compounds):
+        g.add_node(CompoundNode(
+            id=cid, name=cid.replace("_", " "), modality=Modality.OTHER,
+        ))
+    g.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+    g.add_node(EndpointNode(
+        id="RR_melanoma", name="Response rate (Melanoma)",
+        endpoint_type=EndpointType.PRIMARY,
+        regulatory_status=RegulatoryStatus.ACCEPTED,
+    ))
+    g.add_node(PopulationNode(id="melanoma__unselected", name="All patients"))
+
+    arms = [
+        TrialArm(
+            arm_id="arm_a",
+            compound_ids=list(arm_a_compounds),
+            regimen_compound_id="+".join(sorted(arm_a_compounds))
+            if len(arm_a_compounds) > 1 else arm_a_compounds[0],
+            is_combination=len(arm_a_compounds) > 1,
+        ),
+        TrialArm(
+            arm_id="arm_b",
+            compound_ids=list(arm_b_compounds),
+            regimen_compound_id="+".join(sorted(arm_b_compounds))
+            if len(arm_b_compounds) > 1 else arm_b_compounds[0],
+            is_combination=len(arm_b_compounds) > 1,
+        ),
+    ]
+    chains = []
+    for arm, outcome in [(arms[0], arm_a_outcome), (arms[1], arm_b_outcome)]:
+        chains.append(CausalChain(
+            arm_id=arm.arm_id,
+            compound_id=arm.regimen_compound_id,
+            subgroup_population_id="melanoma__unselected",
+            target_id="UNKNOWN", mechanism_id="UNKNOWN",
+            biology_id="UNKNOWN", indication_id="melanoma",
+            endpoint_id="RR_melanoma",
+            outcome=outcome,
+        ))
+    ts = TrialSubgraph(
+        trial_id="NCT_SUBSET", phase="3", arms=arms, chains=chains,
+        parent_population_id="melanoma__unselected",
+    )
+    g.set_trial_subgraph(ts)
+    return g, ts
+
+
+class TestArmDifferentialModulation:
+    def test_failure_to_success_emits_strong_support(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # Two edges: aldesleukin↔gp100, aldesleukin↔montanide.
+        # (gp100×montanide is within `added` set, not emitted.)
+        assert len(mod_updates) == 2
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.STRONG_SUPPORT.value
+
+    def test_endpoints_are_lex_canonicalized(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # aldesleukin < gp100_antigen, aldesleukin < montanide_isa_51_vg
+        for u in mod_updates:
+            assert u.source_id == "aldesleukin"
+            assert u.target_id in {"gp100_antigen", "montanide_isa_51_vg"}
+
+    def test_equal_outcomes_emit_ambiguous(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.SUCCESS,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_updates) == 2
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.AMBIGUOUS.value
+
+    def test_success_to_failure_emits_strong_contradict(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.SUCCESS,
+            arm_b_outcome=TrialOutcome.FAILURE,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert len(mod_updates) == 2
+        for u in mod_updates:
+            assert u.evidence.support == SupportBucket.STRONG_CONTRADICT.value
+
+    def test_unknown_arm_outcome_skips_emission(self):
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.UNKNOWN,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates == []
+
+    def test_no_subset_relation_skips_emission(self):
+        # Disjoint arms (no subset): emits nothing.
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+            arm_a_compounds=("drug_x",),
+            arm_b_compounds=("drug_y", "drug_z"),
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        assert mod_updates == []
+
+    def test_three_arm_chain_emits_all_pairs(self):
+        """A vs A+B vs A+B+C: emit (A,B), (A,C), (B,C) deduped across pairs."""
+        g = GraphStore()
+        for cid in ("A", "B", "C"):
+            g.add_node(CompoundNode(id=cid, name=cid, modality=Modality.OTHER))
+        g.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        g.add_node(EndpointNode(
+            id="RR", name="RR",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+        g.add_node(PopulationNode(id="melanoma__unselected", name="All"))
+
+        arms = [
+            TrialArm(arm_id="a", compound_ids=["A"], regimen_compound_id="A"),
+            TrialArm(arm_id="ab", compound_ids=["A", "B"],
+                     regimen_compound_id="A+B", is_combination=True),
+            TrialArm(arm_id="abc", compound_ids=["A", "B", "C"],
+                     regimen_compound_id="A+B+C", is_combination=True),
+        ]
+        outcomes = {
+            "a": TrialOutcome.FAILURE,
+            "ab": TrialOutcome.PARTIAL,
+            "abc": TrialOutcome.SUCCESS,
+        }
+        chains = [
+            CausalChain(
+                arm_id=arm.arm_id, compound_id=arm.regimen_compound_id,
+                subgroup_population_id="melanoma__unselected",
+                target_id="UNKNOWN", mechanism_id="UNKNOWN",
+                biology_id="UNKNOWN", indication_id="melanoma",
+                endpoint_id="RR",
+                outcome=outcomes[arm.arm_id],
+            )
+            for arm in arms
+        ]
+        ts = TrialSubgraph(
+            trial_id="NCT_3ARM", phase="3", arms=arms, chains=chains,
+            parent_population_id="melanoma__unselected",
+        )
+        g.set_trial_subgraph(ts)
+        clf = _make_classification([])
+
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        # Three distinct pairs: (A,B), (A,C), (B,C). Deduped per-trial,
+        # so 3 emissions total.
+        pairs = {(u.source_id, u.target_id) for u in mod_updates}
+        assert pairs == {("A", "B"), ("A", "C"), ("B", "C")}
+
+    def test_idempotent_within_single_attribute_call(self):
+        """The applied_edges dedup should prevent multi-emission across
+        arm comparisons that name the same pair."""
+        g, ts = _seed_subset_arm_pair(
+            arm_a_outcome=TrialOutcome.FAILURE,
+            arm_b_outcome=TrialOutcome.SUCCESS,
+        )
+        clf = _make_classification([])
+        updates = Attributor(g).attribute(clf, ts)
+        mod_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.MODULATES_EFFICACY_OF
+        ]
+        pairs = [(u.source_id, u.target_id) for u in mod_updates]
+        assert len(pairs) == len(set(pairs))
+
+
 # ── AppliedEdgeUpdate ───────────────────────────────────────────────────
 
 

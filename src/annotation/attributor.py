@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from src.graph.models import (
     AdverseEventNode,
+    canonical_modulation_endpoints,
     CausalChain,
     EdgeBeliefState,
     EdgeType,
@@ -22,6 +23,7 @@ from src.graph.models import (
     EvidenceType,
     GraphEdge,
     TrialArm,
+    TrialOutcome,
     TrialSubgraph,
 )
 from src.graph.store import GraphStore
@@ -78,6 +80,74 @@ _EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
 # Sentinel used in CausalChain fields when a graph id wasn't yet resolved
 # (e.g. by populate.py before extraction filled in the biology id).
 _UNKNOWN_PLACEHOLDER = "UNKNOWN"
+
+
+# TrialOutcome → ordinal scale for arm-differential bucket mapping.
+# UNKNOWN is excluded — pairs involving an unknown outcome yield no
+# modulation evidence (returned as None below).
+_OUTCOME_SCALE: dict[TrialOutcome, int] = {
+    TrialOutcome.FAILURE: 0,
+    TrialOutcome.PARTIAL: 1,
+    TrialOutcome.SUCCESS: 2,
+}
+
+
+def _arm_differential_bucket(
+    backbone_outcome: TrialOutcome,
+    combo_outcome: TrialOutcome,
+) -> SupportBucket | None:
+    """Map (backbone arm, combo arm) outcomes to a support bucket.
+
+    Bucket describes "adding the extra constituents to the backbone
+    helps." A 2-step jump (e.g. failure → success) is strong; 1-step is
+    moderate; equal outcomes is ambiguous; negative deltas contradict.
+    Returns None when either arm's outcome is UNKNOWN — no differential
+    can be computed.
+    """
+    if (
+        backbone_outcome == TrialOutcome.UNKNOWN
+        or combo_outcome == TrialOutcome.UNKNOWN
+    ):
+        return None
+    delta = _OUTCOME_SCALE[combo_outcome] - _OUTCOME_SCALE[backbone_outcome]
+    if delta == 2:
+        return SupportBucket.STRONG_SUPPORT
+    if delta == 1:
+        return SupportBucket.MODERATE_SUPPORT
+    if delta == 0:
+        return SupportBucket.AMBIGUOUS
+    if delta == -1:
+        return SupportBucket.MODERATE_CONTRADICT
+    if delta == -2:
+        return SupportBucket.STRONG_CONTRADICT
+    return None
+
+
+def _aggregate_arm_outcomes(
+    trial: TrialSubgraph,
+) -> dict[str, TrialOutcome]:
+    """Per-arm authoritative outcome.
+
+    Preference: a chain at the parent population (no subgroup) with a
+    non-UNKNOWN outcome. Falls back to any non-UNKNOWN chain outcome on
+    the arm. Returns {} for arms with no usable outcome data.
+    """
+    by_arm: dict[str, TrialOutcome] = {}
+    # First pass: parent-population chains.
+    for chain in trial.chains:
+        if chain.subgroup_population_id != trial.parent_population_id:
+            continue
+        if chain.outcome == TrialOutcome.UNKNOWN:
+            continue
+        by_arm.setdefault(chain.arm_id, chain.outcome)
+    # Second pass: fill in arms with no parent-pop signal from any chain.
+    for chain in trial.chains:
+        if chain.arm_id in by_arm:
+            continue
+        if chain.outcome == TrialOutcome.UNKNOWN:
+            continue
+        by_arm[chain.arm_id] = chain.outcome
+    return by_arm
 
 
 # ── Routing helpers ──────────────────────────────────────────────────────
@@ -570,6 +640,15 @@ class Attributor:
                 post_update_belief=post_belief,
             ))
 
+        # Arm-differential modulation edges (round 8 v0.2.0). For trials
+        # with arm pairs where one is a strict subset of another, emit
+        # MODULATES_EFFICACY_OF edges between added constituents and
+        # backbone constituents. Compound→compound layer only at v0.2.0;
+        # v0.2.1 / v0.3.0 will promote to chain-node layers.
+        updates.extend(self._emit_arm_differential_modulations(
+            trial, classification, evidence_type, applied_edges,
+        ))
+
         # Failure-trial backstop. The classifier prompt explicitly requires
         # at least one upstream causal-chain edge update on a failure trial
         # (a missed endpoint refutes part of the chain even when biomarker
@@ -647,6 +726,126 @@ class Attributor:
             evidence=evidence,
             pre_update_belief=pre,
             post_update_belief=post,
+        )
+
+    def _emit_arm_differential_modulations(
+        self,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        evidence_type: EvidenceType,
+        applied_edges: set[tuple[str, str, str]],
+    ) -> list[AppliedEdgeUpdate]:
+        """Emit MODULATES_EFFICACY_OF edges from arm-pair differentials.
+
+        For each ordered pair of arms (a, b) where a's compound set is a
+        strict subset of b's, the outcome differential is evidence about
+        adding the extra constituents to a's backbone. Emits one edge
+        per (added constituent × backbone constituent) pair, with the
+        endpoints lex-canonicalized so symmetric (compound-compound)
+        relations accumulate on a single edge across emissions.
+
+        v0.2.0 emits at the compound→compound layer only; the schema
+        supports cross-layer edges (compound → target, mechanism →
+        biology, etc.) but layer resolution is deferred to v0.2.1 and
+        v0.3.0. See `audit/round_8_architecture_design.md`.
+        """
+        if len(trial.arms) < 2:
+            return []
+        outcomes = _aggregate_arm_outcomes(trial)
+        if len(outcomes) < 2:
+            return []
+
+        emitted: list[AppliedEdgeUpdate] = []
+        for arm_a in trial.arms:
+            outcome_a = outcomes.get(arm_a.arm_id)
+            if outcome_a is None:
+                continue
+            a_set = set(arm_a.compound_ids)
+            for arm_b in trial.arms:
+                if arm_a.arm_id == arm_b.arm_id:
+                    continue
+                outcome_b = outcomes.get(arm_b.arm_id)
+                if outcome_b is None:
+                    continue
+                b_set = set(arm_b.compound_ids)
+                if not a_set < b_set:  # require strict subset
+                    continue
+                added = b_set - a_set
+                bucket = _arm_differential_bucket(outcome_a, outcome_b)
+                if bucket is None:
+                    continue
+                for new_c in sorted(added):
+                    for backbone_c in sorted(a_set):
+                        src, tgt = canonical_modulation_endpoints(
+                            new_c, backbone_c,
+                        )
+                        edge_key = (
+                            EdgeType.MODULATES_EFFICACY_OF.value, src, tgt,
+                        )
+                        if edge_key in applied_edges:
+                            continue
+                        applied_edges.add(edge_key)
+                        update = self._upsert_modulation_edge(
+                            src=src,
+                            tgt=tgt,
+                            bucket=bucket,
+                            evidence_type=evidence_type,
+                            trial=trial,
+                            classification=classification,
+                            note=(
+                                f"Arm differential: {arm_a.arm_id} "
+                                f"(outcome={outcome_a.value}) vs "
+                                f"{arm_b.arm_id} (outcome={outcome_b.value}); "
+                                f"added={sorted(added)}"
+                            ),
+                        )
+                        emitted.append(update)
+        return emitted
+
+    def _upsert_modulation_edge(
+        self,
+        *,
+        src: str,
+        tgt: str,
+        bucket: SupportBucket,
+        evidence_type: EvidenceType,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        note: str,
+    ) -> AppliedEdgeUpdate:
+        """Create the modulation edge with a neutral prior if absent, then
+        apply one evidence record. Returns the AppliedEdgeUpdate."""
+        if not self.graph._graph.has_edge(  # noqa: SLF001
+            src, tgt, key=EdgeType.MODULATES_EFFICACY_OF.value,
+        ):
+            self.graph.add_edge(GraphEdge(
+                source_id=src,
+                target_id=tgt,
+                edge_type=EdgeType.MODULATES_EFFICACY_OF,
+                belief=EdgeBeliefState(alpha=1.0, beta=1.0),
+                metadata={"source": "arm_differential"},
+            ))
+        pre_belief = self.graph.get_edge_belief(
+            src, tgt, EdgeType.MODULATES_EFFICACY_OF,
+        )
+        evidence = EvidenceRecord(
+            source_id=trial.trial_id,
+            source_type=evidence_type,
+            support=bucket.value,
+            quality_score=min(classification.confidence, 1.0),
+            timestamp=datetime.now(timezone.utc),
+            notes=note,
+        )
+        post_belief = self.graph.update_edge_belief(
+            src, tgt, EdgeType.MODULATES_EFFICACY_OF, evidence,
+        )
+        return AppliedEdgeUpdate(
+            source_id=src,
+            target_id=tgt,
+            edge_type=EdgeType.MODULATES_EFFICACY_OF,
+            evidence=evidence,
+            pre_update_belief=pre_belief,
+            post_update_belief=post_belief,
         )
 
     async def attribute_adverse_events(
