@@ -178,6 +178,44 @@ class EdgeType(str, Enum):
     # Round 3.2 (#11) added this; populated from a hand-curated
     # hierarchy in indication_taxonomy._INDICATION_HIERARCHY.
     SUBTYPE_OF = "subtype_of"
+    # Compound-combination conditioning. The source node's presence in a
+    # regimen modulates the efficacy of the target node in another
+    # constituent's chain. Endpoints are typed across {Compound, Target,
+    # Mechanism, Biology}. v0.2.0 emits at the compound→compound layer
+    # from arm-differential evidence; later stages (heuristic resolver,
+    # LLM mapping) promote edges to the chain layer where biology
+    # actually operates. See `audit/round_8_architecture_design.md`.
+    MODULATES_EFFICACY_OF = "modulates_efficacy_of"
+
+
+# Node types that can be endpoints of a MODULATES_EFFICACY_OF edge.
+MODULATION_ENDPOINT_NODE_TYPES: frozenset[str] = frozenset({
+    "CompoundNode",      # legacy snapshots
+    "InterventionNode",  # current compound representation
+    "TargetNode",
+    "MechanismNode",
+    "BiologyNode",
+})
+
+
+def canonical_modulation_endpoints(
+    src_id: str, tgt_id: str,
+) -> tuple[str, str]:
+    """Return (src, tgt) in lex order.
+
+    Use only for **symmetric** modulation edges — primarily the
+    compound→compound case at v0.2.0, where ``A modulates_efficacy_of B``
+    and ``B modulates_efficacy_of A`` represent the same combination
+    fact and should accumulate evidence on a single edge.
+
+    Do not call this for cross-layer edges (e.g. compound → mechanism)
+    emitted by the v0.2.1 heuristic resolver or v0.3.0 LLM classifier —
+    those carry semantic direction (modulator → modulated) and must
+    preserve it.
+    """
+    if src_id <= tgt_id:
+        return src_id, tgt_id
+    return tgt_id, src_id
 
 
 class EvidenceType(str, Enum):

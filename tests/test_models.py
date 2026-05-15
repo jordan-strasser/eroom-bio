@@ -323,6 +323,34 @@ class TestGraphEdge:
             GraphEdge(source_id="", target_id="T1", edge_type=EdgeType.AFFECTS)
 
 
+class TestModulatesEfficacyOf:
+    def test_edge_type_value(self):
+        assert EdgeType.MODULATES_EFFICACY_OF.value == "modulates_efficacy_of"
+
+    def test_edge_can_be_constructed(self):
+        edge = GraphEdge(
+            source_id="aldesleukin",
+            target_id="gp100_antigen",
+            edge_type=EdgeType.MODULATES_EFFICACY_OF,
+            belief=EdgeBeliefState(alpha=2.0, beta=1.5),
+        )
+        assert edge.edge_type == EdgeType.MODULATES_EFFICACY_OF
+
+    def test_canonical_endpoints_lex_orders(self):
+        from src.graph.models import canonical_modulation_endpoints
+        assert canonical_modulation_endpoints("b", "a") == ("a", "b")
+        assert canonical_modulation_endpoints("a", "b") == ("a", "b")
+        assert canonical_modulation_endpoints("x", "x") == ("x", "x")
+
+    def test_modulation_endpoint_node_types_covers_chain_layers(self):
+        from src.graph.models import MODULATION_ENDPOINT_NODE_TYPES
+        for nt in (
+            "InterventionNode", "TargetNode",
+            "MechanismNode", "BiologyNode",
+        ):
+            assert nt in MODULATION_ENDPOINT_NODE_TYPES
+
+
 # ── Trial subgraph tests ────────────────────────────────────────────────
 
 class TestTrialSubgraph:
