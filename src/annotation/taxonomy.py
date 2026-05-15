@@ -325,46 +325,38 @@ class StructuredAE(BaseModel):
     serious: bool = False
 
 
-class AffectedEdge(BaseModel):
-    """A specific edge in the primary chain that a modulator acts on.
-
-    Used by ``ModulationEntry`` to encode where a compound→compound
-    modulation actually attaches in the graph. The triple (edge_type,
-    source_node_id, target_node_id) identifies a single edge in the
-    primary's chain:
-
-      - ``binds_to``        compound → target  (PK modifiers, allosteric)
-      - ``mechanism_affects`` target → mechanism (hub redirection)
-      - ``biology_drives``  biology → indication (re-routing biology)
-      - other graph EdgeType values as needed
-
-    The LLM identifies *where* the modulator's effect propagates; the
-    populator then routes a MODULATES_EFFICACY_OF edge anchored at that
-    specific edge rather than the bare compound→compound layer that
-    v0.2.0 emits.
-    """
-
-    edge_type: str = Field(min_length=1)
-    source_node_id: str = Field(min_length=1)
-    target_node_id: str = Field(min_length=1)
-
-
 class ModulationEntry(BaseModel):
-    """One modulator → affected-edge relationship the LLM extracted.
+    """One modulator → primary-chain modulation relationship.
 
-    Captured during extraction; not yet routed to graph edges (Phase A
-    of the v0.3.0 work is schema + extraction only). The populator
-    consumes these in Phase B to emit anchored MODULATES_EFFICACY_OF
-    edges with the affected edge recorded as metadata.
+    The causal hypothesis chain has a fixed canonical structure for
+    every trial: ``compound → target → mechanism → biology → indication``.
+    A modulation has two compounds in scope: a *primary* (the lead
+    compound whose chain the trial is testing) and a *modulator* (the
+    supportive compound altering the primary's effect).
 
-    ``direction`` + ``confidence`` together map to a ``SupportBucket``
-    via ``src.inference.beliefs.modulation_bucket``, so modulation
-    edges receive Beta-Binomial updates with the same machinery the
-    rest of the system uses.
+    The LLM identifies which compound is which and at which LAYER of
+    the primary's chain the modulation acts. The specific graph node
+    ids at each layer are something the populator already knows from
+    having built the chain — the LLM doesn't need to (and shouldn't
+    try to) name them. This is the v0.3 redesign: ask for canonical
+    things the LLM can know (compound names, layer names), not for
+    Reactome / GO ids the LLM has to guess at.
+
+    Populator routing: look up the primary compound's chain in this
+    trial, pull ``chain.target_id`` / ``chain.mechanism_id`` /
+    ``chain.biology_id`` based on ``affects_layer``, and emit a
+    MODULATES_EFFICACY_OF edge from the modulator's compound node to
+    that chain node.
+
+    ``direction`` + ``confidence`` map to a ``SupportBucket`` via
+    ``src.inference.beliefs.modulation_bucket`` so modulation edges
+    receive Beta-Binomial updates with the same machinery the rest of
+    the system uses. N_eff comes from trial structure, not the LLM.
     """
 
     modulator_compound_id: str = Field(min_length=1)
-    affects_edge: AffectedEdge
+    primary_compound_id: str = Field(min_length=1)
+    affects_layer: Literal["target", "mechanism", "biology"]
     direction: Literal["amplifies", "suppresses", "neutral"]
     confidence: float = Field(ge=0.0, le=1.0)
     hypothesis: str = ""

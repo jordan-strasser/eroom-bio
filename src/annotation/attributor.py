@@ -25,16 +25,18 @@ from src.graph.models import (
     TrialArm,
     TrialOutcome,
     TrialSubgraph,
+    normalize_entity,
 )
 from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
-from src.inference.beliefs import SupportBucket, bucket_to_direction
+from src.inference.beliefs import SupportBucket, bucket_to_direction, modulation_bucket
 from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
 from src.annotation.taxonomy import (
     ArmIncidence,
     FAILURE_MODE_RULES,
     FailureClassification,
     FailureMode,
+    ModulationEntry,
     StructuredAE,
     TrialExtraction,
 )
@@ -46,6 +48,12 @@ _ANNOTATIONS_DIR = Path("data/annotations")
 # can't be matched to any chain in the trial subgraph. The expected use is
 # vocab/extraction-prompt review, not silent drop.
 _UNROUTED_LOG_PATH = Path("data/dev/unrouted_attribution_updates.jsonl")
+# v0.3.0 unrouted modulation log — separate file so unroutable LLM
+# modulation_entries don't drown in the classifier unrouted log. A high
+# count here signals the extraction prompt is emitting entity ids that
+# don't normalize to graph nodes; treat it as a debug signal worth
+# investigating before scaling the prompt to a wider corpus.
+_UNROUTED_MOD_LOG_PATH = Path("data/dev/unrouted_modulation_entries.jsonl")
 
 # Map trial phase string to EvidenceType
 _PHASE_TO_EVIDENCE: dict[str, EvidenceType] = {
@@ -393,6 +401,33 @@ def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
     }
     with _UNROUTED_LOG_PATH.open("a") as fh:
         fh.write(json.dumps(record) + "\n")
+
+
+def _log_unrouted_modulation(
+    trial_id: str, entry: ModulationEntry, *, reason: str,
+) -> None:
+    """Append a record to the v0.3.0 unrouted-modulation log.
+
+    A high volume of records here indicates the extraction prompt is
+    emitting compound names that aren't in the trial (or the primary
+    chain layer being named can't be resolved). Surface for debugging
+    rather than silently dropping the modulation.
+    """
+    _UNROUTED_MOD_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "trial_id": trial_id,
+        "modulator_compound_id": entry.modulator_compound_id,
+        "primary_compound_id": entry.primary_compound_id,
+        "affects_layer": entry.affects_layer,
+        "direction": entry.direction,
+        "confidence": entry.confidence,
+        "reason": reason,
+        "logged_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with _UNROUTED_MOD_LOG_PATH.open("a") as fh:
+        fh.write(json.dumps(record) + "\n")
+
+
 
 
 # ── AE attribution helpers ──────────────────────────────────────────────
@@ -743,6 +778,17 @@ class Attributor:
             extraction=extraction,
         ))
 
+        # v0.3.0 LLM-anchored modulation edges. The extractor identifies
+        # the specific edge in the primary chain that each modulator
+        # acts on; this emission routes them into MODULATES_EFFICACY_OF
+        # edges anchored at the layer the LLM named (not the compound
+        # layer v0.2.0 fixes them to). Unroutable entries land in
+        # data/dev/unrouted_modulation_entries.jsonl.
+        updates.extend(self._emit_llm_modulations(
+            trial, classification, evidence_type, applied_edges,
+            extraction=extraction,
+        ))
+
         # Failure-trial backstop. The classifier prompt explicitly requires
         # at least one upstream causal-chain edge update on a failure trial
         # (a missed endpoint refutes part of the chain even when biomarker
@@ -963,6 +1009,192 @@ class Attributor:
                     ))
         return emitted
 
+    def _resolve_compound_id(
+        self,
+        name: str,
+    ) -> str | None:
+        """Resolve a compound name to a graph InterventionNode id.
+
+        Three paths in priority order:
+          1. Direct id lookup — the LLM often emits the canonical slug.
+          2. ``normalize_entity`` slugification — handles capitalized /
+             punctuated forms like "Nivolumab" or "CMP-001".
+          3. Separator-insensitive match — the LLM sometimes drops
+             hyphens/underscores that the graph kept ("cmp001" vs
+             "cmp_001"). Compare alnum-only-lowercased forms across
+             all Intervention/Compound nodes.
+
+        Returns None on no match; the caller logs to the unrouted log.
+        """
+        if not name:
+            return None
+        try:
+            node = self.graph.get_node(name)
+            if node.get("node_type") in ("InterventionNode", "CompoundNode"):
+                return name
+        except KeyError:
+            pass
+        try:
+            slug = normalize_entity(name, "InterventionNode")
+        except ValueError:
+            slug = None
+        if slug:
+            try:
+                node = self.graph.get_node(slug)
+                if node.get("node_type") in ("InterventionNode", "CompoundNode"):
+                    return slug
+            except KeyError:
+                pass
+        # Separator-insensitive fallback.
+        target_norm = _norm_name(name)
+        if not target_norm:
+            return None
+        for node_id, data in self.graph._graph.nodes(data=True):  # noqa: SLF001
+            if data.get("node_type") not in ("InterventionNode", "CompoundNode"):
+                continue
+            if _norm_name(node_id) == target_norm:
+                return node_id
+        return None
+
+    def _find_primary_chain(
+        self,
+        trial: TrialSubgraph,
+        primary_compound_id: str,
+    ) -> CausalChain | None:
+        """Find a chain in the trial whose compound_id matches the LLM's
+        primary_compound_id. Returns the first matching chain (chains for
+        the same compound share the upstream backbone, so target /
+        mechanism / biology are equivalent across them).
+        """
+        for chain in trial.chains:
+            if chain.compound_id == primary_compound_id:
+                return chain
+        # Try to match via arm membership — combo regimens encode the
+        # compound list separately, and the chain's compound_id is the
+        # regimen slug (e.g. "ipilimumab+nivolumab") not a single
+        # constituent. The LLM emits constituent compound ids, so check
+        # the arm's compound list.
+        for chain in trial.chains:
+            for arm in trial.arms:
+                if (
+                    chain.arm_id == arm.arm_id
+                    and primary_compound_id in arm.compound_ids
+                ):
+                    return chain
+        return None
+
+    def _emit_llm_modulations(
+        self,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        evidence_type: EvidenceType,
+        applied_edges: set[tuple[str, str, str]],
+        *,
+        extraction: "TrialExtraction | None" = None,
+    ) -> list[AppliedEdgeUpdate]:
+        """Emit v0.3.0 LLM-anchored MODULATES_EFFICACY_OF edges.
+
+        For each ``ModulationEntry`` in the extraction:
+          1. Resolve modulator + primary compound names to graph node ids.
+          2. Find the primary's chain in this trial.
+          3. Pull the chain node at the LLM-specified layer
+             (``chain.target_id`` / ``mechanism_id`` / ``biology_id``).
+          4. Emit a MODULATES_EFFICACY_OF edge from modulator → that
+             node, with the layer + direction + confidence in the
+             evidence context for downstream prediction.
+
+        The LLM doesn't name internal node ids — those are populator
+        outputs the LLM can't know at extraction time. The LLM names
+        canonical things (compound names, layer names); the populator
+        does the chain walk.
+
+        Unroutable entries go to ``data/dev/unrouted_modulation_entries.jsonl``
+        with a ``reason`` field. A high volume there means the prompt
+        is producing modulator/primary names that aren't in the trial,
+        which is a real debug signal.
+        """
+        if extraction is None or not extraction.modulation_entries:
+            return []
+
+        emitted: list[AppliedEdgeUpdate] = []
+        for entry in extraction.modulation_entries:
+            modulator_id = self._resolve_compound_id(entry.modulator_compound_id)
+            if modulator_id is None:
+                _log_unrouted_modulation(
+                    trial.trial_id, entry, reason="modulator_not_in_graph",
+                )
+                continue
+
+            primary_id = self._resolve_compound_id(entry.primary_compound_id)
+            if primary_id is None:
+                _log_unrouted_modulation(
+                    trial.trial_id, entry, reason="primary_not_in_graph",
+                )
+                continue
+
+            chain = self._find_primary_chain(trial, primary_id)
+            if chain is None:
+                _log_unrouted_modulation(
+                    trial.trial_id, entry, reason="primary_chain_not_in_trial",
+                )
+                continue
+
+            anchor_id: str | None
+            if entry.affects_layer == "target":
+                anchor_id = chain.target_id
+            elif entry.affects_layer == "mechanism":
+                anchor_id = chain.mechanism_id
+            elif entry.affects_layer == "biology":
+                anchor_id = chain.biology_id
+            else:
+                _log_unrouted_modulation(
+                    trial.trial_id, entry,
+                    reason=f"unknown_affects_layer:{entry.affects_layer}",
+                )
+                continue
+
+            if not anchor_id or anchor_id == _UNKNOWN_PLACEHOLDER:
+                _log_unrouted_modulation(
+                    trial.trial_id, entry,
+                    reason=f"primary_chain_layer_unresolved:{entry.affects_layer}",
+                )
+                continue
+
+            bucket = modulation_bucket(entry.direction, entry.confidence)
+
+            edge_key = (
+                EdgeType.MODULATES_EFFICACY_OF.value, modulator_id, anchor_id,
+            )
+            if edge_key in applied_edges:
+                continue
+            applied_edges.add(edge_key)
+
+            update = self._upsert_modulation_edge(
+                src=modulator_id,
+                tgt=anchor_id,
+                bucket=bucket,
+                evidence_type=evidence_type,
+                trial=trial,
+                classification=classification,
+                note=(
+                    f"LLM modulation: {entry.modulator_compound_id} "
+                    f"{entry.direction} primary={entry.primary_compound_id} "
+                    f"at {entry.affects_layer} layer "
+                    f"(anchor={anchor_id}); conf={entry.confidence:.2f}"
+                ),
+                source_label="llm_modulation_entry",
+                evidence_context_extras={
+                    "primary_compound": primary_id,
+                    "affects_layer": entry.affects_layer,
+                    "modulation_direction": entry.direction,
+                    "modulation_confidence": entry.confidence,
+                    "hypothesis": entry.hypothesis,
+                    "citation": entry.citation,
+                },
+            )
+            emitted.append(update)
+        return emitted
+
     def _upsert_modulation_edge(
         self,
         *,
@@ -973,6 +1205,8 @@ class Attributor:
         trial: TrialSubgraph,
         classification: FailureClassification,
         note: str,
+        source_label: str = "arm_differential",
+        evidence_context_extras: dict[str, Any] | None = None,
     ) -> AppliedEdgeUpdate:
         """Create the modulation edge with a neutral prior if absent, then
         apply one evidence record. Returns the AppliedEdgeUpdate.
@@ -982,6 +1216,16 @@ class Attributor:
         on this edge type (sample beliefs only under the queried
         indication, downweight off-context records). v0.2.0 doesn't read
         the context yet — it's tagged forward-compatibly.
+
+        ``source_label`` flags how the edge was first created
+        ("arm_differential" for v0.2.0 attributor emissions,
+        "llm_modulation_entry" for v0.3.0 LLM emissions). Edge metadata
+        is only set at creation; subsequent evidence records carry their
+        own per-trial provenance via ``context``.
+
+        ``evidence_context_extras`` extends the per-record context dict —
+        used by LLM modulations to record the specific affects_edge
+        triple they were claiming about, alongside direction/confidence.
         """
         if not self.graph._graph.has_edge(  # noqa: SLF001
             src, tgt, key=EdgeType.MODULATES_EFFICACY_OF.value,
@@ -991,7 +1235,7 @@ class Attributor:
                 target_id=tgt,
                 edge_type=EdgeType.MODULATES_EFFICACY_OF,
                 belief=EdgeBeliefState(alpha=1.0, beta=1.0),
-                metadata={"source": "arm_differential"},
+                metadata={"source": source_label},
             ))
         pre_belief = self.graph.get_edge_belief(
             src, tgt, EdgeType.MODULATES_EFFICACY_OF,
@@ -1000,6 +1244,8 @@ class Attributor:
         evidence_context: dict[str, Any] = {}
         if indication_id and indication_id != _UNKNOWN_PLACEHOLDER:
             evidence_context["indication"] = indication_id
+        if evidence_context_extras:
+            evidence_context.update(evidence_context_extras)
         evidence = EvidenceRecord(
             source_id=trial.trial_id,
             source_type=evidence_type,

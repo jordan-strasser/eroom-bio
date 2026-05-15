@@ -73,15 +73,12 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   ],
   "modulation_entries": [
     {
-      "modulator_compound_id": "string—the compound altering another's efficacy (snake_case slug)",
-      "affects_edge": {
-        "edge_type": "binds_to|mechanism_affects|biology_drives",
-        "source_node_id": "string—source endpoint of the affected edge",
-        "target_node_id": "string—target endpoint of the affected edge"
-      },
+      "modulator_compound_id": "string—the supportive compound altering another's effect (snake_case slug)",
+      "primary_compound_id": "string—the lead compound whose chain is being modulated (snake_case slug)",
+      "affects_layer": "target|mechanism|biology",
       "direction": "amplifies|suppresses|neutral",
       "confidence": float in [0,1],
-      "hypothesis": "string—one-line mechanistic rationale (why this modulator affects this edge)",
+      "hypothesis": "string—one-line mechanistic rationale (why this modulator affects the primary at this layer)",
       "citation": "string—verbatim trial-text quote justifying the modulation claim"
     }
   ]
@@ -89,19 +86,23 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
 
 # Modulation entries — guidance
 
-Emit one entry per *modulator-affects-edge* claim the trial supports. A modulation is when one compound in a combination changes another compound's biological effect — e.g. a PK modifier reducing exposure, a TLR9 agonist amplifying checkpoint blockade efficacy, an enzyme inducer redirecting target metabolism.
+Every trial's therapeutic hypothesis follows the same canonical causal chain:
 
-Pick the `affects_edge` carefully — name the SPECIFIC edge in the primary chain whose strength the modulator changes:
-  - `binds_to`: compound→target — use this when the modulator changes target binding/clearance/exposure (PK interactions, allosteric modulation).
-  - `mechanism_affects`: target→mechanism — use this when the modulator changes which downstream mechanism the target engages (hub redirection, e.g. modulator shifts MAPK output between proliferation and apoptosis).
-  - `biology_drives`: biology→indication — use this when the modulator changes how strongly a biology causes the indication outcome (most common case for innate-immune adjuvants amplifying adaptive-immune efficacy).
+  compound → target → mechanism → biology → indication
 
-For `source_node_id` / `target_node_id`, use canonical id forms:
-  - Compounds: snake_case intervention slug (e.g. "nivolumab", "cmp_001").
-  - Targets: HUGO gene symbol or Ensembl ID (e.g. "PDCD1", "ENSG00000188389").
-  - Mechanisms: a canonical mechanism slug ("checkpoint_blockade", "kinase_inhibition", "innate_immune_activation").
-  - Biology: Reactome stable id ("R-HSA-...") or GO term ("GO:NNNNNNN") when known; otherwise the most precise biological-process phrase from the trial.
-  - Indications: lowercased disease slug ("melanoma", "nsclc").
+A *modulation* is when one compound in a combination alters another compound's effect along this chain. Two roles in any modulation:
+
+  - **primary**: the lead compound whose therapeutic chain the trial is testing. The compound whose monotherapy efficacy is the baseline. Usually the established / on-label drug in the combo. Examples: in CMP-001 + nivolumab, nivolumab is primary (established PD-1 blocker) and CMP-001 is supportive. In bevacizumab + ipilimumab, ipilimumab is primary and bevacizumab is the supportive adjuvant. When both compounds are roughly equal in role (e.g. nivolumab + ipilimumab where both are first-in-class checkpoint inhibitors), pick whichever the trial's design treats as the comparator backbone — usually the one in the "backbone alone" monotherapy arm.
+
+  - **modulator** (supportive): the compound whose contribution to the combo is being characterized as altering the primary's effect.
+
+For each modulation, name the modulator + the primary + the LAYER of the primary's chain where the modulator's effect lands:
+
+  - **target**: modulator alters how primary binds its target (PK interaction, allosteric modulation, target-engagement effects).
+  - **mechanism**: modulator alters which downstream mechanism the primary's target engages (hub redirection — e.g. modulator shifts MAPK output between proliferation and apoptosis).
+  - **biology**: modulator alters the biology layer of the primary's chain — most modulations land here (immune adjuvants amplifying checkpoint blockade, anti-angiogenics amplifying immunotherapy, etc.). When unsure, prefer `biology` — it's the default layer for "modulator changes the biological consequences of the primary's mechanism."
+
+You do NOT need to name the specific Reactome pathway id, GO term, or any internal graph id. Just name the compounds and pick the layer — the system resolves those to the primary chain's actual node ids automatically.
 
 **Critical: extract what the trial DEMONSTRATED, not what the trial HYPOTHESIZED.** The trial designers' rationale for why a combination *should* work goes in the `hypothesis` field. The `direction` field reflects what the data actually showed:
 

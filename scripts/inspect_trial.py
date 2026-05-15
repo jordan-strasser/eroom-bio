@@ -201,12 +201,8 @@ def section_modulations(
 
     for i, entry in enumerate(entries, 1):
         modulator = entry.get("modulator_compound_id") or "?"
-        affects = entry.get("affects_edge") or {}
-        edge_repr = (
-            f"{affects.get('edge_type', '?')}: "
-            f"{affects.get('source_node_id', '?')} → "
-            f"{affects.get('target_node_id', '?')}"
-        )
+        primary = entry.get("primary_compound_id") or "?"
+        layer = entry.get("affects_layer") or "?"
         direction = entry.get("direction") or "?"
         try:
             confidence = float(entry.get("confidence") or 0.0)
@@ -214,10 +210,11 @@ def section_modulations(
             confidence = 0.0
         bucket = modulation_bucket(direction, confidence)
 
-        primary_candidate = affects.get("source_node_id") or ""
+        # Cross-check: does v0.2.0 have a compound→compound modulation edge
+        # between this modulator and primary?
         v02_repr = "[dim]—[/dim]"
-        if primary_candidate and modulator:
-            src, tgt = canonical_modulation_endpoints(modulator, primary_candidate)
+        if modulator and primary:
+            src, tgt = canonical_modulation_endpoints(modulator, primary)
             v02_repr = (
                 "[green]yes (existing v0.2.0 edge)[/green]"
                 if (src, tgt) in existing_edges
@@ -226,7 +223,8 @@ def section_modulations(
 
         console.print(
             f"\n[bold cyan]#{i} {modulator}[/bold cyan] → "
-            f"[bold]{edge_repr}[/bold]"
+            f"primary=[bold]{primary}[/bold] at "
+            f"[bold]{layer}[/bold] layer"
         )
         console.print(
             f"    direction=[bold]{direction}[/bold]  "
