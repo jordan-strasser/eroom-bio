@@ -1465,9 +1465,25 @@ class PopulationPipeline:
         if not pathways:
             return ([], False)
 
-        # All Reactome pathway ids for this gene, ranked by relevance —
-        # used as metadata on the materialized BiologyNode so cross-
-        # pathway queries can still find this biology even when only
+        # Re-rank by relevance to the chain context (mechanism + indication
+        # + gene symbol) before slicing the top-N. Reactome's default order
+        # is citation-frequency-driven and routinely puts off-context
+        # pathways first (CRBN → SARS therapeutics, VEGFA → platelet
+        # degranulation). The full list is still preserved on
+        # ``pathway_ids`` so cross-indication queries against the
+        # alternates remain answerable.
+        from src.graph.pathway_ranker import rerank_pathways
+
+        pathways = rerank_pathways(
+            pathways,
+            mechanism_name=mechanism_id,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
+
+        # All Reactome pathway ids for this gene, ranked by context
+        # relevance — used as metadata on the materialized BiologyNode so
+        # cross-pathway queries can still find this biology even when only
         # the top pathway has its own node.
         all_pathway_ids = [p.stable_id for p in pathways]
 
