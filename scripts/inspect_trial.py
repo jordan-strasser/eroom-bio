@@ -393,11 +393,28 @@ def _strip_trial_evidence(graph: GraphStore, nct_id: str) -> GraphStore:
 
 
 def _pick_treatment_chain(ts: TrialSubgraph):
-    """Pick a chain to predict on: skip placebo and UNKNOWN entries."""
-    for c in ts.chains:
+    """Pick a chain to predict on: skip placebo and UNKNOWN entries.
+
+    Among non-placebo, non-UNKNOWN-compound chains with a real indication, prefer
+    chains whose target_id is also resolved. Otherwise the headline can land on a
+    degenerate compound-only chain (target=UNKNOWN) and miss the real mechanistic
+    signal in the trial.
+    """
+    def _eligible(c) -> bool:
         cid = (c.compound_id or "").lower()
-        if cid and cid != "placebo" and c.compound_id != "UNKNOWN" and c.indication_id != "UNKNOWN":
+        return (
+            bool(cid)
+            and cid != "placebo"
+            and c.compound_id != "UNKNOWN"
+            and c.indication_id != "UNKNOWN"
+        )
+
+    eligible = [c for c in ts.chains if _eligible(c)]
+    for c in eligible:
+        if c.target_id and c.target_id != "UNKNOWN":
             return c
+    if eligible:
+        return eligible[0]
     return ts.chains[0] if ts.chains else None
 
 
