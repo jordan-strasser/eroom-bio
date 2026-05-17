@@ -419,7 +419,21 @@ class EdgeAttribution(BaseModel):
 
 
 class EdgeUpdate(BaseModel):
-    """A single edge update resulting from a failure attribution."""
+    """A single edge update resulting from a failure attribution.
+
+    ``affecting_arm_id`` (v1 of classifier per-arm emission) names which
+    arm's outcome this edge update is decomposing. The attributor uses it
+    to restrict chain routing to chains in that arm — without it, a
+    multi-arm trial's classifier output gets routed to whichever chain
+    happens to match the entity names first, which silently drops
+    supportive-arm evidence (e.g. aldesleukin monotherapy outcome in
+    NCT00019682 contributing nothing to aldesleukin's chain because the
+    classifier emitted only the combo arm's hypothesis).
+
+    Null = back-compat for cached classifications written before this
+    field existed. Treated as "applies to whichever chain matches" — the
+    pre-v1 behavior.
+    """
 
     source_id: str = Field(min_length=1)
     target_id: str = Field(min_length=1)
@@ -427,6 +441,7 @@ class EdgeUpdate(BaseModel):
     direction: Literal["weaken", "strengthen", "neutral"]
     magnitude: float = Field(ge=0.0, default=1.0)
     confidence: float = Field(ge=0.0, le=1.0, default=1.0)
+    affecting_arm_id: str | None = None
 
 
 # Fix forward reference—EdgeAttribution references EdgeUpdate

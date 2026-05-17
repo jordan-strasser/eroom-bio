@@ -203,6 +203,12 @@ def _format_classification_prompt(
         dose_lines.append(f"- Duration: {extraction.duration_weeks:g} weeks")
     dose_str = "\n".join(dose_lines) if dose_lines else "No dose / duration data"
 
+    # Per-arm outcomes from results_by_chain — surfaced separately so the
+    # classifier can emit per-arm `edges_to_update` tagged with
+    # `affecting_arm_id`. Aggregates the per-(arm × subgroup) entries to a
+    # single per-arm outcome (success/failure/partial) for the prompt.
+    per_arm_outcomes_str = _format_per_arm_outcomes(extraction)
+
     return template.format(
         trial_id=extraction.trial_id,
         compound_name=extraction.compound_name or "Unknown",
@@ -218,7 +224,36 @@ def _format_classification_prompt(
         subgroup_findings=subgroup_str,
         summary=extraction.summary,
         graph_entities=_format_trial_entities(graph, trial_subgraph),
+        per_arm_outcomes=per_arm_outcomes_str,
     )
+
+
+def _format_per_arm_outcomes(extraction: TrialExtraction) -> str:
+    """Render extraction.results_by_chain as a per-arm summary for the prompt.
+
+    One line per (arm_id, endpoint, outcome). When the same arm appears in
+    multiple result rows (different endpoints / subgroups), each row gets
+    its own line so the LLM sees the full per-arm signal.
+    """
+    if not extraction.results_by_chain:
+        return "No per-arm results reported (single-result trial or extraction missing results_by_chain)."
+
+    by_arm: dict[str, list[str]] = {}
+    for cr in extraction.results_by_chain:
+        arm_id = cr.arm_id or "?"
+        endpoint = cr.endpoint or "(unspecified endpoint)"
+        outcome = (cr.outcome or "unknown").lower()
+        es = f", effect_size={cr.effect_size:g}" if cr.effect_size is not None else ""
+        p = f", p={cr.p_value:g}" if cr.p_value is not None else ""
+        sub = f" [subgroup: {cr.subgroup_descriptor}]" if cr.subgroup_descriptor else ""
+        by_arm.setdefault(arm_id, []).append(
+            f"  {endpoint}: outcome={outcome}{es}{p}{sub}"
+        )
+    lines = []
+    for arm_id, rows in by_arm.items():
+        lines.append(f"- arm_id={arm_id}")
+        lines.extend(rows)
+    return "\n".join(lines)
 
 
 # ── Response parsing ─────────────────────────────────────────────────────
