@@ -605,10 +605,10 @@ class TestStripParentheticalBrand:
         assert _strip_parenthetical_brand("(Nexavar)") is None
 
 
-# ── Peptide-vaccine target heuristic ─────────────────────────────────────
+# ── Vaccine-component target heuristic ──────────────────────────────────
 
 
-class TestPeptideVaccineTargets:
+class TestVaccineComponentTargets:
     def test_adds_pmel_edge_for_gp100_vaccine(self, pipeline, graph):
         graph.add_node(CompoundNode(
             id="gp100_antigen", name="gp100 antigen", modality=Modality.OTHER,
@@ -616,7 +616,7 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("gp100_antigen", "gp100 antigen", "compound")
 
         trial = _make_trial(drug_name="gp100 antigen", drug_desc="peptide vaccine")
-        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
 
         assert added == 1
         assert comp_targets == {"gp100_antigen": ["ENSG00000185664"]}
@@ -641,7 +641,7 @@ class TestPeptideVaccineTargets:
             drug_name="Tyrosinase/gp100/MART-1 Peptides",
             drug_desc="three TAA peptides",
         )
-        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
 
         assert added == 3
         assert set(comp_targets["combo_peptides"]) == {
@@ -667,8 +667,8 @@ class TestPeptideVaccineTargets:
             _make_trial(nct_id="NCT01", drug_name="gp100 antigen"),
             _make_trial(nct_id="NCT02", drug_name="gp100 antigen"),
         ]
-        first_added, _ = pipeline._add_peptide_vaccine_target_edges(trials)
-        second_added, _ = pipeline._add_peptide_vaccine_target_edges(trials)
+        first_added, _ = pipeline._add_vaccine_component_target_edges(trials)
+        second_added, _ = pipeline._add_vaccine_component_target_edges(trials)
 
         assert first_added == 1
         assert second_added == 0
@@ -687,7 +687,7 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("gp100_antigen", "gp100 antigen", "compound")
 
         trial = _make_trial(drug_name="gp100 antigen")
-        added, _ = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, _ = pipeline._add_vaccine_component_target_edges([trial])
 
         assert added == 1
         assert graph.get_node("ENSG00000185664")["name"] == "Pre-existing PMEL node from OT"
@@ -699,10 +699,128 @@ class TestPeptideVaccineTargets:
         pipeline._index_node("C1", "Imatinib", "compound")
 
         trial = _make_trial(drug_name="Imatinib")
-        added, comp_targets = pipeline._add_peptide_vaccine_target_edges([trial])
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
 
         assert added == 0
         assert comp_targets == {}
+
+    def test_montanide_adjuvant_routes_to_nlrp3(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="montanide_isa_51_vg",
+            name="Montanide ISA 51 VG",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "montanide_isa_51_vg", "Montanide ISA 51 VG", "compound",
+        )
+
+        trial = _make_trial(drug_name="Montanide ISA 51 VG")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"montanide_isa_51_vg": ["ENSG00000162711"]}
+        assert graph.get_node("ENSG00000162711")["gene_symbol"] == "NLRP3"
+        belief = graph.get_edge_belief(
+            "montanide_isa_51_vg", "ENSG00000162711", EdgeType.AFFECTS,
+        )
+        assert belief.alpha == 3.0
+        assert belief.beta == 1.0
+
+    def test_incomplete_freund_routes_to_nlrp3(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="incomplete_freund_s_adjuvant",
+            name="Incomplete Freund's Adjuvant",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "incomplete_freund_s_adjuvant",
+            "Incomplete Freund's Adjuvant",
+            "compound",
+        )
+
+        trial = _make_trial(drug_name="Incomplete Freund's Adjuvant")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {
+            "incomplete_freund_s_adjuvant": ["ENSG00000162711"],
+        }
+        assert graph.get_node("ENSG00000162711")["gene_symbol"] == "NLRP3"
+
+    def test_tetanus_helper_peptide_routes_to_hla_drb1(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="tetanus_helper_peptide",
+            name="Tetanus Helper Peptide",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "tetanus_helper_peptide", "Tetanus Helper Peptide", "compound",
+        )
+
+        trial = _make_trial(drug_name="Tetanus Helper Peptide")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"tetanus_helper_peptide": ["ENSG00000196126"]}
+        assert graph.get_node("ENSG00000196126")["gene_symbol"] == "HLA-DRB1"
+
+    def test_melanoma_helper_peptide_routes_to_hla_drb1(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="melanoma_helper_peptide",
+            name="Melanoma Helper Peptide",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "melanoma_helper_peptide", "Melanoma Helper Peptide", "compound",
+        )
+
+        trial = _make_trial(drug_name="Melanoma Helper Peptide")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"melanoma_helper_peptide": ["ENSG00000196126"]}
+        assert graph.get_node("ENSG00000196126")["gene_symbol"] == "HLA-DRB1"
+
+    def test_poly_iclc_routes_to_tlr3(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="poly_iclc", name="Poly-ICLC", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("poly_iclc", "Poly-ICLC", "compound")
+
+        trial = _make_trial(drug_name="Poly-ICLC")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"poly_iclc": ["ENSG00000164342"]}
+        assert graph.get_node("ENSG00000164342")["gene_symbol"] == "TLR3"
+
+    def test_cpg_odn_routes_to_tlr9(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="cpg_7909", name="CPG-7909", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("cpg_7909", "CPG-7909", "compound")
+
+        trial = _make_trial(drug_name="CPG-7909")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"cpg_7909": ["ENSG00000239732"]}
+        assert graph.get_node("ENSG00000239732")["gene_symbol"] == "TLR9"
+
+    def test_monophosphoryl_lipid_routes_to_tlr4(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="mpl_adjuvant",
+            name="Monophosphoryl Lipid A",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node("mpl_adjuvant", "Monophosphoryl Lipid A", "compound")
+
+        trial = _make_trial(drug_name="Monophosphoryl Lipid A")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"mpl_adjuvant": ["ENSG00000136869"]}
+        assert graph.get_node("ENSG00000136869")["gene_symbol"] == "TLR4"
 
 
 # ── Full pipeline (mocked I/O) ──────────────────────────────────────────

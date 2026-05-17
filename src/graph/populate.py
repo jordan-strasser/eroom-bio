@@ -471,24 +471,31 @@ async def infer_population_for_trial(
 _UNKNOWN = "UNKNOWN"
 
 
-# Curated mapping for melanoma tumor-associated antigen (TAA) peptide
-# vaccines that Open Targets cannot resolve to a target. Each pattern is a
-# lowercase substring; if it appears in the intervention name, the listed
-# targets are wired in. Beta(3, 1) prior — confident curated mapping, below
-# OT-sourced (Beta(4, 1)) and above name-match heuristic (Beta(2, 1.5)).
-_PEPTIDE_VACCINE_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
-    # gp100 antigen → PMEL gene (premelanosome protein)
+# Curated mapping for cancer-vaccine constituents that Open Targets cannot
+# resolve to a target. Covers three classes:
+#   1. Tumor-associated-antigen (TAA) peptides → tumor antigen gene
+#      (gp100→PMEL, tyrosinase→TYR, MART-1→MLANA).
+#   2. Adjuvants → DC pattern-recognition / inflammasome receptor.
+#      Water-in-oil depot adjuvants (Montanide, IFA) route to NLRP3 — their
+#      action is DAMP-driven sterile inflammation, NOT clean TLR ligation.
+#      Genuine TLR ligands (poly-ICLC→TLR3, CpG→TLR9, MPL→TLR4) wire to
+#      their actual receptor.
+#   3. CD4 helper peptides (PADRE, tetanus epitope, melanoma helper
+#      peptide) → MHC class II (HLA-DRB1, the pan-DR binder).
+# Each pattern is a lowercase substring match. Beta(3, 1) prior — confident
+# curated mapping, below OT-sourced (Beta(4, 1)) and above name-match
+# heuristic (Beta(2, 1.5)).
+_VACCINE_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
+    # ── TAA peptides → tumor antigen gene ──
     ("gp100", [
         ("ENSG00000185664", "PMEL", "Premelanosome protein"),
     ]),
     ("imcgp100", [
         ("ENSG00000185664", "PMEL", "Premelanosome protein"),
     ]),
-    # Tyrosinase peptide → TYR gene
     ("tyrosinase", [
         ("ENSG00000077498", "TYR", "Tyrosinase"),
     ]),
-    # MART-1 / Melan-A → MLANA gene
     ("mart-1", [
         ("ENSG00000120215", "MLANA", "Melan-A"),
     ]),
@@ -498,7 +505,6 @@ _PEPTIDE_VACCINE_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
     ("melan-a", [
         ("ENSG00000120215", "MLANA", "Melan-A"),
     ]),
-    # Composite multi-epitope melanoma vaccines that target all three TAAs.
     ("4-peptide melanoma vaccine", [
         ("ENSG00000185664", "PMEL", "Premelanosome protein"),
         ("ENSG00000077498", "TYR", "Tyrosinase"),
@@ -508,6 +514,42 @@ _PEPTIDE_VACCINE_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
         ("ENSG00000185664", "PMEL", "Premelanosome protein"),
         ("ENSG00000077498", "TYR", "Tyrosinase"),
         ("ENSG00000120215", "MLANA", "Melan-A"),
+    ]),
+    # ── Depot adjuvants → NLRP3 (DAMP-driven inflammasome, not a TLR) ──
+    ("montanide", [
+        ("ENSG00000162711", "NLRP3", "NLR family pyrin domain containing 3"),
+    ]),
+    ("incomplete freund", [
+        ("ENSG00000162711", "NLRP3", "NLR family pyrin domain containing 3"),
+    ]),
+    # ── TLR-agonist adjuvants → their genuine PRR ──
+    ("poly-iclc", [
+        ("ENSG00000164342", "TLR3", "Toll-like receptor 3"),
+    ]),
+    ("poly iclc", [
+        ("ENSG00000164342", "TLR3", "Toll-like receptor 3"),
+    ]),
+    ("hiltonol", [
+        ("ENSG00000164342", "TLR3", "Toll-like receptor 3"),
+    ]),
+    ("cpg odn", [
+        ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
+    ]),
+    ("cpg-7909", [
+        ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
+    ]),
+    ("monophosphoryl lipid", [
+        ("ENSG00000136869", "TLR4", "Toll-like receptor 4"),
+    ]),
+    # ── CD4 helper peptides → MHC class II ──
+    ("tetanus", [
+        ("ENSG00000196126", "HLA-DRB1", "Major histocompatibility complex class II, DR beta 1"),
+    ]),
+    ("padre", [
+        ("ENSG00000196126", "HLA-DRB1", "Major histocompatibility complex class II, DR beta 1"),
+    ]),
+    ("melanoma helper peptide", [
+        ("ENSG00000196126", "HLA-DRB1", "Major histocompatibility complex class II, DR beta 1"),
     ]),
 ]
 
@@ -789,21 +831,22 @@ class PopulationPipeline:
         )
         console.print(f"  Added {ot_pair_added} biology_drives edges (trial-implied pairs)")
 
-        # Curated peptide-vaccine target heuristic: melanoma TAA vaccines
-        # (gp100, tyrosinase, MART-1, multi-epitope) that OT can't resolve.
-        # Runs before name-match fallback so the synthesized TargetNodes
-        # are available to the fallback for trial-text cross-references.
-        # Merge the heuristic's compound→target mapping into the main
-        # compound_targets dict so per-constituent chain construction
-        # (_populate_trial_mechanisms) sees these compounds as targeted.
-        console.print("[bold]Wiring peptide-vaccine target edges...[/bold]")
-        peptide_added, peptide_targets = self._add_peptide_vaccine_target_edges(trials)
-        for cid, tids in peptide_targets.items():
+        # Curated vaccine-component target heuristic: TAA peptides,
+        # adjuvants (depot + TLR-agonist), and CD4 helper peptides that
+        # OT can't resolve. Runs before name-match fallback so the
+        # synthesized TargetNodes are available to the fallback for
+        # trial-text cross-references. Merge the heuristic's
+        # compound→target mapping into the main compound_targets dict so
+        # per-constituent chain construction (_populate_trial_mechanisms)
+        # sees these compounds as targeted.
+        console.print("[bold]Wiring vaccine-component target edges...[/bold]")
+        vax_added, vax_targets = self._add_vaccine_component_target_edges(trials)
+        for cid, tids in vax_targets.items():
             existing = compound_targets.setdefault(cid, [])
             for tid in tids:
                 if tid not in existing:
                     existing.append(tid)
-        console.print(f"  Added {peptide_added} AFFECTS edges (peptide-vaccine heuristic)")
+        console.print(f"  Added {vax_added} AFFECTS edges (vaccine-component heuristic)")
 
         # Name-matching fallback: catches binds_to relationships for
         # compounds OT couldn't resolve from trial text.
@@ -1922,22 +1965,24 @@ class PopulationPipeline:
                     )
         return added
 
-    def _add_peptide_vaccine_target_edges(
+    def _add_vaccine_component_target_edges(
         self, trials: list[TrialRecord],
     ) -> tuple[int, dict[str, list[str]]]:
-        """Wire AFFECTS edges for curated melanoma TAA peptide-vaccine targets.
+        """Wire AFFECTS edges for curated cancer-vaccine constituent targets.
 
-        Open Targets returns no targets for tumor-associated-antigen peptide
-        vaccines (gp100, tyrosinase, MART-1, multi-epitope vaccines).
-        ``_PEPTIDE_VACCINE_TARGETS`` is the curated mapping that fills in
-        those known biology connections so chains for these compounds
-        resolve past UNKNOWN_target. Creates TargetNodes when missing.
+        Open Targets returns no targets for tumor-associated-antigen
+        peptides (gp100, tyrosinase, MART-1), depot adjuvants (Montanide,
+        IFA), TLR-agonist adjuvants (poly-ICLC, CpG, MPL), or CD4 helper
+        peptides (PADRE, tetanus, melanoma helper peptide).
+        ``_VACCINE_COMPONENT_TARGETS`` is the curated mapping that fills
+        in those binding partners so chains for these compounds resolve
+        past UNKNOWN_target. Creates TargetNodes when missing.
 
         Returns ``(edges_added, compound_targets)`` where ``compound_targets``
         maps each matched compound_id to its list of resolved Ensembl ids.
         The caller merges this into the main ``compound_targets`` dict so
-        downstream chain construction (``_populate_trial_mechanisms``)
-        sees the peptide vaccines as having real targets.
+        downstream chain construction (``_populate_trial_mechanisms``) sees
+        the vaccine constituents as having real targets.
         """
         added = 0
         seen_compounds: set[str] = set()
@@ -1951,7 +1996,7 @@ class PopulationPipeline:
                     continue
                 lowered = iv.name.lower()
                 matched_targets: dict[str, tuple[str, str]] = {}
-                for pattern, targets in _PEPTIDE_VACCINE_TARGETS:
+                for pattern, targets in _VACCINE_COMPONENT_TARGETS:
                     if pattern in lowered:
                         for ens, symbol, name in targets:
                             matched_targets.setdefault(ens, (symbol, name))
@@ -1967,7 +2012,7 @@ class PopulationPipeline:
                             id=ens,
                             name=name,
                             gene_symbol=symbol,
-                            metadata={"source": "peptide_vaccine_heuristic"},
+                            metadata={"source": "vaccine_component_heuristic"},
                         ))
                         self._index_node(ens, symbol, "target")
                     if self.graph._graph.has_edge(  # noqa: SLF001
@@ -1980,7 +2025,7 @@ class PopulationPipeline:
                         edge_type=EdgeType.AFFECTS,
                         belief=EdgeBeliefState(alpha=3.0, beta=1.0),
                         metadata={
-                            "source": "peptide_vaccine_heuristic",
+                            "source": "vaccine_component_heuristic",
                             "pattern_matched": iv.name,
                         },
                     ))
