@@ -309,6 +309,203 @@ class TestChainAwareRouting:
         assert updates == []
 
 
+# ── Phase B: affecting_arm_id routing + dedupe ──────────────────────────
+
+
+def _seed_per_constituent_combo_graph() -> tuple[GraphStore, TrialSubgraph]:
+    """Two-arm trial where ipilimumab has PER-CONSTITUENT chains in both
+    arms: an ipi_only mono arm and a combo arm. This mirrors what the
+    real populator produces for combo trials — the combo arm contributes
+    one chain per constituent compound, not one chain per regimen slug.
+    """
+    g, _ = _seed_combo_trial_graph()
+    arms = [
+        TrialArm(arm_id="ipi_mono", compound_ids=["ipilimumab"],
+                 regimen_compound_id="ipilimumab"),
+        TrialArm(arm_id="combo", compound_ids=["nivolumab", "ipilimumab"],
+                 regimen_compound_id="ipilimumab+nivolumab", is_combination=True),
+    ]
+    chains = [
+        # ipi_only arm: single ipi chain.
+        CausalChain(
+            arm_id="ipi_mono", compound_id="ipilimumab",
+            subgroup_population_id="melanoma__unselected",
+            target_id="ENSG00000163599", mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948", indication_id="melanoma",
+            endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+        ),
+        # Combo arm: one chain per constituent.
+        CausalChain(
+            arm_id="combo", compound_id="nivolumab",
+            subgroup_population_id="melanoma__unselected",
+            target_id="ENSG00000188389", mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948", indication_id="melanoma",
+            endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+        ),
+        CausalChain(
+            arm_id="combo", compound_id="ipilimumab",
+            subgroup_population_id="melanoma__unselected",
+            target_id="ENSG00000163599", mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948", indication_id="melanoma",
+            endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+        ),
+    ]
+    ts = TrialSubgraph(
+        trial_id="NCT_TEST", phase="3", arms=arms, chains=chains,
+        parent_population_id="melanoma__unselected",
+    )
+    g.set_trial_subgraph(ts)
+    return g, ts
+
+
+class TestAffectingArmIdRouting:
+    def test_two_arms_share_constituent_produces_two_evidence_records(self):
+        """Phase B: ipilimumab has chains in BOTH the ipi_mono arm and
+        the combo arm. With per-arm tagging, two edge updates on the same
+        (source, target) but different arm_ids produce two evidence
+        records (not one — the pre-v1 dedupe would collapse them)."""
+        g, ts = _seed_per_constituent_combo_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support",
+             "affecting_arm_id": "ipi_mono"},
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "weak_support",
+             "affecting_arm_id": "combo"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds_updates = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        # Both updates applied — same edge, two evidence records
+        assert len(binds_updates) == 2
+        assert all(u.source_id == "ipilimumab" for u in binds_updates)
+        assert all(u.target_id == "ENSG00000163599" for u in binds_updates)
+        # Different buckets (one from each arm)
+        buckets = {u.evidence.support for u in binds_updates}
+        assert buckets == {"moderate_support", "weak_support"}
+
+    def test_fuzzy_arm_id_match_against_populator_long_form(self):
+        """The LLM emits natural arm slugs ("ipilimumab_alone");
+        populator uses long-form slugs ("arm_a_ipilimumab"). Normalized
+        substring match resolves the LLM's slug when exactly one graph
+        arm contains it (after alnum-lowercase normalization)."""
+        # Use a custom graph: rename arms to populator-style long slugs.
+        g, _ = _seed_combo_trial_graph()
+        arms = [
+            TrialArm(arm_id="arm_a_ipilimumab", compound_ids=["ipilimumab"],
+                     regimen_compound_id="ipilimumab"),
+            TrialArm(arm_id="arm_b_ipilimumab_and_bevacizumab",
+                     compound_ids=["ipilimumab", "bevacizumab"],
+                     regimen_compound_id="ipilimumab+bevacizumab",
+                     is_combination=True),
+        ]
+        # Need bevacizumab compound node + chains for both arms.
+        from src.graph.models import CompoundNode, Modality, TargetNode
+        try:
+            g.get_node("bevacizumab")
+        except KeyError:
+            g.add_node(CompoundNode(
+                id="bevacizumab", name="Bevacizumab",
+                modality=Modality.ANTIBODY,
+            ))
+        try:
+            g.get_node("ENSG00000112715")
+        except KeyError:
+            g.add_node(TargetNode(
+                id="ENSG00000112715", name="VEGFA", gene_symbol="VEGFA",
+            ))
+        chains = [
+            CausalChain(
+                arm_id="arm_a_ipilimumab", compound_id="ipilimumab",
+                subgroup_population_id="melanoma__unselected",
+                target_id="ENSG00000163599",
+                mechanism_id="checkpoint_blockade",
+                biology_id="R-HSA-389948", indication_id="melanoma",
+                endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+            ),
+            CausalChain(
+                arm_id="arm_b_ipilimumab_and_bevacizumab",
+                compound_id="ipilimumab",
+                subgroup_population_id="melanoma__unselected",
+                target_id="ENSG00000163599",
+                mechanism_id="checkpoint_blockade",
+                biology_id="R-HSA-389948", indication_id="melanoma",
+                endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+            ),
+        ]
+        ts = TrialSubgraph(
+            trial_id="NCT_TEST", phase="3", arms=arms, chains=chains,
+            parent_population_id="melanoma__unselected",
+        )
+        g.set_trial_subgraph(ts)
+
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support",
+             # LLM emitted natural slug — must fuzzy-resolve to the
+             # graph's long-form arm_a_ipilimumab.
+             "affecting_arm_id": "ipilimumab_alone"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        assert len(binds) == 1
+        # No unknown_arm_id unroute should have fired.
+
+    def test_unknown_arm_id_logs_unrouted(self, _isolated_unrouted_log):
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support",
+             "affecting_arm_id": "an_arm_that_doesnt_exist"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        # Update dropped
+        assert all(u.evidence.support != "moderate_support" or u.target_id != "ENSG00000188389" for u in updates)
+        # Logged as unrouted
+        records = [
+            json.loads(line)
+            for line in _isolated_unrouted_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(
+            r["reason"].startswith("unknown_arm_id:") for r in records
+        )
+
+    def test_back_compat_null_arm_id_uses_entity_match(self):
+        """When the classifier output predates the affecting_arm_id field
+        (i.e. arm_id missing from the JSON), routing falls back to the
+        pre-v1 entity-name match against all chains."""
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+            # NO affecting_arm_id field at all
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        assert len(binds) == 1  # back-compat dedupe collapses across arms
+        assert binds[0].source_id == "nivolumab"
+
+    def test_arm_tag_constrains_to_that_arm_only(self):
+        """Even when entity names match multiple arms' chains, the
+        arm_id tag pins routing to that specific arm — disambiguating
+        the historical 'first match wins' behavior."""
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        assert len(binds) == 1
+        # Routed to nivo_only's chain — the source / target match
+        # nivolumab→PD-1 in any chain, but arm_id pins it to nivo_only.
+        # We verify the evidence record exists; chain-arm linkage is via
+        # the trial subgraph (the chain whose arm_id == 'nivo_only').
+        assert binds[0].source_id == "nivolumab"
+        assert binds[0].target_id == "ENSG00000188389"
+
+
 # ── Failure-trial backstop ──────────────────────────────────────────────
 
 
