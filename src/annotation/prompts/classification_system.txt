@@ -52,6 +52,7 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
       "source_entity": "string—compound, target, mechanism, etc.",
       "target_entity": "string—target, biology, endpoint, etc.",
       "support": "strong_support|moderate_support|weak_support|ambiguous|weak_contradict|moderate_contradict|strong_contradict",
+      "affecting_arm_id": "string|null—the arm_id whose outcome motivates this edge update; null for trial-shared edges (endpoint_captures, responds_differently)",
       "reasoning": "string—why this edge should be updated"
     }
   ],
@@ -106,12 +107,51 @@ Per-constituent emission rules:
     Do NOT emit a single `affects` on the synthesized combo regimen id—
     constituent updates accumulate on the underlying compounds, which is
     where cross-trial learning happens.
-  - When the same constituent appears in multiple arms (e.g. nivolumab
-    in both its mono arm AND a nivo+ipi combo arm), emit its
-    `affects` ONCE. Per-trial dedup will collapse duplicates, but a
-    single emission per (compound, target) pair is cleaner.
   - `endpoint_captures`, `responds_differently`, and the indication are
     SHARED across arms—emit each of those once per trial, not per arm.
+
+Per-arm emission rules:
+  - **For multi-arm trials, decompose EACH arm's outcome into edge updates
+    and tag every causal-chain emission with `affecting_arm_id`.** This is
+    the rule that lets the attributor route evidence to the right chain.
+    An aldesleukin-monotherapy arm and a gp100+aldesleukin+ipi combo arm
+    have DIFFERENT mechanistic hypotheses; both should produce edge
+    updates if both arms have outcomes.
+  - For each arm with a primary-endpoint outcome (success / failure /
+    partial in `results_by_chain`):
+      • Emit `affects`, `modulates_via`, `mechanism_affects`,
+        `biology_drives` for each CONSTITUENT of that arm's regimen.
+      • Tag every such update with `affecting_arm_id` set to that arm's
+        `arm_id` from the "Per-arm causal chains" block.
+      • Use buckets that reflect THAT arm's outcome — a failed combo arm
+        may emit `biology_drives weak_contradict` while a successful
+        monotherapy arm in the same trial emits `biology_drives
+        moderate_support`. Same trial, different signal per arm.
+  - The same constituent may appear in multiple arms (e.g. nivolumab in
+    both its mono arm AND a nivo+ipi combo arm). Emit its `affects`
+    ONCE per arm (tagged with that arm_id), even though the (compound,
+    target) pair is the same — the per-arm outcomes are different
+    evidence about the same edge.
+  - For shared trial-level edges that aren't tied to one arm's outcome:
+      • `endpoint_captures`: emit once per trial, `affecting_arm_id: null`.
+      • `responds_differently`: emit once per (population, indication)
+        subgroup-comparison, `affecting_arm_id: null` (it's a population-
+        level finding, not an arm-level outcome).
+  - Worked example, 2-arm trial (arm "ald_mono" aldesleukin monotherapy,
+    success; arm "combo" gp100+aldesleukin+ipi, failure):
+      • `affects: aldesleukin → IL2RA, moderate_support, affecting_arm_id:
+        ald_mono` (mono arm succeeded, supports target engagement).
+      • `biology_drives: R-HSA-IL2 → melanoma, moderate_support,
+        affecting_arm_id: ald_mono`.
+      • `affects: gp100_antigen → PMEL, weak_contradict, affecting_arm_id:
+        combo` (combo failed; the gp100 chain's contribution refuted).
+      • `affects: ipilimumab → CTLA4, weak_contradict, affecting_arm_id:
+        combo`.
+      • `affects: aldesleukin → IL2RA, weak_support, affecting_arm_id:
+        combo` (combo also includes aldesleukin; its contribution to the
+        combo's outcome is its own evidence record).
+      • `endpoint_captures: ORR_melanoma → melanoma, moderate_support,
+        affecting_arm_id: null` (trial-level — the endpoint translated).
 
 Critical rules for `responds_differently`:
   - Source MUST be a patient-subgroup PopulationNode shown in "Resolved Graph Entities" (e.g. "melanoma__braf_v600e", "melanoma__pdl1_high"), not a compound, regimen, or target.

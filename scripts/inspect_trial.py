@@ -248,6 +248,33 @@ def section_classification(nct_id: str) -> dict[str, Any] | None:
         return None
     raw = json.loads(path.read_text())
     console.print(json.dumps(raw, indent=2))
+
+    # Per-arm grouping of edges_to_update — v1 of classifier-per-arm
+    # emission. Shows which arms produced which edge updates, with null
+    # affecting_arm_id grouped under "(trial-shared / unspecified)".
+    # Highlights the rebalancing the per-arm prompt is supposed to drive.
+    edges = raw.get("edges_to_update") or []
+    if edges:
+        console.rule(
+            f"[bold dim]3b. edges_to_update grouped by affecting_arm_id "
+            f"— {nct_id}[/bold dim]"
+        )
+        by_arm: dict[str, list[dict]] = {}
+        for e in edges:
+            arm_id = e.get("affecting_arm_id") or "(trial-shared / unspecified)"
+            by_arm.setdefault(arm_id, []).append(e)
+        for arm_id, arm_edges in by_arm.items():
+            console.print(
+                f"\n[bold cyan]{arm_id}[/bold cyan]  "
+                f"({len(arm_edges)} edge updates)"
+            )
+            for e in arm_edges:
+                support = e.get("support") or "?"
+                console.print(
+                    f"  [bold]{e.get('edge_type')}[/bold]: "
+                    f"{e.get('source_entity')} → {e.get('target_entity')}  "
+                    f"({support})"
+                )
     return raw
 
 
