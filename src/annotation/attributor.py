@@ -403,6 +403,77 @@ def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
         fh.write(json.dumps(record) + "\n")
 
 
+def _resolve_arm_id(
+    llm_arm_id: str,
+    arm_by_id: dict[str, TrialArm],
+) -> str | None:
+    """Map an LLM-emitted arm_id to a real arm_id in the trial subgraph.
+
+    The LLM tends to emit natural slugs (``cmp001_plus_nivo``,
+    ``ipilimumab_alone``) while the populator uses long-form slugs
+    (``nivolumab_and_cmp_001_combination``, ``arm_a_ipilimumab``).
+    Three-stage resolution:
+
+      1. Exact arm_id match — the LLM nailed the slug.
+      2. arm_id substring match — normalized alnum-lowercase, single hit.
+      3. Compound-set overlap — count how many of each arm's
+         ``compound_ids`` appear as normalized substrings of the LLM's
+         slug. Prefer the arm where ALL constituent compounds appear
+         (the LLM described the full regimen); fall back to most
+         compounds matched; tie → ambiguous → None.
+
+    Returns the matching graph arm_id or None when ambiguous / no match.
+    """
+    if not llm_arm_id:
+        return None
+    if llm_arm_id in arm_by_id:
+        return llm_arm_id
+
+    norm_llm = _norm_name(llm_arm_id)
+    if not norm_llm or len(norm_llm) < 4:
+        return None
+
+    # Stage 2: arm_id substring match.
+    substring_matches: list[str] = []
+    for graph_arm_id in arm_by_id:
+        norm_graph = _norm_name(graph_arm_id)
+        if not norm_graph or len(norm_graph) < 4:
+            continue
+        if norm_llm in norm_graph or norm_graph in norm_llm:
+            substring_matches.append(graph_arm_id)
+    if len(substring_matches) == 1:
+        return substring_matches[0]
+
+    # Stage 3: compound-set overlap. Score each arm by (matched_count,
+    # all_present) — prefer arms where every constituent compound is
+    # named in the LLM slug.
+    scored: list[tuple[str, int, bool]] = []
+    for graph_arm_id, arm in arm_by_id.items():
+        compounds = arm.compound_ids or []
+        if not compounds:
+            continue
+        matched = sum(
+            1 for c in compounds
+            if _norm_name(c) and len(_norm_name(c)) >= 3
+            and _norm_name(c) in norm_llm
+        )
+        if matched == 0:
+            continue
+        all_present = matched == len(compounds)
+        scored.append((graph_arm_id, matched, all_present))
+
+    if not scored:
+        return None
+    scored.sort(key=lambda s: (s[2], s[1]), reverse=True)
+    if len(scored) == 1:
+        return scored[0][0]
+    # Unambiguous winner only if its (all_present, matched) strictly
+    # beats every other arm's tuple.
+    if (scored[0][1], scored[0][2]) != (scored[1][1], scored[1][2]):
+        return scored[0][0]
+    return None
+
+
 def _log_unrouted_modulation(
     trial_id: str, entry: ModulationEntry, *, reason: str,
 ) -> None:
@@ -651,7 +722,14 @@ class Attributor:
         # surfacing on both the mono-nivo and combo-arm chains). Apply
         # the first matching update and skip the rest so a single trial
         # never delivers 2× the conjugate evidence to the same edge.
-        applied_edges: set[tuple[str, str, str]] = set()
+        #
+        # Phase B of v1 classifier-per-arm: the dedupe key includes
+        # arm_id as a 4th slot. Two updates that hit the same
+        # (edge_type, src, tgt) under DIFFERENT arm_ids are treated as
+        # separate evidence records — each arm's outcome about the same
+        # edge is its own signal. Null arm_id (back-compat) collapses
+        # all unsubscripted updates to one slot.
+        applied_edges: set[tuple[str, str, str, str | None]] = set()
 
         for item in raw_edges:
             edge_type_str = item.get("edge_type", "")
@@ -697,11 +775,13 @@ class Attributor:
                 _log_unrouted(trial.trial_id, item, reason=reason)
                 continue
 
-            edge_key = (edge_type_str, src_id, tgt_id)
+            arm_tag = item.get("affecting_arm_id")
+            edge_key = (edge_type_str, src_id, tgt_id, arm_tag)
             if edge_key in applied_edges:
                 logger.debug(
-                    "Skipping duplicate update for trial %s: %s %s → %s",
-                    trial.trial_id, edge_type_str, src_id, tgt_id,
+                    "Skipping duplicate update for trial %s: %s %s → %s "
+                    "(arm=%s)",
+                    trial.trial_id, edge_type_str, src_id, tgt_id, arm_tag,
                 )
                 continue
             applied_edges.add(edge_key)
@@ -800,7 +880,8 @@ class Attributor:
         outcome = raw.get("trial_outcome")
         if outcome == "failure":
             biology_drives_applied = any(
-                et == EdgeType.BIOLOGY_DRIVES.value for et, _, _ in applied_edges
+                et == EdgeType.BIOLOGY_DRIVES.value
+                for et, _, _, _ in applied_edges
             )
             if not biology_drives_applied and trial.chains:
                 default_update = self._emit_failure_backstop(
@@ -873,7 +954,7 @@ class Attributor:
         trial: TrialSubgraph,
         classification: FailureClassification,
         evidence_type: EvidenceType,
-        applied_edges: set[tuple[str, str, str]],
+        applied_edges: set[tuple[str, str, str, str | None]],
         *,
         extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
@@ -921,8 +1002,11 @@ class Attributor:
                         src, tgt = canonical_modulation_endpoints(
                             new_c, backbone_c,
                         )
+                        # Modulation edges are trial-level (not arm-scoped);
+                        # use None for the arm slot of the dedupe key.
                         edge_key = (
-                            EdgeType.MODULATES_EFFICACY_OF.value, src, tgt,
+                            EdgeType.MODULATES_EFFICACY_OF.value,
+                            src, tgt, None,
                         )
                         if edge_key in applied_edges:
                             continue
@@ -949,7 +1033,7 @@ class Attributor:
         trial: TrialSubgraph,
         classification: FailureClassification,
         evidence_type: EvidenceType,
-        applied_edges: set[tuple[str, str, str]],
+        applied_edges: set[tuple[str, str, str, str | None]],
         *,
         extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
@@ -989,7 +1073,7 @@ class Attributor:
                 for c2 in sorted_compounds[i + 1:]:
                     src, tgt = canonical_modulation_endpoints(c1, c2)
                     edge_key = (
-                        EdgeType.MODULATES_EFFICACY_OF.value, src, tgt,
+                        EdgeType.MODULATES_EFFICACY_OF.value, src, tgt, None,
                     )
                     if edge_key in applied_edges:
                         continue
@@ -1088,7 +1172,7 @@ class Attributor:
         trial: TrialSubgraph,
         classification: FailureClassification,
         evidence_type: EvidenceType,
-        applied_edges: set[tuple[str, str, str]],
+        applied_edges: set[tuple[str, str, str, str | None]],
         *,
         extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
@@ -1163,7 +1247,8 @@ class Attributor:
             bucket = modulation_bucket(entry.direction, entry.confidence)
 
             edge_key = (
-                EdgeType.MODULATES_EFFICACY_OF.value, modulator_id, anchor_id,
+                EdgeType.MODULATES_EFFICACY_OF.value,
+                modulator_id, anchor_id, None,
             )
             if edge_key in applied_edges:
                 continue
@@ -1498,11 +1583,20 @@ class Attributor:
             entities derivable from the trial subgraph, so if the
             classifier invents an off-trial entity the update is
             dropped rather than misrouted.
+          - ``"unknown_arm_id:<arm>"``—v1 of classifier-per-arm
+            emission: the classifier tagged this update with an
+            arm_id that isn't in the trial. The LLM hallucinated.
 
         Open Targets-seeded biology_drives gets a special pass-through:
         OT writes a single (target_id, indication_id) edge during populate
         and the trial-time biology id may be a different node, so we
         update the OT-keyed edge instead.
+
+        ``affecting_arm_id`` on the item, when non-null, restricts the
+        chain iteration to chains whose ``arm_id`` matches. This is the
+        v1 fix for multi-arm trials where a constituent appears in
+        several arms — the LLM's per-arm tag picks the right chain
+        instead of entity-name matching to whichever chain came first.
         """
         if edge_type == EdgeType.BIOLOGY_DRIVES:
             ot_coords = trial.metadata.get("ot_biology_drives")
@@ -1511,12 +1605,40 @@ class Attributor:
 
         src_name = (item.get("source_entity") or "").strip()
         tgt_name = (item.get("target_entity") or "").strip()
+        affecting_arm_id = item.get("affecting_arm_id")
+
+        # Phase B: if the classifier tagged this update with an arm_id,
+        # restrict chain iteration to that arm's chains. Falls back to
+        # all-chains entity-name matching when the tag is null (back-
+        # compat for cached classifications written pre-v1).
+        #
+        # The LLM tends to emit natural arm slugs ("ipilimumab_alone",
+        # "cmp001_plus_nivo") that don't exact-match the populator's
+        # long-form slugs ("arm_a_ipilimumab", "nivolumab_and_cmp_001_
+        # combination"). Same "LLM doesn't know graph-internal ids"
+        # problem we hit with v0.3 modulation. Two-stage match:
+        #   1. Exact arm_id match.
+        #   2. Normalized substring match: when exactly one graph arm
+        #      contains (or is contained by) the LLM's slug after
+        #      alnum-lowercasing, use it.
+        # Only unroute as unknown_arm_id when neither pass resolves.
+        if affecting_arm_id:
+            resolved_arm_id = _resolve_arm_id(
+                affecting_arm_id, arm_by_id,
+            )
+            if resolved_arm_id is None:
+                return None, None, f"unknown_arm_id:{affecting_arm_id}"
+            candidate_chains = [
+                c for c in trial.chains if c.arm_id == resolved_arm_id
+            ]
+        else:
+            candidate_chains = list(trial.chains)
 
         best: tuple[str, str] | None = None
         best_score = -1
         any_candidate = False
         any_explicit_mismatch = False
-        for chain in trial.chains:
+        for chain in candidate_chains:
             arm = arm_by_id.get(chain.arm_id)
             if arm is None:
                 continue
