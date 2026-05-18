@@ -1,30 +1,30 @@
 {
   "nct_id": "NCT00512798",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition as a biomarker of proteasome engagement. Results showed 0/19 patients in Phase I and 0/28 patients in Phase II achieved \u226550% NF-\u03baB inhibition, indicating no meaningful target engagement despite reaching the MTD. 2. PATHWAY MODULATION: With no target engagement confirmed, downstream pathway modulation was not achieved. NF-\u03baB activation measurements showed no significant inhibition. 3. CLINICAL TRANSLATION: Clinical outcomes were poor - Phase I had 4/19 partial responses (21% ORR), Phase II had only 1/28 partial responses (3.6% ORR). The trial was terminated for lack of efficacy. 4. POPULATION EFFECTS: No meaningful subgroup differences were observed. 5. CONFOUNDERS: The trial reached its pre-defined MTD and had adequate duration (54 weeks), ruling out dose-limiting toxicity or wrong timeframe as primary factors.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition as a biomarker of proteasome engagement. Results showed 0/19 patients in Phase I and 0/28 patients in Phase II achieved \u226550% NF-\u03baB inhibition, indicating no meaningful target engagement despite reaching the MTD of bortezomib 1.3 mg/m2. 2. PATHWAY MODULATION: With no target engagement confirmed, downstream pathway modulation was not achieved. NF-\u03baB activation measured in peripheral blood mononuclear cells showed no significant inhibition. 3. CLINICAL TRANSLATION: Clinical outcomes were poor - Phase I had 4/19 partial responses (21% ORR), Phase II had only 1/28 partial responses (3.6% ORR). The majority of patients had progressive disease (14/19 in Phase I, 22/28 in Phase II). 4. POPULATION EFFECTS: No meaningful subgroup differences were observed - both phases showed predominantly progressive disease. 5. CONFOUNDERS: The trial was adequately designed as a dose-escalation study that established MTD, but the fundamental issue was lack of target engagement at tolerable doses.",
   "failure_modes": [
     {
       "mode": "no_target_engagement",
       "confidence": 0.9,
-      "evidence": "Explicit biomarker measurement showed 0/47 patients achieved \u226550% NF-\u03baB inhibition, indicating bortezomib failed to meaningfully engage the proteasome target despite reaching MTD"
+      "evidence": "Explicit biomarker data showed 0/47 patients achieved \u226550% NF-\u03baB inhibition, the intended pharmacodynamic marker of proteasome inhibition, despite reaching maximum tolerated dose"
     }
   ],
   "edges_to_update": [
     {
       "edge_type": "affects",
       "source_entity": "ps_341",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000100804",
       "support": "moderate_contradict",
       "affecting_arm_id": "phase_i",
-      "reasoning": "Phase I arm showed no target engagement with 0/19 patients achieving NF-\u03baB inhibition"
+      "reasoning": "No NF-\u03baB inhibition achieved in Phase I despite reaching MTD, indicating inadequate proteasome engagement"
     },
     {
       "edge_type": "affects",
       "source_entity": "ps_341",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000100804",
       "support": "moderate_contradict",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "Phase II arm showed no target engagement with 0/28 patients achieving NF-\u03baB inhibition"
+      "reasoning": "No NF-\u03baB inhibition achieved in Phase II despite reaching MTD, indicating inadequate proteasome engagement"
     },
     {
       "edge_type": "affects",
@@ -32,7 +32,7 @@
       "target_entity": "CHEBI:16991",
       "support": "ambiguous",
       "affecting_arm_id": "phase_i",
-      "reasoning": "No specific biomarker data for temozolomide target engagement reported"
+      "reasoning": "No specific biomarker data for DNA alkylation engagement reported for Phase I"
     },
     {
       "edge_type": "affects",
@@ -40,47 +40,47 @@
       "target_entity": "CHEBI:16991",
       "support": "ambiguous",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "No specific biomarker data for temozolomide target engagement reported"
+      "reasoning": "No specific biomarker data for DNA alkylation engagement reported for Phase II"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000100804",
+      "target_entity": "protein_degradation",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Lack of NF-\u03baB inhibition suggests proteasome target was not effectively modulating protein degradation pathway"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000100804",
+      "target_entity": "protein_degradation",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "Lack of NF-\u03baB inhibition suggests proteasome target was not effectively modulating protein degradation pathway"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
+      "source_entity": "R-HSA-349425",
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_i",
-      "reasoning": "Poor clinical outcomes (21% ORR) suggest protein degradation biology didn't drive meaningful anti-tumor activity"
+      "reasoning": "Poor clinical outcomes (21% ORR, majority progressive disease) suggest this biology pathway may not drive disease in this population"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
-      "target_entity": "brain_and_central_nervous_system_tumor",
-      "support": "moderate_contradict",
-      "affecting_arm_id": "phase_ii",
-      "reasoning": "Very poor clinical outcomes (3.6% ORR) in Phase II strongly contradict this biology driving benefit"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "dna_damage__brain_and_central_nervous_system_tumor",
+      "source_entity": "R-HSA-349425",
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "weak_contradict",
-      "affecting_arm_id": "phase_i",
-      "reasoning": "Poor clinical outcomes suggest DNA damage biology didn't drive meaningful benefit"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "dna_damage__brain_and_central_nervous_system_tumor",
-      "target_entity": "brain_and_central_nervous_system_tumor",
-      "support": "moderate_contradict",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "Very poor Phase II outcomes contradict DNA damage biology driving clinical benefit"
+      "reasoning": "Very poor clinical outcomes (3.6% ORR, majority progressive disease) suggest this biology pathway may not drive disease in this population"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_solid_tumor",
       "target_entity": "brain_and_central_nervous_system_tumor",
-      "support": "ambiguous",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint was safety/dose-finding rather than efficacy, making clinical benefit translation assessment unclear"
+      "reasoning": "Safety endpoint was successfully measured and MTD established, providing meaningful information for this indication"
     }
   ],
   "confidence_overall": 0.8,

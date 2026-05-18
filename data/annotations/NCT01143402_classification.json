@@ -10,7 +10,7 @@
       "target_entity": "ENSG00000126934",
       "support": "strong_support",
       "affecting_arm_id": "arm_ii_selumetinib",
-      "reasoning": "Strong target engagement evidence with decrease in p-ERK (direct downstream marker of MEK1/2 inhibition) correlating with disease status"
+      "reasoning": "Decrease in p-ERK correlated with disease status provides strong biomarker evidence of MEK1/2 target engagement"
     },
     {
       "edge_type": "modulates_via",
@@ -18,7 +18,7 @@
       "target_entity": "kinase_inhibition",
       "support": "strong_support",
       "affecting_arm_id": "arm_ii_selumetinib",
-      "reasoning": "MEK1/2 target engagement led to kinase inhibition as evidenced by downstream pathway biomarker changes"
+      "reasoning": "MEK1/2 inhibition mechanism confirmed by downstream p-ERK reduction and pathway biomarker changes"
     },
     {
       "edge_type": "mechanism_affects",
@@ -26,7 +26,7 @@
       "target_entity": "R-HSA-5674135",
       "support": "strong_support",
       "affecting_arm_id": "arm_ii_selumetinib",
-      "reasoning": "Kinase inhibition mechanism successfully modulated MAP2K/MAPK pathway as shown by p-ERK decrease, Ki67 changes, and apoptosis induction"
+      "reasoning": "Multiple pathway biomarkers (p-ERK, Ki67, p-AKT, PTEN, caspase 3) confirm kinase inhibition affected MAP2K/MAPK pathway biology"
     },
     {
       "edge_type": "biology_drives",
@@ -34,23 +34,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii_selumetinib",
-      "reasoning": "MAP2K/MAPK pathway modulation translated to clinical benefit with >2-fold PFS improvement and OS benefit in uveal melanoma"
-    },
-    {
-      "edge_type": "reflects_biology",
-      "source_entity": "R-HSA-5674135",
-      "target_entity": "PFS_melanoma",
-      "support": "moderate_support",
-      "affecting_arm_id": "arm_ii_selumetinib",
-      "reasoning": "PFS endpoint reflected the biological impact of MAP2K/MAPK pathway inhibition with meaningful clinical improvement"
-    },
-    {
-      "edge_type": "endpoint_captures",
-      "source_entity": "PFS_melanoma",
-      "target_entity": "melanoma",
-      "support": "moderate_support",
-      "affecting_arm_id": null,
-      "reasoning": "PFS is an established endpoint for melanoma that captured clinical benefit, supported by concordant OS improvement"
+      "reasoning": "Clinical benefit (PFS improvement from 7 to 15.9 weeks) in Gnaq/Gna11 mutant uveal melanoma supports MAP2K/MAPK pathway driving disease in this subset"
     },
     {
       "edge_type": "affects",
@@ -58,15 +42,23 @@
       "target_entity": "CHEBI:16991",
       "support": "weak_support",
       "affecting_arm_id": "arm_i_temozolomide",
-      "reasoning": "Temozolomide arm showed inferior outcomes but still demonstrated some activity (7 weeks PFS vs expected natural history)"
+      "reasoning": "Temozolomide arm showed limited efficacy (7 week median PFS) suggesting modest target engagement or pathway impact"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "dna_damage__melanoma",
       "target_entity": "melanoma",
-      "support": "weak_support",
+      "support": "weak_contradict",
       "affecting_arm_id": "arm_i_temozolomide",
-      "reasoning": "DNA damage mechanism showed limited efficacy in this uveal melanoma population with modest PFS benefit"
+      "reasoning": "Poor PFS outcome (7 weeks) in temozolomide arm suggests DNA damage biology may not be the primary driver in this uveal melanoma population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS showed clear differentiation between treatments and correlated with OS benefit, supporting its validity as an endpoint for melanoma"
     }
   ],
   "confidence_overall": 0.8,
