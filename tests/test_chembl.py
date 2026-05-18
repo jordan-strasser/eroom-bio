@@ -10,6 +10,7 @@ import pytest
 from src.graph.models import MechanismCategory, TargetType
 from src.ingestion.chembl import (
     ChEMBLClient,
+    is_likely_diagnostic,
     map_moa_text_to_mechanism,
     translate_chembl_target,
 )
@@ -302,6 +303,140 @@ class TestChEMBLSearchDrugByName:
             mock_client.get.return_value.json = lambda: {"molecules": []}
             result = await client.search_drug_by_name("nonsense")
         assert result is None
+
+
+class TestIsLikelyDiagnostic:
+    """Round-13 ChEMBL-driven diagnostic detection. Combines
+    `indication_class` (explicit) and `therapeutic_flag` + `max_phase`
+    (implicit) signals — catches Fluorescein/Lymphoseek-class drugs
+    without false-positive on therapies ChEMBL has miscategorized
+    (T-VEC: therapeutic_flag=False but max_phase=3.0)."""
+
+    def test_explicit_diagnostic_indication_class(self):
+        meta = {
+            "therapeutic_flag": True,  # even with True, indication_class wins
+            "max_phase": 4.0,
+            "indication_class": "Diagnostic Agent",
+        }
+        assert is_likely_diagnostic(meta) is True
+
+    def test_diagnostic_indication_class_case_insensitive(self):
+        meta = {
+            "therapeutic_flag": False, "max_phase": None,
+            "indication_class": "DIAGNOSTIC AID",
+        }
+        assert is_likely_diagnostic(meta) is True
+
+    def test_fluorescein_profile_flagged(self):
+        """Real Fluorescein profile from ChEMBL probe."""
+        meta = {
+            "therapeutic_flag": False,
+            "max_phase": None,
+            "indication_class": None,
+        }
+        assert is_likely_diagnostic(meta) is True
+
+    def test_tvec_profile_kept(self):
+        """T-VEC: therapeutic_flag=False but max_phase=3.0 — keep, real
+        therapy. ChEMBL's flag is too noisy to drop on its own; the
+        max_phase tiebreaker protects real therapeutics in trials."""
+        meta = {
+            "therapeutic_flag": False,
+            "max_phase": 3.0,
+            "indication_class": None,
+        }
+        assert is_likely_diagnostic(meta) is False
+
+    def test_pdr001_lag525_fotemustine_profiles_kept(self):
+        """Real therapeutics ChEMBL miscategorized (therapeutic_flag=
+        False) but with max_phase ≥ 1. All must survive the filter."""
+        for max_phase in [3.0, 2.0, 1.0]:
+            meta = {"therapeutic_flag": False, "max_phase": max_phase,
+                    "indication_class": None}
+            assert is_likely_diagnostic(meta) is False, (
+                f"max_phase={max_phase} should survive (real therapeutic)"
+            )
+
+    def test_lymphoseek_profile_slips_through_known_limitation(self):
+        """FDA-approved diagnostic with max_phase=4.0 — the conservative
+        rule intentionally lets these slip rather than risk dropping
+        the many real therapeutics ChEMBL marks therapeutic_flag=False.
+        Round-14 work: post-extraction intent signal."""
+        meta = {
+            "therapeutic_flag": False,
+            "max_phase": 4.0,
+            "indication_class": None,
+        }
+        assert is_likely_diagnostic(meta) is False
+
+    def test_pembrolizumab_profile_kept(self):
+        meta = {
+            "therapeutic_flag": True,
+            "max_phase": 4.0,
+            "indication_class": "Antineoplastic",
+        }
+        assert is_likely_diagnostic(meta) is False
+
+    def test_carboplatin_profile_kept(self):
+        meta = {
+            "therapeutic_flag": True,
+            "max_phase": 4.0,
+            "indication_class": None,
+        }
+        assert is_likely_diagnostic(meta) is False
+
+    def test_missing_metadata_keeps(self):
+        """No ChEMBL record → no signal, keep (don't over-filter)."""
+        assert is_likely_diagnostic(None) is False
+        assert is_likely_diagnostic({}) is False
+
+    def test_therapeutic_flag_true_alone_keeps(self):
+        """therapeutic_flag=True overrides even when max_phase is None."""
+        meta = {
+            "therapeutic_flag": True,
+            "max_phase": None,
+            "indication_class": None,
+        }
+        assert is_likely_diagnostic(meta) is False
+
+
+class TestChEMBLClientGetMoleculeMetadata:
+    """get_molecule_metadata fetches the molecule endpoint and caches."""
+
+    @pytest.mark.asyncio
+    async def test_extracts_three_relevant_fields(self, tmp_path):
+        client = ChEMBLClient(cache_path=tmp_path / "chembl.json")
+        with patch("src.ingestion.chembl.httpx.AsyncClient") as mock_cls:
+            mock_client = mock_cls.return_value.__aenter__.return_value
+            mock_client.get = AsyncMock()
+            mock_client.get.return_value.raise_for_status = lambda: None
+            mock_client.get.return_value.json = lambda: {
+                "therapeutic_flag": True,
+                "max_phase": "4.0",
+                "indication_class": "Antineoplastic",
+                "other_field": "ignored",
+            }
+            result = await client.get_molecule_metadata("CHEMBL1")
+        assert result == {
+            "therapeutic_flag": True,
+            "max_phase": "4.0",
+            "indication_class": "Antineoplastic",
+        }
+
+    @pytest.mark.asyncio
+    async def test_missing_drug_returns_none(self, tmp_path):
+        client = ChEMBLClient(cache_path=tmp_path / "chembl.json")
+        with patch("src.ingestion.chembl.httpx.AsyncClient") as mock_cls:
+            mock_client = mock_cls.return_value.__aenter__.return_value
+            mock_client.get = AsyncMock(side_effect=Exception("404"))
+            result = await client.get_molecule_metadata("CHEMBL_MISSING")
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_empty_chembl_id_returns_none(self, tmp_path):
+        client = ChEMBLClient(cache_path=tmp_path / "chembl.json")
+        assert await client.get_molecule_metadata("") is None
+        assert await client.get_molecule_metadata(None) is None  # type: ignore[arg-type]
 
 
 class TestChEMBLClientCaching:

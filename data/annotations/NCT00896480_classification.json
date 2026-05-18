@@ -1,22 +1,30 @@
 {
   "nct_id": "NCT00896480",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with concentrations increasing from ~14 EL.U/mL to 8000-14000 EL.U/mL at week 13. 2. PATHWAY MODULATION: Evidence of downstream immune activation - CD4+ T-cell responses detected in 15/24 patients (62.5%) and CD8+ T-cell responses in 3/24 patients (12.5%), indicating the immune costimulation pathway was engaged. 3. CLINICAL TRANSLATION: Despite target engagement and pathway modulation, clinical endpoint failed - only 4/24 patients (16.7%) achieved objective response, which is below typical efficacy thresholds for melanoma immunotherapy. 4. POPULATION EFFECTS: Strong subgroup effect observed - gene signature positive patients (GS+/+) showed much better responses (3/8 = 37.5%) and longer time to treatment failure (14.8 months) compared to GS+/- (1/8 = 12.5%, 2.3 months) and GS- (0/8 = 0%, 2.4 months). 5. CONFOUNDERS: Single-arm study with small sample size (n=24) limits interpretation, but the clear subgroup stratification suggests the mechanism works in a biomarker-defined subset.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with concentrations increasing from ~14 EL.U/mL to 8000-14000 EL.U/mL at week 13. 2. PATHWAY MODULATION: Clear evidence of downstream immune activation - CD4+ T-cell responses detected in 15/24 patients (62.5%) and CD8+ T-cell responses in 3/24 patients (12.5%), confirming immune system engagement. 3. CLINICAL TRANSLATION: Despite target engagement and immune activation, clinical endpoint failed - only 4/24 patients (16.7%) achieved objective response, well below typical efficacy thresholds for melanoma immunotherapy. 4. POPULATION EFFECTS: Strong subgroup effect observed - gene signature positive patients (GS+/+) showed 3/8 objective responses vs 1/8 for GS+/- and 0/8 for GS-, with median time to treatment failure of 14.8 months vs 2.3-2.4 months in other groups. 5. CONFOUNDERS: Single-arm design limits interpretation, but the clear subgroup stratification suggests the mechanism works in a biomarker-defined subset rather than the overall population.",
   "failure_modes": [
     {
       "mode": "efficacy_in_subgroup_only",
       "confidence": 0.8,
-      "evidence": "Gene signature positive patients (GS+/+) showed 37.5% response rate (3/8) and 14.8 month median time to treatment failure, while GS+/- and GS- patients had minimal responses (12.5% and 0% respectively) and short time to treatment failure (2.3-2.4 months)"
+      "evidence": "Gene signature positive patients (GS+/+) showed 37.5% response rate (3/8) and 14.8 month median time to treatment failure vs 12.5% (1/8) and 2.3 months for GS+/- and 0% (0/8) and 2.4 months for GS- patients"
     }
   ],
   "edges_to_update": [
     {
       "edge_type": "affects",
       "source_entity": "immunotherapeutic_gsk2132231a",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000221867",
+      "support": "strong_support",
+      "affecting_arm_id": "gsk2132231a_group",
+      "reasoning": "Anti-MAGE-A3 antibody seroconversion achieved in majority of patients with dramatic increase in antibody concentrations from baseline"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000221867",
+      "target_entity": "immune_costimulation",
       "support": "moderate_support",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "Strong target engagement evidence with anti-MAGE-A3 antibody seroconversion in majority of patients and 500-1000 fold increase in antibody concentrations"
+      "reasoning": "CD4+ T-cell responses in 62.5% of patients and CD8+ responses in 12.5% confirm immune system activation via MAGE-A3 targeting"
     },
     {
       "edge_type": "mechanism_affects",
@@ -24,15 +32,15 @@
       "target_entity": "immune_costimulation__melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "CD4+ T-cell responses in 62.5% of patients and CD8+ responses in 12.5% demonstrate immune system activation"
+      "reasoning": "T-cell responses detected and subgroup with gene signature showed clinical benefit, confirming mechanism can affect melanoma biology"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "immune_costimulation__melanoma",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "weak_support",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "Overall response rate of 16.7% is below efficacy threshold despite immune activation, though strong subgroup effect suggests biology works in biomarker-selected patients"
+      "reasoning": "Overall response rate was low (16.7%) but gene signature positive subgroup showed meaningful clinical benefit (37.5% response, 14.8 month median TTF)"
     },
     {
       "edge_type": "endpoint_captures",
@@ -40,7 +48,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Objective response rate is an established endpoint for melanoma that correlates with clinical benefit"
+      "reasoning": "Objective response rate was measured and showed clear differentiation between biomarker-defined subgroups, suggesting it captures meaningful clinical benefit in the right population"
     }
   ],
   "confidence_overall": 0.7,
