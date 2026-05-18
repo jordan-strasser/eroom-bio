@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 
 GRAPHQL_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
+# Non-protein-target inference (DNA/RNA/tubulin for chemos) lives in
+# `src/ingestion/chembl.py` — ChEMBL's raw REST API exposes the
+# structured `target_chembl_id` we need; OT's GraphQL generic-ifies
+# `actionType` to "INHIBITOR" and is insufficient for this path.
+
+
 # ── GraphQL queries ──────────────────────────────────────────────────────
 
 _SEARCH_TARGET_QUERY = """

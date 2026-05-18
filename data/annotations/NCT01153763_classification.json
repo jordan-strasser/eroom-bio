@@ -16,7 +16,7 @@
       "target_entity": "ENSG00000157764",
       "support": "moderate_support",
       "affecting_arm_id": "all_patients",
-      "reasoning": "Strong differential response between BRAF V600E and V600K patients suggests selective target engagement, though no direct biomarker confirmation"
+      "reasoning": "Strong differential response by BRAF mutation type (59% vs 13% ORR) strongly suggests selective target engagement, though no direct biomarker confirmation"
     },
     {
       "edge_type": "modulates_via",
@@ -40,7 +40,15 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": "all_patients",
-      "reasoning": "Strong clinical responses (59% ORR, 6.3 months PFS, 13.1 months OS in V600E patients) demonstrate that protein phosphorylation biology drives melanoma progression"
+      "reasoning": "59% ORR in V600E patients with 6.3 month PFS and 13.1 month OS demonstrates that protein phosphorylation biology drives melanoma progression"
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "GO:0006468",
+      "target_entity": "ORR_melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "all_patients",
+      "reasoning": "ORR clearly reflected the underlying biology with strong responses in the mechanistically relevant V600E population"
     },
     {
       "edge_type": "endpoint_captures",
@@ -48,7 +56,7 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR translated to meaningful PFS and OS benefits, confirming it captures clinical benefit in melanoma"
+      "reasoning": "59% ORR translated to meaningful PFS (6.3 months) and OS (13.1 months) benefit, confirming ORR captures clinical benefit in melanoma"
     },
     {
       "edge_type": "responds_differently",
@@ -56,7 +64,7 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Clear differential response: BRAF V600E patients had 59% ORR vs 13% in V600K patients, demonstrating mutation-specific efficacy"
+      "reasoning": "Clear differential response between V600E (59% ORR) and V600K (13% ORR) patients demonstrates mutation-specific efficacy"
     }
   ],
   "confidence_overall": 0.7,

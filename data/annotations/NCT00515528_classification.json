@@ -40,7 +40,7 @@
       "target_entity": "R-HSA-9824585",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_alone",
-      "reasoning": "Immune monitoring failed to show biological activity, contradicting the immune costimulation mechanism"
+      "reasoning": "Vaccine failed to produce clinical responses and immune monitoring showed no biological improvement"
     },
     {
       "edge_type": "mechanism_affects",
@@ -48,7 +48,7 @@
       "target_entity": "R-HSA-9824585",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Immune monitoring failed to show biological activity in combination arm as well"
+      "reasoning": "Combination arm also failed with explicit negative immune monitoring data"
     },
     {
       "edge_type": "mechanism_affects",
@@ -56,7 +56,7 @@
       "target_entity": "R-HSA-912526",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Immune monitoring data explicitly showed no improvement in biologic endpoints with denileukin diftitox"
+      "reasoning": "Denileukin diftitox failed to improve any biologic endpoint according to immune monitoring"
     },
     {
       "edge_type": "biology_drives",
@@ -64,7 +64,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_alone",
-      "reasoning": "Complete absence of clinical responses suggests the hypothesized biology does not drive clinical benefit in melanoma"
+      "reasoning": "Complete absence of clinical responses suggests this biology does not drive meaningful anti-melanoma activity"
     },
     {
       "edge_type": "biology_drives",
@@ -72,7 +72,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Complete absence of clinical responses in combination arm also contradicts the biology-disease link"
+      "reasoning": "Combination arm also showed no clinical responses despite hypothesized enhanced immune activation"
     },
     {
       "edge_type": "biology_drives",
@@ -80,15 +80,15 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "No clinical responses observed despite the hypothesized IL-2 receptor signaling enhancement"
+      "reasoning": "IL2RA signaling pathway did not translate to clinical benefit in melanoma"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "composite_response_melanoma",
       "target_entity": "melanoma",
-      "support": "ambiguous",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Clinical response rate was measured but no responses were observed in either arm, making it difficult to assess endpoint validity"
+      "reasoning": "Clinical response rate is a well-established endpoint for melanoma that captures meaningful clinical benefit when achieved"
     }
   ],
   "confidence_overall": 0.6,

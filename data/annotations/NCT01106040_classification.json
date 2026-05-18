@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT01106040",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial demonstrates clear target engagement with 100% concordance with blue dye detection, confirming lymphatic uptake and retention by Lymphoseek. 2. PATHWAY MODULATION: The mechanism worked as intended - Lymphoseek successfully accumulated in lymphatic vessels and enabled sentinel lymph node identification. 3. CLINICAL TRANSLATION: The primary endpoint was met with perfect concordance (effect size 1.0), demonstrating clinical utility for sentinel lymph node mapping. The reverse concordance was partial (60.58%) but still clinically meaningful. 4. POPULATION EFFECTS: No subgroup analysis reported, but the overall population showed successful outcomes. 5. CONFOUNDERS: This is a diagnostic/imaging agent trial rather than a therapeutic trial, with appropriate endpoints for the intended use. The serious adverse events appear unrelated to the mechanism and occur at low rates (<2%).",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - 100% concordance with blue dye detection demonstrates lymphatic uptake, confirming Lymphoseek reached lymphatic vessels as intended. 2. PATHWAY MODULATION: The mechanism worked as predicted - selective lymphatic uptake and retention was achieved, enabling sentinel lymph node identification. 3. CLINICAL TRANSLATION: Primary endpoint was met with perfect concordance (effect size 1.0), demonstrating clinical utility for lymphatic mapping. The reverse concordance was partial (0.6058) but still clinically meaningful. 4. POPULATION EFFECTS: No subgroup analysis reported, but the overall population showed strong response. 5. CONFOUNDERS: This is a diagnostic/imaging agent trial comparing to standard blue dye, not a therapeutic efficacy trial. The safety profile shows low-incidence SAEs (0.65-1.31%) that don't appear dose-limiting for this diagnostic application.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -10,15 +10,7 @@
       "target_entity": "UNKNOWN",
       "support": "strong_support",
       "affecting_arm_id": "lymphoseek_lymphatic_mapping_injection",
-      "reasoning": "100% concordance with blue dye demonstrates clear target engagement and lymphatic uptake"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "UNKNOWN",
-      "target_entity": "other",
-      "support": "strong_support",
-      "affecting_arm_id": "lymphoseek_lymphatic_mapping_injection",
-      "reasoning": "Selective lymphatic uptake and retention mechanism worked as intended"
+      "reasoning": "100% concordance with blue dye detection demonstrates strong target engagement with lymphatic vessels"
     },
     {
       "edge_type": "mechanism_affects",
@@ -26,15 +18,7 @@
       "target_entity": "other__breast_cancer",
       "support": "strong_support",
       "affecting_arm_id": "lymphoseek_lymphatic_mapping_injection",
-      "reasoning": "Lymphatic drainage mapping biology was successfully achieved"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "other__breast_cancer",
-      "target_entity": "breast_cancer",
-      "support": "strong_support",
-      "affecting_arm_id": "lymphoseek_lymphatic_mapping_injection",
-      "reasoning": "Successful lymphatic mapping directly enables sentinel lymph node biopsy for breast cancer staging"
+      "reasoning": "Selective lymphatic uptake mechanism successfully enabled sentinel lymph node identification as demonstrated by perfect concordance"
     },
     {
       "edge_type": "endpoint_captures",
@@ -42,7 +26,7 @@
       "target_entity": "breast_cancer",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Concordance endpoint directly measures the clinical utility of lymphatic mapping for sentinel lymph node identification"
+      "reasoning": "Concordance endpoint successfully captured the clinical utility of lymphatic mapping for sentinel lymph node biopsy in breast cancer patients"
     }
   ],
   "confidence_overall": 0.8,

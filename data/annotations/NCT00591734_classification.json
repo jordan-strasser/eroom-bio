@@ -1,54 +1,22 @@
 {
   "nct_id": "NCT00591734",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either mTOR (everolimus) or VEGF (bevacizumab). Cannot assess if drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream biology changes from mTOR inhibition or angiogenesis suppression. 3. CLINICAL TRANSLATION: Single-arm trial with PFS of 4.0 months, 1-year OS rate of 43%, and ORR of 12.3%. Without comparator or p-values, cannot definitively assess clinical benefit, but these appear to be modest results for metastatic melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm design without control makes efficacy assessment difficult. Significant safety signals including 5.3% death rate and multiple serious adverse events may have limited dosing or treatment duration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether everolimus engaged mTOR or bevacizumab engaged VEGF. Cannot assess target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether mTOR signaling was inhibited or angiogenesis was suppressed. Cannot assess downstream biology changes. 3. CLINICAL TRANSLATION: Single-arm trial with PFS of 4.0 months, 1-year OS rate of 43%, and ORR of 12.3%. Without a control arm or historical benchmark comparison, cannot definitively assess clinical benefit, but these appear to be modest results for metastatic melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm Phase II trial with no control group, making it difficult to attribute outcomes to treatment vs natural disease progression. The trial also had significant safety signals including 5.3% death rate and multiple serious adverse events. Without comparator data or clear historical benchmarks, the modest efficacy signals combined with substantial toxicity suggest insufficient evidence of benefit.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Single-arm trial with no comparator, no p-values, and outcomes marked as 'unknown'. Cannot definitively assess efficacy without historical benchmark or control arm."
+      "evidence": "Single-arm trial with no control group and no historical benchmark comparison provided. Primary endpoint outcome listed as 'unknown' with no p-value. Cannot definitively assess efficacy vs natural disease progression."
     }
   ],
   "edges_to_update": [
-    {
-      "edge_type": "affects",
-      "source_entity": "Bevacizumab",
-      "target_entity": "ENSG00000112715",
-      "support": "ambiguous",
-      "affecting_arm_id": "intervention",
-      "reasoning": "No biomarker data to confirm VEGF pathway engagement"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "Everolimus",
-      "target_entity": "ENSG00000088832",
-      "support": "ambiguous",
-      "affecting_arm_id": "intervention",
-      "reasoning": "No biomarker data to confirm mTOR pathway engagement"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "angiogenesis_inhibition",
-      "target_entity": "GO:0001525",
-      "support": "ambiguous",
-      "affecting_arm_id": "intervention",
-      "reasoning": "No pathway biomarkers to confirm angiogenesis modulation"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "enzyme_inhibition",
-      "target_entity": "R-HSA-166208",
-      "support": "ambiguous",
-      "affecting_arm_id": "intervention",
-      "reasoning": "No pathway biomarkers to confirm mTOR signaling modulation"
-    },
     {
       "edge_type": "biology_drives",
       "source_entity": "GO:0001525",
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "intervention",
-      "reasoning": "Modest clinical results suggest angiogenesis biology may not strongly drive melanoma progression"
+      "reasoning": "Single-arm trial showed modest PFS of 4.0 months and ORR of 12.3% in metastatic melanoma, suggesting angiogenesis inhibition biology did not drive meaningful clinical benefit"
     },
     {
       "edge_type": "biology_drives",
@@ -56,7 +24,23 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "intervention",
-      "reasoning": "Modest clinical results suggest mTOR signaling biology may not strongly drive melanoma progression"
+      "reasoning": "mTORC1 pathway inhibition did not translate to strong clinical benefit based on modest efficacy signals"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "angiogenesis_inhibition",
+      "target_entity": "GO:0001525",
+      "support": "ambiguous",
+      "affecting_arm_id": "intervention",
+      "reasoning": "No biomarker data to assess whether angiogenesis inhibition mechanism actually affected angiogenesis biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-166208",
+      "support": "ambiguous",
+      "affecting_arm_id": "intervention",
+      "reasoning": "No biomarker data to assess whether mTOR enzyme inhibition affected mTORC1 signaling pathway"
     },
     {
       "edge_type": "endpoint_captures",
@@ -64,10 +48,10 @@
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "PFS was measured (4.0 months) but without comparator cannot assess if this translates to clinical benefit"
+      "reasoning": "PFS was measured (4.0 months) but without control arm or historical benchmark, cannot assess whether this represents clinical benefit in metastatic melanoma"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm trial with no control group makes efficacy assessment highly uncertain. Significant safety signals may have impacted treatment delivery. Historical benchmark comparison needed to interpret clinical results."
+  "review_reason": "Single-arm trial with no control group makes it difficult to assess true treatment effect. Significant safety signals including 5.3% death rate may indicate dose-limiting toxicity, but without clear MTD data or dose modification requirements, cannot definitively classify as DLT."
 }

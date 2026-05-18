@@ -86,7 +86,10 @@ class MechanismCategory(str, Enum):
     """Canonical mechanism-of-action categories.
 
     Every MechanismNode id is the value of one of these. LLM inference
-    must map to one of these; unmapped → OTHER.
+    must map to one of these; unmapped → OTHER. New values are added
+    when ChEMBL surfaces a structured `action_type` that doesn't fit an
+    existing category — see ``_CHEMBL_ACTION_TO_MECHANISM`` in
+    ``src/ingestion/opentargets.py`` for the mapping.
     """
     CHECKPOINT_BLOCKADE = "checkpoint_blockade"
     KINASE_INHIBITION = "kinase_inhibition"
@@ -99,9 +102,51 @@ class MechanismCategory(str, Enum):
     HORMONE_MODULATION = "hormone_modulation"
     ANTIMETABOLITE = "antimetabolite"
     DNA_DAMAGE = "dna_damage"
+    # DNA_CROSSLINKING — specific to platinums + classical alkylators
+    # (carboplatin, cisplatin, cyclophosphamide). Distinct from DNA_DAMAGE
+    # which covers the broader category (intercalators, topoisomerase
+    # poisons, radiomimetics). ChEMBL action_type CROSS-LINKING AGENT.
+    DNA_CROSSLINKING = "dna_crosslinking"
+    # MICROTUBULE_BINDING — taxanes, vinca alkaloids. Target =
+    # microtubule polymer (CHEBI) or tubulin family (HGNC). ChEMBL
+    # action_type MICROTUBULE BINDER / TUBULIN INHIBITOR.
+    MICROTUBULE_BINDING = "microtubule_binding"
+    # ANTIGEN_DIRECTED_CYTOTOXICITY — CAR-T, TCR-engineered T cells,
+    # bispecific T-cell engagers. Target = surface antigen (HGNC gene
+    # symbol). Distinct from ANTIBODY_DEPENDENT_CYTOTOXICITY which is
+    # the monoclonal-antibody / NK-cell version of the same idea.
+    ANTIGEN_DIRECTED_CYTOTOXICITY = "antigen_directed_cytotoxicity"
     ANGIOGENESIS_INHIBITION = "angiogenesis_inhibition"
     IMMUNE_COSTIMULATION = "immune_costimulation"
     OTHER = "other"
+
+
+class TargetType(str, Enum):
+    """What kind of entity a TargetNode represents.
+
+    Preserves the scale distinction with downstream layers: a Target is
+    the *specific thing physically engaged* by the compound, never the
+    action (Mechanism) or the downstream pathway (Biology). Putting
+    "G2/M arrest" as a Target would conflate it with Biology; putting
+    "alkylation" as a Target would conflate it with Mechanism.
+    """
+    # Single protein, gene-coded. Default for OT-direct lookups. Id =
+    # Ensembl gene id (ENSG…) or HGNC symbol.
+    PROTEIN = "protein"
+    # Cell-surface antigen used as a homing beacon by the compound
+    # (CD19 for CAR-T, CD20 for rituximab). Gene-coded too — distinct
+    # from PROTEIN only in that the binding mode is recognition-and-
+    # destroy rather than inhibition/agonism. Id = HGNC symbol.
+    ANTIGEN = "antigen"
+    # Macromolecular complex or structural target without a clean gene
+    # id: DNA, microtubule, ribosome. Id = ChEBI (`CHEBI:…`) or GO
+    # cellular_component (`GO:…`).
+    MACROMOLECULE = "macromolecule"
+    # Specific cell population or tissue type — for cell-directed
+    # therapies that have no specific receptor (rare but real:
+    # GCSF→neutrophils when CSF3R isn't the load-bearing target). Id =
+    # Cell Ontology (`CL:…`).
+    CELL_POPULATION = "cell_population"
 
 
 class EndpointClass(str, Enum):
@@ -290,7 +335,19 @@ CompoundNode = InterventionNode
 class TargetNode(BaseModel):
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
+    # For PROTEIN / ANTIGEN targets: the HUGO symbol (PDCD1, CD19).
+    # For MACROMOLECULE / CELL_POPULATION targets there's no gene, so
+    # `gene_symbol` holds the namespaced id ("CHEBI:16991" for DNA,
+    # "CL:0000169" for pancreatic β-cell) — preserving the field as a
+    # human-readable handle without forcing the populator to invent a
+    # fake symbol.
     gene_symbol: str = Field(min_length=1)
+    # See ``TargetType`` — preserves the scale distinction (target =
+    # what the compound physically engages, not the action and not the
+    # downstream pathway). Default ``PROTEIN`` for back-compat with the
+    # pre-target-namespace-expansion graph; new non-protein TargetNodes
+    # set this explicitly.
+    target_type: TargetType = TargetType.PROTEIN
     # Colloquial / clinical-use names ("PD-1", "PDL1", "B7-H1") stored
     # alongside the canonical Ensembl id and HUGO gene_symbol so the
     # graph carries the names a clinician or LLM would actually emit,
@@ -300,6 +357,7 @@ class TargetNode(BaseModel):
     druggability_score: float | None = None
     tissue_expression: dict[str, float] = Field(default_factory=dict)
     essentiality_scores: dict[str, float] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class MechanismNode(BaseModel):
@@ -587,6 +645,13 @@ _ENSG_PATTERN = re.compile(r"^ENSG\d{6,}$")
 _REACTOME_PATTERN = re.compile(r"^R-[A-Z]{3}-\d+$")
 _GO_PATTERN = re.compile(r"^GO:\d{7}$")
 _DRUGBANK_PATTERN = re.compile(r"^DB\d{5,}$")
+# Namespaced ids accepted on non-protein TargetNodes (target-namespace
+# expansion, 2026-05-18). HGNC for gene-coded antigens when Ensembl
+# isn't available; ChEBI for macromolecular structures (DNA, tubulin);
+# Cell Ontology for cell populations.
+_HGNC_PATTERN = re.compile(r"^HGNC:\d+$")
+_CHEBI_PATTERN = re.compile(r"^CHEBI:\d+$")
+_CL_PATTERN = re.compile(r"^CL:\d{7}$")
 # {indication}__{feature_slug}[__{feature_slug}...]
 # Feature slugs may contain single underscores (e.g. "pdcd1_high",
 # "line_first"); the trivial parent population is "{indication}__unselected".
@@ -629,8 +694,22 @@ def normalize_entity(name: str, node_type: str) -> str:
         return slug
 
     if node_type == "TargetNode":
-        if _ENSG_PATTERN.match(raw):
+        # Namespace-prefixed ids pass through verbatim. Ensembl for
+        # proteins (default), HGNC when Ensembl isn't resolved, ChEBI
+        # for macromolecular structures (DNA, tubulin), GO for cellular-
+        # component targets, Cell Ontology for cell populations. See
+        # TargetType for the type-by-namespace convention.
+        if (
+            _ENSG_PATTERN.match(raw)
+            or _HGNC_PATTERN.match(raw)
+            or _CHEBI_PATTERN.match(raw)
+            or _GO_PATTERN.match(raw)
+            or _CL_PATTERN.match(raw)
+        ):
             return raw
+        # Bare gene symbols (legacy path — round-3.3 normalize behavior)
+        # uppercase + alnum-strip. Used when the caller couldn't resolve
+        # to Ensembl but knows the symbol.
         symbol = re.sub(r"[^A-Za-z0-9]+", "", raw).upper()
         if not symbol:
             raise ValueError(f"Target symbol '{name}' could not be normalized")

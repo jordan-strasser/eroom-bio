@@ -1,17 +1,12 @@
 {
   "nct_id": "NCT00520299",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, confirming ADI-PEG 20 successfully depleted its target substrate. Citrulline increase from 23-38 \u03bcM to 158-280 \u03bcM also confirms enzymatic activity. 2. PATHWAY MODULATION: The enzyme inhibition mechanism was engaged as evidenced by arginine depletion and citrulline accumulation, indicating the arginine deiminase pathway was active. Early metabolic response by PET in 7/31 patients suggests some downstream biological effects. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint level - 0/31 patients achieved complete or partial response across all three dose cohorts. Some patients achieved stable disease (9/31, 29%) but no objective responses. 4. POPULATION EFFECTS: ASS-negative tumors showed no improved response versus ASS \u22645% positive tumors, suggesting the hypothesized biomarker-driven mechanism did not translate to differential efficacy. 5. CONFOUNDERS: This was a dose-escalation Phase I study with only 31 patients total, likely underpowered for efficacy detection. However, the complete absence of any objective responses across all dose levels suggests the issue is not just statistical power.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence that ADI-PEG 20 engaged its intended target (arginine). Plasma arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, demonstrating robust target engagement. Plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM, confirming the enzymatic conversion of arginine to citrulline by arginine deiminase. 2. PATHWAY MODULATION: The drug successfully modulated the intended pathway - arginine depletion occurred as expected, and the compensatory increase in citrulline confirms the mechanism was active. Early metabolic response by PET on day 4 in 7/31 patients suggests some biological activity. 3. CLINICAL TRANSLATION: Despite clear target engagement and pathway modulation, clinical translation failed completely. 0/31 patients achieved complete or partial response across all three dose cohorts. Some patients achieved stable disease (9/31, 29%), but this represents disease control rather than tumor regression. 4. POPULATION EFFECTS: ASS-negative tumors (the hypothesized sensitive population) showed no improved response versus ASS \u22645% positive tumors, contradicting the mechanistic hypothesis that ASS-deficient tumors would be more sensitive to arginine depletion. 5. CONFOUNDERS: The trial was adequately designed as a dose-escalation study with clear endpoints. Immunogenicity developed in all patients over time with anti-ADI antibodies, which could have reduced drug efficacy over the treatment course. However, the complete lack of responses even early in treatment suggests this is not the primary issue.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.8,
-      "evidence": "Clear target engagement with arginine depletion and metabolic changes by PET, but complete absence of objective tumor responses (0/31 patients) across all dose cohorts"
-    },
-    {
-      "mode": "underpowered",
-      "confidence": 0.6,
-      "evidence": "Phase I dose-escalation study with only 31 patients total, designed primarily for safety rather than efficacy assessment"
+      "confidence": 0.9,
+      "evidence": "Clear target engagement (arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM) and pathway modulation (citrulline increase to 158-280 \u03bcM) occurred, but 0/31 patients achieved objective response. The biology moved as intended but did not translate to clinical benefit."
     }
   ],
   "edges_to_update": [
@@ -19,84 +14,84 @@
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "UNKNOWN",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "UNKNOWN",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "UNKNOWN",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "enzyme_inhibition__melanoma",
-      "support": "weak_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "enzyme_inhibition__melanoma",
-      "support": "weak_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "enzyme_inhibition__melanoma",
-      "support": "weak_support",
+      "support": "strong_support",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "enzyme_inhibition__melanoma",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "strong_contradict",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
+      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "enzyme_inhibition__melanoma",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "strong_contradict",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
+      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "enzyme_inhibition__melanoma",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "strong_contradict",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
+      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_neoplasm",
       "target_entity": "melanoma",
-      "support": "moderate_support",
+      "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was appropriately measured and reported; tumor response assessment was conducted per standard criteria"
+      "reasoning": "Safety endpoint was measured but this was primarily an efficacy assessment trial. The complete lack of responses makes it difficult to assess whether safety endpoints would capture benefit in this indication."
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.8,
   "needs_expert_review": false,
   "review_reason": null
 }
