@@ -1,43 +1,102 @@
 {
   "nct_id": "NCT01037127",
-  "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows plasma concentrations of 11-23 ng/mL were achieved, indicating the drug reached systemic exposure levels. While specific MEK inhibition biomarkers aren't reported, the achieved plasma levels suggest target engagement occurred. 2. PATHWAY MODULATION: No direct pathway biomarkers (like pERK levels) are reported to confirm MAPK pathway inhibition downstream of MEK. However, the differential response by BRAF mutation subtype (V600E: 26% ORR vs V600K: 0% ORR) suggests pathway-specific activity. 3. CLINICAL TRANSLATION: The primary endpoint was met with 25% ORR in BRAF inhibitor-naive patients. This represents meaningful clinical activity in melanoma where historical response rates to chemotherapy were much lower (~10-15%). The 4.0 month PFS and 14.3 month OS in the naive cohort further support clinical benefit. 4. POPULATION EFFECTS: Clear subgroup differences emerged - V600E mutations responded (26% ORR) while V600K did not (0% ORR). BRAF inhibitor-pretreated patients showed no response (0% ORR), indicating resistance mechanisms. Prior brain metastases reduced but didn't eliminate response (17% vs 27% ORR). 5. CONFOUNDERS: This was a single-arm study, but the 25% ORR substantially exceeds historical controls for melanoma. The safety profile was manageable with no dose-limiting toxicity preventing adequate dosing. The trial successfully demonstrated MEK inhibitor activity in BRAF-mutant melanoma.",
-  "failure_modes": [],
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence - plasma concentrations achieved therapeutic levels (11-23 ng/mL), confirming GSK1120212 reached and engaged MEK1/2. 2. PATHWAY MODULATION: No explicit downstream biomarker data reported, but target engagement at therapeutic levels suggests pathway modulation occurred. 3. CLINICAL TRANSLATION: Mixed results - cohort B (BRAF inhibitor-naive) achieved 25% ORR with success outcome, while cohort A (prior BRAF inhibitor) had 0% ORR with failure outcome. The primary endpoint was met overall. 4. POPULATION EFFECTS: Clear differential response - patients with prior BRAF inhibitor exposure had 0% response vs 25% in BRAF inhibitor-naive patients. BRAF V600E patients showed 26% ORR. 5. CONFOUNDERS: No major trial design issues - adequate sample size, appropriate duration, no dose-limiting toxicity preventing target engagement.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Clear differential efficacy: 25% ORR in BRAF inhibitor-naive patients (cohort B) vs 0% ORR in patients with prior BRAF inhibitor exposure (cohort A). The mechanism works but is limited to treatment-naive population."
+    }
+  ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
+      "source_entity": "gsk1120212",
+      "target_entity": "ENSG00000126934",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Target engagement confirmed with therapeutic plasma levels and clinical efficacy in cohort B"
+    },
+    {
+      "edge_type": "affects",
       "source_entity": "gsk1120212",
       "target_entity": "ENSG00000126934",
       "support": "moderate_support",
-      "reasoning": "Plasma concentrations achieved (11-23 ng/mL) indicate systemic exposure, and the differential response by BRAF mutation subtype suggests target-specific activity, though direct MEK binding/inhibition biomarkers weren't reported"
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Target engagement confirmed with therapeutic plasma levels but no clinical efficacy in prior BRAF inhibitor cohort"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "MEK inhibition mechanism validated by therapeutic drug levels and clinical response in treatment-naive patients"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000126934",
       "target_entity": "kinase_inhibition",
       "support": "moderate_support",
-      "reasoning": "The differential response pattern (V600E responsive, V600K non-responsive, BRAF inhibitor resistance) is consistent with MEK kinase inhibition in the MAPK pathway, though direct pathway biomarkers weren't measured"
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "MEK inhibition mechanism engaged but insufficient for clinical benefit in prior BRAF inhibitor patients"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
-      "target_entity": "kinase_inhibition__cancer",
+      "target_entity": "R-HSA-5674135",
       "support": "strong_support",
-      "reasoning": "25% ORR with 4.0 month PFS and 14.3 month OS in BRAF inhibitor-naive patients demonstrates clear anti-cancer activity from kinase inhibition mechanism"
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Kinase inhibition successfully modulated MAPK pathway as evidenced by clinical response in treatment-naive cohort"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Kinase inhibition likely affected pathway but insufficient to overcome resistance in prior BRAF inhibitor cohort"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "MAPK pathway modulation drove clinical benefit with 25% ORR in treatment-naive patients"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "MAPK pathway modulation insufficient to drive clinical benefit in prior BRAF inhibitor patients (0% ORR)"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_cancer",
       "target_entity": "cancer",
       "support": "moderate_support",
-      "reasoning": "25% ORR was accompanied by meaningful PFS (4.0 months) and OS (14.3 months) benefit, indicating ORR translated to clinical benefit in this melanoma population"
+      "affecting_arm_id": null,
+      "reasoning": "ORR demonstrated clinical benefit translation in treatment-naive population, established surrogate endpoint for melanoma"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cancer__prior_tx_treated",
+      "target_entity": "cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Clear differential response based on prior BRAF inhibitor exposure: 0% vs 25% ORR"
     },
     {
       "edge_type": "responds_differently",
       "source_entity": "cancer__braf_v600e",
       "target_entity": "cancer",
-      "support": "strong_support",
-      "reasoning": "Clear differential response: BRAF V600E patients achieved 26% ORR while V600K patients had 0% ORR, demonstrating mutation-specific efficacy"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "BRAF V600E patients showed 26% ORR, suggesting enhanced response in this genetic subset"
     }
   ],
   "confidence_overall": 0.8,

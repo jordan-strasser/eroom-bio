@@ -49,7 +49,7 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   },
   "arms": [
     {
-      "arm_id": "string—short snake_case slug like 'nivo_only', 'nivo_plus_ipi', 'placebo'",
+      "arm_id": "string—MUST be a `group_id` verbatim from the Arm Groups section of the user prompt. Do not invent or rename. If arm groups weren't reported, use 'arm_1', 'arm_2', etc.",
       "compounds": ["list of compound names—multiple entries means a combination regimen"]
     }
   ],
@@ -63,7 +63,7 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   ],
   "results_by_chain": [
     {
-      "arm_id": "string—must match an arm_id above",
+      "arm_id": "string—MUST exactly match an `arm_id` from the `arms` array above (which itself uses `group_id` values verbatim from the Arm Groups section). No new IDs here.",
       "subgroup_descriptor": "string or null—null means trial-level (parent enrollment) population",
       "endpoint": "string—endpoint label, e.g. 'PFS', 'OS'",
       "effect_size": float or null,

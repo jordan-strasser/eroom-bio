@@ -4,8 +4,8 @@
     "compound": "everolimus + temozolomide",
     "claimed_target": "mTOR + DNA alkylation",
     "proposed_mechanism": "mTOR inhibition combined with DNA alkylating agent",
-    "intended_biology": "inhibition of cell growth and proliferation pathways with DNA damage",
-    "target_population": "patients with stage IV melanoma that cannot be removed by surgery",
+    "intended_biology": "cell cycle arrest and apoptosis through dual pathway inhibition",
+    "target_population": "stage IV melanoma patients with unresectable disease",
     "primary_endpoint": "9-week progression-free survival rate",
     "rationale_strength": "moderate"
   },
@@ -17,8 +17,8 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "hematologic toxicities including neutropenia, thrombocytopenia, and lymphopenia",
-      "one treatment-related death"
+      "Serious hematologic toxicities including neutropenia, thrombocytopenia, and lymphopenia",
+      "One treatment-related death reported"
     ],
     "dose_info": {
       "dose": "",
@@ -101,10 +101,10 @@
   },
   "context": {
     "indication": "stage IV melanoma that cannot be removed by surgery",
-    "comparator": "",
+    "comparator": "none",
     "sample_size": 49,
     "duration": "up to 5 years follow-up",
-    "duration_weeks": null,
+    "duration_weeks": 260.0,
     "investigator_commentary": null
   },
   "arms": [
@@ -149,6 +149,17 @@
       "effect_size": 8.3,
       "p_value": null,
       "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "everolimus",
+      "primary_compound_id": "temozolomide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.7,
+      "hypothesis": "mTOR inhibition may enhance DNA damage response and apoptosis induced by alkylating agents",
+      "citation": "Single-arm combination trial with 44% 9-week PFS rate and 8.3% response rate in stage IV melanoma"
     }
   ]
 }

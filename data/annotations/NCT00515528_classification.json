@@ -1,31 +1,78 @@
 {
   "nct_id": "NCT00515528",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The immune monitoring data explicitly failed to demonstrate improvement in any biologic endpoint, indicating the combination did not successfully engage its intended targets (T-regulatory cells and melanoma antigens). 2. PATHWAY MODULATION: Since target engagement failed, downstream pathway modulation could not occur as predicted. The mechanism of Treg depletion to enhance vaccine response was not achieved. 3. CLINICAL TRANSLATION: With no target engagement or pathway modulation, clinical endpoints predictably failed - 0/7 responses in combination arm vs 1/10 in vaccine alone arm. 4. POPULATION EFFECTS: No subgroup analyses reported, and the small sample size (n=17) would not support meaningful subgroup assessment. 5. CONFOUNDERS: The trial appears adequately designed for a Phase I/II study with appropriate duration (6 weeks) and comparator arm. The failure appears mechanistic rather than due to design issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether denileukin diftitox engaged CD25 or whether the vaccine engaged PMEL. The investigator commentary states 'immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox,' suggesting lack of biological activity. 2. PATHWAY MODULATION: No evidence of downstream pathway changes. The immune monitoring explicitly failed to show improvement in biologic endpoints, indicating the hypothesized regulatory T cell depletion and enhanced vaccine response did not occur. 3. CLINICAL TRANSLATION: Both arms failed - no clinical responses were observed in either the vaccine alone or vaccine plus Ontak combination arm. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Small sample size (N=17) suggests underpowered study. However, the complete lack of responses in both arms and explicit statement that immune monitoring showed no biological improvement suggests the primary issue is lack of target engagement and biological activity rather than just statistical power.",
   "failure_modes": [
     {
       "mode": "no_target_engagement",
-      "confidence": 0.9,
-      "evidence": "Immune monitoring data explicitly failed to demonstrate improvement in any biologic endpoint, indicating neither T-regulatory cell depletion nor enhanced melanoma antigen-specific immune responses were achieved"
+      "confidence": 0.8,
+      "evidence": "Investigator commentary explicitly states 'immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox,' indicating lack of target engagement and biological activity"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Small sample size of 17 patients may have been insufficient to detect treatment effects, though complete lack of responses suggests this is secondary to biological failure"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "4_peptide_melanoma_vaccine+ontak",
-      "target_entity": "UNKNOWN",
-      "support": "strong_contradict",
-      "reasoning": "Immune monitoring data explicitly failed to demonstrate target engagement for either component of the combination therapy"
+      "edge_type": "affects",
+      "source_entity": "4_peptide_melanoma_vaccine",
+      "target_entity": "ENSG00000185664",
+      "support": "ambiguous",
+      "affecting_arm_id": "vaccine_alone",
+      "reasoning": "Vaccine monotherapy arm failed with no biomarker data to confirm target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "4_peptide_melanoma_vaccine",
+      "target_entity": "ENSG00000185664",
+      "support": "ambiguous",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "Vaccine component of combination arm failed with no biomarker data to confirm target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ontak",
+      "target_entity": "ENSG00000134460",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "Immune monitoring explicitly showed no biological improvement with denileukin diftitox, suggesting lack of CD25 target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "R-HSA-912526",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "No biological endpoints improved with denileukin diftitox, contradicting the hypothesized receptor agonism pathway"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9824585",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_alone",
+      "reasoning": "Vaccine monotherapy failed to produce clinical responses, suggesting the pigmentation pathway biology does not drive therapeutic benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-912526",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "Combination arm failed with no biological activity, contradicting the hypothesis that interleukin receptor signaling drives therapeutic benefit"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "composite_response_melanoma",
       "target_entity": "melanoma",
-      "support": "ambiguous",
-      "reasoning": "Primary endpoint was measured (0/7 vs 1/10 response rates) but the failure was due to lack of drug activity rather than endpoint insensitivity, making this uninformative about endpoint validity"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Clinical response rate is a standard and accepted endpoint for melanoma trials that captures clinical benefit when achieved"
     }
   ],
-  "confidence_overall": 0.8,
+  "confidence_overall": 0.6,
   "needs_expert_review": false,
   "review_reason": null
 }

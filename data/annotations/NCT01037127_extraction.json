@@ -2,9 +2,9 @@
   "nct_id": "NCT01037127",
   "therapeutic_hypothesis": {
     "compound": "GSK1120212 (trametinib)",
-    "claimed_target": "MEK",
-    "proposed_mechanism": "MEK inhibition",
-    "intended_biology": "MAPK pathway inhibition in BRAF-mutant tumors",
+    "claimed_target": "MEK1/2",
+    "proposed_mechanism": "MEK kinase inhibition",
+    "intended_biology": "MAPK pathway suppression",
     "target_population": "BRAF mutation-positive melanoma patients",
     "primary_endpoint": "objective response rate",
     "rationale_strength": "strong"
@@ -13,21 +13,21 @@
     "primary_endpoint_met": true,
     "effect_size": "25% ORR (95% CI: 14.1-37.8) in BRAF inhibitor-naive patients",
     "p_value": null,
-    "target_engagement_evidence": "Plasma concentrations achieved: 11-23 ng/mL",
+    "target_engagement_evidence": "Plasma concentrations achieved therapeutic levels (11-23 ng/mL)",
     "biomarker_changes": [],
     "subgroup_findings": [
-      "V600E mutation: 26% ORR vs V600K: 0% ORR",
-      "Prior brain metastases: 17% ORR vs no prior brain mets: 27% ORR",
-      "BRAF inhibitor-pretreated patients: 0% ORR"
+      "BRAF V600E patients: 26% ORR (95% CI: 14.3-41.4)",
+      "Patients without prior brain metastases: 27% ORR (95% CI: 14.6-41.9)",
+      "Prior BRAF inhibitor patients: 0% ORR"
     ],
     "safety_signals": [
-      "Cellulitis (9% SAE rate in standard therapy arm)",
+      "Cellulitis (9% SAE rate in BRAF inhibitor-naive)",
       "Pneumonia, pulmonary embolism, vomiting reported as SAEs",
-      "GI toxicity (diarrhea, vomiting, decreased appetite)"
+      "Gastrointestinal toxicities including diarrhea and vomiting"
     ],
     "dose_info": {
       "dose": "2 mg",
-      "schedule": "once daily",
+      "schedule": "daily oral",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -42,15 +42,15 @@
       {
         "term": "Pneumonia",
         "grade": "",
-        "incidence_treatment_pct": 2.5,
-        "incidence_control_pct": 3.5,
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Pulmonary embolism",
         "grade": "",
-        "incidence_treatment_pct": 2.5,
-        "incidence_control_pct": 1.8,
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
         "serious": true
       },
       {
@@ -59,33 +59,26 @@
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
-      },
-      {
-        "term": "Diarrhea",
-        "grade": "",
-        "incidence_treatment_pct": 2.5,
-        "incidence_control_pct": null,
-        "serious": true
       }
     ]
   },
   "context": {
     "indication": "BRAF mutation-positive melanoma",
-    "comparator": "none (single-arm study with two cohorts)",
+    "comparator": "none (single-arm study)",
     "sample_size": 97,
-    "duration": "up to approximately 57 weeks",
-    "duration_weeks": 57.0,
+    "duration": "up to 134 weeks",
+    "duration_weeks": 134.0,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "prior_braf_inhibitors",
+      "arm_id": "cohort_a",
       "compounds": [
         "GSK1120212"
       ]
     },
     {
-      "arm_id": "prior_standard_therapy",
+      "arm_id": "cohort_b",
       "compounds": [
         "GSK1120212"
       ]
@@ -93,12 +86,32 @@
   ],
   "subgroups": [
     {
+      "raw_descriptor": "Prior BRAF Inhibitors",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Prior Standard Therapy",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    },
+    {
       "raw_descriptor": "Participants With Prior Brain Mets",
       "features": [
         {
           "axis": "other",
           "key": "",
-          "level": "prior_brain_mets"
+          "level": "brain_metastases"
         }
       ]
     },
@@ -108,7 +121,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "no_prior_brain_mets"
+          "level": "no_brain_metastases"
         }
       ]
     },
@@ -133,7 +146,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "no_prior_brain_mets"
+          "level": "no_brain_metastases"
         }
       ]
     },
@@ -150,71 +163,39 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "prior_braf_inhibitors",
-      "subgroup_descriptor": null,
+      "arm_id": "cohort_a",
+      "subgroup_descriptor": "Prior BRAF Inhibitors",
       "endpoint": "ORR",
       "effect_size": 0.0,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": null,
+      "arm_id": "cohort_b",
+      "subgroup_descriptor": "Prior Standard Therapy",
       "endpoint": "ORR",
       "effect_size": 25.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "prior_braf_inhibitors",
-      "subgroup_descriptor": null,
+      "arm_id": "cohort_a",
+      "subgroup_descriptor": "Prior BRAF Inhibitors",
       "endpoint": "PFS",
       "effect_size": 1.8,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": null,
+      "arm_id": "cohort_b",
+      "subgroup_descriptor": "Prior Standard Therapy",
       "endpoint": "PFS",
       "effect_size": 4.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "prior_braf_inhibitors",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 5.5,
-      "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 14.3,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants With Prior Brain Mets",
-      "endpoint": "ORR",
-      "effect_size": 17.0,
-      "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants Without Prior Brain Mets",
-      "endpoint": "ORR",
-      "effect_size": 27.0,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
+      "arm_id": "cohort_b",
       "subgroup_descriptor": "Participants With BRAF Mutation V600E",
       "endpoint": "ORR",
       "effect_size": 26.0,
@@ -222,44 +203,13 @@
       "outcome": "success"
     },
     {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants With BRAF Mutation V600K",
-      "endpoint": "ORR",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants With Prior Brain Mets",
-      "endpoint": "PFS",
-      "effect_size": 3.0,
-      "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
+      "arm_id": "cohort_b",
       "subgroup_descriptor": "Participants Without Prior Brain Mets",
-      "endpoint": "PFS",
-      "effect_size": 4.6,
+      "endpoint": "ORR",
+      "effect_size": 27.0,
       "p_value": null,
       "outcome": "success"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants With BRAF Mutation V600E",
-      "endpoint": "PFS",
-      "effect_size": 4.6,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "prior_standard_therapy",
-      "subgroup_descriptor": "Participants With BRAF Mutation V600K",
-      "endpoint": "PFS",
-      "effect_size": 3.7,
-      "p_value": null,
-      "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

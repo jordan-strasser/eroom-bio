@@ -1,49 +1,94 @@
 {
   "nct_id": "NCT00940225",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers (PK/PD for MET, VEGFR2, RET) are reported, but the multi-kinase inhibitor cabozantinib showed dose-dependent bone scan responses (74.2% at 100mg vs 47.1% at 39.4mg), suggesting target engagement given the known role of these kinases in bone metastases. 2. PATHWAY MODULATION: The bone scan lesion area reductions >30% in CRPC patients indicate downstream biological activity consistent with kinase inhibition affecting angiogenesis and tumor growth pathways. 3. CLINICAL TRANSLATION: Primary endpoints were met with ORR varying by tumor type (0-21.7%), PFS improvement vs placebo (5.5 vs 1.4 months), and notable bone scan responses. The trial demonstrated clinical efficacy across multiple solid tumor types. 4. POPULATION EFFECTS: Clear differential responses by tumor type - ovarian cancer showed highest ORR at 21.7%, CRPC showed strong bone scan responses, while pancreatic cancer showed no objective responses. 5. CONFOUNDERS: No major trial design issues. Safety events were manageable with low incidence rates (<2% for most serious AEs).",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement of MET, VEGFR2, or RET. However, the multi-arm design with dose-dependent responses (74.2% vs 47.1% bone scan response in CRPC cohorts) suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the dose-response relationship and differential activity across tumor types suggests downstream biology was modulated. 3. CLINICAL TRANSLATION: Multiple arms showed clinical benefit - randomized cabozantinib arm achieved 5.5 months PFS vs 1.4 months placebo, CRPC cohorts showed strong bone scan responses (74.2% and 47.1%), and ovarian cohort achieved 21.7% ORR. Primary endpoints were met. 4. POPULATION EFFECTS: Clear differential responses across tumor types - CRPC showed best bone scan response, ovarian cancer showed highest ORR, suggesting mechanism works better in certain populations. 5. CONFOUNDERS: No major confounders identified. The trial was adequately powered with long duration (191.6 weeks) and showed consistent benefit across multiple arms and endpoints.",
   "failure_modes": [
     {
-      "mode": "efficacy_in_subgroup_only",
+      "mode": "insufficient_information",
       "confidence": 0.3,
-      "evidence": "While the trial succeeded overall, there was notable heterogeneity in response across tumor types, with some indications like pancreatic cancer showing no responses while others like ovarian cancer showed 21.7% ORR"
+      "evidence": "No biomarker or target engagement data available to confirm mechanism of action, though clinical efficacy suggests targets were engaged"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "cabozantinib",
       "target_entity": "ENSG00000105976",
       "support": "moderate_support",
-      "reasoning": "Dose-dependent bone scan responses (74.2% at 100mg vs 47.1% at 39.4mg) suggest target engagement, though direct PK/PD biomarkers for MET binding were not reported"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000105976",
-      "target_entity": "kinase_inhibition",
-      "support": "moderate_support",
-      "reasoning": "Bone scan lesion reductions and clinical responses consistent with kinase inhibition mechanism, though specific pathway biomarkers not detailed"
+      "affecting_arm_id": "randomized_stage_cabozantinib_xl184",
+      "reasoning": "Randomized arm showed clear PFS benefit vs placebo (5.5 vs 1.4 months), suggesting target engagement"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
-      "target_entity": "kinase_inhibition__solid_tumors",
-      "support": "strong_support",
-      "reasoning": "Clear biological activity demonstrated by bone scan responses and tumor responses across multiple solid tumor types, with dose-response relationship"
+      "target_entity": "R-HSA-5673001",
+      "support": "moderate_support",
+      "affecting_arm_id": "randomized_stage_cabozantinib_xl184",
+      "reasoning": "Clinical efficacy in randomized setting suggests kinase inhibition modulated downstream pathways"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "kinase_inhibition__solid_tumors",
-      "target_entity": "solid_tumors",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "solid_tumor",
+      "support": "moderate_support",
+      "affecting_arm_id": "randomized_stage_cabozantinib_xl184",
+      "reasoning": "PFS improvement vs placebo demonstrates RAF/MAP kinase pathway drives solid tumor progression"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cabozantinib",
+      "target_entity": "ENSG00000105976",
       "support": "strong_support",
-      "reasoning": "Clinical efficacy demonstrated across multiple solid tumor types with ORR up to 21.7% and PFS improvement vs placebo"
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_100mg",
+      "reasoning": "74.2% bone scan response rate in CRPC cohort at 100mg dose strongly suggests target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5673001",
+      "support": "strong_support",
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_100mg",
+      "reasoning": "High bone scan response rate suggests effective pathway modulation in CRPC"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "solid_tumor",
+      "support": "strong_support",
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_100mg",
+      "reasoning": "74.2% bone scan response demonstrates pathway drives disease in CRPC subset"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cabozantinib",
+      "target_entity": "ENSG00000105976",
+      "support": "moderate_support",
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_39_4mg",
+      "reasoning": "47.1% bone scan response at lower dose shows dose-dependent target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5673001",
+      "support": "moderate_support",
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_39_4mg",
+      "reasoning": "Lower but still substantial bone scan response suggests pathway modulation at reduced dose"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "solid_tumor",
+      "support": "moderate_support",
+      "affecting_arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_39_4mg",
+      "reasoning": "47.1% bone scan response confirms pathway drives disease even at lower dose"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_cancer",
-      "target_entity": "solid_tumors",
+      "target_entity": "solid_tumor",
       "support": "moderate_support",
-      "reasoning": "ORR showed clear treatment effect with tumor-type dependent responses (0-21.7%), and was accompanied by PFS improvement, indicating clinical benefit translation"
+      "affecting_arm_id": null,
+      "reasoning": "ORR of 21.7% in ovarian cancer and bone scan responses in CRPC demonstrate endpoint captures clinical benefit across tumor types"
     }
   ],
   "confidence_overall": 0.7,

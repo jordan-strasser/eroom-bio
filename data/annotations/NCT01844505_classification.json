@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT01844505",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: While direct target engagement biomarkers aren't reported, the trial demonstrates clear PD-L1 stratification effects, with PD-L1 \u22651% and \u22655% patients showing superior responses. This strongly suggests both PD-1 and CTLA-4 pathways were engaged, as PD-L1 expression is a validated biomarker for checkpoint inhibitor activity. 2. PATHWAY MODULATION: The PD-L1 stratification data confirms downstream immune checkpoint biology was modulated as predicted. Higher PD-L1 expression correlated with better responses, consistent with checkpoint blockade mechanism. 3. CLINICAL TRANSLATION: Both primary endpoints (PFS and OS) were met with highly significant p-values (p=0.0001). The combination showed superior efficacy: PFS 11.5 months vs 2.89 months for ipilimumab alone (HR=0.42), and OS median not reached vs 19.98 months (HR=0.55). 4. POPULATION EFFECTS: Clear biomarker-driven subgroup effects were observed, with PD-L1 \u22651% patients showing PFS of 16.72 months and PD-L1 \u22655% patients showing 22.11 months, demonstrating the mechanism works better in biomarker-positive populations. 5. CONFOUNDERS: No major confounders identified. The trial was adequately powered with 945 patients and long follow-up (556 weeks). Safety profile was manageable despite higher immune-related adverse events in the combination arm.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. PD-L1 expression stratification showed differential responses across expression levels, and PD-L1 expression levels correlated with treatment response, confirming both PD-1 and CTLA-4 pathway engagement. 2. PATHWAY MODULATION: Clear downstream biology changes as predicted. The differential responses based on PD-L1 expression levels demonstrate that checkpoint blockade pathways were modulated appropriately. The combination showed synergistic effects suggesting both pathways were engaged. 3. CLINICAL TRANSLATION: Excellent clinical translation. Primary endpoints (PFS and OS) were met with statistical significance (p=0.0001). Combination arm achieved PFS of 11.5 months vs 6.93 months for nivolumab monotherapy vs 2.86 months for ipilimumab monotherapy. OS showed even more dramatic improvement: 71.92 months (combo) vs 36.93 months (nivo) vs 19.94 months (ipi). ORR was 58.3% in combination arm. 4. POPULATION EFFECTS: Clear subgroup effects observed. PD-L1 \u22651% patients showed superior PFS with nivolumab monotherapy, while PD-L1 <1% patients benefited more from combination therapy. Combination therapy showed consistent benefit across PD-L1 expression levels. 5. CONFOUNDERS: No major confounders identified. Trial was adequately powered with 945 patients over 556 weeks. While combination arm showed increased toxicity, this did not prevent efficacy demonstration.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -9,84 +9,152 @@
       "source_entity": "nivolumab",
       "target_entity": "ENSG00000188389",
       "support": "strong_support",
-      "reasoning": "PD-L1 stratification effects strongly confirm PD-1 pathway engagement with clear dose-response relationship"
+      "affecting_arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Nivolumab monotherapy arm achieved significant OS improvement (36.93 months, p=0.0001) and PFS benefit (6.93 months), with PD-L1 stratification confirming target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Nivolumab component of combination arm contributed to exceptional outcomes (PFS 11.5 months, OS 71.92 months, ORR 58.3%, all p=0.0001)"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Ipilimumab monotherapy showed partial efficacy (OS 19.94 months, PFS 2.86 months) demonstrating target engagement but modest single-agent activity"
     },
     {
       "edge_type": "affects",
       "source_entity": "ipilimumab",
       "target_entity": "ENSG00000163599",
       "support": "strong_support",
-      "reasoning": "Combination superiority over either monotherapy confirms CTLA-4 engagement contributing to efficacy"
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Ipilimumab component of combination showed synergistic benefit, with combination dramatically outperforming either monotherapy, confirming strong target engagement in combination setting"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000188389",
       "target_entity": "checkpoint_blockade",
       "support": "strong_support",
-      "reasoning": "PD-L1 biomarker stratification confirms PD-1 acts via checkpoint blockade mechanism"
+      "affecting_arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "PD-1 target engagement led to checkpoint blockade mechanism activation as evidenced by clinical efficacy and PD-L1 stratified responses"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "PD-1 engagement in combination setting demonstrated strong checkpoint blockade mechanism activation"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000163599",
       "target_entity": "checkpoint_blockade",
       "support": "strong_support",
-      "reasoning": "Combination efficacy confirms CTLA-4 acts via checkpoint blockade mechanism"
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "CTLA-4 engagement in combination demonstrated strong checkpoint blockade mechanism with synergistic effects"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "CTLA-4 monotherapy showed checkpoint blockade activation but with more modest efficacy compared to combination"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
       "target_entity": "R-HSA-389948",
       "support": "strong_support",
-      "reasoning": "PD-L1 stratification directly confirms checkpoint blockade modulates PD-1 co-inhibition pathway"
+      "affecting_arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Checkpoint blockade mechanism successfully modulated PD-1 co-inhibition biology as demonstrated by clinical efficacy"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389356",
+      "target_entity": "R-HSA-389948",
       "support": "strong_support",
-      "reasoning": "Combination superiority confirms checkpoint blockade modulates CD28 co-stimulation pathway"
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Checkpoint blockade mechanism strongly affected PD-1 co-inhibition biology in combination setting"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Checkpoint blockade mechanism successfully modulated CTLA-4 co-inhibition biology in combination with synergistic effects"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "Checkpoint blockade mechanism affected CTLA-4 co-inhibition biology but with more modest clinical translation as monotherapy"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "R-HSA-389948",
       "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Primary endpoints met with p=0.0001 confirms PD-1 co-inhibition pathway drives melanoma progression"
+      "affecting_arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "PD-1 co-inhibition biology strongly drives melanoma as demonstrated by significant OS and PFS improvements with nivolumab monotherapy"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389356",
+      "source_entity": "R-HSA-389948",
       "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Combination superiority over PD-1 blockade alone confirms CD28 co-stimulation pathway drives melanoma"
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "PD-1 co-inhibition biology drives melanoma with exceptional clinical outcomes in combination setting"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "R-HSA-389948",
-      "target_entity": "PFS_melanoma",
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "PFS improvement with clear PD-L1 stratification confirms endpoint reflects PD-1 pathway biology"
+      "affecting_arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "CTLA-4 co-inhibition biology drives melanoma as evidenced by synergistic effects in combination therapy"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "R-HSA-389356",
-      "target_entity": "PFS_melanoma",
-      "support": "strong_support",
-      "reasoning": "Combination PFS superiority confirms endpoint reflects CD28 co-stimulation biology"
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "reasoning": "CTLA-4 co-inhibition biology drives melanoma but with more modest effect as monotherapy compared to combination"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "PFS_melanoma",
       "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "PFS hit at p=0.0001 with clinically meaningful effect size and regulatory acceptance as surrogate endpoint"
+      "affecting_arm_id": null,
+      "reasoning": "PFS endpoint successfully captured clinical benefit in melanoma with clear dose-response relationship across arms and statistical significance"
     },
     {
       "edge_type": "responds_differently",
       "source_entity": "melanoma__cd274_positive",
       "target_entity": "melanoma",
-      "support": "strong_support",
-      "reasoning": "Clear PD-L1 stratification with \u22651% and \u22655% subgroups showing superior responses confirms biomarker-defined differential response"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PD-L1 \u22651% patients showed superior PFS with nivolumab monotherapy, demonstrating differential response based on PD-L1 expression"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__cd274_negative",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PD-L1 <1% patients benefited more from combination therapy than monotherapy, showing differential response pattern"
     }
   ],
   "confidence_overall": 0.9,

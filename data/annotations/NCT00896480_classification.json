@@ -1,31 +1,49 @@
 {
   "nct_id": "NCT00896480",
-  "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with dramatic increase from ~14 to ~13,789 EL.U/mL at W13. 2. PATHWAY MODULATION: Immune pathway was activated as evidenced by CD4+ T-cell responses in 15/24 patients and CD8+ T-cell responses in 3/24 patients, confirming downstream immune activation. 3. CLINICAL TRANSLATION: Overall response rate was modest at 4/24 patients (16.7%), which is below typical expectations for melanoma immunotherapy but represents some clinical activity. 4. POPULATION EFFECTS: Strong subgroup effect observed - GS+/+ patients had 3/8 objective responses (37.5%) vs GS+/- 1/8 (12.5%) vs GS- 0/8 (0%), with median TTF of 14.8 vs 2.3 vs 2.4 months respectively. This suggests the mechanism works specifically in the biomarker-positive population. 5. CONFOUNDERS: Single-arm design limits interpretation, small sample size (n=24), and lack of control arm make it difficult to assess true treatment effect vs natural disease course.",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with concentrations increasing from ~14 EL.U/mL to 8000-14000 EL.U/mL at week 13. 2. PATHWAY MODULATION: Evidence of downstream immune activation - CD4+ T-cell responses detected in 15/24 patients and CD8+ T-cell responses in 3/24 patients, indicating immune system engagement. 3. CLINICAL TRANSLATION: Primary endpoint failed - only 4/24 patients (16.7%) achieved objective response, well below typical efficacy thresholds for melanoma immunotherapy. 4. POPULATION EFFECTS: Strong subgroup effect observed - gene signature positive patients (GS+/+) showed 3/8 objective responses vs 1/8 in GS+/- and 0/8 in GS- patients, with median time to treatment failure of 14.8 months vs 2.3-2.4 months in other groups. 5. CONFOUNDERS: Single-arm design limits interpretation, but the clear subgroup stratification suggests the mechanism works in a biomarker-defined subset.",
   "failure_modes": [
     {
       "mode": "efficacy_in_subgroup_only",
       "confidence": 0.8,
-      "evidence": "Clear biomarker-driven efficacy signal in GS+/+ subgroup (3/8 responses, 14.8 month TTF) versus no responses in GS- patients (0/8) and poor responses in GS+/- (1/8, 2.3 month TTF)"
+      "evidence": "Gene signature positive patients (GS+/+) showed 37.5% response rate (3/8) and 14.8 months median time to treatment failure, while GS+/- and GS- patients had minimal responses and 2.3-2.4 months time to treatment failure"
     }
   ],
   "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "immunotherapeutic_gsk2132231a",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "gsk2132231a_group",
+      "reasoning": "Strong antibody seroconversion and immune responses indicate target engagement, but target is unknown in this trial"
+    },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "immune_costimulation",
       "target_entity": "immune_costimulation__melanoma",
       "support": "moderate_support",
-      "reasoning": "Strong immune activation demonstrated with CD4+ responses in 15/24 patients and CD8+ responses in 3/24 patients, confirming mechanism engaged downstream biology"
+      "affecting_arm_id": "gsk2132231a_group",
+      "reasoning": "CD4+ and CD8+ T-cell responses detected indicate immune costimulation mechanism was activated"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "gsk2132231a_group",
+      "reasoning": "Overall population failed to respond (16.7% ORR) despite immune activation, suggesting immune costimulation alone insufficient for melanoma control in unselected population"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_melanoma",
       "target_entity": "melanoma",
-      "support": "weak_support",
-      "reasoning": "ORR of 16.7% overall shows some clinical activity, though modest. Single-arm design limits interpretation of clinical benefit translation"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Objective response rate was measured and showed clear differentiation between biomarker subgroups, indicating it captures meaningful clinical benefit in this indication"
     }
   ],
   "confidence_overall": 0.7,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design with small sample size makes it difficult to definitively assess treatment effect. Strong subgroup signal suggests biomarker-driven approach may be warranted but needs validation in controlled setting."
+  "review_reason": "Strong subgroup effect suggests mechanism works in biomarker-defined population, but target is unknown and single-arm design limits interpretation of overall failure"
 }

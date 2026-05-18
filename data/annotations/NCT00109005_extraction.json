@@ -2,11 +2,11 @@
   "nct_id": "NCT00109005",
   "therapeutic_hypothesis": {
     "compound": "lenalidomide",
-    "claimed_target": "immunomodulatory pathways",
-    "proposed_mechanism": "immunomodulation and anti-angiogenic effects",
-    "intended_biology": "immune system activation and tumor vasculature disruption",
+    "claimed_target": "unclear",
+    "proposed_mechanism": "immunomodulatory and anti-angiogenic effects",
+    "intended_biology": "tumor growth inhibition and immune system activation",
     "target_population": "patients with advanced ocular melanoma",
-    "primary_endpoint": "clinical response rate by RECIST criteria",
+    "primary_endpoint": "clinical response rate by RECIST",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -21,10 +21,10 @@
     ],
     "safety_signals": [
       "colitis reported in both dose cohorts",
-      "deaths due to disease progression"
+      "deaths from disease progression occurred in both cohorts"
     ],
     "dose_info": {
-      "dose": "25 mg or 5 mg",
+      "dose": "25 mg (cohort 1) or 5 mg (cohort 2)",
       "schedule": "daily for 21 days with 7 day rest (28-day cycles)",
       "max_tolerated_dose": "",
       "dose_modifications": ""
@@ -33,14 +33,14 @@
       {
         "term": "colitis",
         "grade": "",
-        "incidence_treatment_pct": 11.8,
+        "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "death due to disease progression",
+        "term": "death from disease progression",
         "grade": "",
-        "incidence_treatment_pct": 11.8,
+        "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       }
@@ -48,7 +48,7 @@
   },
   "context": {
     "indication": "advanced ocular melanoma",
-    "comparator": "none (single-arm dose comparison)",
+    "comparator": "none (single-arm dose-finding study)",
     "sample_size": 17,
     "duration": "up to 2 years",
     "duration_weeks": 104.0,
@@ -56,13 +56,13 @@
   },
   "arms": [
     {
-      "arm_id": "cohort_1_25mg",
+      "arm_id": "cohort_1_25_mg_lenalidomide_revlimid",
       "compounds": [
         "lenalidomide"
       ]
     },
     {
-      "arm_id": "cohort_2_5mg",
+      "arm_id": "cohort_2_5_mg_lenalidomide_revlimid",
       "compounds": [
         "lenalidomide"
       ]
@@ -73,7 +73,7 @@
       "raw_descriptor": "Complete Response",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "complete_response"
         }
@@ -83,7 +83,7 @@
       "raw_descriptor": "Partial Response",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "partial_response"
         }
@@ -93,7 +93,7 @@
       "raw_descriptor": "Progressive Disease",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "progressive_disease"
         }
@@ -103,7 +103,7 @@
       "raw_descriptor": "Stable Disease",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "stable_disease"
         }
@@ -112,36 +112,37 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "cohort_1_25mg",
+      "arm_id": "cohort_1_25_mg_lenalidomide_revlimid",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "response rate",
+      "endpoint": "clinical response",
       "effect_size": 0.0,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "cohort_1_25mg",
-      "subgroup_descriptor": "Partial Response",
-      "endpoint": "response rate",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "cohort_2_5mg",
+      "arm_id": "cohort_2_5_mg_lenalidomide_revlimid",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "response rate",
+      "endpoint": "clinical response",
       "effect_size": 0.0,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "cohort_2_5mg",
+      "arm_id": "cohort_1_25_mg_lenalidomide_revlimid",
       "subgroup_descriptor": "Partial Response",
-      "endpoint": "response rate",
+      "endpoint": "clinical response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cohort_2_5_mg_lenalidomide_revlimid",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "clinical response",
       "effect_size": 0.0,
       "p_value": null,
       "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

@@ -1,30 +1,28 @@
 {
   "nct_id": "NCT00940225",
   "therapeutic_hypothesis": {
-    "compound": "Cabozantinib (XL184)",
+    "compound": "cabozantinib",
     "claimed_target": "MET, VEGFR2, RET",
-    "proposed_mechanism": "Multi-kinase inhibition targeting angiogenesis and tumor growth pathways",
-    "intended_biology": "Inhibition of angiogenesis and tumor cell proliferation",
-    "target_population": "Adults with advanced solid tumors",
-    "primary_endpoint": "Objective Response Rate (ORR), Bone Scan Response (BSR), Progression-Free Survival (PFS)",
+    "proposed_mechanism": "multi-kinase inhibition",
+    "intended_biology": "angiogenesis and tumor growth inhibition",
+    "target_population": "adults with advanced solid tumors",
+    "primary_endpoint": "objective response rate, bone scan response, progression-free survival",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "ORR varied by tumor type: 0-21.7%; PFS improvement vs placebo across multiple tumor types",
+    "effect_size": "ORR 4.7-21.7% across tumor types; PFS improvement vs placebo (5.5 vs 1.4 months in CRPC)",
     "p_value": null,
     "target_engagement_evidence": null,
-    "biomarker_changes": [
-      "Bone scan lesion area reduction >30% in 74.2% of CRPC patients (100mg) and 47.1% (39.4mg)"
-    ],
+    "biomarker_changes": [],
     "subgroup_findings": [
-      "CRPC showed notable bone scan response",
-      "Ovarian cancer had highest ORR at 21.7%",
-      "Pancreatic cancer showed no objective responses"
+      "CRPC showed best bone scan response (74.2% at 100mg)",
+      "Ovarian cancer showed highest ORR (21.7%)",
+      "Dose-dependent bone scan response in CRPC (74.2% vs 47.1%)"
     ],
     "safety_signals": [
-      "Serious cardiac events including myocardial infarction",
-      "Hematologic toxicities including anemia and thrombocytopenia"
+      "Serious cardiac events including MI, angina, atrial fibrillation",
+      "Hematologic toxicity including anemia and thrombocytopenia"
     ],
     "dose_info": {
       "dose": "100 mg, 39.4 mg",
@@ -34,35 +32,35 @@
     },
     "adverse_events": [
       {
-        "term": "Anaemia",
+        "term": "anaemia",
         "grade": "",
         "incidence_treatment_pct": 1.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Thrombocytopenia",
+        "term": "thrombocytopenia",
         "grade": "",
         "incidence_treatment_pct": 0.2,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Acute Myocardial Infarction",
+        "term": "acute myocardial infarction",
         "grade": "",
         "incidence_treatment_pct": 0.8,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Angina Pectoris",
+        "term": "angina pectoris",
         "grade": "",
         "incidence_treatment_pct": 0.4,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Atrial Fibrillation",
+        "term": "atrial fibrillation",
         "grade": "",
         "incidence_treatment_pct": 0.4,
         "incidence_control_pct": null,
@@ -71,7 +69,7 @@
     ]
   },
   "context": {
-    "indication": "Advanced solid tumors",
+    "indication": "advanced solid tumors",
     "comparator": "placebo",
     "sample_size": 730,
     "duration": "up to 44 months",
@@ -80,52 +78,52 @@
   },
   "arms": [
     {
-      "arm_id": "lead_in_cabo",
+      "arm_id": "lead_in_stage_cabozantinib_xl184",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     },
     {
-      "arm_id": "randomized_cabo",
+      "arm_id": "randomized_stage_cabozantinib_xl184",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     },
     {
-      "arm_id": "randomized_placebo",
+      "arm_id": "randomized_stage_placebo",
       "compounds": [
-        "Placebo"
+        "placebo"
       ]
     },
     {
-      "arm_id": "open_label_cabo",
+      "arm_id": "open_label_extension_cabozantinib_xl184",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     },
     {
-      "arm_id": "nre_crpc_100mg",
+      "arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_100mg",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     },
     {
-      "arm_id": "nre_crpc_39mg",
+      "arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_39_4mg",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     },
     {
-      "arm_id": "nre_ovarian",
+      "arm_id": "a_non_randomized_expansion_nre_cohort_ovarian",
       "compounds": [
-        "Cabozantinib"
+        "cabozantinib"
       ]
     }
   ],
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "randomized_cabo",
+      "arm_id": "randomized_stage_cabozantinib_xl184",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 5.5,
@@ -133,23 +131,15 @@
       "outcome": "success"
     },
     {
-      "arm_id": "randomized_placebo",
+      "arm_id": "randomized_stage_placebo",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.4,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "failure"
     },
     {
-      "arm_id": "lead_in_cabo",
-      "subgroup_descriptor": null,
-      "endpoint": "ORR",
-      "effect_size": 10.0,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "nre_crpc_100mg",
+      "arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_100mg",
       "subgroup_descriptor": null,
       "endpoint": "BSR",
       "effect_size": 74.2,
@@ -157,12 +147,13 @@
       "outcome": "success"
     },
     {
-      "arm_id": "nre_crpc_39mg",
+      "arm_id": "non_randomized_expansion_nre_cohort_castrate_resistant_prostate_cancer_crpc_39_4mg",
       "subgroup_descriptor": null,
       "endpoint": "BSR",
       "effect_size": 47.1,
       "p_value": null,
       "outcome": "success"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

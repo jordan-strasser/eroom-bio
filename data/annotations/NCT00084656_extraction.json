@@ -1,30 +1,29 @@
 {
   "nct_id": "NCT00084656",
   "therapeutic_hypothesis": {
-    "compound": "ipilimumab + Tyrosinase/gp100/MART-1 Peptides",
+    "compound": "ipilimumab + tyrosinase/gp100/MART-1 peptides",
     "claimed_target": "CTLA-4",
-    "proposed_mechanism": "CTLA-4 blockade to enhance T-cell activation combined with melanoma antigen vaccination",
-    "intended_biology": "immune checkpoint inhibition and antigen-specific T-cell priming",
-    "target_population": "resected stage III or stage IV melanoma",
+    "proposed_mechanism": "CTLA-4 blockade with peptide vaccination",
+    "intended_biology": "immune checkpoint inhibition with tumor antigen presentation",
+    "target_population": "resected stage III or IV melanoma",
     "primary_endpoint": "immune-related adverse events and time to disease relapse",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": null,
-    "effect_size": "Median time to relapse not reached in any arm",
+    "effect_size": "median time to relapse not reached in combination arms",
     "p_value": null,
-    "target_engagement_evidence": "HAHA responses observed indicating immune activation",
+    "target_engagement_evidence": "HAHA antibody responses observed",
     "biomarker_changes": [
-      "HAHA positive responses: 5/24 (3mg/kg + peptides), 2/24 (10mg/kg + peptides), 1/24 (10mg/kg alone)"
+      "HAHA positive responses in 5/25 (3mg/kg combo), 2/25 (10mg/kg combo), 1/26 (10mg/kg mono)"
     ],
     "subgroup_findings": [
-      "Higher irAE rates with combination therapy vs monotherapy",
-      "Laboratory abnormalities generally grade 1-2"
+      "Higher irAE rates in 3mg/kg combo (80%) vs 10mg/kg combo (72%) vs 10mg/kg mono (65.4%)"
     ],
     "safety_signals": [
-      "High rates of immune-related adverse events (65-80%)",
-      "Serious endocrine toxicities including hypopituitarism",
-      "Gastrointestinal toxicities including colitis and diarrhea"
+      "High rates of immune-related adverse events",
+      "Gastrointestinal toxicity including colitis and diarrhea",
+      "Endocrine toxicity including hypopituitarism and hypothyroidism"
     ],
     "dose_info": {
       "dose": "3 mg/kg or 10 mg/kg ipilimumab; 1 mg peptides",
@@ -51,14 +50,14 @@
         "term": "Hypopituitarism",
         "grade": "",
         "incidence_treatment_pct": 8.0,
-        "incidence_control_pct": null,
+        "incidence_control_pct": 7.7,
         "serious": true
       },
       {
         "term": "Hypothyroidism",
         "grade": "",
-        "incidence_treatment_pct": 3.8,
-        "incidence_control_pct": null,
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.8,
         "serious": true
       },
       {
@@ -71,22 +70,22 @@
       {
         "term": "Colitis",
         "grade": "",
-        "incidence_treatment_pct": 6.7,
-        "incidence_control_pct": null,
+        "incidence_treatment_pct": 8.0,
+        "incidence_control_pct": 3.8,
         "serious": true
       },
       {
         "term": "Diarrhoea",
         "grade": "",
-        "incidence_treatment_pct": 8.0,
-        "incidence_control_pct": null,
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": 3.8,
         "serious": true
       },
       {
         "term": "Diarrhoea haemorrhagic",
         "grade": "",
-        "incidence_treatment_pct": 7.7,
-        "incidence_control_pct": null,
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 7.7,
         "serious": true
       },
       {
@@ -106,8 +105,8 @@
     ]
   },
   "context": {
-    "indication": "resected stage III or stage IV melanoma",
-    "comparator": "dose comparison and combination vs monotherapy",
+    "indication": "resected stage III or IV melanoma",
+    "comparator": "10 mg/kg ipilimumab monotherapy",
     "sample_size": 77,
     "duration": "up to 3 years including maintenance phase",
     "duration_weeks": 156.0,
@@ -115,23 +114,10 @@
   },
   "arms": [
     {
-      "arm_id": "ipi_3mg_peptides",
+      "arm_id": "arm_1",
       "compounds": [
         "ipilimumab",
-        "Tyrosinase/gp100/MART-1 Peptides"
-      ]
-    },
-    {
-      "arm_id": "ipi_10mg_peptides",
-      "compounds": [
-        "ipilimumab",
-        "Tyrosinase/gp100/MART-1 Peptides"
-      ]
-    },
-    {
-      "arm_id": "ipi_10mg_alone",
-      "compounds": [
-        "ipilimumab"
+        "tyrosinase/gp100/MART-1 peptides"
       ]
     }
   ],
@@ -169,7 +155,7 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "ipi_3mg_peptides",
+      "arm_id": "arm_1",
       "subgroup_descriptor": null,
       "endpoint": "irAEs",
       "effect_size": 80.0,
@@ -177,44 +163,31 @@
       "outcome": "success"
     },
     {
-      "arm_id": "ipi_10mg_peptides",
+      "arm_id": "arm_1",
       "subgroup_descriptor": null,
-      "endpoint": "irAEs",
-      "effect_size": 72.0,
+      "endpoint": "time to relapse",
+      "effect_size": null,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "unknown"
     },
     {
-      "arm_id": "ipi_10mg_alone",
-      "subgroup_descriptor": null,
-      "endpoint": "irAEs",
-      "effect_size": 65.4,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "ipi_3mg_peptides",
-      "subgroup_descriptor": "HAHA positive at baseline",
-      "endpoint": "HAHA response",
+      "arm_id": "arm_1",
+      "subgroup_descriptor": "HAHA positive",
+      "endpoint": "immunologic response",
       "effect_size": 5.0,
       "p_value": null,
       "outcome": "success"
-    },
+    }
+  ],
+  "modulation_entries": [
     {
-      "arm_id": "ipi_10mg_peptides",
-      "subgroup_descriptor": "HAHA positive at baseline",
-      "endpoint": "HAHA response",
-      "effect_size": 1.0,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "ipi_10mg_alone",
-      "subgroup_descriptor": "HAHA positive at baseline",
-      "endpoint": "HAHA response",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "failure"
+      "modulator_compound_id": "tyrosinase_gp100_mart1_peptides",
+      "primary_compound_id": "ipilimumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "peptide vaccination enhances antigen presentation to amplify CTLA-4 blockade immune activation",
+      "citation": "median time to relapse not reached in combination arms with similar irAE rates between combination and monotherapy"
     }
   ]
 }

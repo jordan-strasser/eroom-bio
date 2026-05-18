@@ -1,24 +1,115 @@
 {
   "nct_id": "NCT01160445",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CD4 target engagement by zanolimumab. Without PD/PK data or CD4 depletion markers, target engagement cannot be verified. 2. PATHWAY MODULATION: No evidence of downstream immune modulation. The proposed mechanism involves CD4 T cell depletion followed by IL-2-mediated immune activation, but no biomarkers were measured to confirm this pathway activity. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint - 0% response rate with all 9 patients (7 melanoma, 2 renal) experiencing progressive disease. This represents a clear negative result. 4. POPULATION EFFECTS: No differential responses observed - both melanoma (7/7) and renal cancer (2/2) patients had progressive disease, indicating the mechanism failed across both tumor types. 5. CONFOUNDERS: The trial was terminated early due to inability to obtain study drug, but 9 patients were treated and evaluated. The sample size is very small (N=9) which limits power, but the 0% response rate is so poor that even a larger study would likely fail. The complete lack of any responses suggests fundamental mechanism failure rather than just statistical power issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether zanolimumab engaged CD4 or aldesleukin engaged IL2RA. The trial provides no PK/PD evidence of target engagement. 2. PATHWAY MODULATION: No biomarker data available to assess whether CD4 T cell depletion occurred or whether IL-2 receptor signaling was activated. Cannot determine if downstream biology changed as predicted. 3. CLINICAL TRANSLATION: Complete failure - 0% objective response rate across all 9 patients (7 melanoma, 2 renal cell). All patients experienced progressive disease with no complete responses, partial responses, or stable disease. 4. POPULATION EFFECTS: No differential responses observed - all patients in both indications failed uniformly. 5. CONFOUNDERS: Very small sample size (n=9) and early termination due to inability to obtain study drug suggests potential manufacturing/delivery issues, though patients were treated and evaluated.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine if failure was due to lack of CD4 binding, inadequate immune modulation, or other factors. The 0% response rate suggests mechanism failure but the specific failure point cannot be identified."
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "Without biomarker data, cannot definitively determine if the mechanism engaged targets or modulated biology, but the complete lack of any clinical response (0% ORR, 100% progressive disease) suggests the biology-to-endpoint translation failed"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Only 9 patients total across two indications is extremely small for detecting treatment effects, especially for combination therapy"
+    },
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.6,
+      "evidence": "Investigator commentary states 'The study was terminated because we were not able to obtain the study drug' suggesting supply chain issues"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "ORR_metastatic_renal_cancer",
-      "target_entity": "metastatic_melanoma",
+      "edge_type": "affects",
+      "source_entity": "zanolimumab",
+      "target_entity": "ENSG00000010610",
       "support": "ambiguous",
-      "reasoning": "ORR was measured but this endpoint was applied across both melanoma and renal cancer patients. The 0% response rate provides limited information about ORR's ability to capture clinical benefit since the drug mechanism itself may have failed."
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No biomarker data to confirm CD4 engagement; complete clinical failure could reflect lack of target engagement or downstream pathway failure"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No biomarker data to confirm IL2RA engagement; complete clinical failure could reflect lack of target engagement or downstream pathway failure"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "zanolimumab",
+      "target_entity": "ENSG00000010610",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No biomarker data to confirm CD4 engagement; complete clinical failure could reflect lack of target engagement or downstream pathway failure"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No biomarker data to confirm IL2RA engagement; complete clinical failure could reflect lack of target engagement or downstream pathway failure"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "GO:0050852",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No pathway biomarkers to assess if CD4 antagonism modulated T cell receptor signaling"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "R-HSA-912526",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No pathway biomarkers to assess if IL2RA agonism activated interleukin receptor signaling"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "GO:0050852",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No pathway biomarkers to assess if CD4 antagonism modulated T cell receptor signaling"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "R-HSA-912526",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No pathway biomarkers to assess if IL2RA agonism activated interleukin receptor signaling"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0050852",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "Complete failure in melanoma arm (0% response, 100% progression) suggests T cell receptor signaling modulation did not drive anti-tumor benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-912526",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "Complete failure in melanoma arm suggests interleukin receptor signaling did not drive anti-tumor benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_renal_cancer",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Tumor regression by RECIST was clearly measured and is an established endpoint for assessing clinical benefit in solid tumors"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "No biomarker data available to determine the specific failure point in the mechanistic chain. The 0% response rate could indicate target engagement failure, pathway modulation failure, or inappropriate mechanism for these indications. Expert review needed to determine if this represents a true mechanism contradiction or insufficient evidence."
+  "review_reason": "Very small sample size (n=9), lack of any biomarker data, and early termination due to drug supply issues make mechanistic interpretation highly uncertain. The complete lack of any clinical responses is striking but could reflect multiple failure modes."
 }

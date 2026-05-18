@@ -409,68 +409,19 @@ def _resolve_arm_id(
 ) -> str | None:
     """Map an LLM-emitted arm_id to a real arm_id in the trial subgraph.
 
-    The LLM tends to emit natural slugs (``cmp001_plus_nivo``,
-    ``ipilimumab_alone``) while the populator uses long-form slugs
-    (``nivolumab_and_cmp_001_combination``, ``arm_a_ipilimumab``).
-    Three-stage resolution:
-
-      1. Exact arm_id match — the LLM nailed the slug.
-      2. arm_id substring match — normalized alnum-lowercase, single hit.
-      3. Compound-set overlap — count how many of each arm's
-         ``compound_ids`` appear as normalized substrings of the LLM's
-         slug. Prefer the arm where ALL constituent compounds appear
-         (the LLM described the full regimen); fall back to most
-         compounds matched; tie → ambiguous → None.
-
-    Returns the matching graph arm_id or None when ambiguous / no match.
+    Both extractor and classifier prompts enumerate the trial's
+    CT.gov-derived `group_id` values and instruct the LLM to use them
+    verbatim (see `_format_arm_id_menu` in classifier.py and the
+    Arm Groups section of extraction_user.txt). Resolution is therefore
+    an exact dict lookup — no fuzzy matching, no token overlap, no
+    compound-set heuristics. When the LLM ignores the constraint and
+    invents a slug anyway, the standard unrouted log surfaces it as a
+    prompt-regression signal instead of silently routing the wrong arm.
     """
     if not llm_arm_id:
         return None
     if llm_arm_id in arm_by_id:
         return llm_arm_id
-
-    norm_llm = _norm_name(llm_arm_id)
-    if not norm_llm or len(norm_llm) < 4:
-        return None
-
-    # Stage 2: arm_id substring match.
-    substring_matches: list[str] = []
-    for graph_arm_id in arm_by_id:
-        norm_graph = _norm_name(graph_arm_id)
-        if not norm_graph or len(norm_graph) < 4:
-            continue
-        if norm_llm in norm_graph or norm_graph in norm_llm:
-            substring_matches.append(graph_arm_id)
-    if len(substring_matches) == 1:
-        return substring_matches[0]
-
-    # Stage 3: compound-set overlap. Score each arm by (matched_count,
-    # all_present) — prefer arms where every constituent compound is
-    # named in the LLM slug.
-    scored: list[tuple[str, int, bool]] = []
-    for graph_arm_id, arm in arm_by_id.items():
-        compounds = arm.compound_ids or []
-        if not compounds:
-            continue
-        matched = sum(
-            1 for c in compounds
-            if _norm_name(c) and len(_norm_name(c)) >= 3
-            and _norm_name(c) in norm_llm
-        )
-        if matched == 0:
-            continue
-        all_present = matched == len(compounds)
-        scored.append((graph_arm_id, matched, all_present))
-
-    if not scored:
-        return None
-    scored.sort(key=lambda s: (s[2], s[1]), reverse=True)
-    if len(scored) == 1:
-        return scored[0][0]
-    # Unambiguous winner only if its (all_present, matched) strictly
-    # beats every other arm's tuple.
-    if (scored[0][1], scored[0][2]) != (scored[1][1], scored[1][2]):
-        return scored[0][0]
     return None
 
 

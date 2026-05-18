@@ -122,7 +122,11 @@ Per-arm emission rules:
       • Emit `affects`, `modulates_via`, `mechanism_affects`,
         `biology_drives` for each CONSTITUENT of that arm's regimen.
       • Tag every such update with `affecting_arm_id` set to that arm's
-        `arm_id` from the "Per-arm causal chains" block.
+        `arm_id` — **MUST be one of the keys verbatim from the
+        "Valid arm_ids" menu in the user prompt.** Do not invent slugs
+        like `ipi_mono`, `vaccine_arm`, or `combo_a`; the attributor
+        drops anything not in the menu. If you can't confidently map a
+        result to a listed arm_id, use `null` rather than guessing.
       • Use buckets that reflect THAT arm's outcome — a failed combo arm
         may emit `biology_drives weak_contradict` while a successful
         monotherapy arm in the same trial emits `biology_drives
@@ -137,18 +141,22 @@ Per-arm emission rules:
       • `responds_differently`: emit once per (population, indication)
         subgroup-comparison, `affecting_arm_id: null` (it's a population-
         level finding, not an arm-level outcome).
-  - Worked example, 2-arm trial (arm "ald_mono" aldesleukin monotherapy,
-    success; arm "combo" gp100+aldesleukin+ipi, failure):
+  - Worked example, 2-arm trial. Assume the "Valid arm_ids" menu lists
+    `arm_a` (aldesleukin monotherapy, success) and `arm_b` (gp100 +
+    aldesleukin + ipi combo, failure) — these are illustrative; the
+    actual menu keys will vary per trial (`arm_i`, `cohort_a`,
+    `nivolumab_and_cmp_001_combination`, etc.). Use the menu's keys
+    verbatim — do not rename them.
       • `affects: aldesleukin → IL2RA, moderate_support, affecting_arm_id:
-        ald_mono` (mono arm succeeded, supports target engagement).
+        arm_a` (mono arm succeeded, supports target engagement).
       • `biology_drives: R-HSA-IL2 → melanoma, moderate_support,
-        affecting_arm_id: ald_mono`.
+        affecting_arm_id: arm_a`.
       • `affects: gp100_antigen → PMEL, weak_contradict, affecting_arm_id:
-        combo` (combo failed; the gp100 chain's contribution refuted).
+        arm_b` (combo failed; the gp100 chain's contribution refuted).
       • `affects: ipilimumab → CTLA4, weak_contradict, affecting_arm_id:
-        combo`.
+        arm_b`.
       • `affects: aldesleukin → IL2RA, weak_support, affecting_arm_id:
-        combo` (combo also includes aldesleukin; its contribution to the
+        arm_b` (combo also includes aldesleukin; its contribution to the
         combo's outcome is its own evidence record).
       • `endpoint_captures: ORR_melanoma → melanoma, moderate_support,
         affecting_arm_id: null` (trial-level — the endpoint translated).

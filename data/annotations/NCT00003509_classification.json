@@ -1,24 +1,46 @@
 {
   "nct_id": "NCT00003509",
-  "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data available - the compound's target is unknown and no biomarker data was reported to confirm any specific target was engaged. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers were reported, so we cannot assess whether downstream biology changed as predicted. The mechanism is also unknown. 3. CLINICAL TRANSLATION: The trial reported 8/13 participants (61.5%) with objective response, which appears positive for a single-arm Phase 2 trial in stage IV melanoma. However, without a control arm or clear statistical testing, the clinical significance is uncertain. 4. POPULATION EFFECTS: Subgroup analysis showed 2/2 stable disease patients had objective response (100%) and 6/11 progressive disease patients had objective response (54.5%), suggesting potential differential responses by disease status. 5. CONFOUNDERS: This was a small single-arm trial (N=13) with slow accrual, making interpretation difficult. The lack of control arm and unknown mechanism of action are major limitations.",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to assess target engagement. The target is listed as 'unknown' and no mechanism of action is described for antineoplaston therapy. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological changes. 3. CLINICAL TRANSLATION: Primary endpoint (objective response rate) clearly failed - 0/13 patients achieved objective response (0% ORR). All patients either had stable disease (2/13) or progressive disease (6/13). 4. POPULATION EFFECTS: No differential responses observed - all patients failed to achieve objective response regardless of subgroup. 5. CONFOUNDERS: Small sample size (N=13) suggests underpowered study. Multiple serious adverse events (sinus tachycardia, hypotension, catheter infection, hemorrhage, seizure) affecting 7.7% each, but without control arm comparison and given small sample size, this represents 1 patient per event. The compound's unknown target and mechanism make it impossible to determine if adequate target engagement occurred.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Unknown target and mechanism, no biomarker data, no control arm, and very small sample size (N=13) make mechanistic assessment impossible"
+      "evidence": "Unknown target, unknown mechanism, no biomarker data, and no target engagement evidence make it impossible to determine where in the causal chain the failure occurred"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Sample size of only 13 patients is very small for detecting meaningful response rates in melanoma"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "biology_drives",
+      "source_entity": "other__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "antineoplaston_therapy",
+      "reasoning": "0% objective response rate suggests the assumed biology did not drive clinical benefit in melanoma, though unknown mechanism limits confidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "other__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "antineoplaston_therapy",
+      "reasoning": "Unknown mechanism and no biomarker data make it impossible to assess whether the mechanism affected downstream biology"
+    },
+    {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_melanoma",
       "target_entity": "melanoma",
-      "support": "ambiguous",
-      "reasoning": "Single-arm trial with 61.5% ORR in stage IV melanoma - could represent drug activity or selection bias, no comparator to judge clinical benefit translation"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Objective response rate is a well-established endpoint for melanoma that captures clinical benefit when achieved"
     }
   ],
-  "confidence_overall": 0.3,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Unknown mechanism and target make mechanistic classification impossible; single-arm design with small sample size provides limited interpretable evidence"
+  "review_reason": "Unknown target and mechanism combined with very small sample size make mechanistic classification highly uncertain. The compound appears to be an investigational agent with unclear pharmacology."
 }

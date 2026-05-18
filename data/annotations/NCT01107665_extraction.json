@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT01107665",
   "therapeutic_hypothesis": {
-    "compound": "Pazopanib + Paclitaxel",
+    "compound": "pazopanib + paclitaxel",
     "claimed_target": "VEGFR + microtubules",
-    "proposed_mechanism": "Anti-angiogenic VEGFR inhibition combined with microtubule disruption",
-    "intended_biology": "Inhibition of tumor angiogenesis and cell division",
-    "target_population": "Unresectable stage III and stage IV melanoma patients",
-    "primary_endpoint": "Progression-free survival at 6 months",
+    "proposed_mechanism": "anti-angiogenesis combined with microtubule disruption",
+    "intended_biology": "tumor vascularization inhibition and cell cycle arrest",
+    "target_population": "unresectable stage III and stage IV melanoma patients",
+    "primary_endpoint": "progression-free survival at 6 months",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -16,7 +16,7 @@
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "BRAF mutant subset had longer OS (18 months) vs BRAF WT/unknown (11.3 months), HR=0.784, p=0.49"
+      "BRAF mutant subset had median OS 18 months vs 11.3 months for BRAF WT/unknown (HR 0.784, p=0.49)"
     ],
     "safety_signals": [
       "High incidence of transaminitis (10/60)",
@@ -24,8 +24,8 @@
       "Fatigue in 8/60 patients"
     ],
     "dose_info": {
-      "dose": "Pazopanib 800mg daily, Paclitaxel 80mg/m2",
-      "schedule": "Pazopanib continuous daily, Paclitaxel weekly x3 weeks followed by 1-week rest",
+      "dose": "pazopanib 800mg daily, paclitaxel 80mg/m2",
+      "schedule": "pazopanib continuous, paclitaxel weekly x3 weeks q28d",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -75,19 +75,19 @@
     ]
   },
   "context": {
-    "indication": "Unresectable stage III and stage IV melanoma",
+    "indication": "unresectable stage III and stage IV melanoma",
     "comparator": "none",
     "sample_size": 60,
     "duration": "up to 2 years",
-    "duration_weeks": 104.4,
+    "duration_weeks": 104.6,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "compounds": [
-        "Pazopanib",
-        "Paclitaxel"
+        "pazopanib",
+        "paclitaxel"
       ]
     }
   ],
@@ -115,7 +115,7 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": null,
       "endpoint": "PFS at 6 months",
       "effect_size": 68.0,
@@ -123,7 +123,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": null,
       "endpoint": "OS at 1 year",
       "effect_size": 48.0,
@@ -131,7 +131,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": null,
       "endpoint": "OS at 2 years",
       "effect_size": 27.0,
@@ -139,28 +139,39 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
       "effect_size": 36.0,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "success"
     },
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": "BRAF Mutant Subset",
       "endpoint": "OS",
       "effect_size": 18.0,
-      "p_value": 0.49,
-      "outcome": "partial"
+      "p_value": null,
+      "outcome": "success"
     },
     {
-      "arm_id": "pazopanib_paclitaxel",
+      "arm_id": "pazopanib_and_paclitaxel",
       "subgroup_descriptor": "BRAF WT/Unknown Group",
       "endpoint": "OS",
       "effect_size": 11.3,
       "p_value": 0.49,
       "outcome": "partial"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "pazopanib",
+      "primary_compound_id": "paclitaxel",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "anti-angiogenic effects of pazopanib enhance paclitaxel efficacy by normalizing tumor vasculature and improving drug delivery",
+      "citation": "68% PFS at 6 months and 36% ORR in combination treatment of unresectable melanoma"
     }
   ]
 }

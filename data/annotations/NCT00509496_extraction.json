@@ -2,9 +2,9 @@
   "nct_id": "NCT00509496",
   "therapeutic_hypothesis": {
     "compound": "anti-gp100:154-162 TCR gene-engineered lymphocytes",
-    "claimed_target": "gp100",
-    "proposed_mechanism": "TCR gene-engineered lymphocytes target gp100 antigen on melanoma cells",
-    "intended_biology": "adoptive T-cell therapy with enhanced tumor antigen recognition",
+    "claimed_target": "gp100:154-162",
+    "proposed_mechanism": "TCR gene-engineered lymphocytes recognize and attack melanoma cells expressing gp100:154-162 peptide",
+    "intended_biology": "T-cell mediated tumor cell killing",
     "target_population": "metastatic melanoma patients",
     "primary_endpoint": "Clinical Tumor Regression by RECIST",
     "rationale_strength": "moderate"
@@ -16,13 +16,16 @@
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "PBL arm showed higher response rate (3/19) compared to TIL arm (1/2)"
+      "PBL arm showed higher response rate (3/19, 16%) compared to TIL arm (1/2, 50% but small n)"
     ],
     "safety_signals": [
-      "High incidence of serious adverse events including hypotension, renal failure, acute vascular leak syndrome"
+      "High incidence of serious adverse events related to high-dose IL-2",
+      "Acute vascular leak syndrome",
+      "Renal toxicity",
+      "Hypotension"
     ],
     "dose_info": {
-      "dose": "5x10^8 to 3x10^11 cells",
+      "dose": "5 x 10^8 to 3 x 10^11 cells",
       "schedule": "single infusion",
       "max_tolerated_dose": "",
       "dose_modifications": ""
@@ -110,7 +113,7 @@
   },
   "arms": [
     {
-      "arm_id": "tcr_pbl_il2",
+      "arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
       "compounds": [
         "fludarabine phosphate",
         "cyclophosphamide",
@@ -119,7 +122,7 @@
       ]
     },
     {
-      "arm_id": "tcr_til_il2",
+      "arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
       "compounds": [
         "fludarabine phosphate",
         "cyclophosphamide",
@@ -128,23 +131,123 @@
       ]
     }
   ],
-  "subgroups": [],
-  "results_by_chain": [
+  "subgroups": [
     {
-      "arm_id": "tcr_pbl_il2",
-      "subgroup_descriptor": null,
-      "endpoint": "Clinical Tumor Regression",
-      "effect_size": 15.8,
-      "p_value": null,
-      "outcome": "partial"
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
     },
     {
-      "arm_id": "tcr_til_il2",
-      "subgroup_descriptor": null,
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "subgroup_descriptor": "Complete Response",
       "endpoint": "Clinical Tumor Regression",
-      "effect_size": 50.0,
+      "effect_size": 1.0,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "success"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "subgroup_descriptor": "Progressive Disease",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 16.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "subgroup_descriptor": "Progressive Disease",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "subgroup_descriptor": "Stable Disease",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "subgroup_descriptor": "Stable Disease",
+      "endpoint": "Clinical Tumor Regression",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "aldesleukin",
+      "primary_compound_id": "anti_gp100_tcr_engineered_lymphocytes",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "High-dose IL-2 supports T-cell expansion and activation to enhance anti-tumor activity of TCR-engineered lymphocytes",
+      "citation": "aldesleukin (BIOLOGICAL): 720,000 IU/kg intravenously over 15 minutes every 8 hours beginning within 24 hours of cell infusion and continuing for up to 5 days"
     }
   ]
 }

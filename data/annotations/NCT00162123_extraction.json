@@ -1,28 +1,28 @@
 {
   "nct_id": "NCT00162123",
   "therapeutic_hypothesis": {
-    "compound": "Ipilimumab",
+    "compound": "ipilimumab",
     "claimed_target": "CTLA-4",
-    "proposed_mechanism": "CTLA-4 checkpoint inhibition to enhance T-cell activation",
-    "intended_biology": "immune checkpoint blockade to restore anti-tumor immunity",
+    "proposed_mechanism": "CTLA-4 checkpoint inhibition",
+    "intended_biology": "T-cell activation and anti-tumor immune response",
     "target_population": "melanoma patients previously enrolled in ipilimumab studies",
     "primary_endpoint": "safety and tolerability (adverse events)",
-    "rationale_strength": "moderate"
+    "rationale_strength": "strong"
   },
   "results": {
-    "primary_endpoint_met": null,
-    "effect_size": "Median OS: 30.8 months (10 mg/kg), 18.7 months (3 mg/kg), 15.2 months (0.3 mg/kg)",
+    "primary_endpoint_met": true,
+    "effect_size": "dose-dependent safety profile with 10 mg/kg showing highest toxicity",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "Higher dose (10 mg/kg) showed improved OS compared to lower doses",
-      "Dose-dependent increase in immune-related adverse events"
+      "Higher dose (10 mg/kg) associated with increased immune-related adverse events",
+      "Dose-dependent survival benefit with 10 mg/kg showing longest median OS (30.8 months)"
     ],
     "safety_signals": [
-      "Dose-dependent increase in adverse events",
-      "Grade 5 fatal events occurred across all dose levels",
-      "Immune-related adverse events were common, particularly gastrointestinal and skin toxicities"
+      "Immune-related adverse events across all dose levels",
+      "Grade 5 fatal events occurred across all dose groups",
+      "Gastrointestinal and skin irAEs most common"
     ],
     "dose_info": {
       "dose": "0.3, 3, or 10 mg/kg",
@@ -32,7 +32,7 @@
     },
     "adverse_events": [
       {
-        "term": "Any adverse event",
+        "term": "Any adverse events",
         "grade": "any",
         "incidence_treatment_pct": 96.2,
         "incidence_control_pct": null,
@@ -48,51 +48,37 @@
       {
         "term": "Fatal adverse events",
         "grade": "5",
-        "incidence_treatment_pct": 7.5,
+        "incidence_treatment_pct": 17.0,
         "incidence_control_pct": null,
         "serious": true
-      },
-      {
-        "term": "Drug-related adverse events",
-        "grade": "any",
-        "incidence_treatment_pct": 82.1,
-        "incidence_control_pct": null,
-        "serious": false
       },
       {
         "term": "Immune-related adverse events",
         "grade": "any",
-        "incidence_treatment_pct": 64.3,
+        "incidence_treatment_pct": 63.8,
         "incidence_control_pct": null,
         "serious": false
       },
       {
-        "term": "Gastrointestinal immune-related AE",
+        "term": "Grade 3-4 immune-related adverse events",
+        "grade": "3-4",
+        "incidence_treatment_pct": 13.5,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Gastrointestinal irAE",
         "grade": "any",
-        "incidence_treatment_pct": 28.9,
+        "incidence_treatment_pct": 28.8,
         "incidence_control_pct": null,
         "serious": false
       },
       {
-        "term": "Skin immune-related AE",
+        "term": "Skin irAE",
         "grade": "any",
-        "incidence_treatment_pct": 41.8,
+        "incidence_treatment_pct": 41.4,
         "incidence_control_pct": null,
         "serious": false
-      },
-      {
-        "term": "Alanine aminotransferase increased",
-        "grade": "",
-        "incidence_treatment_pct": 3.8,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Anaemia",
-        "grade": "",
-        "incidence_treatment_pct": 4.5,
-        "incidence_control_pct": null,
-        "serious": true
       }
     ]
   },
@@ -100,45 +86,45 @@
     "indication": "melanoma",
     "comparator": "dose comparison (0.3 vs 3 vs 10 mg/kg)",
     "sample_size": 248,
-    "duration": "treatment until discontinuation, follow-up to 70 days after last dose",
+    "duration": "until patient discontinuation",
     "duration_weeks": null,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "first_reinduction_0_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "first_reinduction_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "first_reinduction_10_to_10",
+      "arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "extended_maintenance_0_3",
+      "arm_id": "extended_maintenance_ipilimumab_0_3_mg_kg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "extended_maintenance_3",
+      "arm_id": "extended_maintenance_ipilimumab_3_mg_kg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "extended_maintenance_10",
+      "arm_id": "extended_maintenance_ipilimumab_10_mg",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
@@ -149,7 +135,7 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "first_reinduction_10_to_10",
+      "arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 30.8,
@@ -157,7 +143,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "first_reinduction_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 18.7,
@@ -165,7 +151,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "first_reinduction_0_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 15.2,
@@ -173,7 +159,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "first_reinduction_10_to_10",
+      "arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 3.4,
@@ -181,7 +167,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "first_reinduction_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.6,
@@ -189,12 +175,13 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "first_reinduction_0_3_to_10",
+      "arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.6,
       "p_value": null,
       "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

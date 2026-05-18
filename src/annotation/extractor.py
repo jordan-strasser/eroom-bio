@@ -179,13 +179,18 @@ def _format_trial_for_prompt(trial: TrialRecord, abstract: str | None) -> str:
     results_section = _format_results_summary(trial.results_summary)
 
     if trial.arm_groups:
-        arm_lines = []
+        arm_lines = [
+            "**These are the canonical arm_id values for this trial. "
+            "Use them verbatim in `arms[].arm_id` and `results_by_chain[].arm_id` "
+            "— DO NOT invent your own slugs.**",
+            "",
+        ]
         for ag in trial.arm_groups:
             ivs = ", ".join(ag.intervention_names) or "(no intervention names)"
-            arm_lines.append(f"- {ag.title}: {ivs}")
+            arm_lines.append(f"- `{ag.group_id}` — {ag.title}: {ivs}")
         arm_groups_section = "\n".join(arm_lines)
     else:
-        arm_groups_section = "(no arm groups reported)"
+        arm_groups_section = "(no arm groups reported — emit arm_id as 'arm_1', 'arm_2', etc.)"
 
     if trial.subgroup_descriptors:
         subgroup_descriptors_section = "\n".join(

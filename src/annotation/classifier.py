@@ -225,7 +225,27 @@ def _format_classification_prompt(
         summary=extraction.summary,
         graph_entities=_format_trial_entities(graph, trial_subgraph),
         per_arm_outcomes=per_arm_outcomes_str,
+        arm_id_menu=_format_arm_id_menu(trial_subgraph),
     )
+
+
+def _format_arm_id_menu(trial_subgraph: TrialSubgraph | None) -> str:
+    """Render the trial's canonical arm_ids as a hard menu for the prompt.
+
+    The LLM must pick `affecting_arm_id` from these keys verbatim; the
+    attributor drops any update whose `affecting_arm_id` is not in this
+    list. Listing the constituent compounds (and combo/mono tag) gives
+    the LLM the descriptive context it needs to match arm content to
+    canonical IDs without inventing its own slugs.
+    """
+    if trial_subgraph is None or not trial_subgraph.arms:
+        return "(no arms in trial subgraph — emit `affecting_arm_id: null`)"
+    lines = []
+    for arm in trial_subgraph.arms:
+        kind = "combo" if arm.is_combination else "monotherapy"
+        compounds = ", ".join(arm.compound_ids) if arm.compound_ids else "?"
+        lines.append(f"- `{arm.arm_id}` [{kind}]: {compounds}")
+    return "\n".join(lines)
 
 
 def _format_per_arm_outcomes(extraction: TrialExtraction) -> str:

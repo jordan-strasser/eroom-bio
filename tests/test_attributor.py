@@ -383,72 +383,38 @@ class TestAffectingArmIdRouting:
         buckets = {u.evidence.support for u in binds_updates}
         assert buckets == {"moderate_support", "weak_support"}
 
-    def test_fuzzy_arm_id_match_against_populator_long_form(self):
-        """The LLM emits natural arm slugs ("ipilimumab_alone");
-        populator uses long-form slugs ("arm_a_ipilimumab"). Normalized
-        substring match resolves the LLM's slug when exactly one graph
-        arm contains it (after alnum-lowercase normalization)."""
-        # Use a custom graph: rename arms to populator-style long slugs.
-        g, _ = _seed_combo_trial_graph()
-        arms = [
-            TrialArm(arm_id="arm_a_ipilimumab", compound_ids=["ipilimumab"],
-                     regimen_compound_id="ipilimumab"),
-            TrialArm(arm_id="arm_b_ipilimumab_and_bevacizumab",
-                     compound_ids=["ipilimumab", "bevacizumab"],
-                     regimen_compound_id="ipilimumab+bevacizumab",
-                     is_combination=True),
-        ]
-        # Need bevacizumab compound node + chains for both arms.
-        from src.graph.models import CompoundNode, Modality, TargetNode
-        try:
-            g.get_node("bevacizumab")
-        except KeyError:
-            g.add_node(CompoundNode(
-                id="bevacizumab", name="Bevacizumab",
-                modality=Modality.ANTIBODY,
-            ))
-        try:
-            g.get_node("ENSG00000112715")
-        except KeyError:
-            g.add_node(TargetNode(
-                id="ENSG00000112715", name="VEGFA", gene_symbol="VEGFA",
-            ))
-        chains = [
-            CausalChain(
-                arm_id="arm_a_ipilimumab", compound_id="ipilimumab",
-                subgroup_population_id="melanoma__unselected",
-                target_id="ENSG00000163599",
-                mechanism_id="checkpoint_blockade",
-                biology_id="R-HSA-389948", indication_id="melanoma",
-                endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
-            ),
-            CausalChain(
-                arm_id="arm_b_ipilimumab_and_bevacizumab",
-                compound_id="ipilimumab",
-                subgroup_population_id="melanoma__unselected",
-                target_id="ENSG00000163599",
-                mechanism_id="checkpoint_blockade",
-                biology_id="R-HSA-389948", indication_id="melanoma",
-                endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
-            ),
-        ]
-        ts = TrialSubgraph(
-            trial_id="NCT_TEST", phase="3", arms=arms, chains=chains,
-            parent_population_id="melanoma__unselected",
-        )
-        g.set_trial_subgraph(ts)
-
+    def test_invented_arm_slug_is_dropped_and_logged(self, _isolated_unrouted_log):
+        """Both extractor and classifier prompts now require the LLM to
+        emit `arm_id` verbatim from the CT.gov `group_id` menu, so any
+        invented slug indicates a prompt regression. The resolver is a
+        strict exact-match: invented slugs drop and surface in the
+        unrouted log rather than being fuzzy-matched into the wrong arm
+        (which silently corrupted evidence routing pre-round-9)."""
+        g, ts = _seed_combo_trial_graph()
         clf = _make_classification([
+            # Pre-round-9 the LLM would emit `ipilimumab_alone` and the
+            # fuzzy resolver would route it to ipi_only. Now: dropped.
             {"edge_type": "binds_to", "source_entity": "Ipilimumab",
              "target_entity": "CTLA-4", "support": "moderate_support",
-             # LLM emitted natural slug — must fuzzy-resolve to the
-             # graph's long-form arm_a_ipilimumab.
              "affecting_arm_id": "ipilimumab_alone"},
         ])
         updates = Attributor(g).attribute(clf, ts)
-        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
-        assert len(binds) == 1
-        # No unknown_arm_id unroute should have fired.
+        # No CTLA-4 affects update should land — the slug is invalid.
+        ctla4_updates = [
+            u for u in updates
+            if u.edge_type == EdgeType.AFFECTS
+            and u.target_id == "ENSG00000163599"
+        ]
+        assert ctla4_updates == []
+        # Surfaced in the unrouted log for prompt-regression triage.
+        records = [
+            json.loads(line)
+            for line in _isolated_unrouted_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(
+            r["reason"] == "unknown_arm_id:ipilimumab_alone" for r in records
+        )
 
     def test_unknown_arm_id_logs_unrouted(self, _isolated_unrouted_log):
         g, ts = _seed_combo_trial_graph()

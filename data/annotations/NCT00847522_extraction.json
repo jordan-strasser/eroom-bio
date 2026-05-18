@@ -4,9 +4,9 @@
     "compound": "Fluorescein",
     "claimed_target": "Lymphatic vessels",
     "proposed_mechanism": "Fluorescent tracer for lymphatic mapping",
-    "intended_biology": "Visualization of lymphatic drainage pathways for sentinel lymph node identification",
-    "target_population": "Patients with Stage I and II malignant melanoma",
-    "primary_endpoint": "Percentage of agreement between detection of SLNs using fluorescein vs technetium-99m",
+    "intended_biology": "Lymphatic drainage visualization",
+    "target_population": "Stage I and II malignant melanoma patients",
+    "primary_endpoint": "Percentage of agreement between detection of sentinel lymph nodes",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -17,7 +17,8 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "5 patients experienced adverse events, none related to study treatment",
+      "5 patients experienced adverse events",
+      "No adverse events related to study treatment",
       "1 serious adverse event: hematoma and scalp pain"
     ],
     "dose_info": {
@@ -38,7 +39,7 @@
   },
   "context": {
     "indication": "Stage I and II malignant melanoma",
-    "comparator": "technetium-99m labeled sulfur colloid",
+    "comparator": "technetium-99m labeled sulfur colloid (standard radioactive tracer)",
     "sample_size": 90,
     "duration": "2 days treatment, 1 month follow-up",
     "duration_weeks": 4.3,
@@ -46,7 +47,7 @@
   },
   "arms": [
     {
-      "arm_id": "fluorescein",
+      "arm_id": "all_patients",
       "compounds": [
         "Fluorescein"
       ]
@@ -55,12 +56,13 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "fluorescein",
+      "arm_id": "all_patients",
       "subgroup_descriptor": null,
       "endpoint": "SLN detection agreement",
       "effect_size": 69.7,
       "p_value": null,
       "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

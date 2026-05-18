@@ -1,52 +1,57 @@
 {
   "nct_id": "NCT00121225",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows vorinostat engaged HDAC - HP1 and MacroH2A nuclear foci expression changes were observed, with measurable log fold changes in MacroH2A1.1 (+0.149), MacroH2A1.2 (-0.748), and HP1 (-0.077). These are downstream chromatin markers consistent with HDAC inhibition. 2. PATHWAY MODULATION: The target engagement led to expected downstream biology - chromatin remodeling markers changed as predicted for HDAC inhibition, indicating the mechanism was active. 3. CLINICAL TRANSLATION: Despite biological activity, clinical efficacy was poor - only 2/32 patients (6.25%) achieved objective response by RECIST criteria, well below what would be considered clinically meaningful for melanoma. The primary endpoint was not met. 4. POPULATION EFFECTS: Subgroup analysis by p53 status (20 wild-type, 11 mutant patients) was performed but no differential efficacy data reported between subgroups. 5. CONFOUNDERS: This was a single-arm Phase II trial with small sample size (n=32) in metastatic melanoma. Multiple serious adverse events were reported including hematologic toxicities, but these appear manageable and don't suggest dose-limiting toxicity prevented adequate target engagement.",
+  "reasoning": "1. TARGET ENGAGEMENT: Clear evidence of target engagement - HP1 and MacroH2A nuclear foci expression changes were observed, indicating HDAC inhibition occurred. Biomarker changes in MacroH2A1.1 (0.149 log fold), MacroH2A1.2 (-0.748 log fold), and HP1 (-0.077 log fold) confirm chromatin remodeling activity. 2. PATHWAY MODULATION: Target engagement led to downstream biological changes as evidenced by chromatin remodeling markers and VEGF serum level changes (203 pg, p=0.029), suggesting the histone deacetylase inhibition mechanism was active. 3. CLINICAL TRANSLATION: Despite confirmed target engagement and pathway modulation, clinical efficacy was poor - only 2/32 patients (6.25%) achieved objective response, well below typical efficacy thresholds for melanoma. Time to progression also failed. 4. POPULATION EFFECTS: Subgroup analysis showed p53 wild type (20 patients) vs mutant (11 patients) but no differential efficacy reported. 5. CONFOUNDERS: Single-arm design with small sample size (n=32) limits interpretation, but the very low response rate suggests genuine lack of efficacy rather than trial design issues.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
       "confidence": 0.8,
-      "evidence": "Clear evidence of target engagement (HP1 and MacroH2A changes) and pathway modulation (chromatin remodeling markers changed as expected), but clinical endpoint failed with only 6.25% objective response rate"
+      "evidence": "Clear target engagement and biomarker changes indicating pathway modulation, but objective response rate was only 6.25% (2/32 patients) - well below clinically meaningful thresholds"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "vorinostat",
       "target_entity": "ENSG00000196591",
       "support": "moderate_support",
-      "reasoning": "HP1 and MacroH2A nuclear foci changes provide clear evidence of HDAC engagement, though these are downstream chromatin markers rather than direct binding assays"
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Clear biomarker evidence of HDAC inhibition with HP1 and MacroH2A nuclear foci changes"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000196591",
       "target_entity": "enzyme_inhibition",
       "support": "moderate_support",
-      "reasoning": "Chromatin remodeling markers (MacroH2A, HP1) changed in directions consistent with HDAC inhibition mechanism"
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Chromatin remodeling biomarkers confirm enzyme inhibition mechanism was active"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
-      "target_entity": "enzyme_inhibition__ciliary_body_and_choroid_melanoma_medium_large_size",
-      "support": "moderate_support",
-      "reasoning": "Biomarker evidence shows the enzyme inhibition mechanism was biologically active in this melanoma population"
+      "target_entity": "R-HSA-193670",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Biomarker changes suggest pathway modulation occurred but clinical translation was poor"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "enzyme_inhibition__ciliary_body_and_choroid_melanoma_medium_large_size",
-      "target_entity": "ciliary_body_and_choroid_melanoma_medium_large_size",
-      "support": "weak_contradict",
-      "reasoning": "Despite biological activity of HDAC inhibition, clinical benefit was minimal (6.25% response rate), suggesting this biology may not be a key driver in melanoma"
+      "source_entity": "R-HSA-193670",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Despite pathway modulation, clinical efficacy was very poor (6.25% ORR) suggesting this biology doesn't drive melanoma effectively"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "ORR_stage_iv_melanoma",
-      "target_entity": "ciliary_body_and_choroid_melanoma_medium_large_size",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "Objective response rate by RECIST is a well-established endpoint for melanoma that captures clinical benefit, though the low response rate (6.25%) suggests limited drug efficacy rather than endpoint inadequacy"
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a well-established endpoint for melanoma that was clearly measured and reported"
     }
   ],
-  "confidence_overall": 0.75,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00111007",
   "therapeutic_hypothesis": {
-    "compound": "Sorafenib plus Carboplatin/Paclitaxel",
+    "compound": "sorafenib + carboplatin/paclitaxel",
     "claimed_target": "RAF kinase, VEGFR, PDGFR",
-    "proposed_mechanism": "Multi-kinase inhibition combined with cytotoxic chemotherapy",
-    "intended_biology": "Angiogenesis inhibition and tumor cell proliferation arrest",
-    "target_population": "Patients with unresectable stage III or stage IV melanoma",
-    "primary_endpoint": "Progression Free Survival (PFS)",
+    "proposed_mechanism": "multi-kinase inhibition combined with DNA damage and microtubule disruption",
+    "intended_biology": "angiogenesis inhibition and enhanced cytotoxicity",
+    "target_population": "unresectable stage III or stage IV melanoma",
+    "primary_endpoint": "progression-free survival",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -17,8 +17,8 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "Increased neutropenia in sorafenib arm",
-      "Increased hemoglobin decrease in control arm"
+      "neutropenia more frequent in sorafenib arm",
+      "anemia more frequent in control arm"
     ],
     "dose_info": {
       "dose": "400 mg",
@@ -61,31 +61,66 @@
         "incidence_treatment_pct": 1.5,
         "incidence_control_pct": 0.7,
         "serious": true
+      },
+      {
+        "term": "supraventricular arrhythmia, atrial flutter",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      },
+      {
+        "term": "supraventricular arrhythmia, supraventricular extrasystoles",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      },
+      {
+        "term": "supraventricular arrhythmia, supraventricular arrhythmia NOS",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      },
+      {
+        "term": "vasovagal episode",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.7,
+        "serious": true
       }
     ]
   },
   "context": {
     "indication": "unresectable stage III or stage IV melanoma",
-    "comparator": "carboplatin/paclitaxel alone",
+    "comparator": "carboplatin/paclitaxel",
     "sample_size": 270,
-    "duration": "maximum treatment duration of 68.3 weeks",
+    "duration": "68.3 weeks maximum",
     "duration_weeks": 68.3,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "sorafenib_combo",
+      "arm_id": "sorafenib_nexavar_bay43_9006",
       "compounds": [
-        "Sorafenib",
-        "Carboplatin",
-        "Paclitaxel"
+        "sorafenib",
+        "carboplatin",
+        "paclitaxel"
       ]
     },
     {
-      "arm_id": "carboplatin_paclitaxel",
+      "arm_id": "carboplatin_paclitaxel_c_p",
       "compounds": [
-        "Carboplatin",
-        "Paclitaxel"
+        "carboplatin",
+        "paclitaxel"
       ]
     }
   ],
@@ -96,7 +131,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "missing_ecog"
+          "level": "missing"
         }
       ]
     },
@@ -104,9 +139,9 @@
       "raw_descriptor": "better",
       "features": [
         {
-          "axis": "other",
+          "axis": "performance",
           "key": "",
-          "level": "ecog_improved"
+          "level": "good"
         }
       ]
     },
@@ -116,7 +151,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "ecog_stable"
+          "level": "no_change"
         }
       ]
     },
@@ -124,16 +159,16 @@
       "raw_descriptor": "worse",
       "features": [
         {
-          "axis": "other",
+          "axis": "performance",
           "key": "",
-          "level": "ecog_worsened"
+          "level": "poor"
         }
       ]
     }
   ],
   "results_by_chain": [
     {
-      "arm_id": "sorafenib_combo",
+      "arm_id": "sorafenib_nexavar_bay43_9006",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 122.0,
@@ -141,15 +176,15 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "carboplatin_paclitaxel",
+      "arm_id": "carboplatin_paclitaxel_c_p",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 125.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "p_value": 0.492,
+      "outcome": "failure"
     },
     {
-      "arm_id": "sorafenib_combo",
+      "arm_id": "sorafenib_nexavar_bay43_9006",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 294.0,
@@ -157,12 +192,23 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "carboplatin_paclitaxel",
+      "arm_id": "carboplatin_paclitaxel_c_p",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 294.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "p_value": 0.979,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sorafenib",
+      "primary_compound_id": "carboplatin_paclitaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "sorafenib multi-kinase inhibition should enhance carboplatin/paclitaxel cytotoxicity through angiogenesis suppression",
+      "citation": "Hazard Ratio (HR) = 0.906 (95% CI: 0.627\u20131.310), p = 0.492"
     }
   ]
 }
