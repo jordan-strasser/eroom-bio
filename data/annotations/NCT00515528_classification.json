@@ -1,17 +1,12 @@
 {
   "nct_id": "NCT00515528",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether denileukin diftitox engaged CD25 or whether the vaccine engaged PMEL. The investigator commentary states 'immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox,' suggesting lack of biological activity. 2. PATHWAY MODULATION: No evidence of downstream pathway changes. The immune monitoring explicitly failed to show improvement in biologic endpoints, indicating the hypothesized regulatory T cell depletion and enhanced vaccine response did not occur. 3. CLINICAL TRANSLATION: Both arms failed - no clinical responses were observed in either the vaccine alone or vaccine plus Ontak combination arm. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Small sample size (N=17) suggests underpowered study. However, the complete lack of responses in both arms and explicit statement that immune monitoring showed no biological improvement suggests the primary issue is lack of target engagement and biological activity rather than just statistical power.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether denileukin diftitox engaged CD25 or whether the vaccine engaged PMEL. The investigator commentary states 'immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox,' suggesting lack of biological activity. 2. PATHWAY MODULATION: No evidence of downstream pathway changes. The immune monitoring explicitly showed no improvement in biologic endpoints, indicating the hypothesized regulatory T cell depletion and enhanced vaccine response did not occur. 3. CLINICAL TRANSLATION: Both arms failed - no clinical responses were observed in either the vaccine alone or vaccine plus Ontak combination arm. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Small sample size (N=17) may have contributed to lack of power, but the complete absence of clinical responses and negative immune monitoring data suggests the primary issue was biological rather than statistical.",
   "failure_modes": [
     {
-      "mode": "no_target_engagement",
-      "confidence": 0.8,
-      "evidence": "Investigator commentary explicitly states 'immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox,' indicating lack of target engagement and biological activity"
-    },
-    {
-      "mode": "underpowered",
-      "confidence": 0.6,
-      "evidence": "Small sample size of 17 patients may have been insufficient to detect treatment effects, though complete lack of responses suggests this is secondary to biological failure"
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "The investigator commentary explicitly states that immune monitoring data failed to demonstrate improvement in any biologic endpoint with denileukin diftitox, indicating that even if CD25 was engaged, the downstream biology (regulatory T cell depletion and enhanced vaccine response) did not occur as hypothesized"
     }
   ],
   "edges_to_update": [
@@ -21,7 +16,7 @@
       "target_entity": "ENSG00000185664",
       "support": "ambiguous",
       "affecting_arm_id": "vaccine_alone",
-      "reasoning": "Vaccine monotherapy arm failed with no biomarker data to confirm target engagement"
+      "reasoning": "Vaccine monotherapy arm failed with no target engagement data available"
     },
     {
       "edge_type": "affects",
@@ -29,15 +24,31 @@
       "target_entity": "ENSG00000185664",
       "support": "ambiguous",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Vaccine component of combination arm failed with no biomarker data to confirm target engagement"
+      "reasoning": "Vaccine component of combination arm failed with no target engagement data available"
     },
     {
       "edge_type": "affects",
       "source_entity": "ontak",
       "target_entity": "ENSG00000134460",
+      "support": "ambiguous",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "No target engagement data for denileukin diftitox, though immune monitoring showed no biological activity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_alone",
+      "reasoning": "Immune monitoring failed to show biological activity, contradicting the immune costimulation mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Immune monitoring explicitly showed no biological improvement with denileukin diftitox, suggesting lack of CD25 target engagement"
+      "reasoning": "Immune monitoring failed to show biological activity in combination arm as well"
     },
     {
       "edge_type": "mechanism_affects",
@@ -45,7 +56,7 @@
       "target_entity": "R-HSA-912526",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "No biological endpoints improved with denileukin diftitox, contradicting the hypothesized receptor agonism pathway"
+      "reasoning": "Immune monitoring data explicitly showed no improvement in biologic endpoints with denileukin diftitox"
     },
     {
       "edge_type": "biology_drives",
@@ -53,7 +64,15 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_alone",
-      "reasoning": "Vaccine monotherapy failed to produce clinical responses, suggesting the pigmentation pathway biology does not drive therapeutic benefit in melanoma"
+      "reasoning": "Complete absence of clinical responses suggests the hypothesized biology does not drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9824585",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "vaccine_plus_ontak",
+      "reasoning": "Complete absence of clinical responses in combination arm also contradicts the biology-disease link"
     },
     {
       "edge_type": "biology_drives",
@@ -61,15 +80,15 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "vaccine_plus_ontak",
-      "reasoning": "Combination arm failed with no biological activity, contradicting the hypothesis that interleukin receptor signaling drives therapeutic benefit"
+      "reasoning": "No clinical responses observed despite the hypothesized IL-2 receptor signaling enhancement"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "composite_response_melanoma",
       "target_entity": "melanoma",
-      "support": "moderate_support",
+      "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Clinical response rate is a standard and accepted endpoint for melanoma trials that captures clinical benefit when achieved"
+      "reasoning": "Clinical response rate was measured but no responses were observed in either arm, making it difficult to assess endpoint validity"
     }
   ],
   "confidence_overall": 0.6,

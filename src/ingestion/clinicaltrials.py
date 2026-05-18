@@ -19,6 +19,89 @@ from src.graph.models import (
 
 BASE_URL = "https://clinicaltrials.gov/api/v2/studies"
 
+
+# ── Compound-name canonicalization ───────────────────────────────────────
+#
+# CT.gov intervention names join multiple drugs into one string
+# ("Sorafenib (Nexavar; BAY43-9006) + Dacarbazine (DTIC)",
+# "Carboplatin/Paclitaxel") and embed brand/dev-code aliases in
+# parentheticals. Both `build_arms` and `map_trial_to_graph_nodes` apply
+# the same split-then-strip canonicalization so a drug gets one
+# CompoundNode regardless of how the trial reports it. Lives in this
+# module so both call sites import it without a populate↔ingestion cycle.
+
+_REGIMEN_SEPARATOR_RE = re.compile(
+    r"\s+\+\s+|\s+plus\s+|\s+and\s+|\s*/\s*",
+    re.IGNORECASE,
+)
+
+
+def split_combo_regimen(iv_name: str) -> list[str] | None:
+    """Split an intervention name that names multiple drugs as one regimen.
+
+    Handles common CT.gov-side joins:
+      "Carboplatin/Paclitaxel"                       → ["Carboplatin", "Paclitaxel"]
+      "Sorafenib (Nexavar) + Dacarbazine (DTIC)"     → ["Sorafenib (Nexavar)", "Dacarbazine (DTIC)"]
+      "Drug A and Drug B"                            → ["Drug A", "Drug B"]
+      "Sorafenib"                                    → None (no split)
+      "5% Dextrose/Saline"                           → None (numbers suggest formulation)
+
+    Per-part validation runs against the parenthetical-stripped form so
+    brand aliases don't disqualify a real drug name. Each bare part must
+    start with a letter, be ≥3 chars, and contain no digits — preserves
+    the original name as a single compound when the split would produce
+    a non-drug-like fragment.
+    """
+    if not _REGIMEN_SEPARATOR_RE.search(iv_name):
+        return None
+    parts = [p.strip() for p in _REGIMEN_SEPARATOR_RE.split(iv_name)]
+    if len(parts) < 2:
+        return None
+    bare_re = re.compile(r"^[A-Za-z][A-Za-z\-\s]*$")
+    for p in parts:
+        bare = re.sub(r"\s*\([^)]*\)\s*", " ", p).strip()
+        if not bare or len(bare) < 3 or not bare_re.match(bare):
+            return None
+    return parts
+
+
+def strip_parenthetical_brand(name: str) -> str | None:
+    """Strip trailing parenthetical brand/synonym from a drug name.
+
+    "Sorafenib (Nexavar; BAY43-9006)" → "Sorafenib". The parenthetical is
+    usually a brand name + dev code that OT doesn't resolve directly.
+    Returns None when the stripped form would be empty, would equal the
+    original, or when the parenthetical content contains a combination-
+    indicator word ("with", "plus", "and", "+", "combo") suggesting it
+    encodes a regimen rather than a brand.
+    """
+    paren_match = re.search(r"\(([^)]*)\)", name)
+    if paren_match:
+        inside = paren_match.group(1).lower()
+        if any(
+            tok in inside
+            for tok in ("with", "plus", "and", "+", "combo", "combination")
+        ):
+            return None
+    stripped = re.sub(r"\s*\([^)]*\)\s*", " ", name).strip()
+    if not stripped or stripped.lower() == name.lower():
+        return None
+    return stripped
+
+
+def canonical_compound_names(iv_name: str) -> list[str]:
+    """Canonicalize an intervention name into one or more drug names.
+
+    Combines `split_combo_regimen` (handle multi-drug regimens) and
+    `strip_parenthetical_brand` (strip brand/code aliases) into the
+    single transformation both populator code paths need. The result is
+    always a non-empty list — even non-decomposable names round-trip as
+    a single-element list of the original name.
+    """
+    sub_names = split_combo_regimen(iv_name) or [iv_name]
+    return [strip_parenthetical_brand(s) or s for s in sub_names]
+
+
 # ── Models ───────────────────────────────────────────────────────────────
 
 
@@ -493,14 +576,21 @@ def map_trial_to_graph_nodes(
 
     compounds = [
         CompoundNode(
-            id=normalize_entity(iv.name, "InterventionNode"),
-            name=iv.name,
+            id=normalize_entity(canonical, "InterventionNode"),
+            name=canonical,
+            # Preserve the original intervention name as an alias so the
+            # downstream entity index can resolve raw CT.gov names
+            # ("Sorafenib (Nexavar; BAY43-9006)") back to the canonical
+            # CompoundNode id ("sorafenib"). Without this, OT-lookup and
+            # other code paths that key off raw iv.name silently miss.
+            aliases=[iv.name] if iv.name != canonical else [],
             intervention_type=_map_ctgov_intervention_type(iv.type),
             modality=_guess_modality(iv),
             metadata={"intervention_type_raw": iv.type},
         )
         for iv in trial.interventions
         if is_drug_like(iv)
+        for canonical in canonical_compound_names(iv.name)
     ]
 
     return {
