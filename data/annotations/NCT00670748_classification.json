@@ -1,31 +1,89 @@
 {
   "nct_id": "NCT00670748",
-  "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows TCR-engineered cells demonstrated in vivo survival at 1 month post treatment, indicating successful delivery and persistence of the engineered T-cells targeting NY-ESO-1. However, the target_id is listed as UNKNOWN in the graph entities, suggesting the specific NY-ESO-1 target is not mapped. 2. PATHWAY MODULATION: The in vivo survival of TCR-engineered cells at 1 month suggests the immune costimulation mechanism was engaged, with engineered T-cells persisting in patients. 3. CLINICAL TRANSLATION: The trial showed variable response rates across arms: 53% in arm 1, 50% in arm 2, 29% in arm 3, and 60% in arm 4. These are substantial response rates for metastatic cancer, particularly the 53-60% rates in some arms. However, no p-values are reported and there's no control arm for comparison. 4. POPULATION EFFECTS: Response rates varied significantly between arms (29% to 60%), suggesting the addition of ALVAC vaccine may have differential effects, though the pattern is not entirely consistent. 5. CONFOUNDERS: This is a single-arm study with no control group, making it difficult to definitively attribute responses to treatment. The high rate of serious adverse events (46.7% hypoxia, 14.3% death, 14.3% colitis) raises safety concerns but doesn't appear to have prevented dosing.",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - TCR-engineered cells demonstrated in vivo survival at 1 month post-treatment in all arms, confirmed by tetramer analysis and TCR staining. This indicates the adoptive cell therapy successfully engrafted and persisted. 2. PATHWAY MODULATION: The biomarker data confirms the engineered T cells survived and were detectable, suggesting successful modulation of the intended immune pathways. 3. CLINICAL TRANSLATION: Clinical responses were achieved across multiple arms with overall response rates of 53% (arm 1), 50% (arm 2), 29% (arm 3), and 60% (arm 4). Complete and partial responses were observed, demonstrating clinical benefit. 4. POPULATION EFFECTS: Responses were seen across different cancer types (melanoma, renal cell cancer, other cancers) though with some variation in response rates between arms. 5. CONFOUNDERS: This was a single-arm study with multiple treatment variations, making it difficult to isolate individual component contributions. Safety signals were notable including treatment-related deaths (14.3%) and high hypoxia rates (46.7%), but these did not prevent achieving clinical responses.",
   "failure_modes": [
     {
-      "mode": "efficacy_in_subgroup_only",
-      "confidence": 0.7,
-      "evidence": "Response rates varied significantly between treatment arms (29% to 60%), with some arms showing substantial activity while others showed more modest responses, suggesting the therapy may work better in certain subsets or with specific combinations"
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Treatment-related deaths occurred in 14.3% of patients, and hypoxia was observed in 46.7% of patients as serious adverse events, indicating significant toxicity burden"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__metastatic_melanoma",
+      "edge_type": "affects",
+      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
+      "target_entity": "UNKNOWN",
       "support": "moderate_support",
-      "reasoning": "TCR-engineered cells showed in vivo survival at 1 month, demonstrating immune costimulation mechanism engagement, with variable but substantial response rates (29-60%) across arms"
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "TCR-engineered cells demonstrated in vivo survival and the arm achieved 53% response rate"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "IL-2 component contributed to successful arm with 53% response rate"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "TCR-engineered cells demonstrated in vivo survival and the arm achieved 50% response rate"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "IL-2 component contributed to successful arm with 50% response rate"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
+      "target_entity": "UNKNOWN",
+      "support": "weak_support",
+      "affecting_arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
+      "reasoning": "TCR-engineered cells demonstrated in vivo survival but arm achieved lower 29% response rate"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
+      "reasoning": "TCR-engineered cells demonstrated in vivo survival and arm achieved 60% response rate"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "Gene editing approach via TCR engineering achieved clinical responses in melanoma patients"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "Gene editing approach via TCR engineering achieved clinical responses across cancer types"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "CR_metastatic_cancer",
-      "target_entity": "metastatic_melanoma",
+      "source_entity": "CR_cancer",
+      "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "Complete response rates were achieved across multiple arms (0-3 patients per arm), and RECIST response is a well-established endpoint for metastatic melanoma that correlates with clinical benefit"
+      "affecting_arm_id": null,
+      "reasoning": "Complete responses were achieved across multiple arms, demonstrating the endpoint captures clinical benefit in this indication"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.7,
   "needs_expert_review": true,
-  "review_reason": "Single-arm study with no control group makes it difficult to definitively attribute responses to treatment versus natural disease variation. High serious adverse event rates (46.7% hypoxia, 14.3% death) require expert assessment of risk-benefit profile."
+  "review_reason": "Single-arm study design makes it difficult to isolate individual component contributions, and significant toxicity signals including treatment-related deaths warrant expert evaluation of risk-benefit profile"
 }

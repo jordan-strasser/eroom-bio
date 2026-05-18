@@ -1,31 +1,102 @@
 {
   "nct_id": "NCT00520299",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, demonstrating ADI-PEG 20 successfully depleted its target substrate. Citrulline levels increased appropriately (23-38 \u03bcM to 158-225 \u03bcM), confirming enzymatic activity. 2. PATHWAY MODULATION: The drug engaged its intended mechanism (arginine depletion via arginine deiminase), but there's no evidence this translated to meaningful downstream biological effects in melanoma cells. The development of neutralizing antibodies (0.1-0.2 to 3.0-4.5 log U/mL by day 120) suggests the pathway modulation may have been compromised over time. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint level - 0% objective response rate across all dose cohorts (0/31 patients achieved CR/PR). Only 29% achieved stable disease, which is not clinically meaningful for metastatic melanoma. 4. POPULATION EFFECTS: The trial tested the hypothesis that ASS-negative tumors would be more sensitive to arginine depletion, but ASS-negative tumors showed no better response than ASS-positive tumors, contradicting the population selection rationale. 5. CONFOUNDERS: This was a dose-escalation study with adequate sample size for a Phase I trial. The failure appears mechanistic rather than due to trial design issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, confirming ADI-PEG 20 successfully depleted its target substrate. Citrulline increase from 23-38 \u03bcM to 158-280 \u03bcM also confirms enzymatic activity. 2. PATHWAY MODULATION: The enzyme inhibition mechanism was engaged as evidenced by arginine depletion and citrulline accumulation, indicating the arginine deiminase pathway was active. Early metabolic response by PET in 7/31 patients suggests some downstream biological effects. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint level - 0/31 patients achieved complete or partial response across all three dose cohorts. Some patients achieved stable disease (9/31, 29%) but no objective responses. 4. POPULATION EFFECTS: ASS-negative tumors showed no improved response versus ASS \u22645% positive tumors, suggesting the hypothesized biomarker-driven mechanism did not translate to differential efficacy. 5. CONFOUNDERS: This was a dose-escalation Phase I study with only 31 patients total, likely underpowered for efficacy detection. However, the complete absence of any objective responses across all dose levels suggests the issue is not just statistical power.",
   "failure_modes": [
     {
-      "mode": "target_engaged_biology_not_moved",
+      "mode": "biology_moved_endpoint_flat",
       "confidence": 0.8,
-      "evidence": "Clear target engagement (arginine depletion achieved) but complete lack of clinical response (0% ORR) and failure of the ASS-negative population hypothesis suggests the downstream biology was not meaningfully affected"
+      "evidence": "Clear target engagement with arginine depletion and metabolic changes by PET, but complete absence of objective tumor responses (0/31 patients) across all dose cohorts"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Phase I dose-escalation study with only 31 patients total, designed primarily for safety rather than efficacy assessment"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "adi_peg_20",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_1",
+      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "adi_peg_20",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_2",
+      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "adi_peg_20",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_3",
+      "reasoning": "Strong biochemical evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+    },
+    {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
-      "target_entity": "enzyme_inhibition__metastatic_melanoma",
-      "support": "strong_contradict",
-      "reasoning": "Despite confirmed arginine depletion, there was 0% objective response rate across all doses and the ASS-negative population showed no differential benefit, strongly contradicting that enzyme inhibition affects melanoma biology meaningfully"
+      "target_entity": "enzyme_inhibition__melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_1",
+      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "enzyme_inhibition__melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_2",
+      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "enzyme_inhibition__melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_3",
+      "reasoning": "Metabolic changes and some stable disease achieved, but no objective responses"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "enzyme_inhibition__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_1",
+      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "enzyme_inhibition__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_2",
+      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "enzyme_inhibition__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_3",
+      "reasoning": "Despite biochemical target engagement, no objective tumor responses achieved"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_neoplasm",
-      "target_entity": "metastatic_melanoma",
-      "support": "ambiguous",
-      "reasoning": "This was a Phase I dose-escalation trial with dual primary endpoints of safety and efficacy. The safety endpoint was appropriately assessed, but the efficacy component (ORR) in a single-arm Phase I context provides limited interpretability for clinical benefit translation"
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was appropriately measured and reported; tumor response assessment was conducted per standard criteria"
     }
   ],
-  "confidence_overall": 0.8,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

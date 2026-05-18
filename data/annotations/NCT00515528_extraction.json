@@ -1,26 +1,23 @@
 {
   "nct_id": "NCT00515528",
   "therapeutic_hypothesis": {
-    "compound": "4-peptide melanoma vaccine + Ontak (denileukin diftitox)",
-    "claimed_target": "T-regulatory cells and melanoma antigens",
-    "proposed_mechanism": "Ontak depletes regulatory T cells to enhance vaccine-induced immune response against melanoma peptides",
-    "intended_biology": "Enhanced anti-tumor immune response through Treg depletion and melanoma antigen presentation",
-    "target_population": "patients with metastatic melanoma",
-    "primary_endpoint": "clinical response rate (PR + SD + PD proportion)",
+    "compound": "4-peptide melanoma vaccine + denileukin diftitox (Ontak)",
+    "claimed_target": "CD25",
+    "proposed_mechanism": "Regulatory T cell depletion to enhance vaccine-induced immune response",
+    "intended_biology": "Enhanced tumor-specific T cell activation and proliferation",
+    "target_population": "Patients with metastatic melanoma",
+    "primary_endpoint": "Clinical response rate (PR + SD + PD proportion)",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "0/7 responses in combination arm vs 1/10 in vaccine alone arm",
+    "effect_size": "No clinical responses observed in combination arm vs vaccine alone",
     "p_value": null,
-    "target_engagement_evidence": "immune monitoring data failed to demonstrate improvement in any biologic endpoint",
+    "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "syncope",
-      "chest pain",
-      "abdominal pain",
-      "pericardial tamponade"
+      "Serious adverse events included syncope, chest pain, abdominal pain, and pericardial tamponade"
     ],
     "dose_info": {
       "dose": "",
@@ -30,28 +27,28 @@
     },
     "adverse_events": [
       {
-        "term": "syncope",
+        "term": "Syncope",
         "grade": "",
-        "incidence_treatment_pct": null,
-        "incidence_control_pct": 10.0,
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "chest pain",
+        "term": "Chest pain",
         "grade": "",
-        "incidence_treatment_pct": null,
-        "incidence_control_pct": 10.0,
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "abdominal pain",
+        "term": "Abdominal pain",
         "grade": "",
         "incidence_treatment_pct": 14.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "pericardial tamponade",
+        "term": "Pericardial tamponade",
         "grade": "",
         "incidence_treatment_pct": 14.3,
         "incidence_control_pct": null,
@@ -78,7 +75,7 @@
       "arm_id": "vaccine_plus_ontak",
       "compounds": [
         "4-peptide melanoma vaccine",
-        "Ontak"
+        "denileukin diftitox"
       ]
     }
   ],
@@ -87,7 +84,7 @@
     {
       "arm_id": "vaccine_alone",
       "subgroup_descriptor": null,
-      "endpoint": "clinical response",
+      "endpoint": "Clinical Response",
       "effect_size": null,
       "p_value": null,
       "outcome": "failure"
@@ -95,10 +92,21 @@
     {
       "arm_id": "vaccine_plus_ontak",
       "subgroup_descriptor": null,
-      "endpoint": "clinical response",
+      "endpoint": "Clinical Response",
       "effect_size": null,
       "p_value": null,
       "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "denileukin_diftitox",
+      "primary_compound_id": "4_peptide_melanoma_vaccine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Denileukin diftitox depletes CD25+ regulatory T cells to enhance vaccine-induced anti-tumor immune responses",
+      "citation": "The immune monitoring data failed to demonstrate an improvement in any biologic endpoint with denileukin diftitox."
     }
   ]
 }

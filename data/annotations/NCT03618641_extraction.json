@@ -1,32 +1,27 @@
 {
   "nct_id": "NCT03618641",
   "therapeutic_hypothesis": {
-    "compound": "CMP-001 + Nivolumab",
+    "compound": "CMP-001 + nivolumab",
     "claimed_target": "TLR9 + PD-1",
-    "proposed_mechanism": "CMP-001 activates TLR9 in plasmacytoid dendritic cells within tumor or tumor-draining lymph nodes; Nivolumab blocks PD-1 checkpoint",
-    "intended_biology": "TLR9 activation to enhance immune priming combined with PD-1 blockade to release T-cell inhibition",
+    "proposed_mechanism": "TLR9 activation in plasmacytoid dendritic cells combined with PD-1 checkpoint blockade",
+    "intended_biology": "Enhanced anti-tumor immune response through dendritic cell activation and T-cell checkpoint inhibition",
     "target_population": "Stage IIIB/C/D melanoma patients with clinically apparent lymph node disease",
     "primary_endpoint": "Major Pathologic Response Rate (MPR)",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "14/30 patients achieved major pathologic response (46.7%)",
+    "effect_size": "46.7% major pathologic response rate (14/30 evaluable patients)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "hypoxemia",
-      "restrictive cardiomyopathy",
-      "brain metastases",
-      "failure to thrive",
-      "cytokine release syndrome",
-      "myasthenia gravis",
-      "wound infection",
-      "seroma",
-      "cardiac troponin I increased",
-      "injection site reaction"
+      "Restrictive cardiomyopathy",
+      "Myasthenia gravis",
+      "Cytokine release syndrome",
+      "Brain metastases",
+      "Injection site reactions"
     ],
     "dose_info": {
       "dose": "",
@@ -36,70 +31,70 @@
     },
     "adverse_events": [
       {
-        "term": "hypoxemia",
+        "term": "Hypoxemia",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "restrictive cardiomyopathy",
+        "term": "Restrictive cardiomyopathy",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "brain metastases",
+        "term": "Brain metastases",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "failure to thrive",
+        "term": "Failure to thrive",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "cytokine release syndrome",
+        "term": "Cytokine release syndrome",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "myasthenia gravis",
+        "term": "Myasthenia gravis",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "wound infection",
+        "term": "Wound infection",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "seroma",
+        "term": "Seroma",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "cardiac troponin I increased",
+        "term": "Cardiac troponin I increased",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "injection site reaction",
+        "term": "Injection site reaction",
         "grade": "",
         "incidence_treatment_pct": 2.9,
         "incidence_control_pct": null,
@@ -111,23 +106,23 @@
     "indication": "Stage IIIB/C/D melanoma with clinically apparent lymph node disease",
     "comparator": "none",
     "sample_size": 34,
-    "duration": "up to 31 months",
-    "duration_weeks": 134.8,
+    "duration": "up to 52 weeks treatment, up to 31 months follow-up",
+    "duration_weeks": 52.0,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "nivo_cmp001_combo",
+      "arm_id": "nivolumab_and_cmp_001_combination",
       "compounds": [
         "CMP-001",
-        "Nivolumab"
+        "nivolumab"
       ]
     }
   ],
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "nivo_cmp001_combo",
+      "arm_id": "nivolumab_and_cmp_001_combination",
       "subgroup_descriptor": null,
       "endpoint": "MPR",
       "effect_size": 46.7,
@@ -135,20 +130,63 @@
       "outcome": "success"
     },
     {
-      "arm_id": "nivo_cmp001_combo",
+      "arm_id": "nivolumab_and_cmp_001_combination",
       "subgroup_descriptor": null,
-      "endpoint": "RFS",
-      "effect_size": null,
+      "endpoint": "RFS_6m",
+      "effect_size": 81.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "nivo_cmp001_combo",
+      "arm_id": "nivolumab_and_cmp_001_combination",
       "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": null,
+      "endpoint": "RFS_12m",
+      "effect_size": 74.0,
       "p_value": null,
       "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_cmp_001_combination",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS_24m",
+      "effect_size": 62.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_cmp_001_combination",
+      "subgroup_descriptor": null,
+      "endpoint": "OS_6m",
+      "effect_size": 100.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_cmp_001_combination",
+      "subgroup_descriptor": null,
+      "endpoint": "OS_12m",
+      "effect_size": 87.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_cmp_001_combination",
+      "subgroup_descriptor": null,
+      "endpoint": "OS_24m",
+      "effect_size": 83.0,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cmp_001",
+      "primary_compound_id": "nivolumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "TLR9 activation by CMP-001 in plasmacytoid dendritic cells enhances anti-tumor immune response when combined with PD-1 checkpoint blockade",
+      "citation": "The intended mechanism of action of CMP-001 in oncology is the activation of TLR9 in pDC within the tumor or the tumor-draining lymph nodes (tumor-associated pDC)"
     }
   ]
 }

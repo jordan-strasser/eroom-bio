@@ -2,10 +2,10 @@
   "nct_id": "NCT01106040",
   "therapeutic_hypothesis": {
     "compound": "Lymphoseek",
-    "claimed_target": "lymphatic system",
-    "proposed_mechanism": "radiotracer for lymphatic mapping",
-    "intended_biology": "lymph node identification during sentinel lymph node biopsy",
-    "target_population": "patients with breast cancer or melanoma undergoing sentinel lymph node biopsy",
+    "claimed_target": "lymphatic vessels",
+    "proposed_mechanism": "selective lymphatic uptake and retention for sentinel lymph node identification",
+    "intended_biology": "lymphatic drainage mapping",
+    "target_population": "patients with breast cancer or melanoma requiring sentinel lymph node biopsy",
     "primary_endpoint": "concordance of blue dye and Lymphoseek detection",
     "rationale_strength": "moderate"
   },
@@ -13,11 +13,11 @@
     "primary_endpoint_met": true,
     "effect_size": "1.0000 (95% CI: 0.9840\u20131.0000)",
     "p_value": null,
-    "target_engagement_evidence": "100% concordance with blue dye detection",
+    "target_engagement_evidence": "100% concordance with blue dye detection demonstrates lymphatic uptake",
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "8 serious adverse events reported across 153 patients"
+      "Serious adverse events included bradycardia, tachycardia, cellulitis, herpes zoster ophthalmic, seroma, syncope, and asthma"
     ],
     "dose_info": {
       "dose": "",
@@ -78,16 +78,16 @@
     ]
   },
   "context": {
-    "indication": "breast cancer and melanoma",
+    "indication": "breast cancer and melanoma requiring sentinel lymph node biopsy",
     "comparator": "blue dye",
     "sample_size": 163,
-    "duration": "single surgical procedure",
+    "duration": "",
     "duration_weeks": null,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "lymphoseek",
+      "arm_id": "lymphoseek_lymphatic_mapping_injection",
       "compounds": [
         "Lymphoseek"
       ]
@@ -96,7 +96,7 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "lymphoseek",
+      "arm_id": "lymphoseek_lymphatic_mapping_injection",
       "subgroup_descriptor": null,
       "endpoint": "concordance with blue dye",
       "effect_size": 1.0,
@@ -104,12 +104,13 @@
       "outcome": "success"
     },
     {
-      "arm_id": "lymphoseek",
+      "arm_id": "lymphoseek_lymphatic_mapping_injection",
       "subgroup_descriptor": null,
       "endpoint": "reverse concordance with blue dye",
       "effect_size": 0.6058,
       "p_value": null,
       "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

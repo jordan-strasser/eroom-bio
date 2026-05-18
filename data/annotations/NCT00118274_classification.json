@@ -1,32 +1,83 @@
 {
   "nct_id": "NCT00118274",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial measured CD8+ T cell response by ELISpot assay, showing immune activation across all arms (32%, 29%, 8%, 12% response rates). This confirms the vaccine engaged melanoma-associated antigens and stimulated the intended immune response. 2. PATHWAY MODULATION: The CD8+ T cell responses demonstrate that the immune costimulation mechanism was activated, with variable responses across different vaccine formulations. Arms with tetanus toxoid helper peptide showed higher response rates (32%, 29%) compared to melanoma helper peptide arms (8%, 12%). 3. CLINICAL TRANSLATION: This was a Phase I safety trial with safety as the primary endpoint, which was met successfully. The trial was not designed to measure clinical efficacy endpoints like survival or tumor response. 4. POPULATION EFFECTS: No subgroup analyses were reported for this safety-focused trial. 5. CONFOUNDERS: No major confounders identified. The trial achieved its primary safety objective while demonstrating target engagement through immune biomarkers.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - CD8+ T cell responses were measured by ELISpot assay across all arms, with effect sizes ranging from 8-32% showing successful immune activation against melanoma peptides. 2. PATHWAY MODULATION: Clear downstream biology changes - the vaccine successfully induced CD8+ T cell responses to melanoma epitopes, confirming immune costimulation pathway activation. 3. CLINICAL TRANSLATION: This was a Phase I safety trial with safety as the primary endpoint, which was met successfully. Only 14 participants total experienced dose-limiting toxicities across 170 participants (8.2% rate), demonstrating acceptable safety profile. 4. POPULATION EFFECTS: No subgroup analyses reported, but all four arms showed successful CD8+ T cell responses with varying magnitudes. 5. CONFOUNDERS: No major confounders - this was an appropriately designed Phase I safety study that achieved its primary objective.",
   "failure_modes": [],
   "edges_to_update": [
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__melanoma_skin",
+      "edge_type": "affects",
+      "source_entity": "multi_epitope_melanoma_peptide_vaccine",
+      "target_entity": "ENSG00000185664",
       "support": "moderate_support",
-      "reasoning": "CD8+ T cell responses measured by ELISpot confirm immune costimulation mechanism activated melanoma-specific immune biology, though response rates varied by formulation"
+      "affecting_arm_id": "arm_i",
+      "reasoning": "CD8+ T cell response of 32% demonstrates vaccine engagement with melanoma antigens"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "immune_costimulation__melanoma_skin",
-      "target_entity": "safety_melanoma_skin",
+      "edge_type": "affects",
+      "source_entity": "multi_epitope_melanoma_peptide_vaccine",
+      "target_entity": "ENSG00000185664",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii",
+      "reasoning": "CD8+ T cell response of 29% demonstrates vaccine engagement with melanoma antigens"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "multi_epitope_melanoma_peptide_vaccine",
+      "target_entity": "ENSG00000185664",
       "support": "weak_support",
-      "reasoning": "Safety endpoint was met with manageable DLTs across arms, suggesting immune activation was achieved without prohibitive toxicity, though safety is an indirect measure of immune biology"
+      "affecting_arm_id": "arm_iii",
+      "reasoning": "CD8+ T cell response of 8% shows modest vaccine engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "multi_epitope_melanoma_peptide_vaccine",
+      "target_entity": "ENSG00000185664",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_iv",
+      "reasoning": "CD8+ T cell response of 12% shows modest vaccine engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000185664",
+      "target_entity": "immune_costimulation",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Strong CD8+ T cell response confirms immune costimulation pathway activation"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000185664",
+      "target_entity": "immune_costimulation",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii",
+      "reasoning": "Strong CD8+ T cell response confirms immune costimulation pathway activation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "CD8+ T cell activation against melanoma peptides demonstrates pathway engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii",
+      "reasoning": "CD8+ T cell activation against melanoma peptides demonstrates pathway engagement"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "safety_melanoma_skin",
-      "target_entity": "melanoma_skin",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "Safety endpoint was successfully met in this Phase I trial, establishing tolerability necessary for further development in melanoma, though safety alone doesn't directly capture clinical benefit"
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was successfully met with acceptable toxicity profile (8.2% DLT rate), validating safety assessment for melanoma vaccine development"
     }
   ],
-  "confidence_overall": 0.75,
+  "confidence_overall": 0.8,
   "needs_expert_review": false,
   "review_reason": null
 }

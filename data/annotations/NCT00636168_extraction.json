@@ -3,8 +3,8 @@
   "therapeutic_hypothesis": {
     "compound": "ipilimumab",
     "claimed_target": "CTLA-4",
-    "proposed_mechanism": "CTLA-4 checkpoint inhibition to enhance T-cell activation",
-    "intended_biology": "immune system activation against melanoma cells",
+    "proposed_mechanism": "CTLA-4 checkpoint blockade",
+    "intended_biology": "T-cell activation and anti-tumor immune response",
     "target_population": "high risk stage III melanoma patients after complete resection",
     "primary_endpoint": "recurrence-free survival",
     "rationale_strength": "strong"
@@ -19,14 +19,13 @@
     "safety_signals": [
       "High rates of immune-related adverse events",
       "Grade 3-4 immune-mediated adverse reactions in 194/471 patients",
-      "4 drug-related deaths",
-      "1 Grade 5 enterocolitis"
+      "4 drug-related deaths in ipilimumab arm"
     ],
     "dose_info": {
       "dose": "10 mg/kg",
-      "schedule": "4x every 21 days, then every 12 weeks until Week 156",
+      "schedule": "IV every 21 days x4, then every 12 weeks until week 156",
       "max_tolerated_dose": "",
-      "dose_modifications": ""
+      "dose_modifications": "247/471 patients discontinued due to adverse events"
     },
     "adverse_events": [
       {
@@ -72,6 +71,13 @@
         "serious": true
       },
       {
+        "term": "Hepatitis immune-mediated adverse reaction",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.8,
+        "incidence_control_pct": 0.2,
+        "serious": true
+      },
+      {
         "term": "Drug-related deaths",
         "grade": "5",
         "incidence_treatment_pct": 0.8,
@@ -90,13 +96,13 @@
   },
   "arms": [
     {
-      "arm_id": "ipilimumab",
+      "arm_id": "a",
       "compounds": [
         "ipilimumab"
       ]
     },
     {
-      "arm_id": "placebo",
+      "arm_id": "b",
       "compounds": [
         "placebo"
       ]
@@ -105,7 +111,7 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "ipilimumab",
+      "arm_id": "a",
       "subgroup_descriptor": null,
       "endpoint": "RFS",
       "effect_size": 26.09,
@@ -113,7 +119,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "placebo",
+      "arm_id": "b",
       "subgroup_descriptor": null,
       "endpoint": "RFS",
       "effect_size": 17.05,
@@ -121,7 +127,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "ipilimumab",
+      "arm_id": "a",
       "subgroup_descriptor": null,
       "endpoint": "DMFS",
       "effect_size": 48.3,
@@ -129,7 +135,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "placebo",
+      "arm_id": "b",
       "subgroup_descriptor": null,
       "endpoint": "DMFS",
       "effect_size": 27.47,
@@ -137,12 +143,13 @@
       "outcome": "success"
     },
     {
-      "arm_id": "ipilimumab",
+      "arm_id": "a",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 86.6,
       "p_value": 0.0013,
       "outcome": "success"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

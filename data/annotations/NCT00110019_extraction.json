@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT00110019",
   "therapeutic_hypothesis": {
-    "compound": "sorafenib tosylate plus carboplatin/paclitaxel",
-    "claimed_target": "VEGFR, PDGFR, RAF kinases",
-    "proposed_mechanism": "multi-kinase inhibition targeting angiogenesis and tumor cell proliferation",
-    "intended_biology": "inhibition of tumor angiogenesis and cell proliferation pathways",
-    "target_population": "patients with unresectable stage III or IV melanoma",
+    "compound": "sorafenib tosylate + carboplatin + paclitaxel",
+    "claimed_target": "RAF kinase, VEGFR, PDGFR",
+    "proposed_mechanism": "multi-kinase inhibition combined with DNA damage and microtubule disruption",
+    "intended_biology": "angiogenesis inhibition and enhanced chemotherapy cytotoxicity",
+    "target_population": "patients with stage III or IV unresectable melanoma",
     "primary_endpoint": "overall survival",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "HR 1.01 (95% CI: 0.87-1.18) for OS",
+    "effect_size": "HR 1.01 (95% CI: 0.87-1.18)",
     "p_value": 0.863,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
@@ -34,31 +34,10 @@
         "serious": true
       },
       {
-        "term": "otitis, middle ear",
-        "grade": "",
-        "incidence_treatment_pct": 0.3,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "tinnitus",
-        "grade": "",
-        "incidence_treatment_pct": 0.3,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
         "term": "anemia",
         "grade": "",
         "incidence_treatment_pct": 7.6,
         "incidence_control_pct": 7.1,
-        "serious": true
-      },
-      {
-        "term": "hemolysis",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
         "serious": true
       },
       {
@@ -99,16 +78,16 @@
     ]
   },
   "context": {
-    "indication": "unresectable stage III or IV melanoma",
-    "comparator": "carboplatin plus paclitaxel plus placebo",
+    "indication": "stage III or IV unresectable melanoma",
+    "comparator": "carboplatin + paclitaxel + placebo",
     "sample_size": 823,
-    "duration": "assessed every 3 months if < 2 years from study entry, every 6 months if 2-5 years from study entry",
+    "duration": "",
     "duration_weeks": null,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "carbo_pacli_sorafenib",
+      "arm_id": "arm_i_paclitaxel_carboplatin_sorafenib_tosylate",
       "compounds": [
         "carboplatin",
         "paclitaxel",
@@ -116,7 +95,7 @@
       ]
     },
     {
-      "arm_id": "carbo_pacli_placebo",
+      "arm_id": "arm_ii_carboplatin_paclitaxel_placebo",
       "compounds": [
         "carboplatin",
         "paclitaxel",
@@ -127,7 +106,7 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "carbo_pacli_sorafenib",
+      "arm_id": "arm_i_paclitaxel_carboplatin_sorafenib_tosylate",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 11.1,
@@ -135,7 +114,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "carbo_pacli_placebo",
+      "arm_id": "arm_ii_carboplatin_paclitaxel_placebo",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 11.3,
@@ -143,7 +122,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "carbo_pacli_sorafenib",
+      "arm_id": "arm_i_paclitaxel_carboplatin_sorafenib_tosylate",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 4.9,
@@ -151,7 +130,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "carbo_pacli_placebo",
+      "arm_id": "arm_ii_carboplatin_paclitaxel_placebo",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 4.2,
@@ -159,7 +138,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "carbo_pacli_sorafenib",
+      "arm_id": "arm_i_paclitaxel_carboplatin_sorafenib_tosylate",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
       "effect_size": 0.205,
@@ -167,12 +146,23 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "carbo_pacli_placebo",
+      "arm_id": "arm_ii_carboplatin_paclitaxel_placebo",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
       "effect_size": 0.182,
       "p_value": 0.427,
       "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sorafenib_tosylate",
+      "primary_compound_id": "carboplatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "sorafenib anti-angiogenic effects should enhance chemotherapy delivery and efficacy",
+      "citation": "HR 1.01 (95% CI: 0.87-1.18), p = 0.863 for overall survival"
     }
   ]
 }

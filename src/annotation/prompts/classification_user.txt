@@ -12,6 +12,11 @@ Classify this trial's outcome by reasoning through the mechanistic causal chain.
 ## Per-Arm Outcomes (from results_by_chain)
 {per_arm_outcomes}
 
+## Valid arm_ids for `affecting_arm_id` (use EXACTLY one of these keys verbatim — NEVER invent your own)
+{arm_id_menu}
+
+The `affecting_arm_id` field on every causal-chain edge update MUST be one of the keys above (or `null` for trial-shared edges like `endpoint_captures` / `responds_differently`). The attributor drops any update whose `affecting_arm_id` doesn't match a key in this list — there is no fuzzy fallback. If you cannot confidently map a result to one of these arm_ids, emit `affecting_arm_id: null` rather than guessing.
+
 ## Biomarker & Target Engagement Data
 {biomarker_data}
 

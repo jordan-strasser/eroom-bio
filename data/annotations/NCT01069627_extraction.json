@@ -2,9 +2,9 @@
   "nct_id": "NCT01069627",
   "therapeutic_hypothesis": {
     "compound": "bevacizumab + fotemustine",
-    "claimed_target": "VEGF",
-    "proposed_mechanism": "anti-angiogenic therapy combined with alkylating chemotherapy",
-    "intended_biology": "inhibition of tumor angiogenesis and DNA alkylation",
+    "claimed_target": "VEGF + DNA alkylation",
+    "proposed_mechanism": "anti-angiogenesis combined with DNA alkylating chemotherapy",
+    "intended_biology": "tumor vascularization inhibition and DNA damage-induced apoptosis",
     "target_population": "patients with metastatic melanoma",
     "primary_endpoint": "objective response rate (CR + PR)",
     "rationale_strength": "moderate"
@@ -25,41 +25,41 @@
     ],
     "dose_info": {
       "dose": "bevacizumab 15 mg/kg, fotemustine 100 mg/m\u00b2",
-      "schedule": "bevacizumab every 3 weeks, fotemustine days 1, 8, 15 then 4 weeks rest, then every 21 days",
+      "schedule": "bevacizumab every 3 weeks, fotemustine days 1,8,15 then 4 weeks rest, then every 21 days",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
     "adverse_events": [
       {
-        "term": "thrombocytopenia",
+        "term": "Thrombocytopenia",
         "grade": "",
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "metrorrhagia",
+        "term": "Metrorrhagia",
         "grade": "",
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "dyspnoea",
+        "term": "Dyspnoea",
         "grade": "",
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "pleural effusion",
+        "term": "Pleural effusion",
         "grade": "",
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "pulmonary embolism",
+        "term": "Pulmonary embolism",
         "grade": "",
         "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
@@ -72,12 +72,12 @@
     "comparator": "none",
     "sample_size": 20,
     "duration": "up to 36 months",
-    "duration_weeks": 156.42,
+    "duration_weeks": 156.6,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "bev_plus_fotemustine",
+      "arm_id": "1",
       "compounds": [
         "bevacizumab",
         "fotemustine"
@@ -87,7 +87,7 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "bev_plus_fotemustine",
+      "arm_id": "1",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
       "effect_size": 15.0,
@@ -95,15 +95,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "bev_plus_fotemustine",
-      "subgroup_descriptor": null,
-      "endpoint": "clinical benefit rate",
-      "effect_size": 65.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "bev_plus_fotemustine",
+      "arm_id": "1",
       "subgroup_descriptor": null,
       "endpoint": "TTP",
       "effect_size": 249.0,
@@ -111,12 +103,23 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "bev_plus_fotemustine",
+      "arm_id": "1",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 615.0,
       "p_value": null,
       "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "fotemustine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "anti-angiogenic therapy enhances chemotherapy delivery and efficacy by normalizing tumor vasculature",
+      "citation": "15% objective response rate in combination therapy for metastatic melanoma"
     }
   ]
 }

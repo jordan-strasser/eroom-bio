@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT01950390",
   "therapeutic_hypothesis": {
-    "compound": "Ipilimumab with or without Bevacizumab",
+    "compound": "ipilimumab with or without bevacizumab",
     "claimed_target": "CTLA-4 and VEGF",
-    "proposed_mechanism": "CTLA-4 checkpoint inhibition combined with VEGF-mediated angiogenesis inhibition",
-    "intended_biology": "Enhanced anti-tumor immune response through checkpoint blockade and tumor vasculature normalization",
-    "target_population": "Patients with unresectable stage III-IV melanoma",
-    "primary_endpoint": "Overall Survival",
+    "proposed_mechanism": "immune checkpoint blockade with anti-angiogenic modulation",
+    "intended_biology": "enhanced T-cell activation and tumor vascular normalization",
+    "target_population": "patients with unresectable stage III-IV melanoma",
+    "primary_endpoint": "overall survival",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -17,9 +17,9 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "Higher grade 3-5 AE rate in combination arm (58% vs 39%)",
-      "Increased fatigue in combination arm",
-      "Various immune-related adverse events including rash and adrenal insufficiency"
+      "Grade 3-5 treatment-related AEs higher in combination arm (58% vs 39%)",
+      "Fatigue more common in combination arm",
+      "Various immune-related adverse events observed"
     ],
     "dose_info": {
       "dose": "",
@@ -29,7 +29,7 @@
     },
     "adverse_events": [
       {
-        "term": "Grade 3-5 adverse events",
+        "term": "Grade 3-5 treatment-related adverse events",
         "grade": "3-5",
         "incidence_treatment_pct": 58.0,
         "incidence_control_pct": 39.0,
@@ -57,45 +57,10 @@
         "serious": true
       },
       {
-        "term": "Gait disturbance",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Sudden death NOS",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Erythema multiforme",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Pruritus",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
         "term": "Rash maculo-papular",
         "grade": "",
         "incidence_treatment_pct": 6.1,
         "incidence_control_pct": 8.5,
-        "serious": true
-      },
-      {
-        "term": "Skin ulceration",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": null,
         "serious": true
       },
       {
@@ -108,8 +73,8 @@
     ]
   },
   "context": {
-    "indication": "Stage III-IV unresectable melanoma",
-    "comparator": "Ipilimumab alone",
+    "indication": "unresectable stage III-IV melanoma",
+    "comparator": "ipilimumab monotherapy",
     "sample_size": 169,
     "duration": "up to 5 years",
     "duration_weeks": 260.0,
@@ -117,23 +82,23 @@
   },
   "arms": [
     {
-      "arm_id": "ipilimumab_alone",
+      "arm_id": "arm_a_ipilimumab",
       "compounds": [
-        "Ipilimumab"
+        "ipilimumab"
       ]
     },
     {
-      "arm_id": "ipilimumab_bevacizumab",
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
       "compounds": [
-        "Ipilimumab",
-        "Bevacizumab"
+        "ipilimumab",
+        "bevacizumab"
       ]
     }
   ],
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "ipilimumab_alone",
+      "arm_id": "arm_a_ipilimumab",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 20.4,
@@ -141,7 +106,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "ipilimumab_bevacizumab",
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 20.1,
@@ -149,7 +114,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "ipilimumab_alone",
+      "arm_id": "arm_a_ipilimumab",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.8,
@@ -157,7 +122,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "ipilimumab_bevacizumab",
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 4.4,
@@ -165,7 +130,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "ipilimumab_alone",
+      "arm_id": "arm_a_ipilimumab",
       "subgroup_descriptor": null,
       "endpoint": "Clinical Response Rate",
       "effect_size": 11.8,
@@ -173,28 +138,23 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "ipilimumab_bevacizumab",
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
       "subgroup_descriptor": null,
       "endpoint": "Clinical Response Rate",
       "effect_size": 15.5,
       "p_value": 0.482,
       "outcome": "failure"
-    },
+    }
+  ],
+  "modulation_entries": [
     {
-      "arm_id": "ipilimumab_alone",
-      "subgroup_descriptor": null,
-      "endpoint": "Immune-related Response Rate",
-      "effect_size": 17.9,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "ipilimumab_bevacizumab",
-      "subgroup_descriptor": null,
-      "endpoint": "Immune-related Response Rate",
-      "effect_size": 17.3,
-      "p_value": 0.937,
-      "outcome": "failure"
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "ipilimumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "anti-angiogenic therapy normalizes tumor vasculature to enhance immune cell infiltration and checkpoint blockade efficacy",
+      "citation": "Primary endpoint OS showed HR 0.94, p = 0.383, indicating no significant benefit from adding bevacizumab to ipilimumab"
     }
   ]
 }

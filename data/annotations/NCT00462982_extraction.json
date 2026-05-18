@@ -3,7 +3,7 @@
   "therapeutic_hypothesis": {
     "compound": "sunitinib malate",
     "claimed_target": "VEGFR, PDGFR, KIT",
-    "proposed_mechanism": "multi-targeted receptor tyrosine kinase inhibition",
+    "proposed_mechanism": "multi-kinase inhibition",
     "intended_biology": "angiogenesis inhibition and tumor growth suppression",
     "target_population": "patients with brain metastases from kidney cancer or melanoma",
     "primary_endpoint": "Central Nervous System (CNS) Response Rate by RECIST Criteria",
@@ -11,16 +11,16 @@
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "3/8 stable disease, 2/8 progression",
+    "effect_size": "0/8 objective responses (0%)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "3 patients achieved stable disease",
-      "2 patients had progression of disease"
+      "3/8 patients achieved stable disease",
+      "2/8 patients had progression of disease"
     ],
     "safety_signals": [
-      "serious adverse events included hepatotoxicity, thrombosis, neurological symptoms"
+      "Multiple serious adverse events including thrombosis/embolism (25%), elevated liver enzymes, headache, speech impairment, thrombocytopenia, and one death due to disease progression"
     ],
     "dose_info": {
       "dose": "",
@@ -30,35 +30,35 @@
     },
     "adverse_events": [
       {
-        "term": "ALT elevation",
+        "term": "ALT, SGPT elevation",
         "grade": "",
         "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "AST elevation",
+        "term": "AST, SGOT elevation",
         "grade": "",
         "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Death from disease progression",
+        "term": "Death not assoc w CTCAE term-Disease prog NOS",
         "grade": "",
         "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Headache",
+        "term": "Pain - Head/headache",
         "grade": "",
         "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Thrombocytopenia",
+        "term": "Platelets",
         "grade": "",
         "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
@@ -72,7 +72,7 @@
         "serious": true
       },
       {
-        "term": "Thrombosis/embolism",
+        "term": "Thrombosis/thrombus/embolism",
         "grade": "",
         "incidence_treatment_pct": 25.0,
         "incidence_control_pct": null,
@@ -135,5 +135,6 @@
       "p_value": null,
       "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

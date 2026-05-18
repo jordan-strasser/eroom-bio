@@ -4,26 +4,25 @@
     "compound": "GSK2118436 (dabrafenib)",
     "claimed_target": "BRAF",
     "proposed_mechanism": "BRAF kinase inhibition",
-    "intended_biology": "blocking oncogenic BRAF signaling in BRAF-mutant tumors",
-    "target_population": "BRAF mutant metastatic melanoma patients",
-    "primary_endpoint": "overall response rate (CR + PR) in BRAF V600E mutation patients",
+    "intended_biology": "MAPK pathway suppression to inhibit tumor cell proliferation",
+    "target_population": "BRAF mutant metastatic melanoma",
+    "primary_endpoint": "Overall response rate (CR + PR) in BRAF V600E mutant patients",
     "rationale_strength": "strong"
   },
   "results": {
     "primary_endpoint_met": true,
     "effect_size": "59% ORR (95% CI: 48.2-70.3) in BRAF V600E patients",
     "p_value": null,
-    "target_engagement_evidence": "differential response rates between V600E (59%) and V600K (13%) mutations suggest target specificity",
+    "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "BRAF V600E patients had 59% ORR vs 13% in V600K patients",
-      "Median PFS 6.3 weeks in V600E vs 4.0 weeks in V600K",
-      "Median OS 13.1 weeks in V600E vs 12.9 weeks in V600K"
+      "BRAF V600E patients: 59% ORR, median PFS 6.3 weeks",
+      "BRAF V600K patients: 13% ORR, median PFS 4.0 weeks"
     ],
     "safety_signals": [
       "87/92 patients experienced any AE",
-      "33/92 patients had serious AEs",
-      "Common lab abnormalities included glucose elevation (51/90), phosphorus changes (36/91), alkaline phosphatase elevation (23/91)"
+      "33/92 patients experienced SAEs",
+      "Common laboratory abnormalities included glucose elevation (51/90), phosphorus elevation (36/91), alkaline phosphatase elevation (23/91)"
     ],
     "dose_info": {
       "dose": "150 mg",
@@ -33,70 +32,70 @@
     },
     "adverse_events": [
       {
-        "term": "anaemia",
+        "term": "Anaemia",
         "grade": "",
         "incidence_treatment_pct": 2.2,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "thrombocytopenia",
+        "term": "Thrombocytopenia",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "arrhythmia supraventricular",
+        "term": "Arrhythmia supraventricular",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "atrial fibrillation",
+        "term": "Atrial fibrillation",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "atrial flutter",
+        "term": "Atrial flutter",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "hypothyroidism",
+        "term": "Hypothyroidism",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "intestinal obstruction",
+        "term": "Intestinal obstruction",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "nausea",
+        "term": "Nausea",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "vomiting",
+        "term": "Vomiting",
         "grade": "",
         "incidence_treatment_pct": 3.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "adverse drug reaction",
+        "term": "Adverse drug reaction",
         "grade": "",
         "incidence_treatment_pct": 1.1,
         "incidence_control_pct": null,
@@ -114,7 +113,7 @@
   },
   "arms": [
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "compounds": [
         "GSK2118436"
       ]
@@ -144,7 +143,7 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600E mutation",
       "endpoint": "ORR",
       "effect_size": 59.0,
@@ -152,7 +151,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600K mutation",
       "endpoint": "ORR",
       "effect_size": 13.0,
@@ -160,7 +159,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600E mutation",
       "endpoint": "PFS",
       "effect_size": 6.3,
@@ -168,7 +167,7 @@
       "outcome": "success"
     },
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600K mutation",
       "endpoint": "PFS",
       "effect_size": 4.0,
@@ -176,7 +175,7 @@
       "outcome": "partial"
     },
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600E mutation",
       "endpoint": "OS",
       "effect_size": 13.1,
@@ -184,12 +183,13 @@
       "outcome": "success"
     },
     {
-      "arm_id": "gsk2118436",
+      "arm_id": "all_patients",
       "subgroup_descriptor": "BRAF V600K mutation",
       "endpoint": "OS",
       "effect_size": 12.9,
       "p_value": null,
       "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

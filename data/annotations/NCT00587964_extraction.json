@@ -4,8 +4,8 @@
     "compound": "Stereotactic Radiosurgery",
     "claimed_target": "residual tumor cells",
     "proposed_mechanism": "high-dose focused radiation to eliminate microscopic disease",
-    "intended_biology": "DNA damage and cell death in residual tumor cells following surgical resection",
-    "target_population": "patients with brain metastases from various solid tumors",
+    "intended_biology": "DNA damage and cell death in residual tumor cells",
+    "target_population": "patients with brain metastases following surgical resection",
     "primary_endpoint": "Local Control at 1 year",
     "rationale_strength": "moderate"
   },
@@ -112,30 +112,96 @@
     ]
   },
   "context": {
-    "indication": "brain metastases from various solid tumors",
+    "indication": "brain metastases following surgical resection",
     "comparator": "none",
     "sample_size": 51,
-    "duration": "1 year follow-up",
+    "duration": "1 year",
     "duration_weeks": 52.0,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "srs",
+      "arm_id": "treatment",
       "compounds": [
         "Stereotactic Radiosurgery"
       ]
     }
   ],
-  "subgroups": [],
+  "subgroups": [
+    {
+      "raw_descriptor": "Local Control",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "No Evidence of Disease (NED)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progression of Disease (POD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Relapse/Recurrence",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
   "results_by_chain": [
     {
-      "arm_id": "srs",
-      "subgroup_descriptor": null,
+      "arm_id": "treatment",
+      "subgroup_descriptor": "Local Control",
       "endpoint": "Local Control",
-      "effect_size": 33.3,
+      "effect_size": 13.0,
       "p_value": null,
       "outcome": "success"
+    },
+    {
+      "arm_id": "treatment",
+      "subgroup_descriptor": "No Evidence of Disease (NED)",
+      "endpoint": "Local Control",
+      "effect_size": 23.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "treatment",
+      "subgroup_descriptor": "Progression of Disease (POD)",
+      "endpoint": "Local Control",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "treatment",
+      "subgroup_descriptor": "Relapse/Recurrence",
+      "endpoint": "Local Control",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

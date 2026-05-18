@@ -1,10 +1,10 @@
 {
   "nct_id": "NCT00788775",
   "therapeutic_hypothesis": {
-    "compound": "Nilotinib",
+    "compound": "nilotinib",
     "claimed_target": "BCR-ABL",
-    "proposed_mechanism": "Tyrosine kinase inhibition",
-    "intended_biology": "Inhibition of oncogenic kinase signaling pathways",
+    "proposed_mechanism": "tyrosine kinase inhibition",
+    "intended_biology": "cell proliferation inhibition",
     "target_population": "TKI resistant or intolerant patients with metastatic mucosal, acral, or chronically sun damaged melanoma",
     "primary_endpoint": "4-month progression-free survival rate",
     "rationale_strength": "weak"
@@ -16,12 +16,14 @@
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "Patients without CNS metastases had better outcomes than those with CNS metastases across all endpoints"
+      "No CNS metastases cohort had better outcomes than CNS metastases cohort",
+      "2 partial responses achieved in no CNS metastases cohort, 0 in CNS cohort"
     ],
     "safety_signals": [
-      "Hepatotoxicity",
-      "Rash/desquamation",
+      "Hepatic toxicity",
+      "Elevated transaminases",
       "Hyponatremia",
+      "Rash/desquamation",
       "Elevated lipase"
     ],
     "dose_info": {
@@ -76,10 +78,10 @@
     ]
   },
   "context": {
-    "indication": "Metastatic mucosal, acral, or chronically sun damaged melanoma",
-    "comparator": "None",
+    "indication": "metastatic mucosal, acral, or chronically sun damaged melanoma",
+    "comparator": "none",
     "sample_size": 20,
-    "duration": "Mean treatment duration 5.5 months (range 0-45 months)",
+    "duration": "mean treatment duration 5.5 months",
     "duration_weeks": 23.9,
     "investigator_commentary": null
   },
@@ -87,13 +89,13 @@
     {
       "arm_id": "nilotinib",
       "compounds": [
-        "Nilotinib"
+        "nilotinib"
       ]
     }
   ],
   "subgroups": [
     {
-      "raw_descriptor": "No CNS Metastatic Cohort",
+      "raw_descriptor": "No CNS Metastastic Cohort",
       "features": [
         {
           "axis": "other",
@@ -116,7 +118,7 @@
   "results_by_chain": [
     {
       "arm_id": "nilotinib",
-      "subgroup_descriptor": "No CNS Metastatic Cohort",
+      "subgroup_descriptor": "No CNS Metastastic Cohort",
       "endpoint": "4-month PFS rate",
       "effect_size": 0.27,
       "p_value": null,
@@ -132,7 +134,7 @@
     },
     {
       "arm_id": "nilotinib",
-      "subgroup_descriptor": "No CNS Metastatic Cohort",
+      "subgroup_descriptor": "No CNS Metastastic Cohort",
       "endpoint": "PFS",
       "effect_size": 3.4,
       "p_value": null,
@@ -148,7 +150,7 @@
     },
     {
       "arm_id": "nilotinib",
-      "subgroup_descriptor": "No CNS Metastatic Cohort",
+      "subgroup_descriptor": "No CNS Metastastic Cohort",
       "endpoint": "OS",
       "effect_size": 14.2,
       "p_value": null,
@@ -162,5 +164,6 @@
       "p_value": null,
       "outcome": "unknown"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

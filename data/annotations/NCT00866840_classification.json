@@ -1,29 +1,54 @@
 {
   "nct_id": "NCT00866840",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm riluzole engaged glutamate signaling pathways. No PK/PD data reported to verify target modulation. 2. PATHWAY MODULATION: No downstream biomarker data to assess whether glutamate signaling was actually modulated or if this affected tumor biology. 3. CLINICAL TRANSLATION: Primary endpoint (tumor response by RECIST) was not met. Only 6/13 participants (46%) showed response, which is below typical thresholds for single-arm melanoma trials. 4. POPULATION EFFECTS: No subgroup analyses reported in this small study. 5. CONFOUNDERS: This was a very small single-arm Phase 2 trial (N=13) that was likely underpowered. Additionally, there were significant safety concerns with multiple serious adverse events including death (7.7%), muscle weakness (15.4%), and dehydration (15.4%), though these don't appear to have limited dosing since the trial completed its planned 6-week duration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether riluzole engaged glutamate receptors or the listed target SCN1A. Without PD/PK data or target engagement biomarkers, we cannot determine if the drug reached its intended target. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether downstream biology changed as predicted. The proposed mechanism of glutamate receptor antagonism leading to neuroprotection and anti-tumor activity cannot be evaluated. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - only 6/13 participants (46%) showed tumor response by RECIST criteria, which is below typical response thresholds for melanoma. Overall survival at 1 year also failed with only 8% effect size. 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess differential responses. 5. CONFOUNDERS: This was a small single-arm Phase 2 trial (N=13) which is underpowered to detect treatment effects. Additionally, there were significant safety concerns with 9/13 participants experiencing adverse events, many serious (muscle weakness 15.4%, dehydration 15.4%, death 7.7%), though these don't appear to have limited dosing below target engagement levels.",
   "failure_modes": [
     {
       "mode": "underpowered",
       "confidence": 0.8,
-      "evidence": "Single-arm trial with only 13 participants, which is extremely small for detecting meaningful activity in melanoma. No statistical power calculation provided."
+      "evidence": "Single-arm trial with only 13 participants is insufficient to adequately assess efficacy in melanoma"
     },
     {
       "mode": "insufficient_information",
       "confidence": 0.7,
-      "evidence": "No biomarker data to assess target engagement or pathway modulation. Cannot determine if riluzole actually engaged glutamate signaling or if the mechanism was appropriate for melanoma."
+      "evidence": "No biomarker data, target engagement evidence, or pathway modulation data available to assess where in the causal chain the failure occurred"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "ORR_melanoma_skin",
-      "target_entity": "melanoma_skin",
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-445095",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "riluzole",
+      "reasoning": "The assumed biology (Interaction between L1 and Ankyrins) did not drive clinical benefit in melanoma as evidenced by the failed primary endpoint"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-445095",
       "support": "ambiguous",
-      "reasoning": "Single-arm trial with 46% response rate in unselected melanoma population. Without historical control context and given small sample size, cannot determine if this represents meaningful clinical benefit."
+      "affecting_arm_id": "riluzole",
+      "reasoning": "Without biomarker data, cannot determine if enzyme inhibition mechanism actually modulated the downstream biology"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "riluzole",
+      "target_entity": "ENSG00000144285",
+      "support": "ambiguous",
+      "affecting_arm_id": "riluzole",
+      "reasoning": "No target engagement data available to confirm riluzole binding to SCN1A"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Tumor response by RECIST criteria is a well-established endpoint for melanoma that captures clinical benefit when achieved"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Very small sample size (N=13) makes interpretation difficult. No biomarker data available to assess mechanism. Multiple serious adverse events raise questions about tolerability, but trial completed planned duration."
+  "review_reason": "Very small sample size (N=13) and complete absence of biomarker/PD data makes it difficult to determine where in the causal chain the failure occurred. The high rate of serious adverse events may also indicate dosing or tolerability issues not captured in standard failure modes."
 }

@@ -10,27 +10,27 @@
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": null,
-    "effect_size": "Median RFS: 5.73 months, Median OS: 61.57 months",
+    "primary_endpoint_met": true,
+    "effect_size": "Median RFS 5.73 months, Median OS 61.57 months",
     "p_value": null,
-    "target_engagement_evidence": "GD2 expression detected in 6/12 evaluable patients (3 positive in each arm)",
+    "target_engagement_evidence": "GD2 expression detected in 6/12 evaluable patients (50% positive)",
     "biomarker_changes": [
-      "CRP increased from baseline 0 mg/dL to 9-11 mg/dL at cycle 1 day 3",
-      "Lymphocyte count decreased from baseline ~1600 to 200-250 at cycle 1 day 3, then rebounded to ~4000-4900 at cycle 1 day 8",
-      "Soluble IL-2 receptor alpha increased from baseline ~1260 ng/ml to peak ~10800-12400 ng/ml at cycle days 4"
+      "CRP increased from baseline 0 mg/dL to peak 9-11 mg/dL at cycle 1 day 3",
+      "Lymphocyte count decreased from baseline ~1600 to nadir ~225 at cycle 1 day 3, then rebounded to ~4400 at cycle 1 day 8",
+      "Soluble IL-2 receptor alpha increased from baseline ~1260 ng/ml to peak ~11000-14000 ng/ml during treatment cycles",
+      "Anti-idiotypic antibodies developed with peak optical density 1.5-1.7 at cycle 1 day 8"
     ],
     "subgroup_findings": [
       "GD2 positive patients: 3/11 in arm A, 3/9 in arm B",
       "GD2 negative patients: 3/11 in arm A, 3/9 in arm B"
     ],
     "safety_signals": [
-      "Lymphopenia was a serious adverse event in both arms",
-      "Headache and vomiting reported in arm A",
-      "Infection and neuropathy reported in other arms"
+      "Lymphopenia was the most common serious adverse event",
+      "Headache, vomiting, infection, and neuropathy reported as serious adverse events"
     ],
     "dose_info": {
       "dose": "6 mg/m2",
-      "schedule": "days 1, 2, and 3 of 28-day cycles",
+      "schedule": "IV on days 1, 2, and 3 of a 28-day course",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -38,36 +38,43 @@
       {
         "term": "Lymphopenia",
         "grade": "",
-        "incidence_treatment_pct": 9.1,
-        "incidence_control_pct": 11.1,
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Pain - Head / Headache",
         "grade": "",
-        "incidence_treatment_pct": 9.1,
+        "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Vomiting",
         "grade": "",
-        "incidence_treatment_pct": 9.1,
+        "incidence_treatment_pct": 5.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Infection",
         "grade": "",
-        "incidence_treatment_pct": null,
-        "incidence_control_pct": 11.1,
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neuropathy",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
         "serious": true
       }
     ]
   },
   "context": {
-    "indication": "resectable recurrent stage III or stage IV melanoma",
-    "comparator": "different timing of surgery relative to hu14.18-IL2 treatment",
+    "indication": "Resectable recurrent stage III or stage IV melanoma",
+    "comparator": "None (single-arm study with two treatment sequences)",
     "sample_size": 23,
     "duration": "up to 24 months follow-up",
     "duration_weeks": 104.3,
@@ -75,13 +82,13 @@
   },
   "arms": [
     {
-      "arm_id": "preop_hu14_18_il2",
+      "arm_id": "a",
       "compounds": [
         "hu14.18-IL2"
       ]
     },
     {
-      "arm_id": "postop_hu14_18_il2",
+      "arm_id": "b",
       "compounds": [
         "hu14.18-IL2"
       ]
@@ -111,36 +118,37 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "preop_hu14_18_il2",
+      "arm_id": "a",
       "subgroup_descriptor": null,
       "endpoint": "RFS",
       "effect_size": 5.73,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "success"
     },
     {
-      "arm_id": "postop_hu14_18_il2",
+      "arm_id": "b",
       "subgroup_descriptor": null,
       "endpoint": "RFS",
       "effect_size": 5.73,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "success"
     },
     {
-      "arm_id": "preop_hu14_18_il2",
+      "arm_id": "a",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 61.57,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "success"
     },
     {
-      "arm_id": "postop_hu14_18_il2",
+      "arm_id": "b",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 61.57,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "success"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

@@ -3,32 +3,30 @@
   "therapeutic_hypothesis": {
     "compound": "Anti-NY ESO-1 T-cell receptor PBL + aldesleukin + cyclophosphamide + fludarabine",
     "claimed_target": "NY-ESO-1",
-    "proposed_mechanism": "Adoptive T-cell therapy with engineered T-cells targeting NY-ESO-1 antigen",
-    "intended_biology": "T-cell mediated tumor recognition and destruction",
-    "target_population": "Patients with metastatic melanoma, renal cell cancer, and other cancers",
-    "primary_endpoint": "Clinical Response Per RECIST",
+    "proposed_mechanism": "Adoptive transfer of genetically engineered T cells targeting NY-ESO-1 antigen",
+    "intended_biology": "T cell-mediated tumor recognition and elimination",
+    "target_population": "Patients with metastatic melanoma, renal cell cancer, and other cancers expressing NY-ESO-1",
+    "primary_endpoint": "Clinical response per RECIST criteria",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": null,
     "effect_size": "Overall response rate varied by arm: 9/17 (53%) in arm 1, 8/16 (50%) in arm 2, 2/7 (29%) in arm 3, 3/5 (60%) in arm 4",
     "p_value": null,
-    "target_engagement_evidence": "TCR-engineered cells demonstrated in vivo survival at 1 month post treatment",
+    "target_engagement_evidence": "TCR-engineered cells demonstrated in vivo survival at 1 month post-treatment in all arms",
     "biomarker_changes": [
-      "In vivo survival of TCR-engineered cells detected at 1 month"
+      "In vivo survival of TCR-engineered cells detected by tetramer analysis and TCR staining"
     ],
-    "subgroup_findings": [],
+    "subgroup_findings": [
+      "Complete responses observed across multiple arms",
+      "Partial responses achieved in majority of evaluable patients"
+    ],
     "safety_signals": [
-      "Thrombosis/embolism",
-      "Hypoxia",
-      "Infection",
-      "Nausea",
-      "Colitis",
-      "Death not associated with CTCAE term"
+      "Serious adverse events included thrombosis, hypoxia, infection, colitis, and treatment-related death"
     ],
     "dose_info": {
       "dose": "1x10e8 to 1x10e11 cells; aldesleukin 720,000 IU/kg; cyclophosphamide 60 mg/kg/day; fludarabine 25 mg/m2/day",
-      "schedule": "Cells infused on day 0; aldesleukin every 8 hours for up to 5 days; cyclophosphamide x 2 days; fludarabine daily x 5 days",
+      "schedule": "Cells infused on day 0; aldesleukin every 8 hours for up to 5 days; cyclophosphamide for 2 days; fludarabine daily for 5 days",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -79,15 +77,15 @@
   },
   "context": {
     "indication": "Metastatic melanoma, metastatic renal cell cancer, metastatic cancer",
-    "comparator": "None",
+    "comparator": "None - single arm study with multiple treatment variations",
     "sample_size": 45,
-    "duration": "Approximately 3 years",
+    "duration": "Approximately 3 years follow-up",
     "duration_weeks": 156.0,
     "investigator_commentary": "A more highly selected protocol with ESO TCR opened for pts with melanoma"
   },
   "arms": [
     {
-      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
       "compounds": [
         "Anti-NY ESO-1 T-cell receptor PBL",
         "aldesleukin",
@@ -96,7 +94,7 @@
       ]
     },
     {
-      "arm_id": "tcr_pbl_il2_other_ca",
+      "arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
       "compounds": [
         "Anti-NY ESO-1 T-cell receptor PBL",
         "aldesleukin",
@@ -105,7 +103,7 @@
       ]
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
       "compounds": [
         "Anti-NY ESO-1 T-cell receptor PBL",
         "aldesleukin",
@@ -115,7 +113,7 @@
       ]
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
       "compounds": [
         "Anti-NY ESO-1 T-cell receptor PBL",
         "aldesleukin",
@@ -165,82 +163,83 @@
           "level": "stable_disease"
         }
       ]
-    },
-    {
-      "raw_descriptor": "Not Evaluable",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "not_evaluable"
-        }
-      ]
     }
   ],
   "results_by_chain": [
     {
-      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 3.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_il2_other_ca",
+      "arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 1.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 1.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
       "subgroup_descriptor": "Complete Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 0.0,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "tcr_pbl_il2_mel_rcc",
+      "arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
       "subgroup_descriptor": "Partial Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 6.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_il2_other_ca",
+      "arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
       "subgroup_descriptor": "Partial Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 7.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_mel_rcc",
+      "arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
       "subgroup_descriptor": "Partial Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 1.0,
       "p_value": null,
       "outcome": "success"
     },
     {
-      "arm_id": "tcr_pbl_alvac_il2_other_ca",
+      "arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
       "subgroup_descriptor": "Partial Response",
-      "endpoint": "RECIST Response",
+      "endpoint": "RECIST response",
       "effect_size": 3.0,
       "p_value": null,
       "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "alvac_ny_eso_1_vaccine",
+      "primary_compound_id": "anti_ny_eso_1_tcr_pbl",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "ALVAC vaccine should enhance T cell priming and improve anti-tumor response of adoptively transferred TCR-engineered cells",
+      "citation": "Arms 3 and 4 included ALVAC NY ESO-1 vaccine in addition to the TCR PBL therapy, but response rates were not consistently improved compared to arms without vaccine"
     }
   ]
 }

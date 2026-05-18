@@ -1,26 +1,25 @@
 {
   "nct_id": "NCT00019682",
   "therapeutic_hypothesis": {
-    "compound": "aldesleukin with or without gp100 antigen vaccine",
-    "claimed_target": "IL-2 receptor and melanoma-associated gp100 antigen",
-    "proposed_mechanism": "IL-2 stimulates T-cell proliferation and activation; gp100 vaccine induces tumor-specific T-cell responses",
-    "intended_biology": "enhancement of anti-tumor immune response through cytokine stimulation and antigen-specific vaccination",
+    "compound": "gp100 antigen vaccine + aldesleukin",
+    "claimed_target": "gp100 melanoma antigen",
+    "proposed_mechanism": "vaccine-induced T-cell activation against gp100 antigen enhanced by IL-2",
+    "intended_biology": "tumor-specific immune response amplification",
     "target_population": "patients with locally advanced or metastatic melanoma",
-    "primary_endpoint": "best response rate (partial response + complete response)",
+    "primary_endpoint": "best response rate (PR + CR)",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "14 vs 6 responders (combination vs aldesleukin alone)",
+    "effect_size": "14/85 vs 6/93 responders (16.5% vs 6.5%)",
     "p_value": 0.035,
-    "target_engagement_evidence": "7 patients in combination arm developed positive T-cell precursor assays vs 0 in aldesleukin alone arm",
+    "target_engagement_evidence": "7 patients in vaccine arm developed positive T-cell precursor assays vs 0 in aldesleukin alone",
     "biomarker_changes": [
-      "T-cell precursor reactivity increased in 7/85 patients receiving combination therapy vs 0/93 receiving aldesleukin alone"
+      "T-cell precursor reactivity: 7/85 positive in vaccine arm vs 0/93 in aldesleukin alone"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "1 death in aldesleukin arm",
-      "2 deaths in combination arm"
+      "3 deaths total (1 in aldesleukin arm, 2 in combination arm)"
     ],
     "dose_info": {
       "dose": "",
@@ -30,8 +29,8 @@
     },
     "adverse_events": [
       {
-        "term": "death",
-        "grade": "5",
+        "term": "Death",
+        "grade": "",
         "incidence_treatment_pct": 2.4,
         "incidence_control_pct": 1.1,
         "serious": true
@@ -48,53 +47,64 @@
   },
   "arms": [
     {
-      "arm_id": "aldesleukin_alone",
+      "arm_id": "arm_i_aldesleukin",
       "compounds": [
         "aldesleukin"
       ]
     },
     {
-      "arm_id": "combination",
+      "arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
       "compounds": [
-        "aldesleukin",
         "gp100 antigen",
-        "montanide ISA 51 VG"
+        "montanide ISA 51 VG",
+        "aldesleukin"
       ]
     }
   ],
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "aldesleukin_alone",
+      "arm_id": "arm_i_aldesleukin",
       "subgroup_descriptor": null,
       "endpoint": "response rate",
-      "effect_size": 6.0,
+      "effect_size": 6.5,
       "p_value": 0.035,
-      "outcome": "partial"
+      "outcome": "failure"
     },
     {
-      "arm_id": "combination",
+      "arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
       "subgroup_descriptor": null,
       "endpoint": "response rate",
-      "effect_size": 14.0,
+      "effect_size": 16.5,
       "p_value": 0.035,
       "outcome": "success"
     },
     {
-      "arm_id": "aldesleukin_alone",
+      "arm_id": "arm_i_aldesleukin",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.6,
       "p_value": 0.008,
-      "outcome": "partial"
+      "outcome": "failure"
     },
     {
-      "arm_id": "combination",
+      "arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.2,
       "p_value": 0.008,
       "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "gp100_antigen",
+      "primary_compound_id": "aldesleukin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "gp100 vaccine provides tumor-specific T-cell targets for IL-2 expansion and activation",
+      "citation": "Best Response Rate: Arm II (gp100 Antigen in Montanide IDA-51 and Aldesleukin): 14, Arm I (Aldesleukin): 6, p = 0.035"
     }
   ]
 }

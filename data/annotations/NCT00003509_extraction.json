@@ -10,21 +10,17 @@
     "rationale_strength": "unclear"
   },
   "results": {
-    "primary_endpoint_met": null,
-    "effect_size": "8/13 participants with objective response",
+    "primary_endpoint_met": false,
+    "effect_size": "0/13 objective responses (0%)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "2/2 stable disease patients had objective response",
-      "6/11 progressive disease patients had objective response"
+      "2/13 patients achieved stable disease",
+      "6/13 patients had progressive disease"
     ],
     "safety_signals": [
-      "Sinus tachycardia",
-      "Hypotension",
-      "Central venous catheter infection",
-      "Hemorrhage",
-      "Seizure"
+      "Multiple serious adverse events including sinus tachycardia, hypotension, central venous catheter infection, hemorrhage, and seizure"
     ],
     "dose_info": {
       "dose": "",
@@ -92,7 +88,7 @@
       "raw_descriptor": "Stable Disease",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "stable_disease"
         }
@@ -102,7 +98,7 @@
       "raw_descriptor": "Progressive Disease",
       "features": [
         {
-          "axis": "other",
+          "axis": "response",
           "key": "",
           "level": "progressive_disease"
         }
@@ -116,7 +112,7 @@
       "endpoint": "Objective Response",
       "effect_size": 2.0,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "failure"
     },
     {
       "arm_id": "antineoplaston_therapy",
@@ -124,7 +120,8 @@
       "endpoint": "Objective Response",
       "effect_size": 6.0,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

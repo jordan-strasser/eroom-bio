@@ -1,27 +1,27 @@
 {
   "nct_id": "NCT00911443",
   "therapeutic_hypothesis": {
-    "compound": "Thymosin alpha-1 + Interferon alpha + Dacarbazine combination",
-    "claimed_target": "immune system modulation",
-    "proposed_mechanism": "thymosin alpha-1 enhances T-cell function and interferon alpha provides antiviral/antiproliferative effects combined with dacarbazine chemotherapy",
-    "intended_biology": "immune system activation and direct cytotoxic effects",
+    "compound": "dacarbazine + interferon alpha + thymosin alpha-1",
+    "claimed_target": "immune system activation",
+    "proposed_mechanism": "immune system stimulation combined with DNA alkylation",
+    "intended_biology": "enhanced anti-tumor immune response with cytotoxic chemotherapy",
     "target_population": "patients with malignant melanoma",
-    "primary_endpoint": "overall tumor response rate",
+    "primary_endpoint": "overall tumor response",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": null,
-    "effect_size": "response rates ranged from 4-12 patients per arm",
+    "effect_size": "response rates varied by arm: 4-12 responders per arm",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [],
     "dose_info": {
-      "dose": "Dacarbazine 800 mg/m2, Interferon alpha 3MIU, Thymosin-alpha-1 1.6-6.4 mg",
-      "schedule": "28-day cycles up to 6 cycles",
+      "dose": "dacarbazine 800 mg/m2, interferon alpha 3MIU, thymosin alpha-1 1.6-6.4 mg",
+      "schedule": "dacarbazine day 1, interferon alpha days 11 and 18, thymosin alpha-1 days 8-11 and 15-18 of 28-day cycles",
       "max_tolerated_dose": "",
-      "dose_modifications": ""
+      "dose_modifications": "up to 6 cycles or until progression or unacceptable toxicity"
     },
     "adverse_events": []
   },
@@ -29,44 +29,44 @@
     "indication": "malignant melanoma",
     "comparator": "dacarbazine + interferon alpha",
     "sample_size": 488,
-    "duration": "up to 6 cycles of 28 days",
+    "duration": "up to 6 cycles of 28 days each",
     "duration_weeks": 24.0,
     "investigator_commentary": null
   },
   "arms": [
     {
-      "arm_id": "dtic_ifn_ta1_1_6mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_1_6_mg",
       "compounds": [
         "dacarbazine",
         "interferon alpha",
-        "thymosin-alpha-1"
+        "thymosin alpha-1"
       ]
     },
     {
-      "arm_id": "dtic_ifn_ta1_3_2mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_3_2_mg",
       "compounds": [
         "dacarbazine",
         "interferon alpha",
-        "thymosin-alpha-1"
+        "thymosin alpha-1"
       ]
     },
     {
-      "arm_id": "dtic_ifn_ta1_6_4mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_6_4_mg",
       "compounds": [
         "dacarbazine",
         "interferon alpha",
-        "thymosin-alpha-1"
+        "thymosin alpha-1"
       ]
     },
     {
-      "arm_id": "dtic_ta1_3_2mg",
+      "arm_id": "dacarbazine_thymosin_alpha_1_3_2_mg",
       "compounds": [
         "dacarbazine",
-        "thymosin-alpha-1"
+        "thymosin alpha-1"
       ]
     },
     {
-      "arm_id": "dtic_ifn",
+      "arm_id": "dacarbazine_interferon_alpha",
       "compounds": [
         "dacarbazine",
         "interferon alpha"
@@ -76,7 +76,47 @@
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "dtic_ifn_ta1_1_6mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_1_6_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_3_2_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response",
+      "effect_size": 10.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_6_4_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "dacarbazine_thymosin_alpha_1_3_2_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response",
+      "effect_size": 12.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "dacarbazine_interferon_alpha",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response",
+      "effect_size": 4.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_1_6_mg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 9.3,
@@ -84,7 +124,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn_ta1_3_2mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_3_2_mg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 8.6,
@@ -92,7 +132,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn_ta1_6_4mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_6_4_mg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 10.3,
@@ -100,7 +140,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ta1_3_2mg",
+      "arm_id": "dacarbazine_thymosin_alpha_1_3_2_mg",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 9.3,
@@ -108,7 +148,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn",
+      "arm_id": "dacarbazine_interferon_alpha",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 6.6,
@@ -116,7 +156,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn_ta1_1_6mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_1_6_mg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.9,
@@ -124,7 +164,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn_ta1_3_2mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_3_2_mg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.8,
@@ -132,7 +172,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn_ta1_6_4mg",
+      "arm_id": "dacarbazine_interferon_alpha_thymosin_alpha_1_6_4_mg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.8,
@@ -140,7 +180,7 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ta1_3_2mg",
+      "arm_id": "dacarbazine_thymosin_alpha_1_3_2_mg",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.0,
@@ -148,52 +188,32 @@
       "outcome": "unknown"
     },
     {
-      "arm_id": "dtic_ifn",
+      "arm_id": "dacarbazine_interferon_alpha",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 1.8,
       "p_value": null,
       "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "thymosin_alpha_1",
+      "primary_compound_id": "dacarbazine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "thymosin alpha-1 enhances immune response to complement dacarbazine cytotoxicity",
+      "citation": "Triple combination arms showed variable response rates (6-10 responders) compared to dacarbazine + thymosin alpha-1 alone (12 responders)"
     },
     {
-      "arm_id": "dtic_ifn_ta1_1_6mg",
-      "subgroup_descriptor": null,
-      "endpoint": "Overall Tumor Response",
-      "effect_size": 7.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "dtic_ifn_ta1_3_2mg",
-      "subgroup_descriptor": null,
-      "endpoint": "Overall Tumor Response",
-      "effect_size": 10.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "dtic_ifn_ta1_6_4mg",
-      "subgroup_descriptor": null,
-      "endpoint": "Overall Tumor Response",
-      "effect_size": 6.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "dtic_ta1_3_2mg",
-      "subgroup_descriptor": null,
-      "endpoint": "Overall Tumor Response",
-      "effect_size": 12.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "dtic_ifn",
-      "subgroup_descriptor": null,
-      "endpoint": "Overall Tumor Response",
-      "effect_size": 4.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "modulator_compound_id": "interferon_alpha",
+      "primary_compound_id": "dacarbazine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.7,
+      "hypothesis": "interferon alpha provides immune activation to enhance dacarbazine anti-tumor activity",
+      "citation": "Dacarbazine + interferon alpha showed 4 responders with 6.6 months OS compared to triple combinations"
     }
   ]
 }

@@ -1,29 +1,110 @@
 {
   "nct_id": "NCT00509496",
-  "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether the TCR gene-engineered lymphocytes successfully engaged gp100 on melanoma cells. Without target engagement evidence, cannot confirm the first step of the causal chain. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether T-cell activation and tumor antigen recognition occurred as intended. 3. CLINICAL TRANSLATION: Primary endpoint of clinical tumor regression by RECIST was not met. Overall response rate was only 19% (4/21 patients), which is modest for this indication. No p-value reported and no statistical significance achieved. 4. POPULATION EFFECTS: Limited subgroup analysis showed PBL arm had higher response rate (3/19, 15.8%) compared to TIL arm (1/2, 50%), but sample sizes are too small to draw meaningful conclusions. 5. CONFOUNDERS: Trial had very high incidence of serious adverse events (>50% of patients experienced SAEs including hypotension 10.5%, renal failure 10.5%, acute vascular leak syndrome 10.5%, creatinine elevation 15.8%). The investigator noted 'low accrual' suggesting recruitment challenges. Small sample size (n=21) may have contributed to underpowering.",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement. The trial used TCR gene-engineered lymphocytes targeting gp100:154-162, but no evidence of successful T-cell expansion, persistence, or target recognition was reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biological activity. 3. CLINICAL TRANSLATION: Overall response rate was 19% (4/21 patients), which represents some clinical activity but missed the primary endpoint. The PBL arm showed 16% response rate (3/19) while TIL arm showed 50% (1/2) but with very small sample size. 4. POPULATION EFFECTS: Limited subgroup analysis due to small sample size, but PBL vs TIL comparison suggests potential differences in cell source effectiveness. 5. CONFOUNDERS: Small sample size (n=21), single-arm design with no control group, and significant toxicity from high-dose IL-2 component. The trial was noted to have low accrual, suggesting feasibility issues.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
+      "mode": "underpowered",
       "confidence": 0.8,
-      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine if failure was due to lack of target engagement, inadequate biological response, or other factors."
+      "evidence": "Very small sample size (n=21) with low accrual noted by investigators, insufficient to adequately assess efficacy"
     },
     {
-      "mode": "underpowered",
-      "confidence": 0.6,
-      "evidence": "Small sample size of 21 patients with investigator commentary noting 'low accrual' suggests the trial may have been underpowered to detect treatment effects."
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "High incidence of serious adverse events related to high-dose IL-2 including acute vascular leak syndrome, renal toxicity, and hypotension with multiple SAEs >10% incidence"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "fludarabine_phosphate",
+      "target_entity": "ENSG00000101868",
+      "support": "ambiguous",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "reasoning": "No target engagement data available for fludarabine component"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "reasoning": "No target engagement data available for cyclophosphamide component"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "weak_support",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "reasoning": "IL-2 likely engaged its receptor given known pharmacology, though no biomarker confirmation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "autologous_anti_gp_100_154_162_t_cell_receptor_gene_engineered_peripheral_blood_lymphocytes",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "reasoning": "No evidence of T-cell expansion, persistence, or target recognition reported"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_pbl_hd_il_2",
+      "reasoning": "PBL arm showed 16% response rate suggesting some biological activity, though limited by small sample size"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "fludarabine_phosphate",
+      "target_entity": "ENSG00000101868",
+      "support": "ambiguous",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "reasoning": "No target engagement data available for fludarabine component"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "reasoning": "No target engagement data available for cyclophosphamide component"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "weak_support",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "reasoning": "IL-2 likely engaged its receptor given known pharmacology, though no biomarker confirmation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "autologous_anti_gp_100_154_162_t_cell_receptor_gene_engineered_tumor_infiltrating_lymphocytes",
+      "target_entity": "UNKNOWN",
+      "support": "weak_support",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "reasoning": "TIL arm showed 50% response rate (1/2 patients) suggesting potential activity but sample too small for confidence"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "anti_gp100_154_162_tcr_til_hd_il_2",
+      "reasoning": "TIL arm showed response but extremely small sample size (n=2) limits interpretation"
+    },
+    {
       "edge_type": "endpoint_captures",
       "source_entity": "CR_melanoma",
       "target_entity": "skin_cancer",
-      "support": "ambiguous",
-      "reasoning": "Primary endpoint was measured (19% ORR) but without historical comparator or statistical significance, cannot determine if this level of response translates to clinical benefit in metastatic melanoma"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Complete response is a well-established endpoint for melanoma that directly captures clinical benefit when achieved"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "No biomarker or target engagement data available to assess mechanistic failure mode. High SAE rate and small sample size create multiple confounding factors that prevent clear mechanistic classification."
+  "review_reason": "Very small sample size with no biomarker data makes mechanistic interpretation highly uncertain. The trial design issues (underpowered, single-arm, toxicity) confound the ability to assess the underlying biological hypothesis."
 }

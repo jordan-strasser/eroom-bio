@@ -1,31 +1,57 @@
 {
   "nct_id": "NCT01119508",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement, but immune-related adverse events (skin rash, pruritis, colitis, diarrhea) are consistent with CTLA-4 inhibition, suggesting likely target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream immune activation. 3. CLINICAL TRANSLATION: This appears to be a single-arm Phase 2 trial with 29 participants progression-free at 6 months out of 64 total patients (45.3% 6-month PFS rate). Without a control arm or historical comparison provided, and no p-value reported, it's unclear if this represents efficacy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a single-arm trial without adequate comparator data to assess efficacy. The lack of control arm and absence of statistical testing makes it impossible to determine if the observed 6-month PFS rate represents meaningful clinical benefit.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either ipilimumab (CTLA-4) or temozolomide (DNA alkylation). However, the safety profile shows immune-related adverse events (skin rash, colitis, fatigue) consistent with ipilimumab's known CTLA-4 blockade mechanism, suggesting at least partial target engagement for ipilimumab. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biological changes from checkpoint blockade or DNA damage-induced immunogenic cell death. 3. CLINICAL TRANSLATION: Single-arm trial with 45.3% 6-month PFS rate. Without a control arm or clear historical benchmark, this result is difficult to interpret definitively, but appears modest for metastatic melanoma. The primary endpoint outcome is listed as 'unknown' rather than success. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm Phase II trial without a control group, making it difficult to assess true treatment effect. The combination design also makes it impossible to determine individual drug contributions.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Single-arm trial with no control group, no p-value reported, no biomarker data for target engagement confirmation, and no historical comparison provided to interpret the 45.3% 6-month PFS rate"
+      "evidence": "Single-arm trial with no control group and primary endpoint outcome listed as 'unknown'. 45.3% 6-month PFS rate cannot be definitively interpreted as success or failure without appropriate comparator or established historical benchmark."
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "ipilimumab+temozolomide",
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
       "target_entity": "ENSG00000163599",
       "support": "weak_support",
-      "reasoning": "Immune-related adverse events (colitis, diarrhea, skin rash, pruritis) are consistent with CTLA-4 inhibition, suggesting target engagement, but no direct biomarker confirmation"
+      "affecting_arm_id": "ipilimumab_temozolomide",
+      "reasoning": "Immune-related adverse events (skin rash, colitis, fatigue) consistent with CTLA-4 blockade mechanism suggest target engagement, though no direct biomarker confirmation"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_temozolomide",
+      "reasoning": "No pathway biomarkers to confirm checkpoint blockade mechanism activation despite suggestive safety profile"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_temozolomide",
+      "reasoning": "No biomarker data to assess whether checkpoint blockade mechanism affected downstream biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_temozolomide",
+      "reasoning": "Single-arm design with unclear efficacy outcome prevents assessment of whether biology drives disease benefit"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "PFS_metastatic_melanoma",
-      "target_entity": "metastatic_melanoma",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "melanoma",
       "support": "ambiguous",
-      "reasoning": "6-month PFS rate of 45.3% was measured but without control arm or historical comparison, cannot determine if this translates to clinical benefit in metastatic melanoma"
+      "affecting_arm_id": null,
+      "reasoning": "6-month PFS rate was measured (45.3%) but without control arm or clear historical benchmark, cannot determine if this translates to clinical benefit"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm trial design makes efficacy assessment impossible without historical controls or benchmarks. Need expert input on whether 45.3% 6-month PFS rate in metastatic melanoma represents meaningful activity."
+  "review_reason": "Single-arm trial design with unclear primary endpoint interpretation makes mechanistic failure classification difficult. Expert review needed to determine appropriate historical benchmark for 45.3% 6-month PFS rate in metastatic melanoma and whether this represents success or failure."
 }

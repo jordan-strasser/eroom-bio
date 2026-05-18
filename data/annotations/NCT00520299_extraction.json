@@ -4,30 +4,30 @@
     "compound": "ADI-PEG 20",
     "claimed_target": "arginine",
     "proposed_mechanism": "arginine depletion via pegylated arginine deiminase",
-    "intended_biology": "amino acid metabolism disruption in arginine-auxotrophic tumors",
+    "intended_biology": "amino acid metabolism disruption in argininosuccinate synthetase-deficient tumors",
     "target_population": "patients with advanced metastatic melanoma",
     "primary_endpoint": "safety and tolerability, best overall clinical tumor response",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "0% objective response rate (0/31 patients achieved CR/PR)",
+    "effect_size": "0/31 patients achieved complete or partial response",
     "p_value": null,
-    "target_engagement_evidence": "arginine depletion achieved (baseline ~55 \u03bcM reduced to 2-9 \u03bcM by day 4)",
+    "target_engagement_evidence": "arginine levels depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4",
     "biomarker_changes": [
-      "Arginine levels decreased from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4",
-      "Citrulline levels increased from baseline 23-38 \u03bcM to 158-225 \u03bcM by day 4",
-      "Anti-ADI antibodies developed over time (0.1-0.2 log U/mL at baseline to 3.0-4.5 log U/mL by day 120)"
+      "plasma arginine depleted from 49-62 \u03bcM to 2-9 \u03bcM by day 4",
+      "plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM by day 4-15",
+      "anti-ADI antibodies developed progressively over treatment course"
     ],
     "subgroup_findings": [
-      "No objective responses in any dose cohort",
-      "Stable disease achieved in 9/31 patients (29%)",
-      "ASS-negative tumors showed no better response than ASS-positive tumors"
+      "ASS-negative tumors showed no improved response vs ASS \u22645% positive",
+      "stable disease achieved in 9/31 patients (29%)",
+      "early metabolic response by PET on day 4 in 7/31 patients"
     ],
     "safety_signals": [
-      "Dose-dependent increase in treatment-related adverse events",
-      "One grade 5 event (death) in highest dose cohort",
-      "Treatment discontinuation due to adverse events in 4/31 patients"
+      "dose-dependent increase in treatment-related adverse events",
+      "immunogenicity developed in all patients over time",
+      "one grade 5 event (death) in highest dose cohort"
     ],
     "dose_info": {
       "dose": "40, 80, or 160 IU/m\u00b2",
@@ -79,39 +79,11 @@
         "serious": true
       },
       {
-        "term": "Musculoskeletal pain",
+        "term": "TEAE leading to withdrawal",
         "grade": "",
-        "incidence_treatment_pct": 16.7,
+        "incidence_treatment_pct": 12.9,
         "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Headache",
-        "grade": "",
-        "incidence_treatment_pct": 33.3,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Nausea",
-        "grade": "",
-        "incidence_treatment_pct": 8.0,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Vomiting",
-        "grade": "",
-        "incidence_treatment_pct": 8.0,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Dyspnoea",
-        "grade": "",
-        "incidence_treatment_pct": 8.0,
-        "incidence_control_pct": null,
-        "serious": true
+        "serious": false
       }
     ]
   },
@@ -125,19 +97,19 @@
   },
   "arms": [
     {
-      "arm_id": "cohort_1_40",
+      "arm_id": "cohort_1",
       "compounds": [
         "ADI-PEG 20"
       ]
     },
     {
-      "arm_id": "cohort_2_80",
+      "arm_id": "cohort_2",
       "compounds": [
         "ADI-PEG 20"
       ]
     },
     {
-      "arm_id": "cohort_3_160",
+      "arm_id": "cohort_3",
       "compounds": [
         "ADI-PEG 20"
       ]
@@ -180,7 +152,7 @@
         {
           "axis": "gene",
           "key": "ASS1",
-          "level": "low"
+          "level": "positive"
         },
         {
           "axis": "response",
@@ -222,7 +194,7 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "cohort_1_40",
+      "arm_id": "cohort_1",
       "subgroup_descriptor": "Complete/partial response",
       "endpoint": "ORR",
       "effect_size": 0.0,
@@ -230,7 +202,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "cohort_2_80",
+      "arm_id": "cohort_2",
       "subgroup_descriptor": "Complete/partial response",
       "endpoint": "ORR",
       "effect_size": 0.0,
@@ -238,7 +210,7 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "cohort_3_160",
+      "arm_id": "cohort_3",
       "subgroup_descriptor": "Complete/partial response",
       "endpoint": "ORR",
       "effect_size": 0.0,
@@ -246,28 +218,29 @@
       "outcome": "failure"
     },
     {
-      "arm_id": "cohort_1_40",
+      "arm_id": "cohort_1",
       "subgroup_descriptor": "Stable disease",
       "endpoint": "DCR",
-      "effect_size": 50.0,
+      "effect_size": 0.5,
       "p_value": null,
       "outcome": "partial"
     },
     {
-      "arm_id": "cohort_2_80",
+      "arm_id": "cohort_2",
       "subgroup_descriptor": "Stable disease",
       "endpoint": "DCR",
-      "effect_size": 33.3,
+      "effect_size": 0.33,
       "p_value": null,
       "outcome": "partial"
     },
     {
-      "arm_id": "cohort_3_160",
+      "arm_id": "cohort_3",
       "subgroup_descriptor": "Stable disease",
       "endpoint": "DCR",
-      "effect_size": 23.5,
+      "effect_size": 0.24,
       "p_value": null,
       "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

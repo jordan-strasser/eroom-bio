@@ -6,7 +6,7 @@
     "proposed_mechanism": "histone deacetylase inhibition",
     "intended_biology": "chromatin remodeling and gene expression modulation",
     "target_population": "patients with metastatic or unresectable melanoma",
-    "primary_endpoint": "objective response rate by RECIST",
+    "primary_endpoint": "objective response rate",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -18,14 +18,14 @@
       "MacroH2A1.1 log fold change: 0.149",
       "MacroH2A1.2 log fold change: -0.748",
       "HP1 log fold change: -0.077",
-      "VEGF serum levels mean: 203 pg"
+      "VEGF serum levels mean: 203 pg (p=0.029)"
     ],
     "subgroup_findings": [
       "p53 wild type: 20 patients",
       "p53 mutant: 11 patients"
     ],
     "safety_signals": [
-      "Multiple serious adverse events including hematologic toxicities (anemia, thrombocytopenia), constitutional symptoms (fatigue, anorexia), and musculoskeletal effects"
+      "Multiple serious adverse events including hematologic toxicity (anemia, thrombocytopenia), constitutional symptoms (fatigue, anorexia), and musculoskeletal effects"
     ],
     "dose_info": {
       "dose": "",
@@ -37,70 +37,70 @@
       {
         "term": "Dry mouth",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Dizziness",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Back pain",
         "grade": "",
-        "incidence_treatment_pct": 6.25,
+        "incidence_treatment_pct": 6.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Platelet count decreased",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Dyspnea",
         "grade": "",
-        "incidence_treatment_pct": 6.25,
+        "incidence_treatment_pct": 6.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Myalgia",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Anemia",
         "grade": "",
-        "incidence_treatment_pct": 6.25,
+        "incidence_treatment_pct": 6.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Generalized muscle weakness",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Anorexia",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "Tumor pain",
         "grade": "",
-        "incidence_treatment_pct": 3.125,
+        "incidence_treatment_pct": 3.1,
         "incidence_control_pct": null,
         "serious": true
       }
@@ -116,7 +116,7 @@
   },
   "arms": [
     {
-      "arm_id": "vorinostat",
+      "arm_id": "arm_i",
       "compounds": [
         "vorinostat"
       ]
@@ -146,36 +146,21 @@
   ],
   "results_by_chain": [
     {
-      "arm_id": "vorinostat",
+      "arm_id": "arm_i",
       "subgroup_descriptor": null,
-      "endpoint": "ORR",
+      "endpoint": "objective response rate",
       "effect_size": 2.0,
       "p_value": null,
       "outcome": "failure"
     },
     {
-      "arm_id": "vorinostat",
+      "arm_id": "arm_i",
       "subgroup_descriptor": null,
-      "endpoint": "TTP",
+      "endpoint": "time to progression",
       "effect_size": 4.0,
       "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "vorinostat",
-      "subgroup_descriptor": "Wild Type",
-      "endpoint": "p53 status",
-      "effect_size": 20.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "vorinostat",
-      "subgroup_descriptor": "Mutant",
-      "endpoint": "p53 status",
-      "effect_size": 11.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

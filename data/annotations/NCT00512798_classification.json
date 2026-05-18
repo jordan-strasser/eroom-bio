@@ -1,31 +1,121 @@
 {
   "nct_id": "NCT00512798",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition in peripheral blood mononuclear cells and found that 0 patients achieved \u226550% NF-\u03baB inhibition in both phases. This is clear evidence of failed target engagement despite using the standard bortezomib dose of 1.3 mg/m2. 2. PATHWAY MODULATION: Since the target was not engaged (no NF-\u03baB inhibition observed), downstream pathway modulation could not occur as intended. 3. CLINICAL TRANSLATION: The primary endpoint was not met, with minimal clinical activity observed (4/19 partial responses in Phase I, only 1/28 partial responses in Phase II). The study was terminated for lack of efficacy. 4. POPULATION EFFECTS: No meaningful subgroup differences were reported, though response rates were universally low across both phases. 5. CONFOUNDERS: The trial design appears adequate with appropriate dosing and duration (54 weeks). The failure appears to be mechanistic rather than due to trial design issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition as a biomarker of proteasome inhibition by bortezomib. Results showed 0/19 patients in Phase I and 0/28 patients in Phase II achieved \u226550% NF-\u03baB inhibition, indicating no meaningful target engagement despite reaching the MTD of bortezomib 1.3 mg/m2. 2. PATHWAY MODULATION: With no target engagement confirmed, downstream pathway modulation was not achieved. The lack of NF-\u03baB inhibition suggests the proteasome inhibition pathway was not effectively modulated. 3. CLINICAL TRANSLATION: Clinical activity was minimal - Phase I had 4/19 partial responses (21% ORR), Phase II had only 1/28 partial responses (3.6% ORR). The majority of patients had progressive disease (14/19 in Phase I, 22/28 in Phase II). The trial was terminated for lack of efficacy. 4. POPULATION EFFECTS: No meaningful subgroup differences were identified. Both phases showed poor response rates across the population. 5. CONFOUNDERS: The trial reached its planned MTD and had adequate duration (54 weeks), ruling out dose-limiting toxicity or wrong timeframe as primary factors.",
   "failure_modes": [
     {
       "mode": "no_target_engagement",
-      "confidence": 0.95,
-      "evidence": "Explicit biomarker measurement showed 0 patients achieved \u226550% NF-\u03baB inhibition in both phases, with no significant NF-\u03baB inhibition observed in peripheral blood mononuclear cells"
+      "confidence": 0.9,
+      "evidence": "Explicit biomarker measurement showed 0/47 patients achieved \u226550% NF-\u03baB inhibition, indicating bortezomib failed to meaningfully engage the proteasome target despite reaching MTD"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "ps_341_velcade+temozolomide",
+      "edge_type": "affects",
+      "source_entity": "ps_341_velcade",
       "target_entity": "UNKNOWN",
-      "support": "strong_contradict",
-      "reasoning": "Direct biomarker measurement showed complete failure to achieve target NF-\u03baB inhibition despite standard dosing"
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Phase I arm showed no target engagement with 0/19 patients achieving NF-\u03baB inhibition despite reaching MTD"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ps_341_velcade",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "Phase II arm showed no target engagement with 0/28 patients achieving NF-\u03baB inhibition despite reaching MTD"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "temozolomide",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "No specific biomarker data for temozolomide target engagement was reported"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "temozolomide",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "No specific biomarker data for temozolomide target engagement was reported"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "protein_degradation",
+      "target_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Lack of NF-\u03baB inhibition suggests proteasome inhibition mechanism did not effectively modulate downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "protein_degradation",
+      "target_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "Lack of NF-\u03baB inhibition suggests proteasome inhibition mechanism did not effectively modulate downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__brain_and_central_nervous_system_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "No specific biomarker data for DNA damage pathway modulation was reported"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__brain_and_central_nervous_system_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "No specific biomarker data for DNA damage pathway modulation was reported"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
+      "target_entity": "brain_and_central_nervous_system_tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Phase I showed poor clinical response (21% ORR) with no evidence of pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "protein_degradation__brain_and_central_nervous_system_tumor",
+      "target_entity": "brain_and_central_nervous_system_tumor",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "Phase II showed very poor clinical response (3.6% ORR) with no evidence of pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__brain_and_central_nervous_system_tumor",
+      "target_entity": "brain_and_central_nervous_system_tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Phase I showed poor clinical response despite temozolomide treatment"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__brain_and_central_nervous_system_tumor",
+      "target_entity": "brain_and_central_nervous_system_tumor",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_ii",
+      "reasoning": "Phase II showed very poor clinical response despite temozolomide treatment"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_solid_tumor",
-      "target_entity": "brain_and_central_nervous_system_tumors",
-      "support": "ambiguous",
-      "reasoning": "Tumor response endpoint was measured but extremely low response rates (3.6% in Phase II) make it difficult to assess whether the endpoint would capture benefit if the drug had worked"
+      "target_entity": "brain_and_central_nervous_system_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "RECIST response was measured and provided interpretable results, though the trial failed to show meaningful clinical benefit"
     }
   ],
-  "confidence_overall": 0.9,
+  "confidence_overall": 0.8,
   "needs_expert_review": false,
   "review_reason": null
 }

@@ -1,27 +1,27 @@
 {
   "nct_id": "NCT01119508",
   "therapeutic_hypothesis": {
-    "compound": "Ipilimumab + Temozolomide",
+    "compound": "ipilimumab + temozolomide",
     "claimed_target": "CTLA-4 + DNA alkylation",
-    "proposed_mechanism": "CTLA-4 blockade enhances T-cell activation while temozolomide induces DNA damage in melanoma cells",
-    "intended_biology": "Immune checkpoint inhibition combined with cytotoxic chemotherapy",
-    "target_population": "Metastatic melanoma patients",
-    "primary_endpoint": "6-Month Progression-Free Survival Rate",
+    "proposed_mechanism": "immune checkpoint blockade combined with DNA damage-induced immunogenic cell death",
+    "intended_biology": "enhanced anti-tumor immune response through checkpoint inhibition and chemotherapy-induced antigen release",
+    "target_population": "metastatic melanoma patients",
+    "primary_endpoint": "6-month progression-free survival rate",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": null,
-    "effect_size": "29 participants without progression at 6 months",
+    "effect_size": "29/64 participants progression-free at 6 months (45.3%)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "Multiple immune-related adverse events including skin rash, pruritis, colitis, and diarrhea consistent with CTLA-4 inhibition"
+      "Multiple immune-related adverse events including skin rash, colitis, and fatigue consistent with ipilimumab toxicity profile"
     ],
     "dose_info": {
-      "dose": "Ipilimumab 10 mg/kg, Temozolomide 200 mg/m\u00b2",
-      "schedule": "Induction: Ipilimumab IV every 3 weeks x4, Temozolomide PO days 1-4 every 3 weeks x4; Maintenance: Ipilimumab every 12 weeks, Temozolomide days 1-5 every 4 weeks",
+      "dose": "ipilimumab 10 mg/kg IV, temozolomide 200 mg/m\u00b2",
+      "schedule": "ipilimumab every 3 weeks x4 then every 12 weeks, temozolomide days 1-4 every 3 weeks x4 then days 1-5 every 4 weeks",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -99,8 +99,8 @@
     ]
   },
   "context": {
-    "indication": "Metastatic Melanoma",
-    "comparator": "",
+    "indication": "metastatic melanoma",
+    "comparator": "none",
     "sample_size": 64,
     "duration": "6 months",
     "duration_weeks": 26.0,
@@ -108,22 +108,33 @@
   },
   "arms": [
     {
-      "arm_id": "ipi_plus_temo",
+      "arm_id": "ipilimumab_temozolomide",
       "compounds": [
-        "Ipilimumab",
-        "Temozolomide"
+        "ipilimumab",
+        "temozolomide"
       ]
     }
   ],
   "subgroups": [],
   "results_by_chain": [
     {
-      "arm_id": "ipi_plus_temo",
+      "arm_id": "ipilimumab_temozolomide",
       "subgroup_descriptor": null,
-      "endpoint": "6-Month PFS Rate",
-      "effect_size": 29.0,
+      "endpoint": "6-month PFS rate",
+      "effect_size": 45.3,
       "p_value": null,
       "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "temozolomide",
+      "primary_compound_id": "ipilimumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.7,
+      "hypothesis": "temozolomide-induced DNA damage and immunogenic cell death should enhance ipilimumab-mediated immune activation",
+      "citation": "single-arm combination study with 45.3% 6-month PFS rate but no monotherapy comparator to demonstrate enhancement"
     }
   ]
 }

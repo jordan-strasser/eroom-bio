@@ -3,30 +3,30 @@
   "therapeutic_hypothesis": {
     "compound": "GSK2132231A",
     "claimed_target": "MAGE-A3",
-    "proposed_mechanism": "Antigen-specific cancer immunotherapy targeting MAGE-A3 to induce immune response",
-    "intended_biology": "Activation of anti-tumor immune response through MAGE-A3 antigen presentation",
-    "target_population": "Patients with inoperable metastatic cutaneous melanoma",
-    "primary_endpoint": "Objective tumor response rate",
+    "proposed_mechanism": "antigen-specific cancer immunotherapy targeting MAGE-A3",
+    "intended_biology": "immune system activation against MAGE-A3 expressing melanoma cells",
+    "target_population": "patients with inoperable metastatic cutaneous melanoma",
+    "primary_endpoint": "objective tumor response rate",
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": null,
-    "effect_size": "4/24 patients achieved objective response (CR+PR)",
+    "primary_endpoint_met": false,
+    "effect_size": "4/24 patients (16.7%) achieved objective response (CR or PR)",
     "p_value": null,
     "target_engagement_evidence": "Anti-MAGE-A3 antibody seroconversion achieved in majority of patients",
     "biomarker_changes": [
-      "Anti-MAGE-A3 antibody concentrations increased from baseline geometric mean ~14 EL.U/mL to peak ~13,789 EL.U/mL at W13",
+      "Anti-MAGE-A3 antibody concentrations increased from baseline geometric mean ~14 EL.U/mL to peak ~8000-14000 EL.U/mL at week 13",
       "CD4+ T-cell responses detected in 15/24 patients at any timepoint",
       "CD8+ T-cell responses detected in 3/24 patients at any timepoint"
     ],
     "subgroup_findings": [
-      "GS+/+ patients had better response rate (3/8 objective responses) compared to GS+/- (1/8) and GS- (0/8)",
+      "Gene signature positive patients (GS+/+) showed better response rates (3/8 objective responses) compared to GS+/- (1/8) and GS- (0/8)",
       "Median time to treatment failure: GS+/+ 14.8 months vs GS+/- 2.3 months vs GS- 2.4 months"
     ],
     "safety_signals": [
       "Well tolerated overall",
       "No grade 3/4 ASCI-related adverse events",
-      "2 serious adverse events reported (cardiac disorder, metastatic melanoma progression)"
+      "2 serious adverse events (cardiac disorder, metastatic melanoma progression)"
     ],
     "dose_info": {
       "dose": "",
@@ -39,13 +39,6 @@
         "term": "Any adverse event",
         "grade": "1-3",
         "incidence_treatment_pct": 100.0,
-        "incidence_control_pct": null,
-        "serious": false
-      },
-      {
-        "term": "Grade 3 adverse events",
-        "grade": "3",
-        "incidence_treatment_pct": 12.5,
         "incidence_control_pct": null,
         "serious": false
       },
@@ -67,7 +60,7 @@
   },
   "context": {
     "indication": "inoperable metastatic cutaneous melanoma",
-    "comparator": "none",
+    "comparator": "none (single-arm study)",
     "sample_size": 24,
     "duration": "up to 4 years",
     "duration_weeks": 208.0,
@@ -75,53 +68,13 @@
   },
   "arms": [
     {
-      "arm_id": "gsk2132231a",
+      "arm_id": "gsk2132231a_group",
       "compounds": [
         "GSK2132231A"
       ]
     }
   ],
   "subgroups": [
-    {
-      "raw_descriptor": "Best response CR",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "complete_response"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Best response PR",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "partial_response"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Best response SD",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "stable_disease"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Best response PD",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "progressive_disease"
-        }
-      ]
-    },
     {
       "raw_descriptor": "Best objective response Yes",
       "features": [
@@ -141,24 +94,45 @@
           "level": "non_responder"
         }
       ]
+    },
+    {
+      "raw_descriptor": "Disease Control Yes",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Disease Control No",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
     }
   ],
   "results_by_chain": [
     {
-      "arm_id": "gsk2132231a",
-      "subgroup_descriptor": "Best objective response Yes",
-      "endpoint": "objective response",
-      "effect_size": 4.0,
+      "arm_id": "gsk2132231a_group",
+      "subgroup_descriptor": null,
+      "endpoint": "objective response rate",
+      "effect_size": 16.7,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure"
     },
     {
-      "arm_id": "gsk2132231a",
+      "arm_id": "gsk2132231a_group",
       "subgroup_descriptor": null,
-      "endpoint": "TTF",
+      "endpoint": "time to treatment failure",
       "effect_size": 2.4,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure"
     }
-  ]
+  ],
+  "modulation_entries": []
 }
