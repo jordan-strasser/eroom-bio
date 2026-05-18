@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT00019682",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement for gp100 antigen - 7/85 patients in vaccine arm developed positive T-cell precursor assays vs 0/93 in aldesleukin alone, confirming immune recognition of gp100. Aldesleukin target engagement assumed based on known IL-2 receptor biology. 2. PATHWAY MODULATION: T-cell precursor reactivity confirms downstream immune activation pathway was engaged by the vaccine component. 3. CLINICAL TRANSLATION: Primary endpoint (response rate) was met with statistical significance (16.5% vs 6.5%, p=0.035). The combination arm showed clear superiority over aldesleukin monotherapy. PFS also improved significantly (2.2 vs 1.6 months, p=0.008). 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population showed benefit. 5. CONFOUNDERS: Well-controlled randomized trial with adequate sample size (185 patients). Safety profile acceptable with only modest increase in deaths (2.4% vs 1.1%). This represents a successful proof-of-concept for gp100 vaccine enhancing aldesleukin efficacy.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement for gp100 antigen - 7/85 patients in vaccine arm developed positive T-cell precursor assays vs 0/93 in aldesleukin alone, confirming immune recognition of the gp100 target. Aldesleukin target engagement (IL2RA) is presumed based on established mechanism. 2. PATHWAY MODULATION: T-cell precursor reactivity confirms downstream immune activation pathway modulation in the vaccine arm. The vaccine successfully induced tumor-specific immune responses. 3. CLINICAL TRANSLATION: Primary endpoint was met - response rate significantly higher in combination arm (16.5% vs 6.5%, p=0.035). PFS also improved (2.2 vs 1.6 months, p=0.008). The biological activity translated to clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population showed benefit from the combination. 5. CONFOUNDERS: Well-controlled randomized trial with adequate sample size (n=185). No major confounders identified.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -10,7 +10,7 @@
       "target_entity": "ENSG00000185664",
       "support": "strong_support",
       "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "T-cell precursor assays confirmed gp100 antigen recognition - 7/85 patients developed positive assays vs 0/93 in control, providing direct evidence of target engagement"
+      "reasoning": "Strong target engagement evidence - 7/85 patients developed positive T-cell precursor assays vs 0/93 in control, confirming gp100 antigen recognition"
     },
     {
       "edge_type": "affects",
@@ -18,7 +18,7 @@
       "target_entity": "ENSG00000134460",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Combination arm succeeded, supporting aldesleukin target engagement, though no direct IL-2 receptor biomarker data provided"
+      "reasoning": "Combination arm succeeded with aldesleukin as component, supporting IL2RA engagement in successful context"
     },
     {
       "edge_type": "affects",
@@ -26,7 +26,15 @@
       "target_entity": "ENSG00000134460",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_i_aldesleukin",
-      "reasoning": "Aldesleukin monotherapy failed (6.5% response rate), suggesting insufficient target engagement or downstream pathway activation as monotherapy"
+      "reasoning": "Aldesleukin monotherapy failed (6.5% response rate), suggesting insufficient target engagement or downstream effects when used alone"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "montanide_isa_51_vg",
+      "target_entity": "ENSG00000162711",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
+      "reasoning": "Adjuvant component of successful combination arm, likely contributing to immune activation"
     },
     {
       "edge_type": "modulates_via",
@@ -34,23 +42,7 @@
       "target_entity": "immune_costimulation",
       "support": "strong_support",
       "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "T-cell precursor reactivity confirms gp100 target engagement led to immune costimulation pathway activation"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000134460",
-      "target_entity": "receptor_agonism",
-      "support": "moderate_support",
-      "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Combination success supports IL-2 receptor agonism, though direct pathway biomarkers not reported"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000134460",
-      "target_entity": "receptor_agonism",
-      "support": "weak_contradict",
-      "affecting_arm_id": "arm_i_aldesleukin",
-      "reasoning": "Monotherapy failure suggests IL-2 receptor agonism alone insufficient for clinical benefit"
+      "reasoning": "T-cell precursor reactivity confirms immune costimulation mechanism activation"
     },
     {
       "edge_type": "mechanism_affects",
@@ -58,23 +50,7 @@
       "target_entity": "R-HSA-9824585",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Successful clinical outcome with confirmed T-cell activation supports immune costimulation affecting downstream melanoma-relevant biology"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "receptor_agonism",
-      "target_entity": "R-HSA-912526",
-      "support": "moderate_support",
-      "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Combination success supports IL-2 receptor agonism contributing to interleukin signaling pathway activation"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "receptor_agonism",
-      "target_entity": "R-HSA-912526",
-      "support": "weak_contradict",
-      "affecting_arm_id": "arm_i_aldesleukin",
-      "reasoning": "Monotherapy failure suggests IL-2 signaling alone insufficient to drive meaningful biological changes"
+      "reasoning": "Successful clinical outcome suggests immune costimulation effectively modulated downstream melanoma-related biology"
     },
     {
       "edge_type": "biology_drives",
@@ -82,15 +58,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Successful clinical outcome supports that MITF-M-dependent pigmentation pathway biology drives melanoma pathogenesis and is therapeutically relevant"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-912526",
-      "target_entity": "melanoma",
-      "support": "weak_support",
-      "affecting_arm_id": "arm_ii_gp100_antigen_in_montanide_ida_51_and_aldesleukin",
-      "reasoning": "Combination success suggests interleukin signaling contributes to anti-melanoma activity, though monotherapy failed"
+      "reasoning": "Clinical response (16.5% vs 6.5%) demonstrates that modulating MITF-M-dependent pigmentation pathways drives melanoma outcomes"
     },
     {
       "edge_type": "biology_drives",
@@ -98,7 +66,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_i_aldesleukin",
-      "reasoning": "Aldesleukin monotherapy failure suggests IL-2 signaling alone insufficient to drive meaningful anti-melanoma biology"
+      "reasoning": "Aldesleukin monotherapy failure suggests IL-2 receptor signaling alone is insufficient to drive melanoma benefit"
     },
     {
       "edge_type": "endpoint_captures",
@@ -106,7 +74,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Response rate endpoint successfully differentiated effective from ineffective treatment and correlated with PFS benefit, supporting its validity as a melanoma endpoint"
+      "reasoning": "Response rate endpoint successfully captured clinical benefit with significant p-value (0.035) and clinically meaningful effect size difference"
     }
   ],
   "confidence_overall": 0.8,

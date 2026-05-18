@@ -31,6 +31,7 @@ from src.graph.models import (
     RegulatoryStatus,
     SubgroupFeature,
     TargetNode,
+    TargetType,
     TrialArm,
     TrialNode,
     TrialOutcome,
@@ -92,6 +93,7 @@ from src.ingestion.lincs import (
     _category_to_mechanism_type,
     populate_lincs_signatures,
 )
+from src.ingestion.chembl import ChEMBLClient
 from src.ingestion.opentargets import (
     OpenTargetsClient,
     score_to_prior,
@@ -563,6 +565,9 @@ class PopulationPipeline:
         self.graph = graph
         self._ct_client = ClinicalTrialsClient()
         self._ot_client = OpenTargetsClient()
+        self._chembl_client = ChEMBLClient(
+            cache_path=cache_dir / "chembl_mechanisms.json",
+        )
         self._anthropic = anthropic_client
         self._cache_dir = cache_dir
         # name → node_id index, keyed by (normalized_name, node_type)
@@ -1149,6 +1154,7 @@ class PopulationPipeline:
                         id=ensembl,
                         name=approved_name,
                         gene_symbol=symbol,
+                        target_type=TargetType.PROTEIN,
                         metadata={"source": "opentargets"},
                     ))
                     self._index_node(ensembl, symbol, "target")
@@ -1167,6 +1173,59 @@ class PopulationPipeline:
                     ))
                     binds_added += 1
                 target_ids.append(ensembl)
+
+            # Non-protein fallback: when OT returns no protein targets,
+            # query ChEMBL's REST API directly. OT generic-ifies
+            # action_type to "INHIBITOR" and returns null mechanismsOfAction
+            # for many drugs; ChEMBL's raw API has the structured
+            # `target_chembl_id` pointing to typed entities (NUCLEIC-ACID
+            # for DNA, PROTEIN COMPLEX GROUP for tubulin). The
+            # ChEMBLClient handles the lookup + translation to our
+            # namespaced ids. Prior Beta(3.5, 1) — slightly below
+            # OT-direct's Beta(4, 1) since the target is inferred from
+            # mechanism text rather than directly listed.
+            chembl_id = drug_data.get("chembl_id")
+            if not target_ids:
+                # Pass both chembl_id (if OT resolved it) AND the raw
+                # intervention name (so ChEMBL's molecule search can
+                # find drugs OT missed — dacarbazine, fotemustine,
+                # etc., per the round-11 audit gap).
+                inferred = await self._chembl_client.infer_non_protein_target(
+                    chembl_id, drug_name=iv_name,
+                )
+                if inferred is not None:
+                    tid, tname, ttype, mech = inferred
+                    try:
+                        self.graph.get_node(tid)
+                    except KeyError:
+                        self.graph.add_node(TargetNode(
+                            id=tid,
+                            name=tname,
+                            gene_symbol=tid,
+                            target_type=ttype,
+                            metadata={
+                                "source": "chembl_rest_fallback",
+                            },
+                        ))
+                        self._index_node(tid, tname, "target")
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        cid, tid, key=EdgeType.AFFECTS.value,
+                    ):
+                        edge_meta = {
+                            "source": "chembl_rest_fallback",
+                            "drug_chembl_id": chembl_id,
+                        }
+                        if mech is not None:
+                            edge_meta["implied_mechanism"] = mech.value
+                        self.graph.add_edge(GraphEdge(
+                            source_id=cid,
+                            target_id=tid,
+                            edge_type=EdgeType.AFFECTS,
+                            belief=EdgeBeliefState(alpha=3.5, beta=1.0),
+                            metadata=edge_meta,
+                        ))
+                        binds_added += 1
+                    target_ids.append(tid)
             compound_targets[cid] = target_ids
         return compound_targets, binds_added
 
@@ -1331,15 +1390,36 @@ class PopulationPipeline:
                     except KeyError:
                         pass
 
-                    mech_value = await infer_mechanism_for_arm(
-                        self._anthropic,
-                        trial,
-                        arm_label=arm_label,
-                        arm_compound_names=[constituent_name],
-                        target_node=target_node,
-                        cache=cache,
-                        cache_key=f"{trial.nct_id}::{arm.arm_id}::{cid}",
-                    )
+                    # Prefer structured truth over LLM inference: when the
+                    # AFFECTS edge from compound→target carries a
+                    # `implied_mechanism` (set by `chembl_action_fallback`
+                    # for non-protein targets), use it directly and skip
+                    # the Sonnet call. ChEMBL's `action_type` is curated;
+                    # the LLM is only needed when no structured source
+                    # named the mechanism.
+                    implied = None
+                    if target_id:
+                        try:
+                            affects_meta = self.graph._graph.get_edge_data(  # noqa: SLF001
+                                cid, target_id, key=EdgeType.AFFECTS.value,
+                            ) or {}
+                            implied = (affects_meta.get("metadata") or {}).get(
+                                "implied_mechanism"
+                            )
+                        except Exception:
+                            implied = None
+                    if implied:
+                        mech_value = implied
+                    else:
+                        mech_value = await infer_mechanism_for_arm(
+                            self._anthropic,
+                            trial,
+                            arm_label=arm_label,
+                            arm_compound_names=[constituent_name],
+                            target_node=target_node,
+                            cache=cache,
+                            cache_key=f"{trial.nct_id}::{arm.arm_id}::{cid}",
+                        )
                     mech_id = normalize_entity(mech_value, "MechanismNode")
 
                     try:

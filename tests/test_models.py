@@ -87,6 +87,40 @@ class TestTargetNode:
         with pytest.raises(ValidationError):
             TargetNode(id="T1", name="Test", gene_symbol="")
 
+    def test_default_target_type_is_protein(self):
+        """Pre-target-namespace-expansion TargetNodes (all gene/protein
+        targets from Open Targets) keep working without setting
+        target_type explicitly."""
+        from src.graph.models import TargetType
+        node = TargetNode(
+            id="ENSG00000188389", name="Programmed cell death 1",
+            gene_symbol="PDCD1",
+        )
+        assert node.target_type == TargetType.PROTEIN
+
+    def test_macromolecule_target_uses_chebi_id(self):
+        """For DNA-binding chemos, the target is the macromolecule (no
+        gene); id namespace is ChEBI; gene_symbol stores the namespaced
+        id as a readable handle."""
+        from src.graph.models import TargetType
+        node = TargetNode(
+            id="CHEBI:16991", name="DNA", gene_symbol="CHEBI:16991",
+            target_type=TargetType.MACROMOLECULE,
+        )
+        assert node.target_type == TargetType.MACROMOLECULE
+        assert node.id == "CHEBI:16991"
+
+    def test_cell_population_target_uses_cl_id(self):
+        """Cell-population targets (rare but real — pancreatic β-cell-
+        directed therapies, etc.) use Cell Ontology ids."""
+        from src.graph.models import TargetType
+        node = TargetNode(
+            id="CL:0000169", name="pancreatic β-cell",
+            gene_symbol="CL:0000169",
+            target_type=TargetType.CELL_POPULATION,
+        )
+        assert node.target_type == TargetType.CELL_POPULATION
+
 
 class TestMechanismNode:
     def test_create(self):
@@ -435,6 +469,33 @@ class TestNormalizeEntity:
         from src.graph.models import normalize_entity
 
         assert normalize_entity("PD-1", "TargetNode") == "PD1"
+
+    def test_target_accepts_chebi_namespace(self):
+        """Macromolecular targets (DNA, tubulin) use ChEBI ids."""
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("CHEBI:16991", "TargetNode") == "CHEBI:16991"
+        assert normalize_entity("CHEBI:35797", "TargetNode") == "CHEBI:35797"
+
+    def test_target_accepts_cell_ontology_namespace(self):
+        """Cell-population targets (rare) use Cell Ontology ids."""
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("CL:0000169", "TargetNode") == "CL:0000169"
+
+    def test_target_accepts_hgnc_namespace(self):
+        """HGNC fallback when Ensembl isn't resolved for a gene-coded
+        antigen (CD19, BCMA, etc.)."""
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("HGNC:1633", "TargetNode") == "HGNC:1633"
+
+    def test_target_accepts_go_namespace_for_cellular_components(self):
+        """GO cellular_component ids (e.g. `microtubule` GO:0005874)
+        as a structural target namespace."""
+        from src.graph.models import normalize_entity
+
+        assert normalize_entity("GO:0005874", "TargetNode") == "GO:0005874"
 
     def test_mechanism_validates_against_enum(self):
         from src.graph.models import normalize_entity

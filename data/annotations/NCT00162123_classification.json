@@ -1,14 +1,8 @@
 {
   "nct_id": "NCT00162123",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement, but the dose-dependent immune-related adverse events (63.8% overall irAEs, dose-dependent pattern) strongly suggest on-target immune activation. 2. PATHWAY MODULATION: The characteristic immune-related adverse events (gastrointestinal 28.8%, skin 41.4%) are consistent with CTLA-4 checkpoint blockade leading to enhanced T-cell activation. The dose-response relationship for both efficacy and toxicity supports pathway engagement. 3. CLINICAL TRANSLATION: Clear dose-dependent survival benefit with 10 mg/kg arm achieving 30.8 months median OS (success), while lower doses showed partial responses (18.7 and 15.2 months). PFS showed more modest improvements across all doses (2.6-3.4 months, all partial). 4. POPULATION EFFECTS: No specific biomarker-defined subgroups analyzed, but clear dose-response relationship suggests mechanism works across the melanoma population with optimal benefit at highest tolerated dose. 5. CONFOUNDERS: This is a dose-finding study in patients previously exposed to ipilimumab, which could affect interpretation, but the clear dose-response relationship for both efficacy and toxicity supports genuine drug effect.",
-  "failure_modes": [
-    {
-      "mode": "dose_limiting_toxicity",
-      "confidence": 0.6,
-      "evidence": "17% fatal adverse events (Grade 5) and 34% Grade 3-4 AEs suggest significant toxicity, though the 10 mg/kg dose that showed best efficacy was still deliverable"
-    }
-  ],
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement, but the dose-dependent immune-related adverse events (63.8% overall irAE rate, 13.5% grade 3-4 irAEs) are consistent with CTLA-4 checkpoint inhibition mechanism. Higher doses showed increased toxicity, suggesting target engagement. 2. PATHWAY MODULATION: The immune-related adverse events pattern (GI and skin irAEs most common) is characteristic of CTLA-4 blockade and T-cell activation. The dose-response relationship for both efficacy and toxicity supports pathway modulation. 3. CLINICAL TRANSLATION: The 10 mg/kg dose arm achieved success in OS (30.8 months), while lower doses showed partial responses. This demonstrates clinical translation with dose-dependency. PFS showed more modest improvements across all doses (2.6-3.4 months). 4. POPULATION EFFECTS: No specific subgroup analyses reported beyond dose-response relationships. 5. CONFOUNDERS: This was primarily a safety study that also captured efficacy endpoints. The dose-dependent survival benefit supports the mechanistic hypothesis despite the primary endpoint being safety.",
+  "failure_modes": [],
   "edges_to_update": [
     {
       "edge_type": "affects",
@@ -16,7 +10,7 @@
       "target_entity": "ENSG00000163599",
       "support": "moderate_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
-      "reasoning": "Dose-dependent immune-related AEs strongly suggest CTLA-4 engagement, highest dose arm showed best efficacy"
+      "reasoning": "Dose-dependent immune-related adverse events and survival benefit at 10 mg/kg suggest target engagement, though no direct biomarker confirmation"
     },
     {
       "edge_type": "affects",
@@ -24,7 +18,7 @@
       "target_entity": "ENSG00000163599",
       "support": "weak_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
-      "reasoning": "Intermediate dose showed partial OS benefit with characteristic irAEs"
+      "reasoning": "Partial OS response (18.7 months) and immune-related AEs suggest target engagement but at lower level than 10 mg/kg dose"
     },
     {
       "edge_type": "affects",
@@ -32,7 +26,7 @@
       "target_entity": "ENSG00000163599",
       "support": "weak_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
-      "reasoning": "Lowest dose showed partial OS benefit with some irAEs"
+      "reasoning": "Partial OS response (15.2 months) and immune-related AEs suggest target engagement but at lowest level"
     },
     {
       "edge_type": "modulates_via",
@@ -40,7 +34,23 @@
       "target_entity": "checkpoint_blockade",
       "support": "moderate_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
-      "reasoning": "Characteristic immune-related AE profile consistent with checkpoint blockade mechanism"
+      "reasoning": "Characteristic immune-related adverse event profile and dose-dependent survival benefit consistent with checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "weak_support",
+      "affecting_arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
+      "reasoning": "Immune-related AEs and partial survival benefit support checkpoint blockade but at lower magnitude"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "weak_support",
+      "affecting_arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
+      "reasoning": "Immune-related AEs and partial survival benefit support checkpoint blockade but at lowest magnitude"
     },
     {
       "edge_type": "mechanism_affects",
@@ -48,7 +58,23 @@
       "target_entity": "R-HSA-389513",
       "support": "moderate_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
-      "reasoning": "Dose-dependent irAEs and survival benefit support CTLA-4 co-inhibition pathway modulation"
+      "reasoning": "Dose-dependent survival benefit and characteristic irAE profile support CTLA-4 co-inhibition pathway modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_support",
+      "affecting_arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
+      "reasoning": "Partial survival benefit supports pathway modulation but at lower magnitude than highest dose"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_support",
+      "affecting_arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
+      "reasoning": "Partial survival benefit supports pathway modulation but at lowest magnitude"
     },
     {
       "edge_type": "biology_drives",
@@ -56,7 +82,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_10_to_10_mg_kg",
-      "reasoning": "30.8 month median OS in highest dose arm demonstrates clinical benefit in melanoma"
+      "reasoning": "Strong OS benefit (30.8 months) demonstrates that CTLA-4 co-inhibition biology drives melanoma outcomes"
     },
     {
       "edge_type": "biology_drives",
@@ -64,7 +90,7 @@
       "target_entity": "melanoma",
       "support": "weak_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_3_to_10_mg_kg",
-      "reasoning": "18.7 month median OS shows partial benefit at intermediate dose"
+      "reasoning": "Partial OS benefit (18.7 months) supports biology driving melanoma but at lower magnitude"
     },
     {
       "edge_type": "biology_drives",
@@ -72,7 +98,7 @@
       "target_entity": "melanoma",
       "support": "weak_support",
       "affecting_arm_id": "first_reinduction_ipilimumab_0_3_to_10_mg_kg",
-      "reasoning": "15.2 month median OS shows partial benefit at lowest dose"
+      "reasoning": "Partial OS benefit (15.2 months) supports biology driving melanoma but at lowest magnitude"
     },
     {
       "edge_type": "endpoint_captures",
@@ -80,10 +106,10 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was met and dose-dependent survival benefit was demonstrated, showing safety assessment captured clinically relevant dosing"
+      "reasoning": "Primary safety endpoint was met and dose-dependent survival benefit was observed, demonstrating that safety assessment captured clinically relevant dosing for melanoma benefit"
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.6,
   "needs_expert_review": false,
   "review_reason": null
 }

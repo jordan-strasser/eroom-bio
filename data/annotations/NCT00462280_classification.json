@@ -1,12 +1,17 @@
 {
   "nct_id": "NCT00462280",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - lovastatin significantly reduced cholesterol (-27.25 mg/dL) and LDL (-25.28 mg/dL), confirming HMG-CoA reductase inhibition. 2. PATHWAY MODULATION: Mixed evidence of downstream pathway effects. Some biomarkers moved in expected directions (e.g., n-cadherin decreased in placebo vs increased in treatment), but others showed minimal changes or moved opposite to expectations. The biomarker pattern suggests partial pathway engagement but not robust modulation. 3. CLINICAL TRANSLATION: Primary endpoint failed - histopathologic regression of atypical nevi did not occur. Both pathologists showed minimal improvement in atypia scores (0.5 vs -0.12 for pathologist 1, 0.17 vs 0.04 for pathologist 2). 4. POPULATION EFFECTS: Some suggestion of benefit in preventing nevi progression (1 vs 7 patients had increased nevi count), but this was a secondary observation. 5. CONFOUNDERS: No major trial design issues - adequate sample size (80 patients), appropriate duration (24 weeks), placebo-controlled design. The failure appears mechanistic rather than methodological.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - lovastatin significantly reduced cholesterol (-27.25 mg/dL) and LDL (-25.28 mg/dL), confirming HMG-CoA reductase inhibition. 2. PATHWAY MODULATION: Mixed evidence of downstream pathway effects. Some biomarkers moved in expected directions (e-cadherin decreased in placebo vs increased in treatment, n-cadherin decreased in placebo vs increased in treatment), but others showed minimal changes (Ki-67, p21, HIF1alpha). The mevalonate pathway appears partially modulated but not consistently across all expected markers. 3. CLINICAL TRANSLATION: Primary endpoint failed - histopathologic regression of atypical nevi did not occur. Effect sizes were modest and inconsistent between pathologists (0.5 vs 0.17 for lovastatin, -0.12 vs 0.04 for placebo). No statistical significance reported. 4. POPULATION EFFECTS: Some suggestion of benefit in preventing nevi progression (1 vs 7 patients had increased nevi count with lovastatin vs placebo), but this was not the primary endpoint. 5. CONFOUNDERS: 24-week duration may have been insufficient for histopathologic changes in precancerous lesions. The endpoint relied on subjective pathologist assessment with inter-rater variability evident.",
   "failure_modes": [
     {
-      "mode": "target_engaged_biology_not_moved",
-      "confidence": 0.8,
-      "evidence": "Clear target engagement via cholesterol/LDL reduction, but biomarkers showed inconsistent pathway modulation and primary histopathologic endpoint failed to improve"
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Target was clearly engaged (cholesterol/LDL reduction) and some downstream biomarkers moved (e-cadherin, n-cadherin), but the primary histopathologic regression endpoint failed to improve meaningfully"
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.5,
+      "evidence": "24 weeks may be insufficient for histopathologic regression of precancerous lesions, which could require longer treatment duration for structural tissue changes"
     }
   ],
   "edges_to_update": [
@@ -14,25 +19,25 @@
       "edge_type": "affects",
       "source_entity": "lovastatin",
       "target_entity": "ENSG00000113161",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": "two_matched_nevi_group_lovastatin",
-      "reasoning": "Significant reduction in cholesterol and LDL confirms HMG-CoA reductase inhibition"
+      "reasoning": "Clear target engagement evidenced by significant cholesterol and LDL reduction"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000113161",
       "target_entity": "enzyme_inhibition",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": "two_matched_nevi_group_lovastatin",
-      "reasoning": "Cholesterol synthesis inhibition confirmed by biomarker changes"
+      "reasoning": "HMG-CoA reductase inhibition confirmed by downstream cholesterol synthesis blockade"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "GO:0015936",
-      "support": "weak_support",
+      "support": "moderate_support",
       "affecting_arm_id": "two_matched_nevi_group_lovastatin",
-      "reasoning": "Some downstream biomarker changes observed but inconsistent pattern suggests weak pathway modulation"
+      "reasoning": "Coenzyme A metabolic process affected as evidenced by cholesterol pathway disruption and some biomarker changes"
     },
     {
       "edge_type": "biology_drives",
@@ -40,15 +45,15 @@
       "target_entity": "precancerous_condition",
       "support": "weak_contradict",
       "affecting_arm_id": "two_matched_nevi_group_lovastatin",
-      "reasoning": "Despite upstream target engagement, histopathologic regression of atypical nevi did not occur, suggesting this biology may not drive the precancerous condition as hypothesized"
+      "reasoning": "Despite pathway modulation, no meaningful histopathologic regression occurred in atypical nevi"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "biomarker_melanoma",
       "target_entity": "precancerous_condition",
-      "support": "moderate_support",
+      "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Histopathologic assessment of atypical nevi regression is a reasonable surrogate for precancerous condition improvement and was measured consistently by multiple pathologists"
+      "reasoning": "Histopathologic regression endpoint was measured but showed high inter-rater variability and unclear clinical relevance for precancerous lesion benefit"
     }
   ],
   "confidence_overall": 0.7,
