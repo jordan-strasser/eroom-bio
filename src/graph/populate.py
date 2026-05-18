@@ -43,8 +43,11 @@ from src.ingestion.clinicaltrials import (
     ArmGroup,
     ClinicalTrialsClient,
     TrialRecord,
+    canonical_compound_names,
     is_drug_like,
     map_trial_to_graph_nodes,
+    split_combo_regimen as _split_combo_regimen,
+    strip_parenthetical_brand as _strip_parenthetical_brand,
 )
 
 
@@ -66,28 +69,12 @@ def _normalize_drug_lookup_name(name: str) -> str:
     return s
 
 
-def _strip_parenthetical_brand(name: str) -> str | None:
-    """Strip trailing parenthetical brand/synonym from a drug name.
-
-    "Sorafenib (Nexavar; BAY43-9006)" → "Sorafenib". The parenthetical is
-    usually a brand name + dev code that OT doesn't resolve directly.
-    Returns None when the stripped form would be empty, would equal the
-    original, or when the parenthetical content contains a
-    combination-indicator word ("with", "plus", "and", "+", "combo")
-    suggesting it encodes a regimen rather than a brand.
-    """
-    paren_match = re.search(r"\(([^)]*)\)", name)
-    if paren_match:
-        inside = paren_match.group(1).lower()
-        if any(
-            tok in inside
-            for tok in ("with", "plus", "and", "+", "combo", "combination")
-        ):
-            return None
-    stripped = re.sub(r"\s*\([^)]*\)\s*", " ", name).strip()
-    if not stripped or stripped.lower() == name.lower():
-        return None
-    return stripped
+# Compound-name canonicalization (split_combo_regimen, strip_parenthetical_brand,
+# canonical_compound_names) lives in src.ingestion.clinicaltrials — both populator
+# code paths (build_arms here + map_trial_to_graph_nodes there) use the same
+# canonicalization so a drug gets one CompoundNode regardless of how the trial
+# reports it. Re-exported below under the old underscore-prefixed names for
+# back-compat with existing test imports.
 
 
 def _root_indication(indication_id: str) -> str:
@@ -538,6 +525,18 @@ _VACCINE_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
     ("cpg-7909", [
         ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
     ]),
+    # CMP-001 (vidutolimod) — virus-like particle containing CpG-A;
+    # mechanistically a TLR9 agonist. Codename-only — doesn't share
+    # tokens with the cpg patterns above.
+    ("cmp-001", [
+        ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
+    ]),
+    ("cmp001", [
+        ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
+    ]),
+    ("vidutolimod", [
+        ("ENSG00000239732", "TLR9", "Toll-like receptor 9"),
+    ]),
     ("monophosphoryl lipid", [
         ("ENSG00000136869", "TLR4", "Toll-like receptor 4"),
     ]),
@@ -795,6 +794,12 @@ class PopulationPipeline:
             for comp in nodes["compounds"]:
                 self.graph.add_node(comp)
                 self._index_node(comp.id, comp.name, "compound")
+                # Index original intervention names (aliases) too so raw
+                # CT.gov-side names like "Sorafenib (Nexavar; BAY43-9006)"
+                # still resolve to the canonical compound id after the
+                # parenthetical-strip canonicalization.
+                for alias in comp.aliases:
+                    self._index_node(comp.id, alias, "compound")
 
         stats_after_nodes = self.graph.stats()
         console.print(
@@ -2230,14 +2235,21 @@ def build_arms(
             continue
         compound_ids: list[str] = []
         for iv_name in relevant_names:
-            cid = (
-                resolve_compound(iv_name, "compound")
-                if resolve_compound is not None
-                else None
-            )
-            if not cid:
-                cid = normalize_entity(iv_name, "InterventionNode")
-            compound_ids.append(cid)
+            # Expand combo regimens ("Carboplatin/Paclitaxel", "Sora + DTIC")
+            # and strip parenthetical brand/code aliases
+            # ("Sorafenib (Nexavar, BAY43-9006)") BEFORE canonicalization so
+            # cross-trial learning lands on a single CompoundNode per drug.
+            # Same helper is used by `map_trial_to_graph_nodes` so both
+            # populator code paths agree on the canonical name.
+            for canonical in canonical_compound_names(iv_name):
+                cid = (
+                    resolve_compound(canonical, "compound")
+                    if resolve_compound is not None
+                    else None
+                )
+                if not cid:
+                    cid = normalize_entity(canonical, "InterventionNode")
+                compound_ids.append(cid)
 
         # Drop duplicates while preserving order—some trials list the same
         # intervention twice in an arm group description.

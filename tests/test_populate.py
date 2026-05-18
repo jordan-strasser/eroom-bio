@@ -21,7 +21,9 @@ from src.graph.populate import (
     PopulationPipeline,
     _normalize,
     _normalize_drug_lookup_name,
+    _split_combo_regimen,
     _strip_parenthetical_brand,
+    build_arms,
     build_trial_subgraph_from_extraction,
     classify_endpoint_deterministic,
 )
@@ -605,6 +607,168 @@ class TestStripParentheticalBrand:
         assert _strip_parenthetical_brand("(Nexavar)") is None
 
 
+# ── Slashed-regimen splitter ───────────────────────────────────────────
+
+
+class TestSplitComboRegimen:
+    def test_splits_two_drug_regimen(self):
+        assert _split_combo_regimen("Carboplatin/Paclitaxel") == [
+            "Carboplatin", "Paclitaxel"
+        ]
+
+    def test_splits_three_drug_regimen(self):
+        assert _split_combo_regimen("Cyclophosphamide/Doxorubicin/Vincristine") == [
+            "Cyclophosphamide", "Doxorubicin", "Vincristine"
+        ]
+
+    def test_no_split_when_no_slash(self):
+        assert _split_combo_regimen("Sorafenib") is None
+
+    def test_no_split_when_part_has_digits(self):
+        # "5% Dextrose/Saline" — % and digits suggest formulation, not combo
+        assert _split_combo_regimen("5% Dextrose/Saline") is None
+
+    def test_no_split_when_part_too_short(self):
+        assert _split_combo_regimen("A/B") is None
+
+    def test_strips_whitespace_around_parts(self):
+        assert _split_combo_regimen(" Carboplatin / Paclitaxel ") == [
+            "Carboplatin", "Paclitaxel"
+        ]
+
+    def test_splits_on_plus_separator(self):
+        assert _split_combo_regimen("Sorafenib + Dacarbazine") == [
+            "Sorafenib", "Dacarbazine"
+        ]
+
+    def test_splits_plus_with_parenthetical_aliases(self):
+        """The actual NCT00492297 case — CT.gov intervention name."""
+        assert _split_combo_regimen(
+            "Sorafenib (Nexavar; BAY43-9006) + Dacarbazine (DTIC)"
+        ) == ["Sorafenib (Nexavar; BAY43-9006)", "Dacarbazine (DTIC)"]
+
+    def test_splits_on_and_separator(self):
+        assert _split_combo_regimen("Drug A and Drug B") == ["Drug A", "Drug B"]
+
+    def test_splits_on_plus_word_separator(self):
+        assert _split_combo_regimen("Drug A plus Drug B") == ["Drug A", "Drug B"]
+
+    def test_no_split_when_plus_attached_to_compound(self):
+        """`anti_pd1+ctla4` (no spaces around +) should NOT split — it's
+        a hyphenless compound-id-style name, not a regimen separator."""
+        assert _split_combo_regimen("anti_pd1+ctla4") is None
+
+
+# ── build_arms compound-name canonicalization (round-10b) ──────────────
+
+
+class TestBuildArmsCompoundCanonicalization:
+    """Regression suite for the round-10b populator fixes:
+    parenthetical-alias strip (4c-1) + slashed-regimen split (4c-2).
+    Both run BEFORE compound id creation so cross-trial learning lands
+    on a single CompoundNode per drug rather than fragmenting."""
+
+    def _trial(self, arm_groups, interventions=None):
+        return TrialRecord(
+            nct_id="NCT_TEST",
+            title="t",
+            phase="2",
+            status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=interventions or [],
+            primary_outcomes=[OutcomeMeasure(measure="OS", timeframe="36 months")],
+            enrollment=100,
+            has_results=True,
+            arm_groups=arm_groups,
+        )
+
+    def test_parenthetical_brand_stripped_before_id(self):
+        """`Sorafenib (Nexavar, BAY43-9006)` canonicalizes to `sorafenib`
+        — not `sorafenib_nexavar_bay43_9006` (the round-8 fragmentation
+        bug that broke cross-trial learning for sorafenib)."""
+        trial = self._trial([
+            ArmGroup(
+                group_id="arm_a",
+                title="Sorafenib arm",
+                intervention_names=["Sorafenib (Nexavar, BAY43-9006)"],
+            ),
+        ])
+        arms = build_arms(trial)
+        assert arms[0].compound_ids == ["sorafenib"]
+
+    def test_slashed_regimen_splits_to_constituents(self):
+        """`Carboplatin/Paclitaxel` becomes two compounds, gets treated
+        as a combo arm — so the synthesized regimen has composed_of
+        edges to standalone `carboplatin` and `paclitaxel` (matching
+        the existing `+`-format combo behavior)."""
+        trial = self._trial([
+            ArmGroup(
+                group_id="arm_a",
+                title="Carbo/Pac arm",
+                intervention_names=["Carboplatin/Paclitaxel"],
+            ),
+        ])
+        arms = build_arms(trial)
+        assert set(arms[0].compound_ids) == {"carboplatin", "paclitaxel"}
+        assert arms[0].is_combination is True
+        assert arms[0].regimen_compound_id == "carboplatin+paclitaxel"
+
+    def test_combined_split_and_strip(self):
+        """`Sorafenib (Nexavar, BAY43-9006) + Carboplatin/Paclitaxel`
+        from CT.gov arrives as TWO intervention_names; the second one
+        gets split, the first gets parenthetical-stripped. Net result:
+        a 3-constituent combo arm with canonical ids."""
+        trial = self._trial([
+            ArmGroup(
+                group_id="combo_arm",
+                title="Sorafenib + carbo/pac",
+                intervention_names=[
+                    "Sorafenib (Nexavar, BAY43-9006)",
+                    "Carboplatin/Paclitaxel",
+                ],
+            ),
+        ])
+        arms = build_arms(trial)
+        assert set(arms[0].compound_ids) == {
+            "sorafenib", "carboplatin", "paclitaxel",
+        }
+        assert arms[0].is_combination is True
+
+    def test_single_intervention_with_plus_separator_splits(self):
+        """The NCT00492297 case: CT.gov gives ONE intervention name
+        "Sorafenib (Nexavar; BAY43-9006) + Dacarbazine (DTIC)" describing
+        the whole combo regimen. Should split + strip → 2 constituents."""
+        trial = self._trial([
+            ArmGroup(
+                group_id="combo_arm",
+                title="Sora + DTIC",
+                intervention_names=[
+                    "Sorafenib (Nexavar; BAY43-9006) + Dacarbazine (DTIC)",
+                ],
+            ),
+        ])
+        arms = build_arms(trial)
+        assert set(arms[0].compound_ids) == {"sorafenib", "dacarbazine"}
+        assert arms[0].is_combination is True
+
+    def test_combo_indicator_parenthetical_preserved(self):
+        """`Drug X (with adjuvant)` must NOT be stripped to `drug_x` —
+        the parenthetical describes the regimen, not a brand alias.
+        Existing _strip_parenthetical_brand guard handles this; here we
+        verify build_arms respects that guard."""
+        trial = self._trial([
+            ArmGroup(
+                group_id="arm_a",
+                title="X with adjuvant",
+                intervention_names=["Drug X (in combo with Drug Y)"],
+            ),
+        ])
+        arms = build_arms(trial)
+        # The whole name normalizes to one compound id (no strip applied)
+        assert len(arms[0].compound_ids) == 1
+        assert "with" in arms[0].compound_ids[0] or "combo" in arms[0].compound_ids[0]
+
+
 # ── Vaccine-component target heuristic ──────────────────────────────────
 
 
@@ -806,6 +970,34 @@ class TestVaccineComponentTargets:
         assert added == 1
         assert comp_targets == {"cpg_7909": ["ENSG00000239732"]}
         assert graph.get_node("ENSG00000239732")["gene_symbol"] == "TLR9"
+
+    def test_cmp_001_codename_routes_to_tlr9(self, pipeline, graph):
+        """CMP-001 (vidutolimod) is a TLR9-agonist virus-like particle
+        containing CpG-A. The codename doesn't share tokens with the
+        cpg/cpg-7909 patterns so it needs its own entries."""
+        graph.add_node(CompoundNode(
+            id="cmp_001", name="CMP-001", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("cmp_001", "CMP-001", "compound")
+
+        trial = _make_trial(drug_name="CMP-001")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"cmp_001": ["ENSG00000239732"]}
+        assert graph.get_node("ENSG00000239732")["gene_symbol"] == "TLR9"
+
+    def test_vidutolimod_inn_routes_to_tlr9(self, pipeline, graph):
+        graph.add_node(CompoundNode(
+            id="vidutolimod", name="Vidutolimod", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("vidutolimod", "Vidutolimod", "compound")
+
+        trial = _make_trial(drug_name="Vidutolimod")
+        added, comp_targets = pipeline._add_vaccine_component_target_edges([trial])
+
+        assert added == 1
+        assert comp_targets == {"vidutolimod": ["ENSG00000239732"]}
 
     def test_monophosphoryl_lipid_routes_to_tlr4(self, pipeline, graph):
         graph.add_node(CompoundNode(

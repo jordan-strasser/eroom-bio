@@ -42,4 +42,6 @@ When emitting `edges_to_update`, use ONLY the IDs listed above as `source_entity
 
 If you would have referenced a target/biology/population that isn't listed here, that update probably doesn't belong on this trial—omit it rather than substitute.
 
+**`source_entity` must be a SINGLE canonical compound id from the "Per-arm causal chains" block, never a concatenated regimen name.** For a combo arm whose constituents are `carboplatin` + `paclitaxel`, emit TWO separate `affects` updates — one per constituent — NOT a single `affects: carboplatin_paclitaxel → ...`. The attributor drops concatenated compound ids because they don't correspond to any chain. Same rule applies to the `modulator_compound_id` and `primary_compound_id` fields in `modulation_entries`: each must be one canonical compound id, never a joined string.
+
 Return ONLY the JSON classification.

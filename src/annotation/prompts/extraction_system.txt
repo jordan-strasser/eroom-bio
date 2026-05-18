@@ -73,8 +73,8 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   ],
   "modulation_entries": [
     {
-      "modulator_compound_id": "string—the supportive compound altering another's effect (snake_case slug)",
-      "primary_compound_id": "string—the lead compound whose chain is being modulated (snake_case slug)",
+      "modulator_compound_id": "string—the supportive compound altering another's effect. MUST be a single compound name (snake_case slug) that also appears in some arm's `compounds` list. NEVER a concatenated regimen like 'carboplatin_paclitaxel' — pick ONE constituent.",
+      "primary_compound_id": "string—the lead compound whose chain is being modulated. MUST be a single compound name (snake_case slug) that also appears in some arm's `compounds` list. NEVER a concatenated regimen — pick ONE constituent (the backbone-arm compound, see modulation guidance below).",
       "affects_layer": "target|mechanism|biology",
       "direction": "amplifies|suppresses|neutral",
       "confidence": float in [0,1],
