@@ -93,7 +93,7 @@ from src.ingestion.lincs import (
     _category_to_mechanism_type,
     populate_lincs_signatures,
 )
-from src.ingestion.chembl import ChEMBLClient
+from src.ingestion.chembl import ChEMBLClient, is_likely_diagnostic
 from src.ingestion.opentargets import (
     OpenTargetsClient,
     score_to_prior,
@@ -621,6 +621,47 @@ _CELL_THERAPY_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = 
         ("ENSG00000135454", "B4GALNT1", "Beta-1,4-N-acetylgalactosaminyltransferase 1 (GD2 synthase)"),
         ("ENSG00000134460", "IL2RA", "Interleukin-2 receptor alpha"),
     ]),
+    # ── Oncolytic viruses ──
+    # T-VEC (talimogene laherparepvec) — attenuated HSV-1 carrying
+    # GM-CSF. HSV-1 entry into tumor cells uses HVEM (TNFRSF14) plus
+    # nectins as receptors; HVEM is the canonical "target" the
+    # mechanistic chain hangs off of. Round-13 cell-therapy add.
+    ("talimogene laherparepvec", [
+        ("ENSG00000157873", "TNFRSF14", "Tumor necrosis factor receptor superfamily 14 (HVEM, HSV entry receptor)"),
+    ]),
+    ("talimogene", [
+        ("ENSG00000157873", "TNFRSF14", "Tumor necrosis factor receptor superfamily 14 (HVEM, HSV entry receptor)"),
+    ]),
+    ("t vec", [
+        ("ENSG00000157873", "TNFRSF14", "Tumor necrosis factor receptor superfamily 14 (HVEM, HSV entry receptor)"),
+    ]),
+    # ── Metabolic-deprivation therapies ──
+    # ADI-PEG-20 (pegylated arginine deiminase) — depletes systemic
+    # L-arginine. Therapeutic window is ASS1-deficient tumors that
+    # can't resynthesize arginine; ASS1 status is the canonical
+    # biomarker for response. Target = ASS1 as the gene whose absence
+    # creates the synthetic-lethal interaction.
+    ("adi peg 20", [
+        ("ENSG00000130707", "ASS1", "Argininosuccinate synthase 1"),
+    ]),
+    ("adi peg20", [
+        ("ENSG00000130707", "ASS1", "Argininosuccinate synthase 1"),
+    ]),
+    ("pegylated arginine deiminase", [
+        ("ENSG00000130707", "ASS1", "Argininosuccinate synthase 1"),
+    ]),
+    # ── MAGE-A3 cancer vaccines ──
+    # GSK2132231a / recMAGE-A3 — anti-MAGE-A3 cancer immunotherapeutic
+    # (failed DERMA trial, 2014). Target = MAGEA3 antigen gene.
+    ("gsk2132231", [
+        ("ENSG00000221867", "MAGEA3", "Melanoma-associated antigen 3"),
+    ]),
+    ("mage a3", [
+        ("ENSG00000221867", "MAGEA3", "Melanoma-associated antigen 3"),
+    ]),
+    ("recmage a3", [
+        ("ENSG00000221867", "MAGEA3", "Melanoma-associated antigen 3"),
+    ]),
 ]
 
 
@@ -694,6 +735,23 @@ class PopulationPipeline:
                 )
         else:
             console.print(f"[bold]Using {len(trials)} pre-fetched trials[/bold]")
+
+        # Step 1.5: Identify diagnostic interventions via ChEMBL metadata
+        # so they're filtered out before any CompoundNode is created.
+        # See `is_likely_diagnostic` for the decision rule (combines
+        # `indication_class`, `therapeutic_flag`, and `max_phase`).
+        # Stored on `self` so the downstream `_build_trial_subgraphs`
+        # can also filter arm.compound_ids without re-querying ChEMBL.
+        self._diagnostic_compound_ids = (
+            await self._identify_diagnostic_compounds(trials)
+        )
+        diagnostic_compound_ids = self._diagnostic_compound_ids
+        if diagnostic_compound_ids:
+            console.print(
+                f"[yellow]Filtering {len(diagnostic_compound_ids)} "
+                f"diagnostic interventions: "
+                f"{sorted(diagnostic_compound_ids)}[/yellow]"
+            )
 
         # Step 2: Canonicalize conditions and seed Indication + default
         # Population nodes per trial.
@@ -863,9 +921,14 @@ class PopulationPipeline:
                 self._trial_default_population[trial.nct_id] = chosen_population
 
             # Compound nodes still come from the trial's interventions —
-            # no canonicalization needed here, just indexing.
+            # no canonicalization needed here, just indexing. The
+            # diagnostic-compound set (computed in step 2.5 below)
+            # filters out Lymphoseek-style imaging agents before they
+            # enter the graph.
             nodes = map_trial_to_graph_nodes(trial)
             for comp in nodes["compounds"]:
+                if comp.id in self._diagnostic_compound_ids:
+                    continue
                 self.graph.add_node(comp)
                 self._index_node(comp.id, comp.name, "compound")
                 # Index original intervention names (aliases) too so raw
@@ -1007,6 +1070,104 @@ class PopulationPipeline:
             f"{summary['trial_subgraphs']} trial subgraphs"
         )
         return summary
+
+    async def _identify_diagnostic_compounds(
+        self, trials: list[TrialRecord],
+    ) -> set[str]:
+        """Build a set of compound_ids whose ChEMBL profile signals
+        diagnostic intent — Lymphoseek-class radiopharmaceuticals,
+        Fluorescein-style fluorescence-guided-surgery dyes, etc.
+
+        For each unique drug-like intervention across the trial corpus:
+          1. Resolve to a ChEMBL molecule id via Open Targets first,
+             then fall back to ChEMBL's own molecule search (same
+             order as the non-protein-target inference path).
+          2. Fetch `{therapeutic_flag, max_phase, indication_class}`.
+          3. Decide via `is_likely_diagnostic`.
+
+        Returns the set of NORMALIZED compound_ids to skip. Both the
+        `map_trial_to_graph_nodes` loop and the per-trial `build_arms`
+        path filter against this set, so diagnostic interventions
+        never get a CompoundNode or arm entry.
+
+        Safety: a compound in `_VACCINE_COMPONENT_TARGETS` or
+        `_CELL_THERAPY_COMPONENT_TARGETS` is explicitly therapeutic —
+        we DO NOT filter them even if ChEMBL would mark them
+        diagnostic. T-VEC is a real-world example: ChEMBL's
+        `therapeutic_flag=False` is a curation error.
+        """
+        diagnostic_cids: set[str] = set()
+        seen_canonicals: set[str] = set()
+
+        # Build the override set: any canonical name (lowercased) whose
+        # compound id is referenced by the vaccine / cell-therapy
+        # heuristics is exempt from filtering — those heuristics are
+        # our source of truth for "this drug is therapeutic," not
+        # ChEMBL's flag.
+        therapeutic_override_patterns: list[str] = []
+        for tbl in (_VACCINE_COMPONENT_TARGETS, _CELL_THERAPY_COMPONENT_TARGETS):
+            for pattern, _ in tbl:
+                therapeutic_override_patterns.append(
+                    _norm_for_pattern_match(pattern)
+                )
+
+        for trial in trials:
+            for iv in trial.interventions:
+                if not is_drug_like(iv) or not iv.name:
+                    continue
+                for canonical_name in canonical_compound_names(iv.name):
+                    if canonical_name in seen_canonicals:
+                        continue
+                    seen_canonicals.add(canonical_name)
+
+                    # Heuristic-protected drugs skip ChEMBL filtering.
+                    normalized = _norm_for_pattern_match(canonical_name)
+                    if any(p in normalized for p in therapeutic_override_patterns):
+                        continue
+
+                    # Resolve chembl_id. Try OT first (uses existing
+                    # cache), then ChEMBL search-by-name as fallback.
+                    chembl_id: str | None = None
+                    try:
+                        ot_data = await self._ot_client.get_drug_with_targets(
+                            canonical_name,
+                        )
+                        chembl_id = ot_data.get("chembl_id")
+                    except KeyError:
+                        chembl_id = None
+                    except Exception:
+                        logger.debug(
+                            "OT lookup for diagnostic check failed: %s",
+                            canonical_name, exc_info=True,
+                        )
+                        chembl_id = None
+                    if not chembl_id:
+                        chembl_id = await self._chembl_client.search_drug_by_name(
+                            canonical_name,
+                        )
+                    if not chembl_id:
+                        # No ChEMBL record → no signal to filter on,
+                        # safer to keep.
+                        continue
+
+                    meta = await self._chembl_client.get_molecule_metadata(
+                        chembl_id,
+                    )
+                    if is_likely_diagnostic(meta):
+                        cid = normalize_entity(
+                            canonical_name, "InterventionNode",
+                        )
+                        diagnostic_cids.add(cid)
+                        logger.info(
+                            "Diagnostic-filter: skipping %r (ChEMBL %s, "
+                            "therapeutic_flag=%s, max_phase=%s, "
+                            "indication_class=%s)",
+                            canonical_name, chembl_id,
+                            meta.get("therapeutic_flag"),
+                            meta.get("max_phase"),
+                            meta.get("indication_class"),
+                        )
+        return diagnostic_cids
 
     async def _canonicalize_indication(
         self, cond: str
@@ -2328,6 +2489,18 @@ class PopulationPipeline:
 
             seed_trial_node(self.graph, trial)
             arms = build_arms(trial, self.resolve_entity)
+            # Drop diagnostic compounds (Lymphoseek-class) identified in
+            # step 1.5. If an arm's compound list empties, drop the arm;
+            # if all arms drop, the trial gets no chains (existing
+            # downstream `if not arms: continue` handles trial drop).
+            diag_cids = getattr(self, "_diagnostic_compound_ids", set())
+            if diag_cids:
+                for arm in arms:
+                    arm.compound_ids = [
+                        c for c in arm.compound_ids
+                        if c not in diag_cids
+                    ]
+                arms = [a for a in arms if a.compound_ids]
             if not arms:
                 continue
             synthesize_combo_compounds(self.graph, arms)

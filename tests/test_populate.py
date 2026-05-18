@@ -1056,6 +1056,47 @@ class TestVaccineComponentTargets:
             "ENSG00000135454", "ENSG00000134460",
         }
 
+    def test_tvec_routes_to_hvem(self, pipeline, graph):
+        """T-VEC (talimogene laherparepvec) — oncolytic HSV-1; HSV entry
+        receptor on tumor cells is HVEM (TNFRSF14). Round-13 add."""
+        graph.add_node(CompoundNode(
+            id="talimogene_laherparepvec",
+            name="talimogene laherparepvec",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "talimogene_laherparepvec",
+            "talimogene laherparepvec", "compound",
+        )
+        trial = _make_trial(drug_name="talimogene laherparepvec")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {"talimogene_laherparepvec": ["ENSG00000157873"]}
+
+    def test_adi_peg_20_routes_to_ass1(self, pipeline, graph):
+        """ADI-PEG-20 — synthetic-lethal arginine deprivation in
+        ASS1-deficient tumors. Round-13 add."""
+        graph.add_node(CompoundNode(
+            id="adi_peg_20", name="ADI-PEG-20", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("adi_peg_20", "ADI-PEG-20", "compound")
+        trial = _make_trial(drug_name="ADI-PEG-20")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {"adi_peg_20": ["ENSG00000130707"]}
+
+    def test_gsk2132231a_routes_to_mage_a3(self, pipeline, graph):
+        """GSK2132231a — anti-MAGE-A3 cancer immunotherapeutic, failed
+        DERMA trial. Round-13 add."""
+        graph.add_node(CompoundNode(
+            id="gsk2132231a", name="GSK2132231a", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("gsk2132231a", "GSK2132231a", "compound")
+        trial = _make_trial(drug_name="GSK2132231a")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {"gsk2132231a": ["ENSG00000221867"]}
+
     def test_monophosphoryl_lipid_routes_to_tlr4(self, pipeline, graph):
         graph.add_node(CompoundNode(
             id="mpl_adjuvant",

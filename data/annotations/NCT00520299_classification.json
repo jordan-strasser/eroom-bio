@@ -1,94 +1,118 @@
 {
   "nct_id": "NCT00520299",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence that ADI-PEG 20 engaged its intended target (arginine). Plasma arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, demonstrating robust target engagement. Plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM, confirming the enzymatic conversion of arginine to citrulline by arginine deiminase. 2. PATHWAY MODULATION: The drug successfully modulated the intended pathway - arginine depletion occurred as expected, and the compensatory increase in citrulline confirms the mechanism was active. Early metabolic response by PET on day 4 in 7/31 patients suggests some biological activity. 3. CLINICAL TRANSLATION: Despite clear target engagement and pathway modulation, clinical translation failed completely. 0/31 patients achieved complete or partial response across all three dose cohorts. Some patients achieved stable disease (9/31, 29%), but this represents disease control rather than tumor regression. 4. POPULATION EFFECTS: ASS-negative tumors (the hypothesized sensitive population) showed no improved response versus ASS \u22645% positive tumors, contradicting the mechanistic hypothesis that ASS-deficient tumors would be more sensitive to arginine depletion. 5. CONFOUNDERS: The trial was adequately designed as a dose-escalation study with clear endpoints. Immunogenicity developed in all patients over time with anti-ADI antibodies, which could have reduced drug efficacy over the treatment course. However, the complete lack of responses even early in treatment suggests this is not the primary issue.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence that ADI-PEG 20 engaged its intended target - plasma arginine was depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, confirming the drug reached and modulated arginine levels as intended. 2. PATHWAY MODULATION: Clear evidence of downstream biological activity - plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM by day 4-15, confirming the arginine deiminase pathway was activated. Early metabolic response by PET on day 4 in 7/31 patients further supports pathway engagement. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint level - 0/31 patients achieved complete or partial response (ORR = 0% across all three cohorts). Some patients achieved stable disease (29% overall DCR), but this represents disease stabilization rather than tumor regression. 4. POPULATION EFFECTS: ASS-negative tumors showed no improved response versus ASS \u22645% positive tumors, contradicting the hypothesis that ASS-deficient tumors would be more sensitive to arginine depletion. 5. CONFOUNDERS: This was a dose-escalation Phase I study with only 31 patients total, which may be underpowered for efficacy assessment. However, the complete absence of objective responses across all dose levels suggests the issue is not statistical power but rather biological translation.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.9,
-      "evidence": "Clear target engagement (arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM) and pathway modulation (citrulline increase to 158-280 \u03bcM) occurred, but 0/31 patients achieved objective response. The biology moved as intended but did not translate to clinical benefit."
+      "confidence": 0.8,
+      "evidence": "Clear target engagement (arginine depletion) and pathway modulation (citrulline increase, metabolic PET changes) but complete failure to achieve objective tumor responses (0% ORR). The biology moved as predicted but did not translate to clinical benefit."
     }
   ],
   "edges_to_update": [
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000130707",
       "support": "strong_support",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
+      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000130707",
       "support": "strong_support",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
+      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000130707",
       "support": "strong_support",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Strong evidence of target engagement with arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM by day 4"
+      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "enzyme_inhibition",
-      "target_entity": "enzyme_inhibition__melanoma",
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000130707",
+      "target_entity": "enzyme_inhibition",
       "support": "strong_support",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
+      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "enzyme_inhibition",
-      "target_entity": "enzyme_inhibition__melanoma",
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000130707",
+      "target_entity": "enzyme_inhibition",
       "support": "strong_support",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
+      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000130707",
+      "target_entity": "enzyme_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_3",
+      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
-      "target_entity": "enzyme_inhibition__melanoma",
-      "support": "strong_support",
-      "affecting_arm_id": "cohort_3",
-      "reasoning": "Clear pathway modulation with arginine depletion and citrulline increase confirming enzyme activity"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "enzyme_inhibition__melanoma",
-      "target_entity": "melanoma",
-      "support": "strong_contradict",
+      "target_entity": "R-HSA-9956520",
+      "support": "moderate_support",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
+      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "enzyme_inhibition__melanoma",
-      "target_entity": "melanoma",
-      "support": "strong_contradict",
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-9956520",
+      "support": "moderate_support",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
+      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-9956520",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_3",
+      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "enzyme_inhibition__melanoma",
+      "source_entity": "R-HSA-9956520",
       "target_entity": "melanoma",
-      "support": "strong_contradict",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "cohort_1",
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9956520",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "cohort_2",
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9956520",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Despite clear biological modulation, 0/31 patients achieved objective response, strongly contradicting the hypothesis that arginine depletion drives melanoma regression"
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_neoplasm",
       "target_entity": "melanoma",
-      "support": "ambiguous",
+      "support": "weak_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was measured but this was primarily an efficacy assessment trial. The complete lack of responses makes it difficult to assess whether safety endpoints would capture benefit in this indication."
+      "reasoning": "ORR endpoint was measured but showed no clinical benefit translation (0% response rate), suggesting poor endpoint sensitivity or wrong indication"
     }
   ],
   "confidence_overall": 0.8,

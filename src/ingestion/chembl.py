@@ -100,6 +100,52 @@ def map_moa_text_to_mechanism(moa: str) -> MechanismCategory | None:
     return None
 
 
+def is_likely_diagnostic(metadata: dict[str, Any] | None) -> bool:
+    """Decide whether a ChEMBL molecule profile signals diagnostic intent.
+
+    Two signals from the molecule endpoint, either sufficient on its own:
+
+      1. ``indication_class`` text containing "diagnostic" — explicit
+         classification by ChEMBL curators. Strongest signal.
+      2. ``therapeutic_flag=False`` AND ``max_phase`` is None or < 1 —
+         the drug isn't marked therapeutic AND isn't in any meaningful
+         clinical-trial phase. Catches Fluorescein (False/None) and
+         pure imaging dyes; AVOIDS dropping the long list of real
+         therapeutics ChEMBL has miscategorized
+         (PDR001/LAG525/fotemustine/UCN-01/T-VEC all have
+         therapeutic_flag=False but max_phase 2-3 — they ARE in trials
+         and are real therapies).
+
+    Known limitation: FDA-approved diagnostics that ChEMBL records with
+    max_phase=4.0 (Lymphoseek being the canonical example, since it's
+    a real approved diagnostic that progressed through phase trials)
+    slip through this rule. The trade-off is intentional — ChEMBL's
+    ``therapeutic_flag`` is too unreliable as a sole signal (it's False
+    for many real therapeutics), so we lean conservative and accept a
+    few diagnostic-shaped pass-throughs. Catching Lymphoseek-class
+    would require post-extraction signal (the LLM's interpretation of
+    intent from the trial's mechanism description) — round-14 work.
+
+    Returns False when metadata is missing — no signal to filter on,
+    safer to keep.
+    """
+    if not metadata:
+        return False
+    indication_class = (metadata.get("indication_class") or "").lower()
+    if "diagnostic" in indication_class:
+        return True
+    if metadata.get("therapeutic_flag") is False:
+        max_phase = metadata.get("max_phase")
+        if max_phase is None:
+            return True
+        try:
+            if float(max_phase) < 1:
+                return True
+        except (TypeError, ValueError):
+            return True
+    return False
+
+
 def translate_chembl_target(
     chembl_target_id: str,
 ) -> tuple[str, str, TargetType] | None:
@@ -186,6 +232,54 @@ class ChEMBLClient:
         cache[key] = {"mechanisms": mechanisms}
         self._save_cache()
         return mechanisms
+
+    async def get_molecule_metadata(
+        self, chembl_id: str,
+    ) -> dict[str, Any] | None:
+        """Fetch ChEMBL molecule metadata for therapeutic-vs-diagnostic detection.
+
+        Returns ``{therapeutic_flag, max_phase, indication_class}`` or
+        None when the drug isn't in ChEMBL. Cached on disk.
+
+        - ``therapeutic_flag`` (bool): ChEMBL's own classification of
+          "is this a therapeutic agent?" Has false negatives (T-VEC is
+          marked False despite being an FDA-approved oncolytic).
+        - ``max_phase`` (float or None): highest clinical trial phase
+          observed. Diagnostic agents typically have None or 0.
+        - ``indication_class`` (str or None): free-text classification
+          ("Antineoplastic", "Diagnostic agent", etc.) — when present
+          and contains "diagnostic", that's an explicit signal.
+        """
+        if not chembl_id:
+            return None
+        cache = self._load_cache()
+        key = f"molecule:{chembl_id}"
+        if key in cache:
+            return cache[key].get("metadata")
+
+        url = f"{CHEMBL_BASE_URL}/molecule/{chembl_id}.json"
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                data = resp.json()
+        except Exception as exc:
+            logger.debug(
+                "ChEMBL molecule metadata lookup failed for %s: %s",
+                chembl_id, exc,
+            )
+            cache[key] = {"metadata": None}
+            self._save_cache()
+            return None
+
+        meta = {
+            "therapeutic_flag": data.get("therapeutic_flag"),
+            "max_phase": data.get("max_phase"),
+            "indication_class": data.get("indication_class"),
+        }
+        cache[key] = {"metadata": meta}
+        self._save_cache()
+        return meta
 
     async def search_drug_by_name(self, drug_name: str) -> str | None:
         """Resolve a drug name to its ChEMBL molecule id via the search API.
