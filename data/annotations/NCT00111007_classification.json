@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00111007",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for sorafenib's multi-kinase targets (RAF, VEGFR, PDGFR) or the chemotherapy agents. Cannot assess if drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream biological changes from kinase inhibition, DNA damage, or microtubule disruption. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) clearly missed - HR 0.906 (p=0.492) shows no benefit from adding sorafenib to carboplatin/paclitaxel. Both arms had similar PFS (122 vs 125 days) and OS outcomes were also negative (p=0.979). 4. POPULATION EFFECTS: No subgroup analyses reported that might identify responder populations. 5. CONFOUNDERS: Trial appears adequately powered (n=270) with appropriate duration (68.3 weeks). Safety profile shows expected toxicities without dose-limiting issues that would prevent adequate exposure. This appears to be a straightforward efficacy failure where the combination hypothesis was not supported.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for sorafenib's multi-kinase targets (RAF, VEGFR, PDGFR) or the chemotherapy agents. Cannot assess if drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream biological changes from kinase inhibition, DNA damage, or microtubule disruption. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) clearly failed - HR 0.906 (p=0.492) shows no benefit from adding sorafenib to carboplatin/paclitaxel. Both arms had similar PFS (122 vs 125 days) and OS outcomes were also negative (p=0.979). 4. POPULATION EFFECTS: No subgroup analyses reported that might identify responder populations. 5. CONFOUNDERS: Trial appears adequately powered (n=270) with appropriate duration (68.3 weeks). Safety profile shows expected toxicities without dose-limiting issues that would prevent adequate exposure. This appears to be a straightforward efficacy failure where the combination hypothesis was not supported.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
       "confidence": 0.6,
-      "evidence": "Primary endpoint PFS clearly missed (HR 0.906, p=0.492) despite adequate sample size and duration. No biomarker data to confirm target engagement or pathway modulation, but the lack of efficacy signal suggests the assumed biology-to-endpoint translation failed."
+      "evidence": "Primary endpoint PFS failed to improve with HR 0.906 (p=0.492) despite adequate sample size and duration. The combination hypothesis that sorafenib would enhance chemotherapy efficacy was not supported, suggesting the assumed biological synergy did not translate to clinical benefit."
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,7 @@
       "target_entity": "ENSG00000132155",
       "support": "ambiguous",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "No biomarker data to confirm target engagement; combination arm failed but cannot isolate sorafenib's contribution"
+      "reasoning": "No target engagement data available to assess if sorafenib engaged RAF1 at the tested dose"
     },
     {
       "edge_type": "affects",
@@ -24,7 +24,7 @@
       "target_entity": "CHEBI:16991",
       "support": "ambiguous",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "No biomarker data to confirm target engagement in combination arm"
+      "reasoning": "No biomarker data to confirm DNA damage from carboplatin in the combination arm"
     },
     {
       "edge_type": "affects",
@@ -32,7 +32,7 @@
       "target_entity": "ENSG00000188229",
       "support": "ambiguous",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "No biomarker data to confirm target engagement in combination arm"
+      "reasoning": "No target engagement data for paclitaxel's microtubule effects in combination arm"
     },
     {
       "edge_type": "affects",
@@ -40,7 +40,7 @@
       "target_entity": "CHEBI:16991",
       "support": "ambiguous",
       "affecting_arm_id": "carboplatin_paclitaxel_c_p",
-      "reasoning": "No biomarker data to confirm target engagement in control arm"
+      "reasoning": "No biomarker data to confirm DNA damage from carboplatin in control arm"
     },
     {
       "edge_type": "affects",
@@ -48,7 +48,47 @@
       "target_entity": "ENSG00000188229",
       "support": "ambiguous",
       "affecting_arm_id": "carboplatin_paclitaxel_c_p",
-      "reasoning": "No biomarker data to confirm target engagement in control arm"
+      "reasoning": "No target engagement data for paclitaxel's microtubule effects in control arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "ambiguous",
+      "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
+      "reasoning": "No pathway biomarkers to assess if kinase inhibition affected protein phosphorylation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
+      "reasoning": "No biomarkers to confirm DNA damage mechanism in melanoma for combination arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "R-HSA-1445148",
+      "support": "ambiguous",
+      "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
+      "reasoning": "No pathway data to assess paclitaxel's downstream effects in combination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "carboplatin_paclitaxel_c_p",
+      "reasoning": "No biomarkers to confirm DNA damage mechanism in melanoma for control arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "R-HSA-1445148",
+      "support": "ambiguous",
+      "affecting_arm_id": "carboplatin_paclitaxel_c_p",
+      "reasoning": "No pathway data to assess paclitaxel's downstream effects in control"
     },
     {
       "edge_type": "biology_drives",
@@ -56,7 +96,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "Sorafenib combination failed to improve PFS, suggesting kinase inhibition biology did not drive clinical benefit in melanoma"
+      "reasoning": "Combination arm failed to improve PFS, suggesting protein phosphorylation modulation did not drive clinical benefit in melanoma"
     },
     {
       "edge_type": "biology_drives",
@@ -64,7 +104,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "DNA damage biology from carboplatin in combination arm did not translate to PFS benefit"
+      "reasoning": "DNA damage biology in combination arm did not translate to PFS benefit"
     },
     {
       "edge_type": "biology_drives",
@@ -72,7 +112,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "sorafenib_nexavar_bay43_9006",
-      "reasoning": "Paclitaxel-mediated biology in combination arm did not translate to PFS benefit"
+      "reasoning": "Paclitaxel's downstream biology in combination did not improve clinical outcomes"
     },
     {
       "edge_type": "biology_drives",
@@ -80,7 +120,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "carboplatin_paclitaxel_c_p",
-      "reasoning": "DNA damage biology from carboplatin in control arm did not translate to PFS benefit"
+      "reasoning": "Control arm also failed to show PFS benefit, questioning DNA damage biology effectiveness"
     },
     {
       "edge_type": "biology_drives",
@@ -88,7 +128,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "carboplatin_paclitaxel_c_p",
-      "reasoning": "Paclitaxel-mediated biology in control arm did not translate to PFS benefit"
+      "reasoning": "Paclitaxel biology in control arm did not drive meaningful clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
@@ -96,7 +136,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "PFS is a well-established endpoint for melanoma trials and was measured appropriately with adequate follow-up"
+      "reasoning": "PFS is a well-established endpoint for melanoma trials and was measured appropriately, though neither arm showed benefit"
     }
   ],
   "confidence_overall": 0.6,

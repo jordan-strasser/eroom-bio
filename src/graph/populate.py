@@ -555,6 +555,75 @@ _VACCINE_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
 ]
 
 
+# Curated mapping for adoptive-cell-therapy products (TCR-engineered T
+# cells, TIL products, oncolytic-virus-delivered antigen vaccines) and
+# specific code-named small molecules whose target Open Targets misses.
+# These have no ChEMBL action_type that would trigger the
+# `chembl_rest_fallback` path (cell therapies aren't drugs in
+# ChEMBL's sense, and code names sometimes don't resolve to the
+# parent compound's ChEMBL entry). Same pattern as the vaccine
+# heuristic: lowercase substring match in intervention name →
+# canonical Target(s). Beta(3, 1) prior — confident curated mapping.
+def _norm_for_pattern_match(s: str) -> str:
+    """Normalize a string for substring-pattern matching against a
+    curated table: lowercase, collapse all hyphens / underscores /
+    dots / whitespace runs to a single space. So "Anti-NY ESO-1",
+    "anti_ny_eso_1", "Anti NY-ESO-1" all become "anti ny eso 1",
+    and "hu14.18-IL2" becomes "hu14 18 il2" — one pattern entry per
+    drug covers every separator variant.
+    """
+    return re.sub(r"[\s\-_.]+", " ", s.lower()).strip()
+
+
+_CELL_THERAPY_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
+    # Patterns are matched via `_norm_for_pattern_match`: hyphens,
+    # underscores, and runs of whitespace all collapse to single space,
+    # lowercased. So one canonical pattern covers "anti-ny-eso-1",
+    # "anti ny eso 1", "Anti-NY ESO-1", etc. — no need to enumerate
+    # every separator variant.
+
+    # ── TCR-engineered T cells: antigen = TCR's recognition target ──
+    ("anti ny eso 1", [
+        ("ENSG00000184033", "CTAG1B", "Cancer/testis antigen 1B (NY-ESO-1)"),
+    ]),
+    ("alvac ny eso 1", [
+        ("ENSG00000184033", "CTAG1B", "Cancer/testis antigen 1B (NY-ESO-1)"),
+    ]),
+    # gp100 TCR (the autologous_anti_gp_100_154_162_… compounds).
+    ("anti gp 100", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein (gp100)"),
+    ]),
+    ("anti gp100", [
+        ("ENSG00000185664", "PMEL", "Premelanosome protein (gp100)"),
+    ]),
+    # MART-1 TCR
+    ("anti mart 1", [
+        ("ENSG00000120215", "MLANA", "Melan-A (MART-1)"),
+    ]),
+    # ── Code-named small molecules ──
+    # PS-341 / Velcade → bortezomib → proteasome β5.
+    ("ps 341", [
+        ("ENSG00000100804", "PSMB5", "Proteasome subunit beta type-5"),
+    ]),
+    ("velcade", [
+        ("ENSG00000100804", "PSMB5", "Proteasome subunit beta type-5"),
+    ]),
+    # UCN-01 (7-hydroxystaurosporine) — Chk1/PKC inhibitor.
+    ("ucn 01", [
+        ("ENSG00000149554", "CHEK1", "Checkpoint kinase 1"),
+    ]),
+    # ── Immunocytokines ──
+    # hu14.18-IL2 — anti-GD2 ganglioside antibody fused to IL-2. Two
+    # targets: GD2 synthase (B4GALNT1, the gene that makes the GD2
+    # glycolipid the antibody binds — GD2 has no gene id of its own)
+    # and IL-2 receptor (IL2RA, for the cytokine arm).
+    ("hu14 18", [
+        ("ENSG00000135454", "B4GALNT1", "Beta-1,4-N-acetylgalactosaminyltransferase 1 (GD2 synthase)"),
+        ("ENSG00000134460", "IL2RA", "Interleukin-2 receptor alpha"),
+    ]),
+]
+
+
 class PopulationPipeline:
     def __init__(
         self,
@@ -858,6 +927,20 @@ class PopulationPipeline:
                     existing.append(tid)
         console.print(f"  Added {vax_added} AFFECTS edges (vaccine-component heuristic)")
 
+        # Curated cell-therapy + code-named-drug heuristic. TCR-engineered
+        # T cells, TIL products, oncolytic-virus-delivered antigens, and
+        # code-named small molecules (PS-341/Velcade, UCN-01) whose target
+        # OT can't resolve. Same pattern + Beta(3, 1) prior as the
+        # vaccine heuristic; runs alongside it.
+        console.print("[bold]Wiring cell-therapy target edges...[/bold]")
+        cell_added, cell_targets = self._add_cell_therapy_target_edges(trials)
+        for cid, tids in cell_targets.items():
+            existing = compound_targets.setdefault(cid, [])
+            for tid in tids:
+                if tid not in existing:
+                    existing.append(tid)
+        console.print(f"  Added {cell_added} AFFECTS edges (cell-therapy heuristic)")
+
         # Name-matching fallback: catches binds_to relationships for
         # compounds OT couldn't resolve from trial text.
         console.print("[bold]Cross-referencing compound-target edges...[/bold]")
@@ -1086,18 +1169,24 @@ class PopulationPipeline:
         except json.JSONDecodeError:
             cache = {}
 
-        # Collect (compound_id, intervention_name) pairs from drug-like
-        # interventions. Same compound may surface under multiple aliases;
-        # we cache by the lowercased name.
-        seen: dict[str, str] = {}  # compound_id → first intervention name we saw
+        # Collect (compound_id, canonical_name) pairs from drug-like
+        # interventions. Expanded via `canonical_compound_names` so a
+        # joined CT.gov regimen string like "Sorafenib + Dacarbazine"
+        # produces TWO lookups — one per constituent. Pre-round-12 this
+        # iterated over `iv.name` directly, which failed for joined
+        # strings: `resolve_entity("Sorafenib + Dacarbazine")` returned
+        # None and the inner constituents never got their own OT lookup
+        # (the dacarbazine→MET cross-reference bug from round 11).
+        seen: dict[str, str] = {}  # compound_id → canonical name to query
         for trial in trials:
             for iv in trial.interventions:
                 if not is_drug_like(iv) or not iv.name:
                     continue
-                cid = self.resolve_entity(iv.name, "compound")
-                if not cid or cid in seen:
-                    continue
-                seen[cid] = iv.name
+                for canonical_name in canonical_compound_names(iv.name):
+                    cid = self.resolve_entity(canonical_name, "compound")
+                    if not cid or cid in seen:
+                        continue
+                    seen[cid] = canonical_name
 
         async def _lookup_with_cache(name: str) -> dict[str, Any]:
             key = _normalize_drug_lookup_name(name)
@@ -2050,6 +2139,78 @@ class PopulationPipeline:
                     )
         return added
 
+    def _add_curated_target_edges(
+        self,
+        trials: list[TrialRecord],
+        table: list[tuple[str, list[tuple[str, str, str]]]],
+        source_tag: str,
+    ) -> tuple[int, dict[str, list[str]]]:
+        """Wire AFFECTS edges from a curated compound→target mapping.
+
+        Generic over the table — the vaccine and cell-therapy heuristics
+        both use this. Each table is a list of (substring pattern,
+        [(ENSG, gene_symbol, name)]) tuples; both pattern and target
+        name are normalized via ``_norm_for_pattern_match`` (hyphens,
+        underscores, and runs of whitespace all collapse to a single
+        space) before substring match. One pattern "anti ny eso 1"
+        covers "anti-ny-eso-1", "Anti-NY ESO-1", "anti_ny_eso_1", etc.
+
+        Joined regimen strings are decomposed via
+        ``canonical_compound_names`` before matching — same fix as the
+        OT-lookup loop.
+        """
+        added = 0
+        seen_compounds: set[str] = set()
+        compound_targets: dict[str, list[str]] = {}
+        normalized_table = [
+            (_norm_for_pattern_match(pat), targets) for pat, targets in table
+        ]
+        for trial in trials:
+            for iv in trial.interventions:
+                if not is_drug_like(iv) or not iv.name:
+                    continue
+                for canonical_name in canonical_compound_names(iv.name):
+                    cid = self.resolve_entity(canonical_name, "compound")
+                    if not cid or cid in seen_compounds:
+                        continue
+                    normalized_name = _norm_for_pattern_match(canonical_name)
+                    matched_targets: dict[str, tuple[str, str]] = {}
+                    for pattern, targets in normalized_table:
+                        if pattern in normalized_name:
+                            for ens, symbol, name in targets:
+                                matched_targets.setdefault(ens, (symbol, name))
+                    if not matched_targets:
+                        continue
+                    seen_compounds.add(cid)
+                    compound_targets[cid] = list(matched_targets.keys())
+                    for ens, (symbol, name) in matched_targets.items():
+                        try:
+                            self.graph.get_node(ens)
+                        except KeyError:
+                            self.graph.add_node(TargetNode(
+                                id=ens,
+                                name=name,
+                                gene_symbol=symbol,
+                                metadata={"source": source_tag},
+                            ))
+                            self._index_node(ens, symbol, "target")
+                        if self.graph._graph.has_edge(  # noqa: SLF001
+                            cid, ens, key=EdgeType.AFFECTS.value,
+                        ):
+                            continue
+                        self.graph.add_edge(GraphEdge(
+                            source_id=cid,
+                            target_id=ens,
+                            edge_type=EdgeType.AFFECTS,
+                            belief=EdgeBeliefState(alpha=3.0, beta=1.0),
+                            metadata={
+                                "source": source_tag,
+                                "pattern_matched": canonical_name,
+                            },
+                        ))
+                        added += 1
+        return added, compound_targets
+
     def _add_vaccine_component_target_edges(
         self, trials: list[TrialRecord],
     ) -> tuple[int, dict[str, list[str]]]:
@@ -2061,61 +2222,30 @@ class PopulationPipeline:
         peptides (PADRE, tetanus, melanoma helper peptide).
         ``_VACCINE_COMPONENT_TARGETS`` is the curated mapping that fills
         in those binding partners so chains for these compounds resolve
-        past UNKNOWN_target. Creates TargetNodes when missing.
-
-        Returns ``(edges_added, compound_targets)`` where ``compound_targets``
-        maps each matched compound_id to its list of resolved Ensembl ids.
-        The caller merges this into the main ``compound_targets`` dict so
-        downstream chain construction (``_populate_trial_mechanisms``) sees
-        the vaccine constituents as having real targets.
+        past UNKNOWN_target.
         """
-        added = 0
-        seen_compounds: set[str] = set()
-        compound_targets: dict[str, list[str]] = {}
-        for trial in trials:
-            for iv in trial.interventions:
-                if not is_drug_like(iv) or not iv.name:
-                    continue
-                cid = self.resolve_entity(iv.name, "compound")
-                if not cid or cid in seen_compounds:
-                    continue
-                lowered = iv.name.lower()
-                matched_targets: dict[str, tuple[str, str]] = {}
-                for pattern, targets in _VACCINE_COMPONENT_TARGETS:
-                    if pattern in lowered:
-                        for ens, symbol, name in targets:
-                            matched_targets.setdefault(ens, (symbol, name))
-                if not matched_targets:
-                    continue
-                seen_compounds.add(cid)
-                compound_targets[cid] = list(matched_targets.keys())
-                for ens, (symbol, name) in matched_targets.items():
-                    try:
-                        self.graph.get_node(ens)
-                    except KeyError:
-                        self.graph.add_node(TargetNode(
-                            id=ens,
-                            name=name,
-                            gene_symbol=symbol,
-                            metadata={"source": "vaccine_component_heuristic"},
-                        ))
-                        self._index_node(ens, symbol, "target")
-                    if self.graph._graph.has_edge(  # noqa: SLF001
-                        cid, ens, key=EdgeType.AFFECTS.value,
-                    ):
-                        continue
-                    self.graph.add_edge(GraphEdge(
-                        source_id=cid,
-                        target_id=ens,
-                        edge_type=EdgeType.AFFECTS,
-                        belief=EdgeBeliefState(alpha=3.0, beta=1.0),
-                        metadata={
-                            "source": "vaccine_component_heuristic",
-                            "pattern_matched": iv.name,
-                        },
-                    ))
-                    added += 1
-        return added, compound_targets
+        return self._add_curated_target_edges(
+            trials,
+            _VACCINE_COMPONENT_TARGETS,
+            "vaccine_component_heuristic",
+        )
+
+    def _add_cell_therapy_target_edges(
+        self, trials: list[TrialRecord],
+    ) -> tuple[int, dict[str, list[str]]]:
+        """Wire AFFECTS edges for adoptive-cell-therapy and code-named drugs.
+
+        TCR-engineered T cells, anti-tumor-antigen TILs, and a handful
+        of code-named small molecules (PS-341, UCN-01) that OT can't
+        resolve. Each cell-therapy product's target is the antigen its
+        engineered receptor recognizes — modeled as the antigen's
+        canonical gene (CTAG1B for NY-ESO-1, PMEL for gp100, etc.).
+        """
+        return self._add_curated_target_edges(
+            trials,
+            _CELL_THERAPY_COMPONENT_TARGETS,
+            "cell_therapy_heuristic",
+        )
 
     def _add_compound_target_edges(self, trials: list[TrialRecord]) -> int:
         """For compounds with known targets in the graph, add binds_to edges."""

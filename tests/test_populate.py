@@ -999,6 +999,63 @@ class TestVaccineComponentTargets:
         assert added == 1
         assert comp_targets == {"vidutolimod": ["ENSG00000239732"]}
 
+    def test_anti_ny_eso_1_tcr_routes_to_ctag1b(self, pipeline, graph):
+        """Adoptive TCR therapy targeting NY-ESO-1 antigen — gene =
+        CTAG1B. Round-12 cell-therapy heuristic addition."""
+        graph.add_node(CompoundNode(
+            id="anti_ny_eso_1_t_cell_receptor_pbl",
+            name="Anti NY-ESO-1 T-cell Receptor PBL",
+            modality=Modality.OTHER,
+        ))
+        pipeline._index_node(
+            "anti_ny_eso_1_t_cell_receptor_pbl",
+            "Anti NY-ESO-1 T-cell Receptor PBL",
+            "compound",
+        )
+        trial = _make_trial(drug_name="Anti NY-ESO-1 T-cell Receptor PBL")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {
+            "anti_ny_eso_1_t_cell_receptor_pbl": ["ENSG00000184033"],
+        }
+        assert graph.get_node("ENSG00000184033")["gene_symbol"] == "CTAG1B"
+
+    def test_ps_341_codename_routes_to_psmb5(self, pipeline, graph):
+        """Bortezomib code name PS-341 → proteasome β5 subunit (PSMB5)."""
+        graph.add_node(CompoundNode(
+            id="ps_341", name="PS-341", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("ps_341", "PS-341", "compound")
+        trial = _make_trial(drug_name="PS-341")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {"ps_341": ["ENSG00000100804"]}
+
+    def test_ucn_01_routes_to_chek1(self, pipeline, graph):
+        """UCN-01 (7-hydroxystaurosporine) → CHEK1."""
+        graph.add_node(CompoundNode(
+            id="ucn_01", name="UCN-01", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("ucn_01", "UCN-01", "compound")
+        trial = _make_trial(drug_name="UCN-01")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 1
+        assert comp_targets == {"ucn_01": ["ENSG00000149554"]}
+
+    def test_hu14_18_il2_routes_to_two_targets(self, pipeline, graph):
+        """hu14.18-IL2 immunocytokine — anti-GD2 antibody + IL-2 fused;
+        binds GD2 synthase (B4GALNT1) and IL-2 receptor (IL2RA)."""
+        graph.add_node(CompoundNode(
+            id="hu14_18_il2", name="hu14.18-IL2", modality=Modality.OTHER,
+        ))
+        pipeline._index_node("hu14_18_il2", "hu14.18-IL2", "compound")
+        trial = _make_trial(drug_name="hu14.18-IL2")
+        added, comp_targets = pipeline._add_cell_therapy_target_edges([trial])
+        assert added == 2
+        assert set(comp_targets["hu14_18_il2"]) == {
+            "ENSG00000135454", "ENSG00000134460",
+        }
+
     def test_monophosphoryl_lipid_routes_to_tlr4(self, pipeline, graph):
         graph.add_node(CompoundNode(
             id="mpl_adjuvant",
