@@ -103,9 +103,12 @@ _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
 
 
 def _trust_weight(belief: EdgeBeliefState) -> float:
-    """Map an edge's evidence_strength to a [0, 1] trust weight.
+    """Map an edge's evidence_strength to a (0, 1] trust weight.
 
-    Beta(1,1) (no evidence) → 0; saturates to 1.0 at evidence_strength=49.
+    Evidence-strength 0 → trust 0 (edges with no observations contribute
+    nothing). Saturates to 1.0 at evidence_strength=49. The prediction
+    engine drops zero-evidence edges entirely before this is called, so
+    in practice trust here is always positive.
     """
     s = max(0.0, belief.evidence_strength)
     return min(1.0, math.log(s + 1.0) / _TRUST_LOG_SAT)
@@ -115,16 +118,19 @@ def _aggregate_samples(
     edge_samples: list[np.ndarray],
     weights: list[float],
 ) -> np.ndarray:
-    """Combine per-edge sample arrays via trust-weighted geometric mean."""
+    """Combine per-edge sample arrays via trust-weighted geometric mean.
+
+    Callers are responsible for dropping zero-evidence edges upstream so
+    every entry here has positive weight. The fallback branch (sum_w <= 0)
+    survives only as a safety net — it produces an unweighted geomean so
+    we don't blow up if an empty chain ever slips through.
+    """
     if not edge_samples:
         return np.array([])
     n_samples = edge_samples[0].shape[0]
-    sum_w = float(sum(weights))
+    sum_w = float(sum(w for w in weights if w > 0.0))
     log_sum = np.zeros(n_samples)
     if sum_w <= 0.0:
-        # No evidence anywhere—back off to unweighted geomean so we
-        # don't blow up; conceptually "everyone abstains, take the mean
-        # of the priors."
         for s in edge_samples:
             log_sum += np.log(np.clip(s, _LOG_FLOOR, 1.0))
         return np.exp(log_sum / len(edge_samples))
@@ -227,13 +233,18 @@ class PredictionEngine:
         else:
             overall_prob, ci_lower, ci_upper = 0.5, 0.0, 1.0
 
-        # 5. Build edge contributions. Bottleneck score is now weighted by
-        #    trust: an uncontradicted Beta(1,1) edge is not a "weak link",
-        #    just unobserved.
+        # 5. Build edge contributions. Bottleneck score is
+        #    (1 - E[p]) * trust: well-evidenced edges with low expected
+        #    probability rise to the top. Since the engine drops
+        #    zero-evidence edges upstream, the data-gap penalty term
+        #    from round-14 is no longer needed — every edge here has
+        #    evidence and the bottleneck ranks them by how strongly that
+        #    evidence drags the prediction down.
         contributions: list[EdgeContribution] = []
         for i, (src, tgt, etype, belief) in enumerate(edges):
             sampled_mean = float(np.mean(edge_samples[i])) if edge_samples[i].size else belief.expected_probability
-            bottleneck = (1.0 - belief.expected_probability) * trust_weights[i]
+            t = trust_weights[i]
+            bottleneck = (1.0 - belief.expected_probability) * t
             contributions.append(EdgeContribution(
                 source_id=src,
                 target_id=tgt,
@@ -243,8 +254,8 @@ class PredictionEngine:
                 bottleneck_score=bottleneck,
             ))
 
-        # 6. Identify weakest link. Tiebreak on raw (1 - mean) so all-zero
-        #    bottleneck scores still produce a sensible pick.
+        # 6. Identify weakest link by bottleneck score, with raw (1 - E[p])
+        #    as tiebreaker.
         weakest = (
             max(
                 contributions,
@@ -442,9 +453,15 @@ class PredictionEngine:
         For regimens (``compound_id`` resolves to ≥2 constituents via
         ``composed_of``), also folds in any MODULATES_EFFICACY_OF edges
         between constituent pairs. Each modulation belief joins the
-        trust-weighted geomean alongside the causal-chain edges; an
-        edge with no evidence (neutral Beta(1,1) prior) contributes
-        zero trust weight and is effectively a no-op.
+        trust-weighted geomean alongside the causal-chain edges.
+
+        Edges with no evidence (Beta(1,1) — no observations beyond the
+        prior) are dropped here. This makes the prediction a conditional
+        probability over edges the graph has actually learned about:
+        unobserved edges contribute nothing, neither evidence nor a
+        prior pull toward 0.5. The caller's hypothesis chain determines
+        which edges are candidates; the graph's evidence determines
+        which of those candidates make it into the geomean.
         """
         edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
         relevant_tissues = self._tissues_for_chain(chain)
@@ -464,11 +481,17 @@ class PredictionEngine:
                 else:
                     belief = self.graph.get_edge_belief(src_id, tgt_id, edge_type)
             except KeyError:
-                belief = _DEFAULT_BELIEF
+                continue  # edge not in graph — skip
+
+            if belief.evidence_strength <= 0.0:
+                continue  # Beta(1,1) — no learned evidence, skip
 
             edges.append((src_id, tgt_id, edge_type, belief))
 
-        edges.extend(_collect_modulation_edges(self.graph, chain.compound_id))
+        for me_edge in _collect_modulation_edges(self.graph, chain.compound_id):
+            _src, _tgt, _et, belief = me_edge
+            if belief.evidence_strength > 0.0:
+                edges.append(me_edge)
 
         return edges
 
@@ -580,51 +603,132 @@ def _resolve_chain_via_topology(
     return best_mech, best_bio
 
 
+def _resolve_endpoint_for_indication(
+    graph: GraphStore, indication_id: str, biology_id: str = "UNKNOWN",
+) -> str:
+    """Pick the best-evidenced endpoint for an indication.
+
+    Preference: an endpoint that connects BOTH biology→endpoint and
+    endpoint→indication (a complete `reflects_biology → endpoint_captures`
+    bridge). Falls back to any endpoint with an evidenced
+    `endpoint_captures → indication` edge. Returns "UNKNOWN" when no
+    endpoint has trial evidence on its captures edge.
+    """
+    if indication_id == "UNKNOWN" or indication_id not in graph._graph:
+        return "UNKNOWN"
+    g = graph._graph
+
+    # Build candidate set: endpoints with endpoint_captures → indication
+    # edges that carry evidence.
+    candidates: dict[str, float] = {}
+    for u, _v, key, data in g.in_edges(indication_id, data=True, keys=True):
+        if key != EdgeType.ENDPOINT_CAPTURES.value:
+            continue
+        try:
+            belief = EdgeBeliefState.model_validate(data.get("belief") or {})
+        except Exception:  # noqa: BLE001
+            continue
+        if belief.evidence_strength <= 0.0:
+            continue
+        # Score = E[p] * evidence_strength
+        candidates[u] = belief.expected_probability * (
+            1.0 + belief.evidence_strength
+        )
+    if not candidates:
+        return "UNKNOWN"
+
+    # If biology is known, prefer endpoints with an evidenced
+    # reflects_biology edge from that biology.
+    if biology_id != "UNKNOWN" and biology_id in g:
+        bridged = []
+        for _u, v, key, data in g.out_edges(biology_id, data=True, keys=True):
+            if key != EdgeType.REFLECTS_BIOLOGY.value or v not in candidates:
+                continue
+            try:
+                belief = EdgeBeliefState.model_validate(data.get("belief") or {})
+            except Exception:  # noqa: BLE001
+                continue
+            if belief.evidence_strength > 0.0:
+                bridged.append(v)
+        if bridged:
+            return max(bridged, key=lambda ep: candidates[ep])
+
+    return max(candidates, key=candidates.get)
+
+
 def predict_clinical_hypothesis(
     graph: GraphStore,
-    compound_id: str,
+    compound_id: str | None,
     indication_id: str,
     *,
+    target_id: str | None = None,
+    mechanism_id: str | None = None,
+    biology_id: str | None = None,
     endpoint_id: str | None = None,
     population_id: str | None = None,
     n_samples: int = 10_000,
 ) -> PredictionResult:
-    """Stateless prediction for a (compound, indication) pair.
+    """Stateless prediction over a clinical hypothesis chain.
 
-    Walks the graph to assemble the full causal chain—target via binds_to,
-    then mechanism + biology by walking target→indication paths—and runs
-    the standard engine on the resulting subgraph. No in-memory trial cache
-    needed: the graph snapshot itself is the source of truth.
+    Required: ``indication_id`` (must be in the graph). ``compound_id``
+    is positional but may be ``None`` or a string not in the graph —
+    treated as UNKNOWN, which causes the ``affects`` edge to be skipped.
+    This supports the "novel compound, familiar target" use case: pass
+    ``target_id`` explicitly and predict from the target-onward chain.
 
-    ``endpoint_id`` / ``population_id`` are optional. When omitted, the
-    auxiliary edges (``reflects_biology``, ``endpoint_captures``,
-    ``responds_differently``) are skipped at engine time—so the prediction
-    reflects the causal chain only, not endpoint translatability or
-    population responsiveness.
+    Optional intermediate nodes (``target_id``, ``mechanism_id``,
+    ``biology_id``, ``endpoint_id``) are auto-resolved from the graph
+    when not provided AND when ``compound_id`` is in the graph. With a
+    novel compound, no auto-resolution from compound is possible — the
+    caller must pass at least ``target_id`` for any prediction to fire.
 
-    Raises ``KeyError`` if either node is not in the graph; this is a
-    programmer error worth surfacing rather than silently returning a flat
-    prediction.
+    ``population_id`` is caller-only (no graph resolver): population is
+    trial-design information that the chain can't legitimately walk to.
+    When omitted, the ``responds_differently`` edge is skipped.
+
+    The engine drops edges with no evidence (Beta(1,1)) so the prediction
+    reflects only what the graph has actually learned. A sparse hypothesis
+    chain produces a prediction over whichever subset of edges has evidence.
+
+    Raises ``KeyError`` only if ``indication_id`` is not in the graph.
     """
-    if compound_id not in graph._graph:
-        raise KeyError(f"Compound '{compound_id}' not in graph")
     if indication_id not in graph._graph:
         raise KeyError(f"Indication '{indication_id}' not in graph")
 
-    target_id = _resolve_target_for_compound(graph, compound_id)
-    mechanism_id, biology_id = _resolve_chain_via_topology(
-        graph, target_id, indication_id
+    compound_in_graph = (
+        compound_id is not None and compound_id in graph._graph
+    )
+
+    if target_id:
+        resolved_target = target_id
+    elif compound_in_graph:
+        resolved_target = _resolve_target_for_compound(graph, compound_id)
+    else:
+        resolved_target = "UNKNOWN"
+
+    if mechanism_id is None or biology_id is None:
+        walked_mech, walked_bio = _resolve_chain_via_topology(
+            graph, resolved_target, indication_id,
+        )
+        resolved_mechanism = mechanism_id or walked_mech
+        resolved_biology = biology_id or walked_bio
+    else:
+        resolved_mechanism = mechanism_id
+        resolved_biology = biology_id
+
+    resolved_endpoint = endpoint_id or _resolve_endpoint_for_indication(
+        graph, indication_id, resolved_biology,
     )
 
     chain = CausalChain(
         arm_id="hypothesis",
-        compound_id=compound_id,
+        compound_id=compound_id if compound_in_graph else "UNKNOWN",
         subgroup_population_id=population_id or "UNKNOWN",
-        target_id=target_id,
-        mechanism_id=mechanism_id,
-        biology_id=biology_id,
+        target_id=resolved_target,
+        mechanism_id=resolved_mechanism,
+        biology_id=resolved_biology,
         indication_id=indication_id,
-        endpoint_id=endpoint_id or "UNKNOWN",
+        endpoint_id=resolved_endpoint,
         outcome=TrialOutcome.UNKNOWN,
     )
     engine = PredictionEngine(graph)

@@ -329,6 +329,8 @@ async def main(
     keep_annotations: bool = False,
     corpus: str | None = None,
     include_ncts: list[str] | None = None,
+    min_classify_success_rate: float = 0.80,
+    allow_partial_classify: bool = False,
 ) -> None:
     console.rule(
         f"[bold]Rebuilding graph: condition={condition!r}, n={max_trials}"
@@ -416,6 +418,30 @@ async def main(
     )
     console.print(f"  classified {n_classified}/{len(extracted)} trials")
 
+    # Round-16 safety: abort if a large fraction of trials failed to
+    # classify. Without this check, an API outage / credit exhaustion
+    # mid-run produces a silently-truncated snapshot that looks complete
+    # but has ~half the trials' evidence missing. The downstream
+    # attribution + prediction don't know to flag the gap.
+    classify_success_rate = (
+        n_classified / len(extracted) if extracted else 1.0
+    )
+    if (
+        classify_success_rate < min_classify_success_rate
+        and not allow_partial_classify
+    ):
+        raise SystemExit(
+            f"\nclassify success rate {classify_success_rate:.1%} below "
+            f"minimum {min_classify_success_rate:.1%} "
+            f"({n_classified} of {len(extracted)} trials classified). "
+            f"Aborting before attribution to avoid a degraded snapshot. "
+            f"Common causes: API credit exhaustion (check the rebuild "
+            f"log for 'credit balance is too low'), rate limit, or "
+            f"network outage. Re-run after fixing, or pass "
+            f"--allow-partial-classify to force the build to continue "
+            f"with the partial classifications."
+        )
+
     console.rule("[bold]Step 4: attribute[/bold]")
     await attributor_main(
         str(ANNOTATIONS_DIR), str(initial_path), str(annotated_path),
@@ -486,6 +512,19 @@ if __name__ == "__main__":
              "--max-trials cap. Requires --corpus and all ids must be "
              "present in the corpus file.",
     )
+    parser.add_argument(
+        "--min-classify-success-rate", type=float, default=0.80,
+        help="Minimum fraction of trials that must classify successfully "
+             "(default 0.80). Build aborts before attribution if below "
+             "this, preventing a silently-truncated snapshot from API "
+             "credit exhaustion / outages.",
+    )
+    parser.add_argument(
+        "--allow-partial-classify", action="store_true",
+        help="Override the min-classify-success-rate check and continue "
+             "building from whatever subset classified. Use only when you "
+             "explicitly want a partial snapshot for debugging.",
+    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
 
@@ -499,4 +538,6 @@ if __name__ == "__main__":
         area=args.area,
         corpus=args.corpus,
         include_ncts=include_ncts or None,
+        min_classify_success_rate=args.min_classify_success_rate,
+        allow_partial_classify=args.allow_partial_classify,
     ))

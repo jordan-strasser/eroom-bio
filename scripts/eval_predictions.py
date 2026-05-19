@@ -1,14 +1,23 @@
 """Quick in-sample evaluation of predict_clinical_hypothesis.
 
-For each labeled trial (extraction.results.primary_endpoint_met ∈ {True, False})
-we look up the trial's first chain in the graph, take its
-(compound_id, indication_id), run predict_clinical_hypothesis, and compare
-the predicted P(success) against the boolean outcome.
+Labels come from two extractor/classifier signals combined:
+  1. ``extraction.results.primary_endpoint_met`` (True/False) — preferred
+     when set; the extractor's read of whether the trial hit its primary
+     endpoint.
+  2. ``classification.trial_outcome`` (success/failure/...) as a fallback
+     when (1) is None. The classifier synthesizes this from the
+     extraction's results section even when the extractor didn't fill
+     the binary field.
+
+Trials whose combined signal is ``partial`` or ``unknown`` are excluded
+(genuinely ambiguous outcomes — neither labeling lane resolves them).
+Phase I safety-only trials end up here, which is correct: there's no
+binary efficacy outcome to predict against.
 
 CAVEAT—IN-SAMPLE: every trial we predict on contributed evidence to the
 graph it's being predicted against. Numbers here are an upper bound on
-generalization, not a real benchmark. Real OOS validation requires a
-temporal or LOO split (separate script).
+generalization, not a real benchmark. Real OOS validation requires LOO
+(eval_predictions_loo.py).
 """
 
 from __future__ import annotations
@@ -45,6 +54,42 @@ def _auroc(probs: list[float], labels: list[int]) -> float:
             if pp > nn: correct += 1.0
             elif pp == nn: correct += 0.5
     return correct / (len(pos) * len(neg))
+
+
+def _resolve_label(
+    ext: dict, annotations_dir: Path, nct: str,
+    counts: dict[str, int],
+) -> int | None:
+    """Combine extractor's `primary_endpoint_met` and classifier's
+    `trial_outcome` into a single binary label. Returns None for trials
+    where both signals are ambiguous (partial / unknown / safety-only).
+
+    Counts which label source resolved each trial for downstream
+    reporting — useful to see how much we depend on the fallback.
+    """
+    met = (ext.get("results") or {}).get("primary_endpoint_met")
+    if met is True:
+        counts["primary_endpoint_met"] += 1
+        return 1
+    if met is False:
+        counts["primary_endpoint_met"] += 1
+        return 0
+    # Fallback: classifier's trial_outcome
+    cls_path = annotations_dir / f"{nct}_classification.json"
+    if not cls_path.exists():
+        return None
+    try:
+        cls = json.loads(cls_path.read_text())
+    except json.JSONDecodeError:
+        return None
+    outcome = (cls.get("trial_outcome") or "").lower()
+    if outcome == "success":
+        counts["trial_outcome"] += 1
+        return 1
+    if outcome == "failure":
+        counts["trial_outcome"] += 1
+        return 0
+    return None
 
 
 def _calibration_bins(probs: list[float], labels: list[int], n_bins: int = 5):
@@ -94,13 +139,14 @@ def main() -> None:
 
     rows: list[dict] = []
     skipped: list[tuple[str, str]] = []
+    label_source_counts: dict[str, int] = {"primary_endpoint_met": 0, "trial_outcome": 0}
     for ext_path in sorted(args.annotations.glob("*_extraction.json")):
         nct = ext_path.stem.split("_")[0]
         if keep_ncts is not None and nct not in keep_ncts:
             continue
         ext = json.loads(ext_path.read_text())
-        met = (ext.get("results") or {}).get("primary_endpoint_met")
-        if met is None:
+        label = _resolve_label(ext, args.annotations, nct, label_source_counts)
+        if label is None:
             continue
         ts = trial_subgraphs.get(nct)
         if not ts:
@@ -133,7 +179,7 @@ def main() -> None:
             continue
         rows.append({
             "nct": nct,
-            "label": 1 if met else 0,
+            "label": label,
             "p_success": result.overall_probability,
             "ci_lo": result.ci_lower,
             "ci_hi": result.ci_upper,
@@ -150,8 +196,13 @@ def main() -> None:
     n_pos = sum(labels)
     n_neg = len(labels) - n_pos
 
-    console.rule("[bold]In-sample prediction eval—primary_endpoint_met[/bold]")
+    console.rule("[bold]In-sample prediction eval[/bold]")
     console.print(f"Labeled trials evaluated: {len(rows)}  |  successes: {n_pos}  |  failures: {n_neg}")
+    console.print(
+        f"Label source: {label_source_counts['primary_endpoint_met']} from "
+        f"primary_endpoint_met, {label_source_counts['trial_outcome']} from "
+        f"trial_outcome fallback"
+    )
     console.print(f"Skipped: {len(skipped)}")
     for nct, reason in skipped[:10]:
         console.print(f"  {nct}: {reason}")

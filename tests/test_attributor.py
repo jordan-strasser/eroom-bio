@@ -1248,3 +1248,102 @@ class TestLLMModulationEmission:
             if "LLM modulation" in (u.evidence.notes or "")
         ]
         assert len(llm_mods) == 0
+
+
+# ── Round-16: drop-rate counters ─────────────────────────────────────────
+
+
+class TestDropCounters:
+    """Round-16 observability: the Attributor must expose
+    `last_attempted_updates` and `last_dropped_updates` after each
+    attribute() call so the build orchestrator can enforce a drop-rate
+    threshold. Without this, the only signal that the classifier is
+    silently hallucinating off-trial entities is `WARNING` log lines,
+    which the orchestrator doesn't see."""
+
+    def test_counters_zero_on_clean_attribution(self):
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+        # One valid edge that routes cleanly.
+        clf = _make_classification([
+            {
+                "edge_type": "affects",
+                "source_entity": "nivolumab",
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 1
+        assert attributor.last_dropped_updates == 0
+
+    def test_counters_track_hallucinated_entity_drops(self):
+        """When the LLM emits an edge whose source/target isn't in the
+        trial subgraph (hallucinated drug, off-trial target), it gets
+        dropped. The counter must reflect that."""
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+        clf = _make_classification([
+            {
+                "edge_type": "affects",
+                "source_entity": "imaginary_compound",  # not in trial
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+            {
+                "edge_type": "affects",
+                "source_entity": "nivolumab",  # this one routes
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 2
+        assert attributor.last_dropped_updates == 1
+
+    def test_counters_track_unknown_edge_type_drops(self):
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+        clf = _make_classification([
+            {
+                "edge_type": "fictional_edge_type",  # invalid enum
+                "source_entity": "nivolumab",
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 1
+        assert attributor.last_dropped_updates == 1
+
+    def test_counters_reset_per_call(self):
+        """Counters reflect the most recent attribute() call only."""
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+
+        # First call: 2 attempts, 1 drop
+        clf_first = _make_classification([
+            {"edge_type": "fictional", "source_entity": "x",
+             "target_entity": "y", "support": "ambiguous"},
+            {"edge_type": "affects", "source_entity": "nivolumab",
+             "target_entity": "ENSG00000188389",
+             "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        attributor.attribute(clf_first, ts)
+        assert attributor.last_dropped_updates == 1
+
+        # Second call: 1 attempt, 0 drops — counters reset
+        clf_second = _make_classification([
+            {"edge_type": "affects", "source_entity": "nivolumab",
+             "target_entity": "ENSG00000188389",
+             "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        attributor.attribute(clf_second, ts)
+        assert attributor.last_attempted_updates == 1
+        assert attributor.last_dropped_updates == 0

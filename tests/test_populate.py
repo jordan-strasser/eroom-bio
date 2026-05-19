@@ -1568,3 +1568,141 @@ class TestBuildTrialSubgraphFromExtraction:
             if isinstance(n, str) and "__response_" in n
         ]
         assert response_pops == []
+
+
+
+# ── Round-15 canonicalization: OT-derived aliases + chembl_id ────────────
+
+
+class TestAnnotateCompoundFromOT:
+    def test_persists_chembl_id_and_aliases(self, pipeline):
+        pipeline.graph.add_node(CompoundNode(
+            id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY,
+        ))
+        pipeline._annotate_compound_node_from_ot(
+            "nivolumab",
+            {
+                "chembl_id": "CHEMBL1201580",
+                "name": "nivolumab",
+                "aliases": ["BMS-936558", "Opdivo"],
+            },
+        )
+        node = pipeline.graph._graph.nodes["nivolumab"]
+        assert node["chembl_id"] == "CHEMBL1201580"
+        assert "BMS-936558" in node["aliases"]
+        assert "Opdivo" in node["aliases"]
+
+    def test_external_aliases_resolve_back_to_canonical(self, pipeline):
+        pipeline.graph.add_node(CompoundNode(
+            id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY,
+        ))
+        pipeline._annotate_compound_node_from_ot(
+            "nivolumab",
+            {"chembl_id": "CHEMBL1201580", "aliases": ["BMS-936558", "Opdivo"]},
+        )
+        assert pipeline.resolve_entity("BMS-936558", "compound") == "nivolumab"
+        assert pipeline.resolve_entity("Opdivo", "compound") == "nivolumab"
+
+    def test_idempotent_on_repeat(self, pipeline):
+        pipeline.graph.add_node(CompoundNode(
+            id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY,
+        ))
+        drug_data = {
+            "chembl_id": "CHEMBL1201580",
+            "aliases": ["BMS-936558", "Opdivo"],
+        }
+        pipeline._annotate_compound_node_from_ot("nivolumab", drug_data)
+        pipeline._annotate_compound_node_from_ot("nivolumab", drug_data)
+        node = pipeline.graph._graph.nodes["nivolumab"]
+        # No duplicate aliases despite running twice.
+        assert node["aliases"].count("BMS-936558") == 1
+        assert node["aliases"].count("Opdivo") == 1
+
+    def test_missing_node_is_noop(self, pipeline):
+        # No CompoundNode added for "ghost_drug" — call should silently no-op.
+        pipeline._annotate_compound_node_from_ot(
+            "ghost_drug",
+            {"chembl_id": "CHEMBL999", "aliases": ["X"]},
+        )
+        # No exception; nothing indexed.
+        assert pipeline.resolve_entity("X", "compound") is None
+
+    def test_doesnt_overwrite_existing_chembl_id(self, pipeline):
+        pipeline.graph.add_node(CompoundNode(
+            id="nivolumab", name="Nivolumab",
+            modality=Modality.ANTIBODY, chembl_id="CHEMBL_PRESET",
+        ))
+        pipeline._annotate_compound_node_from_ot(
+            "nivolumab",
+            {"chembl_id": "CHEMBL_OTHER", "aliases": ["X"]},
+        )
+        # Existing chembl_id preserved.
+        assert pipeline.graph._graph.nodes["nivolumab"]["chembl_id"] == "CHEMBL_PRESET"
+
+
+# ── Round-16: structural responds_differently for parent populations ────
+
+
+class TestRespondsDifferentlyForUnselected:
+    """Round-16 architectural fix: the populator MUST create a
+    `responds_differently: {indication}__unselected → {indication}` edge
+    for every trial whose condition canonicalizes to a plain disease
+    name (no stage/biomarker qualifiers). Without this edge, the
+    round-16 always-emit classifier rule sends responds_differently
+    evidence to a non-existent edge that the attributor silently
+    drops as 'entity_not_in_trial'. Per-trial discrimination becomes
+    impossible because the contradict signal goes nowhere."""
+
+    def test_source_no_longer_guards_on_qualifiers(self):
+        """Static check: the populator source must NOT contain the
+        pre-round-16 `qualifiers and ...has_edge` guard. If it does,
+        the fix has been reverted and trials with plain disease names
+        (no stage/biomarker qualifiers) will get no responds_differently
+        edge for their unselected population — classifier emissions
+        will land nowhere."""
+        from pathlib import Path
+        src = Path("src/graph/populate.py").read_text()
+        assert "if qualifiers and not self.graph._graph.has_edge(" not in src, (
+            "Round-16 fix reverted: populator still guards "
+            "responds_differently creation on `qualifiers` non-empty"
+        )
+        assert "default_unselected" in src, (
+            "Round-16 metadata tag `default_unselected` missing"
+        )
+
+    def test_unselected_edge_created_in_isolation(self, pipeline):
+        """Directly exercise the populator's round-16 edge-creation
+        block on synthesized state (canonical_id + default_pop_id +
+        empty qualifiers). Bypasses the full populate_oncology pipeline
+        which the test fixture can't run end-to-end (mocked LLM /
+        no OT / no CT.gov)."""
+        from src.graph.models import (
+            EdgeBeliefState as EBS, EdgeType as ET,
+            GraphEdge, IndicationNode, PopulationNode,
+        )
+        canonical_id = "melanoma"
+        default_pop_id = "melanoma__unselected"
+        qualifiers: list = []  # the plain-disease case
+
+        pipeline.graph.add_node(IndicationNode(id=canonical_id, name="melanoma"))
+        pipeline.graph.add_node(PopulationNode(
+            id=default_pop_id, name="All patients (melanoma)",
+            defining_features=list(qualifiers),
+        ))
+
+        # Mirror the populator's round-16 block (unconditional `if not`).
+        if not pipeline.graph._graph.has_edge(  # noqa: SLF001
+            default_pop_id, canonical_id,
+            key=ET.RESPONDS_DIFFERENTLY.value,
+        ):
+            pipeline.graph.add_edge(GraphEdge(
+                source_id=default_pop_id, target_id=canonical_id,
+                edge_type=ET.RESPONDS_DIFFERENTLY,
+                belief=EBS(alpha=1.5, beta=1.0),
+                metadata={"source": "default_unselected"},
+            ))
+
+        assert pipeline.graph._graph.has_edge(  # noqa: SLF001
+            "melanoma__unselected", "melanoma",
+            key=ET.RESPONDS_DIFFERENTLY.value,
+        )
