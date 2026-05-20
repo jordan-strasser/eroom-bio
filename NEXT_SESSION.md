@@ -161,6 +161,95 @@ Branch state: round-14 fixes live on a branch (not main). Tests pass. Not merged
 
 ---
 
+## Round-20 candidate: integrate safety into P(success)
+
+Surfaced by the round-18 torcetrapib case study (2026-05-20).
+`predict_clinical_hypothesis` currently treats AE/safety as a separate
+output (`SafetyRisk` list) — it does NOT factor into
+`overall_probability`. Comment on `PredictionResult`: *"efficacy and
+safety are scored independently."* This was a v0.1.0 architectural
+choice that the torcetrapib audit just exposed as wrong.
+
+ILLUMINATE (NCT00134264) failed for off-target hypertension causing
+excess deaths. The mechanism CHAIN worked (CETP inhibition raised HDL
+dramatically). Without safety in the prediction, the system rates
+torcetrapib at P=0.65 modest-success, missing the actual failure mode.
+
+**Proposed integration** (preserves backward compat):
+
+  1. Compute a per-compound `safety_penalty` from `causes_ae` and
+     `target_associated_ae` edges, weighted by severity grade + belief
+     probability × evidence strength. High-severity AEs with strong
+     evidence drive the penalty up.
+  2. Combine: `P(trial_succeeds) = P(mechanism_works) * (1 -
+     safety_penalty)`. Or use a soft min so low-evidence AE edges
+     don't dominate.
+  3. PredictionResult adds `safety_penalty` and `efficacy_probability`
+     fields. `overall_probability` becomes the combined number.
+     Existing callers that read `overall_probability` get the new
+     combined semantics; the breakdown is available for introspection.
+  4. Tunable threshold: only AEs of grade 3+ count, or a grade-weighted
+     sum. The simplest first version: `sum(belief × n_eff)` across
+     compound-specific AEs, normalized so a single trial reporting one
+     grade-3+ AE gives a small penalty (~0.05) and 5+ trials with
+     consistent severe AEs gives a meaningful drag (~0.20-0.30).
+
+Tests: small fixture graph with one compound + one severe AE +
+otherwise-strong chain, verify combined P(success) lands below the
+mechanism-only chain prediction by the safety_penalty fraction.
+
+Caveat: torcetrapib has 0 AE evidence in the smoke corpus (one trial,
+no posted results). Even with integration, that specific case won't
+change until more torcetrapib (or CETP inhibitor class) trials
+accumulate. But for well-evidenced compounds (nivo, ipi, bevacizumab,
+the BRAF/MEK families) it would meaningfully shift predictions.
+
+---
+
+## Round-19 candidate: incremental graph build (no more full rebuilds)
+
+Surfaced during the round-18 multi-indication build (2026-05-20). Every
+`build_graph.py` run today wipes the export snapshot and re-marches
+the populator + attributor across all trials in the corpus. LLM calls
+are amortized to zero (extractor / classifier hit per-trial caches),
+but the wall-clock and orchestration cost grows linearly with corpus
+size. For sequential trial addition ("add 30 more breast cancer trials
+to the existing multi_indication graph") this is the wrong shape.
+
+**The fix**: incremental-add mode for `build_graph.py`.
+
+```bash
+python scripts/build_graph.py \
+  --base-snapshot data/exports/multi_indication_annotated.json \
+  --add-trials NCT00000001,NCT00000002,...   # or --corpus-add new_indication
+```
+
+Pipeline:
+1. Load existing snapshot (don't wipe).
+2. Fetch only the new NCTs from CT.gov.
+3. Run populator's per-trial steps only on new trials. Existing
+   structural ops (`add_node`, `add_edge`, `add_subtype_edges`) are
+   already idempotent on duplicate inputs.
+4. Run extract + classify only on the new trials (cache check still
+   applies for already-annotated NCTs).
+5. Run attribution only on the new classifications.
+6. **Critical safety check**: persist the set of attributed `trial_id`s
+   on the graph (a new sidecar field or graph-level metadata). When
+   attribution runs, skip any trial whose evidence has already been
+   applied to an edge. Otherwise sequential adds would silently
+   double-count.
+7. Save updated snapshot.
+
+The biggest engineering risk is step 6 — Beta-Binomial updates aren't
+trivially idempotent, so we need explicit bookkeeping. Easiest:
+graph-level dict `applied_trial_ids: set[str]` that the attributor
+checks before processing each trial.
+
+Related: the existing `wipe_outputs(area, keep_annotations)` flag would
+need a `--no-wipe-exports` companion that keeps the snapshot too.
+
+---
+
 ## Round-17 candidate: node enrichment for cross-trial learning
 
 Surfaced during round-16 audit (2026-05-19): nodes are id+name+1–3 categorical fields. The rich data we extract per trial (effect sizes, p-values, dose info, biomarker observations, subgroup findings, eligibility criteria, classifier reasoning, evidence quotes) gets used once for edge updates then discarded. Each node ends up as a thin shell that says "this thing exists" with almost nothing about how it has *behaved* across the corpus.

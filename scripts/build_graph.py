@@ -162,7 +162,7 @@ async def fetch_trials(
     max_trials: int,
     include_terminated: bool,
     corpus_path: Path | None = None,
-    corpus_concurrency: int = 8,
+    corpus_concurrency: int = 4,
     include_ncts: list[str] | None = None,
 ) -> list[TrialRecord]:
     """Fetch trials from CT.gov, with optional frozen-corpus support.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 from datetime import datetime
 from typing import Any
@@ -451,7 +452,7 @@ class ClinicalTrialsClient:
         # we filter client-side after fetching.
 
         records: list[TrialRecord] = []
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
+        async with httpx.AsyncClient(timeout=self._timeout, follow_redirects=True) as client:
             while len(records) < max_results:
                 params["pageSize"] = min(max_results - len(records), 1000)
                 resp = await client.get(BASE_URL, params=params)
@@ -473,12 +474,37 @@ class ClinicalTrialsClient:
 
         return records
 
-    async def get_study(self, nct_id: str) -> TrialRecord:
+    async def get_study(
+        self, nct_id: str, *, max_retries: int = 4,
+    ) -> TrialRecord:
+        """Fetch one trial by NCT id.
+
+        CT.gov v2 throttles aggressively under concurrent fetches: when
+        we exceed their rate budget the server returns 302 redirects
+        whose follow-up GET hits an `/error/429.shtml` page returning
+        429 Too Many Requests. Retry with exponential backoff so we
+        don't silently drop trials during multi-indication builds with
+        concurrency > 1.
+        """
         url = f"{BASE_URL}/{nct_id}"
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            return _parse_study(resp.json())
+        delay = 1.0
+        async with httpx.AsyncClient(
+            timeout=self._timeout, follow_redirects=True,
+        ) as client:
+            for attempt in range(max_retries):
+                resp = await client.get(url)
+                if resp.status_code == 429 or (
+                    resp.status_code == 200 and "/error/" in str(resp.url)
+                ):
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(delay)
+                        delay *= 2
+                        continue
+                resp.raise_for_status()
+                return _parse_study(resp.json())
+            # Exhausted retries — let the final attempt raise.
+            resp.raise_for_status()  # type: ignore[possibly-undefined]
+            return _parse_study(resp.json())  # type: ignore[possibly-undefined]
 
     async def fetch_oncology_with_results(
         self, max_results: int = 1000, condition: str = "cancer"
