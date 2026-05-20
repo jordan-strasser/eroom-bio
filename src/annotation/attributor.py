@@ -1684,6 +1684,18 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
     for ext_data, clf_data in pairs:
         trial_id = clf_data.get("nct_id", ext_data.get("nct_id", "unknown"))
 
+        # Round-19: idempotency guard. Trials whose attribution has
+        # already been folded into this snapshot must not have their
+        # Beta-Binomial updates re-applied — that would double-count
+        # evidence on every edge the trial touched. The set is added
+        # to AFTER the trial's updates land successfully (transactional),
+        # so a partial / failed attribution leaves the trial retryable.
+        if trial_id in graph.applied_attribution_trial_ids:
+            console.print(
+                f"  [dim]Skipped {trial_id}:[/dim] already attributed in this snapshot"
+            )
+            continue
+
         # The trial subgraph (with arms + chains) must already exist in the
         # graph sidecar—produced by populate.build_trial_subgraphs and
         # extended by add_subgroup_chains during the extraction pipeline.
@@ -1735,6 +1747,11 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
                 trial, extraction, client=client, meddra_cache=meddra_cache,
             )
             total_updates.extend(ae_updates)
+
+        # Round-19: record successful attribution. Placed after both
+        # efficacy + AE phases land so a mid-trial raise leaves the
+        # set unchanged and the trial retryable on the next run.
+        graph.applied_attribution_trial_ids.add(trial_id)
 
         if updates:
             console.print(f"  {trial_id}: {len(updates)} efficacy edge updates")

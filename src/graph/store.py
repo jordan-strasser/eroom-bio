@@ -40,6 +40,12 @@ class GraphStore:
     def __init__(self) -> None:
         self._graph = nx.MultiDiGraph()
         self.trial_subgraphs: dict[str, TrialSubgraph] = {}
+        # Round-19: trials whose attribution has already been applied to
+        # this graph. The attributor consults this set before applying a
+        # trial's updates so re-running attribution on an existing
+        # snapshot doesn't double-count evidence on already-touched
+        # edges. Persisted in the snapshot via export/import_snapshot.
+        self.applied_attribution_trial_ids: set[str] = set()
 
     # ── CRUD: nodes ──────────────────────────────────────────────────────
 
@@ -257,6 +263,9 @@ class GraphStore:
         payload = {
             "graph": graph_data,
             "trial_subgraphs": trials_data,
+            "applied_attribution_trial_ids": sorted(
+                self.applied_attribution_trial_ids
+            ),
         }
         Path(filepath).write_text(json.dumps(payload, indent=2, default=str))
 
@@ -271,9 +280,27 @@ class GraphStore:
                 tid: TrialSubgraph.model_validate(blob)
                 for tid, blob in raw.get("trial_subgraphs", {}).items()
             }
+            # Round-19: legacy snapshots written before this field existed
+            # are treated as "all trial_subgraphs already attributed". This
+            # is safe because the build pipeline only writes a trial
+            # subgraph into the annotated snapshot after attribution has
+            # run over it — there's no state where a subgraph exists but
+            # its updates haven't been folded into edge beliefs. Without
+            # the backfill, the first incremental --add-trials run against
+            # a pre-round-19 snapshot would re-attribute every existing
+            # trial and double-count every edge.
+            if "applied_attribution_trial_ids" in raw:
+                self.applied_attribution_trial_ids = set(
+                    raw["applied_attribution_trial_ids"] or []
+                )
+            else:
+                self.applied_attribution_trial_ids = set(
+                    self.trial_subgraphs.keys()
+                )
         else:
             self._graph = nx.node_link_graph(raw, directed=True, multigraph=True)
             self.trial_subgraphs = {}
+            self.applied_attribution_trial_ids = set()
 
     # ── Stats ────────────────────────────────────────────────────────────
 
