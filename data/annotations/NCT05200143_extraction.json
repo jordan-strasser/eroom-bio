@@ -1,0 +1,115 @@
+{
+  "nct_id": "NCT05200143",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab + nivolumab + cabozantinib",
+    "claimed_target": "CTLA-4, PD-1, VEGFR2/MET/KIT",
+    "proposed_mechanism": "dual checkpoint blockade with anti-angiogenic/kinase inhibition",
+    "intended_biology": "T cell activation and proliferation with tumor vasculature disruption",
+    "target_population": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
+    "primary_endpoint": "progression free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "6.24 months median PFS (95% CI: 4.60\u20136.37)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "50% of patients experienced grade \u22653 treatment related adverse events",
+      "Multiple serious immune-related adverse events including hypophysitis, hepatitis, adrenal insufficiency"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade \u22653 treatment related adverse events",
+        "grade": "\u22653",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypophysitis",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hepatitis",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Adrenal Insufficiency",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Bilateral Lower Extremity Pain",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "refractory cutaneous melanoma",
+    "comparator": "none",
+    "sample_size": 4,
+    "duration": "13 months",
+    "duration_weeks": 56.5,
+    "investigator_commentary": "Withdrawn support from BMS."
+  },
+  "arms": [
+    {
+      "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "compounds": [
+        "cabozantinib",
+        "ipilimumab",
+        "nivolumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.24,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cabozantinib",
+      "primary_compound_id": "nivolumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "anti-angiogenic kinase inhibition enhances immune checkpoint blockade efficacy",
+      "citation": "Cabozantinib is a potent small molecule inhibitor of multiple receptor tyrosine kinases. Cabozantinib inhibits VEGFR2, MER, KIT, and MET at single digit nanomolar IC50 concentrations."
+    }
+  ]
+}

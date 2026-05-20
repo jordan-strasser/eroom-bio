@@ -1,0 +1,193 @@
+{
+  "nct_id": "NCT00094653",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab",
+    "claimed_target": "CTLA-4",
+    "proposed_mechanism": "checkpoint inhibition blocking CTLA-4 to enhance T-cell activation",
+    "intended_biology": "immune system activation against melanoma",
+    "target_population": "patients with unresectable or metastatic melanoma",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.68 (95% CI: 0.55-0.85) for ipilimumab+gp100 vs gp100",
+    "p_value": 0.0004,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "immune-related adverse events including gastrointestinal, skin, endocrine, liver, and neurological toxicities",
+      "treatment-related deaths occurred in all arms"
+    ],
+    "dose_info": {
+      "dose": "3 mg/kg",
+      "schedule": "every 3 weeks for 4 doses",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Any on-study adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 98.4,
+        "incidence_control_pct": 97.0,
+        "serious": false
+      },
+      {
+        "term": "Severe (>=Grade 3) on-study adverse events",
+        "grade": "3-4",
+        "incidence_treatment_pct": 50.8,
+        "incidence_control_pct": 52.3,
+        "serious": false
+      },
+      {
+        "term": "Serious on-study adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 40.8,
+        "incidence_control_pct": 39.4,
+        "serious": true
+      },
+      {
+        "term": "Adverse events with outcome of death",
+        "grade": "",
+        "incidence_treatment_pct": 6.1,
+        "incidence_control_pct": 6.1,
+        "serious": true
+      },
+      {
+        "term": "Related adverse event with outcome of death",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": 1.5,
+        "serious": true
+      },
+      {
+        "term": "Any immune-related adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 58.2,
+        "incidence_control_pct": 31.8,
+        "serious": false
+      },
+      {
+        "term": "Severe immune-related adverse events",
+        "grade": "3-4",
+        "incidence_treatment_pct": 11.3,
+        "incidence_control_pct": 3.0,
+        "serious": false
+      },
+      {
+        "term": "Gastrointestinal immune-related adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 32.1,
+        "incidence_control_pct": 14.4,
+        "serious": false
+      },
+      {
+        "term": "Severe gastrointestinal immune-related adverse events",
+        "grade": "3-4",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": 0.8,
+        "serious": false
+      },
+      {
+        "term": "Skin immune-related adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 40.0,
+        "incidence_control_pct": 16.7,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "unresectable or metastatic melanoma",
+    "comparator": "gp100 melanoma peptide vaccine alone",
+    "sample_size": 1783,
+    "duration": "264 weeks",
+    "duration_weeks": 264.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "gp100"
+      ]
+    },
+    {
+      "arm_id": "2",
+      "compounds": [
+        "ipilimumab",
+        "gp100"
+      ]
+    },
+    {
+      "arm_id": "3",
+      "compounds": [
+        "ipilimumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "2",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 9.95,
+      "p_value": 0.0004,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "1",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 6.44,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "3",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 10.12,
+      "p_value": 0.0026,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "2",
+      "subgroup_descriptor": null,
+      "endpoint": "BORR",
+      "effect_size": 5.7,
+      "p_value": 0.0433,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "3",
+      "subgroup_descriptor": null,
+      "endpoint": "BORR",
+      "effect_size": 10.9,
+      "p_value": 0.0012,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "1",
+      "subgroup_descriptor": null,
+      "endpoint": "BORR",
+      "effect_size": 1.5,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "gp100",
+      "primary_compound_id": "ipilimumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "gp100 vaccine was hypothesized to enhance ipilimumab efficacy through antigen presentation and immune priming",
+      "citation": "MDX-010 in Combination With gp 100 Melanoma Peptide Vaccine Versus gp 100 Melanoma Peptide Vaccine Alone versus MDX-010 Monotherapy - combination arm did not significantly outperform monotherapy (HR 1.04, p=0.7575)"
+    }
+  ]
+}
