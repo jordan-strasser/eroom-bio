@@ -791,12 +791,23 @@ class TestPredictionSafetyRisks:
         assert len(rash_entries) == 1
         assert rash_entries[0].source == "compound"
 
-    def test_safety_risks_independent_of_overall_probability(self):
-        """Safety risks must NOT bleed into the efficacy P(success)."""
+    def test_safety_risks_drag_overall_below_efficacy(self):
+        """Round-20: overall_probability = efficacy_probability *
+        (1 - safety_penalty). The mechanism-only `efficacy_probability`
+        stays unchanged when safety evidence is added; only
+        `overall_probability` moves.
+
+        Previously this test asserted "safety doesn't bleed into
+        P(success)" — that v0.1.0 decoupling was reversed in round 20
+        after the torcetrapib audit (ILLUMINATE, NCT00134264) showed a
+        chain-works/safety-kills failure mode the decoupled score
+        couldn't see.
+        """
         g, chain = _build_prediction_graph()
-        # Baseline run
         baseline = PredictionEngine(g).predict(chain, n_samples=2000)
-        # Add an extreme safety signal
+        # Add a strong target-class AE so the penalty math has more to
+        # work with (baseline already includes some AE evidence so
+        # baseline.safety_penalty is non-zero too).
         g.add_node(AdverseEventNode(id="AE:bigtox", name="BigTox"))
         g.add_edge(GraphEdge(
             source_id="vemu", target_id="AE:bigtox",
@@ -804,11 +815,27 @@ class TestPredictionSafetyRisks:
             belief=EdgeBeliefState(alpha=50, beta=1),
         ))
         with_tox = PredictionEngine(g).predict(chain, n_samples=2000)
-        # P(success) should be unchanged within sampling noise; we just
-        # verify the safety_risks list grew while overall_probability
-        # remains in the same neighborhood.
+
+        # Efficacy view (mechanism chain) is independent of safety —
+        # unchanged by AE additions modulo sampling noise.
+        assert abs(
+            with_tox.efficacy_probability - baseline.efficacy_probability
+        ) < 0.05
+
+        # Both runs have AE evidence above the penalty threshold, so
+        # both safety_penalty values are positive.
+        assert baseline.safety_penalty > 0.0
+        assert with_tox.safety_penalty > 0.0
+
+        # overall = efficacy * (1 - safety_penalty) by construction.
+        assert with_tox.overall_probability == pytest.approx(
+            with_tox.efficacy_probability * (1 - with_tox.safety_penalty),
+            abs=1e-9,
+        )
+        # The headline number is dragged below the mechanism-only one.
+        assert with_tox.overall_probability < with_tox.efficacy_probability
+        # safety_risks list still grew by exactly the new AE.
         assert len(with_tox.safety_risks) == len(baseline.safety_risks) + 1
-        assert abs(with_tox.overall_probability - baseline.overall_probability) < 0.05
 
 
 # ── Smoke: SafetyRisk model independence ───────────────────────────────

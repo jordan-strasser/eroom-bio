@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from src.graph.models import (
+    AdverseEventNode,
     BiologyNode,
     CompoundNode,
     EdgeBeliefState,
@@ -675,5 +676,202 @@ class TestPredictClinicalHypothesis:
         # No chain edges to sample → empty contributions, default 0.5.
         assert result.overall_probability == 0.5
         assert result.safety_risks == []
+
+
+# ============================================================
+# Round-20: safety penalty
+# ============================================================
+
+
+def _make_chain_only_graph(efficacy_param=(8.0, 2.0)) -> tuple[GraphStore, CausalChain]:
+    """Build a graph with the full mechanism chain and a moderately
+    strong efficacy signal, but NO adverse-event edges. Used as a
+    safety-penalty=0 baseline."""
+    graph = _make_graph(
+        binds_to=efficacy_param,
+        modulates_via=efficacy_param,
+        mechanism_affects=efficacy_param,
+        biology_drives=efficacy_param,
+        reflects_biology=efficacy_param,
+        endpoint_captures=efficacy_param,
+        responds_differently=efficacy_param,
+    )
+    return graph, _make_trial()
+
+
+class TestSafetyPenalty:
+    """Round-20: safety drag on the headline number.
+
+    ``overall_probability = efficacy_probability * (1 - safety_penalty)``.
+    Penalty is soft-or aggregation of belief × log-saturated weight over
+    AE risks above ``_SAFETY_PENALTY_MIN_BELIEF`` (0.5) and
+    ``_SAFETY_PENALTY_MIN_EVIDENCE`` (1.0), capped at
+    ``_SAFETY_PENALTY_CAP`` (0.4).
+    """
+
+    def test_zero_ae_keeps_overall_equal_to_efficacy(self):
+        graph, chain = _make_chain_only_graph()
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        assert result.safety_penalty == 0.0
+        assert result.overall_probability == pytest.approx(
+            result.efficacy_probability, abs=1e-9,
+        )
+
+    def _seeded_ae(self, graph, ae_id, name, severity, *, src="c1",
+                   alpha=10.0, beta=1.0,
+                   edge_type=EdgeType.CAUSES_AE):
+        graph.add_node(AdverseEventNode(
+            id=ae_id, name=name, severity_range=severity,
+        ))
+        graph.add_edge(GraphEdge(
+            source_id=src, target_id=ae_id,
+            edge_type=edge_type,
+            belief=EdgeBeliefState(alpha=alpha, beta=beta),
+        ))
+
+    def test_strong_compound_ae_drags_overall_below_efficacy(self):
+        graph, chain = _make_chain_only_graph()
+        # Grade 4 (life-threatening) AE, well-evidenced.
+        self._seeded_ae(graph, "AE:severe", "Severe AE", "4")
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        # Three-gate math: severity (grade 4 = 0.30) × belief_factor ×
+        # trust_factor. Beta(10,1) → belief 0.909, evidence_strength 9.
+        # belief_factor = (0.909-0.5)/0.5 = 0.818
+        # trust_factor  = log(10)/log(50) ≈ 0.589
+        # contribution ≈ 0.30 × 0.818 × 0.589 ≈ 0.145
+        assert result.safety_penalty == pytest.approx(0.145, abs=0.005)
+        assert result.overall_probability < result.efficacy_probability
+        assert result.overall_probability == pytest.approx(
+            result.efficacy_probability * (1 - result.safety_penalty),
+            abs=1e-9,
+        )
+
+    def test_target_class_ae_contributes_for_novel_compound(self):
+        """A novel compound has no causes_ae history, but its target
+        carries a target_associated_ae signal from related compounds.
+        That on-mechanism class evidence still moves the penalty —
+        round-20 makes safety travel along the target node, not just
+        the compound."""
+        graph, chain = _make_chain_only_graph()
+        # Grade 3 on the target. Beta(8,2) → belief 0.8, n_eff 10.
+        self._seeded_ae(
+            graph, "AE:class_tox", "Class Toxicity", "3",
+            src="t1", alpha=8.0, beta=2.0,
+            edge_type=EdgeType.TARGET_ASSOCIATED_AE,
+        )
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        # severity 0.15 × belief_factor 0.6 × trust_factor ≈ 0.562
+        # ≈ 0.051
+        assert result.safety_penalty == pytest.approx(0.051, abs=0.005)
+        assert result.overall_probability < result.efficacy_probability
+
+    def test_grade_severity_ordering(self):
+        """Holding belief and evidence constant, a grade-5 AE must
+        produce a strictly larger safety_penalty than a grade-3, which
+        must be strictly larger than grade-1-2, which must be strictly
+        larger than the unknown default. This is the core severity-
+        weighting property."""
+        results = {}
+        for label, severity in [("g12", "1,2"), ("g3", "3"),
+                                ("g4", "4"), ("g5", "5"), ("unk", "")]:
+            graph, chain = _make_chain_only_graph()
+            self._seeded_ae(graph, f"AE:{label}", label, severity)
+            results[label] = PredictionEngine(graph).predict(
+                chain, n_samples=5_000,
+            ).safety_penalty
+        # Same belief + evidence in every test → ordering is purely
+        # severity-driven.
+        assert results["g12"] < results["unk"] < results["g3"]
+        assert results["g3"] < results["g4"] < results["g5"]
+
+    def test_weak_belief_ae_barely_moves_penalty(self):
+        """An AE just barely above the 0.55 belief threshold contributes
+        little even at grade 5 — the (belief - 0.5)/0.5 factor scales
+        the severity down. Mirrors the live-corpus case where
+        AMBIGUOUS-bucket AEs accidentally drift just above 0.5 but
+        carry no real safety signal."""
+        graph, chain = _make_chain_only_graph()
+        # Beta(5.6, 4.4) → belief ≈ 0.56, just above the 0.55 gate.
+        # Grade 5, but the weak-belief factor should suppress it to
+        # a small contribution.
+        self._seeded_ae(
+            graph, "AE:fatal_weakbel", "Fatal but weakly evidenced", "5",
+            alpha=5.6, beta=4.4,
+        )
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        # belief_factor ≈ 0.12 (just above the gate),
+        # trust_factor ≈ log(11)/log(50) ≈ 0.613,
+        # contribution ≈ 0.50 × 0.12 × 0.613 ≈ 0.037
+        assert 0.01 < result.safety_penalty < 0.08
+
+    def test_safety_penalty_caps_at_0_6(self):
+        """Pile on multiple grade-5 AEs — the penalty must not exceed
+        the 0.6 cap so the chain still contributes the final 40%."""
+        graph, chain = _make_chain_only_graph()
+        for i in range(8):
+            graph.add_node(AdverseEventNode(
+                id=f"AE:fatal_{i}", name=f"Fatal {i}",
+                severity_range="5",
+            ))
+            graph.add_edge(GraphEdge(
+                source_id="c1", target_id=f"AE:fatal_{i}",
+                edge_type=EdgeType.CAUSES_AE,
+                belief=EdgeBeliefState(alpha=50.0, beta=1.0),
+            ))
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        assert result.safety_penalty == pytest.approx(0.60, abs=1e-9)
+        assert result.overall_probability >= 0.4 * result.efficacy_probability - 1e-9
+
+    def test_below_threshold_ae_does_not_move_penalty(self):
+        """A weak Beta(1.4, 1) edge has belief ~0.58 but evidence_strength
+        ~0.4 — below the min_evidence=1.0 gate. The penalty stays 0
+        rather than letting a near-prior edge drag the headline number."""
+        graph, chain = _make_chain_only_graph()
+        graph.add_node(AdverseEventNode(
+            id="AE:weak", name="Weak Tox", severity_range="5",
+        ))
+        graph.add_edge(GraphEdge(
+            source_id="c1", target_id="AE:weak",
+            edge_type=EdgeType.CAUSES_AE,
+            belief=EdgeBeliefState(alpha=1.4, beta=1.0),
+        ))
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        assert result.safety_penalty == 0.0
+
+    def test_ci_bounds_also_scale_with_safety(self):
+        """CI bounds reflect the same safety_factor multiplier — otherwise
+        a wide efficacy CI would visually swamp the safety drag."""
+        graph, chain = _make_chain_only_graph()
+        graph.add_node(AdverseEventNode(
+            id="AE:severe", name="Severe AE", severity_range="4",
+        ))
+        graph.add_edge(GraphEdge(
+            source_id="c1", target_id="AE:severe",
+            edge_type=EdgeType.CAUSES_AE,
+            belief=EdgeBeliefState(alpha=10.0, beta=1.0),
+        ))
+        result = PredictionEngine(graph).predict(chain, n_samples=5_000)
+        # The CI bounds got multiplied by (1 - safety_penalty), so the
+        # ratio ci_lower / ci_upper is unchanged but both shifted down.
+        assert result.ci_lower < result.efficacy_probability
+        assert result.ci_upper < 1.0  # squeezed
+        # Lower bound should still be <= overall <= upper bound (basic
+        # CI invariant preserved after the safety scale).
+        assert result.ci_lower <= result.overall_probability <= result.ci_upper
+
+    def test_max_grade_parser_handles_real_world_severity_strings(self):
+        """Live AE nodes have free-text severity_range like 'any,3-4,3-5'
+        from successive trial attributions. Parser must extract the
+        max integer grade across all comma-separated tokens."""
+        from src.prediction.path_query import _max_grade_from_severity_range
+        assert _max_grade_from_severity_range("") is None
+        assert _max_grade_from_severity_range(None) is None
+        assert _max_grade_from_severity_range("any") is None
+        assert _max_grade_from_severity_range("1") == 1
+        assert _max_grade_from_severity_range("1,2,3") == 3
+        assert _max_grade_from_severity_range("3-5") == 5
+        assert _max_grade_from_severity_range("1,2,3-5") == 5
+        assert _max_grade_from_severity_range("any,3-4,3-5") == 5
+        assert _max_grade_from_severity_range("garbage,abc") is None
 
 

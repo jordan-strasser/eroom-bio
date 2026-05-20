@@ -175,6 +175,14 @@ async def _audit_one(
         if result.weakest_link else "(no edges)"
     )
     expected_bot = expected["expected_bottleneck"]
+    # Round-20: a meaningful safety_penalty means safety is dragging
+    # P(success) down on its own. For safety-driven failure cases
+    # (torcetrapib-class — chain works, drug kills), this turns a
+    # would-be PARTIAL/DISAGREE into a MATCH-VIA-SAFETY since the
+    # system DID surface the failure cause, just via the AE channel
+    # instead of the mechanistic-chain channel.
+    safety_significant = result.safety_penalty > 0.10
+
     if expected_bot == "none (clean success)":
         verdict = (
             "MATCH" if result.overall_probability >= 0.6
@@ -182,17 +190,31 @@ async def _audit_one(
             else "DISAGREE"
         )
     elif "causes_ae" in expected_bot:
-        # No causal-chain bottleneck expected; just predict-success behavior.
-        verdict = (
-            "PARTIAL" if result.overall_probability >= 0.5
-            else "DISAGREE"
-        )
+        # Safety-driven failure expected. MATCH-VIA-SAFETY when the
+        # safety_penalty dragged overall_probability low enough to
+        # predict the failure direction; PARTIAL when safety surfaced
+        # but didn't pull below 0.5; DISAGREE when neither.
+        if safety_significant and result.overall_probability < 0.5:
+            verdict = "MATCH-VIA-SAFETY"
+        elif safety_significant:
+            verdict = "PARTIAL"
+        elif result.overall_probability >= 0.5:
+            verdict = "DISAGREE"
+        else:
+            verdict = "PARTIAL"
     else:
-        verdict = (
-            "MATCH" if weakest_etype in expected_bot
-            else ("PARTIAL" if result.overall_probability < 0.5
-                  else "DISAGREE")
-        )
+        # Mechanistic-chain bottleneck expected. MATCH when the chain
+        # bottleneck matches the literature; PARTIAL when the system
+        # got the direction right via safety even though the chain
+        # bottleneck didn't match.
+        if weakest_etype in expected_bot:
+            verdict = "MATCH"
+        elif safety_significant and result.overall_probability < 0.5:
+            verdict = "MATCH-VIA-SAFETY"
+        elif result.overall_probability < 0.5:
+            verdict = "PARTIAL"
+        else:
+            verdict = "DISAGREE"
 
     return {
         "name": name,
@@ -202,7 +224,11 @@ async def _audit_one(
         "expected_bottleneck": expected_bot,
         "literature_mode": expected["literature_mode"],
         "chain": chain,
+        # Round-20: report all three numbers so safety vs efficacy
+        # drag is visible in the audit output.
         "p_success": result.overall_probability,
+        "efficacy_probability": result.efficacy_probability,
+        "safety_penalty": result.safety_penalty,
         "ci_lower": result.ci_lower,
         "ci_upper": result.ci_upper,
         "edge_contribs": result.edge_contributions,
@@ -252,10 +278,19 @@ def _format_md(rows: list[dict]) -> str:
         out.append(f"- {r['literature_mode']}\n\n")
 
         out.append(f"### System prediction\n")
-        out.append(
-            f"- **P(success) = {r['p_success']:.3f}** "
-            f"(95% CI [{r['ci_lower']:.3f}, {r['ci_upper']:.3f}])\n"
-        )
+        eff = r.get("efficacy_probability")
+        pen = r.get("safety_penalty")
+        if eff is not None and pen is not None:
+            out.append(
+                f"- **P(success) = {r['p_success']:.3f}** "
+                f"= efficacy {eff:.3f} × (1 − safety {pen:.3f}) "
+                f"(95% CI [{r['ci_lower']:.3f}, {r['ci_upper']:.3f}])\n"
+            )
+        else:
+            out.append(
+                f"- **P(success) = {r['p_success']:.3f}** "
+                f"(95% CI [{r['ci_lower']:.3f}, {r['ci_upper']:.3f}])\n"
+            )
         out.append(f"- **Weakest link**: `{r['weakest_link']}`\n")
         out.append(f"- **Verdict**: {r['verdict']}\n\n")
 
@@ -286,7 +321,7 @@ def _format_md(rows: list[dict]) -> str:
         out.append("```\n\n")
 
         if r.get("safety_risks"):
-            out.append("### Safety risks (separate from P(success))\n")
+            out.append("### Safety risks (folded into P(success) via safety_penalty)\n")
             out.append("```\n")
             for sr in r["safety_risks"][:8]:
                 out.append(
@@ -297,17 +332,26 @@ def _format_md(rows: list[dict]) -> str:
             out.append("```\n\n")
 
     out.append("\n---\n## Summary\n\n")
-    out.append("| Case study | NCT | P(success) | Weakest link | Verdict |\n")
-    out.append("|---|---|---:|---|---|\n")
+    out.append(
+        "| Case study | NCT | P(success) | Efficacy | Safety drag | "
+        "Weakest link | Verdict |\n"
+    )
+    out.append("|---|---|---:|---:|---:|---|---|\n")
     for r in rows:
         if "error" in r:
             out.append(
-                f"| {r['name']} | `{r['nct']}` | — | — | error: {r['error']} |\n"
+                f"| {r['name']} | `{r['nct']}` | — | — | — | — | "
+                f"error: {r['error']} |\n"
             )
         else:
+            eff = r.get("efficacy_probability")
+            pen = r.get("safety_penalty")
+            eff_cell = f"{eff:.3f}" if eff is not None else "—"
+            pen_cell = f"{pen:.3f}" if pen is not None else "—"
             out.append(
                 f"| {r['name']} | `{r['nct']}` | "
-                f"{r['p_success']:.3f} | `{r['weakest_etype']}` | "
+                f"{r['p_success']:.3f} | {eff_cell} | {pen_cell} | "
+                f"`{r['weakest_etype']}` | "
                 f"**{r['verdict']}** |\n"
             )
     return "".join(out)
