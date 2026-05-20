@@ -1,22 +1,30 @@
 {
   "nct_id": "NCT01831726",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged its multiple RTK targets (FGFR3, etc.). Cannot assess target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream PI3K cascade modulation. Cannot assess pathway activity. 3. CLINICAL TRANSLATION: Primary endpoint CBR at 16 weeks was 13.8% (11/80 patients), which appears low for a clinical benefit rate. No p-value reported and no comparator arm, but this rate suggests limited clinical activity. Secondary endpoints also show minimal activity: ORR 1.25% (1/80), PFS 2.4 months, OS 13.5 months. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm design with no historical benchmark provided makes interpretation difficult. However, the very low response rates (CBR 13.8%, ORR 1.25%) suggest the drug had minimal activity regardless of study design limitations.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged its multiple RTK targets (FGFR3, VEGFR, etc.). 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether kinase inhibition affected downstream PI3K cascade signaling. 3. CLINICAL TRANSLATION: Primary endpoint CBR at 16 weeks was 13.8% (11/80 patients), which appears low for clinical benefit. No p-value reported but effect size suggests limited efficacy. Secondary endpoints also showed minimal activity: ORR 1.25%, PFS 2.4 months, OS 13.5 months. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm Phase 2 design with no control group makes interpretation challenging. However, the low response rates across multiple endpoints suggest genuine lack of efficacy rather than trial design issues. The 13.8% CBR is below typical thresholds for clinical benefit in oncology.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Single-arm trial with no historical benchmark provided, no p-values reported, and no biomarker data to assess target engagement or pathway modulation. While low response rates suggest limited activity, the lack of comparator makes definitive failure classification difficult."
+      "evidence": "Single-arm trial with no p-values reported, no biomarker data, and no historical benchmark provided for comparison. Effect sizes appear low but cannot definitively assess statistical significance or clinical meaningfulness without comparator."
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-109704",
-      "target_entity": "tumor",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "dovitinib",
+      "target_entity": "ENSG00000068078",
+      "support": "ambiguous",
       "affecting_arm_id": "tki258",
-      "reasoning": "Very low clinical benefit rate (13.8%) and ORR (1.25%) suggest PI3K cascade modulation did not drive meaningful clinical benefit in this tumor population"
+      "reasoning": "No target engagement biomarker data reported to confirm dovitinib binding to FGFR3"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000068078",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "tki258",
+      "reasoning": "No pathway biomarker data to confirm FGFR3 inhibition occurred via kinase inhibition mechanism"
     },
     {
       "edge_type": "mechanism_affects",
@@ -24,26 +32,34 @@
       "target_entity": "R-HSA-109704",
       "support": "weak_contradict",
       "affecting_arm_id": "tki258",
-      "reasoning": "Low clinical activity suggests kinase inhibition mechanism did not effectively modulate downstream PI3K cascade biology"
+      "reasoning": "Low clinical response rates suggest kinase inhibition did not effectively modulate PI3K cascade biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-109704",
+      "target_entity": "tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "CBR 13.8% and ORR 1.25% suggest PI3K cascade modulation did not drive meaningful tumor response"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "composite_response_tumor",
       "target_entity": "tumor",
-      "support": "ambiguous",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "CBR endpoint was measured but without historical benchmark or comparator, cannot assess whether 13.8% rate represents meaningful clinical benefit capture"
+      "reasoning": "CBR at 16 weeks is a standard oncology endpoint that captures clinical benefit, though the low rate achieved suggests limited drug efficacy rather than poor endpoint design"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "tumor__unselected",
+      "source_entity": "tumor__csf1r_mutation__extent_locally_advanced__fgfr1_amplificationormutation__fgfr2_amplificationormutation__fgfr3_amplificationormutation__flt3_amplificationormutation__kit_amplificationormutation__ntrk1_mutation__pdgfra_mutation__pdgfrb_mutation__ret_mutation__vegfr1_mutation__vegfr2_mutation",
       "target_entity": "tumor",
       "support": "weak_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Very low response rates (CBR 13.8%, ORR 1.25%) in unselected tumor population suggest this population does not respond well to dovitinib"
+      "reasoning": "Despite biomarker-selected population with multiple RTK alterations, response rates were low (CBR 13.8%, ORR 1.25%), suggesting this population does not respond well to dovitinib"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design with no historical benchmark makes it difficult to definitively classify as failure despite very low response rates. Expert review needed to determine if 13.8% CBR represents meaningful activity in this tumor context."
+  "review_reason": "Single-arm design with no statistical testing or historical benchmarks provided makes it difficult to definitively classify as failure versus insufficient information. Low response rates suggest failure but lack of comparator limits confidence."
 }

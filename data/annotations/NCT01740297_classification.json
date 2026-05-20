@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT01740297",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or the oncolytic viral mechanism. However, both mechanisms have well-established engagement profiles from prior studies. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was met with strong statistical significance (p=0.002). Combination arm achieved 38.8% ORR vs 18.0% for ipilimumab monotherapy, representing a clinically meaningful improvement. Phase 1b combo arm showed even higher 52.6% ORR. Secondary endpoints (PFS, OS) showed numerical improvements favoring combination but were not statistically significant. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Well-designed randomized controlled trial with adequate sample size (n=217) and appropriate duration. Safety profile was manageable with expected immune-related adverse events.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or the oncolytic viral mechanism. However, both mechanisms have well-established engagement profiles from prior studies. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was met with strong statistical significance (p=0.002). The combination arm achieved 38.8% ORR vs 18.0% for ipilimumab alone, representing a clinically meaningful improvement. Both Phase 1b (52.6% ORR) and Phase 2 (38.8% ORR) combination cohorts showed robust response rates. 4. POPULATION EFFECTS: No subgroup analyses reported, but the consistent benefit across both combination cohorts suggests broad efficacy in the unresected melanoma population. 5. CONFOUNDERS: Well-controlled trial design with appropriate comparator arm. Safety profile was manageable with expected immune-related adverse events. The trial demonstrates successful clinical translation of the combination hypothesis.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -74,7 +74,7 @@
       "target_entity": "other",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports oncolytic viral mechanism"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports oncolytic viral mechanism"
     },
     {
       "edge_type": "modulates_via",
@@ -82,7 +82,7 @@
       "target_entity": "checkpoint_blockade",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports checkpoint blockade mechanism"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports checkpoint blockade mechanism"
     },
     {
       "edge_type": "mechanism_affects",
@@ -114,7 +114,7 @@
       "target_entity": "R-HSA-5669034",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports oncolytic mechanism affecting TNF pathway"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports oncolytic mechanism affecting TNF pathway"
     },
     {
       "edge_type": "mechanism_affects",
@@ -122,7 +122,7 @@
       "target_entity": "R-HSA-389513",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports checkpoint blockade affecting CTLA4 pathway"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports checkpoint blockade affecting CTLA4 pathway"
     },
     {
       "edge_type": "biology_drives",
@@ -154,7 +154,7 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports TNF pathway driving melanoma response"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports TNF pathway driving melanoma response"
     },
     {
       "edge_type": "biology_drives",
@@ -162,26 +162,26 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
-      "reasoning": "Phase 2 combination strong success supports CTLA4 pathway driving melanoma response"
+      "reasoning": "Phase 2 combination success with p=0.002 strongly supports CTLA4 pathway driving melanoma response"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_melanoma",
       "target_entity": "melanoma",
-      "support": "strong_support",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR endpoint hit with statistical significance (p=0.002) and clinically meaningful effect size, demonstrating clear clinical benefit translation"
+      "reasoning": "ORR endpoint hit with statistical significance and clinically meaningful effect size, demonstrating endpoint captures clinical benefit"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__unselected",
+      "source_entity": "melanoma__extent_unresectable__line_first__prior_tx_anti_ctla4_treated__prior_tx_anti_pd1_treated__prior_tx_chemotherapy_treated__prior_tx_ifn_alpha_treated__prior_tx_radiation_treated__prior_tx_surgery_treated__prior_tx_targeted_therapy_treated",
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful effect size in unselected melanoma population"
+      "reasoning": "Primary endpoint met with p=0.002 and clinically meaningful effect size in this specific population"
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.6,
   "needs_expert_review": false,
   "review_reason": null
 }

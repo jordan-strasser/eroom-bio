@@ -1,16 +1,33 @@
 {
   "nct_id": "NCT00472459",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm protoporphyrin IX accumulation or photosensitizer activation. However, the mechanism of methyl aminolevulinate PDT is well-established - it's converted to protoporphyrin IX which accumulates preferentially in dysplastic cells and becomes cytotoxic upon light activation. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the selective destruction mechanism is supported by the clinical efficacy pattern. 3. CLINICAL TRANSLATION: Primary endpoint was met at Month 3 with significant reduction in new skin lesions (p=0.012, effect size 0.514). Complete response rates for actinic keratosis lesions were consistently higher in treatment areas. 4. POPULATION EFFECTS: The trial was conducted in organ transplant recipients, a high-risk population for skin cancer. The effect was strongest at Month 3 but diminished over time, suggesting the treatment provides temporary protection. 5. CONFOUNDERS: The trial design was appropriate with contralateral control areas. The diminishing effect over time is consistent with the need for repeat treatments in this high-risk population.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm protoporphyrin IX accumulation or photosensitizer activation. However, the mechanism of methyl aminolevulinate PDT is well-established - it converts to protoporphyrin IX in cells and becomes photoactive upon light exposure. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the selective destruction mechanism would be expected to show cellular damage in treated areas. 3. CLINICAL TRANSLATION: Primary endpoint was met at Month 3 with significant reduction in new skin lesions (p=0.012, effect size 0.514). Complete response rates for actinic keratosis lesions were consistently higher in treatment areas across all timepoints. 4. POPULATION EFFECTS: The trial was conducted in organ transplant recipients, a high-risk population for skin cancer. Effect was strongest at Month 3 but diminished over time, suggesting need for repeated treatments. 5. CONFOUNDERS: The trial design was appropriate with contralateral control areas. Some safety concerns with increased squamous cell carcinoma in treatment areas (3.7% vs 1.2% in control), but this may reflect the high-risk population rather than treatment-related carcinogenesis.",
   "failure_modes": [
     {
       "mode": "wrong_timeframe",
       "confidence": 0.3,
-      "evidence": "Effect diminished after Month 3, suggesting single treatment may not provide durable protection in this high-risk population"
+      "evidence": "Effect diminished over time - significant at Month 3 but not sustained at later timepoints, suggesting durability limitations"
     }
   ],
-  "edges_to_update": [],
-  "confidence_overall": 0.4,
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "new_skin_lesions_prevention",
+      "target_entity": "non_melanoma_skin_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint of new skin lesion prevention was met with statistical significance and clinical relevance for this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "organ_transplant_recipients",
+      "target_entity": "non_melanoma_skin_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Trial demonstrated efficacy in organ transplant recipients, a high-risk population for skin cancer, with significant reduction in new lesions"
+    }
+  ],
+  "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "No resolved graph entities provided - cannot emit specific edge updates without canonical IDs for compound, target, mechanism, biology, indication, and endpoints"
+  "review_reason": "No resolved graph entities provided, limiting ability to emit mechanistic chain updates. Also, safety signal of increased squamous cell carcinoma in treatment areas needs expert evaluation to determine if treatment-related or population-related."
 }

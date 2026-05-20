@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT02126579",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial shows clear evidence of target engagement with T cell responses detected by IFN-gamma ELIspot assay across multiple arms, with CD8+ and CD4+ T cell responses to vaccine peptides documented. 2. PATHWAY MODULATION: Downstream biology was modulated as evidenced by measurable CD8+ and CD4+ T cell responses to minimal epitopes and vaccine peptides, confirming immune activation. 3. CLINICAL TRANSLATION: This was a Phase I safety and immunogenicity trial with primary endpoints of safety and T cell response, not clinical efficacy. The trial achieved its immunological endpoints with partial responses across most arms. 4. POPULATION EFFECTS: Different adjuvant combinations showed varying levels of T cell responses, with Arm E (PolyICLC + IFA) showing the strongest responses (CD8+ 4/15, CD4+ 8/15) while Arms C and D showed minimal responses. 5. CONFOUNDERS: This is an early-phase trial focused on safety and immune response rather than clinical efficacy, so the partial immunological responses represent successful proof-of-concept for the vaccination approach.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial shows clear evidence of target engagement with T cell responses detected by IFN-gamma ELIspot assay across multiple arms, with CD8+ and CD4+ T cell responses to vaccine peptides documented. This confirms the peptide vaccine reached and engaged the immune system targets. 2. PATHWAY MODULATION: Downstream biology was modulated as evidenced by measurable CD8+ and CD4+ T cell responses, indicating the antigen presentation and immune activation pathways were engaged. Different adjuvant combinations showed varying levels of immune activation. 3. CLINICAL TRANSLATION: This was a Phase I safety and immunogenicity trial with safety as the primary endpoint alongside T cell response. The trial achieved its immunological endpoints with partial responses across most arms, though clinical efficacy was not the primary measure. 4. POPULATION EFFECTS: The trial tested different adjuvant combinations across arms, showing arm E (PolyICLC + IFA) had the strongest CD4+ response (effect size 8) and good CD8+ response (effect size 4), while arms C and D showed minimal responses. 5. CONFOUNDERS: This was appropriately designed as a Phase I dose-escalation/combination-finding study. One DLT was reported in arm E but did not prevent completion of the study.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -9,32 +9,32 @@
       "source_entity": "peptide_vaccine",
       "target_entity": "ENSG00000089685",
       "support": "moderate_support",
-      "affecting_arm_id": "arm_e_part_1",
-      "reasoning": "Strong CD8+ T cell responses (4/15) in arm E with PolyICLC + IFA adjuvants demonstrate target engagement"
+      "affecting_arm_id": "arm_a_part_1",
+      "reasoning": "CD8+ T cell response (effect size 2) and CD4+ T cell response (effect size 4) demonstrate target engagement"
     },
     {
       "edge_type": "affects",
       "source_entity": "tetanus_peptide",
       "target_entity": "ENSG00000196126",
       "support": "moderate_support",
-      "affecting_arm_id": "arm_e_part_1",
-      "reasoning": "Strong CD4+ T cell responses (8/15) in arm E demonstrate HLA-DRB1 engagement"
+      "affecting_arm_id": "arm_a_part_1",
+      "reasoning": "CD4+ T cell response (effect size 4) demonstrates HLA-DRB1 engagement"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "antigen_directed_cytotoxicity",
-      "target_entity": "R-HSA-141444",
+      "edge_type": "affects",
+      "source_entity": "peptide_vaccine",
+      "target_entity": "ENSG00000089685",
       "support": "weak_support",
-      "affecting_arm_id": "arm_e_part_1",
-      "reasoning": "CD8+ T cell responses suggest antigen-directed cytotoxicity pathway activation"
+      "affecting_arm_id": "arm_b_part_1",
+      "reasoning": "Modest CD8+ T cell response (effect size 1) and CD4+ response (effect size 3)"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "antigen_directed_cytotoxicity",
-      "target_entity": "R-HSA-2132295",
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
       "support": "moderate_support",
-      "affecting_arm_id": "arm_e_part_1",
-      "reasoning": "Strong CD4+ T cell responses indicate MHC class II antigen presentation pathway activation"
+      "affecting_arm_id": "arm_b_part_1",
+      "reasoning": "CD4+ T cell response (effect size 3) demonstrates target engagement"
     },
     {
       "edge_type": "affects",
@@ -42,7 +42,15 @@
       "target_entity": "ENSG00000089685",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_c_part_1",
-      "reasoning": "No CD8+ T cell responses (0/1) in arm C with Resiquimod alone suggests poor target engagement"
+      "reasoning": "No CD8+ T cell response (effect size 0) and no CD4+ response (effect size 0)"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_c_part_1",
+      "reasoning": "No CD4+ T cell response (effect size 0) suggests poor target engagement"
     },
     {
       "edge_type": "affects",
@@ -50,7 +58,79 @@
       "target_entity": "ENSG00000089685",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_d_part_1",
-      "reasoning": "No CD8+ T cell responses (0/6) in arm D with PolyICLC + Resiquimod suggests inadequate target engagement"
+      "reasoning": "No CD8+ T cell response (effect size 0) despite partial CD4+ response"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_d_part_1",
+      "reasoning": "Minimal CD4+ T cell response (effect size 1) shows weak target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "peptide_vaccine",
+      "target_entity": "ENSG00000089685",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_e_part_1",
+      "reasoning": "Strong CD8+ T cell response (effect size 4) demonstrates clear target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_e_part_1",
+      "reasoning": "Strongest CD4+ T cell response (effect size 8) demonstrates robust target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "peptide_vaccine",
+      "target_entity": "ENSG00000089685",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_f_part_1",
+      "reasoning": "Minimal CD8+ T cell response (effect size 1) shows weak target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_f_part_1",
+      "reasoning": "Minimal CD4+ T cell response (effect size 1) shows weak target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "peptide_vaccine",
+      "target_entity": "ENSG00000089685",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_g_part_1",
+      "reasoning": "Minimal CD8+ T cell response (effect size 1) shows weak target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "tetanus_peptide",
+      "target_entity": "ENSG00000196126",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_g_part_1",
+      "reasoning": "CD4+ T cell response (effect size 3) demonstrates target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-141444",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_e_part_1",
+      "reasoning": "Strong CD8+ T cell response in arm E demonstrates mechanism engaging downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-2132295",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_e_part_1",
+      "reasoning": "Strongest CD4+ T cell response demonstrates MHC class II antigen presentation pathway activation"
     },
     {
       "edge_type": "endpoint_captures",
@@ -58,18 +138,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was successfully measured with manageable toxicity profile and only one DLT across all arms"
+      "reasoning": "Safety endpoint was successfully measured with manageable toxicity profile and only one DLT"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__unselected",
+      "source_entity": "melanoma__extent_metastatic__hla_a1a2a3b35b51__line_adjuvant__prior_tx_anti_ctla4_treated__prior_tx_anti_pd1_treated__prior_tx_anti_pdl1_treated__prior_tx_chemotherapy_treated__prior_tx_radiation_treated__prior_tx_surgery_treated",
       "target_entity": "melanoma",
-      "support": "weak_support",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Variable immune responses across different adjuvant combinations suggest population heterogeneity in vaccine response"
+      "reasoning": "HLA-selected population showed differential immune responses across adjuvant combinations, with arm E showing strongest responses"
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.8,
   "needs_expert_review": false,
   "review_reason": null
 }

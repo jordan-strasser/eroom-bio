@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT04526730",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either PD-1 or intratumoral IL-12 delivery. However, the combination approach suggests both mechanisms were intended to be active. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm downstream biology changes from either checkpoint blockade or immune costimulation pathways. 3. CLINICAL TRANSLATION: Strong clinical translation observed - primary endpoint of pathologic complete response was achieved in 52.9% of patients (9/17), which is clinically meaningful for neoadjuvant melanoma therapy. Secondary endpoints also showed positive results with 58.8% ORR, 93% 1-year RFS, and 94% 1-year OS. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population responded well to treatment. 5. CONFOUNDERS: Single-arm design limits interpretation, but the effect sizes are substantial and clinically meaningful for this indication. High rate of serious adverse events (multiple SAEs including 12.5% myocardial infarction rate) raises safety concerns but did not prevent efficacy demonstration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either PD-1 or intratumoral IL-12 delivery. However, the combination approach suggests both mechanisms were intended to be active. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm downstream biology changes from either checkpoint blockade or immune costimulation pathways. 3. CLINICAL TRANSLATION: Strong clinical translation observed - primary endpoint (pathologic complete response) achieved in 52.9% of patients (9/17), with supportive secondary endpoints including 58.8% ORR, 93% 1-year RFS, and 94% 1-year OS. All endpoints showed success. 4. POPULATION EFFECTS: No subgroup analyses reported. The trial enrolled resectable melanoma patients for neoadjuvant therapy, which appears to be an appropriate population for this combination approach. 5. CONFOUNDERS: Single-arm design with small sample size (N=17) limits interpretation, but the high response rates across multiple endpoints suggest genuine efficacy. Notable safety signals including 12.5% myocardial infarction rate and multiple other serious AEs, but these did not prevent completion of therapy or achievement of endpoints.",
   "failure_modes": [
     {
       "mode": "underpowered",
-      "confidence": 0.3,
-      "evidence": "Small sample size (n=17) limits statistical power and generalizability, though effect sizes were substantial"
+      "confidence": 0.6,
+      "evidence": "Small sample size of 17 patients limits statistical power and generalizability, though multiple concordant endpoints support efficacy"
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,7 @@
       "target_entity": "UNKNOWN",
       "support": "ambiguous",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "No biomarker data to confirm target engagement for intratumoral IL-12 delivery, though clinical success suggests mechanism was active"
+      "reasoning": "No biomarker data to confirm intratumoral IL-12 delivery or target engagement, but clinical success suggests mechanism was active"
     },
     {
       "edge_type": "affects",
@@ -24,7 +24,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "No biomarker data to confirm PD-1 engagement, though clinical success suggests target was engaged"
+      "reasoning": "No PD-1 engagement biomarkers reported, but clinical success in combination suggests target was engaged"
     },
     {
       "edge_type": "modulates_via",
@@ -32,7 +32,7 @@
       "target_entity": "immune_costimulation",
       "support": "ambiguous",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "Clinical success suggests immune costimulation pathway was active but no direct pathway evidence"
+      "reasoning": "No pathway biomarkers to confirm immune costimulation, but clinical success suggests mechanism was active"
     },
     {
       "edge_type": "modulates_via",
@@ -40,7 +40,7 @@
       "target_entity": "checkpoint_blockade",
       "support": "ambiguous",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "Clinical success suggests checkpoint blockade was active but no direct pathway evidence"
+      "reasoning": "No checkpoint blockade pathway biomarkers reported, but clinical success suggests mechanism was active"
     },
     {
       "edge_type": "mechanism_affects",
@@ -48,7 +48,7 @@
       "target_entity": "immune_costimulation__melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "Strong clinical response suggests immune costimulation biology was effectively modulated in melanoma"
+      "reasoning": "Strong clinical response suggests immune costimulation mechanism translated to anti-tumor biology"
     },
     {
       "edge_type": "mechanism_affects",
@@ -56,7 +56,7 @@
       "target_entity": "R-HSA-389948",
       "support": "moderate_support",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "Strong clinical response suggests checkpoint blockade biology was effectively modulated"
+      "reasoning": "Strong clinical response suggests checkpoint blockade mechanism translated to anti-tumor biology"
     },
     {
       "edge_type": "biology_drives",
@@ -64,7 +64,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "High pathologic complete response rate (52.9%) supports that immune costimulation biology drives clinical benefit in melanoma"
+      "reasoning": "High pathologic complete response rate (52.9%) and concordant survival endpoints support biology driving clinical benefit"
     },
     {
       "edge_type": "biology_drives",
@@ -72,7 +72,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "neoadjuvant_treatment",
-      "reasoning": "High pathologic complete response rate supports that PD-1 co-inhibition biology drives clinical benefit in melanoma"
+      "reasoning": "High pathologic complete response rate (52.9%) and concordant survival endpoints support biology driving clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
@@ -80,18 +80,18 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Pathologic complete response is a well-validated endpoint for neoadjuvant therapy that strongly correlates with long-term outcomes, supported by concordant secondary endpoints (ORR, RFS, OS)"
+      "reasoning": "Pathologic complete response achieved in 52.9% with concordant secondary endpoints (ORR 58.8%, 1-year RFS 93%, 1-year OS 94%) demonstrating strong clinical benefit translation"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__unselected",
+      "source_entity": "melanoma__extent_resectable__line_neoadjuvant",
       "target_entity": "melanoma",
-      "support": "moderate_support",
+      "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Unselected melanoma population showed strong response with 52.9% pathologic complete response rate, though single-arm design limits comparison"
+      "reasoning": "High response rates across multiple endpoints (52.9% pCR, 58.8% ORR, 93% 1-year RFS, 94% 1-year OS) demonstrate strong response in resectable neoadjuvant melanoma population"
     }
   ],
   "confidence_overall": 0.6,
-  "needs_expert_review": false,
-  "review_reason": null
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial with small sample size (N=17) and no biomarker data to confirm target engagement or pathway modulation. High safety signal rate including 12.5% myocardial infarction requires expert assessment of risk-benefit profile."
 }

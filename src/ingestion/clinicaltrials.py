@@ -170,6 +170,13 @@ class TrialRecord(BaseModel):
     # extractor canonicalizes these into SubgroupFeature lists; here they
     # are kept as raw strings for provenance.
     subgroup_descriptors: list[str] = Field(default_factory=list)
+    # Free-text inclusion/exclusion criteria from CT.gov. Round-17 uses
+    # this with an LLM extractor to pull population features
+    # (line_of_therapy, prior treatments, biomarker requirements,
+    # mutation status) that the conditions field and the deterministic
+    # qualifier regex can't capture. Empty when the trial's CT.gov
+    # record omits the eligibility module.
+    eligibility_criteria: str = ""
 
 
 # ── Parsing helpers ──────────────────────────────────────────────────────
@@ -193,6 +200,7 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
     arms_mod = proto.get("armsInterventionsModule", {})
     outcomes_mod = proto.get("outcomesModule", {})
     sponsor_mod = proto.get("sponsorCollaboratorsModule", {})
+    elig_mod = proto.get("eligibilityModule", {})
 
     # Phase—join multiple phases (e.g. ["PHASE2", "PHASE3"] → "2/3")
     raw_phases = design.get("phases", [])
@@ -274,6 +282,7 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
         why_stopped=why_stopped,
         arm_groups=arm_groups,
         subgroup_descriptors=subgroup_descriptors,
+        eligibility_criteria=elig_mod.get("eligibilityCriteria", "") or "",
     )
 
 

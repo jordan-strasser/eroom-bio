@@ -1,51 +1,35 @@
 {
   "nct_id": "NCT02831933",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for any of the four components (ADV/HSV-tk, valacyclovir, SBRT, nivolumab). Cannot determine if PD-1 was engaged or if gene therapy components reached their targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes from gene editing, enzyme inhibition, or checkpoint blockade mechanisms. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) completely failed with 0% response rate (0/11 patients). All secondary endpoints (PFS, CBR) also failed with 0% effect sizes. OS data was unknown/not evaluable. 4. POPULATION EFFECTS: No subgroup analyses reported in this small study (n=11). 5. CONFOUNDERS: This was a severely underpowered single-arm Phase I study with only 11 patients, terminated early due to lack of funding. The complex 4-component combination therapy makes it impossible to determine which component(s) failed. High rate of serious adverse events (multiple SAEs in >80% of patients) suggests potential safety issues that may have limited dosing or treatment duration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for any of the four components (ADV/HSV-tk, valacyclovir, SBRT, nivolumab). Cannot determine if PD-1 was engaged or if gene therapy components reached their targets.\n\n2. PATHWAY MODULATION: No pathway biomarkers reported. Cannot assess whether checkpoint blockade pathway was modulated or whether gene therapy enhanced neoantigen presentation as intended.\n\n3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% ORR (0/11 patients). All measured endpoints (ORR, PFS, CBR) showed failure outcomes. OS data was incomplete (outcome=unknown).\n\n4. POPULATION EFFECTS: No subgroup analyses reported in this small trial (n=11).\n\n5. CONFOUNDERS: This was a very small single-arm Phase I trial (n=11) that was underpowered to detect efficacy. The trial was terminated due to lack of funding rather than safety or futility. High rate of serious adverse events (multiple SAEs in >80% of patients) suggests potential tolerability issues, though no formal MTD was established.",
   "failure_modes": [
     {
       "mode": "underpowered",
-      "confidence": 0.9,
-      "evidence": "Single-arm study with only 11 patients, far below standard power for detecting meaningful ORR in oncology trials. Study was terminated early due to lack of funding."
+      "confidence": 0.8,
+      "evidence": "Single-arm trial with only 11 patients, insufficient to detect meaningful efficacy signals for a complex combination therapy"
     },
     {
       "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "No biomarker data available to assess target engagement or pathway modulation for any of the four therapeutic components. Cannot determine where in the causal chain the failure occurred."
+      "confidence": 0.6,
+      "evidence": "No biomarker data to assess target engagement or pathway modulation for any of the four treatment components"
     }
   ],
   "edges_to_update": [
-    {
-      "edge_type": "affects",
-      "source_entity": "adv",
-      "target_entity": "ENSG00000073756",
-      "support": "ambiguous",
-      "affecting_arm_id": "experimental",
-      "reasoning": "No target engagement data available for ADV component in failed trial"
-    },
     {
       "edge_type": "affects",
       "source_entity": "nivolumab",
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "experimental",
-      "reasoning": "No PD-1 engagement biomarkers reported in failed combination trial"
+      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence for PD-1 binding"
     },
     {
-      "edge_type": "affects",
-      "source_entity": "valacyclovir",
-      "target_entity": "UNKNOWN",
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
       "support": "ambiguous",
       "affecting_arm_id": "experimental",
-      "reasoning": "No target engagement data for valacyclovir component"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "gene_editing",
-      "target_entity": "GO:0098869",
-      "support": "weak_contradict",
-      "affecting_arm_id": "experimental",
-      "reasoning": "Gene editing mechanism failed to produce clinical benefit in combination therapy"
+      "reasoning": "No pathway biomarker data to confirm PD-1 acts via checkpoint blockade mechanism"
     },
     {
       "edge_type": "mechanism_affects",
@@ -53,15 +37,7 @@
       "target_entity": "R-HSA-389948",
       "support": "weak_contradict",
       "affecting_arm_id": "experimental",
-      "reasoning": "Checkpoint blockade mechanism failed to produce clinical benefit in combination with gene therapy"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "GO:0098869",
-      "target_entity": "lung_squamous_cell_carcinoma",
-      "support": "weak_contradict",
-      "affecting_arm_id": "experimental",
-      "reasoning": "Cellular oxidant detoxification biology did not drive clinical benefit in lung squamous cell carcinoma"
+      "reasoning": "Checkpoint blockade mechanism failed to produce clinical benefit; distributing failure signal up the causal chain"
     },
     {
       "edge_type": "biology_drives",
@@ -69,7 +45,7 @@
       "target_entity": "lung_squamous_cell_carcinoma",
       "support": "weak_contradict",
       "affecting_arm_id": "experimental",
-      "reasoning": "PD-1 co-inhibition biology did not drive clinical benefit in this combination approach"
+      "reasoning": "Co-inhibition by PD-1 biology did not drive clinical benefit in this lung cancer population"
     },
     {
       "edge_type": "endpoint_captures",
@@ -77,18 +53,18 @@
       "target_entity": "lung_squamous_cell_carcinoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "ORR was measured but showed 0% response rate with adequate follow-up duration"
+      "reasoning": "ORR was measured but showed 0% response rate with adequate follow-up duration, suggesting poor capture of clinical benefit"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "lung_squamous_cell_carcinoma__histology_squamous__stage_iv",
+      "source_entity": "lung_squamous_cell_carcinoma__extent_metastatic__histology_squamous__line_second__prior_tx_anti_pd1_treated__prior_tx_anti_pdl1_treated__prior_tx_chemotherapy_treated__stage_iv",
       "target_entity": "lung_squamous_cell_carcinoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Stage IV squamous cell lung carcinoma population showed no response to combination gene therapy plus checkpoint blockade"
+      "reasoning": "This heavily pre-treated population showed no response to the combination therapy (0% ORR)"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Complex 4-component combination therapy with no biomarker data makes it impossible to determine which component(s) failed. Study was severely underpowered (n=11) and terminated early for funding reasons. High SAE rate suggests potential safety issues that may have confounded efficacy assessment."
+  "review_reason": "Very small sample size (n=11) and lack of biomarker data make mechanistic interpretation difficult. Trial terminated for funding rather than scientific reasons. Multiple failure modes overlap."
 }

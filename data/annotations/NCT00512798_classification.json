@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00512798",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition as a biomarker of proteasome engagement. Results showed 0/19 patients in Phase I and 0/28 patients in Phase II achieved \u226550% NF-\u03baB inhibition, indicating no meaningful target engagement despite reaching the MTD. 2. PATHWAY MODULATION: With no target engagement confirmed, downstream pathway modulation was not achieved. NF-\u03baB activation in peripheral blood mononuclear cells showed no significant inhibition. 3. CLINICAL TRANSLATION: Clinical outcomes were poor - Phase I had 4/19 partial responses (21% ORR), Phase II had only 1/28 partial responses (3.6% ORR). The majority of patients had progressive disease (14/19 in Phase I, 22/28 in Phase II). 4. POPULATION EFFECTS: No meaningful subgroup responses were identified. The trial was terminated for lack of efficacy. 5. CONFOUNDERS: The trial reached its planned MTD and had adequate duration (54 weeks), ruling out dose-limiting toxicity or wrong timeframe as primary factors.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial explicitly measured NF-\u03baB inhibition as a biomarker of proteasome engagement. 0/19 patients in Phase I and 0/28 patients in Phase II achieved \u226550% NF-\u03baB inhibition, indicating no meaningful target engagement despite reaching the MTD of bortezomib 1.3 mg/m2. 2. PATHWAY MODULATION: With no target engagement confirmed, downstream pathway modulation was not achieved. The NF-\u03baB pathway remained active, suggesting the proteasome inhibition mechanism did not function as intended. 3. CLINICAL TRANSLATION: Clinical activity was minimal - Phase I had 4/19 partial responses (21% ORR), Phase II had only 1/28 partial responses (3.6% ORR). The majority of patients had progressive disease (14/19 in Phase I, 22/28 in Phase II). The trial was terminated for lack of efficacy. 4. POPULATION EFFECTS: No meaningful subgroup differences were observed - both phases showed poor response rates across the population. 5. CONFOUNDERS: The trial reached its planned MTD and had adequate duration (54 weeks), ruling out dose-limiting toxicity or wrong timeframe as primary factors.",
   "failure_modes": [
     {
       "mode": "no_target_engagement",
       "confidence": 0.9,
-      "evidence": "0/47 patients achieved \u226550% NF-\u03baB inhibition despite reaching MTD, indicating bortezomib failed to meaningfully engage the proteasome target at the doses tested"
+      "evidence": "0/47 patients achieved \u226550% NF-\u03baB inhibition despite reaching MTD, indicating bortezomib failed to meaningfully engage the proteasome target"
     }
   ],
   "edges_to_update": [
@@ -16,15 +16,7 @@
       "target_entity": "ENSG00000100804",
       "support": "moderate_contradict",
       "affecting_arm_id": "phase_i",
-      "reasoning": "Phase I arm showed no target engagement (0/19 patients with \u226550% NF-\u03baB inhibition) despite reaching MTD"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "temozolomide",
-      "target_entity": "CHEBI:16991",
-      "support": "ambiguous",
-      "affecting_arm_id": "phase_i",
-      "reasoning": "No specific biomarker data for temozolomide's DNA alkylation activity was reported"
+      "reasoning": "Phase I arm showed no NF-\u03baB inhibition (0/19 patients) despite reaching MTD, contradicting proteasome engagement"
     },
     {
       "edge_type": "affects",
@@ -32,7 +24,15 @@
       "target_entity": "ENSG00000100804",
       "support": "moderate_contradict",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "Phase II arm showed no target engagement (0/28 patients with \u226550% NF-\u03baB inhibition) despite reaching MTD"
+      "reasoning": "Phase II arm showed no NF-\u03baB inhibition (0/28 patients) despite reaching MTD, contradicting proteasome engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "temozolomide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "No direct biomarker evidence for DNA alkylation engagement reported in Phase I"
     },
     {
       "edge_type": "affects",
@@ -40,23 +40,7 @@
       "target_entity": "CHEBI:16991",
       "support": "ambiguous",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "No specific biomarker data for temozolomide's DNA alkylation activity was reported"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000100804",
-      "target_entity": "protein_degradation",
-      "support": "ambiguous",
-      "affecting_arm_id": "phase_i",
-      "reasoning": "Target was not engaged, so mechanism pathway cannot be assessed from this trial"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000100804",
-      "target_entity": "protein_degradation",
-      "support": "ambiguous",
-      "affecting_arm_id": "phase_ii",
-      "reasoning": "Target was not engaged, so mechanism pathway cannot be assessed from this trial"
+      "reasoning": "No direct biomarker evidence for DNA alkylation engagement reported in Phase II"
     },
     {
       "edge_type": "mechanism_affects",
@@ -64,7 +48,7 @@
       "target_entity": "R-HSA-349425",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_i",
-      "reasoning": "No target engagement means the mechanism did not affect downstream biology in Phase I"
+      "reasoning": "Phase I failure with no target engagement suggests protein degradation mechanism did not affect downstream biology"
     },
     {
       "edge_type": "mechanism_affects",
@@ -72,7 +56,7 @@
       "target_entity": "R-HSA-349425",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "No target engagement means the mechanism did not affect downstream biology in Phase II"
+      "reasoning": "Phase II failure with no target engagement suggests protein degradation mechanism did not affect downstream biology"
     },
     {
       "edge_type": "biology_drives",
@@ -80,7 +64,7 @@
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_i",
-      "reasoning": "Poor clinical outcomes (21% ORR, majority progressive disease) suggest this biology does not drive meaningful anti-tumor activity"
+      "reasoning": "Phase I showed poor clinical activity (21% ORR, 74% progressive disease) suggesting this biology does not drive tumor response"
     },
     {
       "edge_type": "biology_drives",
@@ -88,7 +72,7 @@
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "moderate_contradict",
       "affecting_arm_id": "phase_ii",
-      "reasoning": "Very poor clinical outcomes (3.6% ORR, 22/28 progressive disease) strongly suggest this biology does not drive anti-tumor activity"
+      "reasoning": "Phase II showed very poor clinical activity (3.6% ORR, 79% progressive disease) with adequate sample size, contradicting this biology driving tumor response"
     },
     {
       "edge_type": "endpoint_captures",
@@ -96,15 +80,15 @@
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "RECIST response was measured and provided clear differentiation between responders and non-responders, though overall response rates were low"
+      "reasoning": "Safety endpoint was adequately measured and reported with detailed AE profile, capturing tolerability in this indication"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "brain_and_central_nervous_system_tumor__unselected",
+      "source_entity": "brain_and_central_nervous_system_tumor__extent_metastatic__prior_tx_chemotherapy_treated__prior_tx_radiation_treated",
       "target_entity": "brain_and_central_nervous_system_tumor",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Unselected population showed poor response rates (21% Phase I, 3.6% Phase II) with majority having progressive disease, indicating this population does not respond well to this combination"
+      "reasoning": "This heavily pretreated population showed poor response rates (overall 11% ORR) with adequate power, suggesting poor response in this population"
     }
   ],
   "confidence_overall": 0.8,
