@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT02875132",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-1 engagement by pembrolizumab. However, pembrolizumab is a well-established PD-1 inhibitor with known pharmacology at the 200mg Q3W dose used. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess T-cell activation or immune response changes. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - ORR was only 11.1% (1/9 patients) in this single-arm trial, which is well below expected response rates for pembrolizumab in other melanoma subtypes (typically 30-40%). Secondary endpoints PFS (3.4 months) and OS (7.6 months) also suggest poor efficacy. 4. POPULATION EFFECTS: This trial specifically enrolled treatment-naive patients with advanced/metastatic acral lentiginous melanoma, a rare melanoma subtype. The poor response suggests this population may not respond to PD-1 blockade as well as other melanoma subtypes. 5. CONFOUNDERS: Very small sample size (N=9) limits statistical power, but the low response rate is concerning even accounting for small N. No major safety issues that would prevent adequate dosing.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-1 engagement by pembrolizumab. However, pembrolizumab is a well-established PD-1 inhibitor with known pharmacology at the 200mg Q3W dose used. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream T-cell activation or immune response changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) clearly failed with only 11.1% response rate (1/9 patients). Secondary endpoints PFS (3.4 months) and OS (7.6 months) also showed poor outcomes. 4. POPULATION EFFECTS: No subgroup analyses reported in this small study. 5. CONFOUNDERS: This is a very small single-arm study (N=9) in a rare melanoma subtype (acral lentiginous). The sample size is far too small to draw definitive conclusions about efficacy. The specific acral lentiginous subtype may respond differently to checkpoint inhibition compared to other melanoma subtypes.",
   "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 9 patients is extremely small for assessing efficacy of checkpoint inhibition in melanoma. This provides insufficient statistical power to detect meaningful treatment effects."
+    },
     {
       "mode": "wrong_population",
       "confidence": 0.7,
-      "evidence": "Acral lentiginous melanoma is a distinct melanoma subtype with different molecular characteristics. The 11.1% ORR is substantially lower than typical pembrolizumab response rates in cutaneous melanoma (30-40%), suggesting this population may be inherently less responsive to PD-1 blockade."
-    },
-    {
-      "mode": "underpowered",
-      "confidence": 0.6,
-      "evidence": "Sample size of only 9 patients is very small for drawing definitive conclusions about efficacy, though the low response rate is concerning even accounting for limited power."
+      "evidence": "Acral lentiginous melanoma is a rare subtype that may have different biology and immune characteristics compared to cutaneous melanoma where pembrolizumab has proven efficacy. This population may not be optimal for PD-1 checkpoint inhibition."
     }
   ],
   "edges_to_update": [
@@ -21,7 +21,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "pembrolizumab",
-      "reasoning": "No biomarker data to confirm target engagement, but pembrolizumab is established PD-1 inhibitor. Failed trial doesn't provide affirmative evidence for target binding."
+      "reasoning": "No biomarker data to confirm target engagement, though pembrolizumab is known PD-1 inhibitor. Failed trial doesn't provide affirmative evidence for target binding."
     },
     {
       "edge_type": "modulates_via",
@@ -37,7 +37,7 @@
       "target_entity": "R-HSA-389948",
       "support": "weak_contradict",
       "affecting_arm_id": "pembrolizumab",
-      "reasoning": "Primary endpoint failed with very low response rate, suggesting checkpoint blockade mechanism didn't effectively modulate T-cell co-inhibition biology in this population."
+      "reasoning": "Primary endpoint failed with very low response rate, suggesting checkpoint blockade mechanism did not effectively modulate downstream biology in this population."
     },
     {
       "edge_type": "biology_drives",
@@ -45,7 +45,7 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "pembrolizumab",
-      "reasoning": "Poor clinical outcomes (ORR 11.1%, short PFS/OS) suggest that PD-1 co-inhibition biology doesn't drive meaningful anti-tumor response in acral lentiginous melanoma."
+      "reasoning": "Poor clinical outcomes (ORR 11.1%, short PFS/OS) suggest the PD-1 co-inhibition biology did not drive meaningful anti-tumor activity in this melanoma subtype."
     },
     {
       "edge_type": "endpoint_captures",
@@ -53,18 +53,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR was measured and is an established endpoint for melanoma immunotherapy trials. The endpoint captured the lack of clinical benefit appropriately."
+      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit when achieved. The endpoint was measured and reported clearly."
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "acral_lentiginous_melanoma__histology_acral",
+      "source_entity": "acral_lentiginous_melanoma__extent_metastatic__histology_acral",
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Acral lentiginous melanoma population showed poor response (11.1% ORR) compared to typical pembrolizumab responses in other melanoma subtypes, suggesting this population responds differently and poorly to PD-1 blockade."
+      "reasoning": "Very poor response rate (11.1%) in acral lentiginous melanoma subtype suggests this population responds differently than typical melanoma populations where pembrolizumab shows efficacy."
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Very small sample size (N=9) limits confidence in population-specific conclusions. The low response rate is concerning but may reflect either population-specific resistance or insufficient power to detect benefit."
+  "review_reason": "Extremely small sample size (N=9) makes it difficult to distinguish between true lack of efficacy versus insufficient power. The rare acral lentiginous subtype may have different biology that warrants expert interpretation."
 }

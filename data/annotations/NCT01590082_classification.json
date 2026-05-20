@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT01590082",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for any of the three compounds (doxycycline, ipilimumab, temozolomide). Cannot assess whether drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or downstream biology markers reported. Cannot determine if any of the proposed mechanisms (enzyme inhibition, checkpoint blockade, DNA damage) were activated. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% objective response rate (0/10 evaluable patients). No clinical benefit observed. 4. POPULATION EFFECTS: No subgroup analyses reported. Small sample size (n=12) limits subgroup assessment. 5. CONFOUNDERS: Very small sample size (12 patients, 10 evaluable) suggests underpowered study. Single-arm design with no comparator. Short duration (7 weeks) may be inadequate for immune checkpoint blockade effects to manifest. Slow accrual noted by investigators.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for any of the three compounds (doxycycline, ipilimumab, temozolomide). Cannot assess whether drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological changes. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% objective response rate (0/10 evaluable patients). No clinical benefit observed. 4. POPULATION EFFECTS: No subgroup analyses reported. Small sample size (n=12) limits subgroup assessment. 5. CONFOUNDERS: Very small sample size (12 patients, 10 evaluable) suggests underpowered study. Single-arm design with no comparator. Short duration (7 weeks) may be inadequate for immune checkpoint blockade to show full effect. Slow accrual noted due to competing trials.",
   "failure_modes": [
     {
       "mode": "underpowered",
@@ -16,36 +16,28 @@
   ],
   "edges_to_update": [
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389513",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "doxycycline",
+      "target_entity": "ENSG00000118113",
+      "support": "ambiguous",
       "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "CTLA-4 co-inhibition pathway failed to drive clinical benefit in melanoma - 0% response rate"
+      "reasoning": "No target engagement data reported; failed trial doesn't provide affirmative evidence for target binding"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-1442490",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
       "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "Collagen degradation pathway failed to drive clinical benefit in melanoma - 0% response rate"
+      "reasoning": "No target engagement data reported; failed trial doesn't provide affirmative evidence for CTLA4 binding"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "dna_damage__melanoma",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "temozolomide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
       "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "DNA damage biology failed to drive clinical benefit in melanoma - 0% response rate"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389513",
-      "support": "weak_contradict",
-      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "Checkpoint blockade mechanism failed to produce downstream biology that translated to clinical benefit"
+      "reasoning": "No target engagement data reported; failed trial doesn't provide affirmative evidence for target engagement"
     },
     {
       "edge_type": "mechanism_affects",
@@ -53,7 +45,15 @@
       "target_entity": "R-HSA-1442490",
       "support": "weak_contradict",
       "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "Enzyme inhibition mechanism failed to produce downstream biology that translated to clinical benefit"
+      "reasoning": "Primary endpoint failed; mechanism's downstream biology didn't translate to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "Primary endpoint failed; checkpoint blockade mechanism didn't produce expected biological response"
     },
     {
       "edge_type": "mechanism_affects",
@@ -61,7 +61,31 @@
       "target_entity": "dna_damage__melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
-      "reasoning": "DNA damage mechanism failed to produce downstream biology that translated to clinical benefit"
+      "reasoning": "Primary endpoint failed; DNA damage mechanism didn't translate to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-1442490",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "0% response rate indicates collagen degradation biology didn't drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "0% response rate indicates CTLA4 co-inhibition biology didn't drive clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "0% response rate indicates DNA damage biology didn't drive clinical benefit in melanoma"
     },
     {
       "edge_type": "endpoint_captures",
@@ -69,18 +93,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit when achieved"
+      "reasoning": "ORR is a standard and well-accepted endpoint for melanoma trials; endpoint was measured and reported clearly"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__unselected",
+      "source_entity": "melanoma__extent_metastatic__inos_high__prior_tx_chemotherapy_treated__prior_tx_ifn_alpha_treated__prior_tx_il2_treated__prior_tx_radiation_treated__prior_tx_surgery_treated__prior_tx_vaccine_treated",
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Unselected melanoma population showed no response (0%) to triple combination therapy with adequate endpoint measurement"
+      "reasoning": "0% response rate in heavily pre-treated metastatic melanoma population with adequate power assessment"
     }
   ],
-  "confidence_overall": 0.5,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Very small sample size (n=10 evaluable) makes it difficult to distinguish between true mechanistic failure and underpowered study. No biomarker data available to assess target engagement or pathway modulation."
+  "review_reason": "Very small sample size (n=12) makes it difficult to distinguish between true mechanistic failure and underpowered study design. No biomarker data available to assess target engagement or pathway modulation."
 }

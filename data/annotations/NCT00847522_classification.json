@@ -16,7 +16,7 @@
       "target_entity": "UNKNOWN",
       "support": "ambiguous",
       "affecting_arm_id": "all_patients",
-      "reasoning": "Target engagement was confirmed but in a failed trial, this does not constitute affirmative outcome evidence for the binding relationship"
+      "reasoning": "Target engagement was confirmed but in a failed trial, this doesn't constitute affirmative outcome evidence for the binding relationship"
     },
     {
       "edge_type": "mechanism_affects",
@@ -40,15 +40,15 @@
       "target_entity": "cancer",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "The sentinel lymph node detection agreement endpoint was measured and provides meaningful information about diagnostic utility in cancer staging"
+      "reasoning": "The sentinel lymph node detection agreement endpoint is a clinically relevant measure for surgical guidance in cancer, though the specific threshold for clinical utility was not met"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "cancer__unselected",
+      "source_entity": "cancer__prior_tx_surgery_treated",
       "target_entity": "cancer",
       "support": "weak_contradict",
       "affecting_arm_id": null,
-      "reasoning": "The unselected cancer population showed inadequate response with only 69.7% diagnostic agreement, below the threshold for clinical utility"
+      "reasoning": "The surgical population showed inadequate response with only 69.7% diagnostic agreement, below the threshold for clinical utility"
     }
   ],
   "confidence_overall": 0.7,

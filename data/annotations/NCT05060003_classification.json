@@ -6,7 +6,7 @@
     {
       "mode": "commercial_not_scientific",
       "confidence": 0.8,
-      "evidence": "Sponsor made decision to terminate study with only 7 patients enrolled and no primary endpoint results reported"
+      "evidence": "Trial was terminated by sponsor decision with only 7 patients enrolled and no primary endpoint results reported"
     }
   ],
   "edges_to_update": [
@@ -16,18 +16,18 @@
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "ctDNA clearance as an endpoint was measured but no results reported due to early termination - cannot assess whether this endpoint captures clinical benefit in melanoma"
+      "reasoning": "ctDNA clearance as a biomarker endpoint was measured but no results reported due to early termination - cannot assess whether this endpoint captures clinical benefit"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__stage_ii",
+      "source_entity": "melanoma__ctdna_positive__line_adjuvant__prior_tx_surgery_treated__stage_ii__stage_iii",
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Stage II melanoma population response cannot be assessed due to early termination with only 7 patients and no efficacy readout"
+      "reasoning": "Trial terminated too early with only 7 patients to assess whether this ctDNA-positive stage II melanoma population responds differently"
     }
   ],
   "confidence_overall": 0.3,
   "needs_expert_review": true,
-  "review_reason": "Trial terminated early by sponsor with no efficacy data reported - insufficient information to assess mechanistic failure vs commercial decision"
+  "review_reason": "Trial terminated extremely early with no efficacy readout, making mechanistic assessment impossible. Classification relies entirely on sponsor termination decision rather than scientific evidence."
 }

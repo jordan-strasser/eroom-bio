@@ -1,86 +1,22 @@
 {
   "nct_id": "NCT04382664",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether UV1 vaccine engaged telomerase or whether checkpoint inhibitors engaged PD-1/CTLA-4. Cannot determine target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream immune activation or checkpoint blockade effects. Cannot determine if biology was modulated. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) clearly missed with HR 0.95 (p=0.845), showing no clinical benefit over standard nivolumab+ipilimumab. The effect size is essentially null (HR near 1.0) with high p-value indicating no signal. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Trial appears adequately powered (N=156) and duration was long (191 weeks). Safety profile shows expected checkpoint inhibitor toxicities without dose-limiting issues that would prevent adequate exposure. This is a straightforward efficacy failure.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether UV1 vaccine engaged telomerase or whether checkpoint inhibitors engaged PD-1/CTLA-4. Cannot determine target engagement. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether immune costimulation or checkpoint blockade pathways were activated. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) clearly failed with HR 0.95 (p=0.845), showing no benefit over nivolumab+ipilimumab control. The effect size indicates no meaningful difference between arms. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Trial appears adequately powered (N=156) and duration was substantial (191 weeks). No obvious confounders identified. The failure appears to be mechanistic - either the UV1 vaccine failed to engage its target or the combination approach did not provide additive benefit over checkpoint blockade alone.",
   "failure_modes": [
     {
-      "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.6,
-      "evidence": "Primary endpoint (PFS) clearly missed with HR 0.95 (p=0.845) despite adequate sample size and duration. Without biomarker data, cannot definitively localize where the causal chain broke, but the complete lack of efficacy signal suggests the combined mechanism did not translate to clinical benefit."
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "No biomarker or target engagement data available to determine where in the causal chain the failure occurred. Cannot distinguish between target engagement failure versus downstream pathway failure."
     }
   ],
   "edges_to_update": [
-    {
-      "edge_type": "affects",
-      "source_entity": "uv1",
-      "target_entity": "UNKNOWN",
-      "support": "ambiguous",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "No target engagement data available for UV1 vaccine; failed trial doesn't provide affirmative evidence of target binding"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "sargramostim",
-      "target_entity": "ENSG00000292357",
-      "support": "ambiguous",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of CSF2RA engagement"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "ipilimumab",
-      "target_entity": "ENSG00000163599",
-      "support": "ambiguous",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of CTLA4 engagement"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "nivolumab",
-      "target_entity": "ENSG00000188389",
-      "support": "ambiguous",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of PD-1 engagement"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__melanoma",
-      "support": "weak_contradict",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "Combination arm with UV1 vaccine failed to show efficacy, suggesting immune costimulation mechanism did not effectively modulate melanoma biology"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "R-HSA-512988",
-      "support": "weak_contradict",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "GM-CSF signaling pathway did not translate to clinical benefit in the failed combination arm"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389513",
-      "support": "weak_contradict",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "CTLA4 co-inhibition pathway in combination with vaccine did not translate to clinical benefit"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389948",
-      "support": "weak_contradict",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "PD-1 co-inhibition pathway in combination with vaccine did not translate to clinical benefit"
-    },
     {
       "edge_type": "biology_drives",
       "source_entity": "immune_costimulation__melanoma",
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "Enhanced immune costimulation biology did not drive clinical benefit in melanoma patients"
+      "reasoning": "UV1 vaccine arm failed to show PFS benefit over checkpoint blockade alone, suggesting immune costimulation biology did not drive clinical benefit in melanoma"
     },
     {
       "edge_type": "biology_drives",
@@ -88,23 +24,15 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "GM-CSF signaling biology did not drive clinical benefit in melanoma"
+      "reasoning": "Sargramostim-mediated GM-CSF signaling in combination arm did not improve PFS over control"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389513",
-      "target_entity": "melanoma",
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "immune_costimulation__melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "CTLA4 co-inhibition biology in combination context did not drive clinical benefit"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389948",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
-      "affecting_arm_id": "uv1_vaccination_nivolumab_and_ipilimumab",
-      "reasoning": "PD-1 co-inhibition biology in combination context did not drive clinical benefit"
+      "reasoning": "Immune costimulation mechanism failed to translate to clinical benefit when added to checkpoint blockade"
     },
     {
       "edge_type": "endpoint_captures",
@@ -116,11 +44,11 @@
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__unselected",
+      "source_entity": "melanoma__extent_unresectable__line_first",
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Unselected melanoma population showed no response to UV1 vaccine combination with HR 0.95 (p=0.845), indicating this population does not respond to this treatment approach"
+      "reasoning": "First-line unresectable melanoma population showed no differential response to UV1 vaccine addition (HR 0.95, p=0.845) with adequate power"
     }
   ],
   "confidence_overall": 0.6,

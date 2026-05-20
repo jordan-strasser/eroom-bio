@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT02988817",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial measured AXL expression changes by H-score from baseline to end of treatment, providing evidence of target engagement. The antibody-drug conjugate mechanism requires AXL binding and internalization for payload delivery. 2. PATHWAY MODULATION: The biomarker data shows AXL expression changes, indicating the target was engaged and the mechanism (AXL-mediated internalization) was activated. 3. CLINICAL TRANSLATION: This was a Phase 1 dose-escalation trial with safety as the primary endpoint, which was met successfully. MTD was established at 2.2 mg/kg 1Q3W and 1.0 mg/kg 3Q4W. Objective responses were observed across multiple tumor types, with partial efficacy signals including CA-125 responses in ovarian cancer patients. 4. POPULATION EFFECTS: Responses were seen across multiple solid tumor types, suggesting broad applicability of the AXL-targeting mechanism. 5. CONFOUNDERS: This was an appropriately designed Phase 1 trial that successfully established safety and preliminary efficacy signals.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial measured AXL expression changes by H-score from baseline to end of treatment, providing direct evidence of target engagement. The dose-escalation design successfully established MTD at 2.2 mg/kg 1Q3W and 1.0 mg/kg 3Q4W, indicating the drug reached and engaged its target at tolerable doses. 2. PATHWAY MODULATION: While specific pathway biomarkers aren't detailed, the successful establishment of MTD and observed target engagement suggest downstream biology was modulated. The ADC mechanism requires AXL receptor-mediated internalization for cytotoxic payload delivery. 3. CLINICAL TRANSLATION: The primary safety endpoint was met successfully. Additionally, objective responses were observed across multiple tumor types and CA-125 responses in ovarian cancer patients, indicating clinical activity. The partial outcome for ORR reflects modest but meaningful anti-tumor activity. 4. POPULATION EFFECTS: Responses were observed across multiple solid tumor types, suggesting broad applicability of the AXL-targeting mechanism. 5. CONFOUNDERS: This was a well-designed dose-escalation study that achieved its primary objectives without major confounding factors.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -10,7 +10,7 @@
       "target_entity": "ENSG00000167601",
       "support": "moderate_support",
       "affecting_arm_id": "enapotamab_vedotin_humax_axl_adc",
-      "reasoning": "AXL expression changes measured by H-score confirm target engagement by the ADC"
+      "reasoning": "AXL expression changes measured by H-score demonstrate target engagement, and MTD was successfully established"
     },
     {
       "edge_type": "modulates_via",
@@ -18,7 +18,7 @@
       "target_entity": "antigen_directed_cytotoxicity",
       "support": "moderate_support",
       "affecting_arm_id": "enapotamab_vedotin_humax_axl_adc",
-      "reasoning": "AXL receptor engagement leads to internalization and cytotoxic payload delivery, confirmed by biomarker changes"
+      "reasoning": "Target engagement evidence and observed clinical responses support AXL-mediated antigen-directed cytotoxicity mechanism"
     },
     {
       "edge_type": "mechanism_affects",
@@ -26,7 +26,7 @@
       "target_entity": "R-HSA-4420097",
       "support": "weak_support",
       "affecting_arm_id": "enapotamab_vedotin_humax_axl_adc",
-      "reasoning": "Objective responses observed across tumor types suggest downstream pathway modulation, though specific pathway biomarkers not detailed"
+      "reasoning": "Clinical responses observed across tumor types suggest mechanism affects downstream biology, though specific pathway biomarkers not detailed"
     },
     {
       "edge_type": "biology_drives",
@@ -34,7 +34,7 @@
       "target_entity": "ovarian_cancer",
       "support": "weak_support",
       "affecting_arm_id": "enapotamab_vedotin_humax_axl_adc",
-      "reasoning": "CA-125 responses in ovarian cancer patients and objective responses suggest biological pathway drives disease outcomes"
+      "reasoning": "Objective responses and CA-125 responses in ovarian cancer patients suggest biology drives disease, though effect was partial"
     },
     {
       "edge_type": "endpoint_captures",
@@ -42,18 +42,18 @@
       "target_entity": "ovarian_cancer",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was successfully met with MTD established, and preliminary efficacy signals observed"
+      "reasoning": "Primary safety endpoint was met successfully, establishing MTD and demonstrating the endpoint captured the intended safety assessment"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "ovarian_cancer__unselected",
+      "source_entity": "ovarian_cancer__extent_metastatic__line_second__prior_tx_anti_ctla4_treated__prior_tx_anti_pd1_treated__prior_tx_anti_pdl1_treated__prior_tx_chemotherapy_treated__prior_tx_radiation_treated__prior_tx_targeted_therapy_treated",
       "target_entity": "ovarian_cancer",
-      "support": "moderate_support",
+      "support": "weak_support",
       "affecting_arm_id": null,
-      "reasoning": "Objective responses and CA-125 responses observed in ovarian cancer patients, indicating population responsiveness"
+      "reasoning": "Objective responses and CA-125 responses observed in this heavily pretreated population suggest positive response, though effect was partial"
     }
   ],
-  "confidence_overall": 0.8,
+  "confidence_overall": 0.75,
   "needs_expert_review": false,
   "review_reason": null
 }

@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT03123783",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CD40 or PD-1. However, nivolumab is an established PD-1 inhibitor with known target engagement profile. APX005M target engagement cannot be assessed. 2. PATHWAY MODULATION: No pathway biomarker data available to assess downstream biology changes from either immune costimulation or checkpoint blockade mechanisms. 3. CLINICAL TRANSLATION: Mixed results across cohorts - immunotherapy-naive NSCLC showed 16.67% ORR (partial response), PD-1 refractory melanoma showed 15.15% ORR (partial response), but PD-1 refractory NSCLC showed 0% ORR (failure). This suggests the combination may work in some populations but not others. 4. POPULATION EFFECTS: Clear population-dependent effects - immunotherapy-naive patients responded better than PD-1 refractory patients, and melanoma patients responded better than NSCLC patients in the refractory setting. 5. CONFOUNDERS: Single-arm design without control makes it difficult to assess true treatment effect. No p-values reported. Serious cardiac and GI toxicities noted but MTD not reached.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either APX005M (CD40) or nivolumab (PD-1). However, MTD was not reached and no dose-limiting toxicities were observed in Phase 1b, suggesting adequate dosing was achieved. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream immune activation or checkpoint blockade effects. 3. CLINICAL TRANSLATION: Mixed results across cohorts - immunotherapy-naive NSCLC showed 16.67% ORR, PD-1 refractory melanoma showed 15.15% ORR, but PD-1 refractory NSCLC showed 0% ORR. These are modest response rates without statistical significance testing reported. 4. POPULATION EFFECTS: Clear population-dependent effects - the combination showed activity in immunotherapy-naive NSCLC and PD-1 refractory melanoma but failed completely in PD-1 refractory NSCLC, suggesting mechanism works in some populations but not others. 5. CONFOUNDERS: Single-arm design without control groups makes interpretation challenging. Serious cardiac and GI toxicities noted but did not appear to limit dosing.",
   "failure_modes": [
     {
       "mode": "efficacy_in_subgroup_only",
       "confidence": 0.7,
-      "evidence": "Clear differential responses across populations: 16.67% ORR in immunotherapy-naive NSCLC and 15.15% in PD-1 refractory melanoma, but 0% ORR in PD-1 refractory NSCLC, suggesting efficacy limited to specific subgroups"
+      "evidence": "Combination showed modest activity in immunotherapy-naive NSCLC (16.67% ORR) and PD-1 refractory melanoma (15.15% ORR) but complete failure in PD-1 refractory NSCLC (0% ORR), indicating population-specific efficacy"
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,7 @@
       "target_entity": "ENSG00000101017",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_1",
-      "reasoning": "Partial response in immunotherapy-naive NSCLC but no target engagement data to confirm CD40 binding"
+      "reasoning": "Modest ORR in immunotherapy-naive NSCLC suggests possible target engagement but no biomarker confirmation"
     },
     {
       "edge_type": "affects",
@@ -24,7 +24,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_1",
-      "reasoning": "Partial response in immunotherapy-naive NSCLC, established PD-1 inhibitor but no biomarker confirmation in this trial"
+      "reasoning": "Modest ORR in immunotherapy-naive NSCLC suggests possible target engagement but no biomarker confirmation"
     },
     {
       "edge_type": "affects",
@@ -32,7 +32,7 @@
       "target_entity": "ENSG00000101017",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_2",
-      "reasoning": "Partial response in PD-1 refractory melanoma but no target engagement data"
+      "reasoning": "Modest ORR in PD-1 refractory melanoma suggests possible target engagement but no biomarker confirmation"
     },
     {
       "edge_type": "affects",
@@ -40,7 +40,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_2",
-      "reasoning": "Partial response in PD-1 refractory melanoma despite prior PD-1 exposure"
+      "reasoning": "Modest ORR in PD-1 refractory melanoma suggests possible target engagement but no biomarker confirmation"
     },
     {
       "edge_type": "affects",
@@ -48,7 +48,7 @@
       "target_entity": "ENSG00000101017",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_3",
-      "reasoning": "Failed in PD-1 refractory NSCLC but cannot determine if due to lack of target engagement or downstream failure"
+      "reasoning": "Complete failure in PD-1 refractory NSCLC but no biomarker data to confirm lack of target engagement"
     },
     {
       "edge_type": "affects",
@@ -56,7 +56,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "phase_2_expansion_cohort_3",
-      "reasoning": "Failed in PD-1 refractory NSCLC, consistent with prior PD-1 resistance"
+      "reasoning": "Complete failure in PD-1 refractory NSCLC but no biomarker data to confirm lack of target engagement"
     },
     {
       "edge_type": "mechanism_affects",
@@ -64,7 +64,7 @@
       "target_entity": "GO:0050776",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_2_expansion_cohort_3",
-      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests immune costimulation mechanism insufficient to overcome resistance"
+      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests immune costimulation mechanism did not effectively modulate immune response in this population"
     },
     {
       "edge_type": "mechanism_affects",
@@ -72,7 +72,7 @@
       "target_entity": "R-HSA-389948",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_2_expansion_cohort_3",
-      "reasoning": "Failure in PD-1 refractory NSCLC confirms checkpoint blockade mechanism ineffective in this resistant population"
+      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests checkpoint blockade mechanism did not effectively work in this population"
     },
     {
       "edge_type": "biology_drives",
@@ -80,7 +80,7 @@
       "target_entity": "cancer",
       "support": "weak_support",
       "affecting_arm_id": "phase_2_expansion_cohort_1",
-      "reasoning": "Partial response in immunotherapy-naive NSCLC suggests immune regulation biology can drive cancer response in treatment-naive setting"
+      "reasoning": "Modest ORR in immunotherapy-naive NSCLC suggests immune response regulation can drive anti-cancer activity in this population"
     },
     {
       "edge_type": "biology_drives",
@@ -88,7 +88,7 @@
       "target_entity": "cancer",
       "support": "weak_support",
       "affecting_arm_id": "phase_2_expansion_cohort_2",
-      "reasoning": "Partial response in PD-1 refractory melanoma suggests PD-1 co-inhibition biology still relevant when combined with CD40 agonism"
+      "reasoning": "Modest ORR in PD-1 refractory melanoma suggests PD-1 co-inhibition pathway can still drive benefit in this population"
     },
     {
       "edge_type": "biology_drives",
@@ -96,7 +96,15 @@
       "target_entity": "cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_2_expansion_cohort_3",
-      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests immune regulation biology insufficient to drive response in this resistant population"
+      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests immune response regulation does not drive benefit in this population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_2_expansion_cohort_3",
+      "reasoning": "Complete failure in PD-1 refractory NSCLC suggests PD-1 co-inhibition pathway does not drive benefit in this population"
     },
     {
       "edge_type": "endpoint_captures",
@@ -104,18 +112,18 @@
       "target_entity": "cancer",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR was measured and showed differential responses across populations, demonstrating the endpoint can capture treatment effects when present"
+      "reasoning": "ORR was measured and showed differential responses across populations, demonstrating the endpoint can capture treatment effects"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "cancer__unselected",
+      "source_entity": "cancer__extent_metastatic__line_second__prior_tx_anti_pd1_treated__prior_tx_anti_pdl1_treated__prior_tx_chemotherapy_treated__prior_tx_targeted_therapy_treated",
       "target_entity": "cancer",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Clear differential responses across disease types and treatment history - immunotherapy-naive and melanoma patients responded better than PD-1 refractory NSCLC patients"
+      "reasoning": "Clear differential responses across populations - immunotherapy-naive NSCLC and PD-1 refractory melanoma showed activity while PD-1 refractory NSCLC showed no response"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design without control group makes it difficult to assess true treatment effect magnitude. Mixed results across cohorts suggest population-specific effects that would benefit from expert interpretation of the clinical significance of the observed response rates."
+  "review_reason": "Single-arm design without statistical testing makes interpretation challenging. Population-specific effects are clear but mechanism of differential response unclear without biomarker data."
 }

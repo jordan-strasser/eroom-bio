@@ -816,9 +816,31 @@ class PopulationPipeline:
         from src.graph.indication_taxonomy import (
             extract_indication_qualifiers,
         )
+        from src.graph.population_features import (
+            extract_population_features_with_llm,
+        )
 
         console.print("[bold]Extracting graph nodes from trials...[/bold]")
         seen_indications: dict[str, str] = {}  # canonical_id → display name
+
+        # Round-17: cache LLM-extracted population features (line of
+        # therapy, prior treatments, biomarker requirements, mutation
+        # status) keyed by nct_id. Pre-fetch features once per trial so
+        # they're available alongside the deterministic qualifier regex
+        # output when composing population_ids below.
+        pop_feature_cache_path = self._cache_dir / "population_features.json"
+        trial_llm_features: dict[str, list] = {}
+        for trial in trials:
+            trial_llm_features[trial.nct_id] = (
+                await extract_population_features_with_llm(
+                    nct_id=trial.nct_id,
+                    title=trial.title,
+                    conditions=list(trial.conditions),
+                    eligibility_criteria=trial.eligibility_criteria,
+                    client=self._anthropic,
+                    cache_path=pop_feature_cache_path,
+                )
+            )
 
         # Per-canonical-indication metadata accumulator. Keeps track of
         # observed raw phrasings and the qualifier levels each axis saw —
@@ -911,11 +933,26 @@ class PopulationPipeline:
                 self._index_node(canonical_id, cond, "indication")
                 seen_indications.setdefault(canonical_id, canonical_name)
 
+                # Round-17: merge LLM-extracted population features
+                # (line_of_therapy, prior treatments, biomarker
+                # requirements, mutation status from title + eligibility
+                # criteria) with the deterministic qualifier regex
+                # output. Combined feature set composes a more-specific
+                # PopulationNode slug. Deduped at compose_id time via
+                # slug-sort.
+                llm_features = trial_llm_features.get(trial.nct_id, [])
+                _seen_slugs = {f.slug() for f in qualifiers}
+                combined_features = list(qualifiers)
+                for f in llm_features:
+                    if f.slug() not in _seen_slugs:
+                        combined_features.append(f)
+                        _seen_slugs.add(f.slug())
+
                 # Compose the trial's default PopulationNode id from the
-                # canonical disease + parsed qualifiers. With no qualifiers
-                # this falls back to ``{indication}__unselected``.
+                # canonical disease + combined features. With no
+                # features this falls back to ``{indication}__unselected``.
                 default_pop_id = PopulationNode.compose_id(
-                    canonical_id, qualifiers,
+                    canonical_id, combined_features,
                 )
                 try:
                     self.graph.get_node(default_pop_id)
@@ -923,10 +960,10 @@ class PopulationPipeline:
                     self.graph.add_node(PopulationNode(
                         id=default_pop_id,
                         name=(
-                            cond if qualifiers
+                            cond if combined_features
                             else f"All patients ({canonical_name})"
                         ),
-                        defining_features=list(qualifiers),
+                        defining_features=list(combined_features),
                     ))
                 # responds_differently: default_population → indication.
                 # The trial's enrollment is itself a stratification of the
@@ -949,14 +986,25 @@ class PopulationPipeline:
                     default_pop_id, canonical_id,
                     key=EdgeType.RESPONDS_DIFFERENTLY.value,
                 ):
+                    # Round-17: source tag also notes when LLM features
+                    # contributed, so downstream introspection can tell
+                    # the regex-only populations from the eligibility-
+                    # enriched ones.
+                    if llm_features and qualifiers:
+                        source_tag = "regex_plus_llm_eligibility"
+                    elif llm_features:
+                        source_tag = "llm_eligibility"
+                    elif qualifiers:
+                        source_tag = "indication_qualifiers"
+                    else:
+                        source_tag = "default_unselected"
                     self.graph.add_edge(GraphEdge(
                         source_id=default_pop_id,
                         target_id=canonical_id,
                         edge_type=EdgeType.RESPONDS_DIFFERENTLY,
                         belief=EdgeBeliefState(alpha=1.5, beta=1.0),
                         metadata={
-                            "source": "indication_qualifiers" if qualifiers
-                                else "default_unselected",
+                            "source": source_tag,
                             "raw_descriptor": cond,
                         },
                     ))

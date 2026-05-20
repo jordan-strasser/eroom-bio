@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT03472586",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or PD-1. The combination includes checkpoint inhibitors with established mechanisms, but no PD/PK data confirms engagement in this specific trial. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream immune activation or T-cell response. The immunoembolization component was intended to enhance antigen release, but no biomarkers confirm this occurred. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - hepatic metastasis stabilization rate was 57% (8/14 patients), which appears to have missed the target threshold. No p-value reported but described as failure. 4. POPULATION EFFECTS: No subgroup analyses reported. Small sample size (n=14) limits subgroup assessment. 5. CONFOUNDERS: Single-arm design with small sample size (n=14) limits interpretation. Significant safety signals including grade 5 death (7.1% mortality) and multiple grade 3 AEs suggest potential dose-limiting toxicity that may have impacted efficacy assessment.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or PD-1. The combination includes checkpoint inhibitors with established mechanisms, but no PD/PK data confirms engagement in this specific trial. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream immune activation or T-cell response. The immunoembolization component was intended to enhance antigen release, but no biomarkers confirm this occurred. 3. CLINICAL TRANSLATION: Primary endpoint clearly missed - hepatic metastasis stabilization rate was 57% (8/14 patients), which appears to be the failure threshold. No p-value reported but outcome classified as failure. 4. POPULATION EFFECTS: No subgroup analyses reported in this small trial (n=14). 5. CONFOUNDERS: Small sample size (n=14) suggests underpowered design. Multiple grade 3+ adverse events including one grade 5 death (7.1% mortality) may have impacted dosing or treatment completion, though specific dose modifications not reported.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
-      "confidence": 0.7,
-      "evidence": "No biomarker data to assess target engagement or pathway modulation. Single-arm design with no control group and small sample size (n=14) limits mechanistic interpretation."
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Very small sample size of 14 patients for a stabilization rate endpoint, likely insufficient to detect meaningful treatment effects"
     },
     {
-      "mode": "dose_limiting_toxicity",
+      "mode": "insufficient_information",
       "confidence": 0.6,
-      "evidence": "Grade 5 death in 7.1% of patients (1/14), plus multiple grade 3 AEs including thromboembolic event, hepatic hemorrhage, diarrhea, and colitis. High toxicity burden may have limited adequate dosing or treatment duration."
+      "evidence": "No biomarker data, no target engagement evidence, no p-value reported, making mechanistic assessment impossible"
     }
   ],
   "edges_to_update": [
@@ -21,7 +21,7 @@
       "target_entity": "ENSG00000163599",
       "support": "ambiguous",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of binding"
+      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence for target binding"
     },
     {
       "edge_type": "affects",
@@ -29,7 +29,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of binding"
+      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence for target binding"
     },
     {
       "edge_type": "affects",
@@ -37,7 +37,7 @@
       "target_entity": "UNKNOWN",
       "support": "ambiguous",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "No biomarker data to assess embolization effects on tumor antigen release"
+      "reasoning": "No biomarker evidence of embolization effects on tumor antigen release"
     },
     {
       "edge_type": "mechanism_affects",
@@ -45,7 +45,7 @@
       "target_entity": "R-HSA-389513",
       "support": "weak_contradict",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "Primary endpoint failed; no biomarker data to confirm where chain broke, but failure provides directional information against mechanism effectiveness"
+      "reasoning": "Primary endpoint failure suggests checkpoint blockade mechanism didn't translate to clinical benefit in this context"
     },
     {
       "edge_type": "mechanism_affects",
@@ -53,7 +53,7 @@
       "target_entity": "R-HSA-389948",
       "support": "weak_contradict",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "Primary endpoint failed; no biomarker data to confirm where chain broke, but failure provides directional information against mechanism effectiveness"
+      "reasoning": "Primary endpoint failure suggests checkpoint blockade mechanism didn't translate to clinical benefit in this context"
     },
     {
       "edge_type": "biology_drives",
@@ -61,7 +61,7 @@
       "target_entity": "liver_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "Primary endpoint failed with 57% stabilization rate; biology-to-indication link not validated"
+      "reasoning": "Failed stabilization rate suggests CTLA-4 co-inhibition biology didn't drive clinical benefit in liver metastases"
     },
     {
       "edge_type": "biology_drives",
@@ -69,7 +69,7 @@
       "target_entity": "liver_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "Primary endpoint failed with 57% stabilization rate; biology-to-indication link not validated"
+      "reasoning": "Failed stabilization rate suggests PD-1 co-inhibition biology didn't drive clinical benefit in liver metastases"
     },
     {
       "edge_type": "biology_drives",
@@ -77,26 +77,26 @@
       "target_entity": "liver_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "treatment_ipilimumab_nivolumab_immunoembolization",
-      "reasoning": "Primary endpoint failed; embolization-induced biology did not drive clinical benefit"
+      "reasoning": "Failed stabilization rate suggests embolization-induced biology didn't drive clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "composite_response_melanoma",
       "target_entity": "liver_cancer",
-      "support": "ambiguous",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Single-arm design with 57% stabilization rate - unclear if this represents clinical benefit without historical benchmark or control"
+      "reasoning": "Hepatic metastasis stabilization rate is a reasonable surrogate for clinical benefit in liver-metastatic disease and was clearly measured"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "liver_cancer__extent_metastatic",
+      "source_entity": "liver_cancer__extent_metastatic__line_first__stage_iv",
       "target_entity": "liver_cancer",
-      "support": "weak_contradict",
+      "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint failed in this metastatic liver cancer population with 57% stabilization rate"
+      "reasoning": "Primary endpoint missed with adequate measurement, suggesting this population doesn't respond well to this combination approach"
     }
   ],
-  "confidence_overall": 0.5,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm trial with small sample size (n=14) and no biomarker data makes mechanistic interpretation challenging. High toxicity burden including grade 5 death may have confounded efficacy assessment. Unclear what stabilization rate threshold constituted success."
+  "review_reason": "Very small sample size (n=14) and complete absence of biomarker data makes mechanistic interpretation highly uncertain. The high rate of serious adverse events including one death may have impacted treatment delivery, but dose modification data is not available to assess this factor."
 }

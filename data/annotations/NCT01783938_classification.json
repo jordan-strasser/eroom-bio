@@ -16,7 +16,7 @@
       "target_entity": "ENSG00000188389",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Nivolumab-first sequence showed strong efficacy with 54.7% response rate, supporting target engagement"
+      "reasoning": "Nivolumab-first sequence achieved 54.7% response rate, supporting target engagement in this sequence"
     },
     {
       "edge_type": "affects",
@@ -24,7 +24,15 @@
       "target_entity": "ENSG00000163599",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Nivolumab-first sequence showed strong efficacy, supporting both constituents' target engagement"
+      "reasoning": "Nivolumab-first sequence achieved strong efficacy, supporting ipilimumab target engagement when used second"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
+      "reasoning": "Ipilimumab-first sequence showed weaker efficacy (30.4% response rate), suggesting reduced effectiveness when used first"
     },
     {
       "edge_type": "affects",
@@ -32,47 +40,7 @@
       "target_entity": "ENSG00000188389",
       "support": "weak_support",
       "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Ipilimumab-first sequence showed weaker efficacy (30.4% response rate), providing weaker evidence for target engagement"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "ipilimumab",
-      "target_entity": "ENSG00000163599",
-      "support": "weak_support",
-      "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Ipilimumab-first sequence showed weaker efficacy, providing weaker evidence for target engagement"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389948",
-      "support": "moderate_support",
-      "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Strong efficacy in nivolumab-first sequence supports checkpoint blockade mechanism affecting PD-1 pathway"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389513",
-      "support": "moderate_support",
-      "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Strong efficacy in nivolumab-first sequence supports checkpoint blockade mechanism affecting CTLA4 pathway"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389948",
-      "support": "weak_support",
-      "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Weaker efficacy in ipilimumab-first sequence provides weaker support for mechanism affecting PD-1 pathway"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389513",
-      "support": "weak_support",
-      "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Weaker efficacy in ipilimumab-first sequence provides weaker support for mechanism affecting CTLA4 pathway"
+      "reasoning": "Nivolumab used second in sequence showed reduced efficacy compared to first-line use"
     },
     {
       "edge_type": "biology_drives",
@@ -80,7 +48,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Strong clinical response in nivolumab-first sequence supports PD-1 pathway driving melanoma outcomes"
+      "reasoning": "PD-1 co-inhibition pathway drove strong clinical response in nivolumab-first sequence"
     },
     {
       "edge_type": "biology_drives",
@@ -88,7 +56,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_a_nivolumab_followed_by_ipilimumab",
-      "reasoning": "Strong clinical response in nivolumab-first sequence supports CTLA4 pathway driving melanoma outcomes"
+      "reasoning": "CTLA4 co-inhibition pathway contributed to strong clinical response when ipilimumab used second"
     },
     {
       "edge_type": "biology_drives",
@@ -96,7 +64,7 @@
       "target_entity": "melanoma",
       "support": "weak_support",
       "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Weaker clinical response in ipilimumab-first sequence provides weaker support for PD-1 pathway driving melanoma"
+      "reasoning": "PD-1 pathway showed reduced clinical impact when nivolumab used second"
     },
     {
       "edge_type": "biology_drives",
@@ -104,7 +72,7 @@
       "target_entity": "melanoma",
       "support": "weak_support",
       "affecting_arm_id": "cohort_b_ipilimumab_followed_by_nivolumab",
-      "reasoning": "Weaker clinical response in ipilimumab-first sequence provides weaker support for CTLA4 pathway driving melanoma"
+      "reasoning": "CTLA4 pathway showed reduced clinical impact when ipilimumab used first"
     },
     {
       "edge_type": "endpoint_captures",
@@ -112,18 +80,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was the primary measure and was adequately captured with detailed AE reporting across both sequences"
+      "reasoning": "Safety endpoint was successfully measured and showed differential toxicity profiles between sequences, providing clinically relevant information for melanoma treatment"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__extent_metastatic",
+      "source_entity": "melanoma__extent_metastatic__extent_unresectable__line_second",
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Clear differential response based on treatment sequence - nivolumab-first showed 54.7% response vs 30.4% for ipilimumab-first, indicating population responds differently to sequencing"
+      "reasoning": "This population showed differential response based on treatment sequence, with nivolumab-first achieving superior outcomes"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "This was primarily a safety study with efficacy as secondary endpoints, and the differential outcomes between sequences suggest important sequence-dependent effects that warrant expert interpretation of the mechanistic implications"
+  "review_reason": "No biomarker data available to confirm target engagement or pathway modulation, making mechanistic interpretation challenging. The differential efficacy by sequence is clinically important but the underlying biological reasons are unclear."
 }
