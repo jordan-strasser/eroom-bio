@@ -1,16 +1,69 @@
 # NEXT_SESSION.md
 
-Handoff for the next debugging pass on Eroom Bio's predictive accuracy.
-Last session ended 2026-05-17 with a damning out-of-sample result and a working architectural hypothesis for why.
+Handoff for the next session on Eroom Bio. Last session (round 18, 2026-05-20) ended with cross-trial learning working across 5 indications on a n=50 smoke corpus + canonicalization fix shipped + two big architectural items queued for next pickup.
 
 ---
 
-## TL;DR
+## TL;DR — where we are at end of round 18
 
-- **In-sample AUROC** (post-round-14 fixes, n=86): **0.683**
-- **Holdout AUROC** (n=19 OOS trials): **0.243** — worse than random, predictions inverted relative to outcomes
-- **Working diagnosis**: the graph predicts `P(compound × indication efficacy)`, but our labels measure `P(this specific trial succeeds)`. Pembrolizumab in MSS prostate fails for trial/population reasons, but the graph aggregates ALL pembro evidence (mostly from melanoma successes) and predicts high regardless.
-- **The Beta-Binomial mechanics and LLM signal quality are probably fine**. The architecture is predicting a different question than the labels measure.
+**Shipped this session** (commits 9534dec → cece593 on main):
+- Round 14/15/16: prediction refactor (B(1,1) edges dropped, no trust floor, compound optional), classifier prompt always-emits `responds_differently` + `endpoint_captures`, populator structural fix for unselected populations, canonicalization persisting chembl_id + OT aliases on compound nodes, build orchestrator safety nets, eval refactor with three-bucket labels, 13 regression tests.
+- Round 17: LLM extraction of population features (line of therapy, prior tx, biomarker, mutation) from eligibility criteria; populations went 114 → 283 (2.5x); 92% of trials moved off `__unselected`.
+- Round 18 scaffolding: multi-indication corpus + case-study audit infrastructure across 5 indications (melanoma + alzheimers + colorectal + atherosclerosis/hypercholesterolemia + NSCLC + thyroid). CT.gov 302→429 rate-limit bug found and fixed (`follow_redirects=True` + per-attempt exponential backoff in `get_study`, lowered corpus_concurrency 8 → 4).
+- Round 18 codename-canonicalization followup: curated CODENAME_TO_INN dict + one-off snapshot migration script. azd6244 → selumetinib applied; selumetinib node now carries AZD6244 / ARRY-142886 / ARRY-886 / AZD-6244 as aliases.
+
+**Eval headline numbers** (n=50 smoke graph, end of round 18):
+- In-sample AUROC on clean-mechanistic-failure subset (round-17): **0.873**
+- 5-case-study audit verdict, direction-only: 3/5 match (nivolumab success ✓ at 0.84, solanezumab failure ✓ at 0.48, bevacizumab AVANT failure ✓ at 0.48, torcetrapib miss — safety-not-chain, selumetinib weak — sparse evidence).
+
+**Two architectural fixes blocked before the full n=281 build** (see round 19 + 20 below):
+1. **Round 19 — incremental build mode**: avoid wiping the snapshot on every rebuild. Sequential trial addition without double-counting attribution. Important infrastructure before the corpus expands further.
+2. **Round 20 — safety in P(success)**: integrate `causes_ae` + `target_associated_ae` into `overall_probability`. The torcetrapib audit exposed the v0.1.0 architectural decoupling as wrong; trials fail for safety reasons that the chain can't currently see.
+
+**User said explicitly**: do round 19 + round 20 before the next full-scale (n=281) build.
+
+---
+
+## How to pick this up at the next session
+
+**Read these files in this order to get oriented**:
+1. This file (sections below — round 19 plan, then round 20 plan)
+2. `audit/cross-trial-learning/key_trials.md` — the 5 case-study failure modes from literature
+3. `audit/cross-trial-learning/results.md` — the round-18 audit output
+4. Memory at `~/.claude/projects/.../memory/MEMORY.md` for project history
+
+**The exact place to start**: round 19. See its detailed plan below — it's "add `--base-snapshot` + `--add-trials` flags + attribution idempotency + tests" and lands cleanly in a few files (`scripts/build_graph.py`, `src/annotation/attributor.py`, `src/graph/store.py`, `tests/test_build_graph.py` + `tests/test_attributor.py`). Estimated half-day to full day.
+
+After round 19 ships: round 20 (safety in P(success)). Detailed plan below; ~4–6 hours including test surface updates.
+
+After both: run the full n=281 multi_indication build using the new incremental mode (don't re-do the n=50; add the extra ~230 trials to the existing n=50 snapshot).
+
+**Useful commands**:
+```bash
+# Existing n=50 snapshot lives at:
+data/exports/multi_indication_50_annotated.json
+
+# Existing n=50 corpus list:
+data/corpora/multi_indication_50.txt    # 50 NCTs + 5 case studies
+data/corpora/multi_indication.txt       # the bigger 281-NCT list
+
+# Run the case-study audit on the n=50 graph at any point:
+.venv/bin/python -m scripts.case_study_audit \
+  --graph data/exports/multi_indication_50_annotated.json
+
+# Sanity-check a graph:
+.venv/bin/python -m scripts.multi_indication_sanity \
+  --graph data/exports/multi_indication_50_annotated.json
+
+# Apply codename → INN canonicalization to a snapshot:
+.venv/bin/python -m scripts.canonicalize_codenames \
+  --in PATH --out PATH
+```
+
+**Open known issues** (none blocking, all queued):
+- Case-study audit's `verdict` logic is too strict — calls "PARTIAL" any time `weakest_link` doesn't exactly match the literature's expected edge, even when prediction direction is right. After round 20 ships, refine verdict to also accept MATCH-VIA-SAFETY for safety-driven failures and direction-only matches when bottleneck is close.
+- `src/graph/compound_codenames.py` has a curated dict but isn't wired into the populator's compound-creation step yet. Future builds will still produce code-form ids until that wiring lands. Tracked for later — the migration script (`scripts/canonicalize_codenames.py`) handles it retroactively for existing snapshots.
+- The melanoma-only OOS holdout AUROC story (round 14's 0.243) was eclipsed by the round-15 / 16 / 17 architectural work. The current "in-sample on clean-mechanistic-failure subset" AUROC 0.873 is the headline. A clean OOS measurement requires either (a) more trials per indication so we have a real held-out set per indication, or (b) the incremental-build mode (round 19) so we can add trials to test against without rebuilding.
 
 ---
 
@@ -161,51 +214,119 @@ Branch state: round-14 fixes live on a branch (not main). Tests pass. Not merged
 
 ---
 
-## Round-20 candidate: integrate safety into P(success)
+## Round-20 — integrate safety into P(success) (DO NEXT SESSION, after round 19)
 
 Surfaced by the round-18 torcetrapib case study (2026-05-20).
 `predict_clinical_hypothesis` currently treats AE/safety as a separate
 output (`SafetyRisk` list) — it does NOT factor into
-`overall_probability`. Comment on `PredictionResult`: *"efficacy and
-safety are scored independently."* This was a v0.1.0 architectural
-choice that the torcetrapib audit just exposed as wrong.
+`overall_probability`. Comment on `PredictionResult` (line 204 in
+`src/prediction/path_query.py`): *"efficacy and safety are scored
+independently."* This was a v0.1.0 architectural choice that the
+torcetrapib audit just exposed as wrong.
 
 ILLUMINATE (NCT00134264) failed for off-target hypertension causing
 excess deaths. The mechanism CHAIN worked (CETP inhibition raised HDL
 dramatically). Without safety in the prediction, the system rates
 torcetrapib at P=0.65 modest-success, missing the actual failure mode.
 
-**Proposed integration** (preserves backward compat):
+**Concrete plan when picking this up**:
 
-  1. Compute a per-compound `safety_penalty` from BOTH:
-     - `causes_ae` edges out of the compound (compound-specific
-       risks — what this exact drug has caused in past trials)
-     - `target_associated_ae` edges out of the target (on-mechanism
-       risks — the target's biology produces these AEs whether or
-       not THIS compound has accumulated evidence)
-     Weighted by severity grade + belief probability × evidence
-     strength. The target-class source is essential for novel
-     compounds where `causes_ae` is sparse but the target family is
-     well-characterized (anti-PD-1 → known irAE pattern, BRAF
-     inhibitors → rash pattern, statins → myopathy class signal).
-     Both sources are already collected in `_collect_safety_risks`
-     for reporting; round-20 wires them into the prediction.
-  2. Combine: `P(trial_succeeds) = P(mechanism_works) * (1 -
-     safety_penalty)`. Or use a soft min so low-evidence AE edges
-     don't dominate.
-  3. PredictionResult adds `safety_penalty` and `efficacy_probability`
-     fields. `overall_probability` becomes the combined number.
-     Existing callers that read `overall_probability` get the new
-     combined semantics; the breakdown is available for introspection.
-  4. Tunable threshold: only AEs of grade 3+ count, or a grade-weighted
-     sum. The simplest first version: `sum(belief × n_eff)` across
-     compound-specific AEs, normalized so a single trial reporting one
-     grade-3+ AE gives a small penalty (~0.05) and 5+ trials with
-     consistent severe AEs gives a meaningful drag (~0.20-0.30).
+1. **New helper `_compute_safety_penalty` in `src/prediction/path_query.py`**:
 
-Tests: small fixture graph with one compound + one severe AE +
-otherwise-strong chain, verify combined P(success) lands below the
-mechanism-only chain prediction by the safety_penalty fraction.
+   ```python
+   def _compute_safety_penalty(
+       self, chain: CausalChain,
+       *,
+       min_belief: float = 0.5,
+       min_evidence: float = 1.0,
+   ) -> float:
+       """Combine compound-specific + on-mechanism AE evidence into a
+       [0, ~0.4] penalty applied to the mechanism-only P(success)."""
+       # Pull both edge types via the existing _collect_safety_risks
+       # logic — already does the union of causes_ae + target_associated_ae
+       # with min_belief / min_evidence filters.
+       risks = self._collect_safety_risks(
+           chain, min_belief=min_belief, min_evidence=min_evidence,
+       )
+       if not risks:
+           return 0.0
+       # Per-AE contribution: belief * log(1 + n_eff) / log(50)
+       # (mirrors the round-15 _trust_weight log-saturation curve so
+       # the AE penalty caps gracefully under heavy evidence accumulation).
+       contributions = []
+       for r in risks:
+           t = min(1.0, math.log(r.evidence_strength + 1) / math.log(50))
+           contributions.append(r.belief_probability * t)
+       # Aggregate via soft-or so multiple moderate AEs accumulate but
+       # we don't run away on long AE tails.
+       penalty = 1.0
+       for c in contributions:
+           penalty *= (1.0 - c)
+       return min(0.4, 1.0 - penalty)  # cap to keep the architecture honest
+   ```
+
+   Source for both edge types is already implemented in
+   `_collect_safety_risks` (lines 312–397). Pulls from
+   `graph.get_neighboring_edges(compound_id, edge_types=[EdgeType.CAUSES_AE])`
+   AND `graph.get_neighboring_edges(target_id, edge_types=[EdgeType.TARGET_ASSOCIATED_AE])`.
+   Round-20's `_compute_safety_penalty` reuses that retrieval, just
+   converts the SafetyRisk list to a single scalar.
+
+2. **Modify `PredictionResult`** to expose all three numbers:
+   ```python
+   class PredictionResult(BaseModel):
+       efficacy_probability: float       # mechanism-only chain geomean
+       safety_penalty: float             # [0, 0.4] subtractive
+       overall_probability: float        # efficacy * (1 - safety_penalty)
+       ...
+   ```
+   Existing callers that read `overall_probability` get the new
+   combined semantics; the breakdown is available for introspection.
+
+3. **Modify `PredictionEngine.predict`**: compute the efficacy chain as
+   today (call it `efficacy_probability`), then call
+   `_compute_safety_penalty(chain)`, then set
+   `overall_probability = efficacy_probability * (1 - safety_penalty)`.
+   Update CI computation similarly (apply the safety_penalty
+   multiplicatively to CI bounds too).
+
+4. **Tests** (`tests/test_prediction.py` extension):
+   - `test_safety_penalty_zero_when_no_ae`: chain with no AE edges →
+     overall_probability == efficacy_probability.
+   - `test_safety_penalty_pulls_overall_down`: chain with one
+     compound-specific severe AE → overall < efficacy by the penalty.
+   - `test_target_class_ae_contributes_for_novel_compound`: compound
+     has no causes_ae edges, but its target has target_associated_ae →
+     penalty is non-zero (the on-mechanism class signal).
+   - `test_safety_penalty_caps_at_0_4`: enormous AE evidence still
+     keeps overall_probability above efficacy * 0.6.
+   - Existing `test_overall_probability_*` tests need updating to use
+     the new field names where they expect mechanism-only behavior.
+
+5. **Update eval scripts** (`scripts/eval_holdout_v2.py`,
+   `scripts/eval_in_sample.py`, `scripts/case_study_audit.py`):
+   - When reporting per-trial output, show all three numbers:
+     `P(success) = 0.65 = efficacy 0.78 × (1 - safety 0.17)`.
+   - Verdict logic in `case_study_audit.py`: if `safety_penalty > 0.10`
+     AND the trial's literature failure mode is safety-driven (torce,
+     CAR-T-CRS, anti-CTLA-4-irAE-stop), tag the verdict as
+     MATCH-VIA-SAFETY rather than DISAGREE.
+
+**Tunables to revisit after first run**:
+- The `min_belief` + `min_evidence` thresholds in `_compute_safety_penalty`
+  (currently 0.5 and 1.0; could shift to be stricter)
+- The 0.4 penalty cap (currently caps at making efficacy 60% of itself;
+  could tighten to 0.3 or relax to 0.5)
+- The `log(50)` saturation point (matches `_trust_weight`)
+
+**Caveat that shaped the design**: torcetrapib has zero AE evidence in the smoke corpus (one trial, no posted results). Even with integration, that specific case won't change for THAT trial until more torcetrapib trials (or CETP inhibitor class trials) accumulate. But for well-evidenced compounds (nivo, ipi, bevacizumab, the BRAF/MEK families) it would meaningfully shift predictions.
+
+**Files most relevant to start**:
+- `src/prediction/path_query.py` — engine + helpers (look at `_collect_safety_risks` near line 312 first)
+- `src/graph/models.py` — `EdgeType.CAUSES_AE` and `EdgeType.TARGET_ASSOCIATED_AE` definitions
+- `tests/test_prediction.py` — extend `TestWeightedGeomeanPredict` + add a `TestSafetyPenalty` class
+
+**Estimated effort**: 4–6 hours including test surface updates.
 
 Caveat: torcetrapib has 0 AE evidence in the smoke corpus (one trial,
 no posted results). Even with integration, that specific case won't
@@ -215,47 +336,58 @@ the BRAF/MEK families) it would meaningfully shift predictions.
 
 ---
 
-## Round-19 candidate: incremental graph build (no more full rebuilds)
+## Round-19 — incremental graph build (DO NEXT SESSION, before full n=281 build)
 
 Surfaced during the round-18 multi-indication build (2026-05-20). Every
-`build_graph.py` run today wipes the export snapshot and re-marches
-the populator + attributor across all trials in the corpus. LLM calls
-are amortized to zero (extractor / classifier hit per-trial caches),
-but the wall-clock and orchestration cost grows linearly with corpus
-size. For sequential trial addition ("add 30 more breast cancer trials
-to the existing multi_indication graph") this is the wrong shape.
+`build_graph.py` run today wipes the export snapshot and re-marches the
+populator + attributor across all trials in the corpus. LLM calls are
+amortized to zero (extractor / classifier hit per-trial caches), but
+wall-clock and orchestration cost grows linearly with corpus size. For
+sequential trial addition ("add 30 more breast cancer trials to the
+existing multi_indication graph") this is the wrong shape. We need an
+incremental add mode that doesn't double-count.
 
-**The fix**: incremental-add mode for `build_graph.py`.
+**Target CLI shape**:
 
 ```bash
-python scripts/build_graph.py \
-  --base-snapshot data/exports/multi_indication_annotated.json \
-  --add-trials NCT00000001,NCT00000002,...   # or --corpus-add new_indication
+# Add new trials by NCT id list (case-study use case)
+python -m scripts.build_graph --base-snapshot data/exports/multi_indication_annotated.json \
+  --add-trials NCT00112918,NCT00134264,...
+
+# Or: extend with a new indication via search
+python -m scripts.build_graph --base-snapshot data/exports/multi_indication_annotated.json \
+  --add-corpus breast_cancer_30   # reads data/corpora/breast_cancer_30.txt
 ```
 
-Pipeline:
-1. Load existing snapshot (don't wipe).
-2. Fetch only the new NCTs from CT.gov.
-3. Run populator's per-trial steps only on new trials. Existing
-   structural ops (`add_node`, `add_edge`, `add_subtype_edges`) are
-   already idempotent on duplicate inputs.
-4. Run extract + classify only on the new trials (cache check still
-   applies for already-annotated NCTs).
-5. Run attribution only on the new classifications.
-6. **Critical safety check**: persist the set of attributed `trial_id`s
-   on the graph (a new sidecar field or graph-level metadata). When
-   attribution runs, skip any trial whose evidence has already been
-   applied to an edge. Otherwise sequential adds would silently
-   double-count.
-7. Save updated snapshot.
+**Concrete steps when picking this up**:
 
-The biggest engineering risk is step 6 — Beta-Binomial updates aren't
-trivially idempotent, so we need explicit bookkeeping. Easiest:
-graph-level dict `applied_trial_ids: set[str]` that the attributor
-checks before processing each trial.
+1. **Add a `--base-snapshot` CLI flag in `scripts/build_graph.py`** (next to `--corpus`). When present, skip the `Step 0: wipe_outputs` block — both initial and annotated snapshots remain on disk. Load the existing annotated snapshot at the start instead of starting from an empty `GraphStore`.
 
-Related: the existing `wipe_outputs(area, keep_annotations)` flag would
-need a `--no-wipe-exports` companion that keeps the snapshot too.
+2. **Add a `--add-trials` flag** that accepts a comma-separated NCT list. Plus `--add-corpus <name>` for the indication-search case. Both bypass the existing `--corpus` requirement; they short-circuit `fetch_trials()` to fetch ONLY the named NCT ids.
+
+3. **Make the populator's step 2 (Canonicalize conditions + seed Indication / Population nodes) skip trials whose subgraph already exists**. Today it iterates all trials in `trials=[...]`. Wrap with a check: `if trial.nct_id in graph.trial_subgraphs: continue`. The existing `add_node` / `add_edge` ops are already idempotent on dup keys; this is just to avoid recomputing the LLM canonicalization + population_features calls.
+
+4. **Add attribution idempotency** (the critical safety check). Today the attributor reads `data/annotations/*_classification.json`, calls `attributor.attribute(...)` for every trial with a sidecar TrialSubgraph, and applies updates. Without a guard, running it twice double-counts evidence on each edge. Implementation:
+   - Add a `graph.applied_attribution_trial_ids: set[str]` field on `GraphStore` (serialized in the snapshot JSON).
+   - In `_main` of `attributor.py`, before calling `attributor.attribute(...)` on a given trial, check `if trial_id in graph.applied_attribution_trial_ids: console.print(f"  skipping already-attributed {trial_id}"); continue`.
+   - After `apply_updates` succeeds, `graph.applied_attribution_trial_ids.add(trial_id)`.
+   - On `import_snapshot`, restore the set from JSON (empty default for old snapshots).
+   - On `export_snapshot`, serialize the set.
+
+5. **Tests** (`tests/test_build_graph.py` extension):
+   - `test_incremental_add_doesnt_double_count`: build a tiny graph with 1 trial, capture an edge's `evidence_strength`, run the incremental add of the SAME trial again, assert evidence_strength didn't change.
+   - `test_incremental_add_appends_new_trials`: build with trial A, incremental add of trial B, assert trial B's NCT is in `trial_subgraphs` AND trial A's subgraph is preserved AND the snapshot file timestamp updated.
+   - `test_base_snapshot_skips_wipe`: assert that `wipe_outputs` is NOT called when `--base-snapshot` is passed.
+
+**Engineering risk**: getting attribution idempotency right is subtle. The Beta-Binomial updates aren't trivially undo-able, so the guard MUST run BEFORE `apply_updates`. The set must be transactional (set add + apply commit together).
+
+**Files most relevant to start**:
+- `scripts/build_graph.py` (CLI + orchestration)
+- `src/annotation/attributor.py` (the `_main` function + Attributor class)
+- `src/graph/store.py` (the GraphStore needs the new field + snapshot persistence)
+- `tests/test_build_graph.py` + `tests/test_attributor.py`
+
+**Estimated effort**: half-day to a day. Most of the complexity is the idempotency dance + getting tests right.
 
 ---
 
