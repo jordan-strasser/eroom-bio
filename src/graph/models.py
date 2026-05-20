@@ -323,6 +323,19 @@ class InterventionNode(BaseModel):
     aliases: list[str] = Field(default_factory=list)
     smiles: str | None = None
     targets_claimed: list[str] = Field(default_factory=list)
+    # Round-21: external stable identifier for canonicalization.
+    # ChEMBL primarily ("CHEMBL185"); will be extended to UMLS CUI /
+    # RxNorm if more external DBs get pulled in. Same drug across
+    # different CT.gov intervention strings ("5-Fluorouracil" vs
+    # "Fluorouracil") should share a stable_id so the Phase B
+    # canonicalization can consolidate on it.
+    stable_id: str | None = None
+    # SapBERT (or equivalent clinical-domain) embedding of the
+    # canonical name. Used by the Phase B canonicalization layer for
+    # vector-similarity lookup when stable_id isn't available (cell
+    # therapies, vaccines, novel agents that aren't in ChEMBL but
+    # SapBERT can still embed by name).
+    embedding: list[float] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
