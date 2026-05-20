@@ -384,6 +384,76 @@ class TestPersistence:
         assert "trial_subgraphs" in data
         assert "nodes" in data["graph"]
 
+    def test_applied_attribution_set_roundtrips(self, store, tmp_path):
+        store.applied_attribution_trial_ids.add("NCT00000001")
+        store.applied_attribution_trial_ids.add("NCT00000002")
+        filepath = str(tmp_path / "snapshot.json")
+        store.export_snapshot(filepath)
+
+        data = json.loads((tmp_path / "snapshot.json").read_text())
+        assert data["applied_attribution_trial_ids"] == [
+            "NCT00000001", "NCT00000002",
+        ]
+
+        store2 = GraphStore()
+        store2.import_snapshot(filepath)
+        assert store2.applied_attribution_trial_ids == {
+            "NCT00000001", "NCT00000002",
+        }
+
+    def test_legacy_snapshot_with_no_trials_has_empty_attribution_set(
+        self, store, tmp_path,
+    ):
+        legacy = {
+            "graph": {
+                "directed": True, "multigraph": True, "graph": {},
+                "nodes": [], "edges": [],
+            },
+            "trial_subgraphs": {},
+        }
+        filepath = tmp_path / "legacy.json"
+        filepath.write_text(json.dumps(legacy))
+        store2 = GraphStore()
+        store2.import_snapshot(str(filepath))
+        assert store2.applied_attribution_trial_ids == set()
+
+    def test_legacy_snapshot_backfills_attribution_from_trial_subgraphs(
+        self, store, tmp_path,
+    ):
+        """Round-19: a snapshot written before applied_attribution_trial_ids
+        existed has its set backfilled from trial_subgraphs.keys() on
+        import. This avoids the first incremental --add-trials run
+        re-attributing every existing trial."""
+        from src.graph.models import CausalChain, TrialArm, TrialOutcome
+        store.applied_attribution_trial_ids.add("NCT_X")  # pre-state irrelevant
+        ts = TrialSubgraph(
+            trial_id="NCT_LEGACY",
+            phase="3",
+            arms=[TrialArm(arm_id="solo", compound_ids=["c1"],
+                           regimen_compound_id="c1")],
+            chains=[CausalChain(
+                arm_id="solo", compound_id="c1",
+                subgroup_population_id="pop",
+                target_id="t", mechanism_id="m", biology_id="b",
+                indication_id="ind", endpoint_id="e",
+                outcome=TrialOutcome.UNKNOWN,
+            )],
+            parent_population_id="pop",
+        )
+        store.set_trial_subgraph(ts)
+
+        # Build the legacy-style payload by writing the snapshot and then
+        # removing the applied_attribution_trial_ids key.
+        filepath = tmp_path / "legacy.json"
+        store.export_snapshot(str(filepath))
+        raw = json.loads(filepath.read_text())
+        del raw["applied_attribution_trial_ids"]
+        filepath.write_text(json.dumps(raw))
+
+        store2 = GraphStore()
+        store2.import_snapshot(str(filepath))
+        assert store2.applied_attribution_trial_ids == {"NCT_LEGACY"}
+
 
 # ── Stats ────────────────────────────────────────────────────────────────
 

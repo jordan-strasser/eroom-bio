@@ -256,6 +256,37 @@ async def fetch_trials(
     return trials
 
 
+async def fetch_trials_by_ids(
+    nct_ids: list[str],
+    corpus_concurrency: int = 4,
+) -> list[TrialRecord]:
+    """Fetch a specific set of trials by NCT id (round-19 incremental add).
+
+    Mirrors the per-id fetch path inside ``fetch_trials`` (frozen-corpus
+    branch) but without the corpus file dance—the caller already knows
+    exactly which ids to add to the existing snapshot.
+    """
+    if not nct_ids:
+        return []
+    ct = ClinicalTrialsClient()
+    sem = asyncio.Semaphore(corpus_concurrency)
+
+    async def _one(nct_id: str) -> TrialRecord | None:
+        async with sem:
+            try:
+                return await ct.get_study(nct_id)
+            except Exception:
+                logger.warning(
+                    "Incremental fetch failed for %s", nct_id, exc_info=True,
+                )
+                return None
+
+    results = await asyncio.gather(*(_one(n) for n in nct_ids))
+    trials = [t for t in results if t is not None]
+    console.print(f"  fetched {len(trials)}/{len(nct_ids)} by NCT id")
+    return trials
+
+
 async def extract_all(
     trials: list[TrialRecord],
     extractor: Extractor,
@@ -331,16 +362,60 @@ async def main(
     include_ncts: list[str] | None = None,
     min_classify_success_rate: float = 0.80,
     allow_partial_classify: bool = False,
+    base_snapshot: str | None = None,
+    add_trials: list[str] | None = None,
+    add_corpus: str | None = None,
 ) -> None:
-    console.rule(
-        f"[bold]Rebuilding graph: condition={condition!r}, n={max_trials}"
-        + (f", corpus={corpus}" if corpus else "")
-        + "[/bold]"
-    )
+    incremental = bool(base_snapshot)
+    if incremental:
+        console.rule(
+            f"[bold]Incremental build: base={base_snapshot}[/bold]"
+        )
+    else:
+        console.rule(
+            f"[bold]Rebuilding graph: condition={condition!r}, n={max_trials}"
+            + (f", corpus={corpus}" if corpus else "")
+            + "[/bold]"
+        )
 
     initial_path = EXPORTS_DIR / f"{area}_initial.json"
     annotated_path = EXPORTS_DIR / f"{area}_annotated.json"
     corpus_path = (CORPORA_DIR / f"{corpus}.txt") if corpus else None
+    base_snapshot_path = Path(base_snapshot) if base_snapshot else None
+
+    # Round-19 incremental-mode validation. Bad combos must raise BEFORE
+    # any wipe / fetch / network call, otherwise a typo could nuke
+    # data/annotations/ on its way to SystemExit.
+    if incremental:
+        assert base_snapshot_path is not None
+        if not base_snapshot_path.exists():
+            raise SystemExit(
+                f"--base-snapshot file not found: {base_snapshot}"
+            )
+        if not (add_trials or add_corpus):
+            raise SystemExit(
+                "--base-snapshot requires --add-trials or --add-corpus "
+                "(nothing to add otherwise)."
+            )
+        if add_trials and add_corpus:
+            raise SystemExit(
+                "--add-trials and --add-corpus are mutually exclusive."
+            )
+        if corpus is not None:
+            raise SystemExit(
+                "--corpus cannot be combined with --base-snapshot; "
+                "use --add-corpus to add a new corpus to the base."
+            )
+        if include_ncts:
+            raise SystemExit(
+                "--include is for fresh builds with --corpus; in "
+                "incremental mode, list the NCTs via --add-trials directly."
+            )
+    else:
+        if add_trials or add_corpus:
+            raise SystemExit(
+                "--add-trials / --add-corpus require --base-snapshot."
+            )
 
     # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
     # combo nukes data/annotations/ on its way to the SystemExit.
@@ -361,14 +436,38 @@ async def main(
                 f"shorten --include."
             )
 
-    console.print("[bold]Step 0:[/bold] wiping prior outputs")
-    wipe_outputs(area, keep_annotations=keep_annotations)
+    if incremental:
+        # Round-19: do NOT wipe in incremental mode. The base snapshot
+        # and the cached annotations both stay so already-handled
+        # trials keep their state; new trials add on top.
+        console.print(
+            "[bold]Step 0:[/bold] incremental mode — preserving prior outputs"
+        )
+        EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)
+    else:
+        console.print("[bold]Step 0:[/bold] wiping prior outputs")
+        wipe_outputs(area, keep_annotations=keep_annotations)
 
     console.rule("[bold]Step 1: fetch trials[/bold]")
-    trials = await fetch_trials(
-        condition, max_trials, include_terminated, corpus_path=corpus_path,
-        include_ncts=include_ncts,
-    )
+    if incremental:
+        if add_trials:
+            target_ncts = list(add_trials)
+        else:
+            assert add_corpus is not None
+            add_corpus_path = CORPORA_DIR / f"{add_corpus}.txt"
+            if not add_corpus_path.exists():
+                raise SystemExit(
+                    f"--add-corpus file not found: {add_corpus_path}"
+                )
+            target_ncts = load_corpus(add_corpus_path)
+        console.print(f"  fetching {len(target_ncts)} NCT id(s) by id")
+        trials = await fetch_trials_by_ids(target_ncts)
+    else:
+        trials = await fetch_trials(
+            condition, max_trials, include_terminated, corpus_path=corpus_path,
+            include_ncts=include_ncts,
+        )
     if not trials:
         console.print("[red]No trials fetched. Aborting.[/red]")
         return
@@ -378,6 +477,36 @@ async def main(
 
     console.rule("[bold]Step 2: populate (initial graph)[/bold]")
     graph = GraphStore()
+    if incremental:
+        assert base_snapshot_path is not None
+        graph.import_snapshot(str(base_snapshot_path))
+        console.print(
+            f"  loaded base snapshot from {base_snapshot_path}: "
+            f"{len(graph.trial_subgraphs)} existing trial subgraphs, "
+            f"{len(graph.applied_attribution_trial_ids)} already attributed"
+        )
+        # Skip trials whose subgraph already exists in the base — they've
+        # been canonicalized + populated before, and the populator's LLM
+        # calls (indication canonicalization, population features) are
+        # the costly part. add_node / add_edge are idempotent so anything
+        # that slipped through this filter would still be correct, just
+        # wasteful.
+        new_trials = [
+            t for t in trials if t.nct_id not in graph.trial_subgraphs
+        ]
+        skipped = len(trials) - len(new_trials)
+        if skipped:
+            console.print(
+                f"  skipping {skipped} trials whose subgraph is already "
+                f"in the base snapshot"
+            )
+        trials = new_trials
+        if not trials:
+            console.print(
+                "[yellow]All requested trials already in base snapshot; "
+                "nothing to add.[/yellow]"
+            )
+            return
     client = anthropic.AsyncAnthropic(timeout=60.0)
     pipeline = PopulationPipeline(graph, anthropic_client=client)
     await pipeline.populate_oncology(
@@ -525,8 +654,33 @@ if __name__ == "__main__":
              "building from whatever subset classified. Use only when you "
              "explicitly want a partial snapshot for debugging.",
     )
+    parser.add_argument(
+        "--base-snapshot", default=None,
+        help="Round-19 incremental mode. Path to an existing annotated "
+             "snapshot to extend instead of rebuilding from scratch. "
+             "Skips the Step 0 wipe and the populator only adds trials "
+             "not already present. Pairs with --add-trials or "
+             "--add-corpus; --corpus is rejected in this mode. "
+             "The output annotated snapshot at "
+             "data/exports/<area>_annotated.json overwrites the base "
+             "when --area matches.",
+    )
+    parser.add_argument(
+        "--add-trials", default="",
+        help="Round-19 incremental mode. Comma-separated NCT ids to fetch "
+             "and add on top of --base-snapshot. Mutually exclusive with "
+             "--add-corpus.",
+    )
+    parser.add_argument(
+        "--add-corpus", default=None,
+        help="Round-19 incremental mode. Name of a corpus file under "
+             "data/corpora/<name>.txt whose NCT ids will be fetched and "
+             "added on top of --base-snapshot. Mutually exclusive with "
+             "--add-trials.",
+    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
+    add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     asyncio.run(main(
@@ -540,4 +694,7 @@ if __name__ == "__main__":
         include_ncts=include_ncts or None,
         min_classify_success_rate=args.min_classify_success_rate,
         allow_partial_classify=args.allow_partial_classify,
+        base_snapshot=args.base_snapshot,
+        add_trials=add_trials or None,
+        add_corpus=args.add_corpus,
     ))

@@ -1347,3 +1347,203 @@ class TestDropCounters:
         attributor.attribute(clf_second, ts)
         assert attributor.last_attempted_updates == 1
         assert attributor.last_dropped_updates == 0
+
+
+# ── Round-19: attribution idempotency ───────────────────────────────────
+
+
+class TestAttributionIdempotency:
+    """Round-19 incremental-build safety net. Re-running attribution on a
+    trial whose updates already landed must be a no-op — otherwise every
+    incremental --add-trials run would double-count Beta-Binomial
+    evidence on every edge the trial originally touched."""
+
+    def _write_annotation_pair(
+        self, annotations_dir, nct_id: str,
+    ) -> None:
+        """Drop the minimal extraction + classification JSON the
+        attributor's `_main` needs to attempt an update on the
+        seeded combo-trial graph."""
+        extraction = {
+            "nct_id": nct_id,
+            "trial_outcome": "partial",
+            "title": "Test",
+            "phase": "3",
+            "compounds": ["Nivolumab"],
+            "arms": [
+                {
+                    "arm_id": "nivo_only",
+                    "compounds": ["nivolumab"],
+                    "label": "nivo monotherapy",
+                    "n": 100,
+                },
+            ],
+            "results_by_chain": [],
+            "adverse_events": [],
+            "modulation_entries": [],
+            "primary_endpoint_met": False,
+        }
+        classification = {
+            "nct_id": nct_id,
+            "trial_outcome": "partial",
+            "failure_modes": [
+                {"mode": "efficacy_in_subgroup_only", "confidence": 0.7},
+            ],
+            "confidence_overall": 0.7,
+            "reasoning": "test",
+            "edges_to_update": [
+                {
+                    "edge_type": "affects",
+                    "source_entity": "Nivolumab",
+                    "target_entity": "PD-1",
+                    "support": "moderate_support",
+                    "affecting_arm_id": "nivo_only",
+                },
+            ],
+        }
+        (annotations_dir / f"{nct_id}_extraction.json").write_text(
+            json.dumps(extraction)
+        )
+        (annotations_dir / f"{nct_id}_classification.json").write_text(
+            json.dumps(classification)
+        )
+
+    @pytest.mark.asyncio
+    async def test_second_run_doesnt_double_count(self, tmp_path):
+        from src.annotation.attributor import _main as attributor_main
+
+        # Seed a graph + trial subgraph, persist to disk so _main can
+        # import_snapshot from it.
+        graph, ts = _seed_combo_trial_graph()
+        # _main looks up the trial by clf_data["nct_id"] which we set to
+        # NCT_TEST in _seed_combo_trial_graph.
+        graph_path = tmp_path / "graph_initial.json"
+        annotations_dir = tmp_path / "annotations"
+        annotations_dir.mkdir()
+        out_path_1 = tmp_path / "graph_annotated_1.json"
+        out_path_2 = tmp_path / "graph_annotated_2.json"
+
+        graph.export_snapshot(str(graph_path))
+        self._write_annotation_pair(annotations_dir, "NCT_TEST")
+
+        # First run: applies the affects update. Capture the edge's
+        # evidence count after.
+        await attributor_main(
+            str(annotations_dir), str(graph_path), str(out_path_1),
+        )
+        after_first = GraphStore()
+        after_first.import_snapshot(str(out_path_1))
+        belief_1 = after_first.get_edge_belief(
+            "nivolumab", "ENSG00000188389", EdgeType.AFFECTS,
+        )
+        assert "NCT_TEST" in after_first.applied_attribution_trial_ids
+        assert len(belief_1.evidence) == 1, (
+            "First run should add exactly one evidence record"
+        )
+
+        # Second run starts from the first run's output — applied set is
+        # already populated. Idempotency guard MUST skip the trial.
+        await attributor_main(
+            str(annotations_dir), str(out_path_1), str(out_path_2),
+        )
+        after_second = GraphStore()
+        after_second.import_snapshot(str(out_path_2))
+        belief_2 = after_second.get_edge_belief(
+            "nivolumab", "ENSG00000188389", EdgeType.AFFECTS,
+        )
+        assert len(belief_2.evidence) == 1, (
+            "Second run must NOT add a duplicate evidence record"
+        )
+        assert belief_2.alpha == belief_1.alpha
+        assert belief_2.beta == belief_1.beta
+
+    @pytest.mark.asyncio
+    async def test_new_trial_in_same_run_still_attributed(self, tmp_path):
+        """Idempotency guard skips only the already-attributed trial,
+        not subsequent NEW trials whose annotations are sitting in the
+        same directory."""
+        from src.annotation.attributor import _main as attributor_main
+
+        graph, ts_a = _seed_combo_trial_graph()
+
+        # Add a second trial subgraph (NCT_NEW) sharing the same nodes —
+        # a separate arm_id but referencing the same compound/target.
+        new_arm = TrialArm(
+            arm_id="nivo_only_new", compound_ids=["nivolumab"],
+            regimen_compound_id="nivolumab",
+        )
+        new_chain = CausalChain(
+            arm_id="nivo_only_new", compound_id="nivolumab",
+            subgroup_population_id="melanoma__unselected",
+            target_id="ENSG00000188389", mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948", indication_id="melanoma",
+            endpoint_id="PFS_melanoma", outcome=TrialOutcome.UNKNOWN,
+        )
+        ts_b = TrialSubgraph(
+            trial_id="NCT_NEW", phase="3", arms=[new_arm],
+            chains=[new_chain],
+            parent_population_id="melanoma__unselected",
+        )
+        graph.set_trial_subgraph(ts_b)
+
+        # Pretend NCT_TEST is already attributed.
+        graph.applied_attribution_trial_ids.add("NCT_TEST")
+
+        graph_path = tmp_path / "graph_initial.json"
+        annotations_dir = tmp_path / "annotations"
+        annotations_dir.mkdir()
+        out_path = tmp_path / "graph_annotated.json"
+
+        graph.export_snapshot(str(graph_path))
+        self._write_annotation_pair(annotations_dir, "NCT_TEST")
+        # NCT_NEW classification uses its own arm_id.
+        new_ext = {
+            "nct_id": "NCT_NEW", "trial_outcome": "partial",
+            "title": "Test", "phase": "3",
+            "compounds": ["Nivolumab"],
+            "arms": [{
+                "arm_id": "nivo_only_new",
+                "compounds": ["nivolumab"],
+                "label": "nivo monotherapy",
+                "n": 100,
+            }],
+            "results_by_chain": [], "adverse_events": [],
+            "modulation_entries": [], "primary_endpoint_met": False,
+        }
+        new_clf = {
+            "nct_id": "NCT_NEW", "trial_outcome": "partial",
+            "failure_modes": [
+                {"mode": "efficacy_in_subgroup_only", "confidence": 0.7},
+            ],
+            "confidence_overall": 0.7, "reasoning": "test",
+            "edges_to_update": [{
+                "edge_type": "affects",
+                "source_entity": "Nivolumab",
+                "target_entity": "PD-1",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only_new",
+            }],
+        }
+        (annotations_dir / "NCT_NEW_extraction.json").write_text(
+            json.dumps(new_ext)
+        )
+        (annotations_dir / "NCT_NEW_classification.json").write_text(
+            json.dumps(new_clf)
+        )
+
+        await attributor_main(
+            str(annotations_dir), str(graph_path), str(out_path),
+        )
+
+        result = GraphStore()
+        result.import_snapshot(str(out_path))
+        assert "NCT_TEST" in result.applied_attribution_trial_ids
+        assert "NCT_NEW" in result.applied_attribution_trial_ids
+
+        # NCT_NEW's update lands; the original NCT_TEST update doesn't.
+        belief = result.get_edge_belief(
+            "nivolumab", "ENSG00000188389", EdgeType.AFFECTS,
+        )
+        ev_sources = [e.source_id for e in belief.evidence]
+        assert "NCT_NEW" in ev_sources
+        assert "NCT_TEST" not in ev_sources
