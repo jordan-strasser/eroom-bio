@@ -27,6 +27,17 @@ dev = [
     "pytest",
     "pytest-asyncio",
 ]
+# Round-21: compound canonicalization via SapBERT embeddings. Pulls in
+# ~1.3 GB of ML deps (sentence-transformers + transformers + CPU-only
+# torch). Install with `pip install -e ".[sapbert]"` to enable the
+# embedding-based dedup path in src/graph/sapbert_embeddings.py. The
+# SapBERT model weights (~440 MB) download to ~/.cache/huggingface on
+# first use. Without this extra, InterventionNode's stable_id +
+# embedding fields stay None and canonicalization falls back to the
+# curated CODENAME_TO_INN + slug-based behavior.
+sapbert = [
+    "sentence-transformers>=2.5",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
