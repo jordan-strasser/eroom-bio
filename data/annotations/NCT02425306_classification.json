@@ -1,38 +1,121 @@
 {
   "nct_id": "NCT02425306",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial shows evidence of target engagement with CD4+ T cell responses observed across arms, ranging from 0-15 participants with highest response in Arm D (15 participants). This suggests the vaccine engaged the intended Class II MHC-restricted helper peptides. 2. PATHWAY MODULATION: The downstream biology shows mixed signals. While CD4+ T cell responses were generated (immunogenicity endpoint), the tumor infiltration data shows concerning decreases in both CD8 T cells (401 to 293 cells/mm2) and CD4 T cells (1202 to 1102 cells/mm2) from day 0 to day 22, suggesting the immune costimulation mechanism may not be effectively modulating the tumor microenvironment. 3. CLINICAL TRANSLATION: This was a Phase I safety/immunogenicity trial, so clinical efficacy endpoints were not the primary focus. The primary endpoint was safety and immunogenicity, with variable immunogenicity results across arms. 4. POPULATION EFFECTS: No subgroup findings were reported for differential responses. 5. CONFOUNDERS: The trial had slow accrual issues noted by investigators, and this was a dose-finding/safety study with multiple adjuvant combinations being tested.",
+  "reasoning": "1. TARGET ENGAGEMENT: Clear evidence of target engagement with CD4+ T cell responses observed across arms, ranging from 0 participants (arm A) to 15 participants (arm D). The vaccine successfully engaged its intended target of Class II MHC-restricted helper peptides to stimulate CD4+ responses. 2. PATHWAY MODULATION: Mixed evidence of downstream biology changes. While CD4+ T cell responses were generated (especially in arm D), tumor infiltration data shows concerning patterns - both CD4+ and CD8+ T cells in tumor tissue decreased from baseline to day 22 (CD8: 401\u2192293, CD4: 1202\u21921102 cells/mm2), suggesting the systemic immune activation may not have translated to enhanced tumor infiltration. 3. CLINICAL TRANSLATION: This was a Phase I safety/immunogenicity study, so clinical efficacy endpoints were not the primary focus. The primary endpoint was safety and immunogenicity, with variable success across arms. 4. POPULATION EFFECTS: Clear dose-response relationship across adjuvant combinations - arm D (6MHP + polyICLC + Montanide + cyclophosphamide) showed the strongest CD4+ response (15 participants), while simpler combinations showed progressively weaker responses. 5. CONFOUNDERS: This is a dose-escalation/combination-finding study with small sample size (48 total) and short duration (12.1 weeks). The sepsis event in the cyclophosphamide arm represents a safety concern but didn't prevent dosing.",
   "failure_modes": [
     {
-      "mode": "target_engaged_biology_not_moved",
-      "confidence": 0.7,
-      "evidence": "CD4+ T cell responses were generated (target engagement confirmed), but tumor infiltration of both CD4 and CD8 T cells decreased rather than increased, suggesting the immune costimulation mechanism did not effectively enhance anti-tumor immune response in the tumor microenvironment"
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Clear differential response across arms - arm D with full adjuvant combination showed strong CD4+ response (15 participants) while simpler combinations showed progressively weaker responses (arm A: 0, arm B: 2, arm C: 4 participants)"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "modulates_via",
-      "source_entity": "UNKNOWN",
-      "target_entity": "immune_costimulation",
-      "support": "weak_support",
-      "reasoning": "CD4+ T cell responses were observed, indicating some level of immune costimulation, but the magnitude was variable across arms and tumor infiltration data suggests limited biological impact"
+      "edge_type": "affects",
+      "source_entity": "6mhp",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_a_6mhp_montanide_isa_51",
+      "reasoning": "No CD4+ T cell responses observed in arm A - target engagement failed"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "montanide_isa_51",
+      "target_entity": "ENSG00000162711",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_a_6mhp_montanide_isa_51",
+      "reasoning": "No immune response in arm A suggests adjuvant didn't engage effectively"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "6mhp",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_6mhp_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Weak CD4+ response (2 participants) in arm B"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_6mhp_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Modest improvement over arm A but still weak response"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "6mhp",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_c_6mhp_polyiclc_montanide_isa_51",
+      "reasoning": "Moderate CD4+ response (4 participants) in arm C"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "polyiclc",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_c_6mhp_polyiclc_montanide_isa_51",
+      "reasoning": "PolyICLC addition improved response over simpler combinations"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "6mhp",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_d_6mhp_polyiclc_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Strong CD4+ response (15 participants) in arm D with full combination"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "polyiclc",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_d_6mhp_polyiclc_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Full combination achieved strongest immune response"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_d_6mhp_polyiclc_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Contributed to strongest response in combination"
     },
     {
       "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__melanoma",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
       "support": "weak_contradict",
-      "reasoning": "While systemic CD4+ T cell responses were generated, the decrease in tumor-infiltrating CD4 and CD8 T cells suggests the immune costimulation mechanism did not effectively enhance anti-tumor biology in the melanoma microenvironment"
+      "affecting_arm_id": "arm_d_6mhp_polyiclc_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Despite CD4+ activation, tumor infiltration decreased (CD4: 1202\u21921102, CD8: 401\u2192293 cells/mm2), suggesting systemic immune activation didn't translate to enhanced tumor biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_d_6mhp_polyiclc_montanide_isa_51_cyclophosphamide",
+      "reasoning": "Decreased tumor infiltration despite systemic immune activation suggests the biology didn't drive anti-tumor effect"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_melanoma",
       "target_entity": "melanoma",
-      "support": "ambiguous",
-      "reasoning": "This was a Phase I safety/immunogenicity trial with safety as primary endpoint. Safety was generally acceptable with limited treatment-related AEs, but this endpoint doesn't directly capture clinical benefit in melanoma"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was successfully measured across all arms with manageable toxicity profile"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Clear differential response across adjuvant combinations suggests population responds differently to various formulations"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Target entity is UNKNOWN in the resolved graph, making target engagement edge assessment impossible. Also, the decrease in tumor-infiltrating T cells despite systemic immune responses presents a complex mechanistic picture that may require expert interpretation of the immune costimulation pathway in the tumor microenvironment context."
+  "review_reason": "Complex multi-arm vaccine study with mixed signals - systemic immune activation achieved but tumor infiltration decreased. The disconnect between systemic CD4+ responses and local tumor biology requires expert interpretation of the immunological mechanisms."
 }

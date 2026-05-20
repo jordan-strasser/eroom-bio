@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT00462982",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether sunitinib engaged VEGFR, PDGFR, or KIT targets in CNS metastases. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream effects of kinase inhibition on angiogenesis or tumor growth suppression. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0/8 patients achieved objective response (0% CNS response rate). Only 3/8 patients achieved stable disease, while 2/8 had disease progression. 4. POPULATION EFFECTS: No meaningful subgroup analysis possible with only 8 patients total. 5. CONFOUNDERS: This was a very small single-arm Phase 2 study (N=8) that was likely underpowered to detect meaningful activity. The lack of any objective responses suggests either inadequate target engagement in the CNS compartment or that the mechanism is insufficient for this indication.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to confirm sunitinib engaged VEGFR/PDGFR/KIT targets in CNS metastases. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream kinase inhibition or angiogenesis effects. 3. CLINICAL TRANSLATION: Primary endpoint (CNS response rate) completely missed - 0/8 patients achieved objective response. Only 3/8 achieved stable disease, 2/8 progressed. 4. POPULATION EFFECTS: No subgroup analysis by biomarkers, only by response categories which are outcome-dependent. 5. CONFOUNDERS: Very small sample size (N=8) creates high risk of underpowering. Single-arm design with no control makes interpretation difficult. However, 0% response rate is definitively negative regardless of sample size.",
   "failure_modes": [
     {
       "mode": "underpowered",
       "confidence": 0.8,
-      "evidence": "Single-arm study with only 8 patients total, far below typical Phase 2 sample sizes needed to detect meaningful activity in oncology"
+      "evidence": "Sample size of only 8 patients is extremely small for detecting meaningful response rates in CNS metastases, where even active agents typically show modest response rates"
     },
     {
-      "mode": "biology_moved_endpoint_flat",
+      "mode": "wrong_population",
       "confidence": 0.6,
-      "evidence": "While no biomarker data confirms target engagement, sunitinib is a well-established multi-kinase inhibitor that likely engaged its targets systemically, but failed to produce any objective responses in CNS metastases"
+      "evidence": "CNS metastases represent a sanctuary site with blood-brain barrier limiting drug penetration - sunitinib may not achieve adequate CNS exposure despite systemic target engagement"
     }
   ],
   "edges_to_update": [
@@ -21,15 +21,23 @@
       "target_entity": "ENSG00000102755",
       "support": "ambiguous",
       "affecting_arm_id": "sunitinib",
-      "reasoning": "No biomarker data to confirm target engagement in CNS compartment, though sunitinib is known to engage VEGFR systemically"
+      "reasoning": "No target engagement data available; failed trial doesn't provide affirmative evidence of target binding"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102755",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "sunitinib",
+      "reasoning": "No pathway biomarker data to confirm kinase inhibition occurred"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
       "target_entity": "GO:0046777",
-      "support": "ambiguous",
+      "support": "weak_contradict",
       "affecting_arm_id": "sunitinib",
-      "reasoning": "No pathway biomarkers reported to assess whether kinase inhibition affected protein autophosphorylation in CNS metastases"
+      "reasoning": "Complete lack of clinical response suggests the mechanism-to-biology link failed, though confounded by small sample size and potential CNS penetration issues"
     },
     {
       "edge_type": "biology_drives",
@@ -37,7 +45,7 @@
       "target_entity": "kidney_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "sunitinib",
-      "reasoning": "Complete lack of objective responses (0/8) suggests that modulating protein autophosphorylation via kinase inhibition is insufficient to drive clinical benefit in CNS metastases from kidney cancer"
+      "reasoning": "0% response rate indicates this biology did not drive clinical benefit in CNS metastases, though sample size and blood-brain barrier issues are confounding factors"
     },
     {
       "edge_type": "endpoint_captures",
@@ -45,10 +53,18 @@
       "target_entity": "kidney_cancer",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "CNS response rate by RECIST is an appropriate endpoint for assessing benefit in brain metastases, though the trial was too small to be definitive"
+      "reasoning": "CNS response rate by RECIST is an appropriate endpoint for measuring benefit in brain metastases - the endpoint was measured and interpretable despite the negative result"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "kidney_cancer__unselected",
+      "target_entity": "kidney_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "0% response rate in CNS metastases population suggests poor response, though this may reflect CNS-specific challenges rather than general population non-response"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Very small sample size (N=8) makes it difficult to distinguish between true lack of efficacy versus underpowered study design. The complete absence of responses is concerning but could reflect inadequate CNS penetration rather than mechanism failure."
+  "review_reason": "Very small sample size (N=8) and single-arm design make mechanistic interpretation highly uncertain. CNS penetration issues may confound assessment of systemic target engagement and mechanism validity."
 }

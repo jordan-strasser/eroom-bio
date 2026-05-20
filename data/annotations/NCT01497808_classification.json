@@ -1,9 +1,90 @@
 {
   "nct_id": "NCT01497808",
   "trial_outcome": "success",
-  "reasoning": "This is a Phase I dose-escalation trial with a primary safety endpoint. Working through the causal chain: 1) TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement by ipilimumab, but this is an established mechanism for ipilimumab. 2) PATHWAY MODULATION: No pathway biomarkers reported to assess downstream immune activation. 3) CLINICAL TRANSLATION: Not applicable - this was a safety trial, not designed to assess efficacy. 4) POPULATION EFFECTS: No subgroup analyses reported. 5) CONFOUNDERS: None identified. The trial successfully met its primary endpoint of establishing safety - no DLTs were observed across all radiation dose levels tested. While 16.7% of patients experienced serious adverse events, these did not meet the definition of dose-limiting toxicity within the 30-day assessment window. The trial achieved its stated objective of determining tolerable radiation doses when combined with ipilimumab.",
+  "reasoning": "This is a Phase I dose-escalation trial testing the safety of ipilimumab plus hypofractionated radiotherapy in metastatic melanoma. Working through the causal chain: 1) TARGET ENGAGEMENT: No biomarker data reported, but ipilimumab is a well-established CTLA-4 inhibitor with known target engagement profile. 2) PATHWAY MODULATION: No pathway biomarkers reported to assess downstream immune activation. 3) CLINICAL TRANSLATION: The primary endpoint was dose-limiting toxicity (DLT), which was successfully met - no DLTs were observed across all four dose levels tested (6 Gy x2, 6 Gy x3, 8 Gy x2, 8 Gy x3). 4) POPULATION EFFECTS: No subgroup analyses reported. 5) CONFOUNDERS: This was a well-designed Phase I safety study with appropriate duration (30 days for DLT assessment). The trial successfully established that the combination is tolerable across the tested radiation dose levels, meeting its primary safety objective.",
   "failure_modes": [],
-  "edges_to_update": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_8_gy_x_2",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for target engagement - this is established from prior literature"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_8_gy_x_3",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for target engagement - this is established from prior literature"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_6_gy_x_2",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for target engagement - this is established from prior literature"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_6_gy_x_3",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for target engagement - this is established from prior literature"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_8_gy_x_2",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for mechanism - this is established from prior literature"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_8_gy_x_3",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for mechanism - this is established from prior literature"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_6_gy_x_2",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for mechanism - this is established from prior literature"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "ipilimumab_and_radiotherapy_6_gy_x_3",
+      "reasoning": "Safety trial success doesn't provide affirmative evidence for mechanism - this is established from prior literature"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "DLT endpoint successfully captured safety profile of the combination therapy in melanoma patients - primary safety endpoint was clearly met"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_metastatic",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Metastatic melanoma population tolerated the combination therapy well across all dose levels, suggesting this population can respond to this treatment approach, though this is a safety signal only"
+    }
+  ],
   "confidence_overall": 0.6,
   "needs_expert_review": false,
   "review_reason": null

@@ -1,24 +1,49 @@
 {
   "nct_id": "NCT01831726",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement. The compound is dovitinib (TKI258), a multi-targeted tyrosine kinase inhibitor, but no PK/PD data or target engagement biomarkers were reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological activity. 3. CLINICAL TRANSLATION: Primary endpoint was Clinical Benefit Rate (CBR) at 16 weeks. The trial achieved 11/80 patients (13.8%) CBR, with ORR of 1.25%, PFS of 2.4 months, and OS of 13.5 months. No p-values reported and no comparator arm, making it difficult to assess statistical significance, but these response rates appear low for most oncology indications. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a single-arm Phase 2 trial with no control group, making interpretation challenging. The serious adverse event rate was notable with multiple hematologic and GI toxicities, though individual SAE rates were relatively low (1.25-2.5% each).",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged its multiple RTK targets (FGFR3, etc.). Cannot assess target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream PI3K cascade modulation. Cannot assess pathway activity. 3. CLINICAL TRANSLATION: Primary endpoint CBR at 16 weeks was 13.8% (11/80 patients), which appears low for a clinical benefit rate. No p-value reported and no comparator arm, but this rate suggests limited clinical activity. Secondary endpoints also show minimal activity: ORR 1.25% (1/80), PFS 2.4 months, OS 13.5 months. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm design with no historical benchmark provided makes interpretation difficult. However, the very low response rates (CBR 13.8%, ORR 1.25%) suggest the drug had minimal activity regardless of study design limitations.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "No biomarker data for target engagement, no PK/PD data, no p-values reported, single-arm design with no historical control comparison provided, and unclear indication definition ('tumor pathway activations inhibited by dovitinib')"
+      "evidence": "Single-arm trial with no historical benchmark provided, no p-values reported, and no biomarker data to assess target engagement or pathway modulation. While low response rates suggest limited activity, the lack of comparator makes definitive failure classification difficult."
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-109704",
+      "target_entity": "tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "Very low clinical benefit rate (13.8%) and ORR (1.25%) suggest PI3K cascade modulation did not drive meaningful clinical benefit in this tumor population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-109704",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "Low clinical activity suggests kinase inhibition mechanism did not effectively modulate downstream PI3K cascade biology"
+    },
+    {
       "edge_type": "endpoint_captures",
-      "source_entity": "composite_response_tumor_pathway_activations_inhibited_by_dovitinib",
-      "target_entity": "tumor_pathway_activations_inhibited_by_dovitinib",
+      "source_entity": "composite_response_tumor",
+      "target_entity": "tumor",
       "support": "ambiguous",
-      "reasoning": "CBR of 13.8% and ORR of 1.25% were reported but without comparator or historical benchmarks, cannot determine if this translates to clinical benefit in this undefined indication"
+      "affecting_arm_id": null,
+      "reasoning": "CBR endpoint was measured but without historical benchmark or comparator, cannot assess whether 13.8% rate represents meaningful clinical benefit capture"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "tumor__unselected",
+      "target_entity": "tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Very low response rates (CBR 13.8%, ORR 1.25%) in unselected tumor population suggest this population does not respond well to dovitinib"
     }
   ],
-  "confidence_overall": 0.3,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Insufficient information to properly classify mechanistic failure - no target engagement data, no biomarkers, single-arm design, and poorly defined indication make it impossible to assess the causal chain adequately"
+  "review_reason": "Single-arm design with no historical benchmark makes it difficult to definitively classify as failure despite very low response rates. Expert review needed to determine if 13.8% CBR represents meaningful activity in this tumor context."
 }

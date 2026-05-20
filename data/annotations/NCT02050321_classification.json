@@ -1,21 +1,38 @@
 {
   "nct_id": "NCT02050321",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether the combination reached and modulated BRAF or retinoid receptors. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biological activity. 3. CLINICAL TRANSLATION: Primary endpoint (rate of cSCC development at 6 months) was not reported - no results available. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Critical trial design issue - only 2 patients enrolled, pharmaceutical company withdrew support. This represents a commercial decision that prevented any meaningful efficacy assessment.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to assess whether vemurafenib engaged BRAF or acitretin engaged RXRB. Cannot determine target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint was rate of cSCC development at 6 months, but no results are reported - only that the pharmaceutical company pulled support. No effect size or p-value available. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Major confounder is commercial decision - the pharmaceutical company withdrew support for the trial. Sample size was only 2 patients with 50% experiencing serious respiratory infection and elevated liver values, suggesting potential safety issues may have contributed to the withdrawal.",
   "failure_modes": [
     {
       "mode": "commercial_not_scientific",
       "confidence": 0.9,
-      "evidence": "Pharmaceutical company pulled support for the trial, resulting in only 2 patients enrolled and no efficacy data reported"
+      "evidence": "Pharmaceutical company pulled support for the trial as explicitly stated in investigator commentary"
     },
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "No biomarker data, no target engagement evidence, no primary endpoint results reported due to early termination"
+      "evidence": "No primary endpoint results reported, no effect size, no p-value - trial terminated before meaningful efficacy readout"
     }
   ],
-  "edges_to_update": [],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint of cSCC development rate was measured but no results reported due to early termination - cannot assess endpoint's ability to capture clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated early with only 2 patients enrolled - insufficient data to assess population response"
+    }
+  ],
   "confidence_overall": 0.3,
   "needs_expert_review": true,
-  "review_reason": "Trial terminated with only 2 patients enrolled due to sponsor withdrawal - insufficient data to assess any mechanistic edges or endpoint capture"
+  "review_reason": "Trial terminated early due to commercial decision with only 2 patients and no efficacy readout - very limited information for mechanistic classification"
 }

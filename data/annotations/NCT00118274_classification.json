@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT00118274",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - CD8+ T cell responses were measured by ELISpot assay across all arms, with effect sizes ranging from 8-32% showing successful immune activation against melanoma antigens. 2. PATHWAY MODULATION: Clear downstream biology changes - the vaccine successfully induced CD8+ T cell responses to melanoma peptides, confirming immune costimulation pathway activation. 3. CLINICAL TRANSLATION: Primary safety endpoint was met successfully with manageable dose-limiting toxicities (14 total across 170 participants, roughly 8% incidence). This was a Phase I safety trial, so the primary goal was establishing tolerability rather than efficacy. 4. POPULATION EFFECTS: No subgroup analyses reported, but all four arms showed successful CD8+ T cell responses. 5. CONFOUNDERS: No major trial design issues - adequate sample size (170 participants), appropriate duration (52 weeks), and clear safety readout.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - CD8+ T cell responses were measured by ELISpot assay across all arms, with effect sizes ranging from 8-32, indicating the vaccine successfully engaged melanoma-associated antigens and activated T cells. 2. PATHWAY MODULATION: Clear pathway modulation demonstrated - the immune costimulation mechanism was activated as evidenced by robust CD8+ T cell responses in all arms, confirming downstream biology moved as predicted. 3. CLINICAL TRANSLATION: Primary safety endpoint was met successfully with manageable dose-limiting toxicities (14 total across 170 participants, roughly 8% incidence). This was a Phase I safety trial, so the primary goal was establishing tolerability rather than efficacy. 4. POPULATION EFFECTS: No subgroup analysis reported, but all four arms showed successful outcomes for both safety and immunogenicity endpoints. 5. CONFOUNDERS: No major confounders identified - this was an appropriately designed dose-escalation safety study with adequate sample size and duration.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -10,7 +10,7 @@
       "target_entity": "ENSG00000185664",
       "support": "moderate_support",
       "affecting_arm_id": "arm_i",
-      "reasoning": "CD8+ T cell response of 32% demonstrates vaccine engagement with melanoma antigens"
+      "reasoning": "CD8+ T cell response of 32 in arm_i demonstrates vaccine engagement of melanoma antigens"
     },
     {
       "edge_type": "affects",
@@ -18,7 +18,7 @@
       "target_entity": "ENSG00000185664",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii",
-      "reasoning": "CD8+ T cell response of 29% demonstrates vaccine engagement with melanoma antigens"
+      "reasoning": "CD8+ T cell response of 29 in arm_ii demonstrates vaccine engagement of melanoma antigens"
     },
     {
       "edge_type": "affects",
@@ -26,7 +26,7 @@
       "target_entity": "ENSG00000185664",
       "support": "weak_support",
       "affecting_arm_id": "arm_iii",
-      "reasoning": "CD8+ T cell response of 8% shows modest vaccine engagement with melanoma antigens"
+      "reasoning": "CD8+ T cell response of 8 in arm_iii shows target engagement but lower magnitude"
     },
     {
       "edge_type": "affects",
@@ -34,7 +34,7 @@
       "target_entity": "ENSG00000185664",
       "support": "weak_support",
       "affecting_arm_id": "arm_iv",
-      "reasoning": "CD8+ T cell response of 12% shows modest vaccine engagement with melanoma antigens"
+      "reasoning": "CD8+ T cell response of 12 in arm_iv shows target engagement but lower magnitude"
     },
     {
       "edge_type": "modulates_via",
@@ -42,7 +42,7 @@
       "target_entity": "immune_costimulation",
       "support": "moderate_support",
       "affecting_arm_id": "arm_i",
-      "reasoning": "Strong CD8+ T cell response confirms immune costimulation pathway activation"
+      "reasoning": "Strong CD8+ T cell response confirms target acts via immune costimulation mechanism"
     },
     {
       "edge_type": "modulates_via",
@@ -50,7 +50,23 @@
       "target_entity": "immune_costimulation",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii",
-      "reasoning": "Strong CD8+ T cell response confirms immune costimulation pathway activation"
+      "reasoning": "Strong CD8+ T cell response confirms target acts via immune costimulation mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000185664",
+      "target_entity": "immune_costimulation",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_iii",
+      "reasoning": "Modest CD8+ T cell response supports target acting via immune costimulation"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000185664",
+      "target_entity": "immune_costimulation",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_iv",
+      "reasoning": "Modest CD8+ T cell response supports target acting via immune costimulation"
     },
     {
       "edge_type": "mechanism_affects",
@@ -58,7 +74,7 @@
       "target_entity": "R-HSA-9824585",
       "support": "moderate_support",
       "affecting_arm_id": "arm_i",
-      "reasoning": "CD8+ T cell activation against melanoma peptides demonstrates immune costimulation affecting melanoma-related biology"
+      "reasoning": "Immune costimulation mechanism successfully activated downstream melanoma-related biology"
     },
     {
       "edge_type": "mechanism_affects",
@@ -66,7 +82,23 @@
       "target_entity": "R-HSA-9824585",
       "support": "moderate_support",
       "affecting_arm_id": "arm_ii",
-      "reasoning": "CD8+ T cell activation against melanoma peptides demonstrates immune costimulation affecting melanoma-related biology"
+      "reasoning": "Immune costimulation mechanism successfully activated downstream melanoma-related biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_iii",
+      "reasoning": "Immune costimulation mechanism activated downstream biology but with lower magnitude"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_iv",
+      "reasoning": "Immune costimulation mechanism activated downstream biology but with lower magnitude"
     },
     {
       "edge_type": "endpoint_captures",
@@ -74,7 +106,15 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint successfully captured tolerability in melanoma patients with manageable toxicity profile"
+      "reasoning": "Safety endpoint was successfully met and is appropriate for Phase I melanoma vaccine trial"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected melanoma population responded well to vaccination with acceptable safety profile"
     }
   ],
   "confidence_overall": 0.8,

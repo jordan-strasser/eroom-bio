@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00670748",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - TCR-engineered cells demonstrated in vivo survival at 1 month post-treatment in all arms, confirmed by tetramer analysis and TCR staining. This confirms the engineered T cells successfully engaged their NY-ESO-1 target. 2. PATHWAY MODULATION: The biomarker data confirms downstream biology was modulated - in vivo survival of TCR-engineered cells indicates successful T cell activation and persistence, which is the intended biological mechanism. 3. CLINICAL TRANSLATION: Clinical endpoints showed positive results across multiple arms with objective responses (complete and partial responses) achieved in the majority of evaluable patients. Overall response rates were 53% (arm 1), 50% (arm 2), 29% (arm 3), and 60% (arm 4). 4. POPULATION EFFECTS: No specific subgroup analysis reported beyond response categories, but responses were seen across different cancer types (melanoma, renal cell cancer, other cancers). 5. CONFOUNDERS: This was a single-arm study with multiple treatment variations, making it difficult to isolate individual component contributions. However, the consistent target engagement and clinical responses across arms support the mechanistic hypothesis.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - TCR-engineered cells demonstrated in vivo survival at 1 month post-treatment in all arms, confirmed by tetramer analysis and TCR staining. This confirms the engineered T cells successfully engaged their NY-ESO-1 target. 2. PATHWAY MODULATION: The biomarker data confirms downstream biology was activated - in vivo survival of TCR-engineered cells indicates successful T cell activation and persistence, which is the intended biological mechanism. 3. CLINICAL TRANSLATION: Clinical endpoints showed positive results across multiple arms with overall response rates of 53% (arm 1), 50% (arm 2), 29% (arm 3), and 60% (arm 4). Complete and partial responses were observed across arms, demonstrating clinical benefit. 4. POPULATION EFFECTS: The trial showed activity across different cancer types (melanoma, renal cell cancer, other cancers) with some variation in response rates between arms. 5. CONFOUNDERS: While there were significant safety signals including treatment-related deaths (14.3%), hypoxia (46.7%), and other serious adverse events, these did not prevent the demonstration of efficacy. This appears to be a successful proof-of-concept for adoptive T cell therapy targeting NY-ESO-1.",
   "failure_modes": [
     {
-      "mode": "underpowered",
-      "confidence": 0.3,
-      "evidence": "Small sample size (N=45) across four arms limits statistical power, though objective responses were observed"
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "Significant safety signals including treatment-related death (14.3%), hypoxia (46.7%), colitis (14.3%), and other serious adverse events that may limit broader application despite demonstrated efficacy"
     }
   ],
   "edges_to_update": [
@@ -14,25 +14,81 @@
       "edge_type": "affects",
       "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
       "target_entity": "ENSG00000184033",
-      "support": "strong_support",
+      "support": "moderate_support",
       "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
-      "reasoning": "TCR-engineered cells demonstrated in vivo survival and target engagement confirmed by tetramer analysis"
+      "reasoning": "TCR-engineered cells demonstrated target engagement with clinical response in this arm (53% ORR)"
     },
     {
       "edge_type": "affects",
-      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
-      "target_entity": "ENSG00000184033",
-      "support": "strong_support",
-      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
-      "reasoning": "TCR-engineered cells demonstrated in vivo survival and target engagement confirmed by tetramer analysis"
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "IL-2 component contributed to successful T cell expansion and clinical response"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "Lymphodepletion component contributed to successful adoptive transfer"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "fludarabine_phosphate",
+      "target_entity": "ENSG00000101868",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
+      "reasoning": "Lymphodepletion component contributed to successful adoptive transfer"
     },
     {
       "edge_type": "affects",
       "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
       "target_entity": "ENSG00000184033",
       "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "TCR-engineered cells demonstrated target engagement with clinical response in this arm (50% ORR)"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "IL-2 component contributed to successful T cell expansion and clinical response"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "Lymphodepletion component contributed to successful adoptive transfer"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "fludarabine_phosphate",
+      "target_entity": "ENSG00000101868",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
+      "reasoning": "Lymphodepletion component contributed to successful adoptive transfer"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "anti_ny_eso_1_t_cell_receptor_pbl",
+      "target_entity": "ENSG00000184033",
+      "support": "weak_support",
       "affecting_arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
-      "reasoning": "Target engagement confirmed but lower response rate (29%) suggests reduced efficacy in this arm"
+      "reasoning": "TCR-engineered cells showed target engagement but lower response rate (29% ORR) in this arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "alvac_ny_eso_1_vaccine",
+      "target_entity": "ENSG00000184033",
+      "support": "weak_support",
+      "affecting_arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
+      "reasoning": "Vaccine component showed modest contribution to overall response"
     },
     {
       "edge_type": "affects",
@@ -40,39 +96,15 @@
       "target_entity": "ENSG00000184033",
       "support": "moderate_support",
       "affecting_arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
-      "reasoning": "Target engagement confirmed but mixed response pattern (no complete responses but partial responses achieved)"
+      "reasoning": "TCR-engineered cells demonstrated target engagement with good response rate (60% ORR) in this arm"
     },
     {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000184033",
-      "target_entity": "gene_editing",
-      "support": "strong_support",
-      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
-      "reasoning": "TCR engineering mechanism successfully modulated T cell recognition and function"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "ENSG00000184033",
-      "target_entity": "gene_editing",
-      "support": "strong_support",
-      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
-      "reasoning": "TCR engineering mechanism successfully modulated T cell recognition and function"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "gene_editing",
-      "target_entity": "gene_editing__melanoma",
+      "edge_type": "affects",
+      "source_entity": "alvac_ny_eso_1_vaccine",
+      "target_entity": "ENSG00000184033",
       "support": "moderate_support",
-      "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
-      "reasoning": "Gene editing mechanism translated to biological activity with 53% response rate"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "gene_editing",
-      "target_entity": "gene_editing__melanoma",
-      "support": "moderate_support",
-      "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
-      "reasoning": "Gene editing mechanism translated to biological activity with 50% response rate"
+      "affecting_arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
+      "reasoning": "Vaccine component contributed to highest response rate (60% ORR) in this arm"
     },
     {
       "edge_type": "biology_drives",
@@ -80,7 +112,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "1_anti_ny_eso_1_tcr_pbl_hd_il_2_mel_rcc",
-      "reasoning": "Engineered T cell biology drove clinical responses in melanoma patients"
+      "reasoning": "Gene editing approach demonstrated clinical benefit with 53% response rate"
     },
     {
       "edge_type": "biology_drives",
@@ -88,7 +120,23 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "2_anti_ny_eso_1_tcr_pbl_hd_il_2_otherca",
-      "reasoning": "Engineered T cell biology drove clinical responses in cancer patients"
+      "reasoning": "Gene editing approach demonstrated clinical benefit with 50% response rate"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "3eso1_tcr_pbl_alvac_eso1_hd_il2_mel_rcc",
+      "reasoning": "Gene editing approach showed clinical benefit but lower response rate (29%)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "gene_editing__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "4eso1_tcr_pbl_alvac_eso1_hd_il2_otherca",
+      "reasoning": "Gene editing approach demonstrated strong clinical benefit with 60% response rate"
     },
     {
       "edge_type": "endpoint_captures",
@@ -96,10 +144,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Complete response endpoint captured meaningful clinical benefit with durable responses observed across multiple arms"
+      "reasoning": "RECIST response criteria successfully captured clinical benefit across multiple arms with measurable complete and partial responses"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_metastatic",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Metastatic melanoma population demonstrated meaningful response rates across multiple treatment arms"
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.8,
   "needs_expert_review": false,
   "review_reason": null
 }

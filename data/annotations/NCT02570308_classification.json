@@ -1,49 +1,94 @@
 {
   "nct_id": "NCT02570308",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Anti-drug antibody formation in 16.7-66.7% of patients indicates the drug was present and immunogenic, suggesting target engagement. The bispecific nature targeting both gp100 and CD3 suggests the drug reached its intended targets. 2. PATHWAY MODULATION: While specific pathway biomarkers aren't reported, the mechanism of T-cell redirection via CD3 engagement would be expected to activate immune costimulation pathways. The safety profile with immune-related adverse events (pyrexia, transaminase elevation, hypoxia) is consistent with T-cell activation. 3. CLINICAL TRANSLATION: The trial met its primary endpoints with ORR of 15.8% in dose escalation and 4.7% in dose expansion phases. OS was notably strong at 29.6 months (dose escalation) and 16.8 months (dose expansion), which is meaningful for advanced uveal melanoma. PFS was 7.4 months (dose escalation) and 2.8 months (dose expansion). 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population showed clinical benefit. 5. CONFOUNDERS: This was a single-arm study without a control group, but the effect sizes, particularly for OS, appear clinically meaningful for this indication. The MTD of 68 mcg was established successfully.",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence of target engagement through anti-drug antibody formation in 16.7-66.7% of patients, indicating the bispecific antibody was recognized by the immune system and likely engaging its targets (gp100 and CD3). 2. PATHWAY MODULATION: While specific pathway biomarkers aren't reported, the mechanism of T-cell redirection via CD3 engagement appears to have functioned given the clinical responses observed. The safety profile (cytokine release syndrome, pyrexia, hypotension) is consistent with T-cell activation. 3. CLINICAL TRANSLATION: Both arms showed positive clinical outcomes - dose escalation arm achieved 15.8% ORR with 7.4 months PFS and 29.6 months OS, while dose expansion arm achieved 4.7% ORR with 2.8 months PFS and 16.8 months OS. The primary endpoint (ORR) was met in both phases. 4. POPULATION EFFECTS: No subgroup analyses reported, but the drug showed activity in the intended uveal melanoma population. 5. CONFOUNDERS: This was a dose-finding study that successfully established MTD at 68 mcg and demonstrated clinical activity. No major confounding factors identified.",
   "failure_modes": [
     {
-      "mode": "underpowered",
+      "mode": "wrong_timeframe",
       "confidence": 0.3,
-      "evidence": "Single-arm design without control group limits ability to definitively attribute benefit to drug, though OS results appear clinically meaningful for uveal melanoma"
+      "evidence": "PFS in expansion cohort was only 2.8 months (partial outcome), suggesting the treatment duration or measurement timing may not have been optimal for sustained disease control in the larger cohort"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "imcgp100",
       "target_entity": "ENSG00000185664",
       "support": "moderate_support",
-      "reasoning": "Anti-drug antibody formation in substantial proportion of patients indicates drug exposure and immunogenicity, suggesting target engagement, though direct binding data not provided"
+      "affecting_arm_id": "dose_escalation",
+      "reasoning": "Dose escalation arm showed strong clinical activity (15.8% ORR, 7.4 months PFS, 29.6 months OS) with evidence of target engagement via anti-drug antibody formation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "imcgp100",
+      "target_entity": "ENSG00000185664",
+      "support": "weak_support",
+      "affecting_arm_id": "dose_expansion",
+      "reasoning": "Dose expansion arm showed modest clinical activity (4.7% ORR, partial PFS response) with target engagement evidence, but lower effect sizes than escalation cohort"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000185664",
-      "target_entity": "immune_costimulation",
+      "target_entity": "antibody_dependent_cytotoxicity",
       "support": "moderate_support",
-      "reasoning": "Safety profile with immune-related AEs (pyrexia, transaminase elevation) consistent with T-cell activation via CD3 engagement and immune costimulation"
+      "affecting_arm_id": "dose_escalation",
+      "reasoning": "Strong clinical responses in dose escalation arm support the proposed mechanism of T-cell mediated tumor killing"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000185664",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "weak_support",
+      "affecting_arm_id": "dose_expansion",
+      "reasoning": "Modest clinical responses in dose expansion arm provide weaker support for the proposed mechanism"
     },
     {
       "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__uveal_melanoma",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "R-HSA-9824585",
       "support": "moderate_support",
-      "reasoning": "Clinical responses (ORR 4.7-15.8%) and survival benefit (OS 16.8-29.6 months) suggest immune costimulation mechanism is affecting biology in uveal melanoma"
+      "affecting_arm_id": "dose_escalation",
+      "reasoning": "Clinical activity in dose escalation arm suggests the T-cell mediated mechanism successfully affected downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "R-HSA-9824585",
+      "support": "weak_support",
+      "affecting_arm_id": "dose_expansion",
+      "reasoning": "Modest clinical activity in dose expansion arm provides weaker evidence for mechanism affecting downstream biology"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "immune_costimulation__uveal_melanoma",
-      "target_entity": "uveal_melanoma",
+      "source_entity": "R-HSA-9824585",
+      "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "Meaningful OS benefit (16.8-29.6 months) and objective responses suggest immune costimulation biology is driving clinical benefit in uveal melanoma"
+      "affecting_arm_id": "dose_escalation",
+      "reasoning": "Strong clinical outcomes in dose escalation arm (15.8% ORR, 29.6 months OS) support that modulating this biology drives clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9824585",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "dose_expansion",
+      "reasoning": "Modest clinical outcomes in dose expansion arm provide weaker evidence that this biology drives melanoma benefit"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "safety_uveal_melanoma",
-      "target_entity": "uveal_melanoma",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "MTD was successfully established at 68 mcg with manageable toxicity profile, allowing for therapeutic dosing and clinical benefit"
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was successfully measured and established MTD, capturing important clinical benefit information for this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "uveal_melanoma__histology_uveal",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Trial demonstrated clinical activity specifically in uveal melanoma population, with both arms showing positive responses"
     }
   ],
   "confidence_overall": 0.7,

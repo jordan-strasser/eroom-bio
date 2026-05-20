@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00520299",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence that ADI-PEG 20 engaged its intended target - plasma arginine was depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, confirming the drug reached and modulated arginine levels as intended. 2. PATHWAY MODULATION: Clear evidence of downstream biological activity - plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM by day 4-15, confirming the arginine deiminase pathway was activated. Early metabolic response by PET on day 4 in 7/31 patients further supports pathway engagement. 3. CLINICAL TRANSLATION: Complete failure at the clinical endpoint level - 0/31 patients achieved complete or partial response (ORR = 0% across all three cohorts). Some patients achieved stable disease (29% overall DCR), but this represents disease stabilization rather than tumor regression. 4. POPULATION EFFECTS: ASS-negative tumors showed no improved response versus ASS \u22645% positive tumors, contradicting the hypothesis that ASS-deficient tumors would be more sensitive to arginine depletion. 5. CONFOUNDERS: This was a dose-escalation Phase I study with only 31 patients total, which may be underpowered for efficacy assessment. However, the complete absence of objective responses across all dose levels suggests the issue is not statistical power but rather biological translation.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - arginine levels were depleted from baseline 49-62 \u03bcM to 2-9 \u03bcM by day 4, confirming ADI-PEG 20 successfully depleted its target substrate arginine. 2. PATHWAY MODULATION: Clear evidence of downstream pathway modulation - plasma citrulline increased from 23-38 \u03bcM to 158-280 \u03bcM by day 4-15, confirming the arginine deiminase mechanism was active and converting arginine to citrulline as expected. 3. CLINICAL TRANSLATION: Complete failure at clinical translation - 0/31 patients achieved complete or partial response across all three dose cohorts. Primary endpoint of clinical tumor response was not met. 4. POPULATION EFFECTS: ASS-negative tumors (the theoretically sensitive population) showed no improved response versus ASS \u22645% positive tumors, indicating the biomarker-defined population strategy failed. Some patients achieved stable disease (9/31, 29%) but no objective responses. 5. CONFOUNDERS: This was a dose-escalation Phase I study with adequate sample size (n=31) and appropriate duration (52 weeks). Safety was manageable with 3.2% grade 5 events. The failure appears mechanistic rather than due to trial design issues.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.8,
-      "evidence": "Clear target engagement (arginine depletion) and pathway modulation (citrulline increase, metabolic PET changes) but complete failure to achieve objective tumor responses (0% ORR). The biology moved as predicted but did not translate to clinical benefit."
+      "confidence": 0.9,
+      "evidence": "Clear target engagement (arginine depletion) and pathway modulation (citrulline increase) confirmed, but 0/31 patients achieved objective response. The mechanism worked biochemically but failed to translate to clinical benefit."
     }
   ],
   "edges_to_update": [
@@ -14,105 +14,113 @@
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "ENSG00000130707",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Target engagement confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "ENSG00000130707",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Target engagement confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "affects",
       "source_entity": "adi_peg_20",
       "target_entity": "ENSG00000130707",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Strong target engagement confirmed by arginine depletion from 49-62 \u03bcM to 2-9 \u03bcM"
+      "reasoning": "Target engagement confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000130707",
       "target_entity": "enzyme_inhibition",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
+      "reasoning": "Mechanism confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000130707",
       "target_entity": "enzyme_inhibition",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
+      "reasoning": "Mechanism confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000130707",
       "target_entity": "enzyme_inhibition",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Target modulation confirmed by downstream citrulline increase and metabolic PET changes"
+      "reasoning": "Mechanism confirmed in failed trial - not affirmative outcome evidence per round-15 rule"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "R-HSA-9956520",
-      "support": "moderate_support",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
+      "reasoning": "Pathway engaged but clinical endpoint failed - mechanism's downstream biology didn't translate to benefit"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "R-HSA-9956520",
-      "support": "moderate_support",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
+      "reasoning": "Pathway engaged but clinical endpoint failed - mechanism's downstream biology didn't translate to benefit"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "enzyme_inhibition",
       "target_entity": "R-HSA-9956520",
-      "support": "moderate_support",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Mechanism engaged biology as evidenced by metabolic changes, though clinical translation failed"
+      "reasoning": "Pathway engaged but clinical endpoint failed - mechanism's downstream biology didn't translate to benefit"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "R-HSA-9956520",
       "target_entity": "melanoma",
-      "support": "moderate_contradict",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_1",
-      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
+      "reasoning": "Biology was modulated but disease didn't respond - 0% ORR despite confirmed pathway engagement"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "R-HSA-9956520",
       "target_entity": "melanoma",
-      "support": "moderate_contradict",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_2",
-      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
+      "reasoning": "Biology was modulated but disease didn't respond - 0% ORR despite confirmed pathway engagement"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "R-HSA-9956520",
       "target_entity": "melanoma",
-      "support": "moderate_contradict",
+      "support": "weak_contradict",
       "affecting_arm_id": "cohort_3",
-      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma (0% ORR)"
+      "reasoning": "Biology was modulated but disease didn't respond - 0% ORR despite confirmed pathway engagement"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_neoplasm",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "ORR endpoint was measured but showed no clinical benefit translation (0% response rate), suggesting poor endpoint sensitivity or wrong indication"
+      "reasoning": "Primary endpoint measured but showed no clinical benefit translation - 0/31 responses with adequate power"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_metastatic",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with adequate power - 0% ORR across all dose cohorts in metastatic population"
     }
   ],
   "confidence_overall": 0.8,

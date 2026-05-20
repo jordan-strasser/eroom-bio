@@ -1,24 +1,118 @@
 {
   "nct_id": "NCT02302339",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: gpNMB expression correlation was investigated but results were not reported, making it impossible to confirm target engagement. This is a critical gap for an antibody-drug conjugate that requires target binding for efficacy. 2. PATHWAY MODULATION: No biomarker data reported to assess downstream pathway effects or antibody-dependent cytotoxicity activity. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) failed across all arms with low response rates: 11.3% monotherapy, 2.9% with varlilumab, 13.8% with PD-1 inhibitor, 0% with CDX-301. These are below historical benchmarks for advanced melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported to identify potential responders. 5. CONFOUNDERS: The trial was terminated and development discontinued due to safety concerns. Multiple serious adverse events were reported including hematologic toxicities (neutropenia 4.8%, anemia 3.2%) and cardiac events (acute coronary syndrome 3.4%, atrial fibrillation 3.4%). However, without control arm data and specific dose-limiting toxicity thresholds, it's unclear if toxicity alone prevented adequate dosing.",
+  "reasoning": "1. TARGET ENGAGEMENT: gpNMB expression correlation was investigated but results not reported. No clear evidence of target engagement provided. 2. PATHWAY MODULATION: No biomarker data reported to assess downstream pathway changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) failed across all arms - monotherapy 11.3%, combo with varlilumab 2.9%, combo with PD-1 inhibitor 13.8%, combo with CDX-301 0%. All arms missed clinically meaningful response rates. 4. POPULATION EFFECTS: No subgroup analyses reported. All arms performed poorly with no differential responses identified. 5. CONFOUNDERS: This was a single-arm multi-cohort study without controls, making interpretation challenging. However, the consistently low response rates across all arms (especially 0% in CDX-301 combo) suggest genuine lack of efficacy rather than trial design issues. Development was discontinued, indicating commercial/strategic decision following poor efficacy.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "Critical target engagement data (gpNMB expression correlation results) was investigated but not reported, making it impossible to assess whether the drug reached its intended target. No biomarker data available to assess pathway modulation."
+      "confidence": 0.7,
+      "evidence": "No target engagement data reported despite investigation of gpNMB expression correlation. No biomarker data to assess pathway modulation. Cannot determine where in the causal chain the failure occurred."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.6,
+      "evidence": "Development of glembatumumab vedotin was discontinued following this trial, suggesting strategic decision based on poor efficacy across multiple combination approaches."
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "ORR_refractory_melanoma",
+      "edge_type": "affects",
+      "source_entity": "glembatumumab_vedotin",
+      "target_entity": "ENSG00000136235",
+      "support": "ambiguous",
+      "affecting_arm_id": "glembatumumab_vedotin",
+      "reasoning": "Monotherapy arm failed with 11.3% ORR, but no target engagement data reported to assess binding"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8857538",
       "target_entity": "melanoma",
       "support": "weak_contradict",
-      "reasoning": "ORR results across all arms (0-13.8%) were below historical benchmarks for advanced melanoma, suggesting this endpoint measurement did not translate to meaningful clinical benefit in this indication"
+      "affecting_arm_id": "glembatumumab_vedotin",
+      "reasoning": "Monotherapy arm achieved only 11.3% ORR, well below clinically meaningful threshold"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "glembatumumab_vedotin",
+      "target_entity": "ENSG00000136235",
+      "support": "ambiguous",
+      "affecting_arm_id": "glembatumumab_vedotin_and_varlilumab",
+      "reasoning": "Combo arm failed with 2.9% ORR, but no target engagement data reported"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "varlilumab",
+      "target_entity": "ENSG00000139193",
+      "support": "weak_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_varlilumab",
+      "reasoning": "Combo arm with varlilumab achieved only 2.9% ORR, suggesting poor target engagement or downstream effects"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8857538",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_varlilumab",
+      "reasoning": "Combo arm achieved only 2.9% ORR, contradicting biology driving clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0160162",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_varlilumab",
+      "reasoning": "CD27 costimulation pathway did not drive clinical benefit in combo arm (2.9% ORR)"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "glembatumumab_vedotin_and_pd_1_targeted_checkpoint_inhibitor",
+      "target_entity": "CHEBI:35797",
+      "support": "ambiguous",
+      "affecting_arm_id": "glembatumumab_vedotin_and_pd_1_targeted_checkpoint_inhibitor",
+      "reasoning": "PD-1 combo arm achieved 13.8% ORR but no target engagement data reported"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "microtubule_binding__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_pd_1_targeted_checkpoint_inhibitor",
+      "reasoning": "PD-1 combo arm achieved only 13.8% ORR, below clinically meaningful threshold"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "glembatumumab_vedotin_and_cdx_301",
+      "target_entity": "CHEBI:35797",
+      "support": "weak_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_cdx_301",
+      "reasoning": "CDX-301 combo arm achieved 0% ORR, suggesting complete lack of target engagement or activity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "microtubule_binding__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "glembatumumab_vedotin_and_cdx_301",
+      "reasoning": "CDX-301 combo arm achieved 0% ORR, strongly contradicting biology driving clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit when achieved"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected melanoma population showed poor response across all treatment arms, with ORRs ranging from 0-13.8%"
     }
   ],
-  "confidence_overall": 0.4,
+  "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Critical target engagement data was collected but not reported, making mechanistic assessment impossible. Additionally, the relationship between reported safety events and dose-limiting toxicity cannot be determined without control arm data and specific MTD information."
+  "review_reason": "No target engagement or biomarker data reported despite investigation, making it difficult to determine precise failure mechanism. Multiple combination approaches all failed, suggesting fundamental issues with the therapeutic hypothesis."
 }

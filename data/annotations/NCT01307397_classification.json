@@ -1,49 +1,62 @@
 {
   "nct_id": "NCT01307397",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm BRAF target engagement, but the clinical activity (33.4% ORR) in metastatic melanoma suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but clinical efficacy suggests downstream biology was modulated. 3. CLINICAL TRANSLATION: Strong clinical translation with 33.4% ORR, 5.6 months PFS, and 12.1 months OS in metastatic melanoma - these are clinically meaningful outcomes. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a safety expansion study that also captured efficacy. The primary endpoint was safety/tolerability, which showed manageable toxicity profile with 52.8% Grade 3/4 AEs, 34% dose interruptions, and only 7% discontinuations. The dose intensity of 90.21% suggests adequate drug delivery despite toxicities.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data is available to confirm BRAF target engagement, but the clinical efficacy suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarker data is reported, but the clinical responses (ORR 33.4%, PFS 5.6 months, OS 12.1 months) suggest downstream MAPK pathway inhibition occurred. 3. CLINICAL TRANSLATION: Multiple efficacy endpoints showed positive results - ORR of 33.4% is clinically meaningful for metastatic melanoma, PFS of 5.6 months and OS of 12.1 months both represent clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population responded. 5. CONFOUNDERS: This appears to be a large safety expansion study (N=3219) with efficacy as secondary endpoints. The high rate of Grade 3/4 AEs (52.8%) and dose interruptions (34%) indicate significant toxicity, but the dose intensity remained high (90.21%) and discontinuation rate was manageable (7%).",
   "failure_modes": [
     {
       "mode": "dose_limiting_toxicity",
-      "confidence": 0.3,
-      "evidence": "While 52.8% experienced Grade 3/4 AEs and 34% had dose interruptions, only 7% discontinued and dose intensity remained high at 90.21%, suggesting toxicity was manageable rather than dose-limiting"
+      "confidence": 0.6,
+      "evidence": "52.8% experienced Grade 3/4 AEs with 34% requiring dose interruptions, though discontinuation rate was only 7% and dose intensity maintained at 90.21%"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "vemurafenib",
       "target_entity": "ENSG00000157764",
       "support": "moderate_support",
-      "reasoning": "No direct target engagement biomarkers, but clinical activity (33.4% ORR) in BRAF-mutant melanoma population strongly suggests BRAF binding occurred"
+      "affecting_arm_id": "vemurafenib",
+      "reasoning": "Clinical efficacy (ORR 33.4%, PFS 5.6 months, OS 12.1 months) suggests target engagement, though no direct biomarker confirmation"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000157764",
       "target_entity": "kinase_inhibition",
       "support": "moderate_support",
-      "reasoning": "Clinical efficacy consistent with BRAF kinase inhibition mechanism, though no direct pathway biomarkers reported"
+      "affecting_arm_id": "vemurafenib",
+      "reasoning": "Clinical responses consistent with BRAF kinase inhibition mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
-      "target_entity": "kinase_inhibition__malignant_melanoma",
-      "support": "strong_support",
-      "reasoning": "Strong clinical outcomes (33.4% ORR, 5.6m PFS, 12.1m OS) demonstrate kinase inhibition effectively modulated melanoma biology"
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "vemurafenib",
+      "reasoning": "Clinical efficacy suggests successful modulation of protein phosphorylation pathways downstream of BRAF"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "kinase_inhibition__malignant_melanoma",
-      "target_entity": "malignant_melanoma",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Robust clinical benefit across multiple endpoints (ORR, PFS, OS) confirms this biology drives the disease"
+      "affecting_arm_id": "vemurafenib",
+      "reasoning": "Multiple clinical endpoints (ORR 33.4%, PFS 5.6 months, OS 12.1 months) demonstrate that protein phosphorylation biology drives melanoma outcomes"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "safety_malignant_melanoma",
-      "target_entity": "malignant_melanoma",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Safety endpoint was primary and successfully characterized the tolerability profile, enabling continued dosing for clinical benefit"
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was comprehensively measured and captured the toxicity profile relevant to melanoma treatment decisions"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected melanoma population showed strong clinical responses across multiple endpoints (ORR 33.4%, PFS 5.6 months, OS 12.1 months)"
     }
   ],
   "confidence_overall": 0.7,

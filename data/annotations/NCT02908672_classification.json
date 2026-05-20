@@ -1,53 +1,139 @@
 {
   "nct_id": "NCT02908672",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - atezolizumab serum concentrations achieved expected levels, confirming PD-L1 checkpoint blockade was achieved. The triple combination also targets BRAF/MEK pathways through cobimetinib and vemurafenib. 2. PATHWAY MODULATION: While specific pathway biomarkers aren't detailed, the combination mechanism of checkpoint blockade plus MAPK pathway inhibition was designed to enhance anti-tumor immunity. The development of anti-drug antibodies (13.3%) suggests immune system engagement. 3. CLINICAL TRANSLATION: Primary endpoint was met with statistical significance - PFS improved from 10.6 to 15.1 months (HR 0.79, p=0.0224). OS also showed numerical improvement (25.8 to 39.0 months) though not statistically significant (p=0.1191). 4. POPULATION EFFECTS: No subgroup analyses reported, suggesting benefit was seen across the enrolled BRAF V600 mutation-positive melanoma population. 5. CONFOUNDERS: No major trial design issues. Safety profile was manageable with higher but expected SAE rates (50.9% vs 43%) for this triple combination.",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows atezolizumab achieved expected serum concentrations, confirming PD-L1 target engagement. For cobimetinib and vemurafenib, no specific PK data reported but these are established targeted agents with known pharmacology. 2. PATHWAY MODULATION: Limited biomarker data - only anti-drug antibody development reported (13.3%), which indicates immune system recognition of atezolizumab but doesn't directly confirm pathway modulation. No specific pathway biomarkers for checkpoint blockade or MAPK inhibition reported. 3. CLINICAL TRANSLATION: Primary endpoint clearly met - PFS significantly improved from 10.6 to 15.1 months (HR 0.79, p=0.0224). OS also showed numerical improvement (25.8 to 39.0 months) though not statistically significant (p=0.1191). 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess differential responses. 5. CONFOUNDERS: Well-controlled randomized trial with adequate duration (369 weeks). Safety profile shows increased AEs in combination arm but no dose-limiting toxicity that would prevent efficacy assessment.",
   "failure_modes": [],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "atezolizumab+cobimetinib+vemurafenib+vemurafenib_placebo",
+      "edge_type": "affects",
+      "source_entity": "atezolizumab",
       "target_entity": "ENSG00000120217",
-      "support": "strong_support",
-      "reasoning": "Atezolizumab serum concentrations achieved expected levels, confirming PD-L1 target engagement"
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Atezolizumab achieved expected serum concentrations and the combination arm showed significant PFS benefit, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cobimetinib",
+      "target_entity": "ENSG00000169032",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Combination arm with cobimetinib showed significant PFS benefit, supporting MEK target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vemurafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Combination arm with vemurafenib showed significant PFS benefit, supporting BRAF target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cobimetinib",
+      "target_entity": "ENSG00000169032",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_placebo_cobimetinib_vemurafenib",
+      "reasoning": "Control arm with cobimetinib also showed clinical benefit (PFS 10.6 months), supporting MEK target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vemurafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_placebo_cobimetinib_vemurafenib",
+      "reasoning": "Control arm with vemurafenib showed clinical benefit (PFS 10.6 months), supporting BRAF target engagement"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000120217",
       "target_entity": "checkpoint_blockade",
-      "support": "strong_support",
-      "reasoning": "PD-L1 target engagement confirmed and mechanism is well-established checkpoint blockade"
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "PD-L1 target engagement in successful combination arm supports checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169032",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "MEK target engagement in successful combination arm supports kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "BRAF target engagement in successful combination arm supports kinase inhibition mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__melanoma",
-      "support": "strong_support",
-      "reasoning": "Primary endpoint met with significant PFS improvement (HR 0.79, p=0.0224) demonstrating mechanism affects melanoma biology"
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Successful PFS outcome with atezolizumab supports checkpoint blockade affecting co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Successful PFS outcome with cobimetinib supports kinase inhibition affecting MAP2K/MAPK pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Successful PFS outcome with vemurafenib supports kinase inhibition affecting protein phosphorylation"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "checkpoint_blockade__melanoma",
+      "source_entity": "R-HSA-389948",
       "target_entity": "melanoma",
-      "support": "strong_support",
-      "reasoning": "Significant clinical benefit demonstrated in melanoma patients with PFS improvement and numerical OS benefit"
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Significant PFS improvement with checkpoint blockade supports co-inhibition pathway driving melanoma progression"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "checkpoint_blockade__melanoma",
-      "target_entity": "PFS_melanoma",
-      "support": "strong_support",
-      "reasoning": "PFS endpoint successfully captured the biological activity of checkpoint blockade in melanoma"
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Significant PFS improvement with MEK inhibition supports MAP2K/MAPK pathway driving melanoma progression"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "atezolizumab_cobimetinib_vemurafenib_vemurafenib_placebo",
+      "reasoning": "Significant PFS improvement with BRAF inhibition supports protein phosphorylation driving melanoma progression"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "PFS_melanoma",
       "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Primary PFS endpoint hit at p<0.05 with clinically meaningful effect size (HR 0.79) and supported by numerical OS improvement, demonstrating clinical benefit translation"
+      "affecting_arm_id": null,
+      "reasoning": "PFS is a well-established regulatory endpoint for melanoma that clearly captured clinical benefit in this trial"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with significant p-value (0.0224) and clinically meaningful effect size in BRAF-mutated melanoma population"
     }
   ],
-  "confidence_overall": 0.85,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

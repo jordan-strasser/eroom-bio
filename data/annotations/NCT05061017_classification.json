@@ -1,24 +1,126 @@
 {
   "nct_id": "NCT05061017",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No explicit target engagement data reported for either heparan sulfate proteoglycans (pixatimod target) or PD-1 (nivolumab target). CD8+ T-cell infiltrate changes were measured but results not provided. Without PK/PD data or biomarker confirmation, target engagement cannot be assessed. 2. PATHWAY MODULATION: No pathway biomarker data reported. The CD8+ T-cell infiltrate measurement could indicate immune activation but results are not provided. Cannot determine if downstream biology changed as predicted. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) completely failed - 0% response rate across all 13 patients with p=1.0. No complete or partial responses observed. 62% had progressive disease, 38% stable disease. This represents complete failure of clinical translation. 4. POPULATION EFFECTS: Small sample size (n=13) across multiple indications (melanoma, NSCLC, MSS CRC) prevents meaningful subgroup analysis. No differential responses reported. 5. CONFOUNDERS: Trial appears adequately powered for a phase I/II design. Multiple serious adverse events reported but no dose modifications mentioned, suggesting toxicity was manageable. The complete absence of any responses (0% ORR) in a checkpoint inhibitor combination suggests either no target engagement or fundamental mechanism failure.",
+  "reasoning": "1. TARGET ENGAGEMENT: No explicit target engagement data reported for pixatimod's interaction with heparan sulfate proteoglycans. For nivolumab, PD-1 engagement is well-established but not specifically confirmed in this trial. CD8+ T-cell infiltrate changes were measured but results not reported. 2. PATHWAY MODULATION: No biomarker data showing pathway changes downstream of either pixatimod's proposed heparan sulfate modulation or nivolumab's checkpoint blockade. The CD8+ infiltrate measurement could indicate immune activation but results are not provided. 3. CLINICAL TRANSLATION: Complete failure - 0% ORR across both arms (pixatimod+nivolumab and pixatimod+nivolumab+cyclophosphamide), with p=1.0. No partial or complete responses observed. 38% achieved stable disease, 62% had progressive disease. PFS and OS also failed. 4. POPULATION EFFECTS: No subgroup analyses reported showing differential responses. 5. CONFOUNDERS: Small sample size (N=13) suggests underpowered study. Multiple serious adverse events observed but no clear dose-limiting toxicity pattern that would prevent adequate dosing.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
+      "mode": "underpowered",
       "confidence": 0.8,
-      "evidence": "No target engagement biomarkers reported for either pixatimod (heparan sulfate proteoglycans) or nivolumab (PD-1). CD8+ T-cell infiltrate measured but results not provided. Cannot determine if failure was due to lack of target engagement, pathway modulation failure, or other factors."
+      "evidence": "Very small sample size of 13 patients across two arms makes it difficult to detect treatment effects, especially with 0% response rate"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "CD8+ T-cell infiltrate changes were measured suggesting some biological activity monitoring, but clinical endpoints completely failed with 0% ORR"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "ORR_refractory_melanoma",
-      "target_entity": "nsclc",
+      "edge_type": "affects",
+      "source_entity": "pixatimod",
+      "target_entity": "UNKNOWN",
       "support": "ambiguous",
-      "reasoning": "ORR was measured as primary endpoint but achieved 0% response rate. However, this was a small single-arm trial (n=13) across multiple indications, making it difficult to interpret whether the endpoint failure reflects poor drug efficacy or inadequate trial design for this endpoint-indication pairing."
+      "affecting_arm_id": "pixatimod_pg545_nivolumab",
+      "reasoning": "No target engagement data reported for pixatimod in failed trial"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab",
+      "reasoning": "PD-1 engagement not specifically confirmed in this failed trial"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab",
+      "reasoning": "Checkpoint blockade mechanism failed to produce clinical benefit in this combination"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab",
+      "reasoning": "PD-1 co-inhibition biology did not drive clinical benefit in this NSCLC population"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pixatimod",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "No target engagement data reported for pixatimod in failed combo arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "PD-1 engagement not specifically confirmed in this failed combo arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "DNA damage target engagement not confirmed in failed combo arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "Checkpoint blockade mechanism failed in triple combination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "DNA damage mechanism failed to contribute to clinical benefit in combo"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "PD-1 co-inhibition biology did not drive benefit in triple combo"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__non_small_cell_lung_cancer",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pixatimod_pg545_nivolumab_cyclophosphamide",
+      "reasoning": "DNA damage biology did not drive clinical benefit in this NSCLC population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "ORR was measured but completely failed with 0% response rate despite adequate trial duration"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__histology_non_small_cell",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This NSCLC population showed no response with 0% ORR and 62% progressive disease"
     }
   ],
-  "confidence_overall": 0.4,
+  "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Critical target engagement and pathway biomarker data missing. CD8+ T-cell infiltrate results not reported despite being measured. Complete absence of responses (0% ORR) in checkpoint inhibitor combination is unusual and warrants expert review to determine if this reflects mechanism failure or other factors."
+  "review_reason": "Very small sample size (N=13) makes it difficult to distinguish between true biological failure and underpowered study design. The complete lack of responses (0% ORR) is striking but could be due to inadequate sample size."
 }

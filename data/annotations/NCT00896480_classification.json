@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00896480",
-  "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with concentrations increasing from ~14 EL.U/mL to 8000-14000 EL.U/mL at week 13. 2. PATHWAY MODULATION: Clear evidence of downstream immune activation - CD4+ T-cell responses detected in 15/24 patients (62.5%) and CD8+ T-cell responses in 3/24 patients (12.5%), confirming immune system engagement. 3. CLINICAL TRANSLATION: Despite target engagement and immune activation, clinical endpoint failed - only 4/24 patients (16.7%) achieved objective response, well below typical efficacy thresholds for melanoma immunotherapy. 4. POPULATION EFFECTS: Strong subgroup effect observed - gene signature positive patients (GS+/+) showed 3/8 objective responses vs 1/8 for GS+/- and 0/8 for GS-, with median time to treatment failure of 14.8 months vs 2.3-2.4 months in other groups. 5. CONFOUNDERS: Single-arm design limits interpretation, but the clear subgroup stratification suggests the mechanism works in a biomarker-defined subset rather than the overall population.",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - anti-MAGE-A3 antibody seroconversion achieved in majority of patients with concentrations increasing from ~14 EL.U/mL to 8000-14000 EL.U/mL at week 13. 2. PATHWAY MODULATION: Immune pathway activation confirmed - CD4+ T-cell responses detected in 15/24 patients (62.5%) and CD8+ T-cell responses in 3/24 patients (12.5%), indicating immune costimulation pathway was engaged. 3. CLINICAL TRANSLATION: Primary endpoint missed - only 4/24 patients (16.7%) achieved objective response, well below typical efficacy thresholds for melanoma immunotherapy. However, this appears to be a biology-moved-endpoint-flat scenario where target engagement and pathway activation occurred but didn't translate to sufficient clinical benefit in the overall population. 4. POPULATION EFFECTS: Strong subgroup signal - gene signature positive patients (GS+/+) showed markedly better outcomes with 3/8 objective responses (37.5%) and median time to treatment failure of 14.8 months vs 2.3-2.4 months in other subgroups, suggesting efficacy in a biomarker-defined subset. 5. CONFOUNDERS: Single-arm design limits interpretation, but the clear subgroup differentiation and confirmed target engagement suggest the mechanism works in the right population.",
   "failure_modes": [
     {
       "mode": "efficacy_in_subgroup_only",
       "confidence": 0.8,
-      "evidence": "Gene signature positive patients (GS+/+) showed 37.5% response rate (3/8) and 14.8 month median time to treatment failure vs 12.5% (1/8) and 2.3 months for GS+/- and 0% (0/8) and 2.4 months for GS- patients"
+      "evidence": "Gene signature positive patients (GS+/+) showed 37.5% response rate (3/8) and 14.8 month median time to treatment failure vs 12.5% (1/8) and 2.3 months in GS+/- and 0% (0/8) and 2.4 months in GS- patients"
     }
   ],
   "edges_to_update": [
@@ -14,25 +14,25 @@
       "edge_type": "affects",
       "source_entity": "immunotherapeutic_gsk2132231a",
       "target_entity": "ENSG00000221867",
-      "support": "strong_support",
+      "support": "ambiguous",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "Anti-MAGE-A3 antibody seroconversion achieved in majority of patients with dramatic increase in antibody concentrations from baseline"
+      "reasoning": "Target engagement confirmed by antibody seroconversion, but in context of failed trial this doesn't constitute affirmative outcome evidence for binding"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000221867",
       "target_entity": "immune_costimulation",
-      "support": "moderate_support",
+      "support": "ambiguous",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "CD4+ T-cell responses in 62.5% of patients and CD8+ responses in 12.5% confirm immune system activation via MAGE-A3 targeting"
+      "reasoning": "Pathway activation confirmed by T-cell responses, but in context of failed trial this doesn't constitute affirmative outcome evidence for the mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "immune_costimulation",
       "target_entity": "immune_costimulation__melanoma",
-      "support": "moderate_support",
+      "support": "weak_support",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "T-cell responses detected and subgroup with gene signature showed clinical benefit, confirming mechanism can affect melanoma biology"
+      "reasoning": "Immune pathway was activated as evidenced by CD4+ and CD8+ T-cell responses, and there was clinical activity in the biomarker-positive subgroup"
     },
     {
       "edge_type": "biology_drives",
@@ -40,7 +40,7 @@
       "target_entity": "melanoma",
       "support": "weak_support",
       "affecting_arm_id": "gsk2132231a_group",
-      "reasoning": "Overall response rate was low (16.7%) but gene signature positive subgroup showed meaningful clinical benefit (37.5% response, 14.8 month median TTF)"
+      "reasoning": "Biology was engaged and drove clinical benefit in the gene signature positive subgroup, though not in the overall population"
     },
     {
       "edge_type": "endpoint_captures",
@@ -48,7 +48,15 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Objective response rate was measured and showed clear differentiation between biomarker-defined subgroups, suggesting it captures meaningful clinical benefit in the right population"
+      "reasoning": "Objective response rate was measured and showed clear differentiation between biomarker subgroups, demonstrating it captures clinical benefit when the mechanism works"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Overall population response rate of 16.7% was below efficacy threshold, but strong subgroup signal suggests the unselected population was not optimal"
     }
   ],
   "confidence_overall": 0.7,

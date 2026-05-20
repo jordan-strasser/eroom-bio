@@ -1,24 +1,33 @@
 {
   "nct_id": "NCT02054520",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement. The compound is HyperAcute-Melanoma immunotherapy plus checkpoint inhibitors, but no pharmacodynamic markers or immune activation biomarkers were reported. 2. PATHWAY MODULATION: No pathway biomarkers or immune response markers were measured to confirm downstream biological activity. 3. CLINICAL TRANSLATION: The trial was terminated due to withdrawal of IND before completion, making clinical efficacy assessment impossible. Response rates were reported across arms but without statistical analysis or completion of the study protocol. 4. POPULATION EFFECTS: No subgroup analyses were performed due to early termination. 5. CONFOUNDERS: The primary confounder is commercial/regulatory decision - the trial was terminated due to withdrawal of IND, which appears to be a regulatory/commercial decision rather than a safety or efficacy signal. While serious adverse events occurred, no dose-limiting toxicities were observed, and the safety profile doesn't appear to have driven the termination.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for either the HyperAcute-Melanoma immunotherapy or the checkpoint inhibitors. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream biological activity. 3. CLINICAL TRANSLATION: The trial was terminated due to withdrawal of IND before completion, preventing proper assessment of clinical endpoints. Response rates were reported but without statistical analysis or p-values. The effect sizes show mixed results across arms with no clear pattern of benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial was terminated early due to regulatory withdrawal of the IND, which is a major confounder preventing proper efficacy assessment. This appears to be a commercial/regulatory decision rather than a scientific failure.",
   "failure_modes": [
     {
       "mode": "commercial_not_scientific",
       "confidence": 0.8,
-      "evidence": "Trial was terminated due to withdrawal of IND, which is a regulatory/commercial decision rather than a scientific failure. No dose-limiting toxicities were observed despite serious adverse events."
+      "evidence": "Trial was terminated due to withdrawal of IND, which is a regulatory/commercial decision rather than a scientific failure based on efficacy or safety data"
     }
   ],
   "edges_to_update": [
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "safety_metastatic_melanoma",
-      "target_entity": "stage_iv_melanoma",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
       "support": "ambiguous",
-      "reasoning": "Safety endpoint was measured but trial terminated early due to IND withdrawal before full safety assessment could be completed. No dose-limiting toxicities observed but serious adverse events occurred across arms."
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was measured but trial terminated early, preventing full assessment of safety profile translation to clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__stage_iv",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated early preventing assessment of population response, though some response signals were observed across arms"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Trial terminated early due to IND withdrawal with limited efficacy data and no biomarker assessment. Classification relies primarily on regulatory termination rather than scientific evidence."
+  "review_reason": "Trial terminated early due to IND withdrawal before primary endpoint assessment could be completed, making mechanistic failure analysis difficult to determine"
 }

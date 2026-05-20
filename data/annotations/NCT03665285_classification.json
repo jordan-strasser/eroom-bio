@@ -1,16 +1,89 @@
 {
   "nct_id": "NCT03665285",
-  "trial_outcome": "success",
-  "reasoning": "This is a Phase 1 dose-escalation trial with safety and tolerability as the primary endpoint. Working through the causal chain: 1) TARGET ENGAGEMENT: No biomarker data available to assess target engagement. The target is listed as 'immune checkpoint' but the resolved target_id is UNKNOWN, indicating insufficient specificity. 2) PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biological changes. 3) CLINICAL TRANSLATION: The primary endpoint was safety and tolerability, which was met (primary_endpoint_met: true). This is appropriate for a Phase 1 trial. Some efficacy signals were observed (ORR of 1-2 patients in various dose cohorts, PFS of 5.72 months in 80mg cohort and 2.04 months in 400mg Q2W cohort) but these are secondary observations in a safety trial. 4) POPULATION EFFECTS: No subgroup analyses reported. 5) CONFOUNDERS: Multiple serious adverse events were reported including cardiac events (atrial fibrillation, cardiac tamponade, myocardial infarction, pericardial effusion) and other SAEs, but the trial met its primary safety endpoint, suggesting these were manageable within the context of advanced cancer patients. The dose range tested was broad (8mg to 1600mg) indicating dose escalation proceeded successfully.",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm NC318 engaged its intended immune checkpoint target. The target is listed as 'UNKNOWN' in the causal chains, indicating uncertainty about the specific checkpoint being targeted.\n\n2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether checkpoint blockade biology was activated downstream of target engagement.\n\n3. CLINICAL TRANSLATION: This was primarily a Phase 1 safety/dose-escalation trial with safety and tolerability as the primary endpoint, which was met (106/109 participants experienced TEAEs). Limited efficacy signals were observed: ORR of 1-2 responses across different dose cohorts, and PFS signals of 2.04-5.72 months in some arms. These represent modest partial responses rather than clear efficacy signals.\n\n4. POPULATION EFFECTS: No subgroup analyses reported to identify differential responses.\n\n5. CONFOUNDERS: This appears to be an appropriately designed Phase 1 dose-escalation study. The primary safety endpoint was met, but serious adverse events including cardiac events (atrial fibrillation, cardiac tamponade, MI, pericardial effusion) and deaths were reported, though specific incidence rates are not provided.",
   "failure_modes": [
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "No target engagement biomarkers, no pathway modulation data, and target identity is unclear (listed as 'immune checkpoint' but resolved as UNKNOWN). While the trial succeeded in its primary safety objective, mechanistic understanding is limited."
+      "evidence": "No target engagement or pathway biomarker data available. Unknown specific checkpoint target. Limited efficacy readout from a primarily safety-focused Phase 1 trial with modest partial responses."
     }
   ],
-  "edges_to_update": [],
-  "confidence_overall": 0.6,
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "nc318",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "nc318_8mg",
+      "reasoning": "No target engagement data available; modest ORR signal (1 response) provides limited evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nc318",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "nc318_400mg",
+      "reasoning": "No target engagement data available; modest ORR signal (1 response) provides limited evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nc318",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "nc318_400mg_q2w",
+      "reasoning": "No target engagement data available; modest signals (2 ORR responses, 2.04 month PFS) provide limited evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nc318",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "nc318_80mg",
+      "reasoning": "No target engagement data available; PFS signal of 5.72 months provides limited evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "checkpoint_blockade__solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": "nc318_80mg",
+      "reasoning": "PFS of 5.72 months suggests some biological activity consistent with checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "checkpoint_blockade__solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": "nc318_400mg_q2w",
+      "reasoning": "Modest ORR (2 responses) and PFS (2.04 months) suggest some biological activity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "checkpoint_blockade__solid_tumor",
+      "target_entity": "solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": "nc318_80mg",
+      "reasoning": "PFS signal of 5.72 months provides weak evidence that checkpoint blockade biology can drive clinical benefit in solid tumors"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_cholangiocarcinoma",
+      "target_entity": "solid_tumor",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary safety endpoint was successfully met (106/109 participants with TEAEs), demonstrating the endpoint captured the intended safety assessment"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "solid_tumor__extent_metastatic",
+      "target_entity": "solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Modest efficacy signals observed across dose levels suggest some response in metastatic solid tumor population, though limited by Phase 1 design"
+    }
+  ],
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "This Phase 1 trial succeeded in its primary safety endpoint but provides no mechanistic data for target engagement or pathway modulation. The target identity is unclear (UNKNOWN in resolved entities) and no biomarker data is available. Cannot assess mechanistic edges without this fundamental information."
+  "review_reason": "Phase 1 trial with unknown specific checkpoint target, no biomarker data, and limited efficacy readout. Serious cardiac adverse events reported but without specific incidence rates to assess dose-limiting toxicity."
 }

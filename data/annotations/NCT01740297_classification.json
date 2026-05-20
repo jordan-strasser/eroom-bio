@@ -1,32 +1,187 @@
 {
   "nct_id": "NCT01740297",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or the oncolytic viral mechanism. However, the combination showed superior efficacy to ipilimumab alone, suggesting both components contributed. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream immune activation or viral-mediated tumor lysis. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was met with statistical significance - 38.8% vs 18.0% (p=0.002, OR 2.9). The combination showed meaningful clinical benefit over ipilimumab monotherapy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Well-controlled trial with appropriate comparator. Safety profile was manageable with fatal AEs at 5.3% vs 1.1% in control, but this did not prevent completion of the study or require dose modifications.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either CTLA-4 or the oncolytic viral mechanism. However, both mechanisms have well-established engagement profiles from prior studies. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was met with strong statistical significance (p=0.002). Combination arm achieved 38.8% ORR vs 18.0% for ipilimumab monotherapy, representing a clinically meaningful improvement. Phase 1b combo arm showed even higher 52.6% ORR. Secondary endpoints (PFS, OS) showed numerical improvements favoring combination but were not statistically significant. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Well-designed randomized controlled trial with adequate sample size (n=217) and appropriate duration. Safety profile was manageable with expected immune-related adverse events.",
   "failure_modes": [],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "talimogene_laherparepvec",
+      "target_entity": "ENSG00000157873",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination arm achieved 52.6% ORR, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination arm achieved 52.6% ORR, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_ipilimumab",
+      "reasoning": "Ipilimumab monotherapy achieved 18% ORR, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "talimogene_laherparepvec",
+      "target_entity": "ENSG00000157873",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination arm achieved 38.8% ORR with p=0.002, strongly supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination arm achieved 38.8% ORR with p=0.002, strongly supporting target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157873",
+      "target_entity": "other",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports oncolytic viral mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_ipilimumab",
+      "reasoning": "Ipilimumab monotherapy success supports checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157873",
+      "target_entity": "other",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports oncolytic viral mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "R-HSA-5669034",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports oncolytic mechanism affecting TNF pathway"
+    },
+    {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__melanoma",
+      "target_entity": "R-HSA-389513",
       "support": "moderate_support",
-      "reasoning": "Combination therapy achieved significantly higher ORR than ipilimumab alone (38.8% vs 18.0%, p=0.002), suggesting enhanced checkpoint blockade biology through the addition of oncolytic viral therapy"
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports checkpoint blockade affecting CTLA4 pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_ipilimumab",
+      "reasoning": "Ipilimumab monotherapy success supports checkpoint blockade affecting CTLA4 pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "R-HSA-5669034",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports oncolytic mechanism affecting TNF pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports checkpoint blockade affecting CTLA4 pathway"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "checkpoint_blockade__melanoma",
+      "source_entity": "R-HSA-5669034",
       "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "The enhanced immune response from combination therapy translated to improved objective response rate in unresected melanoma patients"
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports TNF pathway driving melanoma response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1b_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 1b combination success supports CTLA4 pathway driving melanoma response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_ipilimumab",
+      "reasoning": "Ipilimumab monotherapy success supports CTLA4 pathway driving melanoma response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5669034",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports TNF pathway driving melanoma response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_talimogene_laherparepvec_ipilimumab",
+      "reasoning": "Phase 2 combination strong success supports CTLA4 pathway driving melanoma response"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_melanoma",
       "target_entity": "melanoma",
-      "support": "moderate_support",
-      "reasoning": "Primary ORR endpoint was achieved with statistical significance and clinically meaningful effect size (OR 2.9), demonstrating clinical benefit translation in melanoma"
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR endpoint hit with statistical significance (p=0.002) and clinically meaningful effect size, demonstrating clear clinical benefit translation"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful effect size in unselected melanoma population"
     }
   ],
-  "confidence_overall": 0.6,
-  "needs_expert_review": true,
-  "review_reason": "No biomarker data available to confirm target engagement or pathway modulation. Classification based solely on clinical endpoint results. Higher fatal AE rate (5.3% vs 1.1%) warrants expert assessment of benefit-risk profile."
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
 }

@@ -1,36 +1,118 @@
 {
   "nct_id": "NCT01307618",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial measured CD8+ T cell responses by ELISPOT as target engagement evidence, but the primary endpoint (frequency of vaccine-induced CD8+ T cells) was not met. This suggests limited or insufficient target engagement with the tumor antigens MAGE-3, MART-1, and NA17.A2. 2. PATHWAY MODULATION: While CD4+CD25+FoxP3+ regulatory T cells were monitored and gene expression profiles analyzed, the failure to achieve the primary immunological endpoint suggests the vaccine did not adequately modulate the intended immune pathways. 3. CLINICAL TRANSLATION: The trial showed poor clinical outcomes with PFS of only 130 days (vaccine alone) vs 64 days (vaccine + IL-12), indicating no clinical benefit. The addition of IL-12 actually worsened outcomes. 4. POPULATION EFFECTS: No subgroup findings were reported, and the small sample size (N=10) limits subgroup analysis. 5. CONFOUNDERS: The trial was terminated early due to lack of clinical efficacy and drug supply issues. There was a Grade 5 death in the IL-12 arm, and higher toxicity with IL-12 addition. The very small sample size (N=10) also represents a significant limitation.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial measured CD8+ T cell responses by ELISPOT as the primary endpoint, which directly assesses whether the vaccine antigens engaged their intended targets (tumor antigens). The primary endpoint was not met, suggesting limited target engagement. 2. PATHWAY MODULATION: While CD4+CD25+FoxP3+ regulatory T cells were monitored and gene expression profiles analyzed, no specific biomarker changes confirming downstream immune activation were reported. The lack of robust CD8+ T cell responses suggests the immune costimulation pathway was not adequately activated. 3. CLINICAL TRANSLATION: Both arms failed on PFS (130 days vaccine alone vs 64 days vaccine+IL-12), with the IL-12 combination actually performing worse. OS also failed in the vaccine+IL-12 arm (199 days). No clinical benefit was observed. 4. POPULATION EFFECTS: No subgroup analyses were reported, so differential responses cannot be assessed. 5. CONFOUNDERS: The trial was terminated early due to lack of clinical efficacy and drug supply issues. The sample size was very small (N=10), making it severely underpowered. Additionally, there was a Grade 5 death in the IL-12 arm, contributing to early termination.",
   "failure_modes": [
     {
-      "mode": "no_target_engagement",
-      "confidence": 0.8,
-      "evidence": "Primary endpoint of vaccine-induced CD8+ T cell frequency by ELISPOT was not met, indicating insufficient immune activation against the target tumor antigens"
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of only 10 patients is severely underpowered for detecting clinical efficacy in metastatic melanoma"
     },
     {
-      "mode": "underpowered",
+      "mode": "no_target_engagement",
       "confidence": 0.7,
-      "evidence": "Sample size of only 10 patients is extremely small for detecting treatment effects in cancer immunotherapy"
+      "evidence": "Primary endpoint of vaccine-induced CD8+ T cell responses by ELISPOT was not met, indicating insufficient immune activation against tumor antigens"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__recurrent_melanoma",
-      "support": "weak_contradict",
-      "reasoning": "The vaccine failed to induce adequate CD8+ T cell responses (primary endpoint missed) and showed poor clinical outcomes, suggesting immune costimulation mechanism was not effectively engaged"
+      "edge_type": "affects",
+      "source_entity": "na17_a2_peptide_vaccine",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "Primary endpoint of CD8+ T cell responses not met in vaccine-only arm, but severely underpowered study limits interpretation"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "immune_costimulation__recurrent_melanoma",
-      "target_entity": "biomarker_stage_iv_skin_melanoma",
+      "edge_type": "affects",
+      "source_entity": "mart_1_antigen",
+      "target_entity": "ENSG00000120215",
       "support": "ambiguous",
-      "reasoning": "While biomarker analysis was performed, the primary immunological endpoint was not met, making it unclear whether the biomarker adequately reflects the intended biology"
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "MART-1 antigen failed to induce adequate CD8+ T cell responses, but underpowered study design limits confidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "na17_a2_peptide_vaccine",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_ii_vaccine_therapy_il_12",
+      "reasoning": "Vaccine component in combination arm also failed to meet immunological endpoint"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "recombinant_interleukin_12",
+      "target_entity": "UNKNOWN",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_ii_vaccine_therapy_il_12",
+      "reasoning": "IL-12 addition worsened PFS (64 vs 130 days) and caused Grade 5 toxicity, suggesting negative contribution"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "immune_costimulation__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "Immune costimulation mechanism failed to produce clinical benefit in vaccine-only arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "R-HSA-9824585",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "MART-1 pathway failed to translate to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "immune_costimulation",
+      "target_entity": "immune_costimulation__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_ii_vaccine_therapy_il_12",
+      "reasoning": "Immune costimulation with IL-12 addition performed worse than vaccine alone"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "Immune costimulation biology failed to drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9824585",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_vaccine_therapy",
+      "reasoning": "MITF-M pathway regulation did not translate to melanoma clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "arm_ii_vaccine_therapy_il_12",
+      "reasoning": "IL-12 combination actually worsened outcomes, strongly contradicting the biology-drives-indication hypothesis"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "CD8+ T cell ELISPOT is a reasonable immunological biomarker for vaccine efficacy, though clinical translation was not achieved"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected metastatic melanoma population showed no clinical benefit from peptide vaccination approach"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Very small sample size (N=10), early termination due to drug supply issues, and Grade 5 death complicate the mechanistic interpretation. The failure could be due to insufficient target engagement, underpowering, or manufacturing/supply issues."
+  "review_reason": "Very small sample size (N=10) makes it difficult to distinguish between true mechanistic failure and underpowered study design. Early termination due to drug supply issues adds additional confounding factors."
 }

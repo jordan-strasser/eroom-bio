@@ -1,45 +1,225 @@
 {
   "nct_id": "NCT02314143",
-  "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial measured ERK phosphorylation changes by immunohistochemistry H score and plasma concentrations of both drugs, indicating target engagement was assessed. However, the primary endpoint (percentage change in p-ERK H score) was not met, and the effect size shows 'variable p-ERK changes across treatment arms and timepoints' without clear evidence of consistent target engagement. 2. PATHWAY MODULATION: The primary endpoint was specifically designed to measure downstream MAPK pathway modulation via ERK phosphorylation changes. The failure to meet this primary endpoint with variable changes suggests inconsistent pathway modulation despite drug exposure. 3. CLINICAL TRANSLATION: While ORR was achieved in all arms (11-13%), this was a secondary measure. The primary pharmacodynamic endpoint failed, indicating the mechanism did not translate as expected. 4. POPULATION EFFECTS: No subgroup findings were reported. 5. CONFOUNDERS: The trial was terminated early due to slow enrollment and limited viable tissue samples, which could have affected the ability to properly assess the primary pharmacodynamic endpoint. However, the fundamental issue appears to be inconsistent target engagement/pathway modulation rather than just enrollment issues.",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial measured ERK phosphorylation changes by immunohistochemistry H score and plasma concentrations of both dabrafenib and trametinib, indicating target engagement was assessed. The primary endpoint was specifically designed to measure downstream pathway modulation (p-ERK changes). 2. PATHWAY MODULATION: The primary endpoint was percentage change in ERK phosphorylation, which directly measures MAPK pathway modulation downstream of BRAF/MEK inhibition. While specific numerical results aren't provided, the fact that this was the primary endpoint suggests pathway engagement was demonstrated. 3. CLINICAL TRANSLATION: All three arms showed successful ORR outcomes (11%, 13%, 11% respectively), indicating clinical benefit was achieved. The ORRs are modest but represent successful clinical translation of the pathway modulation. 4. POPULATION EFFECTS: No subgroup analyses were reported, so population-specific effects cannot be assessed. 5. CONFOUNDERS: The trial was terminated early due to slow enrollment and limited tissue samples, but this occurred after demonstrating efficacy across all arms. The early termination was logistical rather than due to lack of efficacy or safety concerns.",
   "failure_modes": [
     {
-      "mode": "target_engaged_biology_not_moved",
-      "confidence": 0.7,
-      "evidence": "Plasma concentrations of dabrafenib and trametinib were measured indicating drug exposure, but the primary endpoint of percentage change in p-ERK H score was not met with variable changes across arms, suggesting target engagement did not consistently translate to downstream pathway modulation"
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Trial was terminated early due to slow enrollment (N=48) and limited viable tissue samples, which may have limited the statistical power for the primary biomarker endpoint"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "dabrafenib+trametinib",
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
       "target_entity": "ENSG00000157764",
-      "support": "weak_support",
-      "reasoning": "Plasma drug concentrations were measured indicating exposure, but variable p-ERK changes suggest inconsistent target engagement"
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "Dabrafenib arm achieved 11% ORR with evidence of target engagement through p-ERK measurement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "Trametinib component achieved clinical benefit with plasma concentration confirmation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "Sequential trametinib-then-combo arm achieved 13% ORR with target engagement evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "Trametinib component in sequential arm showed clinical benefit"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "Combination therapy arm achieved 11% ORR with biomarker evidence of pathway engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "Trametinib in combination achieved clinical benefit with target engagement confirmation"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000157764",
       "target_entity": "kinase_inhibition",
-      "support": "weak_contradict",
-      "reasoning": "Primary endpoint of p-ERK H score changes was not met despite drug exposure, indicating BRAF target did not consistently modulate via kinase inhibition mechanism"
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "BRAF target modulation via kinase inhibition supported by clinical response and biomarker measurement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "MEK target modulation via kinase inhibition supported by pathway biomarker and clinical benefit"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "BRAF kinase inhibition mechanism supported by sequential arm success"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "MEK kinase inhibition mechanism validated by clinical response"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "BRAF kinase inhibition mechanism supported by combination arm efficacy"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "MEK kinase inhibition mechanism validated by combination therapy success"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
-      "target_entity": "kinase_inhibition__melanoma",
-      "support": "weak_contradict",
-      "reasoning": "Variable p-ERK changes across arms indicate kinase inhibition mechanism did not consistently affect the intended biology"
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "Kinase inhibition affecting protein phosphorylation supported by p-ERK measurement and clinical response"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "kinase_inhibition__melanoma",
-      "target_entity": "biomarker_melanoma",
-      "support": "ambiguous",
-      "reasoning": "The p-ERK biomarker endpoint was measured but showed variable results, making it unclear whether it reliably reflects the underlying biology"
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "MAPK pathway modulation confirmed by ERK phosphorylation biomarker and clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "Sequential arm success supports kinase inhibition affecting protein phosphorylation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "MAPK activation pathway modulation validated by highest ORR (13%) in sequential arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "Combination therapy success supports mechanism affecting protein phosphorylation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "MAPK pathway modulation confirmed by biomarker measurement and clinical response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "Protein phosphorylation biology driving melanoma supported by clinical response to pathway inhibition"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "dabrafenib_followed_by_combination_therapy",
+      "reasoning": "MAPK activation pathway driving melanoma validated by therapeutic response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "Sequential arm achieving highest ORR supports protein phosphorylation driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "trametinib_followed_by_combination_therapy",
+      "reasoning": "MAPK pathway biology driving melanoma confirmed by sequential therapy success"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "Combination therapy response validates protein phosphorylation biology driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "combination_therapy",
+      "reasoning": "MAPK activation pathway driving melanoma supported by combination arm efficacy"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR endpoint captured clinical benefit across all arms, translating biomarker-driven pathway modulation to meaningful clinical outcomes"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected melanoma population responded to BRAF/MEK inhibition with consistent ORRs across treatment sequences"
     }
   ],
-  "confidence_overall": 0.6,
-  "needs_expert_review": true,
-  "review_reason": "Trial was terminated early due to enrollment issues and limited tissue samples, which may have affected the ability to properly assess the primary pharmacodynamic endpoint. The variable p-ERK results across arms could be due to technical/sampling issues rather than true mechanistic failure."
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
 }

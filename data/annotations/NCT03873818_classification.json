@@ -1,56 +1,102 @@
 {
   "nct_id": "NCT03873818",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4/PD-1 engagement, but both ipilimumab and pembrolizumab are established checkpoint inhibitors with known target binding profiles. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm immune checkpoint blockade activation. 3. CLINICAL TRANSLATION: Primary endpoint was met with 68.4% clinical benefit rate in PD-1 naive patients, which is clinically meaningful for melanoma with brain metastases. Multiple supportive endpoints (PFS 11.8 months, OS not reached) confirm clinical benefit. 4. POPULATION EFFECTS: Clear differential response - PD-1 naive patients had 68.4% CBR vs only 25% in PD-1 pretreated patients, with corresponding differences in PFS (11.8 vs 1.4 months) and OS (not reached vs 11.0 months). 5. CONFOUNDERS: Single-arm design limits interpretation, but the effect sizes are substantial and consistent across multiple endpoints in the naive population.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement, but the combination of ipilimumab (CTLA-4 inhibitor) and pembrolizumab (PD-1 inhibitor) are well-established checkpoint inhibitors with known mechanisms. 2. PATHWAY MODULATION: No pathway biomarkers reported, but checkpoint inhibition is a well-validated mechanism. 3. CLINICAL TRANSLATION: Primary endpoint (CBR in PD-1 naive patients) was met with 68.4% response rate. Multiple supportive endpoints showed success in the PD-1 naive subgroup: PFS 11.8 months and OS benefit. 4. POPULATION EFFECTS: Clear differential response between subgroups - PD-1 naive patients had much better outcomes (68.4% CBR, 11.8 month PFS) compared to PD-1 pretreated patients (25% CBR, 1.4 month PFS). This suggests the mechanism works optimally in checkpoint inhibitor-naive patients. 5. CONFOUNDERS: Small sample size (n=24) but clear signal, no major safety concerns that would limit dosing, appropriate duration (104.6 weeks).",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
-      "confidence": 0.3,
-      "evidence": "No biomarker data to confirm target engagement or pathway modulation, single-arm design limits comparative assessment"
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Strong efficacy in PD-1 naive patients (68.4% CBR, 11.8 month PFS) but limited efficacy in PD-1 pretreated patients (25% CBR, 1.4 month PFS), indicating the combination works best in checkpoint inhibitor-naive population"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "ipilimumab+pembrolizumab",
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
       "target_entity": "ENSG00000163599",
       "support": "moderate_support",
-      "reasoning": "No direct target engagement data, but established checkpoint inhibitors with known binding profiles showed clinical activity consistent with target engagement"
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Primary endpoint met in PD-1 naive subgroup with clinically meaningful effect size, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pembrolizumab",
+      "target_entity": "ENSG00000188389",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Primary endpoint met in PD-1 naive subgroup with clinically meaningful effect size, supporting target engagement"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000163599",
       "target_entity": "checkpoint_blockade",
       "support": "moderate_support",
-      "reasoning": "Clinical activity pattern consistent with checkpoint blockade mechanism, though no pathway biomarkers reported"
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Clinical success in PD-1 naive patients supports CTLA-4 acting via checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Clinical success in PD-1 naive patients supports PD-1 acting via checkpoint blockade mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__clinical_stage_iv_cutaneous_melanoma_ajcc_v8",
-      "support": "strong_support",
-      "reasoning": "68.4% CBR with 11.8 month PFS and OS not reached in naive patients demonstrates meaningful biological impact"
+      "target_entity": "R-HSA-389513",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Clinical benefit in PD-1 naive patients supports checkpoint blockade affecting CTLA-4 co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Clinical benefit in PD-1 naive patients supports checkpoint blockade affecting PD-1 co-inhibition pathway"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Strong clinical response in PD-1 naive patients supports CTLA-4 co-inhibition biology driving melanoma outcomes"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_ipilimumab_pembrolizumab",
+      "reasoning": "Strong clinical response in PD-1 naive patients supports PD-1 co-inhibition biology driving melanoma outcomes"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "composite_response_pathologic_stage_iv_cutaneous_melanoma_ajcc_v8",
-      "target_entity": "clinical_stage_iv_cutaneous_melanoma_ajcc_v8",
-      "support": "strong_support",
-      "reasoning": "CBR endpoint supported by concordant PFS and OS benefits, demonstrating clinical benefit translation in melanoma with brain metastases"
+      "source_entity": "composite_response_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint (CBR) was met and supported by concordant PFS and OS signals in the responding subgroup"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "clinical_stage_iv_cutaneous_melanoma_ajcc_v8__prior_tx_naive",
-      "target_entity": "clinical_stage_iv_cutaneous_melanoma_ajcc_v8",
+      "source_entity": "melanoma__prior_tx_naive",
+      "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "Clear differential response: 68.4% CBR in naive vs 25% in pretreated patients, with corresponding differences in PFS and OS"
+      "affecting_arm_id": null,
+      "reasoning": "Clear differential response between PD-1 naive (68.4% CBR, 11.8 month PFS) vs PD-1 pretreated patients (25% CBR, 1.4 month PFS)"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "clinical_stage_iv_cutaneous_melanoma_ajcc_v8__prior_tx_treated",
-      "target_entity": "clinical_stage_iv_cutaneous_melanoma_ajcc_v8",
-      "support": "weak_support",
-      "reasoning": "Limited response in pretreated population (25% CBR, 1.4 month PFS) but small sample size (n=4) limits interpretation"
+      "source_entity": "melanoma__prior_tx_treated",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PD-1 pretreated patients had limited response (25% CBR, 1.4 month PFS) compared to naive patients, suggesting this population responds poorly to dual checkpoint inhibition"
     }
   ],
   "confidence_overall": 0.7,
