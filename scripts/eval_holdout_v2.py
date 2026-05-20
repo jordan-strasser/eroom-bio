@@ -379,15 +379,53 @@ def _overlap_count(chain: dict, training_used: set[str]) -> int:
 def _resolve_label(
     extraction: dict, classification: dict | None,
 ) -> str | None:
+    """Resolve a trial's outcome label.
+
+    Round-16 refinement (mechanistic-efficacy framing): we predict
+    mechanistic success, so non-mechanistic failure modes are routed
+    to 'ambiguous' and dropped from binary scoring. A trial that
+    stopped for DLT, commercial reasons, was underpowered, or where
+    the classifier had insufficient_information is not a fair test of
+    the chain's prediction — those failures aren't predictable from
+    the mechanistic chain.
+
+    Returns 'success' / 'failure' / 'ambiguous' / None.
+    """
+    # Clean primary-endpoint readout is the strongest signal — trust it.
     met = (extraction.get("results") or {}).get("primary_endpoint_met")
+    classification = classification or {}
+    failure_modes = classification.get("failure_modes") or []
+    primary_failure_mode = (
+        failure_modes[0].get("mode") if failure_modes else ""
+    )
+
+    # Non-mechanistic failure modes get routed to ambiguous regardless
+    # of trial_outcome — the chain wasn't given a fair test.
+    _NON_MECHANISTIC_FAILURE_MODES = {
+        "insufficient_information",   # extractor couldn't pull clean efficacy data
+        "dose_limiting_toxicity",     # stopped for safety, no efficacy readout
+        "commercial_not_scientific",  # sponsor decision, not chain fault
+        "underpowered",               # trial design issue, not mechanism
+    }
+
     if met is True:
+        # Even a successful endpoint can be qualified by a non-mech
+        # caveat; trust the explicit met=True.
         return "success"
     if met is False:
+        # An explicit miss IS a failure, unless the classifier
+        # attributes it to non-mechanistic causes.
+        if primary_failure_mode in _NON_MECHANISTIC_FAILURE_MODES:
+            return "ambiguous"
         return "failure"
-    outcome = ((classification or {}).get("trial_outcome") or "").lower()
+
+    # met is None: fall back to classifier judgment.
+    outcome = (classification.get("trial_outcome") or "").lower()
     if outcome == "success":
         return "success"
     if outcome == "failure":
+        if primary_failure_mode in _NON_MECHANISTIC_FAILURE_MODES:
+            return "ambiguous"
         return "failure"
     if outcome in ("ambiguous", "partial", "mixed", "inconclusive"):
         return "ambiguous"
