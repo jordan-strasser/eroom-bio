@@ -2640,6 +2640,71 @@ class PopulationPipeline:
 
     # ── Trial subgraph construction ──────────────────────────────────────
 
+    def _slug_create_indication_node(self, condition: str) -> str:
+        """Round-22 fallback: create an IndicationNode from a raw CT.gov
+        condition string when LLM canonicalization didn't produce a
+        canonical mapping and the entity index has no match.
+
+        The slug-derived id will be redundant with whatever canonical
+        node a future canonicalization run produces for the same
+        condition — that redundancy is acceptable and addressable via
+        a later dedup pass (analogous to the round-21 SapBERT compound
+        consolidation). What's NOT acceptable is silently dropping
+        therapeutic trials because their condition wasn't pre-classified.
+
+        Indexes the raw + slug forms so subsequent trials with the same
+        wording resolve to this node instead of slug-creating another.
+        """
+        slug_id = normalize_entity(condition, "IndicationNode")
+        try:
+            self.graph.get_node(slug_id)
+        except KeyError:
+            self.graph.add_node(IndicationNode(
+                id=slug_id,
+                name=condition,
+                metadata={
+                    "source": "slug_fallback_no_canonicalization",
+                    "observed_variants": [condition],
+                },
+            ))
+        self._index_node(slug_id, slug_id, "indication")
+        self._index_node(slug_id, condition, "indication")
+        return slug_id
+
+    def _slug_create_endpoint_node(
+        self, measure: str, indication_id: str,
+    ) -> str:
+        """Round-22 fallback for endpoints. Same philosophy as
+        ``_slug_create_indication_node``: when LLM endpoint classification
+        didn't match a canonical EndpointClass for this measure, create
+        a measure-keyed node so the trial still gets a chain instead of
+        being silently dropped.
+
+        Id follows ``other_{measure_slug}_{indication}`` so it doesn't
+        collide with the curated ``{class}_{indication}`` namespace.
+        """
+        measure_slug = re.sub(r"[^a-z0-9]+", "_", measure.lower()).strip("_")[:60]
+        if not measure_slug:
+            measure_slug = "unspecified"
+        root_ind = _root_indication(indication_id)
+        ep_id = f"other_{measure_slug}_{root_ind}"
+        try:
+            self.graph.get_node(ep_id)
+        except KeyError:
+            self.graph.add_node(EndpointNode(
+                id=ep_id,
+                name=measure,
+                endpoint_type=EndpointType.PRIMARY,
+                regulatory_status=RegulatoryStatus.EXPLORATORY,
+                measurement_properties={
+                    "source": "slug_fallback_no_canonicalization",
+                    "raw_measure": measure,
+                    "indication_id": root_ind,
+                },
+            ))
+        self._index_node(ep_id, measure, "endpoint")
+        return ep_id
+
     def build_trial_subgraphs(
         self, trials: list[TrialRecord]
     ) -> list[TrialSubgraph]:
@@ -2664,12 +2729,23 @@ class PopulationPipeline:
                     indication_id = self.resolve_entity(cond, "indication")
                     if indication_id:
                         break
+            # Round-22: slug-create on miss. If LLM canonicalization +
+            # entity index lookup both failed for the trial's
+            # conditions, fall back to creating a slug-keyed
+            # IndicationNode from the first condition. Mirrors the
+            # UNKNOWN-allowed pattern for target/mechanism/biology
+            # (which never drop trials when they can't resolve). The
+            # only legitimate drop is conditions=[] entirely.
             if not indication_id:
-                _log_dropped_trial_subgraph(
-                    trial.nct_id, "no_indication",
-                    conditions=list(trial.conditions),
+                if not trial.conditions:
+                    _log_dropped_trial_subgraph(
+                        trial.nct_id, "no_conditions",
+                        conditions=[],
+                    )
+                    continue
+                indication_id = self._slug_create_indication_node(
+                    trial.conditions[0]
                 )
-                continue
 
             endpoint_id = None
             attempted_measures: list[str] = []
@@ -2678,13 +2754,19 @@ class PopulationPipeline:
                 endpoint_id = self.resolve_entity(om.measure, "endpoint")
                 if endpoint_id:
                     break
+            # Round-22: slug-create on miss. Same pattern as indication
+            # fallback above. Only legitimate drop is no primary
+            # outcomes at all.
             if not endpoint_id:
-                _log_dropped_trial_subgraph(
-                    trial.nct_id, "no_endpoint",
-                    indication_id=indication_id,
-                    primary_outcome_measures=attempted_measures,
+                if not trial.primary_outcomes:
+                    _log_dropped_trial_subgraph(
+                        trial.nct_id, "no_primary_outcomes",
+                        indication_id=indication_id,
+                    )
+                    continue
+                endpoint_id = self._slug_create_endpoint_node(
+                    trial.primary_outcomes[0].measure, indication_id,
                 )
-                continue
 
             seed_trial_node(self.graph, trial)
             arms = build_arms(trial, self.resolve_entity)
@@ -2828,16 +2910,20 @@ def build_arms(
         if iv.name and not is_drug_like(iv)
     }
 
-    # Round-20.5: arm_groups fallback. Older trials (e.g. NCT00134264
-    # ILLUMINATE torcetrapib, terminated 2006) sometimes have no
-    # arm_groups in the CT.gov v2 API response, even when the trial
-    # report itself was clearly multi-arm. Without a fallback, every
-    # such trial gets silently dropped by build_trial_subgraphs because
-    # arms becomes []. Synthesize one arm per drug-like intervention so
-    # the chain backbone can still resolve; the original trial-design
-    # ambiguity is logged via the dropped_trial_subgraphs log if any
-    # downstream step fails.
-    arm_groups_list = list(trial.arm_groups)
+    # Round-20.5 / 22: arm_groups fallback. Triggers when EITHER:
+    #   (a) trial.arm_groups is empty (NCT00134264 torcetrapib, older
+    #       terminated trials), OR
+    #   (b) every arm_group has intervention_names=[] (NCT00329160
+    #       rosuvastatin — CT.gov v2 returned arm_groups + drug
+    #       interventions but the linkage between them was missing)
+    # In both cases the trial has real drug-like interventions but
+    # build_arms produces nothing without the fallback.
+    has_any_arm_intervention_link = any(
+        ag.intervention_names for ag in trial.arm_groups
+    )
+    arm_groups_list = (
+        list(trial.arm_groups) if has_any_arm_intervention_link else []
+    )
     if not arm_groups_list and trial.interventions:
         from src.ingestion.clinicaltrials import ArmGroup
         drug_interventions = [

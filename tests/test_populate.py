@@ -160,17 +160,28 @@ class TestBuildTrialSubgraphs:
         assert chain.endpoint_id == "EP_001"
         assert sg.parent_population_id == "IND_001__unselected"
 
-    def test_skips_unresolvable_trial(self, pipeline):
+    def test_unresolvable_trial_still_built_via_slug_fallback(self, pipeline):
+        """Round-22: a trial whose conditions + outcomes don't match any
+        indexed canonical nodes is NOT dropped — slug-create fallbacks
+        produce IndicationNode + EndpointNode from the raw CT.gov text
+        so the chain backbone resolves. The OLD behavior (silent drop)
+        produced 14/50 silent losses in the n=50 multi_indication build."""
         trial = _make_trial()
-        # Nothing indexed → nothing resolves
         subgraphs = pipeline.build_trial_subgraphs([trial])
-        assert len(subgraphs) == 0
+        assert len(subgraphs) == 1
+        # Fallback nodes were created in the graph.
+        sg = subgraphs[0]
+        assert sg.chains[0].indication_id  # not None
+        assert sg.chains[0].endpoint_id    # not None
 
-    def test_skips_if_only_compound_resolves(self, pipeline):
+    def test_compound_only_indexed_still_builds_via_slug_fallback(self, pipeline):
+        """Round-22: indication + endpoint canonicalization both
+        missing — same fallback applies. Compound resolution is
+        independent (and already lenient via slug-creation)."""
         trial = _make_trial()
         pipeline._index_node("imatinib", "Imatinib", "compound")
         subgraphs = pipeline.build_trial_subgraphs([trial])
-        assert len(subgraphs) == 0
+        assert len(subgraphs) == 1
 
     def test_placeholder_ids_for_unresolved_backbone(self, pipeline, graph):
         # target/mechanism/biology start as UNKNOWN; subgroup populations
@@ -337,41 +348,121 @@ class TestDropLogVisibility:
             if line.strip()
         ]
 
-    def test_unmatched_indication_logged(
+    def test_unmatched_indication_slug_creates_node_not_dropped(
         self, pipeline, graph, _isolated_drop_log,
     ):
-        """A trial whose conditions don't canonicalize to any indexed
-        IndicationNode is dropped — and the drop is recorded with the
-        original condition strings so the diagnostic doesn't need a
-        re-fetch from CT.gov."""
-        trial = _make_trial(
-            conditions=["Fictional Unicorn Disease"],
+        """Round-22: a trial whose conditions don't canonicalize must
+        NOT be dropped — instead the populator slug-creates a fallback
+        IndicationNode from the raw condition text. Mirrors the
+        UNKNOWN-allowed pattern for target/mechanism/biology."""
+        graph.add_node(EndpointNode(
+            id="EP_001", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("EP_001", "Overall Survival", "endpoint")
+        trial = _make_trial(conditions=["Fictional Unicorn Disease"])
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert len(subgraphs) == 1
+        assert self._drop_log_entries(_isolated_drop_log) == []
+        new_ind_id = subgraphs[0].chains[0].indication_id
+        new_node = graph.get_node(new_ind_id)
+        assert new_node["name"] == "Fictional Unicorn Disease"
+        assert (
+            new_node.get("metadata", {}).get("source")
+            == "slug_fallback_no_canonicalization"
+        )
+
+    def test_unmatched_endpoint_slug_creates_node_not_dropped(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """Round-22: same fallback for endpoints. The torcetrapib-class
+        case (non-oncology primary outcomes like 'major cardiovascular
+        event' that don't match the curated EndpointClass enum) used to
+        silently drop. Now slug-creates a measure-keyed EndpointNode."""
+        graph.add_node(IndicationNode(id="IND_001", name="Chronic Myeloid Leukemia"))
+        pipeline._index_node("IND_001", "Chronic Myeloid Leukemia", "indication")
+        trial = _make_trial(outcome_measure="Major cardiovascular disease event")
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert len(subgraphs) == 1
+        assert self._drop_log_entries(_isolated_drop_log) == []
+        ep_id = subgraphs[0].chains[0].endpoint_id
+        ep_node = graph.get_node(ep_id)
+        assert ep_node["name"] == "Major cardiovascular disease event"
+        assert ep_id.startswith("other_")
+        assert (
+            ep_node.get("measurement_properties", {}).get("source")
+            == "slug_fallback_no_canonicalization"
+        )
+
+    def test_truly_empty_conditions_still_dropped(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """Round-22 drop boundary: only TRULY-no-data trials drop.
+        Empty conditions list is a legitimate drop (no slug input)."""
+        graph.add_node(EndpointNode(
+            id="EP_001", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("EP_001", "Overall Survival", "endpoint")
+        trial = TrialRecord(
+            nct_id="NCT_NO_COND", title="t", phase="3", status="COMPLETED",
+            conditions=[],
+            interventions=[Intervention(name="drug_x", type="DRUG")],
+            primary_outcomes=[OutcomeMeasure(measure="Overall Survival")],
+            enrollment=100, has_results=True, arm_groups=[],
         )
         subgraphs = pipeline.build_trial_subgraphs([trial])
         assert subgraphs == []
         entries = self._drop_log_entries(_isolated_drop_log)
         assert len(entries) == 1
-        assert entries[0]["nct_id"] == trial.nct_id
-        assert entries[0]["reason"] == "no_indication"
-        assert "Fictional Unicorn Disease" in entries[0]["details"]["conditions"]
+        assert entries[0]["reason"] == "no_conditions"
 
-    def test_unmatched_endpoint_logged(
+    def test_truly_empty_primary_outcomes_still_dropped(
         self, pipeline, graph, _isolated_drop_log,
     ):
-        """Indication resolves but the primary_outcome measure text isn't
-        in the endpoint index. Drop is logged with the attempted measures."""
+        """Same boundary for endpoints: no primary outcomes at all is a
+        legitimate drop."""
         graph.add_node(IndicationNode(id="IND_001", name="Chronic Myeloid Leukemia"))
         pipeline._index_node("IND_001", "Chronic Myeloid Leukemia", "indication")
-        # No EndpointNode / no endpoint index entry — endpoint resolution fails.
-        trial = _make_trial(outcome_measure="Exotic Cognitive Composite Score")
+        trial = TrialRecord(
+            nct_id="NCT_NO_OUT", title="t", phase="3", status="COMPLETED",
+            conditions=["Chronic Myeloid Leukemia"],
+            interventions=[Intervention(name="drug_x", type="DRUG")],
+            primary_outcomes=[],
+            enrollment=100, has_results=True, arm_groups=[],
+        )
         subgraphs = pipeline.build_trial_subgraphs([trial])
         assert subgraphs == []
         entries = self._drop_log_entries(_isolated_drop_log)
         assert len(entries) == 1
-        assert entries[0]["reason"] == "no_endpoint"
+        assert entries[0]["reason"] == "no_primary_outcomes"
+
+    def test_slug_created_indication_reused_across_trials(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """Idempotency: a slug-created IndicationNode is indexed under
+        the raw condition string, so a second trial with the same
+        condition reuses the existing node instead of slug-creating
+        another. Prevents duplicate-node proliferation in a batch."""
+        graph.add_node(EndpointNode(
+            id="EP_001", name="Overall Survival",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("EP_001", "Overall Survival", "endpoint")
+        trial_a = _make_trial(
+            nct_id="NCT_A", conditions=["Novel Disease X"],
+        )
+        trial_b = _make_trial(
+            nct_id="NCT_B", conditions=["Novel Disease X"],
+        )
+        subgraphs = pipeline.build_trial_subgraphs([trial_a, trial_b])
+        assert len(subgraphs) == 2
         assert (
-            "Exotic Cognitive Composite Score"
-            in entries[0]["details"]["primary_outcome_measures"]
+            subgraphs[0].chains[0].indication_id
+            == subgraphs[1].chains[0].indication_id
         )
 
     def test_empty_arm_groups_logged_with_specific_reason(
