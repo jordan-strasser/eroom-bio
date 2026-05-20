@@ -41,6 +41,64 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
 
+# Round-20 calibration: severity-weighted safety penalty.
+# The table maps the worst-observed CTCAE grade on an AE node to the
+# contribution that AE makes to the soft-or penalty. Grades come from
+# AdverseEventNode.severity_range, which the AE attribution step
+# accumulates across trials.
+_SEVERITY_GRADE_TO_WEIGHT: dict[int, float] = {
+    1: 0.05,   # Grade 1 — mild, asymptomatic
+    2: 0.05,   # Grade 2 — moderate, minimal intervention
+    3: 0.15,   # Grade 3 — severe but not life-threatening
+    4: 0.30,   # Grade 4 — life-threatening, urgent intervention
+    5: 0.50,   # Grade 5 — death related to AE
+}
+# Conservative default when the AE node has no severity_range observed.
+# Higher than grade 1-2 so a missing grade isn't free-pass safe; lower
+# than grade 3 so it doesn't over-penalize on absence of data.
+_UNKNOWN_GRADE_WEIGHT = 0.10
+
+
+def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
+    """Parse ``severity_range`` ('1,2,3-5' / 'any,3-4' / '') → max grade.
+
+    The attributor appends every observed grade or grade range to the
+    AE node as a comma-separated string. Each piece is either a single
+    integer ("3"), a range ("3-5"), or the literal "any" (ignored).
+    Returns the maximum integer observed, or None when nothing parsed.
+    """
+    if not severity_range:
+        return None
+    max_grade: int | None = None
+    for raw in severity_range.split(","):
+        token = raw.strip().lower()
+        if not token or token == "any":
+            continue
+        if "-" in token:
+            # "3-5" → 5 ; "Grade 3-4" → 4
+            tail = token.split("-")[-1]
+            try:
+                v = int(tail)
+            except ValueError:
+                continue
+        else:
+            try:
+                v = int(token)
+            except ValueError:
+                continue
+        if max_grade is None or v > max_grade:
+            max_grade = v
+    return max_grade
+
+
+def _ae_severity_weight(severity_range: str | None) -> float:
+    """Lookup the per-AE penalty weight from its severity_range field."""
+    grade = _max_grade_from_severity_range(severity_range)
+    if grade is None:
+        return _UNKNOWN_GRADE_WEIGHT
+    return _SEVERITY_GRADE_TO_WEIGHT.get(grade, _UNKNOWN_GRADE_WEIGHT)
+
+
 def _regimen_constituents(
     graph: GraphStore, compound_id: str,
 ) -> list[str]:
@@ -176,18 +234,39 @@ class SafetyRisk(BaseModel):
 
 
 class PredictionResult(BaseModel):
-    """Full prediction for a trial hypothesis."""
+    """Full prediction for a trial hypothesis.
+
+    Round-20: efficacy and safety are integrated into a single
+    ``overall_probability``. The torcetrapib audit (ILLUMINATE,
+    NCT00134264) exposed the v0.1.0 decoupling as wrong — the mechanism
+    chain worked (CETP inhibition raised HDL) but the trial failed for
+    off-target hypertension. Without folding safety into the headline
+    number, the system scored torcetrapib at modest success and missed
+    the actual failure mode.
+
+    ``overall_probability`` is now ``efficacy_probability * (1 -
+    safety_penalty)``. The breakdown is exposed so consumers can see
+    where the drag came from.
+    """
 
     trial_hypothesis: str
+    # Mechanism-only chain geomean (the round-15 trust-weighted
+    # aggregation). What ``overall_probability`` used to mean
+    # before round 20.
+    efficacy_probability: float
+    # [0, 0.4] subtractive — soft-or aggregation of compound-specific +
+    # target-class AE evidence. Capped to keep efficacy as the
+    # dominant signal; safety acts as a drag, not the whole story.
+    safety_penalty: float
     overall_probability: float
     ci_lower: float
     ci_upper: float
     edge_contributions: list[EdgeContribution]
     weakest_link: EdgeContribution | None
     n_samples: int
-    # Adverse-event risks the graph attaches to this compound or its
-    # target. Surfaced for the consumer; does NOT factor into
-    # ``overall_probability``—efficacy and safety are scored independently.
+    # Full list of AE risks (under the more inclusive display threshold)
+    # for introspection. The safety_penalty math uses a stricter
+    # threshold; see ``_compute_safety_penalty``.
     safety_risks: list[SafetyRisk] = Field(default_factory=list)
 
 
@@ -225,13 +304,13 @@ class PredictionEngine:
         # 3. Aggregate samples via trust-weighted geometric mean
         samples = _aggregate_samples(edge_samples, trust_weights)
 
-        # 4. Compute statistics
+        # 4. Compute statistics (mechanism-only — the "efficacy" view).
         if samples.size:
-            overall_prob = float(np.mean(samples))
+            efficacy_prob = float(np.mean(samples))
             ci_lower = float(np.percentile(samples, 2.5))
             ci_upper = float(np.percentile(samples, 97.5))
         else:
-            overall_prob, ci_lower, ci_upper = 0.5, 0.0, 1.0
+            efficacy_prob, ci_lower, ci_upper = 0.5, 0.0, 1.0
 
         # 5. Build edge contributions. Bottleneck score is
         #    (1 - E[p]) * trust: well-evidenced edges with low expected
@@ -276,8 +355,20 @@ class PredictionEngine:
 
         safety_risks = self._collect_safety_risks(chain)
 
+        # Round-20: integrate safety into the headline number. Penalty
+        # uses stricter thresholds than the display list, so a chain
+        # with a single Beta(1.4, 1) display-grade AE won't move
+        # overall_probability — only well-evidenced risks do.
+        safety_penalty = self._compute_safety_penalty(chain)
+        safety_factor = 1.0 - safety_penalty
+        overall_prob = efficacy_prob * safety_factor
+        ci_lower = ci_lower * safety_factor
+        ci_upper = ci_upper * safety_factor
+
         return PredictionResult(
             trial_hypothesis=hypothesis,
+            efficacy_probability=efficacy_prob,
+            safety_penalty=safety_penalty,
             overall_probability=overall_prob,
             ci_lower=ci_lower,
             ci_upper=ci_upper,
@@ -286,6 +377,109 @@ class PredictionEngine:
             n_samples=n_samples,
             safety_risks=safety_risks,
         )
+
+    # Round-20: safety penalty thresholds. Stricter than the display
+    # thresholds in _collect_safety_risks because the penalty math
+    # multiplies into the headline number — a Beta(1.4, 1) AE edge
+    # with min_belief 0.4 default shouldn't move overall_probability
+    # all by itself.
+    #
+    # min_belief MUST be strictly above 0.5 (the AMBIGUOUS bucket's
+    # equilibrium). Live n=50 audit showed nivolumab had 18 AE edges
+    # all sitting at exactly E[p]=0.500 because most AE attributions
+    # land in AMBIGUOUS (similar incidence across arms with no clear
+    # delta). Treating those as "drug causes AE" evidence saturated
+    # the penalty cap on every well-evidenced drug. 0.55 means an AE
+    # has to have observed delta or RR shifting the Beta mean above
+    # 0.5 — i.e. there's actual evidence the drug raises this AE's
+    # rate, not just that the AE was reported.
+    _SAFETY_PENALTY_MIN_BELIEF = 0.55
+    _SAFETY_PENALTY_MIN_EVIDENCE = 1.0
+    # Cap on the penalty's drag. 0.6 means efficacy can fall to at
+    # most 40% of its mechanism-only value. No drug is "guaranteed to
+    # fail purely on safety" — the chain still contributes the final
+    # 40%. Round-20 calibration after the first audit showed a 0.4 cap
+    # over-penalized well-evidenced drugs (nivolumab, bevacizumab) that
+    # had many manageable AEs; raising the cap while switching to a
+    # severity-weighted contribution (below) keeps the cap rarely hit.
+    _SAFETY_PENALTY_CAP = 0.60
+
+    def _compute_safety_penalty(
+        self,
+        chain: CausalChain,
+        *,
+        min_belief: float | None = None,
+        min_evidence: float | None = None,
+    ) -> float:
+        """Severity-weighted safety drag on mechanism-only P(success).
+        Round-20 calibration.
+
+        Each AE risk above the belief/evidence threshold contributes a
+        SEVERITY-based weight to a soft-or aggregation (see
+        ``_SEVERITY_GRADE_TO_WEIGHT``). Grade 1-2 AEs (manageable
+        rash, nausea, low-grade fatigue) contribute 0.05; grade 3
+        (serious but manageable) 0.15; grade 4 (life-threatening)
+        0.30; grade 5 (fatal) 0.50; unknown 0.10. AEs whose belief
+        is below threshold don't contribute at all.
+
+        The original belief × log(evidence) formulation over-penalized
+        well-evidenced drugs whose AE profile was mostly manageable —
+        nivolumab's many low-grade irAEs saturated the cap exactly as
+        if they were fatal. Severity weighting captures the real
+        clinical distinction: "this drug causes Grade 5 cardiac
+        events in 30% of patients" ≠ "this drug causes Grade 1 rash
+        in 60% of patients."
+
+        Aggregation: soft-or so multiple AEs accumulate with
+        diminishing returns; capped at ``_SAFETY_PENALTY_CAP`` so the
+        architecture stays efficacy-led even under extreme AE tails.
+
+        Reuses ``_collect_safety_risks`` retrieval (so both
+        ``causes_ae`` compound-level edges AND ``target_associated_ae``
+        target-class edges contribute).
+        """
+        mb = min_belief if min_belief is not None else self._SAFETY_PENALTY_MIN_BELIEF
+        me = (
+            min_evidence if min_evidence is not None
+            else self._SAFETY_PENALTY_MIN_EVIDENCE
+        )
+        risks = self._collect_safety_risks(
+            chain, min_belief=mb, min_evidence=me, max_risks=10_000,
+        )
+        if not risks:
+            return 0.0
+        contributions: list[float] = []
+        for r in risks:
+            try:
+                ae_node = self.graph.get_node(r.ae_id)
+            except KeyError:
+                severity_weight = _UNKNOWN_GRADE_WEIGHT
+            else:
+                severity_weight = _ae_severity_weight(
+                    ae_node.get("severity_range")
+                )
+            # Three-gate modulation. Severity sets the ceiling
+            # (manageable rash vs fatal cardiac event); belief_factor
+            # scales by how strongly the AE rate actually moved above
+            # the 0.5 "no info" point; trust_factor scales by how much
+            # evidence backs the belief. An AE must clear all three to
+            # drag the headline number meaningfully.
+            #
+            # Without belief × evidence weighting, target_class AE
+            # cross-pollination dominated — solanezumab failed for
+            # efficacy but hit the penalty cap from other compounds'
+            # AEs attributed to its target node. Three-gate modulation
+            # pulls those back down to commensurate magnitude.
+            belief_factor = (r.belief_probability - 0.5) / 0.5
+            belief_factor = max(0.0, min(1.0, belief_factor))
+            trust_factor = min(
+                1.0, math.log(r.evidence_strength + 1) / math.log(50),
+            )
+            contributions.append(severity_weight * belief_factor * trust_factor)
+        penalty = 1.0
+        for c in contributions:
+            penalty *= (1.0 - c)
+        return min(self._SAFETY_PENALTY_CAP, 1.0 - penalty)
 
     def _collect_safety_risks(
         self,
