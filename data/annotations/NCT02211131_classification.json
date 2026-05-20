@@ -1,35 +1,62 @@
 {
   "nct_id": "NCT02211131",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - 26.3% objective response rate in injected lesions vs 3.9% in uninjected lesions demonstrates the oncolytic virus is successfully infecting and lysing tumor cells at the injection site. 2. PATHWAY MODULATION: The mechanism appears to be working as intended - direct tumor cell killing is evidenced by the high pathological complete response rate (17.1% vs 2.7%, p=0.003), indicating the virus is successfully destroying tumor tissue. 3. CLINICAL TRANSLATION: Mixed results - the primary endpoint (RFS) missed significance (HR 0.75, p=0.07) but showed a favorable trend. However, overall survival was significantly improved (HR 0.54, p=0.050), suggesting clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported that would suggest differential responses. 5. CONFOUNDERS: The trial appears well-designed with adequate sample size (150 patients) and appropriate duration. Safety profile was acceptable with no dose-limiting toxicity issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with 26.3% objective response rate in injected lesions vs 3.9% in uninjected lesions, demonstrating the oncolytic virus is reaching and lysing tumor cells as intended. 2. PATHWAY MODULATION: The significant pathological complete response (pCR) rate of 17.1% vs 2.7% (p=0.003) indicates the downstream biology was successfully modulated - the virus induced tumor cell killing and likely immune activation. 3. CLINICAL TRANSLATION: Mixed results - the primary endpoint RFS missed significance (HR 0.75, p=0.07) but overall survival showed benefit (HR 0.54, p=0.05). The pCR endpoint strongly hit. 4. POPULATION EFFECTS: No subgroup analyses reported suggesting differential response patterns. 5. CONFOUNDERS: No major trial design issues - adequate sample size, appropriate comparator, reasonable duration. This represents a case where the mechanism worked biologically but didn't fully translate to the primary clinical endpoint, though secondary endpoints were positive.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.6,
-      "evidence": "Strong biological activity evidenced by 17.1% pathological complete response rate (p=0.003) and target engagement (26.3% response in injected lesions), but primary endpoint RFS missed significance (p=0.07) despite favorable trend"
+      "confidence": 0.7,
+      "evidence": "Strong target engagement (26.3% ORR in injected lesions) and significant pCR improvement (17.1% vs 2.7%, p=0.003) demonstrate the biology moved, but primary endpoint RFS missed significance (p=0.07)"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "talimogene_laherparepvec",
-      "target_entity": "UNKNOWN",
+      "target_entity": "ENSG00000157873",
       "support": "ambiguous",
-      "reasoning": "Target is listed as UNKNOWN in the graph entities, cannot assess binding relationship"
+      "affecting_arm_id": "talimogene_laherparepvec",
+      "reasoning": "Target engagement confirmed by 26.3% ORR in injected lesions, but in context of mixed primary endpoint results, this doesn't constitute affirmative outcome evidence for target binding"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157873",
+      "target_entity": "other",
+      "support": "ambiguous",
+      "affecting_arm_id": "talimogene_laherparepvec",
+      "reasoning": "Mechanism pathway engagement suggested by pCR results, but mixed primary endpoint prevents strong support classification"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "other",
-      "target_entity": "other__completely_resectable_stage_iiib_iiic_or_ivm1a_melanoma",
+      "target_entity": "R-HSA-5669034",
       "support": "moderate_support",
-      "reasoning": "Strong pathological complete response rate (17.1% vs 2.7%, p=0.003) demonstrates the oncolytic mechanism is effectively affecting tumor biology"
+      "affecting_arm_id": "talimogene_laherparepvec",
+      "reasoning": "Strong pCR signal (17.1% vs 2.7%, p=0.003) demonstrates the oncolytic mechanism successfully affected downstream biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5669034",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "talimogene_laherparepvec",
+      "reasoning": "Mixed signals - primary RFS missed (p=0.07) but OS benefit achieved (p=0.05) and strong pCR signal suggests biology has some disease impact"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "RFS_completely_resectable_stage_iiib_iiic_or_ivm1a_melanoma",
-      "target_entity": "completely_resectable_stage_iiib_iiic_or_ivm1a_melanoma",
+      "source_entity": "RFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "RFS missed significance despite clear biological activity (pCR benefit) and OS benefit, suggesting RFS may not optimally capture benefit from this oncolytic mechanism"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_resectable__stage_iii",
+      "target_entity": "melanoma",
       "support": "weak_support",
-      "reasoning": "Primary endpoint RFS showed favorable trend (HR 0.75) but missed significance (p=0.07), while OS was significantly improved (p=0.050), suggesting RFS may not fully capture clinical benefit in this setting"
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed but positive trend (HR 0.75, p=0.07) with significant OS benefit suggests this population has some response to treatment"
     }
   ],
   "confidence_overall": 0.7,

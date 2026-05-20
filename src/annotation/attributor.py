@@ -616,6 +616,16 @@ class AppliedEdgeUpdate(BaseModel):
 class Attributor:
     def __init__(self, graph: GraphStore) -> None:
         self.graph = graph
+        # Round-16 observability: per-call counters that the orchestrator
+        # can read after attribute() to decide whether the classifier's
+        # output landed cleanly on the trial subgraph or got dropped
+        # excessively (LLM hallucinated entities, schema mismatches,
+        # bad arm ids, etc.). The drop count is otherwise only visible
+        # as logged warnings, which means a build-level threshold
+        # ("abort if > 30% of classifier edges drop") couldn't be
+        # enforced without scraping the log.
+        self.last_attempted_updates: int = 0
+        self.last_dropped_updates: int = 0
 
     def attribute(
         self,
@@ -682,6 +692,12 @@ class Attributor:
         # all unsubscripted updates to one slot.
         applied_edges: set[tuple[str, str, str, str | None]] = set()
 
+        # Round-16: reset per-call counters. Orchestrator reads
+        # last_attempted_updates + last_dropped_updates after each
+        # attribute() call to enforce build-level drop thresholds.
+        self.last_attempted_updates = len(raw_edges)
+        self.last_dropped_updates = 0
+
         for item in raw_edges:
             edge_type_str = item.get("edge_type", "")
             # Round 3.3 renamed `binds_to` → `affects`. Cached classifier
@@ -694,9 +710,11 @@ class Attributor:
                 edge_type = EdgeType(edge_type_str)
             except ValueError:
                 logger.warning("Unknown edge type '%s', skipping", edge_type_str)
+                self.last_dropped_updates += 1
                 continue
             if edge_type in (EdgeType.COMPOSED_OF, EdgeType.SUBTYPE_OF):
                 # Structural edges aren't classifier-modulable.
+                self.last_dropped_updates += 1
                 continue
 
             support_str = item.get("support", "ambiguous")
@@ -724,6 +742,7 @@ class Attributor:
                         item.get("target_entity"),
                     )
                 _log_unrouted(trial.trial_id, item, reason=reason)
+                self.last_dropped_updates += 1
                 continue
 
             arm_tag = item.get("affecting_arm_id")

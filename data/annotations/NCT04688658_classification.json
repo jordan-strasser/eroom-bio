@@ -1,50 +1,102 @@
 {
   "nct_id": "NCT04688658",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: There is evidence of target engagement with biomarker changes showing increased cycling CD8+ T cells (2.86% at 15mg, 10.26% at 25mg) and changes in T cell populations, indicating both PI3K inhibition and PD-1 blockade were active. 2. PATHWAY MODULATION: The biomarker data shows downstream immune activation with increased cycling CD8+ cells and effector memory T cells, confirming pathway modulation occurred. 3. CLINICAL TRANSLATION: Despite target engagement and pathway modulation, clinical endpoints failed - ORR was only 20% in the 15mg arm and 0% in the 25mg arm, with poor PFS (2.8-3.0 months) across both doses. 4. POPULATION EFFECTS: No subgroup analyses reported to suggest differential responses. 5. CONFOUNDERS: The trial was severely limited by dose-limiting toxicity with 80% of patients experiencing grade 3+ treatment-related AEs, hepatic toxicity including hepatic failure (16.7%), transaminase elevations (85.7%), and two deaths in the 15mg arm. The sponsor discontinued support, likely due to the unfavorable risk-benefit profile.",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows target engagement for both compounds. CD8+ TIL frequency changes with cycling CD8 cells increasing 2.86% (15mg) and 10.26% (25mg) at week 4, indicating PD-1 pathway engagement. Total cycling CD8 (%Ki67+) increased, and TEM %CD8 increased, suggesting immune activation. The dose-dependent response in CD8 cycling suggests nivolumab engaged PD-1. For duvelisib, the biomarker changes in T-cell populations suggest PI3K pathway modulation occurred. 2. PATHWAY MODULATION: Downstream biology appears to have moved. The increases in cycling CD8+ T-cells and effector memory T-cells indicate immune checkpoint blockade pathway activation. The differential effects between doses suggest pathway engagement, though the biological response was modest. 3. CLINICAL TRANSLATION: Despite evidence of target engagement and pathway modulation, clinical endpoints failed. Primary endpoint ORR was 20% (15mg) and 0% (25mg), both missing efficacy thresholds. PFS was poor at 2.8 and 3.0 months respectively. OS showed some signal in the 15mg arm (13.5 months) but failed in the 25mg arm (4.9 months). 4. POPULATION EFFECTS: No subgroup analyses reported to assess differential responses. 5. CONFOUNDERS: Significant dose-limiting toxicity was observed with high rates of grade 3+ AEs (80% in both arms), hepatic toxicity including hepatic failure (16.7%), and elevated transaminases (85.7%). Two deaths occurred in the 15mg arm. The trial was discontinued by the sponsor. The combination appears to have engaged targets and moved biology but failed to translate to meaningful clinical benefit, with significant toxicity limiting therapeutic potential.",
   "failure_modes": [
     {
-      "mode": "dose_limiting_toxicity",
-      "confidence": 0.9,
-      "evidence": "High rate of grade 3+ treatment-related AEs (80% of patients), hepatic failure in 16.7%, transaminase elevations in 85.7%, serious AEs in 43% (15mg) and 17% (25mg), and two deaths in 15mg arm. Sponsor discontinued support."
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Biomarker data shows target engagement with increased cycling CD8+ T-cells and immune activation, but primary endpoint ORR failed (20% vs 0%) and PFS was poor (2.8-3.0 months)"
     },
     {
-      "mode": "biology_moved_endpoint_flat",
+      "mode": "dose_limiting_toxicity",
       "confidence": 0.7,
-      "evidence": "Clear biomarker evidence of immune activation (increased cycling CD8+ cells, effector memory T cells) but poor clinical outcomes with ORR 20%/0% and PFS 2.8-3.0 months across dose levels."
+      "evidence": "High rate of grade 3+ AEs (80% both arms), hepatic failure (16.7%), elevated transaminases (85.7%), two deaths in 15mg arm, and sponsor discontinuation due to toxicity profile"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "duvelisib+nivolumab",
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
       "target_entity": "ENSG00000188389",
-      "support": "moderate_support",
-      "reasoning": "Biomarker changes in CD8+ T cell populations confirm PD-1 pathway engagement, though PI3K-specific biomarkers not clearly reported"
+      "support": "ambiguous",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "CD8+ T-cell activation biomarkers suggest PD-1 engagement, but trial failed overall"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "duvelisib",
+      "target_entity": "ENSG00000105851",
+      "support": "ambiguous",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "T-cell population changes suggest PI3K pathway modulation, but trial failed overall"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000188389",
       "target_entity": "checkpoint_blockade",
-      "support": "moderate_support",
-      "reasoning": "Increased cycling CD8+ T cells and effector memory T cells demonstrate checkpoint blockade mechanism activation"
+      "support": "ambiguous",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "PD-1 target engaged in failed trial - not affirmative evidence for mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000105851",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "PI3K target engaged in failed trial - not affirmative evidence for mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__unresectable_melanoma",
-      "support": "weak_support",
-      "reasoning": "Immune biomarkers moved in expected direction but clinical benefit was minimal, suggesting mechanism engagement but limited therapeutic impact"
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "Biomarker evidence of immune activation but clinical endpoints failed, suggesting mechanism-to-biology translation was insufficient"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-9027276",
+      "support": "weak_contradict",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "PI3K pathway modulation evident but clinical benefit not achieved"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "Despite immune pathway activation, ORR failed (20%/0%) and PFS was poor (2.8-3.0 months)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-9027276",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "duvelisib_plus_nivolumab",
+      "reasoning": "PI3K pathway biology did not translate to clinical benefit in melanoma"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "safety_unresectable_melanoma",
-      "target_entity": "unresectable_melanoma",
-      "support": "strong_contradict",
-      "reasoning": "ORR of 20%/0% with severe toxicity profile including hepatic failure and deaths demonstrates poor clinical benefit translation in this indication"
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint clearly captured significant toxicity profile including hepatic failure and deaths"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_unresectable",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with adequate duration, no responding subgroup identified"
     }
   ],
-  "confidence_overall": 0.8,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

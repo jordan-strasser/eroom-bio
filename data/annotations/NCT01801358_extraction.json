@@ -1,0 +1,203 @@
+{
+  "nct_id": "NCT01801358",
+  "therapeutic_hypothesis": {
+    "compound": "AEB071 + MEK162",
+    "claimed_target": "PKC + MEK1/2",
+    "proposed_mechanism": "Dual inhibition of protein kinase C and MEK kinases",
+    "intended_biology": "Disruption of oncogenic signaling pathways in uveal melanoma",
+    "target_population": "Adult patients with metastatic uveal melanoma",
+    "primary_endpoint": "Phase Ib: Dose limiting toxicities; Phase II: Progression free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Median PFS ranged from 3.1 to 4.0 weeks across dose cohorts",
+    "p_value": null,
+    "target_engagement_evidence": "Pharmacokinetic data showed dose-proportional exposure for both compounds",
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "No complete or partial responses observed in any dose cohort",
+      "Best response was stable disease across all cohorts"
+    ],
+    "safety_signals": [
+      "Multiple dose-limiting toxicities including diarrhea, vomiting, nausea, fatigue",
+      "High incidence of serious adverse events across dose levels",
+      "Dermatitis acneiform observed as DLT at 200mg AEB071 + 45mg MEK162"
+    ],
+    "dose_info": {
+      "dose": "AEB071: 150-400 mg BID; MEK162: 30-45 mg BID",
+      "schedule": "twice daily continuous 28-day cycles",
+      "max_tolerated_dose": "Not determined - study terminated before MTD establishment",
+      "dose_modifications": "Study terminated prior to MTD determination due to enrollment halt"
+    },
+    "adverse_events": [
+      {
+        "term": "Blood creatinine increased",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnoea",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "General physical health deterioration",
+        "grade": "",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Malaise",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pulmonary embolism",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic uveal melanoma",
+    "comparator": "none",
+    "sample_size": 38,
+    "duration": "up to 18 months from Last Patient First Visit",
+    "duration_weeks": 78.3,
+    "investigator_commentary": "The trial was terminated for scientific reasons. Due to an enrollment halt, the Phase II part of the study was not conducted. The sponsor decided to permanently stop recruitment for the study prior to MTD determination."
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a",
+      "compounds": [
+        "AEB071",
+        "MEK162"
+      ]
+    },
+    {
+      "arm_id": "arm_b",
+      "compounds": [
+        "MEK162"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.6,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_a",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "BOR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_a",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "BOR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_a",
+      "subgroup_descriptor": "Stable Disease",
+      "endpoint": "BOR",
+      "effect_size": 23.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_a",
+      "subgroup_descriptor": "Progressive disease",
+      "endpoint": "BOR",
+      "effect_size": 11.0,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "aeb071",
+      "primary_compound_id": "mek162",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "PKC inhibition was hypothesized to enhance MEK inhibition through complementary pathway blockade",
+      "citation": "Due to an enrollment halt, the Phase II part of the study was not conducted. The sponsor decided to permanently stop recruitment for the study prior to MTD determination."
+    }
+  ]
+}

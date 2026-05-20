@@ -1,35 +1,62 @@
 {
   "nct_id": "NCT05457842",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: This is a fluorescent imaging agent for lymphatic tissue visualization. The trial achieved 100% lymph node detection rate and 100% histopathologic confirmation, indicating the compound successfully reached and visualized lymphatic tissue as intended. Plasma PK data shows appropriate systemic exposure (peak at 30 minutes, detectable through surgery). 2. PATHWAY MODULATION: The mechanism is fluorescent visualization rather than biological pathway modulation. The compound successfully accumulated in lymphatic tissue and provided visualization during surgery. 3. CLINICAL TRANSLATION: The clinical endpoint (lymph node detection and visualization) was achieved with 100% success rate. All detected tissue was confirmed as lymph node by histopathology. 4. POPULATION EFFECTS: Single patient study, no subgroup analysis possible. 5. CONFOUNDERS: This was terminated for commercial/strategic reasons according to investigator commentary, not for scientific failure. The compound demonstrated proof-of-concept efficacy.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial achieved 100% lymph node detection rate with histopathologic confirmation in 100% of identified tissue. Plasma concentration data shows the compound reached detectable levels (1.75 ng/mL peak at 30 minutes) and remained detectable throughout surgery, confirming the imaging agent reached its intended target tissue. 2. PATHWAY MODULATION: The compound successfully enabled fluorescent visualization of lymphatic drainage, as evidenced by the perfect detection rate. The pharmacokinetic profile supports adequate tissue penetration and retention for the intended imaging function. 3. CLINICAL TRANSLATION: Both primary endpoints (lymph node detection rate and histopathologic confirmation rate) achieved 100% success rates, demonstrating clear clinical utility for sentinel lymph node biopsy procedures. 4. POPULATION EFFECTS: Single-arm trial with n=1, so no population heterogeneity can be assessed. 5. CONFOUNDERS: This appears to be a proof-of-concept study that was terminated early due to company strategic decision rather than safety or efficacy concerns. The perfect technical performance suggests the mechanism works as intended.",
   "failure_modes": [
     {
       "mode": "commercial_not_scientific",
-      "confidence": 0.9,
-      "evidence": "Trial was terminated due to 'Company's strategic decision' despite achieving 100% lymph node detection and confirmation rates with no safety issues"
+      "confidence": 0.8,
+      "evidence": "Trial was terminated due to 'company's strategic decision' despite achieving 100% success on both primary endpoints, suggesting commercial rather than scientific reasons for discontinuation"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
+      "edge_type": "affects",
       "source_entity": "pudexacianinium_chloride",
       "target_entity": "UNKNOWN",
-      "support": "ambiguous",
-      "reasoning": "Target is listed as UNKNOWN - cannot assess binding relationship without target identification"
+      "support": "strong_support",
+      "affecting_arm_id": "asp5354_0_2_mg",
+      "reasoning": "100% lymph node detection with histopathologic confirmation and appropriate pharmacokinetic profile demonstrates clear target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "UNKNOWN",
+      "target_entity": "other",
+      "support": "strong_support",
+      "affecting_arm_id": "asp5354_0_2_mg",
+      "reasoning": "Perfect visualization performance confirms the fluorescent imaging mechanism worked as intended"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "other",
-      "target_entity": "other__sentinel_lymph_node_biopsy",
+      "target_entity": "other__sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease",
       "support": "strong_support",
-      "reasoning": "100% lymph node detection rate with 100% histopathologic confirmation demonstrates the fluorescent imaging mechanism successfully affects lymphatic tissue visualization"
+      "affecting_arm_id": "asp5354_0_2_mg",
+      "reasoning": "Fluorescent imaging mechanism successfully enabled lymphatic tissue visualization as measured by detection and confirmation rates"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "other__sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease",
+      "target_entity": "sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease",
+      "support": "strong_support",
+      "affecting_arm_id": "asp5354_0_2_mg",
+      "reasoning": "Lymphatic drainage visualization directly enables successful sentinel lymph node biopsy procedures"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "other_melanoma",
-      "target_entity": "sentinel_lymph_node_biopsy",
+      "target_entity": "sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease",
       "support": "strong_support",
-      "reasoning": "Lymph node detection endpoint directly captures the clinical benefit needed for sentinel lymph node biopsy procedures - 100% detection and confirmation rate demonstrates clear clinical utility"
+      "affecting_arm_id": null,
+      "reasoning": "Detection rate and histopathologic confirmation are direct measures of diagnostic procedure success"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease__unselected",
+      "target_entity": "sentinel_lymph_node_biopsy_is_not_a_disease_it_s_a_diagnostic_procedure_however_if_i_must_extract_a_base_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "100% success rate in the tested population demonstrates strong response to the imaging agent"
     }
   ],
   "confidence_overall": 0.8,

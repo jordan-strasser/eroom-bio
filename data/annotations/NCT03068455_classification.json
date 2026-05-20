@@ -1,42 +1,94 @@
 {
   "nct_id": "NCT03068455",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-1/CTLA-4 engagement, but both nivolumab and ipilimumab are established checkpoint inhibitors with known target binding profiles. Given the established mechanism of these drugs, target engagement is likely but not directly confirmed. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to confirm downstream immune activation or T-cell modulation. Cannot assess whether checkpoint blockade biology was activated. 3. CLINICAL TRANSLATION: Primary endpoint (RFS) failed with HR 0.90 (95% CI: 0.78-1.04), showing no significant benefit of combination over nivolumab monotherapy. Overall survival also showed no benefit (HR 1.03). 4. POPULATION EFFECTS: PD-L1 <1% subgroup showed numerical benefit (33.18 vs 25.33 months median RFS, HR 0.92) but still missed significance. PD-L1 \u22651% subgroup showed no median RFS reached in either arm, suggesting potential differential response patterns. 5. CONFOUNDERS: Large sample size (1844 patients) suggests adequate power. Higher SAE incidence in combination arm including cardiac events, but toxicity rates are low (<1% for most events) and unlikely to prevent adequate dosing. The failure appears to be lack of additional efficacy from dual checkpoint blockade over single agent in this adjuvant setting.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for either PD-1 or CTLA-4. Cannot determine if nivolumab engaged PDCD1 or if ipilimumab engaged CTLA4.\n\n2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether checkpoint blockade pathways were modulated downstream of target engagement.\n\n3. CLINICAL TRANSLATION: Primary endpoint (RFS) failed for the combination arm with HR 0.90 (95% CI: 0.78-1.04), indicating no significant improvement over nivolumab monotherapy. OS also failed with HR 1.03. The combination did not demonstrate clinical benefit.\n\n4. POPULATION EFFECTS: Subgroup analysis showed numerical benefit in PD-L1 <1% patients (33.18 vs 25.33 months median RFS, HR 0.92) but this was not statistically significant. PD-L1 \u22651% subgroup showed no median RFS reached in either arm, suggesting potential differential response by PD-L1 status.\n\n5. CONFOUNDERS: The trial appears adequately powered (n=1844) with appropriate duration (195.3 weeks). Higher toxicity in combination arm may have limited optimal dosing, but no specific dose-limiting toxicity threshold was reported.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.7,
-      "evidence": "Checkpoint blockade mechanism is established and likely engaged, but the combination failed to improve RFS over nivolumab monotherapy (HR 0.90, CI: 0.78-1.04). This suggests the biological pathway was activated but didn't translate to clinical benefit in the adjuvant melanoma setting."
+      "confidence": 0.6,
+      "evidence": "The combination showed numerical benefit in PD-L1 <1% subgroup (33.18 vs 25.33 months median RFS) suggesting some biological activity, but failed to reach statistical significance on the primary RFS endpoint (HR 0.90, 95% CI: 0.78-1.04)"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "ipilimumab+nivolumab",
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
       "target_entity": "ENSG00000188389",
-      "support": "moderate_support",
-      "reasoning": "While no direct target engagement biomarkers were reported, both nivolumab (PD-1) and ipilimumab (CTLA-4) are established checkpoint inhibitors with well-characterized binding profiles. The drugs were administered at standard doses over adequate duration."
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "No target engagement data available; combination arm failed but cannot determine if nivolumab engaged PD-1"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "No target engagement data available; combination arm failed but cannot determine if ipilimumab engaged CTLA-4"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "No pathway biomarker data to confirm PD-1 acts via checkpoint blockade in this failed trial"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "No pathway biomarker data to confirm CTLA-4 acts via checkpoint blockade in this failed trial"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__melanoma",
+      "target_entity": "R-HSA-389948",
       "support": "weak_contradict",
-      "reasoning": "The combination failed to improve outcomes over nivolumab monotherapy in adjuvant melanoma (RFS HR 0.90, not significant), suggesting that dual checkpoint blockade may not provide additional biological benefit in this setting compared to PD-1 blockade alone."
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination failed primary endpoint despite numerical benefit in subgroup, suggesting checkpoint blockade mechanism did not effectively modulate PD-1 co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination failed primary endpoint, suggesting checkpoint blockade mechanism did not effectively modulate CTLA-4 co-inhibition pathway"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "PD-1 co-inhibition pathway did not drive clinical benefit in melanoma as primary RFS endpoint failed"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "CTLA-4 co-inhibition pathway did not drive clinical benefit in melanoma as primary RFS endpoint failed"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "RFS_melanoma",
       "target_entity": "melanoma",
       "support": "moderate_support",
-      "reasoning": "RFS is a well-established endpoint for adjuvant melanoma therapy and is accepted by regulators as a meaningful clinical benefit measure. The endpoint was appropriately measured and reported with adequate follow-up duration."
+      "affecting_arm_id": null,
+      "reasoning": "RFS is a well-established endpoint for adjuvant melanoma trials and was measured appropriately with adequate follow-up duration"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "melanoma__cd274_low",
+      "source_entity": "melanoma__cd274_negative",
       "target_entity": "melanoma",
       "support": "weak_support",
-      "reasoning": "PD-L1 <1% subgroup showed numerical benefit with longer median RFS (33.18 vs 25.33 months) and HR 0.92, suggesting potential differential response in low PD-L1 expressing tumors, though not statistically significant."
+      "affecting_arm_id": null,
+      "reasoning": "PD-L1 <1% subgroup showed numerical benefit (33.18 vs 25.33 months median RFS, HR 0.92) suggesting differential response by PD-L1 status"
     }
   ],
   "confidence_overall": 0.6,

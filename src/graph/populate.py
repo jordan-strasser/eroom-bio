@@ -701,6 +701,43 @@ class PopulationPipeline:
         key = (_normalize(name), entity_type)
         self._entity_index[key] = node_id
 
+    def _annotate_compound_node_from_ot(
+        self, compound_id: str, drug_data: dict,
+    ) -> None:
+        """Persist OT-derived chembl_id + aliases onto an existing CompoundNode.
+
+        Round-15 fix for canonicalization: the OT drug-lookup result was
+        previously consumed only for diagnostic filtering and OT target
+        resolution, never written back to the compound node. Without this,
+        every dev-code form of a drug (MK-3475, GSK2118436, BMS-936558)
+        creates a fresh compound node instead of aliasing onto the
+        canonical name — splitting evidence across duplicate nodes.
+
+        Idempotent. Mutation goes through ``self.graph._graph.nodes[id]``
+        because ``GraphStore.get_node`` returns a dict copy.
+        """
+        try:
+            self.graph.get_node(compound_id)
+        except KeyError:
+            return
+        node = self.graph._graph.nodes[compound_id]  # noqa: SLF001
+        chembl_id = drug_data.get("chembl_id")
+        if chembl_id and not node.get("chembl_id"):
+            node["chembl_id"] = chembl_id
+        new_aliases = [a for a in (drug_data.get("aliases") or []) if a]
+        if new_aliases:
+            existing = list(node.get("aliases") or [])
+            seen = set(existing)
+            merged = list(existing)
+            for alias in new_aliases:
+                if alias not in seen:
+                    seen.add(alias)
+                    merged.append(alias)
+            if merged != existing:
+                node["aliases"] = merged
+            for alias in new_aliases:
+                self._index_node(compound_id, alias, "compound")
+
     # ── Main pipeline ────────────────────────────────────────────────────
 
     async def populate_oncology(
@@ -896,7 +933,19 @@ class PopulationPipeline:
                 # disease (stage III cutaneous melanoma is not the same as
                 # melanoma overall), and downstream prediction walks this
                 # edge to score population fit.
-                if qualifiers and not self.graph._graph.has_edge(  # noqa: SLF001
+                #
+                # Round-16 fix: drop the `qualifiers` guard. Without it,
+                # trials whose condition canonicalizes to plain
+                # "melanoma" (no stage/biomarker qualifiers — the
+                # majority) had NO responds_differently edge created
+                # for their parent_population_id = "melanoma__unselected".
+                # The round-16 always-emit classifier rule then sent
+                # responds_differently evidence to an edge that didn't
+                # exist, which the attributor silently dropped as
+                # "entity_not_in_trial". Now every (default_pop,
+                # indication) pair gets a structural edge so classifier
+                # emissions land somewhere.
+                if not self.graph._graph.has_edge(  # noqa: SLF001
                     default_pop_id, canonical_id,
                     key=EdgeType.RESPONDS_DIFFERENTLY.value,
                 ):
@@ -906,7 +955,8 @@ class PopulationPipeline:
                         edge_type=EdgeType.RESPONDS_DIFFERENTLY,
                         belief=EdgeBeliefState(alpha=1.5, beta=1.0),
                         metadata={
-                            "source": "indication_qualifiers",
+                            "source": "indication_qualifiers" if qualifiers
+                                else "default_unselected",
                             "raw_descriptor": cond,
                         },
                     ))
@@ -1128,19 +1178,32 @@ class PopulationPipeline:
                     # Resolve chembl_id. Try OT first (uses existing
                     # cache), then ChEMBL search-by-name as fallback.
                     chembl_id: str | None = None
+                    ot_data: dict | None = None
                     try:
                         ot_data = await self._ot_client.get_drug_with_targets(
                             canonical_name,
                         )
                         chembl_id = ot_data.get("chembl_id")
                     except KeyError:
+                        ot_data = None
                         chembl_id = None
                     except Exception:
                         logger.debug(
                             "OT lookup for diagnostic check failed: %s",
                             canonical_name, exc_info=True,
                         )
+                        ot_data = None
                         chembl_id = None
+                    # Persist whatever OT gave us onto the compound node
+                    # (chembl_id + external aliases). Idempotent — safe
+                    # on the second OT pass during _populate_compound_targets.
+                    if ot_data:
+                        cid_for_annotation = normalize_entity(
+                            canonical_name, "InterventionNode",
+                        )
+                        self._annotate_compound_node_from_ot(
+                            cid_for_annotation, ot_data,
+                        )
                     if not chembl_id:
                         chembl_id = await self._chembl_client.search_drug_by_name(
                             canonical_name,
@@ -1390,6 +1453,12 @@ class PopulationPipeline:
                             json.dumps(cache, indent=2, sort_keys=True)
                         )
 
+            # Round-15 canonicalization fix: persist chembl_id + external
+            # aliases from OT onto the CompoundNode. Idempotent — also
+            # called in _identify_diagnostic_compounds; this second call
+            # picks up any compounds that weren't filtered at that step.
+            self._annotate_compound_node_from_ot(cid, drug_data)
+
             target_ids: list[str] = []
             for t in drug_data.get("targets") or []:
                 ensembl = t.get("target_id")
@@ -1415,7 +1484,16 @@ class PopulationPipeline:
                         source_id=cid,
                         target_id=ensembl,
                         edge_type=EdgeType.AFFECTS,
-                        belief=EdgeBeliefState(alpha=4.0, beta=1.0),
+                        # Round-14 fix #4: rebalanced from Beta(4, 1)
+                        # → Beta(2, 1). Old prior had E[p]=0.80 baked in
+                        # for every OT-resolved compound-target pair —
+                        # successes barely budged it, failures couldn't
+                        # overcome it. Beta(2, 1) gives E[p]=0.67, which
+                        # is closer to the population base rate of
+                        # success for "drug binds target" claims and
+                        # leaves more room for evidence to move the
+                        # posterior in either direction.
+                        belief=EdgeBeliefState(alpha=2.0, beta=1.0),
                         metadata={
                             "source": "opentargets",
                             "drug_chembl_id": drug_data.get("chembl_id"),

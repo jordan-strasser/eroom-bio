@@ -1,45 +1,113 @@
 {
   "nct_id": "NCT02129075",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial shows clear evidence of target engagement - T-cell responses to NY-ESO-1 were observed in both arms, confirming the vaccine successfully delivered the NY-ESO-1 antigen and induced immune recognition. 2. PATHWAY MODULATION: Strong evidence of downstream biological activity - CDX-301 arm showed dramatic increases in dendritic cells (30.4-fold cDCs, 16.5-fold pDCs), monocytes (6.1-fold), and NK cells (5.8-fold) compared to minimal changes in control arm. This confirms the Flt3 ligand mechanism worked as intended to expand antigen-presenting cells. 3. CLINICAL TRANSLATION: The primary immunological endpoint showed a positive trend (15/30 vs 10/30 participants with T-cell responses), but no statistical significance was reported. Time to tumor recurrence was similar between arms (360.3 vs 389.2 days), suggesting the immune response didn't translate to meaningful clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be an adequately powered immunological study (n=60) with appropriate duration (85.7 weeks). The biological mechanism worked but didn't translate to clinical efficacy.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial shows clear evidence of target engagement. T-cell responses to NY-ESO-1 were observed in both arms (15/30 in combo arm vs 10/30 in control arm), indicating the DEC-205/NY-ESO-1 fusion protein successfully engaged the immune system to recognize NY-ESO-1. The CDX-301 arm showed dramatic increases in dendritic cell populations (cDCs increased 30.4-fold vs 0.9-fold in control), confirming Flt3 ligand engagement. 2. PATHWAY MODULATION: Downstream biology moved as predicted. The biomarker data shows robust immune cell activation - dendritic cells, monocytes, pDCs, and NK cells all increased substantially in the CDX-301 arm, indicating successful antigen presentation and immune costimulation pathways. The T-cell response data confirms antigen-directed immune activation occurred. 3. CLINICAL TRANSLATION: This is where assessment becomes difficult. The trial measured time to tumor recurrence as a clinical endpoint (360.3 days combo vs 389.2 days control), but no statistical analysis or significance testing was reported. The primary endpoint was immunological (T-cell response), which was achieved, but clinical benefit translation is unclear. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial appears to have measured its intended endpoints but lacks statistical analysis and clear success/failure criteria for the clinical outcomes. This appears to be an immunological proof-of-concept study that successfully demonstrated immune activation but provided insufficient data to assess clinical benefit.",
   "failure_modes": [
     {
-      "mode": "biology_moved_endpoint_flat",
+      "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Strong biological activity was demonstrated (dramatic increases in dendritic cells, monocytes, and NK cells with CDX-301), and immune responses were generated, but this didn't translate to improved clinical outcomes - time to tumor recurrence was essentially identical between arms"
+      "evidence": "No p-values reported for any endpoint, no statistical analysis provided, and outcome classifications are all 'unknown' despite effect sizes being reported. Cannot determine if clinical endpoints met pre-specified success criteria."
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "modulates_via",
-      "source_entity": "UNKNOWN",
-      "target_entity": "immune_costimulation",
-      "support": "strong_support",
-      "reasoning": "Clear evidence of target engagement with T-cell responses to NY-ESO-1 observed in both treatment arms"
+      "edge_type": "affects",
+      "source_entity": "dec_205_ny_eso_1_fusion_protein_cdx_1401",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "T-cell responses observed (15/30) but no statistical significance testing reported"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "recombinant_flt3_ligand",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "Dramatic dendritic cell expansion (30.4-fold) suggests target engagement but lacks statistical validation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "poly_iclc",
+      "target_entity": "ENSG00000164342",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "Immune cell activation observed but no formal statistical analysis provided"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dec_205_ny_eso_1_fusion_protein_cdx_1401",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_ii_cdx_1401_poly_iclc",
+      "reasoning": "T-cell responses observed (10/30) but no statistical significance testing reported"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "poly_iclc",
+      "target_entity": "ENSG00000164342",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_ii_cdx_1401_poly_iclc",
+      "reasoning": "Part of combination showing immune activation but lacks individual statistical validation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "T-cell responses suggest mechanism activation but clinical translation unclear without statistical analysis"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "immune_costimulation",
-      "target_entity": "immune_costimulation__cutaneous_melanoma",
-      "support": "strong_support",
-      "reasoning": "Dramatic increases in immune cell populations (30.4-fold cDCs, 16.5-fold pDCs, 6.1-fold monocytes, 5.8-fold NK cells) in CDX-301 arm demonstrate strong biological pathway activation"
+      "target_entity": "immune_costimulation__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "Dendritic cell expansion suggests costimulation but clinical benefit assessment incomplete"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_ii_cdx_1401_poly_iclc",
+      "reasoning": "T-cell responses observed but clinical translation assessment incomplete"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "immune_costimulation__cutaneous_melanoma",
-      "target_entity": "cutaneous_melanoma",
-      "support": "weak_contradict",
-      "reasoning": "Despite strong immune activation and T-cell responses, time to tumor recurrence was essentially identical between arms (360.3 vs 389.2 days), suggesting immune costimulation biology doesn't effectively drive clinical benefit in this melanoma population"
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_i_cdx_301_cdx_1401_poly_iclc",
+      "reasoning": "Time to recurrence data reported (360.3 days) but no statistical analysis to assess clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_ii_cdx_1401_poly_iclc",
+      "reasoning": "Time to recurrence data reported (389.2 days) but no statistical analysis to assess clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "biomarker_stage_iv_cutaneous_melanoma_ajcc_v6_and_v7",
-      "target_entity": "cutaneous_melanoma",
+      "source_entity": "biomarker_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "T-cell response endpoint was measured and showed biological activity, representing a reasonable surrogate for immune-mediated anti-tumor activity"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cutaneous_melanoma__histology_cutaneous",
+      "target_entity": "melanoma",
       "support": "ambiguous",
-      "reasoning": "The primary immunological endpoint showed directional improvement (15/30 vs 10/30 T-cell responders) but without statistical testing reported, and this immune response didn't correlate with clinical benefit (similar time to recurrence), making it unclear whether this biomarker captures meaningful clinical benefit"
+      "affecting_arm_id": null,
+      "reasoning": "Trial enrolled stage IIB-IV melanoma patients but no statistical analysis provided to assess population response"
     }
   ],
-  "confidence_overall": 0.7,
-  "needs_expert_review": false,
-  "review_reason": null
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Trial shows clear biological activity with T-cell responses and dendritic cell expansion, but completely lacks statistical analysis for any endpoint. The 'unknown' outcome classifications despite reported effect sizes suggest this may be an interim analysis or the trial design focused on immunological proof-of-concept rather than definitive efficacy assessment."
 }

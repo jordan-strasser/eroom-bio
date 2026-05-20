@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT03484923",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows anti-drug antibody formation for all compounds, indicating the drugs reached systemic circulation and engaged immune recognition. However, this doesn't confirm therapeutic target engagement. 2. PATHWAY MODULATION: Biomarker data shows some positive signals - increased tumor infiltrating T cells, enhanced T-cell activation markers, and improved T-cell inflamed signature in 4.8-16.7% of patients. This suggests partial pathway modulation occurred. 3. CLINICAL TRANSLATION: All arms failed on primary endpoint ORR (4.7-14.3% across arms) and secondary endpoints PFS (2.7-2.8 months) and OS (8.7-14 months). These response rates are below historical benchmarks for melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This was a multi-arm combination study with adequate sample size (196 patients) and long duration (213 weeks). The failure appears to be mechanistic rather than due to trial design issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows target engagement occurred - anti-drug antibody formation was observed for all compounds, indicating the drugs reached their targets and elicited immune responses. 2. PATHWAY MODULATION: Biomarker data confirms downstream biology was modulated - favorable biomarker profiles were achieved in 4.8-16.7% of patients, with increased tumor infiltrating T cells, enhanced T-cell activation markers, and improved T-cell inflamed signature. This indicates the checkpoint blockade and other pathways were engaged. 3. CLINICAL TRANSLATION: Despite confirmed target engagement and pathway modulation, all arms failed to achieve meaningful clinical benefit. ORR ranged from 4.7-14.3% across arms, all below historical benchmarks for effective melanoma therapy. PFS was consistently poor at 2.7-2.8 months across arms. 4. POPULATION EFFECTS: No subgroup analyses were reported that identified responding populations. 5. CONFOUNDERS: This was an adequately powered multi-arm study with appropriate duration (213 weeks). The failure appears to be mechanistic - the biology moved but didn't translate to clinical benefit.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
       "confidence": 0.8,
-      "evidence": "Biomarker data showed favorable immune activation (increased TILs, T-cell activation markers, improved T-cell inflamed signature) in some patients, but this biological activity did not translate to meaningful clinical responses across any combination arm"
+      "evidence": "Biomarker data confirmed target engagement and pathway modulation (increased TILs, enhanced T-cell activation, improved T-cell inflamed signature in 4.8-16.7% of patients), but all arms failed primary endpoint with ORR 4.7-14.3% and PFS 2.7-2.8 months"
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,7 @@
       "target_entity": "ENSG00000188389",
       "support": "ambiguous",
       "affecting_arm_id": "arm_1_lag525_pdr001_randomized_section",
-      "reasoning": "Anti-drug antibodies suggest systemic exposure but don't confirm PD-1 target engagement; arm failed clinically"
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
     },
     {
       "edge_type": "affects",
@@ -24,79 +24,15 @@
       "target_entity": "ENSG00000089692",
       "support": "ambiguous",
       "affecting_arm_id": "arm_1_lag525_pdr001_randomized_section",
-      "reasoning": "Anti-drug antibodies suggest exposure but LAG-3 engagement unclear; combination arm failed"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "pdr001",
-      "target_entity": "ENSG00000188389",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
-      "reasoning": "Systemic exposure evidenced by antibodies but target engagement uncertain; arm failed"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "inc280",
-      "target_entity": "ENSG00000105976",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
-      "reasoning": "c-MET engagement unclear despite systemic exposure; combination failed clinically"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "pdr001",
-      "target_entity": "ENSG00000188389",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
-      "reasoning": "PD-1 engagement uncertain despite antibody formation; arm failed"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "acz885",
-      "target_entity": "ENSG00000125538",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
-      "reasoning": "IL-1\u03b2 target engagement unclear; combination showed no clinical benefit"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "pdr001",
-      "target_entity": "ENSG00000188389",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
-      "reasoning": "PD-1 engagement uncertain despite systemic exposure; arm failed"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "lee011",
-      "target_entity": "ENSG00000105810",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
-      "reasoning": "CDK6 engagement unclear; combination failed to show clinical benefit"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "pdr001",
-      "target_entity": "ENSG00000188389",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
-      "reasoning": "Target engagement uncertain despite antibody formation; non-randomized arm failed"
-    },
-    {
-      "edge_type": "affects",
-      "source_entity": "lag525",
-      "target_entity": "ENSG00000089692",
-      "support": "ambiguous",
-      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
-      "reasoning": "LAG-3 engagement unclear; non-randomized combination arm failed"
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
       "target_entity": "R-HSA-389948",
-      "support": "weak_support",
+      "support": "weak_contradict",
       "affecting_arm_id": "arm_1_lag525_pdr001_randomized_section",
-      "reasoning": "Some immune activation biomarkers observed suggesting partial pathway modulation"
+      "reasoning": "Biomarker evidence shows pathway engagement but clinical benefit failed to materialize"
     },
     {
       "edge_type": "biology_drives",
@@ -104,7 +40,31 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_1_lag525_pdr001_randomized_section",
-      "reasoning": "Despite some immune activation, clinical benefit was not achieved in melanoma"
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pdr001",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "inc280",
+      "target_entity": "ENSG00000105976",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5673001",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
+      "reasoning": "Biomarker evidence shows pathway engagement but clinical benefit failed to materialize"
     },
     {
       "edge_type": "biology_drives",
@@ -112,7 +72,31 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_2_inc280_pdr001_randomized_section",
-      "reasoning": "c-MET pathway modulation did not translate to clinical benefit in melanoma"
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pdr001",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "acz885",
+      "target_entity": "ENSG00000125538",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "receptor_antagonism__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
+      "reasoning": "Biomarker evidence shows pathway engagement but clinical benefit failed to materialize"
     },
     {
       "edge_type": "biology_drives",
@@ -120,7 +104,31 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_3_acz885_pdr001_randomized_section",
-      "reasoning": "IL-1\u03b2 antagonism did not provide clinical benefit in melanoma"
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pdr001",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "lee011",
+      "target_entity": "ENSG00000105810",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-9754119",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
+      "reasoning": "Biomarker evidence shows pathway engagement but clinical benefit failed to materialize"
     },
     {
       "edge_type": "biology_drives",
@@ -128,7 +136,39 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "arm_4_lee011_pdr001_randomized_section",
-      "reasoning": "CDK4/6 inhibition did not translate to clinical benefit in melanoma"
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pdr001",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "lag525",
+      "target_entity": "ENSG00000089692",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
+      "reasoning": "Anti-drug antibodies confirm target engagement but trial failed - no affirmative outcome evidence"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-2132295",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
+      "reasoning": "Biomarker evidence shows pathway engagement but clinical benefit failed to materialize"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-2132295",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1a_lag525_pdr001_non_randomized_section",
+      "reasoning": "Biology was modulated but failed to drive clinical benefit in melanoma"
     },
     {
       "edge_type": "endpoint_captures",
@@ -136,10 +176,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit when achieved"
+      "reasoning": "ORR was measured and is a regulator-accepted surrogate for melanoma benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "All arms failed primary endpoint with adequate power and no responding subgroup identified"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

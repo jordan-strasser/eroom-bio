@@ -1,29 +1,86 @@
 {
   "nct_id": "NCT01590082",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement by ipilimumab. The trial provides no PD/PK data or target engagement biomarkers. 2. PATHWAY MODULATION: No evidence of downstream immune activation or checkpoint blockade biology changes - no immune biomarkers, cytokine levels, or T-cell activation markers reported. 3. CLINICAL TRANSLATION: Primary endpoint completely failed - 0% objective response rate (0/10 evaluable patients) with no clinical benefit observed. 4. POPULATION EFFECTS: No subgroup analyses reported in this small trial (n=12). 5. CONFOUNDERS: This is a very small single-arm Phase I/II trial (n=12) that is severely underpowered to detect treatment effects. The combination of three agents makes it impossible to attribute any effects to the CTLA-4 mechanism specifically. The trial was also terminated early due to slow accrual.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for any of the three compounds (doxycycline, ipilimumab, temozolomide). Cannot assess whether drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or downstream biology markers reported. Cannot determine if any of the proposed mechanisms (enzyme inhibition, checkpoint blockade, DNA damage) were activated. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% objective response rate (0/10 evaluable patients). No clinical benefit observed. 4. POPULATION EFFECTS: No subgroup analyses reported. Small sample size (n=12) limits subgroup assessment. 5. CONFOUNDERS: Very small sample size (12 patients, 10 evaluable) suggests underpowered study. Single-arm design with no comparator. Short duration (7 weeks) may be inadequate for immune checkpoint blockade effects to manifest. Slow accrual noted by investigators.",
   "failure_modes": [
     {
       "mode": "underpowered",
-      "confidence": 0.9,
-      "evidence": "Trial enrolled only 12 patients with 10 evaluable for response - far too small to detect meaningful treatment effects for melanoma response rates"
+      "confidence": 0.8,
+      "evidence": "Only 12 patients enrolled with 10 evaluable for response. This is far below typical Phase 2 sample sizes for melanoma trials and insufficient to detect meaningful response rates."
     },
     {
       "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "No biomarker data, no target engagement evidence, no immune monitoring to assess whether CTLA-4 blockade occurred or downstream biology was modulated"
+      "confidence": 0.6,
+      "evidence": "No biomarker data, no target engagement evidence, no pathway markers reported. Cannot determine where in the causal chain the failure occurred."
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "CTLA-4 co-inhibition pathway failed to drive clinical benefit in melanoma - 0% response rate"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-1442490",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "Collagen degradation pathway failed to drive clinical benefit in melanoma - 0% response rate"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "DNA damage biology failed to drive clinical benefit in melanoma - 0% response rate"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "Checkpoint blockade mechanism failed to produce downstream biology that translated to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-1442490",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "Enzyme inhibition mechanism failed to produce downstream biology that translated to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "doxycycline_ipilimumab_and_temozolomide",
+      "reasoning": "DNA damage mechanism failed to produce downstream biology that translated to clinical benefit"
+    },
+    {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_melanoma",
       "target_entity": "melanoma",
-      "support": "ambiguous",
-      "reasoning": "0% response rate in 10 evaluable patients provides no informative signal about ORR's ability to capture clinical benefit in melanoma due to extremely small sample size"
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit when achieved"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Unselected melanoma population showed no response (0%) to triple combination therapy with adequate endpoint measurement"
     }
   ],
-  "confidence_overall": 0.3,
+  "confidence_overall": 0.5,
   "needs_expert_review": true,
-  "review_reason": "Extremely small sample size (n=12) and complete lack of biomarker data makes mechanistic classification highly uncertain. The triple combination design also confounds attribution to CTLA-4 mechanism specifically."
+  "review_reason": "Very small sample size (n=10 evaluable) makes it difficult to distinguish between true mechanistic failure and underpowered study. No biomarker data available to assess target engagement or pathway modulation."
 }

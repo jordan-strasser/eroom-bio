@@ -1,24 +1,97 @@
 {
   "nct_id": "NCT03207347",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PARP inhibition or target engagement. The dose (300mg daily) is within the established therapeutic range for niraparib, but without PD markers we cannot confirm target engagement. 2. PATHWAY MODULATION: No biomarker data available to assess DNA damage response pathway disruption or synthetic lethality effects. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was not met - Cohort A achieved only 5.6% ORR and Cohort B achieved 0% ORR. These are very low response rates for an oncology trial. PFS was also poor (2.1 months in Cohort A, 7.2 months in Cohort B). 4. POPULATION EFFECTS: No subgroup analyses reported. The trial enrolled patients with BAP1 and other DNA damage response deficient tumors, which should theoretically be sensitive to PARP inhibition. 5. CONFOUNDERS: This was a single-arm Phase 2 trial with small sample size (N=37) and short duration (4 weeks per cycle). The trial appears adequately powered for a Phase 2 ORR study. High rates of serious adverse events (hematologic and GI toxicities) are consistent with known niraparib toxicity profile but don't appear to have limited dosing below therapeutic levels.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PARP inhibition. Cannot assess whether niraparib engaged its target at the tested dose. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess DNA damage response pathway disruption. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) clearly failed - Cohort A achieved only 5.6% ORR, Cohort B achieved 0% ORR. These are very low response rates for any cancer indication. PFS also failed in Cohort A (2.1 months) and was only partial in Cohort B (7.2 months). 4. POPULATION EFFECTS: No subgroup analyses reported. Both cohorts failed on the primary endpoint. 5. CONFOUNDERS: Single-arm trial with small sample size (N=37) and no control arm makes interpretation challenging. However, the extremely low response rates (5.6% and 0%) are well below any reasonable historical benchmark for cancer therapy, indicating genuine lack of efficacy rather than trial design issues.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine if failure was due to lack of target engagement, inadequate pathway modulation, or poor clinical translation without PD markers."
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Without biomarker data, cannot definitively confirm target engagement or pathway modulation, but the extremely low ORR (5.6% and 0%) suggests the mechanism may have engaged but failed to translate to clinical benefit"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "endpoint_captures",
-      "source_entity": "ORR_refractory_melanoma",
+      "edge_type": "affects",
+      "source_entity": "niraparib",
+      "target_entity": "ENSG00000129484",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "No biomarker data to confirm target engagement; failed trial doesn't provide affirmative evidence for target binding"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "niraparib",
+      "target_entity": "ENSG00000129484",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "No biomarker data to confirm target engagement; failed trial doesn't provide affirmative evidence for target binding"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000129484",
+      "target_entity": "enzyme_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Failed trial without PD data doesn't provide affirmative evidence for mechanism of action"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000129484",
+      "target_entity": "enzyme_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Failed trial without PD data doesn't provide affirmative evidence for mechanism of action"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-110362",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Primary endpoint failure suggests the mechanism's downstream biology didn't translate to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-110362",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Primary endpoint failure suggests the mechanism's downstream biology didn't translate to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-110362",
       "target_entity": "mesothelioma",
       "support": "weak_contradict",
-      "reasoning": "ORR was measured as primary endpoint but achieved very low response rates (5.6% and 0%) in a population theoretically sensitive to PARP inhibition, suggesting ORR may not be capturing clinical benefit in this indication or the mechanism is not working as expected"
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Extremely low ORR (5.6%) indicates this biology doesn't drive meaningful clinical benefit in mesothelioma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-110362",
+      "target_entity": "mesothelioma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Zero ORR indicates this biology doesn't drive meaningful clinical benefit in mesothelioma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "mesothelioma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR was measured and reported clearly; it's a standard endpoint for assessing clinical benefit in solid tumors including mesothelioma"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mesothelioma__unselected",
+      "target_entity": "mesothelioma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Both cohorts failed primary endpoint with very low response rates, indicating this unselected population does not respond to niraparib"
     }
   ],
-  "confidence_overall": 0.4,
+  "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "No biomarker data available to determine mechanism of failure. Cannot distinguish between target engagement failure, pathway modulation failure, or clinical translation failure without PD markers. The very low response rates in a theoretically sensitive population (DNA damage response deficient tumors) warrant expert review to determine if this reflects mechanism failure or population selection issues."
+  "review_reason": "No biomarker or target engagement data available to definitively assess where in the causal chain the failure occurred. Classification relies on clinical endpoint failure alone."
 }

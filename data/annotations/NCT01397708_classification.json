@@ -1,28 +1,54 @@
 {
   "nct_id": "NCT01397708",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - IL-12 mRNA expression increased up to 162,946-fold in tumors with vector copy numbers up to 140,000,000 copies per 100ng DNA, demonstrating successful gene delivery and expression. 2. PATHWAY MODULATION: Clear downstream biological activity - IFN-gamma mRNA increased up to 417-fold and CD8+ T-cell percentages modestly increased, confirming IL-12-mediated immune activation pathway was engaged. 3. CLINICAL TRANSLATION: This was a Phase I safety trial with primary endpoint of safety and tolerability, which was met with MTD established at 160mg/day. Some efficacy signals observed (7.7% ORR, 64% disease control) but not the primary focus. 4. POPULATION EFFECTS: No subgroup analysis reported in this dose escalation study. 5. CONFOUNDERS: While significant toxicity was observed (53.8% Grade 3+ AEs), the MTD was successfully established and the primary safety endpoint was met, making this a successful Phase I trial.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - IL-12 mRNA expression increased up to 162,946-fold in tumors with vector copy numbers up to 140,000,000 copies per 100ng DNA, confirming the gene therapy system successfully delivered and expressed IL-12. 2. PATHWAY MODULATION: Clear downstream biology changes - IFN-gamma mRNA increased up to 417-fold and CD8+ T-cell percentages modestly increased, confirming IL-12-mediated immune activation pathway was engaged. 3. CLINICAL TRANSLATION: This was a Phase I dose-escalation trial with safety as the primary endpoint, which was met with MTD established at 160mg/day. Secondary efficacy signals showed partial responses with ORR 7.7% and PFS benefit, which is encouraging for a Phase I trial in melanoma. 4. POPULATION EFFECTS: No subgroup analysis reported in this dose-escalation study. 5. CONFOUNDERS: The trial achieved its primary safety objective despite significant toxicity (53.8% Grade 3+ AEs), establishing a viable dosing regimen for Phase II development.",
   "failure_modes": [
     {
       "mode": "dose_limiting_toxicity",
       "confidence": 0.7,
-      "evidence": "53.8% of patients experienced Grade 3+ drug-related adverse events at higher doses, with DLTs including pancytopenia and mental status changes, requiring dose modifications in Phase II portion"
+      "evidence": "53.8% of patients experienced Grade 3+ drug-related adverse events, with dose-limiting toxicities including pancytopenia and mental status changes requiring dose modifications in Phase II portion"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "inxn_1001",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "inxn_1001_in_combination_with_inxn_2001",
+      "reasoning": "Strong target engagement confirmed but this was a successful trial, so per rules use ambiguous rather than support for upstream affects edge"
+    },
+    {
       "edge_type": "mechanism_affects",
-      "source_entity": "other",
-      "target_entity": "other__melanoma",
-      "support": "strong_support",
-      "reasoning": "IL-12 gene delivery mechanism successfully engaged downstream immune biology with 162,946-fold IL-12 mRNA increase and 417-fold IFN-gamma increase"
+      "source_entity": "immune_costimulation",
+      "target_entity": "immune_costimulation__melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "inxn_1001_in_combination_with_inxn_2001",
+      "reasoning": "Clear pathway modulation with IFN-gamma increase up to 417-fold and CD8+ T-cell activation, plus partial clinical responses support the immune costimulation mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "immune_costimulation__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "inxn_1001_in_combination_with_inxn_2001",
+      "reasoning": "Partial clinical responses (7.7% ORR) with confirmed immune activation suggests biology drives disease but effect size is modest for Phase I"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "safety_melanoma",
       "target_entity": "melanoma",
-      "support": "moderate_support",
-      "reasoning": "Safety endpoint was met with MTD established, though significant toxicity observed. Safety assessment is appropriate for Phase I dose escalation in melanoma"
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary safety endpoint was successfully met with MTD established, providing clear clinical benefit assessment for this Phase I trial"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Partial responses observed in unselected melanoma population with 7.7% ORR, suggesting modest but positive population response"
     }
   ],
   "confidence_overall": 0.8,

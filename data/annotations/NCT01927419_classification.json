@@ -1,57 +1,120 @@
 {
   "nct_id": "NCT01927419",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No direct PD-1/CTLA-4 target engagement biomarkers reported, but the combination therapy design and clinical activity strongly suggest target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the substantial clinical activity (60.3% ORR vs 10.8% control) in checkpoint inhibitor therapy strongly implies immune pathway activation occurred. 3. CLINICAL TRANSLATION: Primary endpoint was met with clinically meaningful effect - ORR 60.3% vs 10.8% (49.5% absolute difference) in BRAF wild-type patients, with PFS also dramatically improved (58.41 vs 4.30 months). This represents strong clinical translation. 4. POPULATION EFFECTS: Both BRAF wild-type and mutant subgroups showed benefit, but BRAF wild-type had superior PFS (58.41 vs 8.61 months), suggesting differential response by biomarker status. 5. CONFOUNDERS: No major confounders identified - adequate sample size, appropriate comparator (ipilimumab monotherapy), and clinically meaningful follow-up duration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-1 or CTLA-4 engagement, but the dramatic clinical response (60.3% ORR vs 10.8% control) in the primary BRAF wild-type population strongly suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the magnitude of clinical benefit across both ORR and PFS endpoints suggests downstream immune activation occurred. 3. CLINICAL TRANSLATION: Primary endpoint clearly met with large effect size (60.3% vs 10.8% ORR in BRAF wild-type), supported by concordant PFS benefit (58.41 vs 4.30 months). Both BRAF wild-type and mutant subgroups showed benefit, though wild-type had superior outcomes. 4. POPULATION EFFECTS: BRAF wild-type patients had better response than BRAF mutant patients (60.3% vs 54.5% ORR, 58.41 vs 8.61 months PFS), suggesting differential population response. 5. CONFOUNDERS: No major confounders identified - adequate sample size, appropriate comparator, reasonable duration.",
   "failure_modes": [],
   "edges_to_update": [
     {
-      "edge_type": "binds_to",
-      "source_entity": "ipilimumab+nivolumab",
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
       "target_entity": "ENSG00000188389",
       "support": "moderate_support",
-      "reasoning": "No direct target engagement biomarkers, but the substantial clinical activity (60.3% ORR) with this checkpoint inhibitor combination strongly suggests PD-1/CTLA-4 engagement occurred"
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical response in combo arm suggests nivolumab engaged PD-1, though no direct biomarker confirmation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical response in combo arm suggests ipilimumab engaged CTLA-4, though no direct biomarker confirmation"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "weak_support",
+      "affecting_arm_id": "placebo_ipilimumab",
+      "reasoning": "Modest clinical response in monotherapy arm (10.8% ORR) suggests target engagement but less robust evidence"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000188389",
       "target_entity": "checkpoint_blockade",
       "support": "moderate_support",
-      "reasoning": "No pathway biomarkers reported, but the clinical activity pattern is consistent with checkpoint blockade mechanism - substantial ORR improvement and durable responses typical of immune checkpoint inhibition"
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Clinical response pattern consistent with checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Clinical response pattern consistent with checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "weak_support",
+      "affecting_arm_id": "placebo_ipilimumab",
+      "reasoning": "Modest clinical response supports mechanism but less robust evidence"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "checkpoint_blockade",
-      "target_entity": "checkpoint_blockade__unresectable_melanoma",
-      "support": "strong_support",
-      "reasoning": "Dramatic clinical benefit (60.3% vs 10.8% ORR, 58.41 vs 4.30 months PFS) demonstrates checkpoint blockade mechanism effectively modulates biology in unresectable melanoma"
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical response suggests checkpoint blockade effectively modulated PD-1 co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical response suggests checkpoint blockade effectively modulated CTLA-4 co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_support",
+      "affecting_arm_id": "placebo_ipilimumab",
+      "reasoning": "Modest clinical response supports pathway modulation but less robust evidence"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "checkpoint_blockade__unresectable_melanoma",
-      "target_entity": "unresectable_melanoma",
-      "support": "strong_support",
-      "reasoning": "The substantial clinical benefit with checkpoint blockade biology confirms this pathway drives disease progression in unresectable melanoma"
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical benefit demonstrates PD-1 co-inhibition pathway drives melanoma progression"
     },
     {
-      "edge_type": "reflects_biology",
-      "source_entity": "checkpoint_blockade__unresectable_melanoma",
-      "target_entity": "ORR_metastatic_melanoma",
-      "support": "strong_support",
-      "reasoning": "ORR effectively captured the checkpoint blockade biological activity with clear differentiation between treatment arms (60.3% vs 10.8%)"
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Strong clinical benefit demonstrates CTLA-4 co-inhibition pathway drives melanoma progression"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "placebo_ipilimumab",
+      "reasoning": "Modest clinical benefit supports pathway relevance to melanoma but less robust evidence"
     },
     {
       "edge_type": "endpoint_captures",
-      "source_entity": "ORR_metastatic_melanoma",
-      "target_entity": "unresectable_melanoma",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
       "support": "strong_support",
-      "reasoning": "ORR primary endpoint was met with clinically meaningful effect size and supported by concordant PFS improvement, demonstrating ORR captures clinical benefit in unresectable melanoma"
+      "affecting_arm_id": null,
+      "reasoning": "ORR clearly differentiated between arms and was supported by concordant PFS benefit, demonstrating clinical benefit translation"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "unresectable_melanoma__braf_wildtype",
-      "target_entity": "unresectable_melanoma",
-      "support": "moderate_support",
-      "reasoning": "BRAF wild-type subgroup showed superior PFS benefit (58.41 vs 8.61 months in mutant subgroup) suggesting differential response, though both subgroups benefited"
+      "source_entity": "melanoma__extent_unresectable",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with large effect size and clinically meaningful benefit in this population"
     }
   ],
   "confidence_overall": 0.7,

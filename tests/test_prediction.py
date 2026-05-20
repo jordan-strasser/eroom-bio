@@ -158,8 +158,18 @@ class TestPredict:
         assert result.weakest_link.bottleneck_score > 0.6
 
     def test_edge_contributions_count(self):
-        """Full chain has 7 edges."""
-        graph = _make_graph()
+        """Full chain has 7 edges; with evidence on each, all should
+        appear as contributions. (Round-15: zero-evidence edges are
+        dropped, so this test pins down a fully-evidenced graph.)"""
+        graph = _make_graph(
+            binds_to=(5.0, 2.0),
+            modulates_via=(5.0, 2.0),
+            mechanism_affects=(5.0, 2.0),
+            biology_drives=(5.0, 2.0),
+            reflects_biology=(5.0, 2.0),
+            endpoint_captures=(5.0, 2.0),
+            responds_differently=(5.0, 2.0),
+        )
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial())
         assert len(result.edge_contributions) == 7
@@ -176,8 +186,12 @@ class TestPredict:
         result = engine.predict(_make_trial(), n_samples=50_000)
         assert result.ci_lower <= result.overall_probability <= result.ci_upper
 
-    def test_missing_edges_default_to_uniform(self):
-        """Graph with only binds_to edge; others default to Beta(1,1)."""
+    def test_missing_edges_are_dropped(self):
+        """Graph with only the binds_to edge populated; mechanism /
+        biology / biology→indication edges don't exist at all.
+        Round-15: edges that aren't in the graph (or that have zero
+        evidence) are silently dropped — the prediction reflects only
+        the evidenced subset of the hypothesis chain."""
         g = GraphStore()
         g.add_node(CompoundNode(id="c1", name="DrugA", modality=Modality.SMALL_MOLECULE))
         g.add_node(TargetNode(id="t1", name="TargetA", gene_symbol="TGTA"))
@@ -185,7 +199,6 @@ class TestPredict:
             source_id="c1", target_id="t1", edge_type=EdgeType.AFFECTS,
             belief=EdgeBeliefState(alpha=20.0, beta=1.0),
         ))
-        # Need mechanism, biology, indication nodes for non-UNKNOWN fields
         g.add_node(MechanismNode(id="m1", name="MechA", mechanism_type=MechanismType.INHIBITION))
         g.add_node(BiologyNode(id="b1", name="BioA"))
         g.add_node(IndicationNode(id="i1", name="DiseaseA"))
@@ -199,13 +212,12 @@ class TestPredict:
         )
         engine = PredictionEngine(g)
         result = engine.predict(chain, n_samples=10_000)
-        # binds_to has strong belief, others default to 0.5
-        # Only 4 causal chain edges (no endpoint/population since UNKNOWN)
-        assert len(result.edge_contributions) == 4
-        # The binds_to edge should be strong
-        binds = [e for e in result.edge_contributions if e.edge_type == EdgeType.AFFECTS]
-        assert len(binds) == 1
-        assert binds[0].belief.alpha == pytest.approx(20.0)
+        # Only the binds_to edge has evidence; the other chain edges
+        # don't exist in the graph and are dropped.
+        assert len(result.edge_contributions) == 1
+        ec = result.edge_contributions[0]
+        assert ec.edge_type == EdgeType.AFFECTS
+        assert ec.belief.alpha == pytest.approx(20.0)
 
 # ============================================================
 # Modulation-edge collection (round 8 v0.2.0)
@@ -347,6 +359,12 @@ class TestRegimenPredictionWithModulation:
 
 class TestTrustWeight:
     def test_uniform_prior_gets_zero_trust(self):
+        """Beta(1,1) (no evidence) → trust 0. Round-15 reverted the
+        round-14 trust floor: zero-evidence edges are now dropped at
+        the engine level so they contribute nothing to the geomean,
+        rather than pulling sparse chains toward 0.5 at low weight.
+        Beliefs reaching `_trust_weight` are expected to already have
+        evidence — this test verifies the boundary case directly."""
         belief = EdgeBeliefState(alpha=1.0, beta=1.0)
         assert _trust_weight(belief) == pytest.approx(0.0)
 
@@ -396,41 +414,56 @@ class TestAggregateSamples:
 
 
 class TestWeightedGeomeanPredict:
-    def test_default_is_weighted_geomean(self):
+    def test_all_zero_evidence_chain_returns_default(self):
+        """Round-15: chains with no evidenced edges (all Beta(1,1)) have
+        no contributions to aggregate. The engine returns P=0.5 with a
+        full [0, 1] CI as a "no signal" fallback instead of inventing
+        an unweighted-geomean prediction from priors."""
         graph = _make_graph()  # all Beta(1,1)
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=20_000)
-        # Beta(1,1) → uniform; geomean of uniforms ≈ 1/e ≈ 0.368.
-        # Critically, NOT 0.5^7 (which would be the product).
-        assert result.overall_probability > 0.2
-        assert result.overall_probability < 0.5
+        assert result.overall_probability == pytest.approx(0.5)
+        assert result.edge_contributions == []
 
-    def test_one_strong_edge_dominates(self):
-        # binds_to with strong evidence (alpha+beta-2=18, trust=1.0),
-        # all other edges Beta(1,1) (trust=0). Result should track binds_to mean.
+    def test_one_strong_edge_fully_determines_when_others_dropped(self):
+        """Round-15: with zero-evidence edges dropped at collection time,
+        a chain with one Beta(18, 2) edge and six Beta(1,1) edges
+        produces a prediction driven entirely by the surviving edge.
+        Expected value ≈ E[Beta(18,2)] = 0.9.
+        """
         graph = _make_graph(binds_to=(18.0, 2.0))
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=50_000)
-        # binds_to mean = 0.9; geomean dominated by it should land near 0.9
-        assert result.overall_probability == pytest.approx(0.9, abs=0.05)
+        # Six Beta(1,1) edges dropped; only the binds_to edge remains.
+        assert len(result.edge_contributions) == 1
+        assert result.edge_contributions[0].edge_type == EdgeType.AFFECTS
+        # Sampling Beta(18,2) and taking the mean → ~0.9 ± noise.
+        assert 0.85 < result.overall_probability < 0.93
 
-    def test_weakest_link_uses_trust_weighted_score(self):
-        # Beta(1,1) edge has mean 0.5 but no trust, so it should NOT be flagged
-        # as the weakest link. binds_to with Beta(2, 18) (mean 0.1, trust=1.0)
-        # has both low mean AND evidence; that's the real bottleneck.
-        graph = _make_graph(binds_to=(2.0, 18.0))  # rest Beta(1,1)
+    def test_weakest_link_picks_evidenced_low_mean(self):
+        # binds_to is Beta(2, 18) (mean 0.1, trust=1.0). Other edges
+        # have no evidence and are dropped, so binds_to is the only
+        # contribution AND the weakest link.
+        graph = _make_graph(binds_to=(2.0, 18.0))
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=10_000)
         assert result.weakest_link is not None
         assert result.weakest_link.edge_type == EdgeType.AFFECTS
 
-    def test_uniform_priors_have_zero_bottleneck_score(self):
-        graph = _make_graph()
+    def test_bottleneck_score_is_trust_weighted_complement(self):
+        """Bottleneck = (1 - E[p]) * trust. For a Beta(18, 2) edge:
+        E[p]=0.9, trust=1.0 → bottleneck = 0.10. For Beta(5, 15):
+        E[p]=0.25, trust ≈ log(19)/log(50) ≈ 0.752 → bottleneck ≈ 0.564.
+        """
+        import math
+        graph = _make_graph(binds_to=(5.0, 15.0))  # E[p]=0.25, n_eff=18
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial(), n_samples=1_000)
-        for ec in result.edge_contributions:
-            # Beta(1,1) → trust=0 → bottleneck_score = (1 - 0.5) * 0 = 0
-            assert ec.bottleneck_score == pytest.approx(0.0)
+        assert len(result.edge_contributions) == 1
+        ec = result.edge_contributions[0]
+        expected_trust = math.log(19) / math.log(50)
+        expected_bottleneck = (1.0 - 0.25) * expected_trust
+        assert ec.bottleneck_score == pytest.approx(expected_bottleneck, abs=1e-6)
 
 
 # ============================================================
@@ -478,12 +511,16 @@ class TestCompareHypotheses:
 
 
 class TestSuggestImprovements:
-    def test_data_gap_for_low_evidence(self):
+    def test_no_evidence_yields_no_edges_message(self):
+        """Round-15: with all Beta(1,1), the engine drops every edge,
+        so `edge_contributions` is empty. `suggest_improvements` returns
+        the "no edges" message — there's nothing to improve when there's
+        nothing in the chain to improve from."""
         graph = _make_graph()  # All Beta(1,1) = no evidence
         engine = PredictionEngine(graph)
         result = engine.predict(_make_trial())
         suggestions = engine.suggest_improvements(result)
-        assert any("[DATA GAP]" in s for s in suggestions)
+        assert any("No edges" in s for s in suggestions)
 
     def test_weak_link_for_contradicted_edge(self):
         graph = _make_graph(binds_to=(2.0, 20.0))  # Strong contradicting evidence
@@ -568,10 +605,31 @@ class TestPredictClinicalHypothesis:
         )
         assert len(result.edge_contributions) == 7
 
-    def test_missing_compound_raises(self):
-        graph = _make_graph()
-        with pytest.raises(KeyError, match="Compound"):
-            predict_clinical_hypothesis(graph, "missing_compound", "i1")
+    def test_missing_compound_is_allowed_and_skips_affects(self):
+        """Round-15: compound_id missing from graph (or None) no longer
+        raises. The `affects` edge gets skipped, and prediction proceeds
+        on whatever evidenced downstream edges exist. Supports the
+        "novel compound with familiar target" use case."""
+        graph = _make_graph(
+            modulates_via=(5.0, 2.0),
+            mechanism_affects=(5.0, 2.0),
+            biology_drives=(5.0, 2.0),
+        )
+        result = predict_clinical_hypothesis(
+            graph, "missing_compound", "i1", target_id="t1",
+        )
+        # affects edge skipped (compound not in graph); downstream chain
+        # evidenced edges still contribute.
+        edge_types = {ec.edge_type.value for ec in result.edge_contributions}
+        assert "affects" not in edge_types
+        assert "modulates_via" in edge_types
+        # Also accepts compound_id=None.
+        result2 = predict_clinical_hypothesis(
+            graph, None, "i1", target_id="t1",
+        )
+        assert "affects" not in {
+            ec.edge_type.value for ec in result2.edge_contributions
+        }
 
     def test_missing_indication_raises(self):
         graph = _make_graph()

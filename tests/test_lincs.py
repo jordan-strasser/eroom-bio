@@ -389,7 +389,10 @@ class TestPopulateLincsSignatures:
             "lincs:BRD-VEM:enzyme_inhibition:bio_mapk:A375"
         )
         assert a375.source_type.value == "preclinical_in_vitro"
-        assert a375.support == "strong_support"
+        # Round-14 calibration: demoted from strong_support → moderate
+        # to stop LINCS accumulation from drowning clinical evidence
+        # on shared mechanism_affects edges.
+        assert a375.support == "moderate_support"
         assert a375.context["tissue"] == "skin"
         assert ev_by_cell["MCF7"].context["tissue"] == "breast"
 

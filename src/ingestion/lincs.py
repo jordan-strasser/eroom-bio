@@ -778,9 +778,17 @@ async def populate_lincs_signatures(
                         ),
                         source_type=EvidenceType.PRECLINICAL_IN_VITRO,
                         # One cell-line replicate consensus that hit the
-                        # pathway → strong directional support for the
-                        # mechanism→biology edge in this context.
-                        support=SupportBucket.STRONG_SUPPORT.value,
+                        # pathway → MODERATE directional support for the
+                        # mechanism→biology edge. Round-14 calibration:
+                        # previously tagged STRONG_SUPPORT (p_obs=0.95),
+                        # which let LINCS accumulation drown clinical
+                        # evidence on shared mechanism edges. Cell-line
+                        # signatures are genuinely informative but not
+                        # at clinical-trial level — moderate captures the
+                        # "perturbation observably moves the pathway"
+                        # interpretation while leaving room for stronger
+                        # signal from real RCT outcomes.
+                        support=SupportBucket.MODERATE_SUPPORT.value,
                         timestamp=datetime.now(timezone.utc),
                         provenance_url=(
                             f"https://clue.io/command?q={compound.pert_id}"

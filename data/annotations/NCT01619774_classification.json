@@ -1,24 +1,97 @@
 {
   "nct_id": "NCT01619774",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm BRAF/MEK target engagement. The combination was dosed at standard levels (GSK2118436 150mg BID, GSK1120212 2mg daily) but without PD markers we cannot confirm target modulation. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess MAPK pathway blockade. Cannot determine if the intended biology was achieved. 3. CLINICAL TRANSLATION: The trial achieved a 35.7% ORR (10/28 patients) in BRAF inhibitor-resistant metastatic melanoma. While the primary endpoint was marked as 'not met', a 35.7% response rate in a resistant population represents meaningful clinical activity. Additionally, 11 patients had stable disease, suggesting disease control in a substantial portion of patients. 4. POPULATION EFFECTS: This was specifically in BRAF inhibitor-resistant patients, which is the appropriate population for testing combination therapy to overcome resistance. No subgroup analyses by biomarkers reported. 5. CONFOUNDERS: Single-arm design with small sample size (N=28) limits interpretation. No control arm to assess whether this represents improvement over standard care. The 'primary endpoint not met' designation may reflect pre-specified statistical criteria rather than lack of clinical activity.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement of BRAF or MEK. However, the combination achieved some clinical activity (35.7% ORR) suggesting likely target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm MAPK pathway blockade. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) showed partial success with 35.7% response rate (10/28 patients). While not meeting a pre-specified threshold, this represents meaningful clinical activity in BRAF inhibitor-resistant melanoma. PFS of 13 months also suggests clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported beyond response categories. 5. CONFOUNDERS: Single-arm design with small sample size (n=28) limits interpretation. No control arm for comparison. Safety signals included cardiac toxicity (decreased ejection fraction) and thromboembolic events but did not appear to limit dosing.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
-      "confidence": 0.8,
-      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Single-arm design without historical control comparison makes it difficult to assess true efficacy signal."
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Small single-arm study with only 28 patients, no control arm, and no pre-specified statistical threshold for ORR success"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "gsk2118436",
+      "target_entity": "ENSG00000157764",
+      "support": "ambiguous",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "No biomarker data to confirm BRAF target engagement, but clinical activity suggests likely engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "gsk1120212",
+      "target_entity": "ENSG00000126934",
+      "support": "ambiguous",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "No biomarker data to confirm MEK target engagement, but clinical activity suggests likely engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "No pathway biomarkers to confirm kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "No pathway biomarkers to confirm MEK kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "weak_support",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "Clinical activity (35.7% ORR) suggests mechanism affected downstream biology, though no direct biomarker confirmation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "weak_support",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "Clinical activity suggests MAP2K/MAPK pathway modulation occurred"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "35.7% ORR and 13-month PFS in BRAF inhibitor-resistant melanoma suggests protein phosphorylation biology drives disease"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "gsk2118436_gsk1120212",
+      "reasoning": "Clinical activity suggests MAP2K/MAPK activation biology drives melanoma progression"
+    },
+    {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_melanoma",
       "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a well-established endpoint for melanoma that captured meaningful clinical activity (35.7%) with supportive PFS data"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
       "support": "weak_support",
-      "reasoning": "35.7% ORR in BRAF inhibitor-resistant melanoma shows directional clinical benefit signal, though single-arm design limits interpretation of clinical significance"
+      "affecting_arm_id": null,
+      "reasoning": "35.7% ORR in BRAF inhibitor-resistant population shows this population can respond to dual BRAF/MEK inhibition"
     }
   ],
-  "confidence_overall": 0.4,
+  "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "No biomarker data to assess mechanism, single-arm design makes efficacy interpretation challenging, and discrepancy between reported clinical activity (35.7% ORR) and 'primary endpoint not met' designation requires clarification"
+  "review_reason": "Single-arm design with no control group and no pre-specified success threshold makes interpretation of 35.7% ORR difficult. Lack of biomarker data limits mechanistic interpretation despite clinical activity."
 }

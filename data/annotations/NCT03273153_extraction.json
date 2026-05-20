@@ -1,0 +1,140 @@
+{
+  "nct_id": "NCT03273153",
+  "therapeutic_hypothesis": {
+    "compound": "cobimetinib plus atezolizumab",
+    "claimed_target": "MEK and PD-L1",
+    "proposed_mechanism": "MEK inhibition combined with PD-L1 checkpoint blockade",
+    "intended_biology": "enhanced anti-tumor immunity through MEK pathway inhibition and immune checkpoint blockade",
+    "target_population": "previously untreated advanced BRAFV600 wild-type melanoma",
+    "primary_endpoint": "progression-free survival by independent review committee",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 1.15 (95% CI: 0.88-1.50)",
+    "p_value": 0.2954,
+    "target_engagement_evidence": "cobimetinib plasma concentrations achieved therapeutic levels",
+    "biomarker_changes": [
+      "cobimetinib steady-state concentrations 126-231 ng/mL",
+      "atezolizumab serum concentrations 72.2-256 \u03bcg/mL",
+      "23.2% developed anti-drug antibodies to atezolizumab"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "higher rates of gastrointestinal toxicity in combination arm",
+      "increased creatine kinase elevations with combination"
+    ],
+    "dose_info": {
+      "dose": "cobimetinib 60 mg, atezolizumab 840 mg",
+      "schedule": "cobimetinib once daily 21 days on/7 days off, atezolizumab every 2 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "diarrhoea",
+        "grade": "",
+        "incidence_treatment_pct": 4.1,
+        "incidence_control_pct": 0.9,
+        "serious": true
+      },
+      {
+        "term": "vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 2.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "nausea",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "colitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": 0.5,
+        "serious": true
+      },
+      {
+        "term": "pancreatitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 1.4,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced BRAFV600 wild-type melanoma",
+    "comparator": "pembrolizumab",
+    "sample_size": 446,
+    "duration": "approximately 16 months",
+    "duration_weeks": 69.5,
+    "investigator_commentary": "This study was terminated due to benefit/risk analysis."
+  },
+  "arms": [
+    {
+      "arm_id": "cobimetinib_and_atezolizumab",
+      "compounds": [
+        "cobimetinib",
+        "atezolizumab"
+      ]
+    },
+    {
+      "arm_id": "pembrolizumab",
+      "compounds": [
+        "pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cobimetinib_and_atezolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.5,
+      "p_value": 0.2954,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.7,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cobimetinib_and_atezolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 26.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 31.6,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cobimetinib",
+      "primary_compound_id": "atezolizumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "MEK inhibition was hypothesized to enhance immune checkpoint blockade by modulating the tumor microenvironment",
+      "citation": "This study was terminated due to benefit/risk analysis."
+    }
+  ]
+}

@@ -1,36 +1,110 @@
 {
   "nct_id": "NCT05551117",
-  "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data for B7-H3 is reported. However, PSA biomarker responses (45.8% at 2.0 mg, 38.0% at 2.7 mg) suggest some biological activity, indicating possible target engagement. 2. PATHWAY MODULATION: PSA decreases (-28.7% at 2.0 mg, -33.1% at 2.7 mg) demonstrate downstream biological effects consistent with cytotoxic activity in prostate cancer cells. 3. CLINICAL TRANSLATION: Mixed results - Part 1 showed improved 6-month rPFS (69-70% vs 47% control), but Part 2 showed 0% ORR in the primary analysis arm, with modest ORR in other arms (13.6% at 2.0 mg, 30.6% at 2.7 mg). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Significant cardiac toxicities including pericardial effusion (3.4%), atrial fibrillation (2.8%), and cardiac arrest (2.3%) likely limited dosing and treatment duration. The investigator commentary mentions 'business reasons' for discontinuation, suggesting commercial rather than purely scientific decision-making.",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data for B7-H3 is reported, but PSA biomarker responses (45.8% response rate at 2.0 mg, 38.0% at 2.7 mg) suggest some biological activity. However, PSA is not a direct measure of B7-H3 engagement. 2. PATHWAY MODULATION: PSA decreases (-28.7% at 2.0 mg, -33.1% at 2.7 mg) indicate downstream biological effects, suggesting the ADC mechanism may be working to some degree. 3. CLINICAL TRANSLATION: Mixed results across arms and endpoints. Part 1 showed success in 6-month rPFS for both dose levels (69% and 70% vs 47% control), but Part 2 ORR was a complete failure (0%). ORR in Part 1 was partial (13.6%) to successful (30.6%) depending on dose. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Significant safety concerns with cardiac toxicities (pericardial effusion 5.8%, atrial fibrillation 4.7%, cardiac arrest 2.3% in higher dose arm) may have limited dosing optimization. Trial stopped for business reasons rather than scientific failure.",
   "failure_modes": [
     {
-      "mode": "dose_limiting_toxicity",
-      "confidence": 0.8,
-      "evidence": "High rates of serious cardiac adverse events including pericardial effusion (3.4%), atrial fibrillation (2.8%), cardiac arrest (2.3%), and multiple other cardiac SAEs that likely prevented optimal dosing and treatment continuation"
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "PSA biomarker responses and decreases suggest biological activity, but Part 2 ORR was 0% despite this biological signal"
     },
     {
-      "mode": "commercial_not_scientific",
-      "confidence": 0.7,
-      "evidence": "Investigator commentary explicitly states 'business reasons' for trial discontinuation despite some biological activity evidenced by PSA responses"
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "High rates of serious cardiac adverse events including pericardial effusion (5.8%), atrial fibrillation (4.7%), and cardiac arrest (2.3%) in the 2.7 mg arm may have prevented dose optimization"
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine_2_0_mg",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "PSA response suggests some target engagement but no direct B7-H3 engagement data; mixed clinical outcomes"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine_2_7_mg",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "PSA response suggests some target engagement but no direct B7-H3 engagement data; mixed clinical outcomes"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine",
+      "target_entity": "UNKNOWN",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2",
+      "reasoning": "Part 2 showed 0% ORR despite biological rationale"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "6-month rPFS success (69%) and PSA response (45.8%) suggest mechanism working"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "6-month rPFS success (70%) and ORR success (30.6%) with PSA response (38.0%)"
+    },
+    {
       "edge_type": "mechanism_affects",
       "source_entity": "antibody_dependent_cytotoxicity",
-      "target_entity": "antibody_dependent_cytotoxicity__castration_resistant_prostatic_cancer",
+      "target_entity": "antibody_dependent_cytotoxicity__prostate_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2",
+      "reasoning": "Part 2 ORR was 0%, suggesting mechanism didn't translate to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
       "support": "weak_support",
-      "reasoning": "PSA biomarker responses (45.8% and 38.0%) and mean PSA decreases (-28.7% and -33.1%) demonstrate biological activity consistent with cytotoxic mechanism, though limited by toxicity"
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "6-month rPFS success suggests biology driving disease control"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "Both 6-month rPFS and ORR success at higher dose"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antibody_dependent_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2",
+      "reasoning": "0% ORR suggests this biology pathway didn't drive clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "PFS_small_cell_carcinoma",
-      "target_entity": "castration_resistant_prostatic_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "6-month rPFS showed clear differentiation from control (69-70% vs 47%) and is established endpoint for prostate cancer"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prostate_cancer__unselected",
+      "target_entity": "prostate_cancer",
       "support": "weak_support",
-      "reasoning": "6-month rPFS showed improvement (69-70% vs 47% control) but ORR results were mixed (0% in Part 2 primary analysis), and toxicity limited treatment continuation"
+      "affecting_arm_id": null,
+      "reasoning": "Mixed results across different parts of trial suggest some response in unselected population but inconsistent"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Mixed efficacy signals with clear toxicity limitations and commercial discontinuation make mechanistic interpretation challenging. PSA biomarker activity suggests target engagement but cardiac toxicity profile may have prevented adequate exposure."
+  "review_reason": "Complex multi-part trial with mixed outcomes across different endpoints and doses, significant safety signals, and business termination rather than scientific conclusion"
 }

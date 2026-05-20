@@ -1,32 +1,38 @@
 {
   "nct_id": "NCT00289016",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement with tumor cells. However, the mechanism of oncolytic viral therapy involves direct viral replication within tumor cells, and the clinical response suggests some level of target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream biological changes from viral replication and tumor lysis. 3. CLINICAL TRANSLATION: The primary endpoint was met with a 28% objective response rate, which represents clinical benefit in advanced melanoma patients. This is a meaningful response rate for this patient population. 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess differential responses. 5. CONFOUNDERS: This is a single-arm Phase II trial with no control group, which limits the strength of evidence. The sample size of 50 patients is modest but reasonable for a Phase II study. Safety profile shows manageable toxicities typical of oncolytic viral therapy.",
-  "failure_modes": [],
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement, but the mechanism is direct oncolytic viral replication in tumor cells, which would be evidenced by tumor response if occurring. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the proposed mechanism is direct tumor cell lysis plus immune activation. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) was met with 28% objective response rate, indicating clinical benefit. This is a meaningful response rate for advanced melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm Phase II trial with no control group makes it difficult to assess true treatment effect versus natural variation, but 28% ORR in advanced melanoma is above historical expectations for this population.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.3,
+      "evidence": "Single-arm trial with no control group and no biomarker data to confirm mechanism of action, making it difficult to definitively attribute the 28% response rate to the drug versus other factors"
+    }
+  ],
   "edges_to_update": [
     {
       "edge_type": "affects",
       "source_entity": "talimogene_laherparepvec",
       "target_entity": "ENSG00000157873",
-      "support": "weak_support",
+      "support": "moderate_support",
       "affecting_arm_id": "talimogene_laherparepvec",
-      "reasoning": "No direct target engagement biomarkers, but clinical response suggests viral targeting of tumor cells occurred"
+      "reasoning": "28% ORR suggests the oncolytic virus is engaging tumor cells and causing lysis, though no direct target engagement biomarkers were measured"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000157873",
       "target_entity": "other",
-      "support": "weak_support",
+      "support": "moderate_support",
       "affecting_arm_id": "talimogene_laherparepvec",
-      "reasoning": "Clinical response suggests mechanism was activated, though no pathway biomarkers confirm this"
+      "reasoning": "Clinical response suggests the target is acting via the proposed oncolytic mechanism"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "other",
       "target_entity": "R-HSA-5669034",
-      "support": "weak_support",
+      "support": "moderate_support",
       "affecting_arm_id": "talimogene_laherparepvec",
-      "reasoning": "Oncolytic viral mechanism likely affected TNF pathway biology based on clinical response"
+      "reasoning": "28% ORR indicates the oncolytic mechanism is affecting downstream TNF signaling pathways"
     },
     {
       "edge_type": "biology_drives",
@@ -34,7 +40,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "talimogene_laherparepvec",
-      "reasoning": "28% ORR in advanced melanoma provides moderate evidence that TNF pathway biology drives disease progression"
+      "reasoning": "Clinical response demonstrates that TNF pathway modulation drives anti-melanoma activity"
     },
     {
       "edge_type": "endpoint_captures",
@@ -42,10 +48,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit, with 28% response rate being clinically meaningful"
+      "reasoning": "ORR is a well-established endpoint for melanoma that captures clinical benefit, and the 28% response rate represents meaningful clinical activity"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "28% ORR in unselected advanced melanoma population demonstrates this population responds to the treatment"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Single-arm Phase II trial with no biomarker data limits mechanistic interpretation. Clinical response supports efficacy but cannot definitively establish target engagement or pathway modulation without comparator arm or biomarker confirmation."
+  "review_reason": "Single-arm trial with no control group and no biomarker data makes it difficult to definitively attribute clinical benefit to the proposed mechanism versus other factors. The 28% ORR is promising but needs validation in controlled studies."
 }
