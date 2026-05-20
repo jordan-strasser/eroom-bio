@@ -177,10 +177,19 @@ torcetrapib at P=0.65 modest-success, missing the actual failure mode.
 
 **Proposed integration** (preserves backward compat):
 
-  1. Compute a per-compound `safety_penalty` from `causes_ae` and
-     `target_associated_ae` edges, weighted by severity grade + belief
-     probability × evidence strength. High-severity AEs with strong
-     evidence drive the penalty up.
+  1. Compute a per-compound `safety_penalty` from BOTH:
+     - `causes_ae` edges out of the compound (compound-specific
+       risks — what this exact drug has caused in past trials)
+     - `target_associated_ae` edges out of the target (on-mechanism
+       risks — the target's biology produces these AEs whether or
+       not THIS compound has accumulated evidence)
+     Weighted by severity grade + belief probability × evidence
+     strength. The target-class source is essential for novel
+     compounds where `causes_ae` is sparse but the target family is
+     well-characterized (anti-PD-1 → known irAE pattern, BRAF
+     inhibitors → rash pattern, statins → myopathy class signal).
+     Both sources are already collected in `_collect_safety_risks`
+     for reporting; round-20 wires them into the prediction.
   2. Combine: `P(trial_succeeds) = P(mechanism_works) * (1 -
      safety_penalty)`. Or use a soft min so low-evidence AE edges
      don't dominate.
