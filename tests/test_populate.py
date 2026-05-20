@@ -308,6 +308,218 @@ class TestBuildTrialSubgraphs:
             )
 
 
+# ── Round 20.5: silent-drop visibility ──────────────────────────────────
+
+
+class TestDropLogVisibility:
+    """Round-20.5: build_trial_subgraphs must never silently drop a trial.
+    Every skip writes a structured record to
+    data/dev/dropped_trial_subgraphs.jsonl with the reason + the input
+    fields that failed. Without this the n=50 multi_indication build
+    silently lost 14 of 50 trials (28%).
+    """
+
+    @pytest.fixture(autouse=True)
+    def _isolated_drop_log(self, tmp_path, monkeypatch):
+        from src.graph import populate as pop_mod
+        log_path = tmp_path / "dropped_trial_subgraphs.jsonl"
+        monkeypatch.setattr(
+            pop_mod, "_DROPPED_TRIAL_SUBGRAPHS_LOG", log_path,
+        )
+        yield log_path
+
+    def _drop_log_entries(self, log_path):
+        import json
+        if not log_path.exists():
+            return []
+        return [
+            json.loads(line) for line in log_path.read_text().splitlines()
+            if line.strip()
+        ]
+
+    def test_unmatched_indication_logged(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """A trial whose conditions don't canonicalize to any indexed
+        IndicationNode is dropped — and the drop is recorded with the
+        original condition strings so the diagnostic doesn't need a
+        re-fetch from CT.gov."""
+        trial = _make_trial(
+            conditions=["Fictional Unicorn Disease"],
+        )
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert subgraphs == []
+        entries = self._drop_log_entries(_isolated_drop_log)
+        assert len(entries) == 1
+        assert entries[0]["nct_id"] == trial.nct_id
+        assert entries[0]["reason"] == "no_indication"
+        assert "Fictional Unicorn Disease" in entries[0]["details"]["conditions"]
+
+    def test_unmatched_endpoint_logged(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """Indication resolves but the primary_outcome measure text isn't
+        in the endpoint index. Drop is logged with the attempted measures."""
+        graph.add_node(IndicationNode(id="IND_001", name="Chronic Myeloid Leukemia"))
+        pipeline._index_node("IND_001", "Chronic Myeloid Leukemia", "indication")
+        # No EndpointNode / no endpoint index entry — endpoint resolution fails.
+        trial = _make_trial(outcome_measure="Exotic Cognitive Composite Score")
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert subgraphs == []
+        entries = self._drop_log_entries(_isolated_drop_log)
+        assert len(entries) == 1
+        assert entries[0]["reason"] == "no_endpoint"
+        assert (
+            "Exotic Cognitive Composite Score"
+            in entries[0]["details"]["primary_outcome_measures"]
+        )
+
+    def test_empty_arm_groups_logged_with_specific_reason(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """The torcetrapib case (NCT00134264): older CT.gov records
+        sometimes return arm_groups=[]. The fallback in build_arms now
+        synthesizes arms from interventions, so this case should NOT
+        drop. Verify by removing the only intervention so the fallback
+        produces nothing and the drop fires with the empty-arm-groups
+        reason."""
+        graph.add_node(IndicationNode(id="IND_001", name="Coronary Disease"))
+        pipeline._index_node("IND_001", "Coronary Disease", "indication")
+        graph.add_node(EndpointNode(
+            id="EP_001", name="Major cardiovascular event",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("EP_001", "Major cardiovascular event", "endpoint")
+        trial = TrialRecord(
+            nct_id="NCT_EMPTY", title="t", phase="3", status="TERMINATED",
+            conditions=["Coronary Disease"],
+            interventions=[],  # no interventions to synthesize from
+            primary_outcomes=[
+                OutcomeMeasure(measure="Major cardiovascular event"),
+            ],
+            enrollment=100, has_results=True, arm_groups=[],
+        )
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert subgraphs == []
+        entries = self._drop_log_entries(_isolated_drop_log)
+        assert len(entries) == 1
+        assert entries[0]["reason"] == "no_arms_empty_arm_groups"
+
+    def test_arm_groups_fallback_recovers_torcetrapib_shape(
+        self, pipeline, graph, _isolated_drop_log,
+    ):
+        """When arm_groups is empty but interventions has drug-like
+        entries, the fallback synthesizes arms. NCT00134264 had
+        interventions=['torcetrapib/atorvastatin', 'atorvastatin'] with
+        empty arm_groups — should now produce a valid subgraph
+        instead of being silently dropped."""
+        graph.add_node(IndicationNode(id="IND_001", name="Coronary Disease"))
+        pipeline._index_node("IND_001", "Coronary Disease", "indication")
+        graph.add_node(EndpointNode(
+            id="EP_001", name="Major cardiovascular event",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        pipeline._index_node("EP_001", "Major cardiovascular event", "endpoint")
+        graph.add_node(CompoundNode(
+            id="atorvastatin", name="atorvastatin",
+            modality=Modality.SMALL_MOLECULE,
+        ))
+        pipeline._index_node("atorvastatin", "atorvastatin", "compound")
+        trial = TrialRecord(
+            nct_id="NCT_TORC", title="t", phase="3", status="TERMINATED",
+            conditions=["Coronary Disease"],
+            interventions=[
+                Intervention(name="torcetrapib/atorvastatin", type="DRUG"),
+                Intervention(name="atorvastatin", type="DRUG"),
+            ],
+            primary_outcomes=[
+                OutcomeMeasure(measure="Major cardiovascular event"),
+            ],
+            enrollment=15000, has_results=True, arm_groups=[],  # CT.gov gap
+        )
+        subgraphs = pipeline.build_trial_subgraphs([trial])
+        assert len(subgraphs) == 1, (
+            "arm_groups fallback should synthesize one arm per drug "
+            "intervention when CT.gov returns empty arm_groups"
+        )
+        sg = subgraphs[0]
+        # Two drug interventions → two synthesized arms.
+        assert len(sg.arms) == 2
+        # No drop entry expected — the fallback recovered the trial.
+        assert self._drop_log_entries(_isolated_drop_log) == []
+
+
+class TestArmGroupsFallback:
+    """Round-20.5: build_arms must synthesize arms from interventions
+    when arm_groups is empty (CT.gov v2 API sometimes omits arm_groups
+    on older terminated trials). Without the fallback, trials like
+    NCT00134264 (torcetrapib ILLUMINATE) silently dropped."""
+
+    def test_synthesizes_one_arm_per_drug_intervention(self):
+        trial = TrialRecord(
+            nct_id="NCT_FALLBACK", title="t", phase="3", status="COMPLETED",
+            conditions=["Disease"],
+            interventions=[
+                Intervention(name="drug_a", type="DRUG"),
+                Intervention(name="drug_b", type="BIOLOGICAL"),
+            ],
+            primary_outcomes=[],
+            enrollment=100, has_results=True,
+            arm_groups=[],  # empty — triggers fallback
+        )
+        arms = build_arms(trial)
+        assert len(arms) == 2
+        arm_compound_ids = {arm.compound_ids[0] for arm in arms}
+        assert "drug_a" in arm_compound_ids
+        assert "drug_b" in arm_compound_ids
+
+    def test_skips_non_drug_interventions_in_fallback(self):
+        """The fallback only synthesizes arms for DRUG/BIOLOGICAL
+        interventions — radiation, procedures, devices, diagnostics
+        don't get their own arm."""
+        trial = TrialRecord(
+            nct_id="NCT_NONDRUG", title="t", phase="3", status="COMPLETED",
+            conditions=["Disease"],
+            interventions=[
+                Intervention(name="drug_x", type="DRUG"),
+                Intervention(name="radiation", type="RADIATION"),
+                Intervention(name="biopsy", type="PROCEDURE"),
+            ],
+            primary_outcomes=[],
+            enrollment=100, has_results=True, arm_groups=[],
+        )
+        arms = build_arms(trial)
+        assert len(arms) == 1
+        assert arms[0].compound_ids == ["drug_x"]
+
+    def test_fallback_does_not_fire_when_arm_groups_present(self):
+        """If arm_groups has any entries, the fallback is bypassed — we
+        trust the CT.gov-reported arm structure."""
+        trial = TrialRecord(
+            nct_id="NCT_NORMAL", title="t", phase="3", status="COMPLETED",
+            conditions=["Disease"],
+            interventions=[
+                Intervention(name="drug_x", type="DRUG"),
+                Intervention(name="drug_y", type="DRUG"),
+            ],
+            primary_outcomes=[],
+            enrollment=100, has_results=True,
+            arm_groups=[
+                ArmGroup(
+                    group_id="ag1", title="Arm 1",
+                    intervention_names=["drug_x", "drug_y"],
+                ),
+            ],
+        )
+        arms = build_arms(trial)
+        # One arm with both compounds (combo from arm_groups), NOT two
+        # separate arms (which the fallback would produce).
+        assert len(arms) == 1
+        assert set(arms[0].compound_ids) == {"drug_x", "drug_y"}
+
+
 # ── Round 3.2 scaling readiness: hierarchy + smoke tests ────────────────
 
 
