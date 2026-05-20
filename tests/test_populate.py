@@ -1706,3 +1706,75 @@ class TestRespondsDifferentlyForUnselected:
             "melanoma__unselected", "melanoma",
             key=ET.RESPONDS_DIFFERENTLY.value,
         )
+
+
+# ── Round-18 followup: codename → INN canonicalization at populate ─────
+
+
+class TestPopulatorCodenameToINN:
+    """When `map_trial_to_graph_nodes` produces a compound id matching
+    a known dev code (AZD6244, MK-3475, etc.), the populator's step-2
+    loop should remap it to the canonical INN at creation time, with
+    the original code preserved as an alias. Future builds then have
+    every form of a compound resolve to the same node without needing
+    the post-build `scripts/canonicalize_codenames.py` migration."""
+
+    @pytest.mark.asyncio
+    async def test_azd6244_collapses_to_selumetinib(self, pipeline):
+        """A trial whose intervention is named 'AZD6244' should produce
+        a `selumetinib` CompoundNode with AZD6244 in aliases, plus an
+        entity index entry that resolves 'AZD6244' to selumetinib."""
+        from src.ingestion.clinicaltrials import (
+            Intervention, OutcomeMeasure, TrialRecord,
+        )
+        trial = TrialRecord(
+            nct_id="NCT_TEST_AZD",
+            title="Test AZD6244 in thyroid cancer",
+            phase="2", status="COMPLETED",
+            conditions=["Thyroid Cancer"],
+            interventions=[
+                Intervention(name="AZD6244", type="DRUG", description=""),
+            ],
+            primary_outcomes=[OutcomeMeasure(measure="OS", timeframe="2y")],
+            enrollment=20, has_results=True, arm_groups=[],
+        )
+        await pipeline.populate_oncology(trials=[trial])
+
+        # Canonical id should be 'selumetinib', not 'azd6244'
+        assert "selumetinib" in pipeline.graph._graph  # noqa: SLF001
+        assert "azd6244" not in pipeline.graph._graph  # noqa: SLF001
+
+        node = pipeline.graph._graph.nodes["selumetinib"]  # noqa: SLF001
+        # Original form should be preserved as an alias
+        aliases = node.get("aliases") or []
+        assert "AZD6244" in aliases, (
+            f"Round-18: original codename 'AZD6244' missing from "
+            f"selumetinib's aliases. Got: {aliases}"
+        )
+
+        # Entity index should resolve both forms back to the canonical id
+        assert pipeline.resolve_entity("AZD6244", "compound") == "selumetinib"
+        assert pipeline.resolve_entity("selumetinib", "compound") == "selumetinib"
+
+    @pytest.mark.asyncio
+    async def test_non_codename_compound_unchanged(self, pipeline):
+        """A compound whose id is NOT in the codename dict should be
+        added with its original id (no remap, no false-positive)."""
+        from src.ingestion.clinicaltrials import (
+            Intervention, OutcomeMeasure, TrialRecord,
+        )
+        trial = TrialRecord(
+            nct_id="NCT_TEST_NORMAL",
+            title="Test cisplatin",
+            phase="3", status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=[
+                Intervention(name="cisplatin", type="DRUG", description=""),
+            ],
+            primary_outcomes=[OutcomeMeasure(measure="OS", timeframe="2y")],
+            enrollment=100, has_results=True, arm_groups=[],
+        )
+        await pipeline.populate_oncology(trials=[trial])
+
+        # 'cisplatin' isn't in CODENAME_TO_INN → no remap
+        assert "cisplatin" in pipeline.graph._graph  # noqa: SLF001

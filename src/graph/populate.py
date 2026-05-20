@@ -38,6 +38,7 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.graph.compound_codenames import CODENAME_TO_INN
 from src.graph.indication_taxonomy import parent_indication_for
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import (
@@ -1018,15 +1019,32 @@ class PopulationPipeline:
             if chosen_population is not None:
                 self._trial_default_population[trial.nct_id] = chosen_population
 
-            # Compound nodes still come from the trial's interventions —
-            # no canonicalization needed here, just indexing. The
-            # diagnostic-compound set (computed in step 2.5 below)
+            # Compound nodes come from the trial's interventions.
+            # Round-18 codename → INN canonicalization: if the trial's
+            # intervention name normalizes to a known dev-code slug
+            # (AZD6244, MK-3475, GSK1120212, etc.), remap to the
+            # canonical INN at creation time so all forms (code, INN,
+            # brand) resolve to the same compound node downstream.
+            # The original code form is preserved as an alias.
+            #
+            # The diagnostic-compound set (computed in step 2.5 below)
             # filters out Lymphoseek-style imaging agents before they
             # enter the graph.
             nodes = map_trial_to_graph_nodes(trial)
             for comp in nodes["compounds"]:
                 if comp.id in self._diagnostic_compound_ids:
                     continue
+                inn_id = CODENAME_TO_INN.get(comp.id)
+                if inn_id and inn_id != comp.id:
+                    original_id = comp.id
+                    original_name = comp.name
+                    comp.id = inn_id
+                    comp.name = inn_id
+                    new_aliases = list(comp.aliases)
+                    for alt in (original_name, original_id):
+                        if alt and alt not in new_aliases:
+                            new_aliases.insert(0, alt)
+                    comp.aliases = new_aliases
                 self.graph.add_node(comp)
                 self._index_node(comp.id, comp.name, "compound")
                 # Index original intervention names (aliases) too so raw

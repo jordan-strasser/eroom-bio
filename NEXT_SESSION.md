@@ -62,7 +62,7 @@ data/corpora/multi_indication.txt       # the bigger 281-NCT list
 
 **Open known issues** (none blocking, all queued):
 - Case-study audit's `verdict` logic is too strict — calls "PARTIAL" any time `weakest_link` doesn't exactly match the literature's expected edge, even when prediction direction is right. After round 20 ships, refine verdict to also accept MATCH-VIA-SAFETY for safety-driven failures and direction-only matches when bottleneck is close.
-- `src/graph/compound_codenames.py` has a curated dict but isn't wired into the populator's compound-creation step yet. Future builds will still produce code-form ids until that wiring lands. Tracked for later — the migration script (`scripts/canonicalize_codenames.py`) handles it retroactively for existing snapshots.
+- ~~`src/graph/compound_codenames.py` has a curated dict but isn't wired into the populator's compound-creation step yet.~~ **Resolved end of round 18**: wired into `src/graph/populate.py`'s compound-add loop. Future builds now produce INN ids at creation time. The post-build `scripts/canonicalize_codenames.py` migration tool is still available for legacy snapshots but is a no-op on fresh builds. 2 unit tests in `TestPopulatorCodenameToINN`.
 - The melanoma-only OOS holdout AUROC story (round 14's 0.243) was eclipsed by the round-15 / 16 / 17 architectural work. The current "in-sample on clean-mechanistic-failure subset" AUROC 0.873 is the headline. A clean OOS measurement requires either (a) more trials per indication so we have a real held-out set per indication, or (b) the incremental-build mode (round 19) so we can add trials to test against without rebuilding.
 
 ---
