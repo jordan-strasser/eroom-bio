@@ -103,6 +103,43 @@ from src.ingestion.opentargets import (
 logger = logging.getLogger(__name__)
 console = Console()
 
+# Round-20.5: structured drop log for trials the populator silently
+# skipped during build_trial_subgraphs. Wiped at the start of each
+# populate_oncology call so each build's drop set is fresh. Read by
+# the orchestrator's drop-rate threshold check + by tests asserting
+# no-silent-loss.
+_DROPPED_TRIAL_SUBGRAPHS_LOG = Path("data/dev/dropped_trial_subgraphs.jsonl")
+
+
+def _log_dropped_trial_subgraph(
+    nct_id: str, reason: str, **details: Any,
+) -> None:
+    """Append a structured record describing a trial that build_trial_
+    subgraphs couldn't build a chain for.
+
+    ``reason`` is one of: ``no_indication`` (no condition canonicalized
+    to an IndicationNode), ``no_endpoint`` (no primary_outcome resolved
+    to an EndpointNode), ``no_arms`` (arm_groups empty or every arm
+    filtered out, e.g. all diagnostic compounds). ``details`` captures
+    the raw inputs that failed so the diagnostic doesn't require a
+    re-fetch from CT.gov.
+    """
+    from datetime import datetime, timezone
+
+    _DROPPED_TRIAL_SUBGRAPHS_LOG.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "nct_id": nct_id,
+        "reason": reason,
+        "details": details,
+        "logged_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with _DROPPED_TRIAL_SUBGRAPHS_LOG.open("a") as fh:
+        fh.write(json.dumps(record) + "\n")
+    logger.warning(
+        "build_trial_subgraphs dropped %s: %s (%s)",
+        nct_id, reason, details,
+    )
+
 # Haiku is fast + cheap for short categorical labels. The structural inferences
 # (endpoint type, mechanism, population) are short—Haiku is more than enough.
 INFERENCE_MODEL = "claude-haiku-4-5-20251001"
@@ -748,6 +785,13 @@ class PopulationPipeline:
         condition: str = "cancer",
         trials: list[TrialRecord] | None = None,
     ) -> dict[str, Any]:
+        # Round-20.5: clear the drop log at the start of every build so
+        # it reflects ONLY this run's silent skips. Any entries left
+        # over from a prior build would otherwise confuse the
+        # orchestrator's drop-rate check.
+        if _DROPPED_TRIAL_SUBGRAPHS_LOG.exists():
+            _DROPPED_TRIAL_SUBGRAPHS_LOG.unlink()
+
         # Step 1: Fetch trials (or use the caller's pre-fetched list).
         # Drivers that need the same TrialRecord set for both populate and
         # downstream extraction can pass `trials=` to avoid a duplicate
@@ -2621,14 +2665,25 @@ class PopulationPipeline:
                     if indication_id:
                         break
             if not indication_id:
+                _log_dropped_trial_subgraph(
+                    trial.nct_id, "no_indication",
+                    conditions=list(trial.conditions),
+                )
                 continue
 
             endpoint_id = None
+            attempted_measures: list[str] = []
             for om in trial.primary_outcomes:
+                attempted_measures.append(om.measure)
                 endpoint_id = self.resolve_entity(om.measure, "endpoint")
                 if endpoint_id:
                     break
             if not endpoint_id:
+                _log_dropped_trial_subgraph(
+                    trial.nct_id, "no_endpoint",
+                    indication_id=indication_id,
+                    primary_outcome_measures=attempted_measures,
+                )
                 continue
 
             seed_trial_node(self.graph, trial)
@@ -2646,6 +2701,29 @@ class PopulationPipeline:
                     ]
                 arms = [a for a in arms if a.compound_ids]
             if not arms:
+                # Distinguish empty arm_groups (CT.gov data gap, fixable
+                # via the interventions-fallback in build_arms) from
+                # everything-filtered (all compounds were diagnostic) so
+                # the log surfaces the root cause.
+                if not trial.arm_groups:
+                    drop_reason = "no_arms_empty_arm_groups"
+                elif diag_cids and any(
+                    set(ag.intervention_names) <= {
+                        iv.name for iv in trial.interventions
+                        if iv.name and iv.name not in diag_cids
+                    }
+                    for ag in trial.arm_groups
+                ):
+                    drop_reason = "no_arms_filtered_by_diagnostic"
+                else:
+                    drop_reason = "no_arms"
+                _log_dropped_trial_subgraph(
+                    trial.nct_id, drop_reason,
+                    indication_id=indication_id,
+                    endpoint_id=endpoint_id,
+                    arm_group_count=len(trial.arm_groups),
+                    intervention_names=[iv.name for iv in trial.interventions],
+                )
                 continue
             synthesize_combo_compounds(self.graph, arms)
 
@@ -2750,9 +2828,36 @@ def build_arms(
         if iv.name and not is_drug_like(iv)
     }
 
+    # Round-20.5: arm_groups fallback. Older trials (e.g. NCT00134264
+    # ILLUMINATE torcetrapib, terminated 2006) sometimes have no
+    # arm_groups in the CT.gov v2 API response, even when the trial
+    # report itself was clearly multi-arm. Without a fallback, every
+    # such trial gets silently dropped by build_trial_subgraphs because
+    # arms becomes []. Synthesize one arm per drug-like intervention so
+    # the chain backbone can still resolve; the original trial-design
+    # ambiguity is logged via the dropped_trial_subgraphs log if any
+    # downstream step fails.
+    arm_groups_list = list(trial.arm_groups)
+    if not arm_groups_list and trial.interventions:
+        from src.ingestion.clinicaltrials import ArmGroup
+        drug_interventions = [
+            iv for iv in trial.interventions
+            if iv.name and is_drug_like(iv)
+        ]
+        for iv in drug_interventions:
+            arm_groups_list.append(ArmGroup(
+                group_id=normalize_entity(iv.name, "InterventionNode"),
+                title=iv.name,
+                description=(
+                    "synthesized from trial.interventions because CT.gov "
+                    "returned empty arm_groups"
+                ),
+                intervention_names=[iv.name],
+            ))
+
     arms: list[TrialArm] = []
     seen_arm_ids: set[str] = set()
-    for ag in trial.arm_groups:
+    for ag in arm_groups_list:
         if not ag.intervention_names:
             continue
         relevant_names = [

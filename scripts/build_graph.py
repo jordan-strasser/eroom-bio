@@ -365,6 +365,8 @@ async def main(
     base_snapshot: str | None = None,
     add_trials: list[str] | None = None,
     add_corpus: str | None = None,
+    min_subgraph_success_rate: float = 0.90,
+    allow_partial_subgraphs: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
     if incremental:
@@ -515,6 +517,40 @@ async def main(
         condition=condition,
         trials=trials,
     )
+
+    # Round-20.5: silent-drop guard. build_trial_subgraphs skips a trial
+    # when its indication / endpoint / arm structure can't be resolved.
+    # Without this check, 14 of 50 trials in the n=50 multi_indication
+    # build were lost silently — the snapshot LOOKED complete but the
+    # chains weren't there. Mirrors the round-16 min_classify_success_rate
+    # check (which catches API exhaustion). For incremental mode,
+    # `trials` was already filtered to NEW NCTs only before populate, so
+    # the rate is computed against THAT slice.
+    built_subgraphs = sum(1 for t in trials if t.nct_id in graph.trial_subgraphs)
+    subgraph_success_rate = built_subgraphs / len(trials) if trials else 1.0
+    if (
+        subgraph_success_rate < min_subgraph_success_rate
+        and not allow_partial_subgraphs
+    ):
+        from src.graph.populate import _DROPPED_TRIAL_SUBGRAPHS_LOG
+        drop_path = _DROPPED_TRIAL_SUBGRAPHS_LOG
+        raise SystemExit(
+            f"\ntrial subgraph build success rate "
+            f"{subgraph_success_rate:.1%} below minimum "
+            f"{min_subgraph_success_rate:.1%} "
+            f"({built_subgraphs} of {len(trials)} trials produced a "
+            f"trial subgraph). Aborting before extraction to avoid a "
+            f"silently-truncated snapshot. "
+            f"See {drop_path} for per-trial drop reasons "
+            f"(no_indication / no_endpoint / no_arms_*). "
+            f"Re-run with --allow-partial-subgraphs to force the build "
+            f"to continue with the partial set."
+        )
+    console.print(
+        f"  built {built_subgraphs}/{len(trials)} trial subgraphs "
+        f"({subgraph_success_rate:.1%})"
+    )
+
     graph.export_snapshot(str(initial_path))
     console.print(f"  wrote {initial_path}")
 
@@ -678,6 +714,21 @@ if __name__ == "__main__":
              "added on top of --base-snapshot. Mutually exclusive with "
              "--add-trials.",
     )
+    parser.add_argument(
+        "--min-subgraph-success-rate", type=float, default=0.90,
+        help="Round-20.5 silent-drop guard. Minimum fraction of fetched "
+             "trials that must produce a trial subgraph (default 0.90). "
+             "Build aborts before extraction if the rate falls below "
+             "this — catches indication/endpoint canonicalization gaps "
+             "that would otherwise silently drop trials. See "
+             "data/dev/dropped_trial_subgraphs.jsonl for per-trial reasons.",
+    )
+    parser.add_argument(
+        "--allow-partial-subgraphs", action="store_true",
+        help="Override --min-subgraph-success-rate and continue building "
+             "even when many trials silently failed to produce subgraphs. "
+             "Use only when investigating the drop log itself.",
+    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
     add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
@@ -697,4 +748,6 @@ if __name__ == "__main__":
         base_snapshot=args.base_snapshot,
         add_trials=add_trials or None,
         add_corpus=args.add_corpus,
+        min_subgraph_success_rate=args.min_subgraph_success_rate,
+        allow_partial_subgraphs=args.allow_partial_subgraphs,
     ))

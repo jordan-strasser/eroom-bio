@@ -84,6 +84,9 @@ class TestClassifySuccessRateAbort:
                     condition="melanoma", max_trials=10,
                     include_terminated=False, concurrency=2,
                     area="oncology", min_classify_success_rate=0.80,
+                    # Bypass the round-20.5 subgraph-success check so
+                    # this test exercises ONLY the classify-rate path.
+                    allow_partial_subgraphs=True,
                 )
 
     @pytest.mark.asyncio
@@ -134,6 +137,11 @@ class TestClassifySuccessRateAbort:
                 condition="melanoma", max_trials=10,
                 include_terminated=False, concurrency=2,
                 area="oncology", min_classify_success_rate=0.80,
+                # Round-20.5 subgraph-rate check would fire here too
+                # because the populate mock doesn't populate
+                # graph.trial_subgraphs. Bypass since this test is
+                # about the classify-rate path only.
+                allow_partial_subgraphs=True,
             )
             # If we got here without SystemExit, the abort didn't fire.
             attributor_mock.assert_awaited_once()
@@ -182,6 +190,7 @@ class TestClassifySuccessRateAbort:
                 area="oncology",
                 min_classify_success_rate=0.80,
                 allow_partial_classify=True,
+                allow_partial_subgraphs=True,
             )
             # Attribution should have been called despite the low rate.
             attributor_mock.assert_awaited_once()
@@ -356,6 +365,9 @@ class TestIncrementalBuildOrchestration:
                 area="oncology",
                 base_snapshot=str(base),
                 add_trials=["NCT00000002"],
+                # populate is mocked so trial_subgraphs stays empty —
+                # bypass the round-20.5 subgraph-rate guard.
+                allow_partial_subgraphs=True,
             )
 
         wipe_mock.assert_not_called()
@@ -422,6 +434,9 @@ class TestIncrementalBuildOrchestration:
                 area="oncology",
                 base_snapshot=str(base),
                 add_trials=["NCT00000001", "NCT00000002"],
+                # populate is mocked so trial_subgraphs stays empty —
+                # bypass the round-20.5 subgraph-rate guard.
+                allow_partial_subgraphs=True,
             )
 
         # The populator should have been called with ONLY the new trial.
@@ -430,6 +445,98 @@ class TestIncrementalBuildOrchestration:
         passed_trials = call_kwargs["trials"]
         passed_ids = [t.nct_id for t in passed_trials]
         assert passed_ids == ["NCT00000002"]
+
+    @pytest.mark.asyncio
+    async def test_subgraph_success_threshold_aborts_on_silent_drops(
+        self, fake_trials, tmp_path, monkeypatch,
+    ):
+        """Round-20.5: if build_trial_subgraphs silently drops too many
+        trials, the orchestrator must abort BEFORE extraction so we
+        don't burn LLM tokens classifying trials that'll never make it
+        into the graph. Mirrors the round-16 classify-success-rate
+        check."""
+        monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
+        monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
+        monkeypatch.setattr(build_graph, "CORPORA_DIR", tmp_path / "corpora")
+        (tmp_path / "exports").mkdir()
+        (tmp_path / "annotations").mkdir()
+        (tmp_path / "corpora").mkdir()
+
+        # Empty graph (no trial_subgraphs) after populate — simulates
+        # the worst case where every trial silently dropped.
+        from src.graph.store import GraphStore
+        empty_graph = GraphStore()
+        populate_mock = AsyncMock(return_value=None)
+
+        with (
+            patch.object(build_graph, "fetch_trials",
+                         new=AsyncMock(return_value=fake_trials)),
+            patch.object(build_graph, "wipe_outputs"),
+            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            patch.object(build_graph, "Extractor"),
+            patch.object(build_graph, "Classifier"),
+            patch.object(build_graph, "GraphStore", return_value=empty_graph),
+            patch("anthropic.AsyncAnthropic"),
+        ):
+            mock_pop = MockPop.return_value
+            mock_pop.populate_oncology = populate_mock
+
+            with pytest.raises(SystemExit, match="trial subgraph build success rate"):
+                await build_graph.main(
+                    condition="melanoma", max_trials=10,
+                    include_terminated=False, concurrency=2,
+                    area="oncology",
+                    min_subgraph_success_rate=0.90,
+                )
+
+    @pytest.mark.asyncio
+    async def test_allow_partial_subgraphs_overrides_silent_drop_abort(
+        self, fake_trials, tmp_path, monkeypatch,
+    ):
+        """--allow-partial-subgraphs lets the build proceed even when
+        many trials dropped — for explicit debugging."""
+        monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
+        monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
+        monkeypatch.setattr(build_graph, "CORPORA_DIR", tmp_path / "corpora")
+        (tmp_path / "exports").mkdir()
+        (tmp_path / "annotations").mkdir()
+        (tmp_path / "corpora").mkdir()
+        (tmp_path / "exports" / "oncology_annotated.json").write_text(
+            '{"graph": {"directed": true, "multigraph": true, "graph": {}, '
+            '"nodes": [], "edges": []}, "trial_subgraphs": {}}'
+        )
+
+        from src.graph.store import GraphStore
+        empty_graph = GraphStore()
+        attributor_mock = AsyncMock()
+        with (
+            patch.object(build_graph, "fetch_trials",
+                         new=AsyncMock(return_value=fake_trials)),
+            patch.object(build_graph, "wipe_outputs"),
+            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            patch.object(build_graph, "Extractor"),
+            patch.object(build_graph, "Classifier"),
+            patch.object(build_graph, "GraphStore", return_value=empty_graph),
+            patch.object(build_graph, "extract_all",
+                         new=AsyncMock(return_value=fake_trials)),
+            patch.object(build_graph, "classify_all",
+                         new=AsyncMock(return_value=10)),
+            patch.object(build_graph, "seed_responds_differently_from_extractions",
+                         new=AsyncMock(return_value=(0, 0))),
+            patch.object(build_graph, "attributor_main", new=attributor_mock),
+            patch("anthropic.AsyncAnthropic"),
+        ):
+            mock_pop = MockPop.return_value
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
+
+            # Should NOT raise SystemExit despite 0% subgraph success.
+            await build_graph.main(
+                condition="melanoma", max_trials=10,
+                include_terminated=False, concurrency=2,
+                area="oncology",
+                min_subgraph_success_rate=0.90,
+                allow_partial_subgraphs=True,
+            )
 
     @pytest.mark.asyncio
     async def test_all_requested_already_present_returns_early(
