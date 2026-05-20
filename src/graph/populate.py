@@ -723,6 +723,14 @@ class PopulationPipeline:
         # raw CT.gov condition string → (canonical_slug, display_name).
         # Lazily initialized when canonicalization is first needed.
         self._indication_canon: JSONCache | None = None
+        # Round-21 Phase B: normalized intervention name → chembl_id.
+        # Populated as a side-effect of _identify_diagnostic_compounds
+        # (which already does the OT/ChEMBL lookups). Step 2's
+        # compound-add loop consults this for stable_id-based
+        # canonicalization so two CT.gov spellings of the same drug
+        # ("Fluorouracil" + "5-Fluorouracil") consolidate onto one
+        # InterventionNode keyed by ChEMBL id.
+        self._compound_chembl_ids: dict[str, str] = {}
 
     # ── Entity resolution ────────────────────────────────────────────────
 
@@ -897,6 +905,24 @@ class PopulationPipeline:
         # for build_trial_subgraphs to pick up.
         self._trial_default_population: dict[str, str] = {}
         self._trial_canonical_indication: dict[str, str] = {}
+
+        # Round-21 Phase B: indices for compound canonicalization. Built
+        # from the LOADED graph's existing compound nodes (the
+        # incremental --base-snapshot path leaves them in place; the
+        # fresh-build path starts empty). Indices are mutated in the
+        # compound-add loop as new compounds get added so two trials in
+        # the same run sharing a drug consolidate on the first
+        # creation.
+        compound_chembl_index: dict[str, str] = {}
+        compound_embedding_index: list[tuple[str, list[float]]] = []
+        for existing_node in self.graph.get_nodes_by_type("InterventionNode"):
+            existing_id = existing_node["id"]
+            ex_chembl = existing_node.get("stable_id")
+            if ex_chembl:
+                compound_chembl_index.setdefault(ex_chembl, existing_id)
+            ex_emb = existing_node.get("embedding")
+            if ex_emb:
+                compound_embedding_index.append((existing_id, ex_emb))
 
         # First pass: canonicalize, build IndicationNodes and default
         # PopulationNodes, index raw cond text → canonical id.
@@ -1089,7 +1115,54 @@ class PopulationPipeline:
                         if alt and alt not in new_aliases:
                             new_aliases.insert(0, alt)
                     comp.aliases = new_aliases
+
+                # Round-21 Phase B: stable_id + embedding-based
+                # canonicalization. Populate stable_id from the cache
+                # built by step 1.5's OT/ChEMBL lookups, then compute
+                # the SapBERT embedding (if the sapbert extra is
+                # installed). Both feed _canonicalize_compound which
+                # decides whether to alias onto an existing node or
+                # create a new one.
+                norm_name = _norm_for_pattern_match(comp.name)
+                if comp.stable_id is None:
+                    comp.stable_id = self._compound_chembl_ids.get(norm_name)
+                if comp.embedding is None:
+                    try:
+                        from src.graph.sapbert_embeddings import (
+                            SapBertUnavailable,
+                            embed_compound_name,
+                        )
+                        try:
+                            comp.embedding = embed_compound_name(
+                                comp.name,
+                                cache_path=self._cache_dir / "sapbert_embeddings.json",
+                            )
+                        except SapBertUnavailable:
+                            # Optional extra not installed — fall back
+                            # to chembl_id-only canonicalization.
+                            pass
+                    except ImportError:
+                        pass
+
+                canonical_id, was_resolved = self._canonicalize_compound(
+                    comp,
+                    existing_chembl_index=compound_chembl_index,
+                    embedding_index=compound_embedding_index,
+                )
+                if was_resolved and canonical_id != comp.id:
+                    # Merge the incoming compound's identity into the
+                    # existing node: aliases get unioned, the entity
+                    # index gets an entry from comp.name/id → existing id.
+                    self._merge_compound_into_existing(comp, canonical_id)
+                    continue
+
                 self.graph.add_node(comp)
+                # Update the in-loop indices so a later compound in the
+                # same trial / corpus pass can dedup against this one.
+                if comp.stable_id and comp.stable_id not in compound_chembl_index:
+                    compound_chembl_index[comp.stable_id] = comp.id
+                if comp.embedding:
+                    compound_embedding_index.append((comp.id, comp.embedding))
                 self._index_node(comp.id, comp.name, "compound")
                 # Index original intervention names (aliases) too so raw
                 # CT.gov-side names like "Sorafenib (Nexavar; BAY43-9006)"
@@ -1259,6 +1332,16 @@ class PopulationPipeline:
         diagnostic_cids: set[str] = set()
         seen_canonicals: set[str] = set()
 
+        # Round-21 Phase B: side-effect of the diagnostic OT/ChEMBL
+        # lookups is that we learn each compound's chembl_id. Stash
+        # those per-canonical-name so Step 2's compound-add loop can
+        # use them for stable_id-based canonicalization without
+        # re-running OT lookups. Maps `_norm_for_pattern_match(name) →
+        # chembl_id`. Compounds without a resolved chembl_id are
+        # absent from the dict (rather than mapping to None) so
+        # `if chembl_id := lookup.get(...)` is a clean check.
+        self._compound_chembl_ids: dict[str, str] = {}
+
         # Build the override set: any canonical name (lowercased) whose
         # compound id is referenced by the vaccine / cell-therapy
         # heuristics is exempt from filtering — those heuristics are
@@ -1318,6 +1401,15 @@ class PopulationPipeline:
                         chembl_id = await self._chembl_client.search_drug_by_name(
                             canonical_name,
                         )
+                    if chembl_id:
+                        # Round-21 Phase B: cache for stable_id lookup
+                        # in the compound-add loop. Same key shape as
+                        # the override-pattern set, so Step 2 can
+                        # normalize the incoming intervention name the
+                        # same way before looking up.
+                        self._compound_chembl_ids[
+                            _norm_for_pattern_match(canonical_name)
+                        ] = chembl_id
                     if not chembl_id:
                         # No ChEMBL record → no signal to filter on,
                         # safer to keep.
@@ -2639,6 +2731,122 @@ class PopulationPipeline:
         self.graph.add_edge(edge)
 
     # ── Trial subgraph construction ──────────────────────────────────────
+
+    # Round-21 Phase B: compound canonicalization. Default similarity
+    # threshold is intentionally conservative — embedding-only matches
+    # are blocked from collapsing distinct drugs in the same class
+    # (erlotinib vs gefitinib, paclitaxel vs docetaxel). The threshold
+    # will be re-tuned via the labeled-pair audit (task #22) once the
+    # sapbert optional extra is installed; until then the default
+    # leans toward "miss on close-but-different pairs" rather than
+    # "merge on actually-different pairs."
+    _COMPOUND_EMBEDDING_SIMILARITY_THRESHOLD = 0.92
+
+    def _canonicalize_compound(
+        self,
+        comp: "InterventionNode",
+        existing_chembl_index: dict[str, str],
+        embedding_index: list[tuple[str, list[float]]],
+    ) -> tuple[str, bool]:
+        """Decide whether ``comp`` should reuse an existing compound id.
+
+        Resolution priority (most-specific to least):
+          1. ``stable_id`` (ChEMBL id) match — chembl is authoritative.
+             If incoming's chembl_id matches an existing node's
+             ``stable_id``, reuse that id.
+          2. Embedding cosine match above
+             ``_COMPOUND_EMBEDDING_SIMILARITY_THRESHOLD`` — gated by
+             chembl_id NON-CONFLICT. If incoming has chembl_id X and
+             existing has chembl_id Y ≠ X, the embedding match is
+             rejected (safety net against false-merge between two
+             distinct ChEMBL-registered drugs that happen to embed
+             close).
+          3. No match — caller adds a fresh node.
+
+        Returns ``(canonical_id, was_resolved)``. ``was_resolved=True``
+        means the caller should skip ``add_node`` and merge the
+        incoming compound's aliases into the existing node.
+
+        ``existing_chembl_index`` is ``chembl_id → existing_compound_id``,
+        ``embedding_index`` is ``[(existing_id, embedding_vector), ...]``.
+        Both built once at populate_oncology start.
+        """
+        # 1. stable_id (chembl_id) match.
+        incoming_chembl = comp.stable_id
+        if incoming_chembl and incoming_chembl in existing_chembl_index:
+            return existing_chembl_index[incoming_chembl], True
+
+        # 2. Embedding match — only if we have one for the incoming.
+        if comp.embedding is None or not embedding_index:
+            return comp.id, False
+
+        from src.graph.sapbert_embeddings import cosine_similarity
+
+        best_id: str | None = None
+        best_score = -1.0
+        for existing_id, vec in embedding_index:
+            score = cosine_similarity(comp.embedding, vec)
+            if score > best_score:
+                best_score = score
+                best_id = existing_id
+        if (
+            best_id is not None
+            and best_score >= self._COMPOUND_EMBEDDING_SIMILARITY_THRESHOLD
+        ):
+            # Chembl-id non-conflict gate. If both incoming and the
+            # candidate have a chembl_id and they DIFFER, refuse the
+            # embedding match — it's a false positive across distinct
+            # ChEMBL-registered drugs.
+            candidate_chembl = self.graph._graph.nodes[best_id].get(  # noqa: SLF001
+                "stable_id"
+            )
+            if (
+                incoming_chembl
+                and candidate_chembl
+                and incoming_chembl != candidate_chembl
+            ):
+                return comp.id, False
+            return best_id, True
+
+        return comp.id, False
+
+    def _merge_compound_into_existing(
+        self, incoming: "InterventionNode", existing_id: str,
+    ) -> None:
+        """Union the incoming compound's identifying info into an
+        already-present node (Phase B canonicalization decided they're
+        the same drug).
+
+        - Adds incoming's name + id + aliases to the existing node's
+          aliases (deduped, order-preserving).
+        - Indexes incoming's name + aliases → existing_id in the
+          entity index, so subsequent ``resolve_entity`` calls from
+          extractor / classifier / build_arms find the existing id.
+        - Backfills ``stable_id`` on the existing node only if it's
+          currently empty (chembl is authoritative once set).
+        - Backfills ``embedding`` similarly.
+        """
+        node_dict = self.graph._graph.nodes[existing_id]  # noqa: SLF001
+        existing_aliases = list(node_dict.get("aliases") or [])
+        seen = set(existing_aliases)
+        candidates = [incoming.name, incoming.id] + list(incoming.aliases)
+        for alias in candidates:
+            if alias and alias not in seen and alias != existing_id:
+                existing_aliases.append(alias)
+                seen.add(alias)
+        node_dict["aliases"] = existing_aliases
+
+        if not node_dict.get("stable_id") and incoming.stable_id:
+            node_dict["stable_id"] = incoming.stable_id
+        if not node_dict.get("embedding") and incoming.embedding:
+            node_dict["embedding"] = list(incoming.embedding)
+
+        # Update the entity index so downstream resolve_entity calls
+        # (build_arms, classifier prompts, etc.) map any of the
+        # incoming compound's names onto the canonical existing id.
+        for alias in candidates:
+            if alias:
+                self._index_node(existing_id, alias, "compound")
 
     def _slug_create_indication_node(self, condition: str) -> str:
         """Round-22 fallback: create an IndicationNode from a raw CT.gov
