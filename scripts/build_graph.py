@@ -367,6 +367,7 @@ async def main(
     add_corpus: str | None = None,
     min_subgraph_success_rate: float = 0.75,
     allow_partial_subgraphs: bool = False,
+    exclude_from_attribution: list[str] | None = None,
 ) -> None:
     incremental = bool(base_snapshot)
     if incremental:
@@ -652,6 +653,7 @@ async def main(
     console.rule("[bold]Step 4: attribute[/bold]")
     await attributor_main(
         str(ANNOTATIONS_DIR), str(initial_path), str(annotated_path),
+        exclude_from_attribution=exclude_from_attribution,
     )
 
     final = GraphStore()
@@ -778,9 +780,24 @@ if __name__ == "__main__":
              "even when many trials silently failed to produce subgraphs. "
              "Use only when investigating the drop log itself.",
     )
+    parser.add_argument(
+        "--exclude-from-attribution", default="",
+        help="Round-26 true-holdout flag. Comma-separated NCT ids whose "
+             "subgraphs should be BUILT (steps 1-3 — fetch, populate, "
+             "annotate) but whose evidence should NOT be folded into "
+             "edge beliefs (step 4 attribute skipped). Use to make a "
+             "true holdout: include the eval NCTs alongside the "
+             "training corpus, then exclude them here so the resulting "
+             "annotated.json has all subgraphs but only training "
+             "attribution. Fixes the round-24 contamination bug where "
+             "--add-trials re-ran attribution on holdouts.",
+    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
     add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
+    exclude_from_attribution = [
+        n.strip() for n in args.exclude_from_attribution.split(",") if n.strip()
+    ]
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     asyncio.run(main(
@@ -799,4 +816,5 @@ if __name__ == "__main__":
         add_corpus=args.add_corpus,
         min_subgraph_success_rate=args.min_subgraph_success_rate,
         allow_partial_subgraphs=args.allow_partial_subgraphs,
+        exclude_from_attribution=exclude_from_attribution or None,
     ))

@@ -1547,3 +1547,52 @@ class TestAttributionIdempotency:
         ev_sources = [e.source_id for e in belief.evidence]
         assert "NCT_NEW" in ev_sources
         assert "NCT_TEST" not in ev_sources
+
+    @pytest.mark.asyncio
+    async def test_exclude_from_attribution_skips_holdout_evidence(
+        self, tmp_path,
+    ):
+        """Round-26: NCTs passed in exclude_from_attribution have their
+        subgraph populated but their evidence is NOT folded into edge
+        beliefs. This is what makes a true holdout possible — the
+        chain structure is available for prediction, but the holdout's
+        own trial outcomes don't leak into the graph it's being scored
+        against.
+        """
+        from src.annotation.attributor import _main as attributor_main
+
+        graph, ts = _seed_combo_trial_graph()
+        graph_path = tmp_path / "graph_initial.json"
+        annotations_dir = tmp_path / "annotations"
+        annotations_dir.mkdir()
+        out_path = tmp_path / "graph_annotated.json"
+
+        graph.export_snapshot(str(graph_path))
+        self._write_annotation_pair(annotations_dir, "NCT_TEST")
+
+        # NCT_TEST is in the annotations dir but listed as excluded.
+        # Subgraph stays in the graph (chain prediction can still run
+        # on it); evidence is never folded into the AFFECTS edge.
+        await attributor_main(
+            str(annotations_dir), str(graph_path), str(out_path),
+            exclude_from_attribution=["NCT_TEST"],
+        )
+
+        result = GraphStore()
+        result.import_snapshot(str(out_path))
+
+        # The excluded NCT is marked attributed (so future re-runs of
+        # attribute also skip it), but no evidence record landed on the
+        # edge.
+        assert "NCT_TEST" in result.applied_attribution_trial_ids
+        belief = result.get_edge_belief(
+            "nivolumab", "ENSG00000188389", EdgeType.AFFECTS,
+        )
+        ev_sources = [e.source_id for e in belief.evidence]
+        assert "NCT_TEST" not in ev_sources, (
+            "Holdout NCT must not appear in any edge's evidence list"
+        )
+        # Subgraph still present for prediction.
+        assert "NCT_TEST" in {
+            ts.trial_id for ts in result.trial_subgraphs.values()
+        }

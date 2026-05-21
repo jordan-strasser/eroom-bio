@@ -1649,7 +1649,26 @@ def _load_classifications(annotations_dir: Path) -> list[tuple[dict, dict]]:
     return pairs
 
 
-async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None:
+async def _main(
+    annotations_dir: str,
+    graph_path: str,
+    output_path: str,
+    *,
+    exclude_from_attribution: list[str] | None = None,
+) -> None:
+    """Apply trial attribution to a populated graph.
+
+    ``exclude_from_attribution`` (round-26): NCT ids to skip in this
+    attribution pass. Their subgraphs remain in the graph (so chain
+    prediction still works on them), but their evidence is NOT folded
+    into edge beliefs — the listed trials become a TRUE holdout for
+    evaluation. Implemented by pre-populating
+    ``graph.applied_attribution_trial_ids`` with the excluded ids
+    before the iteration loop, so the existing idempotency guard
+    skips them naturally. This is the fix for the round-24
+    methodology bug where ``--add-trials`` re-ran attribution on
+    holdouts and contaminated the eval.
+    """
     import anthropic
     from rich.console import Console
 
@@ -1668,6 +1687,20 @@ async def _main(annotations_dir: str, graph_path: str, output_path: str) -> None
     else:
         console.print(f"[yellow]Graph file not found: {graph_path}[/yellow]")
         return
+
+    # Round-26: pre-mark holdout NCTs as already-attributed so the
+    # idempotency guard below skips them. The set is mutated in place
+    # on the graph so when export_snapshot serializes the final
+    # snapshot, applied_attribution_trial_ids accurately reflects
+    # "training NCTs only" — exactly the discrimination round-24's
+    # clean-holdout audit needed.
+    excluded_set = set(exclude_from_attribution or [])
+    if excluded_set:
+        console.print(
+            f"[yellow]Excluding {len(excluded_set)} NCT(s) from attribution: "
+            f"{sorted(excluded_set)}[/yellow]"
+        )
+        graph.applied_attribution_trial_ids.update(excluded_set)
 
     attributor = Attributor(graph)
     pairs = _load_classifications(Path(annotations_dir))
