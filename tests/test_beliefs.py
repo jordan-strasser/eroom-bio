@@ -83,6 +83,29 @@ class TestNEffTable:
             > EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS]
         )
 
+    def test_database_curated_between_gwas_and_preclinical(self):
+        """Round-25: DATABASE_CURATED slots between GWAS and preclinical
+        in vitro. Curated DB records carry less weight than a single GWAS
+        hit (which is a primary statistical measurement) but more than an
+        in-vitro assay (which only probes one molecular interaction). The
+        relative position matters because populator-emitted curated
+        records SHOULD shift posteriors more than a single in-vitro
+        replicate but SHOULDN'T outweigh genuine genetic evidence."""
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CURATED]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.PRECLINICAL_IN_VITRO]
+        )
+
+    def test_database_curated_below_clinical_phase2(self):
+        """Single curated DB record shouldn't outweigh a real Phase-2
+        clinical trial — direct measurement always beats aggregate
+        assertion."""
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CURATED]
+        )
+
 
 class TestEffectiveN:
     def test_default_quality_returns_base(self):

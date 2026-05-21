@@ -271,6 +271,16 @@ class EvidenceType(str, Enum):
     GENETIC_GWAS = "genetic_gwas"
     PRECLINICAL_IN_VIVO = "preclinical_in_vivo"
     PRECLINICAL_IN_VITRO = "preclinical_in_vitro"
+    # Round-25: curated biomedical database records (Open Targets,
+    # ChEMBL, mAb-target-table, MeSH, UniProt, etc.). Used where the
+    # populator previously hand-set a non-Beta(1, 1) prior — those
+    # priors WERE evidence (drug binds target, mechanism implies
+    # biology) but lived outside the EvidenceRecord channel, so the
+    # prediction engine couldn't tell "we know this from OT" from "we
+    # set a default." n_eff slots between GWAS (4.0) and preclinical
+    # in vitro (1.0) — curated, vetted, but aggregate-level rather
+    # than primary-measurement.
+    DATABASE_CURATED = "database_curated"
     COMPUTATIONAL = "computational"
     LITERATURE = "literature"
 

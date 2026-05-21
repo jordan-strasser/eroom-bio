@@ -102,6 +102,15 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.CLINICAL_PHASE1:     2.0,
     EvidenceType.GENETIC_MR:         10.0,
     EvidenceType.GENETIC_GWAS:        4.0,
+    # Round-25: DATABASE_CURATED. Lower than GWAS because we're trusting
+    # an aggregator's curator, not a primary measurement; higher than
+    # preclinical because the curation step has already vetted across
+    # primary sources (literature, ChEMBL bioassays, drug labels).
+    # n_eff=3 with strong_support (p_obs=0.95) starting from Beta(1, 1)
+    # gives posterior Beta(3.85, 1.15), E[p]=0.77 — close to but not
+    # quite as confident as the previous OT-direct hand-set Beta(2, 1)
+    # at E[p]=0.67 followed by typical first-trial reinforcement.
+    EvidenceType.DATABASE_CURATED:    3.0,
     EvidenceType.PRECLINICAL_IN_VIVO: 2.0,
     EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
     EvidenceType.COMPUTATIONAL:       0.3,
