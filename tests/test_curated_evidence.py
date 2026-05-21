@@ -16,12 +16,20 @@ from src.inference.beliefs import SupportBucket
 
 
 class TestMakeCuratedRecord:
-    def test_default_source_type_is_database_curated(self):
+    def test_default_source_type_is_ot_direct(self):
         r = make_curated_record(
             source_id="opentargets:CHEMBL1743072",
             bucket=SupportBucket.STRONG_SUPPORT,
         )
-        assert r.source_type == EvidenceType.DATABASE_CURATED
+        assert r.source_type == EvidenceType.DATABASE_OT_DIRECT
+
+    def test_explicit_source_type_passed_through(self):
+        r = make_curated_record(
+            source_id="lincs:KD_BRAF",
+            bucket=SupportBucket.MODERATE_SUPPORT,
+            source_type=EvidenceType.DATABASE_LINCS,
+        )
+        assert r.source_type == EvidenceType.DATABASE_LINCS
 
     def test_preserves_source_id_and_bucket(self):
         r = make_curated_record(

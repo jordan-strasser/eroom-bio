@@ -83,28 +83,53 @@ class TestNEffTable:
             > EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS]
         )
 
-    def test_database_curated_between_gwas_and_preclinical(self):
-        """Round-25: DATABASE_CURATED slots between GWAS and preclinical
-        in vitro. Curated DB records carry less weight than a single GWAS
-        hit (which is a primary statistical measurement) but more than an
-        in-vitro assay (which only probes one molecular interaction). The
-        relative position matters because populator-emitted curated
-        records SHOULD shift posteriors more than a single in-vitro
-        replicate but SHOULDN'T outweigh genuine genetic evidence."""
+    def test_database_curated_tiers_ordered_by_source_quality(self):
+        """Round-25: per-source database tiers ordered by curation
+        depth + primary-vs-aggregate character. OT-direct / ChEMBL /
+        mAb-table are top tier (multi-source curated specific
+        assertions); OT-association + endpoint-prior are aggregate /
+        heuristic-combined; pathway membership is single-curator;
+        fallback + cross-reference are derived / heuristic.
+        """
         assert (
-            EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS]
-            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CURATED]
-            > EVIDENCE_TYPE_N_EFF[EvidenceType.PRECLINICAL_IN_VITRO]
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_DIRECT]
+            == EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CHEMBL]
+            == EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_MAB_TABLE]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_DIRECT]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_ASSOCIATION]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_ASSOCIATION]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_REACTOME_GO]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_REACTOME_GO]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_LINCS]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_LINCS]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_FALLBACK]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_FALLBACK]
+            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CROSS_REFERENCE]
         )
 
-    def test_database_curated_below_clinical_phase2(self):
-        """Single curated DB record shouldn't outweigh a real Phase-2
-        clinical trial — direct measurement always beats aggregate
-        assertion."""
-        assert (
-            EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2]
-            > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CURATED]
-        )
+    def test_database_top_tier_below_gwas_and_clinical(self):
+        """Round-25: even the strongest curated tier (OT-direct) should
+        not outweigh primary clinical or genetic evidence."""
+        for t in (
+            EvidenceType.DATABASE_OT_DIRECT,
+            EvidenceType.DATABASE_CHEMBL,
+            EvidenceType.DATABASE_MAB_TABLE,
+        ):
+            assert EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS] > EVIDENCE_TYPE_N_EFF[t]
+            assert (
+                EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2]
+                > EVIDENCE_TYPE_N_EFF[t]
+            )
 
 
 class TestEffectiveN:

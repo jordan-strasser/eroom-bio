@@ -446,9 +446,11 @@ def score_to_prior(ot_score: float, evidence_count: int) -> EdgeBeliefState:
         # returning a Beta(1, 1) uninformative belief; the engine drops
         # this from predictions anyway.
         return EdgeBeliefState()
+    from src.graph.models import EvidenceType
     record = make_curated_record(
         source_id=f"opentargets_assoc:score_to_prior",
         bucket=ot_association_score_to_bucket(ot_score),
+        source_type=EvidenceType.DATABASE_OT_ASSOCIATION,
         quality_score=ot_score_quality(evidence_count),
         notes=(
             f"OT association score={ot_score:.3f}, "

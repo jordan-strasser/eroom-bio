@@ -1072,10 +1072,10 @@ class TestCompoundTargetEdges:
         added = pipeline._add_compound_target_edges([trial])
         assert added >= 1
         belief = graph.get_edge_belief("C1", "T_ABL", EdgeType.AFFECTS)
-        # Round-25: weak_support DATABASE_CURATED record (n_eff=3,
-        # p_obs=0.65) applied to Beta(1, 1) → alpha=2.95, beta=2.05.
-        assert belief.alpha == pytest.approx(2.95)
-        assert belief.evidence[0].source_type.value == "database_curated"
+        # Round-25: DATABASE_CROSS_REFERENCE record (n_eff=0.3,
+        # p_obs=0.65) applied to Beta(1, 1) → alpha=1.195, beta=1.105.
+        assert belief.alpha == pytest.approx(1.195)
+        assert belief.evidence[0].source_type.value == "database_cross_reference"
 
     def test_no_edge_when_no_match(self, pipeline, graph):
         graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
@@ -1325,10 +1325,10 @@ class TestVaccineComponentTargets:
             "gp100_antigen", "ENSG00000185664", EdgeType.AFFECTS,
         )
         # Round-25: vaccine-component pattern-match emits strong_support
-        # DATABASE_CURATED → Beta(3.85, 1.15).
+        # DATABASE_MAB_TABLE (n_eff=3) → Beta(3.85, 1.15).
         assert belief.alpha == pytest.approx(3.85)
         assert belief.beta == pytest.approx(1.15)
-        assert belief.evidence[0].source_type.value == "database_curated"
+        assert belief.evidence[0].source_type.value == "database_mab_table"
 
     def test_adds_all_three_targets_for_combo_peptide_vaccine(self, pipeline, graph):
         graph.add_node(CompoundNode(

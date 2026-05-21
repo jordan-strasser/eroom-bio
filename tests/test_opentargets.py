@@ -397,22 +397,23 @@ class TestScoreToPrior:
 
     def test_strong_positive_emits_strong_support(self):
         belief = score_to_prior(0.9, 10)
-        # bucket=strong_support (0.9 >= 0.75), quality=1.0 (count >= 5)
-        # n_eff_effective = 3 * 1.0 = 3
-        # posterior: alpha = 1 + 3*0.95 = 3.85, beta = 1 + 3*0.05 = 1.15
-        assert belief.alpha == pytest.approx(3.85)
-        assert belief.beta == pytest.approx(1.15)
-        assert belief.expected_probability > 0.75
+        # bucket=strong_support (0.9 >= 0.75), quality=1.0 (count >= 5),
+        # source=DATABASE_OT_ASSOCIATION (n_eff=2.0).
+        # posterior: alpha = 1 + 2*0.95 = 2.9, beta = 1 + 2*0.05 = 1.1
+        assert belief.alpha == pytest.approx(2.9)
+        assert belief.beta == pytest.approx(1.1)
+        assert belief.expected_probability > 0.7
         # Provenance preserved via evidence record.
         assert len(belief.evidence) == 1
         assert belief.evidence[0].support == "strong_support"
+        assert belief.evidence[0].source_type.value == "database_ot_association"
 
     def test_strong_negative_emits_contradict(self):
         belief = score_to_prior(0.04, 10)
-        # 0.04 < 0.05 → weak_contradict (p_obs=0.35), quality=1.0
-        # alpha = 1 + 3*0.35 = 2.05, beta = 1 + 3*0.65 = 2.95
-        assert belief.alpha == pytest.approx(2.05)
-        assert belief.beta == pytest.approx(2.95)
+        # 0.04 < 0.05 → weak_contradict (p_obs=0.35), quality=1.0, n_eff=2
+        # alpha = 1 + 2*0.35 = 1.7, beta = 1 + 2*0.65 = 2.3
+        assert belief.alpha == pytest.approx(1.7)
+        assert belief.beta == pytest.approx(2.3)
         assert belief.expected_probability < 0.5
         assert belief.evidence[0].support == "weak_contradict"
 
@@ -426,15 +427,14 @@ class TestScoreToPrior:
 
     def test_balanced_score_emits_moderate_support(self):
         # 0.5 is at the moderate_support boundary (>= 0.5) per
-        # ot_association_score_to_bucket. n_eff=3, p_obs=0.80.
+        # ot_association_score_to_bucket. n_eff=2, p_obs=0.80.
         belief = score_to_prior(0.5, 10)
-        assert belief.alpha == pytest.approx(1.0 + 3 * 0.80)
-        assert belief.beta == pytest.approx(1.0 + 3 * 0.20)
-        # Posterior leans slightly positive at score=0.5 (this differs
-        # from the pre-round-25 behavior of returning E[p]=0.5 — we now
-        # interpret OT score=0.5 as "weak positive signal" rather than
-        # "no signal").
-        assert belief.expected_probability == pytest.approx(0.68, abs=0.01)
+        assert belief.alpha == pytest.approx(1.0 + 2 * 0.80)
+        assert belief.beta == pytest.approx(1.0 + 2 * 0.20)
+        # Posterior leans positive at score=0.5 — under DATABASE_OT_
+        # ASSOCIATION n_eff=2 with moderate_support (p_obs=0.80),
+        # alpha=2.6 / (alpha+beta=4) = 0.65.
+        assert belief.expected_probability == pytest.approx(0.65, abs=0.01)
 
 
 # ── Graph population tests ───────────────────────────────────────────────

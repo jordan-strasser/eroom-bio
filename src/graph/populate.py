@@ -21,6 +21,7 @@ from src.graph.models import (
     EndpointClass,
     EndpointNode,
     EndpointType,
+    EvidenceType,
     GraphEdge,
     IndicationNode,
     MechanismCategory,
@@ -414,6 +415,7 @@ def seed_endpoint_captures_edge(
     record = make_curated_record(
         source_id=f"endpoint_type_prior:{endpoint_id}",
         bucket=SupportBucket(bucket_str),
+        source_type=EvidenceType.DATABASE_ENDPOINT_PRIOR,
         notes=(
             f"endpoint class={classification!r} from "
             f"LLM endpoint classifier"
@@ -1860,17 +1862,16 @@ class PopulationPipeline:
                 if not self.graph._graph.has_edge(  # noqa: SLF001
                     cid, ensembl, key=EdgeType.AFFECTS.value,
                 ):
-                    # Round-25: emit a DATABASE_CURATED record carrying
+                    # Round-25: emit a DATABASE_OT_DIRECT record carrying
                     # OT's binding claim, instead of hand-setting a
-                    # Beta(2, 1) prior. Strong-support: OT explicitly
-                    # links the compound to the target via ChEMBL drug-
-                    # target curation.
+                    # Beta(2, 1) prior.
                     record = make_curated_record(
                         source_id=(
                             f"opentargets:"
                             f"{drug_data.get('chembl_id') or 'unknown_chembl'}"
                         ),
                         bucket=SupportBucket.STRONG_SUPPORT,
+                        source_type=EvidenceType.DATABASE_OT_DIRECT,
                         notes=f"OT drug-target binding: {cid} → {symbol}",
                     )
                     self.graph.add_edge(GraphEdge(
@@ -1929,16 +1930,15 @@ class PopulationPipeline:
                         }
                         if mech is not None:
                             edge_meta["implied_mechanism"] = mech.value
-                        # Round-25: DATABASE_CURATED record from ChEMBL's
-                        # structured action_type. Same strength as
-                        # OT-direct (strong_support) — ChEMBL is a
-                        # primary source for drug mechanism curation.
+                        # Round-25: DATABASE_CHEMBL record from ChEMBL's
+                        # structured action_type. Same n_eff as OT-direct.
                         record = make_curated_record(
                             source_id=(
                                 f"chembl_rest:"
                                 f"{chembl_id or 'unknown_chembl'}"
                             ),
                             bucket=SupportBucket.STRONG_SUPPORT,
+                            source_type=EvidenceType.DATABASE_CHEMBL,
                             notes=(
                                 f"ChEMBL action_type → target type "
                                 f"{ttype.value if hasattr(ttype, 'value') else ttype}"
@@ -1988,13 +1988,13 @@ class PopulationPipeline:
                             cid, ensembl, key=EdgeType.AFFECTS.value,
                         ):
                             # Round-25: hand-curated mAb-table record.
-                            # Strong-support — the table is curated from
-                            # primary literature, so each entry is a
-                            # specific evidence-backed claim about an
-                            # antibody's antigen.
+                            # Same n_eff as OT-direct — both are curated
+                            # multi-source assertions about a specific
+                            # compound→target pair.
                             record = make_curated_record(
                                 source_id=f"mab_table:{cid}",
                                 bucket=SupportBucket.STRONG_SUPPORT,
+                                source_type=EvidenceType.DATABASE_MAB_TABLE,
                                 notes=(
                                     f"hand-curated mAb→target: "
                                     f"{cid} → {mab_gene}"
@@ -2093,14 +2093,14 @@ class PopulationPipeline:
                 continue
             ot_score = row.get("overall_score", 0.0)
             ev_count = row.get("evidence_count", 0)
-            # Round-25: emit DATABASE_CURATED record from OT-association
-            # score. Bucket reflects the score (strong/moderate/weak/
-            # ambiguous/weak-contradict); quality_score reflects how
-            # many independent sources OT aggregated. Replaces the old
-            # score_to_prior(score, evidence_count) hand-set Beta.
+            # Round-25: DATABASE_OT_ASSOCIATION record. Lower n_eff than
+            # OT-direct because the overall_score is an aggregate
+            # heuristic over multiple underlying types, not a single
+            # primary assertion.
             assoc_record = make_curated_record(
                 source_id=f"opentargets_assoc:{tid}__{efo}",
                 bucket=ot_association_score_to_bucket(ot_score),
+                source_type=EvidenceType.DATABASE_OT_ASSOCIATION,
                 quality_score=ot_score_quality(ev_count),
                 notes=(
                     f"OT target-disease association: "
@@ -2236,15 +2236,15 @@ class PopulationPipeline:
                     if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
                         target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
                     ):
-                        # Round-25: trial-inference mechanism. The
-                        # mechanism was inferred from a trial's
-                        # therapeutic_hypothesis combined with OT/ChEMBL
-                        # mechanism class — a curated derivation, but
-                        # one step removed from a direct curation
-                        # statement. Moderate-support rather than strong.
+                        # Round-25: trial-inference mechanism. The mechanism
+                        # was inferred from a trial's therapeutic_hypothesis
+                        # combined with the compound's curated mechanism
+                        # class. Treated as a CHEMBL-tier record (the
+                        # mechanism class itself comes from ChEMBL via OT).
                         modulates_record = make_curated_record(
                             source_id=f"trial_inference:{trial.nct_id}__{cid}",
                             bucket=SupportBucket.MODERATE_SUPPORT,
+                            source_type=EvidenceType.DATABASE_CHEMBL,
                             notes=(
                                 f"target→mechanism inferred from trial "
                                 f"{trial.nct_id} arm {arm.arm_id} "
@@ -2551,13 +2551,13 @@ class PopulationPipeline:
             if not self.graph._graph.has_edge(  # noqa: SLF001
                 mechanism_id, bio_id, key=EdgeType.MECHANISM_AFFECTS.value,
             ):
-                # Round-25: mechanism→biology from Reactome / GO
-                # pathway membership. Moderate-support — pathway curation
-                # is reliable but the "X affects pathway Y" link is
-                # always a single curator's interpretation.
+                # Round-25: DATABASE_REACTOME_GO record. Pathway
+                # curation is reliable but the "X affects pathway Y" call
+                # is always a single curator's interpretation.
                 mech_affects_record = make_curated_record(
                     source_id=f"{chosen_source}:{mechanism_id}__{bio_id}",
                     bucket=SupportBucket.MODERATE_SUPPORT,
+                    source_type=EvidenceType.DATABASE_REACTOME_GO,
                     notes=(
                         f"mechanism→biology via {chosen_source} "
                         f"(gene {gene_symbol})"
@@ -2708,14 +2708,15 @@ class PopulationPipeline:
                         mech_id, slug_id,
                         key=EdgeType.MECHANISM_AFFECTS.value,
                     ):
-                        # Round-25: synthesized biology slug fallback
-                        # when Reactome/GO had no pathway match. The
-                        # mechanism→biology edge is essentially a
-                        # tautology (the slug encodes "mech in
-                        # indication") — weak-support, not moderate.
+                        # Round-25: DATABASE_FALLBACK record. The slug
+                        # is synthesized ("mech in indication"); the edge
+                        # is partial double-counting of upstream curated
+                        # mechanism evidence — half the n_eff of a real
+                        # curated source.
                         fallback_record = make_curated_record(
                             source_id=f"trial_biology_fallback:{mech_id}__{slug_id}",
                             bucket=SupportBucket.WEAK_SUPPORT,
+                            source_type=EvidenceType.DATABASE_FALLBACK,
                             notes=(
                                 f"synthesized biology slug fallback "
                                 f"({mech_id} in {ind_id})"
@@ -2963,13 +2964,12 @@ class PopulationPipeline:
                         ):
                             continue
                         # Round-25: cell-therapy / pattern-matched
-                        # AFFECTS edge. Strong-support — the pattern
-                        # table is a curated mapping from compound
-                        # naming convention to a specific antigen /
-                        # target (e.g. anti-CD19 CAR-T → CD19).
+                        # AFFECTS edge. Hand-curated pattern table,
+                        # same tier as the mAb table.
                         pattern_record = make_curated_record(
                             source_id=f"{source_tag}:{cid}__{ens}",
                             bucket=SupportBucket.STRONG_SUPPORT,
+                            source_type=EvidenceType.DATABASE_MAB_TABLE,
                             notes=(
                                 f"pattern-matched target: "
                                 f"{canonical_name} → {symbol}"
@@ -3057,13 +3057,12 @@ class PopulationPipeline:
         return added
 
     def _add_binds_edge(self, compound_id: str, target_id: str) -> None:
-        # Round-25: cross-reference AFFECTS edge from name-matching
-        # heuristic (compound text contained the target gene_symbol or
-        # name). Weakest of the curated sources — name overlap alone
-        # isn't a curation step, so weak_support.
+        # Round-25: DATABASE_CROSS_REFERENCE record. Lowest tier — name
+        # overlap isn't really curation, just a heuristic. n_eff=0.3.
         record = make_curated_record(
             source_id=f"cross_reference:{compound_id}__{target_id}",
             bucket=SupportBucket.WEAK_SUPPORT,
+            source_type=EvidenceType.DATABASE_CROSS_REFERENCE,
             notes=(
                 f"name-match AFFECTS: {compound_id} → {target_id} via "
                 f"intervention-text overlap"
@@ -3642,17 +3641,17 @@ def synthesize_combo_compounds(graph: GraphStore, arms: list[TrialArm]) -> int:
                     key=EdgeType.AFFECTS.value,
                 ):
                     continue
-                # Round-25: combo-arm inherits constituent's AFFECTS
-                # edge. Moderate-support — the inherited claim is one
-                # step removed from a direct curation (we know cid →
-                # target_id is curated, and arm contains cid, so arm
-                # affects target_id).
+                # Round-25: DATABASE_FALLBACK record. The combo-arm
+                # inherits AFFECTS via a constituent — one inferential
+                # step removed from the constituent's curated source,
+                # so half the n_eff.
                 inherit_record = make_curated_record(
                     source_id=(
                         f"combo_inherit:"
                         f"{arm.regimen_compound_id}__{target_id}"
                     ),
                     bucket=SupportBucket.MODERATE_SUPPORT,
+                    source_type=EvidenceType.DATABASE_FALLBACK,
                     notes=f"inherited AFFECTS via constituent {cid}",
                 )
                 graph.add_edge(GraphEdge(

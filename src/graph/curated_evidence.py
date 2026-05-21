@@ -40,11 +40,17 @@ def make_curated_record(
     *,
     source_id: str,
     bucket: SupportBucket,
+    source_type: EvidenceType = EvidenceType.DATABASE_OT_DIRECT,
     notes: str | None = None,
     quality_score: float = 1.0,
     context: dict | None = None,
 ) -> EvidenceRecord:
-    """Construct one DATABASE_CURATED evidence record.
+    """Construct one curated EvidenceRecord.
+
+    ``source_type`` selects which DATABASE_* tier's n_eff this record
+    contributes. Each populator call site picks the right tier (see
+    ``src/graph/populate.py``). Defaults to OT_DIRECT since that's the
+    most-used path.
 
     ``source_id`` should encode the originating database AND the
     specific record id so the provenance is traceable. Examples:
@@ -62,7 +68,7 @@ def make_curated_record(
     """
     return EvidenceRecord(
         source_id=source_id,
-        source_type=EvidenceType.DATABASE_CURATED,
+        source_type=source_type,
         support=bucket.value,
         quality_score=quality_score,
         timestamp=datetime.now(timezone.utc),

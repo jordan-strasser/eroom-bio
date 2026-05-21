@@ -271,16 +271,57 @@ class EvidenceType(str, Enum):
     GENETIC_GWAS = "genetic_gwas"
     PRECLINICAL_IN_VIVO = "preclinical_in_vivo"
     PRECLINICAL_IN_VITRO = "preclinical_in_vitro"
-    # Round-25: curated biomedical database records (Open Targets,
-    # ChEMBL, mAb-target-table, MeSH, UniProt, etc.). Used where the
-    # populator previously hand-set a non-Beta(1, 1) prior — those
-    # priors WERE evidence (drug binds target, mechanism implies
-    # biology) but lived outside the EvidenceRecord channel, so the
-    # prediction engine couldn't tell "we know this from OT" from "we
-    # set a default." n_eff slots between GWAS (4.0) and preclinical
-    # in vitro (1.0) — curated, vetted, but aggregate-level rather
-    # than primary-measurement.
-    DATABASE_CURATED = "database_curated"
+    # ── Round-25: per-source curated-database evidence types ───────────
+    #
+    # The populator no longer hand-sets non-Beta(1, 1) priors. Each
+    # curated-source emission carries one of these source types so the
+    # evidence-strength accounting and trust weighting reflect WHAT the
+    # source is, not just THAT it's curated.
+    #
+    # n_eff values (see EVIDENCE_TYPE_N_EFF) are picked from the
+    # CHARACTER of each source — curation depth, primary-vs-aggregate,
+    # known replication behavior — NOT tuned against the holdout audit.
+    # All are flagged as starting defaults pending real calibration on
+    # a ≥50-trial labeled set per calibration.py.
+
+    # Drug→target binding curated by Open Targets (aggregates ChEMBL,
+    # IUPHAR, DGIdb, drug labels). Primary assertion, multi-source
+    # cross-referenced.
+    DATABASE_OT_DIRECT = "database_ot_direct"
+    # Drug→target inferred from ChEMBL's structured action_type field.
+    # Single primary source but well-curated.
+    DATABASE_CHEMBL = "database_chembl"
+    # Hand-curated antibody→target table (round-24 mAb resolver).
+    # Backed by primary literature; each entry vetted by us.
+    DATABASE_MAB_TABLE = "database_mab_table"
+    # OT target-disease association score. Aggregated across multiple
+    # evidence types (clinical, genetic, somatic, literature) but the
+    # score itself is a heuristic combination — weaker per-source than
+    # the primary entries.
+    DATABASE_OT_ASSOCIATION = "database_ot_association"
+    # Reactome / GO pathway-membership assertions. Curated by pathway
+    # database curators; a single curator's interpretive call per
+    # entry.
+    DATABASE_REACTOME_GO = "database_reactome_go"
+    # LINCS L1000 perturbation signature. Real in-vitro experiment;
+    # weighted same as PRECLINICAL_IN_VITRO (which is what it is).
+    DATABASE_LINCS = "database_lincs"
+    # Endpoint-class regulatory prior (OS / DFS / PFS / etc.). FDA /
+    # ICH consensus on what endpoints capture clinical benefit per
+    # disease class. Aggregate but well-established.
+    DATABASE_ENDPOINT_PRIOR = "database_endpoint_prior"
+    # Indication-taxonomy structural relationship (e.g. "metastatic
+    # melanoma" rolls up to "melanoma"). Structural, not measurement
+    # — weaker.
+    DATABASE_INDICATION_TAXONOMY = "database_indication_taxonomy"
+    # Cross-reference name-match (gene symbol or target name found in
+    # intervention text). Heuristic, not really curation; lowest tier.
+    DATABASE_CROSS_REFERENCE = "database_cross_reference"
+    # Synthesized fallback edges (trial_biology_fallback synthetic
+    # biology slug, combo_inherit AFFECTS). Derived from existing
+    # curated facts but one inferential step removed.
+    DATABASE_FALLBACK = "database_fallback"
+
     COMPUTATIONAL = "computational"
     LITERATURE = "literature"
 

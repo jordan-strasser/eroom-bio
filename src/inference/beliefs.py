@@ -102,17 +102,64 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.CLINICAL_PHASE1:     2.0,
     EvidenceType.GENETIC_MR:         10.0,
     EvidenceType.GENETIC_GWAS:        4.0,
-    # Round-25: DATABASE_CURATED. Lower than GWAS because we're trusting
-    # an aggregator's curator, not a primary measurement; higher than
-    # preclinical because the curation step has already vetted across
-    # primary sources (literature, ChEMBL bioassays, drug labels).
-    # n_eff=3 with strong_support (p_obs=0.95) starting from Beta(1, 1)
-    # gives posterior Beta(3.85, 1.15), E[p]=0.77 — close to but not
-    # quite as confident as the previous OT-direct hand-set Beta(2, 1)
-    # at E[p]=0.67 followed by typical first-trial reinforcement.
-    EvidenceType.DATABASE_CURATED:    3.0,
     EvidenceType.PRECLINICAL_IN_VIVO: 2.0,
     EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
+    # ── Round-25: per-source curated database n_eff values ──────────────
+    #
+    # Picked from source character (curation depth, replication, primary
+    # vs aggregate), NOT tuned against the 5-trial holdout audit. Doing
+    # the latter on a 5-trial set would be hyperparameter-overfitting —
+    # the holdout result would then be a function of our tuning, not a
+    # measurement of cross-trial learning.
+    #
+    # Defensible reasoning per tier:
+    #
+    # OT-direct, ChEMBL-direct, mAb-table → 3.0
+    #   Multi-source curated assertions about a SPECIFIC compound-target
+    #   pair. OT aggregates ChEMBL + IUPHAR + DGIdb + drug labels — each
+    #   entry has been cross-checked. Comparable to a GWAS hit (n_eff=4)
+    #   but slightly weaker since GWAS is a primary statistical test and
+    #   these are curator's calls.
+    EvidenceType.DATABASE_OT_DIRECT:           3.0,
+    EvidenceType.DATABASE_CHEMBL:              3.0,
+    EvidenceType.DATABASE_MAB_TABLE:           3.0,
+    #
+    # OT-association score, endpoint-class prior → 2.0
+    #   Aggregate score COMBINING multiple evidence types via a heuristic
+    #   weighting. Each underlying source is real evidence but the score
+    #   itself is interpretive. Endpoint-class priors are similarly an
+    #   FDA / ICH consensus that an endpoint captures disease but applied
+    #   broadly. Comparable to preclinical in vivo.
+    EvidenceType.DATABASE_OT_ASSOCIATION:      2.0,
+    EvidenceType.DATABASE_ENDPOINT_PRIOR:      2.0,
+    #
+    # Reactome / GO pathway annotation → 1.5
+    #   Curated by pathway-database experts, but a single curator's
+    #   interpretive call per entry. Between in-vitro (1.0) and in-vivo
+    #   (2.0) in evidential weight.
+    EvidenceType.DATABASE_REACTOME_GO:         1.5,
+    #
+    # LINCS L1000 perturbation signature → 1.0
+    #   Real in-vitro experiment; same tier as PRECLINICAL_IN_VITRO,
+    #   which is exactly what it is.
+    EvidenceType.DATABASE_LINCS:               1.0,
+    #
+    # Indication-taxonomy structural → 1.0
+    #   Structural roll-up ("metastatic melanoma" → "melanoma"), not
+    #   measurement. One observation's worth of weight.
+    EvidenceType.DATABASE_INDICATION_TAXONOMY: 1.0,
+    #
+    # Synthesized fallback (trial_biology_fallback, combo_inherit) → 0.5
+    #   Derived from existing curated facts by an inferential step
+    #   ("compound A inherits target T from constituent X"). Halve the
+    #   evidence since we're double-counting partially.
+    EvidenceType.DATABASE_FALLBACK:            0.5,
+    #
+    # Name-match cross-reference → 0.3
+    #   Gene symbol found in intervention free text. Not curation, just
+    #   string overlap. Same as COMPUTATIONAL.
+    EvidenceType.DATABASE_CROSS_REFERENCE:     0.3,
+    # ────────────────────────────────────────────────────────────────────
     EvidenceType.COMPUTATIONAL:       0.3,
     EvidenceType.LITERATURE:          0.2,
 }
