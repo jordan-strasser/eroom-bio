@@ -38,6 +38,7 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.graph.codename_resolver import CodenameResolver, ResolvedCodename
 from src.graph.compound_codenames import CODENAME_TO_INN
 from src.graph.indication_taxonomy import parent_indication_for
 from src.graph.store import GraphStore
@@ -95,6 +96,8 @@ from src.ingestion.lincs import (
     populate_lincs_signatures,
 )
 from src.ingestion.chembl import ChEMBLClient, is_likely_diagnostic
+from src.ingestion.pubchem import PubChemClient
+from src.ingestion.rxnorm import RxNormClient
 from src.ingestion.opentargets import (
     OpenTargetsClient,
     score_to_prior,
@@ -731,6 +734,21 @@ class PopulationPipeline:
         # ("Fluorouracil" + "5-Fluorouracil") consolidate onto one
         # InterventionNode keyed by ChEMBL id.
         self._compound_chembl_ids: dict[str, str] = {}
+        # Round-23: RxNorm + PubChem fallback for codenames the
+        # CODENAME_TO_INN curated dict + OT chembl_id lookup didn't
+        # resolve. Used in Step 2's compound-add loop to rename the
+        # codename to its INN before canonicalization, so MK-3475 and
+        # Pembrolizumab consolidate into one InterventionNode without
+        # requiring a code change every time a new codename surfaces.
+        self._codename_resolver = CodenameResolver(
+            rxnorm=RxNormClient(
+                cache_path=cache_dir / "rxnorm_lookups.json",
+            ),
+            pubchem=PubChemClient(
+                cache_path=cache_dir / "pubchem_synonyms.json",
+            ),
+        )
+        self._codename_resolutions: dict[str, ResolvedCodename] = {}
 
     # ── Entity resolution ────────────────────────────────────────────────
 
@@ -842,6 +860,15 @@ class PopulationPipeline:
                 f"diagnostic interventions: "
                 f"{sorted(diagnostic_compound_ids)}[/yellow]"
             )
+
+        # Step 1.6: Codename resolution (round-23). For each trial-named
+        # compound the CODENAME_TO_INN dict + OT/ChEMBL Step 1.5 lookup
+        # both missed, ask RxNorm + PubChem for an INN-equivalent name.
+        # The resolution map is consulted in Step 2's compound-add loop
+        # to rename the compound (with the original name preserved as an
+        # alias) so the SapBERT canonicalization step then naturally
+        # consolidates the codename and INN forms into one node.
+        await self._resolve_compound_codenames(trials)
 
         # Step 2: Canonicalize conditions and seed Indication + default
         # Population nodes per trial.
@@ -1105,6 +1132,20 @@ class PopulationPipeline:
                 if comp.id in self._diagnostic_compound_ids:
                     continue
                 inn_id = CODENAME_TO_INN.get(comp.id)
+                resolved_codename: ResolvedCodename | None = None
+                if inn_id is None:
+                    # Round-23: RxNorm + PubChem fallback. The Step 1.6
+                    # pass populated ``_codename_resolutions`` for every
+                    # codename the curated dict + OT/ChEMBL couldn't
+                    # resolve, so this is a pure dict lookup.
+                    resolved_codename = (
+                        self._codename_resolutions.get(comp.id)
+                    )
+                    if resolved_codename is not None:
+                        inn_id = normalize_entity(
+                            resolved_codename.canonical_name,
+                            "InterventionNode",
+                        )
                 if inn_id and inn_id != comp.id:
                     original_id = comp.id
                     original_name = comp.name
@@ -1115,6 +1156,18 @@ class PopulationPipeline:
                         if alt and alt not in new_aliases:
                             new_aliases.insert(0, alt)
                     comp.aliases = new_aliases
+                if resolved_codename is not None:
+                    if resolved_codename.rxcui:
+                        comp.metadata["rxnorm_rxcui"] = (
+                            resolved_codename.rxcui
+                        )
+                    if resolved_codename.pubchem_cid:
+                        comp.metadata["pubchem_cid"] = (
+                            resolved_codename.pubchem_cid
+                        )
+                    comp.metadata["codename_resolution_source"] = (
+                        resolved_codename.source
+                    )
 
                 # Round-21 Phase B: stable_id + embedding-based
                 # canonicalization. Populate stable_id from the cache
@@ -1433,6 +1486,90 @@ class PopulationPipeline:
                             meta.get("indication_class"),
                         )
         return diagnostic_cids
+
+    async def _resolve_compound_codenames(
+        self, trials: list[TrialRecord],
+    ) -> None:
+        """Run the RxNorm + PubChem fallback for unresolved codenames.
+
+        For each trial's compound names, skip ones already handled by
+        either (a) the curated ``CODENAME_TO_INN`` dict, (b) the OT /
+        ChEMBL chembl_id lookup from Step 1.5, or (c) the diagnostic
+        filter. Whatever's left is a codename that the existing layers
+        couldn't recognize — typically a development code or a niche
+        agent (CMP-001, IMA-201, ABT-263). Ask RxNorm first (cheap,
+        excellent for FDA-tracked codenames), then PubChem (broader
+        synonym coverage for older/research codes).
+
+        Resolved entries are stored on ``self._codename_resolutions``
+        keyed by the compound's slug-id (the same key the compound-add
+        loop uses), so the loop can apply the rename + alias-push
+        without re-resolving.
+        """
+        if not trials:
+            return
+        # Dedup compound ids across all trials so we hit each codename
+        # at most once even if N trials reference the same one.
+        seen_ids: set[str] = set()
+        candidates: list[tuple[str, str]] = []  # (comp_id, comp_name)
+        for trial in trials:
+            try:
+                nodes = map_trial_to_graph_nodes(trial)
+            except Exception:
+                logger.debug(
+                    "Codename resolver: map_trial_to_graph_nodes failed for %s",
+                    trial.nct_id, exc_info=True,
+                )
+                continue
+            for comp in nodes["compounds"]:
+                if comp.id in seen_ids:
+                    continue
+                seen_ids.add(comp.id)
+                if comp.id in self._diagnostic_compound_ids:
+                    continue
+                if comp.id in CODENAME_TO_INN:
+                    continue
+                if _norm_for_pattern_match(comp.name) in self._compound_chembl_ids:
+                    continue
+                candidates.append((comp.id, comp.name))
+
+        if not candidates:
+            return
+
+        # Build a normalized index of compounds we ALREADY know about
+        # (via CODENAME_TO_INN values + the OT/ChEMBL cache) so PubChem
+        # synonym-matching can prefer pulling onto an existing node.
+        known_index: dict[str, str] = {}
+        for inn_slug in set(CODENAME_TO_INN.values()):
+            known_index[_norm_for_pattern_match(inn_slug)] = inn_slug
+        for norm_name in self._compound_chembl_ids:
+            known_index[norm_name] = norm_name
+
+        resolved_count = 0
+        for comp_id, comp_name in candidates:
+            try:
+                resolved = await self._codename_resolver.resolve(
+                    comp_name, known_compound_index=known_index,
+                )
+            except Exception:
+                logger.debug(
+                    "Codename resolver failed for %r", comp_name, exc_info=True,
+                )
+                continue
+            if resolved is None:
+                continue
+            self._codename_resolutions[comp_id] = resolved
+            resolved_count += 1
+            logger.info(
+                "Codename resolver: %r → %r (source=%s)",
+                comp_name, resolved.canonical_name, resolved.source,
+            )
+
+        if resolved_count:
+            console.print(
+                f"  Codename resolver: {resolved_count}/{len(candidates)} "
+                f"unresolved compounds remapped via RxNorm + PubChem"
+            )
 
     async def _canonicalize_indication(
         self, cond: str
