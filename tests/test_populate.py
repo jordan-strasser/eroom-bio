@@ -614,6 +614,235 @@ class TestArmGroupsFallback:
 # ── Round 3.2 scaling readiness: hierarchy + smoke tests ────────────────
 
 
+# ── Round 21 Phase B: chembl_id + embedding canonicalization ────────────
+
+
+class TestCompoundCanonicalization:
+    """Round-21 Phase B: at compound-add time, the populator resolves
+    incoming compounds to existing nodes when (a) their stable_id
+    (ChEMBL) matches, or (b) their embedding is above similarity
+    threshold AND chembl ids don't conflict. Without this, two CT.gov
+    spellings of the same drug ('Fluorouracil' vs '5-Fluorouracil')
+    fragment evidence across separate nodes (the round 19 smoke
+    finding)."""
+
+    @pytest.fixture
+    def pipeline_with_existing_compound(self, pipeline, graph):
+        """Seed an existing compound with chembl_id + embedding so the
+        canonicalization decision tree has something to resolve to."""
+        from src.graph.models import CompoundNode, Modality
+        graph.add_node(CompoundNode(
+            id="fluorouracil_canonical",
+            name="fluorouracil_canonical",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL185",
+            embedding=[1.0, 0.0, 0.0],
+            aliases=["5-FU"],
+        ))
+        return pipeline, graph
+
+    def test_chembl_match_reuses_existing_id(
+        self, pipeline_with_existing_compound,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        pipeline, graph = pipeline_with_existing_compound
+        existing_chembl_index = {"CHEMBL185": "fluorouracil_canonical"}
+        embedding_index: list = []
+
+        incoming = CompoundNode(
+            id="five_fluorouracil",
+            name="5-Fluorouracil",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL185",  # same chembl as existing
+            embedding=[0.0, 1.0, 0.0],  # completely different embedding
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert was_resolved
+        assert canonical_id == "fluorouracil_canonical"
+
+    def test_embedding_match_above_threshold_reuses_existing(
+        self, pipeline_with_existing_compound,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        pipeline, graph = pipeline_with_existing_compound
+        existing_chembl_index: dict = {}
+        embedding_index = [("fluorouracil_canonical", [1.0, 0.0, 0.0])]
+
+        # Near-identical embedding (cosine ~1.0).
+        incoming = CompoundNode(
+            id="some_other_slug", name="5-Fluorouracil",
+            modality=Modality.SMALL_MOLECULE,
+            embedding=[0.999, 0.001, 0.0],
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert was_resolved
+        assert canonical_id == "fluorouracil_canonical"
+
+    def test_embedding_below_threshold_does_not_merge(
+        self, pipeline_with_existing_compound,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        pipeline, graph = pipeline_with_existing_compound
+        existing_chembl_index: dict = {}
+        embedding_index = [("fluorouracil_canonical", [1.0, 0.0, 0.0])]
+
+        # Cosine well below default 0.92 threshold.
+        incoming = CompoundNode(
+            id="distinct_compound", name="distinct_compound",
+            modality=Modality.SMALL_MOLECULE,
+            embedding=[0.5, 0.5, 0.5],
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert not was_resolved
+        assert canonical_id == "distinct_compound"
+
+    def test_chembl_conflict_overrides_embedding_match(
+        self, pipeline_with_existing_compound,
+    ):
+        """Critical safety: even when embedding cosine is very high,
+        if the existing node has chembl_id X and the incoming has
+        chembl_id Y ≠ X, we MUST NOT merge them. They're distinct
+        ChEMBL-registered drugs (e.g. erlotinib vs gefitinib in the
+        EGFR TKI family) that happen to embed close."""
+        from src.graph.models import CompoundNode, Modality
+        pipeline, graph = pipeline_with_existing_compound
+        existing_chembl_index: dict = {}
+        embedding_index = [("fluorouracil_canonical", [1.0, 0.0, 0.0])]
+
+        # Near-identical embedding but conflicting chembl_id.
+        incoming = CompoundNode(
+            id="similar_but_different_drug",
+            name="similar_but_different_drug",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL999",  # DIFFERENT from existing's CHEMBL185
+            embedding=[0.999, 0.001, 0.0],
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert not was_resolved
+        assert canonical_id == "similar_but_different_drug"
+
+    def test_missing_embedding_falls_back_to_chembl_only(
+        self, pipeline_with_existing_compound,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        pipeline, graph = pipeline_with_existing_compound
+        existing_chembl_index = {"CHEMBL185": "fluorouracil_canonical"}
+        embedding_index: list = []
+
+        incoming = CompoundNode(
+            id="fu", name="Fluorouracil",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL185",
+            embedding=None,  # sapbert extra not installed
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert was_resolved
+        assert canonical_id == "fluorouracil_canonical"
+
+    def test_no_signal_returns_unresolved(self, pipeline):
+        from src.graph.models import CompoundNode, Modality
+        existing_chembl_index: dict = {}
+        embedding_index: list = []
+        incoming = CompoundNode(
+            id="novel_drug", name="novel_drug",
+            modality=Modality.SMALL_MOLECULE,
+        )
+        canonical_id, was_resolved = pipeline._canonicalize_compound(
+            incoming, existing_chembl_index, embedding_index,
+        )
+        assert not was_resolved
+        assert canonical_id == "novel_drug"
+
+
+class TestMergeCompoundIntoExisting:
+    """Phase B merge step: when canonicalization resolves to an existing
+    node, the incoming compound's identity (aliases, name, original id)
+    must be merged in so downstream resolve_entity calls land on the
+    canonical node."""
+
+    def test_aliases_get_unioned_into_existing_node(self, pipeline, graph):
+        from src.graph.models import CompoundNode, Modality
+        graph.add_node(CompoundNode(
+            id="fluorouracil_canonical", name="fluorouracil_canonical",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL185",
+            aliases=["5-FU"],
+        ))
+        incoming = CompoundNode(
+            id="5_fluorouracil",
+            name="5-Fluorouracil",
+            modality=Modality.SMALL_MOLECULE,
+            aliases=["Adrucil", "5-FU"],  # one overlaps
+        )
+        pipeline._merge_compound_into_existing(incoming, "fluorouracil_canonical")
+        node = graph.get_node("fluorouracil_canonical")
+        # Original alias preserved; new ones added; duplicates not added.
+        assert set(node["aliases"]) == {
+            "5-FU", "5-Fluorouracil", "5_fluorouracil", "Adrucil",
+        }
+
+    def test_entity_index_gets_aliases_pointing_to_canonical(
+        self, pipeline, graph,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        graph.add_node(CompoundNode(
+            id="canon", name="canon", modality=Modality.SMALL_MOLECULE,
+        ))
+        incoming = CompoundNode(
+            id="alt_slug", name="Alternate Name",
+            modality=Modality.SMALL_MOLECULE,
+            aliases=["another_alias"],
+        )
+        pipeline._merge_compound_into_existing(incoming, "canon")
+        # All incoming identifiers now resolve to the canonical id.
+        assert pipeline.resolve_entity("Alternate Name", "compound") == "canon"
+        assert pipeline.resolve_entity("alt_slug", "compound") == "canon"
+        assert pipeline.resolve_entity("another_alias", "compound") == "canon"
+
+    def test_stable_id_backfilled_when_existing_node_missing_it(
+        self, pipeline, graph,
+    ):
+        from src.graph.models import CompoundNode, Modality
+        graph.add_node(CompoundNode(
+            id="canon", name="canon", modality=Modality.SMALL_MOLECULE,
+            stable_id=None,  # no chembl yet
+        ))
+        incoming = CompoundNode(
+            id="other", name="Other",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL999",
+        )
+        pipeline._merge_compound_into_existing(incoming, "canon")
+        assert graph.get_node("canon")["stable_id"] == "CHEMBL999"
+
+    def test_existing_stable_id_never_overwritten(self, pipeline, graph):
+        from src.graph.models import CompoundNode, Modality
+        graph.add_node(CompoundNode(
+            id="canon", name="canon", modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL185",
+        ))
+        incoming = CompoundNode(
+            id="other", name="Other",
+            modality=Modality.SMALL_MOLECULE,
+            stable_id="CHEMBL999",  # would conflict, but should be ignored
+        )
+        # NOTE: in practice _canonicalize_compound would never call
+        # merge in this case (chembl conflict gate blocks it), but the
+        # merge function itself must be defensive.
+        pipeline._merge_compound_into_existing(incoming, "canon")
+        assert graph.get_node("canon")["stable_id"] == "CHEMBL185"
+
+
 class TestParentIndicationHierarchy:
     """Round 3.2 #11 — disease hierarchy via SUBTYPE_OF edges. Subtype
     IndicationNodes (uveal_melanoma, cutaneous_melanoma, etc.) roll up to
