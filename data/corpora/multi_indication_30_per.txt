@@ -1,0 +1,224 @@
+# Round-26 n=30-per-indication corpus.
+#
+# Target: 30 trials per holdout's primary indication, plus the 5 holdout
+# NCTs at the bottom. Each indication section was curated to maximize
+# chain-edge overlap with the corresponding holdout:
+#   - same target class (target-level cross-trial learning)
+#   - same mechanism (mechanism_affects density)
+#   - same indication (biology_drives + responds_differently density)
+#   - mix of successes AND failures (so the system can learn both
+#     positive and negative outcomes for the chain)
+#
+# The 5 holdout NCTs at the bottom are FETCHED + POPULATED + ANNOTATED
+# but EXCLUDED from attribution via --exclude-from-attribution.
+# Their subgraphs land in the graph (chain prediction works), but their
+# evidence doesn't fold into edge beliefs — true holdout, no
+# self-attribution contamination.
+
+# ─────────────────────────────────────────────────────────────────────
+# MELANOMA — densifies the nivolumab CheckMate-067 chain
+# Need: PD-(L)1 antibodies, CTLA-4, MEK/BRAF inhibitors, melanoma trials.
+# ─────────────────────────────────────────────────────────────────────
+
+# Existing annotated melanoma trials (carry-over)
+NCT01271907
+NCT01777776
+NCT01909453
+NCT02164916
+NCT02970981
+NCT03261947
+NCT03698019
+NCT04267575
+NCT04577807
+NCT04904185
+NCT05116202
+NCT05200143
+NCT01584648
+NCT01689519
+NCT01245062
+
+# Landmark melanoma trials to densify the chain
+NCT02362594
+NCT01721772
+NCT01721746
+NCT02388906
+NCT02375204
+NCT02256436
+NCT02538666
+NCT01006980
+NCT01515189
+NCT01072175
+NCT02631009
+NCT02224781
+NCT00094653
+NCT03082534
+NCT02684006
+
+# ─────────────────────────────────────────────────────────────────────
+# ALZHEIMER'S DISEASE — densifies the solanezumab EXPEDITION chain
+# Need: anti-amyloid mAbs (THE critical class), BACE inhibitors,
+# approved AD drugs (acetylcholinesterase + memantine), tau-directed.
+# Goal: enough amyloid-targeting trials that the biology layer is
+# populated and the responds_differently edge can carry real evidence.
+# ─────────────────────────────────────────────────────────────────────
+
+# Existing annotated alzheimer trials
+NCT00571064
+NCT00766363
+NCT02586909
+NCT04064164
+NCT04309500
+NCT04394845
+NCT04902144
+
+# Anti-amyloid mAbs — critical for solanezumab chain
+NCT02484547
+NCT02477800
+NCT03887455
+NCT04437511
+NCT01900665
+NCT03114657
+NCT00574132
+NCT00676143
+NCT04023318
+
+# BACE inhibitors (amyloid pathway upstream)
+NCT01953601
+NCT02129764
+NCT03036280
+NCT01072812
+
+# Approved AD class (cholinesterase, NMDA, tau)
+NCT00568776
+NCT00477971
+NCT00748189
+
+# Other AD trials
+NCT01024023
+NCT00594568
+NCT01872598
+NCT04519646
+
+# ─────────────────────────────────────────────────────────────────────
+# COLORECTAL CANCER — densifies the bevacizumab AVANT chain
+# Need: adjuvant + metastatic CRC trials, anti-VEGF + EGFR + chemo
+# combos, to learn responds_differently between adjuvant and metastatic
+# settings.
+# ─────────────────────────────────────────────────────────────────────
+
+# Existing annotated CRC trials
+NCT01697449
+NCT01955837
+
+# Bevacizumab-CRC trials (same compound, different settings — critical
+# for responds_differently learning)
+NCT00079274
+NCT00112229
+NCT00126048
+NCT00075764
+
+# Other anti-angiogenic CRC
+NCT00305188
+NCT01228734
+NCT01103323
+
+# EGFR class CRC (different mechanism, same disease)
+NCT00154102
+NCT01183780
+NCT00364013
+NCT00712010
+
+# Chemo backbone CRC (FOLFOX/FOLFIRI/capecitabine)
+NCT00069095
+NCT00216476
+NCT00112125
+
+# ─────────────────────────────────────────────────────────────────────
+# CARDIOVASCULAR / CORONARY DISEASE — densifies torcetrapib ILLUMINATE
+# Need: CETP inhibitor siblings (3 of which already in corpus),
+# statin landmark trials, PCSK9 trials, anti-inflammatory CV trials.
+# Goal: build out target_associated_ae propagation for CETP class.
+# ─────────────────────────────────────────────────────────────────────
+
+# Existing annotated CV trials
+NCT00094055
+NCT00329160
+NCT00658515
+NCT00863265
+NCT00943306
+NCT01142336
+NCT01252953
+NCT01687998
+NCT01953328
+NCT02173158
+NCT02748057
+NCT03397121
+NCT03415178
+
+# Statin landmark CV outcome trials
+NCT00202878
+NCT00153982
+NCT00738491
+NCT00094458
+NCT00065949
+
+# PCSK9 CV outcome trials
+NCT01492361
+NCT01663402
+
+# Other CV outcome trials (lipid + inflammation)
+NCT00567073
+NCT00091546
+NCT01092702
+NCT01993511
+
+# ─────────────────────────────────────────────────────────────────────
+# THYROID CANCER — densifies the selumetinib (Ho 2013) chain
+# Need: tyrosine kinase inhibitors in thyroid (sorafenib, lenvatinib,
+# vandetanib, cabozantinib), MEK inhibitors (mechanism overlap with
+# melanoma corpus), and BRAF-mutated thyroid trials.
+# Smaller indication so we reach 30 by including MEK/BRAF trials that
+# also showed up in melanoma — same mechanism, different cancer.
+# ─────────────────────────────────────────────────────────────────────
+
+# Existing annotated thyroid trials
+NCT00095836
+NCT00923247
+NCT01831726
+NCT02244463
+NCT02304757
+
+# Landmark thyroid cancer kinase-inhibitor trials
+NCT00984282
+NCT01321554
+NCT00410761
+NCT00704730
+NCT01038362
+NCT02834884
+NCT03037385
+NCT02034110
+NCT01209559
+
+# Misc carry-over (cell-therapy / other trials in existing annotations)
+# These are not indication-specific but provide context nodes
+NCT00104871
+NCT00409175
+NCT00430755
+NCT01182285
+NCT01264614
+NCT01424293
+NCT01552226
+NCT01974284
+NCT02273206
+NCT02846714
+
+# ─────────────────────────────────────────────────────────────────────
+# HOLDOUT TRIALS — fetched + populated + annotated, EXCLUDED from
+# attribution via --exclude-from-attribution on the build command.
+# Subgraphs land in the graph; their evidence does not.
+# ─────────────────────────────────────────────────────────────────────
+NCT01844505
+NCT01127633
+NCT00112918
+NCT00134264
+NCT00970359
