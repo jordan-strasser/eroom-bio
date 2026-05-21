@@ -38,6 +38,10 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.graph.antibody_target_resolver import (
+    is_monoclonal_antibody,
+    mab_target_gene,
+)
 from src.graph.compound_codenames import CODENAME_TO_INN
 from src.graph.indication_taxonomy import parent_indication_for
 from src.graph.store import GraphStore
@@ -1756,6 +1760,57 @@ class PopulationPipeline:
                         ))
                         binds_added += 1
                     target_ids.append(tid)
+
+            # Round-24 Q3: monoclonal antibody fallback. When both OT
+            # and the ChEMBL REST fallback miss for a recognizable mAb,
+            # consult the curated antibody → target table. The table
+            # only carries well-characterized antibodies (anti-amyloid,
+            # checkpoint inhibitors, anti-CD20, etc.) — caller intent
+            # here is to fail closed (return None) rather than guess.
+            if not target_ids and is_monoclonal_antibody(cid):
+                mab_gene = mab_target_gene(cid)
+                if mab_gene:
+                    try:
+                        ot_target = await self._ot_client.search_target(mab_gene)
+                    except (KeyError, Exception):  # noqa: BLE001
+                        ot_target = None
+                    if ot_target and ot_target.get("target_id"):
+                        ensembl = ot_target["target_id"]
+                        try:
+                            self.graph.get_node(ensembl)
+                        except KeyError:
+                            self.graph.add_node(TargetNode(
+                                id=ensembl,
+                                name=ot_target.get("name") or mab_gene,
+                                gene_symbol=ot_target.get("approved_symbol") or mab_gene,
+                                target_type=TargetType.PROTEIN,
+                                metadata={"source": "mab_fallback"},
+                            ))
+                            self._index_node(
+                                ensembl,
+                                ot_target.get("approved_symbol") or mab_gene,
+                                "target",
+                            )
+                        if not self.graph._graph.has_edge(  # noqa: SLF001
+                            cid, ensembl, key=EdgeType.AFFECTS.value,
+                        ):
+                            self.graph.add_edge(GraphEdge(
+                                source_id=cid,
+                                target_id=ensembl,
+                                edge_type=EdgeType.AFFECTS,
+                                # Lower prior than OT-direct (Beta(2, 1) / E[p]=0.67)
+                                # because the antibody-table source is curated by hand
+                                # rather than evidence-graded. Same Beta as
+                                # chembl_rest_fallback for consistency.
+                                belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                                metadata={
+                                    "source": "mab_fallback",
+                                    "mab_table_gene": mab_gene,
+                                },
+                            ))
+                            binds_added += 1
+                        target_ids.append(ensembl)
+
             compound_targets[cid] = target_ids
         return compound_targets, binds_added
 

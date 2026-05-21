@@ -318,6 +318,35 @@ def _format_md(rows: list[dict]) -> str:
                 f"       Beta({a:.2f}, {b:.2f})  E[p]={ep:.3f}  "
                 f"n_eff={n_eff:.2f}  bottleneck={ec.bottleneck_score:.3f}\n"
             )
+            # Round-24 Q2: surface evidence provenance so Beta(30, 4) is
+            # legible as "30 records from 12 distinct trials, mostly
+            # strong_support" rather than an opaque posterior.
+            evidence = ec.belief.evidence or []
+            if evidence:
+                source_counts: dict[str, int] = {}
+                bucket_counts: dict[str, int] = {}
+                for rec in evidence:
+                    source_counts[rec.source_id] = source_counts.get(rec.source_id, 0) + 1
+                    bucket_counts[rec.support] = bucket_counts.get(rec.support, 0) + 1
+                top_sources = sorted(source_counts.items(), key=lambda kv: -kv[1])[:5]
+                src_str = ", ".join(f"{nct}×{n}" if n > 1 else nct for nct, n in top_sources)
+                if len(source_counts) > 5:
+                    src_str += f" (+{len(source_counts) - 5} more NCTs)"
+                # Order buckets from strongest support → strongest contradict
+                bucket_order = [
+                    "strong_support", "moderate_support", "weak_support",
+                    "ambiguous",
+                    "weak_contradict", "moderate_contradict", "strong_contradict",
+                ]
+                bucket_str = ", ".join(
+                    f"{b}={bucket_counts[b]}" for b in bucket_order if b in bucket_counts
+                )
+                out.append(
+                    f"       provenance: {len(evidence)} records, "
+                    f"{len(source_counts)} distinct trial(s)\n"
+                    f"       sources: {src_str}\n"
+                    f"       buckets: {bucket_str}\n"
+                )
         out.append("```\n\n")
 
         if r.get("safety_risks"):
