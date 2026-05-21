@@ -32,6 +32,7 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 
+from src.graph.antibody_target_resolver import nl_target_to_gene
 from src.graph.models import EdgeBeliefState, EdgeType
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import ClinicalTrialsClient
@@ -149,16 +150,27 @@ def _lookup_target(target_str: str, graph: GraphStore) -> str | None:
     Handles combo-target strings with several separators: commas,
     semicolons, slashes, `+`, "and", "plus", "&". Returns the first
     piece that maps to a known TargetNode via gene-symbol alias.
+
+    Round-24 Q3: ``nl_target_to_gene`` runs first so extraction strings
+    like "amyloid beta", "IL-6 receptor", and "CD20" map to the gene
+    symbol the graph stores. Without it, the audit's chain resolver
+    returned UNKNOWN even when the AFFECTS edge existed in the graph.
     """
     if not target_str:
         return None
     pieces = re.split(r"[,;/+&]| and | plus ", target_str, flags=re.IGNORECASE)
     target_index = _target_gene_index(graph)
     for piece in pieces:
-        piece = piece.strip().lower()
-        if not piece:
+        piece_low = piece.strip().lower()
+        if not piece_low:
             continue
-        sym = _GENE_SYM_ALIASES.get(piece, piece.upper())
+        # Q3: try the NL → gene-symbol map first; falls back to the
+        # legacy alias table and finally to the piece itself.
+        sym = (
+            nl_target_to_gene(piece_low)
+            or _GENE_SYM_ALIASES.get(piece_low)
+            or piece_low.upper()
+        )
         if sym in target_index:
             return target_index[sym]
     return None
