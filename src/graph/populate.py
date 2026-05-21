@@ -2732,15 +2732,32 @@ class PopulationPipeline:
 
     # ── Trial subgraph construction ──────────────────────────────────────
 
-    # Round-21 Phase B: compound canonicalization. Default similarity
-    # threshold is intentionally conservative — embedding-only matches
-    # are blocked from collapsing distinct drugs in the same class
-    # (erlotinib vs gefitinib, paclitaxel vs docetaxel). The threshold
-    # will be re-tuned via the labeled-pair audit (task #22) once the
-    # sapbert optional extra is installed; until then the default
-    # leans toward "miss on close-but-different pairs" rather than
-    # "merge on actually-different pairs."
-    _COMPOUND_EMBEDDING_SIMILARITY_THRESHOLD = 0.92
+    # Round-21 Phase B: compound canonicalization threshold. Calibrated
+    # against a labeled validation set run through live SapBERT
+    # (2026-05-20, see scripts/verify_sapbert.py).
+    #
+    # Findings on the n=11 set:
+    #   - SAME spelling/salt-form variants:           0.89-0.97 cosine
+    #   - SAME brand/INN pairs (Keytruda/Pembro):     ~0.77
+    #   - SAME codenames (MK-3475/Pembro):            ~0.33 — SapBERT
+    #     CANNOT resolve codenames; CODENAME_TO_INN +
+    #     OT alias lookups handle them instead (round 23 will add
+    #     RxNorm + PubChem fallbacks for more coverage)
+    #   - SIMILAR_CLASS_DISTINCT (erlotinib/gefitinib,
+    #     paclitaxel/docetaxel, nivolumab/pembro):    0.55-0.72
+    #   - DIFFERENT class pairs:                      0.25-0.31
+    #
+    # Threshold 0.80 sits in the safety window between max
+    # SIMILAR_CLASS_DISTINCT (0.72) and SAME spelling-variants (0.89+).
+    # It catches the dominant target case (spelling + salt forms),
+    # narrowly misses brand-name pairs at ~0.77 (those flow through
+    # OT aliases instead), and cannot accidentally merge any of the
+    # observed class-mate pairs.
+    #
+    # The chembl_id non-conflict gate in _canonicalize_compound is the
+    # real safety net: even at a more aggressive threshold, two
+    # compounds with different ChEMBL ids cannot merge.
+    _COMPOUND_EMBEDDING_SIMILARITY_THRESHOLD = 0.80
 
     def _canonicalize_compound(
         self,

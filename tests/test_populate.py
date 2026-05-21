@@ -690,7 +690,8 @@ class TestCompoundCanonicalization:
         existing_chembl_index: dict = {}
         embedding_index = [("fluorouracil_canonical", [1.0, 0.0, 0.0])]
 
-        # Cosine well below default 0.92 threshold.
+        # Cosine well below default 0.80 threshold (~0.577 for this
+        # uniform vector vs the canonical [1,0,0]).
         incoming = CompoundNode(
             id="distinct_compound", name="distinct_compound",
             modality=Modality.SMALL_MOLECULE,
