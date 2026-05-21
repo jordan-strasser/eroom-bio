@@ -379,38 +379,62 @@ class TestGetDiseaseAssociations:
 
 
 class TestScoreToPrior:
-    def test_uninformative_at_zero(self):
+    """Round-25: score_to_prior now routes through DATABASE_CURATED
+    EvidenceRecord. Posterior reflects one curated record applied to
+    Beta(1, 1) — direction is preserved (high score → posterior > 0.5,
+    low score → posterior < 0.5) but the magnitude is smaller because
+    n_eff is fixed at 3.0 rather than scaling with evidence_count.
+    """
+
+    def test_uninformative_at_zero_count(self):
+        # No supporting evidence_count → uninformative Beta(1, 1).
         belief = score_to_prior(0.5, 0)
-        # strength = min(0, 20) = 0, so alpha=1, beta=1
         assert belief.alpha == 1.0
         assert belief.beta == 1.0
+        # And critically: no evidence records, so the prediction engine
+        # will drop this edge.
+        assert belief.evidence == []
 
-    def test_strong_positive(self):
+    def test_strong_positive_emits_strong_support(self):
         belief = score_to_prior(0.9, 10)
-        # strength=10, alpha=1+0.9*10=10, beta=1+0.1*10=2
-        assert belief.alpha == pytest.approx(10.0)
-        assert belief.beta == pytest.approx(2.0)
-        assert belief.expected_probability > 0.8
+        # bucket=strong_support (0.9 >= 0.75), quality=1.0 (count >= 5)
+        # n_eff_effective = 3 * 1.0 = 3
+        # posterior: alpha = 1 + 3*0.95 = 3.85, beta = 1 + 3*0.05 = 1.15
+        assert belief.alpha == pytest.approx(3.85)
+        assert belief.beta == pytest.approx(1.15)
+        assert belief.expected_probability > 0.75
+        # Provenance preserved via evidence record.
+        assert len(belief.evidence) == 1
+        assert belief.evidence[0].support == "strong_support"
 
-    def test_strong_negative(self):
-        belief = score_to_prior(0.1, 10)
-        # strength=10, alpha=1+0.1*10=2, beta=1+0.9*10=10
-        assert belief.alpha == pytest.approx(2.0)
-        assert belief.beta == pytest.approx(10.0)
-        assert belief.expected_probability < 0.2
+    def test_strong_negative_emits_contradict(self):
+        belief = score_to_prior(0.04, 10)
+        # 0.04 < 0.05 → weak_contradict (p_obs=0.35), quality=1.0
+        # alpha = 1 + 3*0.35 = 2.05, beta = 1 + 3*0.65 = 2.95
+        assert belief.alpha == pytest.approx(2.05)
+        assert belief.beta == pytest.approx(2.95)
+        assert belief.expected_probability < 0.5
+        assert belief.evidence[0].support == "weak_contradict"
 
-    def test_evidence_capped_at_20(self):
-        belief = score_to_prior(0.8, 100)
-        # strength = min(100, 20) = 20
-        assert belief.alpha == pytest.approx(1.0 + 0.8 * 20)
-        assert belief.beta == pytest.approx(1.0 + 0.2 * 20)
+    def test_evidence_count_caps_quality_at_five(self):
+        # Beyond evidence_count=5, quality_score is already 1.0 and
+        # additional sources don't shift the posterior further.
+        b5 = score_to_prior(0.8, 5)
+        b100 = score_to_prior(0.8, 100)
+        assert b5.alpha == pytest.approx(b100.alpha)
+        assert b5.beta == pytest.approx(b100.beta)
 
-    def test_balanced_score(self):
+    def test_balanced_score_emits_moderate_support(self):
+        # 0.5 is at the moderate_support boundary (>= 0.5) per
+        # ot_association_score_to_bucket. n_eff=3, p_obs=0.80.
         belief = score_to_prior(0.5, 10)
-        # alpha = 1+5 = 6, beta = 1+5 = 6
-        assert belief.alpha == pytest.approx(6.0)
-        assert belief.beta == pytest.approx(6.0)
-        assert belief.expected_probability == pytest.approx(0.5)
+        assert belief.alpha == pytest.approx(1.0 + 3 * 0.80)
+        assert belief.beta == pytest.approx(1.0 + 3 * 0.20)
+        # Posterior leans slightly positive at score=0.5 (this differs
+        # from the pre-round-25 behavior of returning E[p]=0.5 — we now
+        # interpret OT score=0.5 as "weak positive signal" rather than
+        # "no signal").
+        assert belief.expected_probability == pytest.approx(0.68, abs=0.01)
 
 
 # ── Graph population tests ───────────────────────────────────────────────

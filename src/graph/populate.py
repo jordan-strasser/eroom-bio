@@ -44,8 +44,15 @@ from src.graph.antibody_target_resolver import (
 )
 from src.graph.codename_resolver import CodenameResolver, ResolvedCodename
 from src.graph.compound_codenames import CODENAME_TO_INN
+from src.graph.curated_evidence import (
+    belief_from_curated_record,
+    make_curated_record,
+    ot_association_score_to_bucket,
+    ot_score_quality,
+)
 from src.graph.indication_taxonomy import parent_indication_for
 from src.graph.store import GraphStore
+from src.inference.beliefs import SupportBucket
 from src.ingestion.clinicaltrials import (
     ArmGroup,
     ClinicalTrialsClient,
@@ -255,28 +262,37 @@ def classify_endpoint_deterministic(measure_text: str) -> str:
 
 # Beta(α, β) priors per endpoint class. Higher α/β reflects more regulatory
 # precedent for translating endpoint movement into disease-level benefit.
-ENDPOINT_PRIORS_BY_CLASS: dict[str, tuple[float, float]] = {
-    "OS": (3.0, 1.0),
-    "DFS": (2.5, 1.0),
-    "RFS": (2.5, 1.0),  # accepted regulatory endpoint in adjuvant melanoma
-    "composite_survival": (2.5, 1.0),
-    "PFS": (2.0, 1.0),
-    "TTP": (2.0, 1.0),
-    "CR": (1.7, 1.0),
-    "DMFS": (1.5, 1.0),  # used in adjuvant trials but less precedent than DFS
-    "DOR": (1.5, 1.0),   # tracks response durability conditional on responding
-    "ORR": (1.5, 1.0),
-    "composite_response": (1.5, 1.0),
-    "biomarker": (1.2, 1.0),
-    "PRO": (1.0, 1.0),
-    # Safety endpoints are legitimate primary outcomes (Phase I, dose-finding)
-    # but don't directly capture efficacy at the indication level. Beta(1, 1.5)
-    # → mean ~0.4—slightly biased toward "doesn't capture clinical benefit"
-    # with low evidence so trial outcomes can still update.
-    "safety": (1.0, 1.5),
-    "other": (1.0, 1.0),
+# Round-25: endpoint-class → curated-evidence bucket. Replaces the
+# hand-set Beta(α, β) priors with a categorical bucket emitted as a
+# DATABASE_CURATED EvidenceRecord. The bucket choices are calibrated so
+# the resulting posterior E[p] roughly matches the old hand-set means:
+#   STRONG_SUPPORT  (p_obs=0.95, n_eff=3) → Beta(3.85, 1.15), E[p]≈0.77
+#   MODERATE_SUPPORT (p_obs=0.80, n_eff=3) → Beta(3.4, 1.6), E[p]≈0.68
+#   WEAK_SUPPORT     (p_obs=0.65, n_eff=3) → Beta(2.95, 2.05), E[p]≈0.59
+#   AMBIGUOUS        (p_obs=0.50, n_eff=3) → Beta(2.5, 2.5),  E[p]=0.50
+#   WEAK_CONTRADICT  (p_obs=0.35, n_eff=3) → Beta(2.05, 2.95), E[p]≈0.41
+ENDPOINT_CLASS_BUCKETS: dict[str, str] = {
+    "OS": "strong_support",
+    "DFS": "moderate_support",
+    "RFS": "moderate_support",  # accepted in adjuvant melanoma
+    "composite_survival": "moderate_support",
+    "PFS": "moderate_support",
+    "TTP": "moderate_support",
+    "CR": "moderate_support",
+    "DMFS": "weak_support",  # used adjuvantly, less precedent than DFS
+    "DOR": "weak_support",   # response durability conditional on response
+    "ORR": "weak_support",
+    "composite_response": "weak_support",
+    "biomarker": "weak_support",
+    "PRO": "ambiguous",
+    # Safety endpoints don't directly capture efficacy — pull below 0.5.
+    "safety": "weak_contradict",
+    # "other" → no record emitted (edge stays Beta(1,1) and is dropped
+    # at predict time, which is the right behavior for an unclassified
+    # endpoint).
+    "other": "",
 }
-ENDPOINT_CLASSES = list(ENDPOINT_PRIORS_BY_CLASS.keys())
+ENDPOINT_CLASSES = list(ENDPOINT_CLASS_BUCKETS.keys())
 
 
 class JSONCache:
@@ -382,16 +398,32 @@ def seed_endpoint_captures_edge(
     indication_id: str,
     classification: str,
 ) -> bool:
-    """Add an endpoint_captures edge with the prior for the given class."""
-    prior = ENDPOINT_PRIORS_BY_CLASS.get(classification)
-    if prior is None:
+    """Add an endpoint_captures edge with the prior for the given class.
+
+    Round-25: emits a DATABASE_CURATED EvidenceRecord whose bucket
+    encodes the endpoint class. Classes whose bucket is "" (e.g. "other")
+    don't get an edge — the prediction engine treats them as unobserved
+    rather than mildly optimistic, which is the right semantics for an
+    unclassified endpoint.
+    """
+    bucket_str = ENDPOINT_CLASS_BUCKETS.get(classification)
+    if bucket_str is None:
         return False
-    alpha, beta_val = prior
+    if not bucket_str:
+        return False
+    record = make_curated_record(
+        source_id=f"endpoint_type_prior:{endpoint_id}",
+        bucket=SupportBucket(bucket_str),
+        notes=(
+            f"endpoint class={classification!r} from "
+            f"LLM endpoint classifier"
+        ),
+    )
     graph.add_edge(GraphEdge(
         source_id=endpoint_id,
         target_id=indication_id,
         edge_type=EdgeType.ENDPOINT_CAPTURES,
-        belief=EdgeBeliefState(alpha=alpha, beta=beta_val),
+        belief=belief_from_curated_record(record),
         metadata={
             "source": "endpoint_type_prior",
             "endpoint_name": endpoint_name,
@@ -1100,11 +1132,16 @@ class PopulationPipeline:
                         source_tag = "indication_qualifiers"
                     else:
                         source_tag = "default_unselected"
+                    # Round-25: heuristic seed prior dropped. The edge
+                    # exists so classifier emissions can land on it, but
+                    # starts at uninformative Beta(1, 1) — it'll be
+                    # dropped from predictions until a trial provides
+                    # real subgroup-vs-parent contrast evidence.
                     self.graph.add_edge(GraphEdge(
                         source_id=default_pop_id,
                         target_id=canonical_id,
                         edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                        belief=EdgeBeliefState(alpha=1.5, beta=1.0),
+                        belief=EdgeBeliefState(),
                         metadata={
                             "source": source_tag,
                             "raw_descriptor": cond,
@@ -1823,20 +1860,24 @@ class PopulationPipeline:
                 if not self.graph._graph.has_edge(  # noqa: SLF001
                     cid, ensembl, key=EdgeType.AFFECTS.value,
                 ):
+                    # Round-25: emit a DATABASE_CURATED record carrying
+                    # OT's binding claim, instead of hand-setting a
+                    # Beta(2, 1) prior. Strong-support: OT explicitly
+                    # links the compound to the target via ChEMBL drug-
+                    # target curation.
+                    record = make_curated_record(
+                        source_id=(
+                            f"opentargets:"
+                            f"{drug_data.get('chembl_id') or 'unknown_chembl'}"
+                        ),
+                        bucket=SupportBucket.STRONG_SUPPORT,
+                        notes=f"OT drug-target binding: {cid} → {symbol}",
+                    )
                     self.graph.add_edge(GraphEdge(
                         source_id=cid,
                         target_id=ensembl,
                         edge_type=EdgeType.AFFECTS,
-                        # Round-14 fix #4: rebalanced from Beta(4, 1)
-                        # → Beta(2, 1). Old prior had E[p]=0.80 baked in
-                        # for every OT-resolved compound-target pair —
-                        # successes barely budged it, failures couldn't
-                        # overcome it. Beta(2, 1) gives E[p]=0.67, which
-                        # is closer to the population base rate of
-                        # success for "drug binds target" claims and
-                        # leaves more room for evidence to move the
-                        # posterior in either direction.
-                        belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                        belief=belief_from_curated_record(record),
                         metadata={
                             "source": "opentargets",
                             "drug_chembl_id": drug_data.get("chembl_id"),
@@ -1888,11 +1929,26 @@ class PopulationPipeline:
                         }
                         if mech is not None:
                             edge_meta["implied_mechanism"] = mech.value
+                        # Round-25: DATABASE_CURATED record from ChEMBL's
+                        # structured action_type. Same strength as
+                        # OT-direct (strong_support) — ChEMBL is a
+                        # primary source for drug mechanism curation.
+                        record = make_curated_record(
+                            source_id=(
+                                f"chembl_rest:"
+                                f"{chembl_id or 'unknown_chembl'}"
+                            ),
+                            bucket=SupportBucket.STRONG_SUPPORT,
+                            notes=(
+                                f"ChEMBL action_type → target type "
+                                f"{ttype.value if hasattr(ttype, 'value') else ttype}"
+                            ),
+                        )
                         self.graph.add_edge(GraphEdge(
                             source_id=cid,
                             target_id=tid,
                             edge_type=EdgeType.AFFECTS,
-                            belief=EdgeBeliefState(alpha=3.5, beta=1.0),
+                            belief=belief_from_curated_record(record),
                             metadata=edge_meta,
                         ))
                         binds_added += 1
@@ -1931,15 +1987,24 @@ class PopulationPipeline:
                         if not self.graph._graph.has_edge(  # noqa: SLF001
                             cid, ensembl, key=EdgeType.AFFECTS.value,
                         ):
+                            # Round-25: hand-curated mAb-table record.
+                            # Strong-support — the table is curated from
+                            # primary literature, so each entry is a
+                            # specific evidence-backed claim about an
+                            # antibody's antigen.
+                            record = make_curated_record(
+                                source_id=f"mab_table:{cid}",
+                                bucket=SupportBucket.STRONG_SUPPORT,
+                                notes=(
+                                    f"hand-curated mAb→target: "
+                                    f"{cid} → {mab_gene}"
+                                ),
+                            )
                             self.graph.add_edge(GraphEdge(
                                 source_id=cid,
                                 target_id=ensembl,
                                 edge_type=EdgeType.AFFECTS,
-                                # Lower prior than OT-direct (Beta(2, 1) / E[p]=0.67)
-                                # because the antibody-table source is curated by hand
-                                # rather than evidence-graded. Same Beta as
-                                # chembl_rest_fallback for consistency.
-                                belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                                belief=belief_from_curated_record(record),
                                 metadata={
                                     "source": "mab_fallback",
                                     "mab_table_gene": mab_gene,
@@ -2026,14 +2091,27 @@ class PopulationPipeline:
                 tid, ind_id, key=EdgeType.BIOLOGY_DRIVES.value,
             ):
                 continue
-            belief = score_to_prior(
-                row.get("overall_score", 0.0), row.get("evidence_count", 0)
+            ot_score = row.get("overall_score", 0.0)
+            ev_count = row.get("evidence_count", 0)
+            # Round-25: emit DATABASE_CURATED record from OT-association
+            # score. Bucket reflects the score (strong/moderate/weak/
+            # ambiguous/weak-contradict); quality_score reflects how
+            # many independent sources OT aggregated. Replaces the old
+            # score_to_prior(score, evidence_count) hand-set Beta.
+            assoc_record = make_curated_record(
+                source_id=f"opentargets_assoc:{tid}__{efo}",
+                bucket=ot_association_score_to_bucket(ot_score),
+                quality_score=ot_score_quality(ev_count),
+                notes=(
+                    f"OT target-disease association: "
+                    f"score={ot_score:.3f}, evidence_count={ev_count}"
+                ),
             )
             self.graph.add_edge(GraphEdge(
                 source_id=tid,
                 target_id=ind_id,
                 edge_type=EdgeType.BIOLOGY_DRIVES,
-                belief=belief,
+                belief=belief_from_curated_record(assoc_record),
                 metadata={
                     "source": "opentargets",
                     "efo_id": efo,
@@ -2158,11 +2236,26 @@ class PopulationPipeline:
                     if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
                         target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
                     ):
+                        # Round-25: trial-inference mechanism. The
+                        # mechanism was inferred from a trial's
+                        # therapeutic_hypothesis combined with OT/ChEMBL
+                        # mechanism class — a curated derivation, but
+                        # one step removed from a direct curation
+                        # statement. Moderate-support rather than strong.
+                        modulates_record = make_curated_record(
+                            source_id=f"trial_inference:{trial.nct_id}__{cid}",
+                            bucket=SupportBucket.MODERATE_SUPPORT,
+                            notes=(
+                                f"target→mechanism inferred from trial "
+                                f"{trial.nct_id} arm {arm.arm_id} "
+                                f"compound {cid}"
+                            ),
+                        )
                         self.graph.add_edge(GraphEdge(
                             source_id=target_id,
                             target_id=mech_id,
                             edge_type=EdgeType.MODULATES_VIA,
-                            belief=EdgeBeliefState(alpha=3.0, beta=1.0),
+                            belief=belief_from_curated_record(modulates_record),
                             metadata={
                                 "source": "trial_inference",
                                 "trial_id": trial.nct_id,
@@ -2458,11 +2551,23 @@ class PopulationPipeline:
             if not self.graph._graph.has_edge(  # noqa: SLF001
                 mechanism_id, bio_id, key=EdgeType.MECHANISM_AFFECTS.value,
             ):
+                # Round-25: mechanism→biology from Reactome / GO
+                # pathway membership. Moderate-support — pathway curation
+                # is reliable but the "X affects pathway Y" link is
+                # always a single curator's interpretation.
+                mech_affects_record = make_curated_record(
+                    source_id=f"{chosen_source}:{mechanism_id}__{bio_id}",
+                    bucket=SupportBucket.MODERATE_SUPPORT,
+                    notes=(
+                        f"mechanism→biology via {chosen_source} "
+                        f"(gene {gene_symbol})"
+                    ),
+                )
                 self.graph.add_edge(GraphEdge(
                     source_id=mechanism_id,
                     target_id=bio_id,
                     edge_type=EdgeType.MECHANISM_AFFECTS,
-                    belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                    belief=belief_from_curated_record(mech_affects_record),
                     metadata={
                         "source": chosen_source,
                         "gene_symbol": gene_symbol,
@@ -2472,9 +2577,17 @@ class PopulationPipeline:
             if not self.graph._graph.has_edge(  # noqa: SLF001
                 bio_id, indication_id, key=EdgeType.BIOLOGY_DRIVES.value,
             ):
-                prior = EdgeBeliefState(alpha=1.0, beta=1.0)
+                # Round-25: when borrowing the prior from a target →
+                # indication BIOLOGY_DRIVES edge, ALSO copy the evidence
+                # list so the new biology → indication edge carries the
+                # curated-DB provenance. Otherwise the new edge would
+                # have non-zero alpha/beta but an empty evidence list,
+                # which the new prediction engine would treat as
+                # zero-evidence (drop) — losing the OT association
+                # signal we just wired in upstream.
+                borrowed = EdgeBeliefState()
                 try:
-                    prior = self.graph.get_edge_belief(
+                    borrowed = self.graph.get_edge_belief(
                         target_id, indication_id, EdgeType.BIOLOGY_DRIVES,
                     )
                 except KeyError:
@@ -2484,7 +2597,8 @@ class PopulationPipeline:
                     target_id=indication_id,
                     edge_type=EdgeType.BIOLOGY_DRIVES,
                     belief=EdgeBeliefState(
-                        alpha=prior.alpha, beta=prior.beta,
+                        alpha=borrowed.alpha, beta=borrowed.beta,
+                        evidence=list(borrowed.evidence),
                     ),
                     metadata={
                         "source": "reactome_target_lookup",
@@ -2594,11 +2708,24 @@ class PopulationPipeline:
                         mech_id, slug_id,
                         key=EdgeType.MECHANISM_AFFECTS.value,
                     ):
+                        # Round-25: synthesized biology slug fallback
+                        # when Reactome/GO had no pathway match. The
+                        # mechanism→biology edge is essentially a
+                        # tautology (the slug encodes "mech in
+                        # indication") — weak-support, not moderate.
+                        fallback_record = make_curated_record(
+                            source_id=f"trial_biology_fallback:{mech_id}__{slug_id}",
+                            bucket=SupportBucket.WEAK_SUPPORT,
+                            notes=(
+                                f"synthesized biology slug fallback "
+                                f"({mech_id} in {ind_id})"
+                            ),
+                        )
                         self.graph.add_edge(GraphEdge(
                             source_id=mech_id,
                             target_id=slug_id,
                             edge_type=EdgeType.MECHANISM_AFFECTS,
-                            belief=EdgeBeliefState(alpha=2.0, beta=1.0),
+                            belief=belief_from_curated_record(fallback_record),
                             metadata={"source": "trial_biology_fallback"},
                         ))
 
@@ -2606,10 +2733,12 @@ class PopulationPipeline:
                         slug_id, ind_id,
                         key=EdgeType.BIOLOGY_DRIVES.value,
                     ):
-                        prior = EdgeBeliefState(alpha=1.0, beta=1.0)
+                        # Round-25: same borrow-with-evidence pattern as
+                        # the reactome_target_lookup case above.
+                        borrowed = EdgeBeliefState()
                         if target_id != _UNKNOWN:
                             try:
-                                prior = self.graph.get_edge_belief(
+                                borrowed = self.graph.get_edge_belief(
                                     target_id, ind_id,
                                     EdgeType.BIOLOGY_DRIVES,
                                 )
@@ -2620,7 +2749,9 @@ class PopulationPipeline:
                             target_id=ind_id,
                             edge_type=EdgeType.BIOLOGY_DRIVES,
                             belief=EdgeBeliefState(
-                                alpha=prior.alpha, beta=prior.beta,
+                                alpha=borrowed.alpha,
+                                beta=borrowed.beta,
+                                evidence=list(borrowed.evidence),
                             ),
                             metadata={
                                 "source": "trial_biology_fallback",
@@ -2831,11 +2962,24 @@ class PopulationPipeline:
                             cid, ens, key=EdgeType.AFFECTS.value,
                         ):
                             continue
+                        # Round-25: cell-therapy / pattern-matched
+                        # AFFECTS edge. Strong-support — the pattern
+                        # table is a curated mapping from compound
+                        # naming convention to a specific antigen /
+                        # target (e.g. anti-CD19 CAR-T → CD19).
+                        pattern_record = make_curated_record(
+                            source_id=f"{source_tag}:{cid}__{ens}",
+                            bucket=SupportBucket.STRONG_SUPPORT,
+                            notes=(
+                                f"pattern-matched target: "
+                                f"{canonical_name} → {symbol}"
+                            ),
+                        )
                         self.graph.add_edge(GraphEdge(
                             source_id=cid,
                             target_id=ens,
                             edge_type=EdgeType.AFFECTS,
-                            belief=EdgeBeliefState(alpha=3.0, beta=1.0),
+                            belief=belief_from_curated_record(pattern_record),
                             metadata={
                                 "source": source_tag,
                                 "pattern_matched": canonical_name,
@@ -2913,11 +3057,23 @@ class PopulationPipeline:
         return added
 
     def _add_binds_edge(self, compound_id: str, target_id: str) -> None:
+        # Round-25: cross-reference AFFECTS edge from name-matching
+        # heuristic (compound text contained the target gene_symbol or
+        # name). Weakest of the curated sources — name overlap alone
+        # isn't a curation step, so weak_support.
+        record = make_curated_record(
+            source_id=f"cross_reference:{compound_id}__{target_id}",
+            bucket=SupportBucket.WEAK_SUPPORT,
+            notes=(
+                f"name-match AFFECTS: {compound_id} → {target_id} via "
+                f"intervention-text overlap"
+            ),
+        )
         edge = GraphEdge(
             source_id=compound_id,
             target_id=target_id,
             edge_type=EdgeType.AFFECTS,
-            belief=EdgeBeliefState(alpha=2.0, beta=1.5),
+            belief=belief_from_curated_record(record),
             metadata={"source": "cross_reference", "method": "name_matching"},
         )
         self.graph.add_edge(edge)
@@ -3486,11 +3642,24 @@ def synthesize_combo_compounds(graph: GraphStore, arms: list[TrialArm]) -> int:
                     key=EdgeType.AFFECTS.value,
                 ):
                     continue
+                # Round-25: combo-arm inherits constituent's AFFECTS
+                # edge. Moderate-support — the inherited claim is one
+                # step removed from a direct curation (we know cid →
+                # target_id is curated, and arm contains cid, so arm
+                # affects target_id).
+                inherit_record = make_curated_record(
+                    source_id=(
+                        f"combo_inherit:"
+                        f"{arm.regimen_compound_id}__{target_id}"
+                    ),
+                    bucket=SupportBucket.MODERATE_SUPPORT,
+                    notes=f"inherited AFFECTS via constituent {cid}",
+                )
                 graph.add_edge(GraphEdge(
                     source_id=arm.regimen_compound_id,
                     target_id=target_id,
                     edge_type=EdgeType.AFFECTS,
-                    belief=EdgeBeliefState(alpha=3.0, beta=1.5),
+                    belief=belief_from_curated_record(inherit_record),
                     metadata={
                         "source": "combo_inherit",
                         "via_constituent": cid,
@@ -3911,11 +4080,15 @@ async def seed_responds_differently_from_extractions(
             if not graph._graph.has_edge(  # noqa: SLF001
                 pop_id, indication_id, key=EdgeType.RESPONDS_DIFFERENTLY.value,
             ):
+                # Round-25: heuristic seed prior dropped. The edge
+                # exists so per-arm subgroup classifier emissions can
+                # land on it; starts uninformative until a trial
+                # provides actual subgroup-vs-parent contrast evidence.
                 graph.add_edge(GraphEdge(
                     source_id=pop_id,
                     target_id=indication_id,
                     edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                    belief=EdgeBeliefState(alpha=1.5, beta=1.0),
+                    belief=EdgeBeliefState(),
                     metadata={
                         "source": "extraction_subgroup",
                         "trial_id": nct_id,

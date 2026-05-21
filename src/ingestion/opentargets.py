@@ -415,10 +415,47 @@ def _clean_aliases(
 
 
 def score_to_prior(ot_score: float, evidence_count: int) -> EdgeBeliefState:
-    strength = min(evidence_count, 20)
-    alpha = 1.0 + ot_score * strength
-    beta = 1.0 + (1.0 - ot_score) * strength
-    return EdgeBeliefState(alpha=alpha, beta=beta)
+    """Map an OT association (score, evidence_count) → EdgeBeliefState.
+
+    Round-25: now routes through the DATABASE_CURATED evidence channel.
+    The returned belief carries a single EvidenceRecord whose bucket
+    encodes the score and quality_score discounts by evidence_count.
+    This means the prediction engine treats the OT-derived belief as
+    one curated record's worth of evidence — not as zero-record prior
+    bumps.
+
+    Direction-preserving: high score → strong_support → posterior mean
+    near 0.77; low score → contradict bucket → posterior mean below
+    0.5. Aggressive evidence_count discounting at low counts so a
+    single-source OT score doesn't carry the full DATABASE_CURATED
+    n_eff=3 weight.
+    """
+    # Lazy import to avoid src.ingestion → src.graph (curated_evidence
+    # imports from src.graph). The function-level import keeps module
+    # load order intact.
+    from src.graph.curated_evidence import (
+        belief_from_curated_record,
+        make_curated_record,
+        ot_association_score_to_bucket,
+        ot_score_quality,
+    )
+
+    if evidence_count <= 0:
+        # No supporting evidence at all — caller almost certainly
+        # shouldn't be creating an edge. Preserve old behavior by
+        # returning a Beta(1, 1) uninformative belief; the engine drops
+        # this from predictions anyway.
+        return EdgeBeliefState()
+    record = make_curated_record(
+        source_id=f"opentargets_assoc:score_to_prior",
+        bucket=ot_association_score_to_bucket(ot_score),
+        quality_score=ot_score_quality(evidence_count),
+        notes=(
+            f"OT association score={ot_score:.3f}, "
+            f"evidence_count={evidence_count}"
+        ),
+    )
+    return belief_from_curated_record(record)
 
 
 # ── Graph population ─────────────────────────────────────────────────────

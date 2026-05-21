@@ -1072,7 +1072,10 @@ class TestCompoundTargetEdges:
         added = pipeline._add_compound_target_edges([trial])
         assert added >= 1
         belief = graph.get_edge_belief("C1", "T_ABL", EdgeType.AFFECTS)
-        assert belief.alpha == 2.0
+        # Round-25: weak_support DATABASE_CURATED record (n_eff=3,
+        # p_obs=0.65) applied to Beta(1, 1) → alpha=2.95, beta=2.05.
+        assert belief.alpha == pytest.approx(2.95)
+        assert belief.evidence[0].source_type.value == "database_curated"
 
     def test_no_edge_when_no_match(self, pipeline, graph):
         graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
@@ -1321,8 +1324,11 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "gp100_antigen", "ENSG00000185664", EdgeType.AFFECTS,
         )
-        assert belief.alpha == 3.0
-        assert belief.beta == 1.0
+        # Round-25: vaccine-component pattern-match emits strong_support
+        # DATABASE_CURATED → Beta(3.85, 1.15).
+        assert belief.alpha == pytest.approx(3.85)
+        assert belief.beta == pytest.approx(1.15)
+        assert belief.evidence[0].source_type.value == "database_curated"
 
     def test_adds_all_three_targets_for_combo_peptide_vaccine(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -1350,9 +1356,10 @@ class TestVaccineComponentTargets:
             ("ENSG00000120215", "MLANA"),
         ]:
             assert graph.get_node(ens)["gene_symbol"] == symbol
+            # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
             assert graph.get_edge_belief(
                 "combo_peptides", ens, EdgeType.AFFECTS,
-            ).alpha == 3.0
+            ).alpha == pytest.approx(3.85)
 
     def test_idempotent_across_repeated_trials(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -1420,8 +1427,9 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "montanide_isa_51_vg", "ENSG00000162711", EdgeType.AFFECTS,
         )
-        assert belief.alpha == 3.0
-        assert belief.beta == 1.0
+        # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
+        assert belief.alpha == pytest.approx(3.85)
+        assert belief.beta == pytest.approx(1.15)
 
     def test_incomplete_freund_routes_to_nlrp3(self, pipeline, graph):
         graph.add_node(CompoundNode(
