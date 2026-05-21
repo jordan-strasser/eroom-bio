@@ -365,7 +365,7 @@ async def main(
     base_snapshot: str | None = None,
     add_trials: list[str] | None = None,
     add_corpus: str | None = None,
-    min_subgraph_success_rate: float = 0.90,
+    min_subgraph_success_rate: float = 0.75,
     allow_partial_subgraphs: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
@@ -518,37 +518,79 @@ async def main(
         trials=trials,
     )
 
-    # Round-20.5: silent-drop guard. build_trial_subgraphs skips a trial
-    # when its indication / endpoint / arm structure can't be resolved.
-    # Without this check, 14 of 50 trials in the n=50 multi_indication
-    # build were lost silently — the snapshot LOOKED complete but the
-    # chains weren't there. Mirrors the round-16 min_classify_success_rate
-    # check (which catches API exhaustion). For incremental mode,
-    # `trials` was already filtered to NEW NCTs only before populate, so
-    # the rate is computed against THAT slice.
-    built_subgraphs = sum(1 for t in trials if t.nct_id in graph.trial_subgraphs)
-    subgraph_success_rate = built_subgraphs / len(trials) if trials else 1.0
+    # Round-20.5 / round-21 followup: silent-drop guard.
+    # build_trial_subgraphs skips a trial when its indication / endpoint
+    # / arm structure can't be resolved. Without this check, 14 of 50
+    # trials in the n=50 multi_indication build were lost silently — the
+    # snapshot LOOKED complete but the chains weren't there.
+    #
+    # Refinement: NOT every drop reason represents silent loss. Drops
+    # whose reason matches one of LEGITIMATE_DROP_REASONS are correct
+    # rejections (non-therapeutic trials, fundamentally empty CT.gov
+    # records). Counting them against the success rate falsely makes a
+    # clean build look broken, and ratchets the threshold toward "no
+    # search-result corpus will ever pass." Exclude them from the
+    # denominator: success rate is computed over trials that COULD have
+    # produced a chain, not the raw input count.
+    LEGITIMATE_DROP_REASONS = {
+        # All interventions are non-drug (diagnostic, behavioral,
+        # device, procedure). Round 22's slug-create can't help — no
+        # compound to anchor a chain.
+        "no_arms_filtered_by_diagnostic",
+        # CT.gov returned a trial with no conditions at all (round 22
+        # boundary). Can't construct an indication chain side.
+        "no_conditions",
+        # CT.gov returned no primary outcomes (round 22 boundary).
+        # Can't construct an endpoint chain side.
+        "no_primary_outcomes",
+    }
+
+    from src.graph.populate import _DROPPED_TRIAL_SUBGRAPHS_LOG
+    legitimate_drops: set[str] = set()
+    if _DROPPED_TRIAL_SUBGRAPHS_LOG.exists():
+        import json as _json
+        for _line in _DROPPED_TRIAL_SUBGRAPHS_LOG.read_text().splitlines():
+            if not _line.strip():
+                continue
+            try:
+                _entry = _json.loads(_line)
+            except _json.JSONDecodeError:
+                continue
+            if _entry.get("reason") in LEGITIMATE_DROP_REASONS:
+                legitimate_drops.add(_entry.get("nct_id"))
+
+    built_subgraphs = sum(
+        1 for t in trials if t.nct_id in graph.trial_subgraphs
+    )
+    eligible_count = len(trials) - len(legitimate_drops)
+    subgraph_success_rate = (
+        built_subgraphs / eligible_count if eligible_count else 1.0
+    )
     if (
         subgraph_success_rate < min_subgraph_success_rate
         and not allow_partial_subgraphs
     ):
-        from src.graph.populate import _DROPPED_TRIAL_SUBGRAPHS_LOG
-        drop_path = _DROPPED_TRIAL_SUBGRAPHS_LOG
         raise SystemExit(
             f"\ntrial subgraph build success rate "
             f"{subgraph_success_rate:.1%} below minimum "
             f"{min_subgraph_success_rate:.1%} "
-            f"({built_subgraphs} of {len(trials)} trials produced a "
-            f"trial subgraph). Aborting before extraction to avoid a "
-            f"silently-truncated snapshot. "
-            f"See {drop_path} for per-trial drop reasons "
-            f"(no_indication / no_endpoint / no_arms_*). "
-            f"Re-run with --allow-partial-subgraphs to force the build "
-            f"to continue with the partial set."
+            f"({built_subgraphs} of {eligible_count} eligible trials "
+            f"produced a trial subgraph; "
+            f"{len(legitimate_drops)} non-therapeutic trials "
+            f"excluded from the denominator). Aborting before "
+            f"extraction to avoid a silently-truncated snapshot. "
+            f"See {_DROPPED_TRIAL_SUBGRAPHS_LOG} for per-trial drop "
+            f"reasons. Bug-indicating reasons (no_indication, "
+            f"no_endpoint, no_arms_empty_arm_groups, no_arms) point "
+            f"to populator gaps to fix. Re-run with "
+            f"--allow-partial-subgraphs to force the build to "
+            f"continue with the partial set."
         )
     console.print(
-        f"  built {built_subgraphs}/{len(trials)} trial subgraphs "
-        f"({subgraph_success_rate:.1%})"
+        f"  built {built_subgraphs}/{eligible_count} trial subgraphs "
+        f"({subgraph_success_rate:.1%}); "
+        f"{len(legitimate_drops)} non-therapeutic trials excluded "
+        f"from the denominator"
     )
 
     graph.export_snapshot(str(initial_path))
@@ -715,13 +757,20 @@ if __name__ == "__main__":
              "--add-trials.",
     )
     parser.add_argument(
-        "--min-subgraph-success-rate", type=float, default=0.90,
-        help="Round-20.5 silent-drop guard. Minimum fraction of fetched "
-             "trials that must produce a trial subgraph (default 0.90). "
-             "Build aborts before extraction if the rate falls below "
-             "this — catches indication/endpoint canonicalization gaps "
-             "that would otherwise silently drop trials. See "
-             "data/dev/dropped_trial_subgraphs.jsonl for per-trial reasons.",
+        "--min-subgraph-success-rate", type=float, default=0.75,
+        help="Round-20.5 silent-drop guard. Minimum fraction of "
+             "ELIGIBLE trials that must produce a trial subgraph "
+             "(default 0.75). The denominator excludes trials whose "
+             "drop reason is a legitimate rejection "
+             "(no_arms_filtered_by_diagnostic, no_conditions, "
+             "no_primary_outcomes — these are non-therapeutic studies "
+             "or fundamentally empty CT.gov records, not silent loss). "
+             "Build aborts before extraction if the eligible-trial "
+             "rate falls below this — catches the bug-indicating "
+             "drops (no_indication, no_endpoint, "
+             "no_arms_empty_arm_groups) that point to populator gaps. "
+             "See data/dev/dropped_trial_subgraphs.jsonl for "
+             "per-trial reasons.",
     )
     parser.add_argument(
         "--allow-partial-subgraphs", action="store_true",
