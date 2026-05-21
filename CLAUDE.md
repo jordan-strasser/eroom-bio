@@ -18,7 +18,7 @@ The prediction math, trust-weight function (log-scaled, saturation at evidence_s
 - NetworkX (MultiDiGraph) for graph storage, not Neo4j—keeps everything in-process for now
 - Pydantic v2 for all models—strict validation everywhere
 - Beta distributions for edge beliefs—conjugate prior, cheap updates, explicit uncertainty
-- Evidence-weighted updates (`EVIDENCE_TYPE_N_EFF` in `src/inference/beliefs.py`): Phase 3 = 15.0, Genetic MR = 10.0, Phase 2 = 6.0, GWAS = 4.0, Phase 1 = 2.0, Preclinical in vivo = 2.0, Preclinical in vitro = 1.0, Computational = 0.3, Literature = 0.2
+- Evidence-weighted updates (`EVIDENCE_TYPE_N_EFF` in `src/inference/beliefs.py`): Phase 3 = 15.0, Genetic MR = 10.0, Phase 2 = 6.0, GWAS = 4.0, DB-OT-direct/ChEMBL/mAb-table = 3.0, Phase 1 = 2.0, Preclinical in vivo = 2.0, DB-OT-association/endpoint-prior = 2.0, DB-Reactome-GO = 1.5, Preclinical in vitro = 1.0, DB-LINCS = 1.0, DB-indication-taxonomy = 1.0, DB-fallback = 0.5, DB-cross-reference = 0.3, Computational = 0.3, Literature = 0.2. Per-source DB tiers added in round 25 — populator no longer hand-sets non-Beta(1,1) priors; every curated-DB fact is an EvidenceRecord with provenance.
 - Failure taxonomy has 13 mechanistic categories (not operational categories like "lack of efficacy")
 - Each trial is represented as a subgraph (an arm × subgroup × endpoint fan-out of causal chains), not a flat feature vector
 - Frozen-corpus mechanism: a corpus file at `data/corpora/<name>.txt` pins the exact NCT-id list used to build a snapshot, making rebuilds reproducible across runs
