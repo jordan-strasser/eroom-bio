@@ -490,6 +490,159 @@ class TestIncrementalBuildOrchestration:
                 )
 
     @pytest.mark.asyncio
+    async def test_legitimate_drops_excluded_from_success_rate(
+        self, fake_trials, tmp_path, monkeypatch,
+    ):
+        """Drops whose reason is in LEGITIMATE_DROP_REASONS (non-
+        therapeutic trials, fundamentally empty CT.gov records) get
+        excluded from the success-rate denominator. If 10 trials are
+        fetched and 8 drop as non-therapeutic, the rate is computed
+        over the 2 ELIGIBLE trials, not the raw 10."""
+        monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
+        monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
+        monkeypatch.setattr(build_graph, "CORPORA_DIR", tmp_path / "corpora")
+        (tmp_path / "exports").mkdir()
+        (tmp_path / "annotations").mkdir()
+        (tmp_path / "corpora").mkdir()
+        # Pre-create the final annotated path so the post-build
+        # import_snapshot doesn't blow up.
+        (tmp_path / "exports" / "oncology_annotated.json").write_text(
+            '{"graph": {"directed": true, "multigraph": true, "graph": {}, '
+            '"nodes": [], "edges": []}, "trial_subgraphs": {}}'
+        )
+
+        # Simulate a populator that built 2 trial subgraphs and dropped
+        # 8 as non-therapeutic. We write the drop log directly because
+        # the populator is mocked.
+        import json as _json
+        from src.graph import populate as pop_mod
+        drop_log = tmp_path / "dropped_trial_subgraphs.jsonl"
+        monkeypatch.setattr(
+            pop_mod, "_DROPPED_TRIAL_SUBGRAPHS_LOG", drop_log,
+        )
+        with drop_log.open("w") as fh:
+            for i in range(8):
+                fh.write(_json.dumps({
+                    "nct_id": fake_trials[i].nct_id,
+                    "reason": "no_arms_filtered_by_diagnostic",
+                    "details": {"intervention_names": ["behavioral"]},
+                }) + "\n")
+
+        # Graph contains the last 2 fake trials' subgraphs.
+        from src.graph.models import (
+            CausalChain, EndpointNode, EndpointType, IndicationNode,
+            PopulationNode, RegulatoryStatus, TrialArm, TrialOutcome,
+            TrialSubgraph,
+        )
+        from src.graph.store import GraphStore
+        graph = GraphStore()
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        graph.add_node(PopulationNode(id="melanoma__unselected", name="all"))
+        graph.add_node(EndpointNode(
+            id="ep", name="OS",
+            endpoint_type=EndpointType.PRIMARY,
+            regulatory_status=RegulatoryStatus.EXPLORATORY,
+        ))
+        for trial in fake_trials[8:]:
+            arm = TrialArm(arm_id="a", compound_ids=["x"], regimen_compound_id="x")
+            chain = CausalChain(
+                arm_id="a", compound_id="x",
+                subgroup_population_id="melanoma__unselected",
+                target_id="UNKNOWN", mechanism_id="UNKNOWN",
+                biology_id="UNKNOWN", indication_id="melanoma",
+                endpoint_id="ep", outcome=TrialOutcome.UNKNOWN,
+            )
+            graph.set_trial_subgraph(TrialSubgraph(
+                trial_id=trial.nct_id, phase="3", arms=[arm],
+                chains=[chain], parent_population_id="melanoma__unselected",
+            ))
+
+        attributor_mock = AsyncMock()
+        with (
+            patch.object(build_graph, "fetch_trials",
+                         new=AsyncMock(return_value=fake_trials)),
+            patch.object(build_graph, "wipe_outputs"),
+            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            patch.object(build_graph, "Extractor"),
+            patch.object(build_graph, "Classifier"),
+            patch.object(build_graph, "GraphStore", return_value=graph),
+            patch.object(build_graph, "extract_all",
+                         new=AsyncMock(return_value=fake_trials[8:])),
+            patch.object(build_graph, "classify_all",
+                         new=AsyncMock(return_value=2)),
+            patch.object(build_graph, "seed_responds_differently_from_extractions",
+                         new=AsyncMock(return_value=(0, 0))),
+            patch.object(build_graph, "attributor_main", new=attributor_mock),
+            patch("anthropic.AsyncAnthropic"),
+        ):
+            mock_pop = MockPop.return_value
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            # 2 built of 10 input = 20% raw, but 8 are legitimate
+            # drops so eligible_count = 2 and rate = 2/2 = 100%.
+            # The 75% threshold should PASS.
+            await build_graph.main(
+                condition="melanoma", max_trials=10,
+                include_terminated=False, concurrency=2,
+                area="oncology",
+                min_subgraph_success_rate=0.75,
+            )
+        # Build proceeded past the subgraph guard → attribution ran.
+        attributor_mock.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_bug_indicating_drops_still_count_against_rate(
+        self, fake_trials, tmp_path, monkeypatch,
+    ):
+        """Drops with bug-indicating reasons (no_indication, no_endpoint,
+        no_arms_empty_arm_groups, no_arms) ARE counted against the
+        rate — those represent real silent loss from populator gaps."""
+        monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
+        monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
+        monkeypatch.setattr(build_graph, "CORPORA_DIR", tmp_path / "corpora")
+        (tmp_path / "exports").mkdir()
+        (tmp_path / "annotations").mkdir()
+        (tmp_path / "corpora").mkdir()
+
+        import json as _json
+        from src.graph import populate as pop_mod
+        from src.graph.store import GraphStore
+        drop_log = tmp_path / "dropped_trial_subgraphs.jsonl"
+        monkeypatch.setattr(
+            pop_mod, "_DROPPED_TRIAL_SUBGRAPHS_LOG", drop_log,
+        )
+        with drop_log.open("w") as fh:
+            for i in range(8):
+                fh.write(_json.dumps({
+                    "nct_id": fake_trials[i].nct_id,
+                    # Bug-indicating reason — does NOT get excluded.
+                    "reason": "no_endpoint",
+                    "details": {},
+                }) + "\n")
+
+        empty_graph = GraphStore()
+        with (
+            patch.object(build_graph, "fetch_trials",
+                         new=AsyncMock(return_value=fake_trials)),
+            patch.object(build_graph, "wipe_outputs"),
+            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            patch.object(build_graph, "Extractor"),
+            patch.object(build_graph, "Classifier"),
+            patch.object(build_graph, "GraphStore", return_value=empty_graph),
+            patch("anthropic.AsyncAnthropic"),
+        ):
+            mock_pop = MockPop.return_value
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            # 0 built, 8 bug-indicating drops, 2 unknown drops →
+            # eligible_count = 10 - 0 (no legitimate) = 10; rate = 0%.
+            with pytest.raises(SystemExit, match="success rate"):
+                await build_graph.main(
+                    condition="melanoma", max_trials=10,
+                    include_terminated=False, concurrency=2,
+                    area="oncology",
+                    min_subgraph_success_rate=0.75,
+                )
+
+    @pytest.mark.asyncio
     async def test_allow_partial_subgraphs_overrides_silent_drop_abort(
         self, fake_trials, tmp_path, monkeypatch,
     ):
