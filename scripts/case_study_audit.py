@@ -116,6 +116,79 @@ _EXPECTED: dict[str, dict[str, str]] = {
 }
 
 
+def _resolve_stored_chain(
+    nct_id: str,
+    graph: GraphStore,
+    extraction: dict,
+) -> tuple[dict | None, str]:
+    """Round-27: pull the trial's stated chain from its stored subgraph.
+
+    The trial subgraph (built by the populator at step 2 and refined
+    by the classifier at step 4) carries one or more CausalChain
+    objects — one per (arm × constituent compound). The trial's
+    PRIMARY hypothesis is the one tied to its primary intervention,
+    which we identify from the extraction's
+    ``therapeutic_hypothesis.compound`` field.
+
+    Returns ``(chain_dict, source_tag)`` where source_tag is one of:
+      - "stored_subgraph"   : found a matching stored chain
+      - "stored_subgraph_first": subgraph exists but no chain matched
+        the primary compound; fell back to first chain (likely combo
+        with no clear primary)
+
+    Returns ``(None, "no_stored_subgraph")`` when the trial has no
+    subgraph (forces caller to fall back to the legacy auto-walk).
+    """
+    if nct_id not in graph.trial_subgraphs:
+        return None, "no_stored_subgraph"
+    ts = graph.trial_subgraphs[nct_id]
+    if not ts.chains:
+        return None, "no_stored_subgraph"
+
+    # Identify the primary compound from the extraction's
+    # therapeutic_hypothesis. The extracted string can be a combo
+    # like "bevacizumab + FOLFOX4/XELOX" — pull the FIRST compound
+    # name (the lead drug, by convention).
+    th = (extraction.get("therapeutic_hypothesis") or {})
+    primary_str = (th.get("compound") or "").lower()
+    primary_first_word = ""
+    for ch in primary_str.split("+"):
+        ch = ch.strip()
+        if ch and not ch.startswith("("):
+            primary_first_word = ch.split()[0] if ch else ""
+            break
+
+    matching_chain = None
+    if primary_first_word:
+        for c in ts.chains:
+            cid_low = (c.compound_id or "").lower()
+            if cid_low == primary_first_word:
+                matching_chain = c
+                break
+            if cid_low.startswith(primary_first_word):
+                matching_chain = c
+                break
+
+    source_tag = "stored_subgraph"
+    if matching_chain is None:
+        matching_chain = ts.chains[0]
+        source_tag = "stored_subgraph_first"
+
+    chain_dict = {
+        "compound_str": th.get("compound") or matching_chain.compound_id,
+        "compound_id": matching_chain.compound_id,
+        "target_id": matching_chain.target_id or "UNKNOWN",
+        "mechanism_id": matching_chain.mechanism_id or "UNKNOWN",
+        "biology_id": matching_chain.biology_id or "UNKNOWN",
+        "indication_id": matching_chain.indication_id or "UNKNOWN",
+        "endpoint_id": matching_chain.endpoint_id or "UNKNOWN",
+        "population_id": (
+            matching_chain.subgroup_population_id or "UNKNOWN"
+        ),
+    }
+    return chain_dict, source_tag
+
+
 async def _audit_one(
     name: str,
     nct_id: str,
@@ -142,21 +215,51 @@ async def _audit_one(
     else:
         extraction = {"nct_id": nct_id}
 
-    chain = resolve_chain(extraction, list(trial.conditions), graph, canon_cache)
+    # Round-27 fix: when the trial's subgraph is stored in the graph
+    # (true for stored-corpus + true-holdout trials), walk THAT chain
+    # rather than auto-resolving by strongest-evidenced graph neighbor.
+    # The auto-walk picked phantom or biology-unrelated paths in
+    # round-26 (e.g. VEGFA→receptor_antagonism for bevacizumab when the
+    # trial's stated mechanism is angiogenesis_inhibition). The stored
+    # chain is what the populator + classifier said this trial actually
+    # hypothesized — use it AS-IS, skip edges where the stated field
+    # is UNKNOWN, surface that skipping in the audit.
+    stored_chain, chain_source = _resolve_stored_chain(
+        nct_id, graph, extraction,
+    )
+    if stored_chain is not None:
+        chain = stored_chain
+    else:
+        chain = resolve_chain(
+            extraction, list(trial.conditions), graph, canon_cache,
+        )
+        chain_source = "auto_walked"
 
-    # Build predict kwargs.
+    # Build predict kwargs from the chosen chain. UNKNOWN fields are
+    # passed as the literal "UNKNOWN" string when sourced from the
+    # stored chain so predict_clinical_hypothesis does NOT auto-walk
+    # them; for the legacy auto-walked chain we keep the prior behavior
+    # of omitting None fields so the engine can resolve.
     kwargs: dict = {}
-    for k in ("target_id", "mechanism_id", "biology_id",
-              "endpoint_id", "population_id"):
-        v = chain.get(k)
-        if v and v != "UNKNOWN":
-            kwargs[k] = v
+    if chain_source == "stored_subgraph":
+        # Force-skip UNKNOWNs by passing them literally.
+        for k in ("target_id", "mechanism_id", "biology_id",
+                  "endpoint_id", "population_id"):
+            v = chain.get(k)
+            kwargs[k] = v if v else "UNKNOWN"
+    else:
+        for k in ("target_id", "mechanism_id", "biology_id",
+                  "endpoint_id", "population_id"):
+            v = chain.get(k)
+            if v and v != "UNKNOWN":
+                kwargs[k] = v
 
     indication_id = chain["indication_id"]
     if indication_id == "UNKNOWN" or indication_id not in graph._graph:  # noqa: SLF001
         return {
             "name": name, "nct": nct_id, "story": story,
             "chain": chain,
+            "chain_source": chain_source,
             "error": f"indication {indication_id!r} not in graph",
         }
 
@@ -224,6 +327,7 @@ async def _audit_one(
         "expected_bottleneck": expected_bot,
         "literature_mode": expected["literature_mode"],
         "chain": chain,
+        "chain_source": chain_source,
         # Round-20: report all three numbers so safety vs efficacy
         # drag is visible in the audit output.
         "p_success": result.overall_probability,
@@ -295,15 +399,43 @@ def _format_md(rows: list[dict]) -> str:
         out.append(f"- **Verdict**: {r['verdict']}\n\n")
 
         c = r["chain"]
-        out.append("### Resolved chain\n")
+        chain_source = r.get("chain_source", "auto_walked")
+        chain_source_label = {
+            "stored_subgraph": (
+                "stored_subgraph (round-27: walking the trial's own "
+                "stated chain — UNKNOWN fields are skipped, not "
+                "auto-resolved by strongest-evidenced graph neighbor)"
+            ),
+            "stored_subgraph_first": (
+                "stored_subgraph_first (fell back to first chain — "
+                "primary compound didn't match any chain's compound_id)"
+            ),
+            "auto_walked": (
+                "auto_walked (no stored subgraph; resolved via "
+                "graph-walk by strongest-evidenced neighbor — known "
+                "optimism bias for novel trials)"
+            ),
+        }.get(chain_source, chain_source)
+        out.append(f"### Resolved chain — source: {chain_source_label}\n")
         out.append("```\n")
         out.append(
             f"  compound:    {c.get('compound_str') or c.get('compound_id') or '(unknown)'}\n"
         )
+        unknown_fields: list[str] = []
         for k in ("target_id", "mechanism_id", "biology_id",
                  "indication_id", "endpoint_id", "population_id"):
-            out.append(f"  {k:<12} {c.get(k, '?')}\n")
+            v = c.get(k, "?")
+            out.append(f"  {k:<12} {v}\n")
+            if v == "UNKNOWN":
+                unknown_fields.append(k)
         out.append("```\n\n")
+        if unknown_fields and chain_source.startswith("stored_subgraph"):
+            out.append(
+                f"_Round-27 skipped edges (UNKNOWN in stated chain): "
+                f"{', '.join(unknown_fields)}. Edges incident to these "
+                f"nodes are NOT auto-resolved; their contribution to the "
+                f"trust-weighted geomean is zero._\n\n"
+            )
 
         out.append("### Edge decomposition\n")
         out.append("```\n")
