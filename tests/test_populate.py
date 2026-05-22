@@ -1060,7 +1060,14 @@ class TestSlugifyDiseaseName:
 
 class TestCompoundTargetEdges:
     def test_adds_binds_to_when_symbol_in_text(self, pipeline, graph):
-        graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        # Round-27 fix: the cross-reference heuristic now requires the
+        # compound to have a resolved chembl_id (kills the phantom
+        # bev → MET and checkpoint → APP edges). Setting chembl_id on
+        # the test compound to exercise the kept-path.
+        graph.add_node(CompoundNode(
+            id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE,
+            chembl_id="CHEMBL941",
+        ))
         pipeline._index_node("C1", "Imatinib", "compound")
         graph.add_node(TargetNode(id="T_ABL", name="ABL1 kinase", gene_symbol="ABL1"))
 
@@ -1076,6 +1083,35 @@ class TestCompoundTargetEdges:
         # p_obs=0.65) applied to Beta(1, 1) → alpha=1.195, beta=1.105.
         assert belief.alpha == pytest.approx(1.195)
         assert belief.evidence[0].source_type.value == "database_cross_reference"
+
+    def test_skips_unresolved_compound(self, pipeline, graph):
+        """Round-27: cross-reference heuristic must NOT fire for
+        compounds lacking a chembl_id — that's how phantom edges land
+        on dose-laden / unresolved compound slugs.
+        """
+        # No chembl_id set on the compound — simulates the round-26
+        # `bevacizumab_7_5_mg_kg` regression.
+        graph.add_node(CompoundNode(
+            id="C_UNRESOLVED", name="Unresolved Compound",
+            modality=Modality.SMALL_MOLECULE,
+        ))
+        pipeline._index_node("C_UNRESOLVED", "Unresolved Compound", "compound")
+        graph.add_node(TargetNode(
+            id="T_MET", name="MET receptor", gene_symbol="MET",
+        ))
+
+        # Trial title contains "metastatic" → substring "met" — would
+        # have matched MET gene_symbol under the pre-round-27 heuristic.
+        trial = _make_trial(
+            drug_name="Unresolved Compound",
+            drug_desc="treats metastatic disease",
+            title="Phase 3 trial in metastatic colorectal cancer",
+        )
+        added = pipeline._add_compound_target_edges([trial])
+        # Round-27 gate skips because chembl_id is None — and tightened
+        # symbol min-length 3→4 + word boundary would also block MET
+        # (3 chars, and "met" not a whole word in "metastatic").
+        assert added == 0
 
     def test_no_edge_when_no_match(self, pipeline, graph):
         graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))

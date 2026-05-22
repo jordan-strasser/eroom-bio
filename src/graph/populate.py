@@ -3038,8 +3038,33 @@ class PopulationPipeline:
                 comp_id = self.resolve_entity(iv.name, "compound")
                 if not comp_id:
                     continue
+                # Round-27 fix: gate the cross-reference heuristic on
+                # whether the compound has a chembl-resolved canonical
+                # form. The round-26 bevacizumab AVANT regression was
+                # caused by THIS heuristic firing on the unresolved
+                # `bevacizumab_7_5_mg_kg` slug — its title contained
+                # "metastatic" which substring-matched "MET" gene_symbol,
+                # creating a phantom AFFECTS edge. Same root cause
+                # behind the checkpoint→APP leak (titles containing
+                # "application" / "approach" matched "APP"). For
+                # compounds OT/ChEMBL resolved, the AFFECTS edges are
+                # already populated via the canonical OT-direct path;
+                # this fallback only ever fired as a last-resort name-
+                # match, so gating it doesn't lose real signal.
+                try:
+                    comp_node = self.graph.get_node(comp_id)
+                except KeyError:
+                    continue
+                if not comp_node.get("chembl_id"):
+                    continue
                 # Try to find a target whose name/symbol appears in the
-                # trial title or intervention description
+                # trial title or intervention description. Round-27:
+                # tightened symbol min-length 3 → 4 (3-letter symbols
+                # like "APP", "MET", "AKT", "PIK", "RAF" alias too many
+                # English words to safely substring-match) AND use word
+                # boundaries (\bSYMBOL\b) so "met" in "metastatic" can't
+                # match MET. Long-name path keeps the 5-char minimum
+                # but also tightens to word-boundary match.
                 text = f"{trial.title} {iv.description}".lower()
                 for target_id in targets_in_graph:
                     try:
@@ -3048,10 +3073,16 @@ class PopulationPipeline:
                         continue
                     symbol = tdata.get("gene_symbol", "").lower()
                     name = tdata.get("name", "").lower()
-                    if symbol and len(symbol) >= 3 and symbol in text:
+                    if (
+                        symbol and len(symbol) >= 4
+                        and re.search(rf"\b{re.escape(symbol)}\b", text)
+                    ):
                         self._add_binds_edge(comp_id, target_id)
                         added += 1
-                    elif name and len(name) >= 5 and name in text:
+                    elif (
+                        name and len(name) >= 5
+                        and re.search(rf"\b{re.escape(name)}\b", text)
+                    ):
                         self._add_binds_edge(comp_id, target_id)
                         added += 1
         return added
