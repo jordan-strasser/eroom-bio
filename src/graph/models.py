@@ -558,6 +558,22 @@ class AdverseEventNode(BaseModel):
     # Observed CTCAE grade range across trials feeding this node, e.g.
     # "grade_1_3" or "grade_3_4". Updated when new evidence arrives.
     severity_range: str = ""
+    # Round-28 MedDRA hierarchy parents. Populated by
+    # src/annotation/meddra_hierarchy.py at AE-node creation time.
+    # Used by the SOC-tier `target_associated_ae` propagation so sibling
+    # compounds binding the same target aggregate at the SOC level even
+    # when their per-trial PT extractions land at disjoint terms.
+    #   - ``soc_id`` is a slug like "cardiac_disorders" (lower-snake).
+    #   - ``soc_name`` mirrors ``system_organ_class`` (the original
+    #     MedDRA string) for human-readable rendering.
+    #   - ``hlt_id`` / ``hlgt_id`` are intermediate hierarchy tiers;
+    #     populated only when the curated hierarchy file has them.
+    # All four default to empty strings for backward compat with
+    # pre-round-28 snapshots.
+    hlt_id: str = ""
+    hlgt_id: str = ""
+    soc_id: str = ""
+    soc_name: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -6,6 +6,15 @@ that all bind the same target, that's evidence the AE is mechanism-related
 This module rebuilds ``target_associated_ae`` beliefs by aggregating the
 ``causes_ae`` beliefs of every compound binding the target.
 
+Round-28 extension — SOC-tier roll-up. Sibling-compound `causes_ae`
+extractions often land at DISJOINT PT-level terms even when they all
+describe the same class of toxicity (e.g. CETP siblings reporting
+atrial_fibrillation / myocardial_infarction / bradycardia individually
+but no shared PT across the trio). PT-only propagation never fires the
+"≥ 2 siblings share an AE" gate. The SOC tier aggregates each sibling's
+causes_ae beliefs by their AE node's MedDRA SOC parent, so the gate
+clears at the SOC level even when no two siblings share a PT.
+
 Idempotent by design—the target_associated_ae belief is rebuilt from
 scratch on every call rather than incrementally updated, so re-running
 after every causes_ae attribution doesn't double-count.
@@ -19,6 +28,7 @@ from datetime import datetime, timezone
 from pydantic import BaseModel
 
 from src.graph.models import (
+    AdverseEventNode,
     EdgeBeliefState,
     EdgeType,
     EvidenceRecord,
@@ -33,6 +43,19 @@ from src.inference.beliefs import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# Round-28 SOC-tier AE node ids use this prefix so they're
+# unambiguously distinct from PT-level AE nodes
+# (``AE:atrial_fibrillation`` vs ``AE:soc:cardiac_disorders``).
+SOC_AE_PREFIX = "AE:soc:"
+
+
+def soc_ae_node_id(soc_id: str) -> str:
+    """Compose the canonical SOC-tier AdverseEventNode id."""
+    if not soc_id:
+        return ""
+    return f"{SOC_AE_PREFIX}{soc_id}"
 
 
 # Each compound binding a target contributes one vote about the target's
@@ -63,16 +86,27 @@ def propagate_to_target_associated_ae(
     graph: GraphStore,
     compound_id: str,
     ae_id: str,
+    *,
+    roll_up_tier: str = "soc",
 ) -> list[AppliedTargetAEUpdate]:
     """Refresh target_associated_ae beliefs implicated by a causes_ae update.
 
     For every target the compound binds_to, gather the causes_ae beliefs
     of all compounds binding that target for the given AE. If at least
     ``_MIN_COMPOUNDS_FOR_TARGET_AE`` of them carry meaningful evidence,
-    rebuild the target_associated_ae belief from those votes.
+    rebuild the PT-tier target_associated_ae belief.
+
+    Round-28: when ``roll_up_tier == "soc"`` (default), ALSO aggregate
+    sibling causes_ae beliefs at the MedDRA SOC parent of ``ae_id`` and
+    emit a ``target_associated_ae → AE:soc:<soc_id>`` edge when ≥
+    ``_MIN_COMPOUNDS_FOR_TARGET_AE`` siblings have any AE under that SOC.
+    Pass ``roll_up_tier=""`` to disable SOC-tier propagation (PT-only
+    behavior, matching pre-round-28).
     """
-    targets = _binds_to_targets(graph, compound_id)
     updates: list[AppliedTargetAEUpdate] = []
+
+    # PT-tier propagation (unchanged behavior).
+    targets = _binds_to_targets(graph, compound_id)
     for target_id in targets:
         sibling_compound_ids = _compounds_binding_target(graph, target_id)
         contributing: list[tuple[str, EdgeBeliefState]] = []
@@ -92,7 +126,113 @@ def propagate_to_target_associated_ae(
 
         update = _rebuild_target_ae_edge(graph, target_id, ae_id, contributing)
         updates.append(update)
+
+    # Round-28 SOC-tier propagation. Run on the same targets and use the
+    # MedDRA hierarchy parent of ``ae_id`` as the aggregation key, so
+    # sibling compounds whose causes_ae beliefs sit on different PT nodes
+    # still aggregate at the SOC parent.
+    if roll_up_tier == "soc":
+        soc_updates = _propagate_at_soc_tier(graph, compound_id, ae_id)
+        updates.extend(soc_updates)
+
     return updates
+
+
+def _propagate_at_soc_tier(
+    graph: GraphStore,
+    compound_id: str,
+    ae_id: str,
+) -> list[AppliedTargetAEUpdate]:
+    """SOC-tier propagation. Returns updates against ``AE:soc:<soc_id>`` nodes."""
+    # Resolve the SOC parent of the triggering AE node.
+    try:
+        ae_node = graph.get_node(ae_id)
+    except KeyError:
+        return []
+    soc_id = (ae_node.get("soc_id") or "").strip()
+    if not soc_id:
+        return []
+    soc_name = (ae_node.get("soc_name") or "").strip()
+    soc_ae_id = soc_ae_node_id(soc_id)
+    _ensure_soc_ae_node(graph, soc_ae_id, soc_id, soc_name)
+
+    updates: list[AppliedTargetAEUpdate] = []
+    for target_id in _binds_to_targets(graph, compound_id):
+        contributing = _collect_soc_votes(graph, target_id, soc_id)
+        if len(contributing) < _MIN_COMPOUNDS_FOR_TARGET_AE:
+            continue
+        update = _rebuild_target_ae_edge(
+            graph, target_id, soc_ae_id, contributing,
+        )
+        updates.append(update)
+    return updates
+
+
+def _ensure_soc_ae_node(
+    graph: GraphStore,
+    soc_ae_id: str,
+    soc_id: str,
+    soc_name: str,
+) -> None:
+    """Create the SOC-tier AE node if missing."""
+    try:
+        graph.get_node(soc_ae_id)
+    except KeyError:
+        graph.add_node(AdverseEventNode(
+            id=soc_ae_id,
+            name=soc_name or soc_id,
+            system_organ_class=soc_name,
+            soc_id=soc_id,
+            soc_name=soc_name,
+            metadata={"tier": "soc"},
+        ))
+
+
+def _collect_soc_votes(
+    graph: GraphStore,
+    target_id: str,
+    soc_id: str,
+) -> list[tuple[str, EdgeBeliefState]]:
+    """For each sibling binding ``target_id``, return its strongest
+    causes_ae belief whose target AE node rolls up to ``soc_id``.
+
+    Returns one (compound_id, belief) tuple per CONTRIBUTING sibling.
+    Siblings with no qualifying AE are omitted entirely (not present
+    in the result), which is what the ≥_MIN_COMPOUNDS_FOR_TARGET_AE
+    gate checks against.
+    """
+    sibling_compound_ids = _compounds_binding_target(graph, target_id)
+    g = graph._graph
+    contributing: list[tuple[str, EdgeBeliefState]] = []
+    for sib_id in sibling_compound_ids:
+        if sib_id not in g:
+            continue
+        strongest: EdgeBeliefState | None = None
+        for _src, candidate_ae_id, key in g.out_edges(sib_id, keys=True):
+            if key != EdgeType.CAUSES_AE.value:
+                continue
+            try:
+                ae_node = graph.get_node(candidate_ae_id)
+            except KeyError:
+                continue
+            if (ae_node.get("soc_id") or "") != soc_id:
+                continue
+            try:
+                belief = graph.get_edge_belief(
+                    sib_id, candidate_ae_id, EdgeType.CAUSES_AE,
+                )
+            except KeyError:
+                continue
+            if belief.evidence_strength < _MIN_EVIDENCE_STRENGTH_FOR_VOTE:
+                continue
+            if (
+                strongest is None
+                or belief.expected_probability > strongest.expected_probability
+            ):
+                strongest = belief
+        if strongest is not None:
+            contributing.append((sib_id, strongest))
+    return contributing
 
 
 def _binds_to_targets(graph: GraphStore, compound_id: str) -> list[str]:

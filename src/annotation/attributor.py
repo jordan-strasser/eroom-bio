@@ -31,6 +31,13 @@ from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import SupportBucket, bucket_to_direction, modulation_bucket
 from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
+from src.annotation.meddra_hierarchy import MedDRAHierarchy
+
+
+def _meddra_hierarchy_singleton() -> MedDRAHierarchy:
+    """Lazy-load the round-28 MedDRA hierarchy. Returns a shared
+    instance — see MedDRAHierarchy.load_default for caching rules."""
+    return MedDRAHierarchy.load_default()
 from src.annotation.taxonomy import (
     ArmIncidence,
     FAILURE_MODE_RULES,
@@ -1473,6 +1480,16 @@ class Attributor:
     def _ensure_ae_node(
         self, ae_id: str, preferred_term: str, soc: str, grade: str
     ) -> None:
+        # Round-28: look up the MedDRA hierarchy parents (HLT / HLGT / SOC
+        # slug + canonical SOC name) so target_associated_ae propagation
+        # can aggregate at the SOC tier downstream. ``soc`` here is the
+        # free-text MedDRA SOC string emitted by the normalizer; the
+        # hierarchy uses it as a fallback when the PT isn't in the
+        # curated PT→SOC table.
+        hierarchy = _meddra_hierarchy_singleton()
+        parents = hierarchy.parents_for_pt(
+            ae_id, fallback_soc_name=soc,
+        )
         try:
             existing = self.graph.get_node(ae_id)
         except KeyError:
@@ -1481,6 +1498,10 @@ class Attributor:
                 name=preferred_term,
                 system_organ_class=soc,
                 severity_range=grade or "",
+                hlt_id=parents["hlt_id"],
+                hlgt_id=parents["hlgt_id"],
+                soc_id=parents["soc_id"],
+                soc_name=parents["soc_name"] or soc,
             ))
             return
         # Node exists—extend severity_range if this AE reported a new grade
@@ -1490,6 +1511,19 @@ class Attributor:
             existing_range = existing.get("severity_range") or ""
             merged = f"{existing_range},{grade}".strip(",")
             self.graph._graph.nodes[ae_id]["severity_range"] = merged
+        # Backfill round-28 hierarchy fields onto pre-existing nodes
+        # missing them (round-26 snapshots that loaded without these
+        # fields get them on first re-attribution). Only writes when
+        # the existing value is empty so previously-resolved hierarchy
+        # data is preserved.
+        if parents["soc_id"] and not existing.get("soc_id"):
+            self.graph._graph.nodes[ae_id]["soc_id"] = parents["soc_id"]
+        if parents["soc_name"] and not existing.get("soc_name"):
+            self.graph._graph.nodes[ae_id]["soc_name"] = parents["soc_name"]
+        if parents["hlt_id"] and not existing.get("hlt_id"):
+            self.graph._graph.nodes[ae_id]["hlt_id"] = parents["hlt_id"]
+        if parents["hlgt_id"] and not existing.get("hlgt_id"):
+            self.graph._graph.nodes[ae_id]["hlgt_id"] = parents["hlgt_id"]
 
     def _ensure_causes_ae_edge(self, compound_id: str, ae_id: str) -> None:
         try:

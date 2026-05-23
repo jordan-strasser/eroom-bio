@@ -1352,6 +1352,91 @@ class TestDropCounters:
 # ── Round-19: attribution idempotency ───────────────────────────────────
 
 
+class TestAENodeHierarchyWiring:
+    """Round-28: ``_ensure_ae_node`` looks up MedDRA hierarchy parents
+    when creating an AdverseEventNode and populates the round-28
+    soc_id / soc_name / hlt_id / hlgt_id fields. SOC fallback via the
+    free-text SOC string keeps unknown PTs from losing their parent."""
+
+    def _new_attributor(self) -> tuple[Attributor, GraphStore]:
+        g = GraphStore()
+        return Attributor(g), g
+
+    def test_known_pt_gets_soc_from_hierarchy(self):
+        attr, g = self._new_attributor()
+        attr._ensure_ae_node(
+            "AE:atrial_fibrillation", "Atrial fibrillation",
+            "Cardiac disorders", "grade_3",
+        )
+        node = g.get_node("AE:atrial_fibrillation")
+        assert node["soc_id"] == "cardiac_disorders"
+        assert node["soc_name"] == "Cardiac disorders"
+
+    def test_pt_outside_curated_table_falls_back_via_soc_name(self):
+        attr, g = self._new_attributor()
+        # A made-up cardiac AE the LLM tagged as Cardiac disorders but
+        # which isn't in the curated PT→SOC map.
+        attr._ensure_ae_node(
+            "AE:fictional_arrhythmia", "Fictional arrhythmia",
+            "Cardiac disorders", "grade_2",
+        )
+        node = g.get_node("AE:fictional_arrhythmia")
+        # Fallback via the LLM-emitted SOC name lands the AE under
+        # cardiac_disorders so target-class roll-up still aggregates.
+        assert node["soc_id"] == "cardiac_disorders"
+        assert node["soc_name"] == "Cardiac disorders"
+
+    def test_unknown_pt_unknown_soc_keeps_empty(self):
+        attr, g = self._new_attributor()
+        attr._ensure_ae_node(
+            "AE:thoroughly_unknown", "Thoroughly Unknown",
+            "Not a real SOC", "",
+        )
+        node = g.get_node("AE:thoroughly_unknown")
+        assert node["soc_id"] == ""
+        # soc_name falls back to the LLM's free-text string so renderers
+        # have something to show even when the hierarchy can't resolve it.
+        assert node["soc_name"] == "Not a real SOC"
+
+    def test_repeated_call_doesnt_clobber_existing_soc(self):
+        attr, g = self._new_attributor()
+        attr._ensure_ae_node(
+            "AE:atrial_fibrillation", "Atrial fibrillation",
+            "Cardiac disorders", "grade_2",
+        )
+        # Second call with a different "grade" should extend severity_range
+        # without resetting hierarchy fields.
+        attr._ensure_ae_node(
+            "AE:atrial_fibrillation", "Atrial fibrillation",
+            "Cardiac disorders", "grade_3",
+        )
+        node = g.get_node("AE:atrial_fibrillation")
+        assert "grade_2" in node["severity_range"]
+        assert "grade_3" in node["severity_range"]
+        assert node["soc_id"] == "cardiac_disorders"
+
+    def test_legacy_node_without_hierarchy_gets_backfilled(self):
+        from src.graph.models import AdverseEventNode
+        attr, g = self._new_attributor()
+        # Simulate a node created by a pre-round-28 snapshot (no SOC ids).
+        g.add_node(AdverseEventNode(
+            id="AE:atrial_fibrillation",
+            name="Atrial fibrillation",
+            system_organ_class="Cardiac disorders",
+            severity_range="grade_2",
+        ))
+        node = g.get_node("AE:atrial_fibrillation")
+        assert node["soc_id"] == ""
+        # Now _ensure_ae_node should backfill on re-attribution.
+        attr._ensure_ae_node(
+            "AE:atrial_fibrillation", "Atrial fibrillation",
+            "Cardiac disorders", "grade_3",
+        )
+        node = g.get_node("AE:atrial_fibrillation")
+        assert node["soc_id"] == "cardiac_disorders"
+        assert node["soc_name"] == "Cardiac disorders"
+
+
 class TestAttributionIdempotency:
     """Round-19 incremental-build safety net. Re-running attribution on a
     trial whose updates already landed must be a no-op — otherwise every
