@@ -1,0 +1,151 @@
+{
+  "nct_id": "NCT00094458",
+  "therapeutic_hypothesis": {
+    "compound": "infliximab + azathioprine combination",
+    "claimed_target": "TNF-alpha",
+    "proposed_mechanism": "TNF-alpha blockade with immunomodulator support",
+    "intended_biology": "inflammatory cascade suppression in Crohn's disease",
+    "target_population": "immunomodulator and biologic naive Crohn's disease patients",
+    "primary_endpoint": "corticosteroid-free clinical remission at week 26",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "56.8% vs 44.4% vs 30.0% corticosteroid-free remission (combination vs infliximab vs azathioprine)",
+    "p_value": 0.001,
+    "target_engagement_evidence": "mucosal healing achieved in 43.9% combination vs 30.1% infliximab vs 16.5% azathioprine",
+    "biomarker_changes": [
+      "CDAI scores decreased across all arms",
+      "IBDQ quality of life scores improved most in combination arm"
+    ],
+    "subgroup_findings": [
+      "combination superiority maintained through week 50",
+      "mucosal healing rates highest with combination therapy"
+    ],
+    "safety_signals": [
+      "serious adverse events included Crohn's disease flares",
+      "abdominal pain events across arms",
+      "myocardial infarction in azathioprine arm"
+    ],
+    "dose_info": {
+      "dose": "infliximab 5 mg/kg, azathioprine 2.5 mg/kg/day",
+      "schedule": "infliximab at weeks 0, 2, 6, 14, 22; azathioprine daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Myocardial Infarction",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      },
+      {
+        "term": "Crohn's Disease",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": 7.5,
+        "serious": true
+      },
+      {
+        "term": "Abdominal Pain",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Crohn's disease",
+    "comparator": "azathioprine monotherapy and infliximab monotherapy",
+    "sample_size": 508,
+    "duration": "50 weeks",
+    "duration_weeks": 50.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "001",
+      "compounds": [
+        "azathioprine"
+      ]
+    },
+    {
+      "arm_id": "002",
+      "compounds": [
+        "infliximab"
+      ]
+    },
+    {
+      "arm_id": "003",
+      "compounds": [
+        "infliximab",
+        "azathioprine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "001",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free remission",
+      "effect_size": 30.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "002",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free remission",
+      "effect_size": 44.4,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "003",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free remission",
+      "effect_size": 56.8,
+      "p_value": 0.001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "001",
+      "subgroup_descriptor": null,
+      "endpoint": "mucosal healing",
+      "effect_size": 16.5,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "002",
+      "subgroup_descriptor": null,
+      "endpoint": "mucosal healing",
+      "effect_size": 30.1,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "003",
+      "subgroup_descriptor": null,
+      "endpoint": "mucosal healing",
+      "effect_size": 43.9,
+      "p_value": 0.001,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "azathioprine",
+      "primary_compound_id": "infliximab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.9,
+      "hypothesis": "azathioprine immunomodulation enhances infliximab anti-TNF efficacy in inflammatory suppression",
+      "citation": "Infliximab + Azathioprine: 56.8% vs Infliximab + Placebo: 44.4% corticosteroid-free remission, p=0.022"
+    }
+  ]
+}

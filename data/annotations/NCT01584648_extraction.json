@@ -1,0 +1,132 @@
+{
+  "nct_id": "NCT01584648",
+  "therapeutic_hypothesis": {
+    "compound": "dabrafenib + trametinib",
+    "claimed_target": "BRAF + MEK",
+    "proposed_mechanism": "dual MAPK pathway inhibition",
+    "intended_biology": "tumor growth suppression via combined BRAF and MEK blockade",
+    "target_population": "BRAF-mutant melanoma patients",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.73 (95% CI: 0.59-0.91)",
+    "p_value": null,
+    "target_engagement_evidence": "dabrafenib and metabolite plasma concentrations confirmed target engagement",
+    "biomarker_changes": [
+      "dabrafenib plasma concentrations: combo 92.1 ng/mL vs mono 64.4 ng/mL at week 8 pre-dose",
+      "trametinib concentrations detectable only in combination arm"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "combination arm had higher SAE rate (100/209 vs 80/211)",
+      "cardiac events including atrial fibrillation and cardiac failure observed"
+    ],
+    "dose_info": {
+      "dose": "dabrafenib 150 mg twice daily + trametinib 2 mg once daily",
+      "schedule": "continuous daily dosing",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": 1.4,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.9,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.4,
+        "incidence_control_pct": 0.9,
+        "serious": true
+      },
+      {
+        "term": "cardiac failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.9,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "BRAF-mutant melanoma",
+    "comparator": "dabrafenib monotherapy",
+    "sample_size": 423,
+    "duration": "up to approximately 6 years",
+    "duration_weeks": 312.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "compounds": [
+        "dabrafenib",
+        "trametinib"
+      ]
+    },
+    {
+      "arm_id": "dabrafenib_placebo",
+      "compounds": [
+        "dabrafenib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 10.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dabrafenib_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 8.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dabrafenib_trametinib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 25.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dabrafenib_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 18.7,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "trametinib",
+      "primary_compound_id": "dabrafenib",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "MEK inhibition amplifies BRAF blockade by preventing downstream MAPK pathway reactivation",
+      "citation": "PFS improved from 8.8 months with dabrafenib alone to 10.2 months with combination (HR 0.73)"
+    }
+  ]
+}

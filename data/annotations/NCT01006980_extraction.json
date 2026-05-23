@@ -1,0 +1,129 @@
+{
+  "nct_id": "NCT01006980",
+  "therapeutic_hypothesis": {
+    "compound": "vemurafenib",
+    "claimed_target": "BRAF",
+    "proposed_mechanism": "selective BRAF kinase inhibition",
+    "intended_biology": "inhibition of MAPK pathway signaling in BRAF-mutant melanoma",
+    "target_population": "previously untreated patients with metastatic melanoma",
+    "primary_endpoint": "overall survival and progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.37 (95% CI: 0.26-0.55) for OS; HR 0.26 (95% CI: 0.20-0.33) for PFS",
+    "p_value": 0.0001,
+    "target_engagement_evidence": "steady-state plasma concentrations achieved by day 22 (53-57 \u03bcg/mL)",
+    "biomarker_changes": [
+      "steady-state vemurafenib plasma concentrations of 53-57 \u03bcg/mL achieved by day 22"
+    ],
+    "subgroup_findings": [
+      "response rate 48.4% (106/219) for vemurafenib vs 5.5% (12/220) for dacarbazine"
+    ],
+    "safety_signals": [
+      "higher incidence of any adverse events in vemurafenib arm (326/336 vs 253/293)",
+      "higher incidence of serious adverse events in vemurafenib arm (110/336 vs 45/293)"
+    ],
+    "dose_info": {
+      "dose": "960 mg",
+      "schedule": "twice daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "any adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 97.0,
+        "incidence_control_pct": 86.3,
+        "serious": false
+      },
+      {
+        "term": "serious adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 32.7,
+        "incidence_control_pct": 15.4,
+        "serious": true
+      },
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "dacarbazine",
+    "sample_size": 675,
+    "duration": "median follow-up 3.75 months vemurafenib, 2.33 months dacarbazine",
+    "duration_weeks": 16.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "vemurafenib",
+      "compounds": [
+        "vemurafenib"
+      ]
+    },
+    {
+      "arm_id": "dacarbazine",
+      "compounds": [
+        "dacarbazine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.37,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dacarbazine",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.26,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "dacarbazine",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": []
+}

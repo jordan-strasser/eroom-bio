@@ -1,0 +1,162 @@
+{
+  "nct_id": "NCT01127633",
+  "therapeutic_hypothesis": {
+    "compound": "solanezumab",
+    "claimed_target": "amyloid beta",
+    "proposed_mechanism": "amyloid beta clearance",
+    "intended_biology": "reduction of amyloid plaque burden",
+    "target_population": "Alzheimer's disease patients",
+    "primary_endpoint": "safety monitoring - number of participants with drug-related AEs or SAEs",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "SAE: 299/734 solanezumab vs 308/723 placebo; Other AE: 514/734 solanezumab vs 485/723 placebo",
+    "p_value": null,
+    "target_engagement_evidence": "plasma amyloid beta levels measured but no significant changes",
+    "biomarker_changes": [
+      "A\u03b2 1-40 plasma levels: minimal difference between groups",
+      "A\u03b2 1-42 plasma levels: minimal difference between groups",
+      "Florbetapir PET amyloid imaging: -0.01 SUVr change with solanezumab vs 0.00 with placebo"
+    ],
+    "subgroup_findings": [
+      "Mild AD showed numerically better outcomes on some measures vs moderate AD",
+      "Hippocampal volume loss similar between groups in both mild and moderate AD"
+    ],
+    "safety_signals": [
+      "Similar SAE rates between groups",
+      "Cardiovascular events including atrial fibrillation, MI, angina reported"
+    ],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "once every 4 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "serious adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 40.7,
+        "incidence_control_pct": 42.6,
+        "serious": true
+      },
+      {
+        "term": "other adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 70.0,
+        "incidence_control_pct": 67.1,
+        "serious": false
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.2,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      },
+      {
+        "term": "acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Alzheimer's disease",
+    "comparator": "placebo",
+    "sample_size": 1457,
+    "duration": "104 weeks",
+    "duration_weeks": 104.0,
+    "investigator_commentary": "Solanezumab did not meet the primary endpoint in study H8A-MC-LZAX."
+  },
+  "arms": [
+    {
+      "arm_id": "solanezumab",
+      "compounds": [
+        "solanezumab"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Mild Alzheimer's Disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "mild_ad"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Moderate Alzheimer's Disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "moderate_ad"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "solanezumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ADAS-Cog14",
+      "effect_size": 17.56,
+      "p_value": 0.974,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "ADAS-Cog14",
+      "effect_size": 17.58,
+      "p_value": 0.974,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "solanezumab",
+      "subgroup_descriptor": "Mild Alzheimer's Disease",
+      "endpoint": "NPI",
+      "effect_size": 5.41,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": "Mild Alzheimer's Disease",
+      "endpoint": "NPI",
+      "effect_size": 4.49,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "solanezumab",
+      "subgroup_descriptor": "Moderate Alzheimer's Disease",
+      "endpoint": "NPI",
+      "effect_size": 8.1,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": "Moderate Alzheimer's Disease",
+      "endpoint": "NPI",
+      "effect_size": 11.9,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": []
+}

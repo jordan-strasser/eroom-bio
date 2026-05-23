@@ -1,0 +1,198 @@
+{
+  "nct_id": "NCT00216476",
+  "therapeutic_hypothesis": {
+    "compound": "risperidone LAI vs quetiapine vs aripiprazole",
+    "claimed_target": "dopamine D2 receptor",
+    "proposed_mechanism": "dopamine receptor antagonism",
+    "intended_biology": "antipsychotic effect via dopaminergic pathway modulation",
+    "target_population": "patients with schizophrenia or schizoaffective disorder",
+    "primary_endpoint": "mean relapse free period",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "607 days vs 533 days (risperidone LAI vs quetiapine)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "serious adverse events including acute psychosis, aggression, akathisia, and acute myocardial infarction"
+    ],
+    "dose_info": {
+      "dose": "25 mg (risperidone LAI), 300-400 mg daily (quetiapine), 10-30 mg daily (aripiprazole)",
+      "schedule": "every 2 weeks (risperidone LAI), daily (quetiapine and aripiprazole)",
+      "max_tolerated_dose": "",
+      "dose_modifications": "risperidone LAI may be increased or decreased in steps of 12.5 mg; quetiapine can be adjusted with increments or decrements of 25 to 50 mg"
+    },
+    "adverse_events": [
+      {
+        "term": "abdominal pain upper",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "abnormal behavior",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "acute psychosis",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      },
+      {
+        "term": "aggression",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "akathisia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "schizophrenia or schizoaffective disorder",
+    "comparator": "quetiapine tablets",
+    "sample_size": 753,
+    "duration": "104 weeks",
+    "duration_weeks": 104.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "001",
+      "compounds": [
+        "risperidone"
+      ]
+    },
+    {
+      "arm_id": "002",
+      "compounds": [
+        "quetiapine"
+      ]
+    },
+    {
+      "arm_id": "003",
+      "compounds": [
+        "aripiprazole"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "PCS score",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "physical_component"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "MCS score",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "mental_component"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "001",
+      "subgroup_descriptor": null,
+      "endpoint": "relapse free period",
+      "effect_size": 607.0,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "002",
+      "subgroup_descriptor": null,
+      "endpoint": "relapse free period",
+      "effect_size": 533.0,
+      "p_value": 0.0001,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "003",
+      "subgroup_descriptor": null,
+      "endpoint": "relapse free period",
+      "effect_size": 314.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "001",
+      "subgroup_descriptor": "PCS score",
+      "endpoint": "SF-12 physical component",
+      "effect_size": 2.1,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "002",
+      "subgroup_descriptor": "PCS score",
+      "endpoint": "SF-12 physical component",
+      "effect_size": 1.0,
+      "p_value": 0.0941,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "003",
+      "subgroup_descriptor": "PCS score",
+      "endpoint": "SF-12 physical component",
+      "effect_size": 2.4,
+      "p_value": 0.1146,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "001",
+      "subgroup_descriptor": "MCS score",
+      "endpoint": "SF-12 mental component",
+      "effect_size": 3.2,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "002",
+      "subgroup_descriptor": "MCS score",
+      "endpoint": "SF-12 mental component",
+      "effect_size": 2.7,
+      "p_value": 0.5589,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "003",
+      "subgroup_descriptor": "MCS score",
+      "endpoint": "SF-12 mental component",
+      "effect_size": 4.9,
+      "p_value": 0.0001,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

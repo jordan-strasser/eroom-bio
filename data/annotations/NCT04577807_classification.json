@@ -1,0 +1,81 @@
+{
+  "nct_id": "NCT04577807",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial measured changes in CD8+ TILs and PD-L1 expression, indicating some level of target engagement with the tumor microenvironment. However, the target is listed as 'UNKNOWN' in the causal chains, suggesting limited understanding of the specific molecular target. 2. PATHWAY MODULATION: Biomarker changes were observed in CD8+ tumor infiltrating lymphocytes and PD-L1 expression, suggesting some downstream biological activity occurred. This indicates the mechanism may have engaged to some degree. 3. CLINICAL TRANSLATION: The primary endpoint (overall response rate) was clearly missed with only 2/27 patients (7.4%) achieving responses across both arms. Both monotherapy and combination arms failed on the primary endpoint. Secondary endpoints (OS, PFS) also largely failed, with only partial success in OS for the combination arm. 4. POPULATION EFFECTS: No subgroup analyses were reported, so cannot assess differential responses. 5. CONFOUNDERS: The trial appears adequately powered for a Phase 2 study (n=27), had appropriate duration (104 weeks), and measured relevant endpoints. The failure appears to be genuine rather than due to design issues.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Biomarker changes were observed in CD8+ TILs and PD-L1 expression indicating biological activity, but the primary endpoint (ORR) was clearly missed with only 7.4% response rate"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1_lerapolturev",
+      "reasoning": "Monotherapy arm failed on primary endpoint despite some biomarker activity, suggesting the mechanism didn't effectively translate to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1_lerapolturev",
+      "reasoning": "The biology was engaged based on biomarker changes but did not drive clinical response in melanoma"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "reasoning": "Combination arm also failed on primary endpoint despite biomarker activity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "checkpoint_blockade__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "reasoning": "Anti-PD-1 component in combination failed to drive response in this PD-1 refractory population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "reasoning": "Biology was engaged but did not translate to clinical benefit in combination arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "checkpoint_blockade__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "reasoning": "Checkpoint blockade biology did not drive response in this PD-1 refractory melanoma population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a well-established endpoint for melanoma that was clearly measured and reported"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_unresectable__line_second",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This PD-1 refractory population showed poor response rates (7.4%) indicating this population does not respond well to this approach"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

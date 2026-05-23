@@ -1,0 +1,187 @@
+{
+  "nct_id": "NCT01689519",
+  "therapeutic_hypothesis": {
+    "compound": "cobimetinib + vemurafenib",
+    "claimed_target": "MEK + BRAF",
+    "proposed_mechanism": "dual MAPK pathway inhibition",
+    "intended_biology": "enhanced melanoma growth inhibition through combined MEK and BRAF blockade",
+    "target_population": "participants with metastatic melanoma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.65 (95% CI: 0.53-0.79) for PFS",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "cardiac adverse events including atrial fibrillation, myocardial infarction, cardiac arrest, and cardiac failure more frequent in combination arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cardiac failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      },
+      {
+        "term": "acute coronary syndrome",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "pericardial effusion",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.6,
+        "serious": true
+      },
+      {
+        "term": "cardiac tamponade",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "supraventricular tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "vemurafenib plus placebo",
+    "sample_size": 495,
+    "duration": "up to 7 years, 6 months",
+    "duration_weeks": 390.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "placebo_vemurafenib",
+      "compounds": [
+        "vemurafenib",
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "cobimetinib_vemurafenib",
+      "compounds": [
+        "cobimetinib",
+        "vemurafenib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cobimetinib_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 12.6,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 7.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cobimetinib_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 22.5,
+      "p_value": 0.005,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 17.4,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cobimetinib_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 69.6,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 49.6,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cobimetinib",
+      "primary_compound_id": "vemurafenib",
+      "affects_layer": "mechanism",
+      "direction": "amplifies",
+      "confidence": 0.9,
+      "hypothesis": "cobimetinib enhances vemurafenib efficacy by blocking MEK downstream of BRAF, preventing pathway reactivation",
+      "citation": "Hazard Ratio (HR) = 0.65 (95% CI: 0.53\u20130.79), p = <0.0001 for PFS; combination showed superior efficacy across all endpoints"
+    }
+  ]
+}

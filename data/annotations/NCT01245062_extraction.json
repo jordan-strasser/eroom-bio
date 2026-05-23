@@ -1,0 +1,228 @@
+{
+  "nct_id": "NCT01245062",
+  "therapeutic_hypothesis": {
+    "compound": "GSK1120212 (trametinib)",
+    "claimed_target": "MEK",
+    "proposed_mechanism": "MEK inhibition",
+    "intended_biology": "MAPK pathway suppression",
+    "target_population": "BRAF V600E/K mutation-positive advanced or metastatic melanoma",
+    "primary_endpoint": "Progression-free survival in BRAF V600E mutation-positive participants without brain metastases",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.44 (95% CI: 0.31-0.64) investigator-assessed; HR 0.41 (95% CI: 0.29-0.60) independent review",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "BRAF V600E patients: median PFS 4.8 months vs 1.4 months",
+      "BRAF V600K patients: response rate lower than V600E",
+      "Prior chemotherapy vs chemotherapy-naive showed similar benefit"
+    ],
+    "safety_signals": [
+      "Cellulitis and erysipelas were notable serious adverse events",
+      "Various infections reported more frequently with trametinib"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Cellulitis",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Erysipelas",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Bronchitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "Eye infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Klebsiella infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Localized infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphangitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "Rash pustular",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced or metastatic BRAF V600E/K mutation-positive melanoma",
+    "comparator": "investigator choice of DTIC or paclitaxel",
+    "sample_size": 322,
+    "duration": "average of 20.3 months",
+    "duration_weeks": 88.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "gsk1120212",
+      "compounds": [
+        "GSK1120212"
+      ]
+    },
+    {
+      "arm_id": "chemotherapy",
+      "compounds": [
+        "DTIC",
+        "paclitaxel"
+      ]
+    },
+    {
+      "arm_id": "crossover",
+      "compounds": [
+        "GSK1120212"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF V600E mutation-positive",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600E"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "BRAF V600K mutation-positive",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600K"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Without prior chemotherapy",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "With prior chemotherapy",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "gsk1120212",
+      "subgroup_descriptor": "BRAF V600E mutation-positive",
+      "endpoint": "PFS",
+      "effect_size": 4.8,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "chemotherapy",
+      "subgroup_descriptor": "BRAF V600E mutation-positive",
+      "endpoint": "PFS",
+      "effect_size": 1.4,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "gsk1120212",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.9,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "chemotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.5,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "gsk1120212",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 15.6,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "chemotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 11.3,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -1,0 +1,262 @@
+{
+  "nct_id": "NCT01228734",
+  "therapeutic_hypothesis": {
+    "compound": "cetuximab + FOLFOX-4",
+    "claimed_target": "EGFR",
+    "proposed_mechanism": "EGFR antagonism blocking downstream proliferation signaling",
+    "intended_biology": "tumor growth inhibition and enhanced chemotherapy sensitivity",
+    "target_population": "Chinese patients with RAS wild-type metastatic colorectal cancer",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.629 (95% CI: 0.498-0.794)",
+    "p_value": 0.001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Higher rate of curative liver surgery in cetuximab arm (9 vs 6 subjects)",
+      "More R0 resections in cetuximab arm (7 vs 2 subjects)"
+    ],
+    "safety_signals": [
+      "Bone marrow toxicity",
+      "Cardiac arrhythmias",
+      "Retinal detachment with cetuximab"
+    ],
+    "dose_info": {
+      "dose": "cetuximab 400 mg/m\u00b2 initial, then 250 mg/m\u00b2 weekly; oxaliplatin 85 mg/m\u00b2; FA 200 mg/m\u00b2; 5-FU 400 mg/m\u00b2 bolus + 600 mg/m\u00b2 infusion",
+      "schedule": "cetuximab weekly; FOLFOX-4 every 2 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "bone marrow failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 0.5,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 0.5,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenic purpura",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "atrial flutter",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.5,
+        "serious": true
+      },
+      {
+        "term": "ventricular tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "retinal detachment",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic colorectal cancer",
+    "comparator": "FOLFOX-4 alone",
+    "sample_size": 553,
+    "duration": "up to 333 weeks",
+    "duration_weeks": 333.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cetuximab_folfox_4",
+      "compounds": [
+        "cetuximab",
+        "oxaliplatin",
+        "folinic_acid",
+        "5fluorouracil"
+      ]
+    },
+    {
+      "arm_id": "folfox_4",
+      "compounds": [
+        "oxaliplatin",
+        "folinic_acid",
+        "5fluorouracil"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Subjects with liver surgery",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "liver_surgery"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Subjects with liver surgery outcome: R0",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "r0_resection"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Subjects with liver surgery outcome: R1",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "r1_resection"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Subjects with liver surgery outcome: R2",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "r2_resection"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Subjects not evaluable",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "not_evaluable"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "cetuximab_folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 9.2,
+      "p_value": 0.001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 7.4,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cetuximab_folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 20.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 16.5,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cetuximab_folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 66.3,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_4",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 40.5,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "cetuximab_folfox_4",
+      "subgroup_descriptor": "Subjects with liver surgery",
+      "endpoint": "liver_surgery_count",
+      "effect_size": 9.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_4",
+      "subgroup_descriptor": "Subjects with liver surgery",
+      "endpoint": "liver_surgery_count",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cetuximab",
+      "primary_compound_id": "oxaliplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "EGFR blockade enhances chemotherapy efficacy by reducing tumor cell survival signaling",
+      "citation": "PFS HR 0.629 (95% CI: 0.498-0.794), p < 0.001; ORR 66.3% vs 40.5%"
+    }
+  ]
+}

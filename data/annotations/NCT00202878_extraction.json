@@ -1,0 +1,154 @@
+{
+  "nct_id": "NCT00202878",
+  "therapeutic_hypothesis": {
+    "compound": "ezetimibe/simvastatin",
+    "claimed_target": "HMG-CoA reductase and NPC1L1",
+    "proposed_mechanism": "dual inhibition of cholesterol synthesis and absorption",
+    "intended_biology": "cholesterol homeostasis and cardiovascular risk reduction",
+    "target_population": "patients with acute coronary syndrome and hypercholesterolemia",
+    "primary_endpoint": "time to first occurrence of cardiovascular death, major coronary event, or non-fatal stroke",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.936 (95% CI: 0.887-0.988)",
+    "p_value": 0.016,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "hematologic adverse events including anemia and neutropenia"
+    ],
+    "dose_info": {
+      "dose": "ezetimibe 10 mg/simvastatin 40 mg",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": "simvastatin could be increased to 80 mg if LDL-C response inadequate, but 80 mg increases stopped per June 2011 amendment"
+    },
+    "adverse_events": [
+      {
+        "term": "agranulocytosis",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "anemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.78,
+        "incidence_control_pct": 0.61,
+        "serious": true
+      },
+      {
+        "term": "anemia macrocytic",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "anemia megaloblastic",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.01,
+        "serious": true
+      },
+      {
+        "term": "anemia of chronic disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "anemia of malignant disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "coagulopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": 0.02,
+        "serious": true
+      },
+      {
+        "term": "disseminated intravascular coagulation",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.02,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.06,
+        "incidence_control_pct": 0.07,
+        "serious": true
+      },
+      {
+        "term": "hemolytic anemia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.02,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "acute coronary syndrome with hypercholesterolemia",
+    "comparator": "simvastatin monotherapy",
+    "sample_size": 18144,
+    "duration": "up to approximately 9 years",
+    "duration_weeks": 468.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "ezetimibe_simvastatin",
+      "compounds": [
+        "ezetimibe",
+        "simvastatin"
+      ]
+    },
+    {
+      "arm_id": "simvastatin",
+      "compounds": [
+        "simvastatin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "ezetimibe_simvastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "primary composite endpoint",
+      "effect_size": 32.72,
+      "p_value": 0.016,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "simvastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "primary composite endpoint",
+      "effect_size": 34.67,
+      "p_value": 0.016,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ezetimibe",
+      "primary_compound_id": "simvastatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "ezetimibe blocks intestinal cholesterol absorption complementing simvastatin's synthesis inhibition for enhanced cardiovascular risk reduction",
+      "citation": "HR = 0.936 (95% CI: 0.887\u20130.988), p = 0.016 for primary composite endpoint favoring combination therapy"
+    }
+  ]
+}

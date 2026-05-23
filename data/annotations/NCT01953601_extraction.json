@@ -1,0 +1,113 @@
+{
+  "nct_id": "NCT01953601",
+  "therapeutic_hypothesis": {
+    "compound": "verubecestat",
+    "claimed_target": "BACE1",
+    "proposed_mechanism": "beta-secretase inhibition",
+    "intended_biology": "amyloid beta production reduction",
+    "target_population": "participants with prodromal Alzheimer's disease",
+    "primary_endpoint": "change from baseline in Clinical Dementia Rating Sum of Boxes (CDR-SB) score",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "12 mg: 1.6 vs placebo 1.6 (LSM change CDR-SB); 40 mg: 2.0 vs placebo 1.6",
+    "p_value": 0.0141,
+    "target_engagement_evidence": "significant reduction in cortical amyloid SUVR (-0.05 to -0.06 vs +0.02 placebo, p<0.0001)",
+    "biomarker_changes": [
+      "cortical amyloid SUVR decreased significantly vs placebo",
+      "CSF total tau increased 33-43% vs 10% placebo",
+      "hippocampal volume loss similar across arms"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "higher discontinuation rates due to AEs in 40 mg arm (10.1% vs 4.5% placebo)",
+      "increased progression to AD dementia (HR 1.30-1.38 vs placebo)"
+    ],
+    "dose_info": {
+      "dose": "12 mg or 40 mg",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.2,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.2,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "bradycardia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.2,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "prodromal Alzheimer's disease",
+    "comparator": "placebo",
+    "sample_size": 1454,
+    "duration": "104 weeks (Part 1) with 26-week extension (Part 2)",
+    "duration_weeks": 130.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_verubecestat_12_mg_part_1_12_mg_part_2",
+      "compounds": [
+        "verubecestat"
+      ]
+    },
+    {
+      "arm_id": "arm_b_verubecestat_40_mg_part_1_40_mg_part_2",
+      "compounds": [
+        "verubecestat"
+      ]
+    },
+    {
+      "arm_id": "arm_c_placebo_part_1_verubecestat_40_mg_part_2",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_verubecestat_12_mg_part_1_12_mg_part_2",
+      "subgroup_descriptor": null,
+      "endpoint": "CDR-SB change",
+      "effect_size": 1.6,
+      "p_value": 0.6734,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_b_verubecestat_40_mg_part_1_40_mg_part_2",
+      "subgroup_descriptor": null,
+      "endpoint": "CDR-SB change",
+      "effect_size": 2.0,
+      "p_value": 0.0141,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_c_placebo_part_1_verubecestat_40_mg_part_2",
+      "subgroup_descriptor": null,
+      "endpoint": "CDR-SB change",
+      "effect_size": 1.6,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": []
+}

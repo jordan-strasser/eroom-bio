@@ -1,0 +1,106 @@
+{
+  "nct_id": "NCT00863265",
+  "therapeutic_hypothesis": {
+    "compound": "ezetimibe + phytosterols",
+    "claimed_target": "NPC1L1",
+    "proposed_mechanism": "inhibition of intestinal cholesterol absorption",
+    "intended_biology": "cholesterol metabolism and excretion",
+    "target_population": "subjects with hypercholesterolemia",
+    "primary_endpoint": "cholesterol excretion, percent cholesterol absorption, LDL cholesterol",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "LDL cholesterol reduced by 28 mg/dL with combination vs baseline (p<0.01)",
+    "p_value": 0.01,
+    "target_engagement_evidence": "cholesterol absorption reduced from 69.0% to 32.6% with combination treatment",
+    "biomarker_changes": [
+      "cholesterol excretion increased from 505 to 962 mg/day",
+      "cholesterol absorption decreased from 69.0% to 32.6%",
+      "LDL cholesterol decreased from 129 to 101 mg/dL"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "21 days each period",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "hypercholesterolemia",
+    "comparator": "phytosterol-deficient baseline diet",
+    "sample_size": 22,
+    "duration": "three 21-day periods with 7-day washouts",
+    "duration_weeks": 11.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "crossover_order_abc",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    },
+    {
+      "arm_id": "crossover_order_bca",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    },
+    {
+      "arm_id": "crossover_order_bac",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    },
+    {
+      "arm_id": "crossover_order_acb",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    },
+    {
+      "arm_id": "crossover_order_cab",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    },
+    {
+      "arm_id": "crossover_order_cba",
+      "compounds": [
+        "ezetimibe",
+        "phytosterols"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "crossover_order_abc",
+      "subgroup_descriptor": null,
+      "endpoint": "LDL cholesterol",
+      "effect_size": -28.0,
+      "p_value": 0.01,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "phytosterols",
+      "primary_compound_id": "ezetimibe",
+      "affects_layer": "mechanism",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "phytosterols provide additional cholesterol absorption inhibition beyond ezetimibe alone",
+      "citation": "Diet Plus Ezetimibe Plus Phytosterols: 32.6% absorption vs Diet Plus Ezetimibe: 46.2% absorption, p = <0.01"
+    }
+  ]
+}

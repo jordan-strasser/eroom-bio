@@ -1,0 +1,94 @@
+{
+  "nct_id": "NCT00112229",
+  "therapeutic_hypothesis": {
+    "compound": "Melan-A peptide vaccine combinations",
+    "claimed_target": "Melan-A and Tyrosinase antigens",
+    "proposed_mechanism": "Peptide vaccination with adjuvants to induce tumor-specific CD8+ T-cell responses",
+    "intended_biology": "Anti-tumor immune activation through melanoma antigen-specific T-cell priming",
+    "target_population": "HLA-A2 positive stage III/IV melanoma patients",
+    "primary_endpoint": "Melan-A and Tyrosinase specific CD8+ T-cell reactivity and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": null,
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "stage III/IV melanoma",
+    "comparator": "none",
+    "sample_size": 29,
+    "duration": "375 days",
+    "duration_weeks": 53.6,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "group_1",
+      "compounds": [
+        "melan_a_analog_peptide",
+        "cpg",
+        "montanide"
+      ]
+    },
+    {
+      "arm_id": "group_2",
+      "compounds": [
+        "melan_a_natural_peptide",
+        "cpg",
+        "montanide"
+      ]
+    },
+    {
+      "arm_id": "group_3",
+      "compounds": [
+        "melan_a_natural_peptide",
+        "tyrosinase_ymd_peptide",
+        "cpg",
+        "montanide"
+      ]
+    },
+    {
+      "arm_id": "group_4",
+      "compounds": [
+        "melan_a_analog_peptide",
+        "tyrosinase_ymd_peptide",
+        "cpg",
+        "montanide"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cpg",
+      "primary_compound_id": "melan_a_analog_peptide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "CpG acts as TLR9 agonist adjuvant to enhance peptide vaccine immunogenicity",
+      "citation": "CpG + Montanide"
+    },
+    {
+      "modulator_compound_id": "montanide",
+      "primary_compound_id": "melan_a_analog_peptide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Montanide provides depot effect and immune activation to enhance peptide presentation",
+      "citation": "CpG + Montanide"
+    }
+  ]
+}

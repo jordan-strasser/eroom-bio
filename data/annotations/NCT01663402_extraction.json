@@ -1,0 +1,214 @@
+{
+  "nct_id": "NCT01663402",
+  "therapeutic_hypothesis": {
+    "compound": "alirocumab",
+    "claimed_target": "PCSK9",
+    "proposed_mechanism": "PCSK9 inhibition to increase LDL receptor recycling",
+    "intended_biology": "cholesterol metabolism and cardiovascular risk reduction",
+    "target_population": "patients with atherosclerotic cardiovascular disease after acute coronary syndrome",
+    "primary_endpoint": "time to first occurrence of major adverse cardiovascular event (MACE)",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.85 (95% CI: 0.78-0.93)",
+    "p_value": 0.0003,
+    "target_engagement_evidence": "LDL-C reduction of 55.8% at month 4, 45.7% at month 12, 23.5% at month 48",
+    "biomarker_changes": [
+      "LDL-C reduction of 55.8% at month 4",
+      "LDL-C reduction of 45.7% at month 12",
+      "LDL-C reduction of 23.5% at month 48"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Hematologic adverse events including anemia and coagulopathy"
+    ],
+    "dose_info": {
+      "dose": "75 mg",
+      "schedule": "every 2 weeks, up to 150 mg every 2 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": "dose escalation to 150 mg Q2W allowed"
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.12,
+        "incidence_control_pct": 0.16,
+        "serious": true
+      },
+      {
+        "term": "Anaemia Of Chronic Disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.02,
+        "serious": true
+      },
+      {
+        "term": "Anaemia Of Malignant Disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": 0.01,
+        "serious": true
+      },
+      {
+        "term": "Coagulopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Disseminated Intravascular Coagulation",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Febrile Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.03,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Haemolytic Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.01,
+        "incidence_control_pct": 0.01,
+        "serious": true
+      },
+      {
+        "term": "Haemorrhagic Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.15,
+        "incidence_control_pct": 0.18,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "atherosclerotic cardiovascular disease after acute coronary syndrome",
+    "comparator": "placebo plus lipid-modifying therapy",
+    "sample_size": 18924,
+    "duration": "up to 64 months",
+    "duration_weeks": 278.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo",
+        "lipid_modifying_therapy"
+      ]
+    },
+    {
+      "arm_id": "alirocumab_75_mg_q2w_up_to_150_mg_q2w",
+      "compounds": [
+        "alirocumab",
+        "lipid_modifying_therapy"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Month 4",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "month_4"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Month 12",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "month_12"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Month 48",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "month_48"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "MACE",
+      "effect_size": 11.1,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "alirocumab_75_mg_q2w_up_to_150_mg_q2w",
+      "subgroup_descriptor": null,
+      "endpoint": "MACE",
+      "effect_size": 9.5,
+      "p_value": 0.0003,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": "Month 4",
+      "endpoint": "LDL-C change",
+      "effect_size": 4.4,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "alirocumab_75_mg_q2w_up_to_150_mg_q2w",
+      "subgroup_descriptor": "Month 4",
+      "endpoint": "LDL-C change",
+      "effect_size": -55.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": "Month 12",
+      "endpoint": "LDL-C change",
+      "effect_size": 8.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "alirocumab_75_mg_q2w_up_to_150_mg_q2w",
+      "subgroup_descriptor": "Month 12",
+      "endpoint": "LDL-C change",
+      "effect_size": -45.7,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": "Month 48",
+      "endpoint": "LDL-C change",
+      "effect_size": 16.4,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "alirocumab_75_mg_q2w_up_to_150_mg_q2w",
+      "subgroup_descriptor": "Month 48",
+      "endpoint": "LDL-C change",
+      "effect_size": -23.5,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

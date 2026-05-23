@@ -1,0 +1,16 @@
+{
+  "nct_id": "NCT02273206",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a behavioral intervention trial targeting depression and cancer screening behaviors. The intervention did engage its intended targets - PHQ9 depression scores improved in both arms (4.60 point reduction in CCI arm, 5.05 point reduction in PCM arm), indicating the depression component was engaged. Cancer screening rates also increased across all three screening types, indicating engagement with screening behaviors. 2. PATHWAY MODULATION: The downstream biology (behavioral modification through coordinated care) did change as predicted - both depression scores improved and cancer screening uptake increased substantially across colorectal (22% to 56.9% vs 26.9% to 52.8%), breast (43.9% to 66.7% vs 42.0% to 66.8%), and cervical screening (42.3% to 61.6% vs 41.7% to 64.6%). 3. CLINICAL TRANSLATION: Despite both targets being engaged and the intended biological changes occurring, the primary endpoint was not met. The p-values were non-significant (p=0.2562 for colorectal screening, p=0.39 for PHQ9 change), indicating the clinical translation failed despite biological activity. 4. POPULATION EFFECTS: The trial enrolled low-income urban women with depression, which appears appropriate for the mechanism. No differential subgroup responses were identified. 5. CONFOUNDERS: The trial appears adequately powered (N=802) with appropriate duration (52 weeks). This represents a case where the intervention engaged its targets and produced the intended biological changes, but failed to achieve statistical significance on the primary endpoints.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Both depression scores improved (PHQ9 reductions of 4.6-5.05 points) and cancer screening rates increased substantially across all three types, but primary endpoints failed to reach statistical significance (p=0.2562 for screening, p=0.39 for depression)"
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "This is a behavioral intervention trial without traditional drug-target molecular interactions. The resolved graph entities section shows no canonical compound, target, mechanism, biology, endpoint, or population IDs that would allow proper edge updates. The trial demonstrates clear biological activity (improved depression scores and increased screening rates) but failed statistical significance, representing a biology_moved_endpoint_flat pattern that cannot be properly encoded without the appropriate graph entities."
+}

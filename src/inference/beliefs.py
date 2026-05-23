@@ -32,6 +32,7 @@ them in tests or after calibration without subclassing.
 
 from __future__ import annotations
 
+import os
 from enum import Enum
 
 from src.graph.models import (
@@ -104,7 +105,7 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.GENETIC_GWAS:        4.0,
     EvidenceType.PRECLINICAL_IN_VIVO: 2.0,
     EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
-    # ── Round-25: per-source curated database n_eff values ──────────────
+    # ── Per-source curated database n_eff values ───────────────────────
     #
     # Picked from source character (curation depth, replication, primary
     # vs aggregate), NOT tuned against the 5-trial holdout audit. Doing
@@ -114,15 +115,26 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     #
     # Defensible reasoning per tier:
     #
-    # OT-direct, ChEMBL-direct, mAb-table → 3.0
+    # OT-direct → 12.0  (round-28 bump from 3.0)
+    # ChEMBL-direct, mAb-table → 10.0  (round-28 bump from 3.0)
     #   Multi-source curated assertions about a SPECIFIC compound-target
-    #   pair. OT aggregates ChEMBL + IUPHAR + DGIdb + drug labels — each
-    #   entry has been cross-checked. Comparable to a GWAS hit (n_eff=4)
-    #   but slightly weaker since GWAS is a primary statistical test and
-    #   these are curator's calls.
-    EvidenceType.DATABASE_OT_DIRECT:           3.0,
-    EvidenceType.DATABASE_CHEMBL:              3.0,
-    EvidenceType.DATABASE_MAB_TABLE:           3.0,
+    #   binding pair. These are molecular facts — "this antibody binds
+    #   this antigen", "this small molecule occupies this kinase's ATP
+    #   pocket" — not probabilistic claims about a clinical outcome.
+    #   The round-27 forensic audit found that a single OT-direct record
+    #   at n_eff=3 was being overwhelmed by ~3 Phase-3 trials at
+    #   n_eff=15 each, all classified AMBIGUOUS because trials assume
+    #   binding rather than demonstrate it. The AMBIGUOUS pseudocounts
+    #   dragged the AFFECTS posterior from molecular near-certainty
+    #   toward 0.5. Promoting curated binding records to a tier that
+    #   rivals one Phase-3 trial reflects what they actually represent
+    #   epistemically: cross-checked molecular biology, not noisy
+    #   clinical signal. OT-direct edges multi-source: ChEMBL + IUPHAR +
+    #   DGIdb + drug-label curation, so gets a small edge over ChEMBL
+    #   or hand-curated mAb tables alone.
+    EvidenceType.DATABASE_OT_DIRECT:          12.0,
+    EvidenceType.DATABASE_CHEMBL:             10.0,
+    EvidenceType.DATABASE_MAB_TABLE:          10.0,
     #
     # OT-association score, endpoint-class prior → 2.0
     #   Aggregate score COMBINING multiple evidence types via a heuristic
@@ -169,25 +181,129 @@ def p_obs_for_bucket(bucket: SupportBucket) -> float:
     return BUCKET_TO_P_OBS[bucket]
 
 
+# ── Principled / precision-aware N_eff (env flag: EROOM_NEFF_PRECISION) ────
+#
+# Off by default. When off — and on every record that carries no patient
+# count — ``effective_n_for_evidence`` returns the legacy
+# ``base × quality_score``, so existing builds, snapshots, and the holdout
+# stay byte-for-byte unchanged. When on, clinical records additionally scale
+# by the *precision* of the reported result, anchored so a median-N trial
+# reproduces its legacy type-constant. Only the dispersion around that anchor
+# is new signal, which keeps the rollout no-regression.
+#
+# All values are pre-calibration defaults; ``calibration.py`` is meant to
+# refit them against held-out outcomes (Brier / ECE).
+_N_REF_ANCHOR = 350.0        # reference patient N (≈ corpus median enrollment 353); mult == 1 here
+_PRECISION_EXPONENT = 0.5    # concave in N (sqrt): 4x patients -> 2x weight
+_PRECISION_MULT_FLOOR = 0.5  # a small trial is still worth >= half the anchor
+_PRECISION_MULT_CEIL = 2.5   # a huge trial caps at 2.5x (trust saturates anyway)
+
+# Directness matrix: (evidence_type, edge_type) -> multiplier in (0, 1].
+# Reserved (plan open item): how directly the evidence bears on THIS edge's
+# claim. Empty for now -> directness 1.0 everywhere, so enabling the flag moves
+# n_eff ONLY via the anchored precision multiplier (keeps the build
+# no-regression). Populate + calibrate before activating.
+_DIRECTNESS: dict[tuple[EvidenceType, str], float] = {}
+
+
+def _precision_enabled() -> bool:
+    """Whether the precision-aware n_eff path is active (env-gated, default off)."""
+    return os.environ.get("EROOM_NEFF_PRECISION", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _precision_multiplier(n_obs: int | None) -> float:
+    """Anchored, concave precision weight from a patient/observation count.
+
+    Returns 1.0 when N is unknown, so a record with no count reproduces its
+    anchor (the legacy type-constant). A trial at ``_N_REF_ANCHOR`` returns
+    1.0; larger N scales up concavely, smaller N down, clamped to keep any
+    single record from dominating or vanishing.
+    """
+    if not n_obs or n_obs <= 0:
+        return 1.0
+    raw = (n_obs / _N_REF_ANCHOR) ** _PRECISION_EXPONENT
+    return max(_PRECISION_MULT_FLOOR, min(_PRECISION_MULT_CEIL, raw))
+
+
+def _directness(source_type: EvidenceType, edge_type: str | None) -> float:
+    if edge_type is None:
+        return 1.0
+    return _DIRECTNESS.get((source_type, edge_type), 1.0)
+
+
 def effective_n_for_evidence(
     source_type: EvidenceType,
     quality_score: float = 1.0,
+    *,
+    n_obs: int | None = None,
+    edge_type: str | None = None,
 ) -> float:
     """Effective virtual sample size for one evidence record.
 
-    ``quality_score`` ∈ [0, 1] discounts the base N_eff—used to fold in
-    the trial-level classification confidence (e.g., when the LLM's
-    classification rubric tier was low, the evidence is downweighted).
-    Default 1.0 means "no discount"—appropriate for non-LLM-derived
-    evidence (LINCS signatures, GWAS hits, etc.) where there is no
-    classification step to be uncertain about.
+    Legacy path (default, and whenever ``EROOM_NEFF_PRECISION`` is off):
+    returns ``EVIDENCE_TYPE_N_EFF[source_type] * quality_score`` exactly —
+    the type-constant weighting, where ``quality_score`` ∈ [0, 1] folds in
+    the LLM classifier's self-reported confidence (1.0 for non-LLM streams
+    like LINCS / GWAS that have no classification step).
+
+    Precision-aware path (flag on)::
+
+        base × precision_multiplier(n_obs)
+             × directness(source_type, edge_type)
+             × bias
+
+    where ``bias`` is the same ``quality_score`` discount (the LLM-confidence
+    term is preserved as the bias factor) and the precision multiplier is
+    anchored at ``_N_REF_ANCHOR`` so a median-N record reproduces ``base``.
+    Records without ``n_obs`` (curated facts, LINCS signatures, etc.) get
+    multiplier 1.0 and so reproduce the legacy value — v1 re-weights only
+    clinical evidence that carries a patient count. ``directness`` is 1.0
+    until its matrix is populated (plan open item), so the only active
+    change under the flag is the anchored N precision.
     """
     if not 0.0 <= quality_score <= 1.0:
         raise ValueError(
             f"quality_score must be in [0, 1], got {quality_score!r}"
         )
     base = EVIDENCE_TYPE_N_EFF[source_type]
-    return base * quality_score
+    if not _precision_enabled():
+        return base * quality_score
+    return (
+        base
+        * _precision_multiplier(n_obs)
+        * _directness(source_type, edge_type)
+        * quality_score
+    )
+
+
+# Independence / redundancy: the (m+1)-th evidence record sharing a record's
+# correlation cluster (same study/source, or an explicit cluster_key) is not
+# an independent observation. Its effective weight is discounted to
+# 1 / (1 + m·ρ) of nominal — diminishing returns, so clustered evidence
+# saturates instead of compounding linearly. ρ == 0 disables the discount;
+# pre-calibration default.
+_REDUNDANCY_RHO = 0.5
+
+
+def redundancy_factor(prior_same_cluster: int) -> float:
+    """Diminishing-returns discount for non-independent (clustered) evidence.
+
+    ``prior_same_cluster`` is how many records already on the edge share this
+    record's correlation cluster (same source/study, or an explicit
+    ``cluster_key``). The new record is then the (prior+1)-th member of that
+    cluster and contributes ``1 / (1 + prior·ρ)`` of its nominal n_eff, so a
+    cluster of m correlated records sums sub-linearly rather than as m× a
+    single observation.
+
+    Returns 1.0 (no discount) when the precision flag is off, for the first
+    member of a cluster, or when ρ is 0 — leaving the legacy path and
+    genuinely independent evidence unchanged.
+    """
+    if not _precision_enabled() or prior_same_cluster <= 0 or _REDUNDANCY_RHO <= 0:
+        return 1.0
+    return 1.0 / (1.0 + prior_same_cluster * _REDUNDANCY_RHO)
 
 
 def bucket_to_direction(bucket: SupportBucket) -> EvidenceDirection:

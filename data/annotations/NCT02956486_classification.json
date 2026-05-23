@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT02956486",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Amyloid PET SUVR showed significant reduction (-12.83 centiloids vs placebo, p<0.001), indicating BACE1 inhibition successfully reduced amyloid beta production. 2. PATHWAY MODULATION: The target was engaged and downstream biology changed as predicted - amyloid burden was reduced significantly. 3. CLINICAL TRANSLATION: Despite clear biological activity, clinical endpoints failed completely. CDR-SB showed no benefit (-0.17, p=0.385) and ADCOMS also failed (-0.02, p=0.345). 4. POPULATION EFFECTS: Even in the enriched subgroup with baseline amyloid PET SUVR 1.2-1.6, clinical endpoints remained negative (CDR-SB p=0.316, ADCOMS p=0.254). 5. CONFOUNDERS: No major confounders - adequate sample size (2212), appropriate duration (24 months), well-controlled trial. This is a classic 'biology moved, endpoint flat' failure where the mechanism worked but didn't translate to clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.9,
+      "evidence": "Target engagement confirmed by significant amyloid PET SUVR reduction (-12.83, p<0.001), but both primary (CDR-SB, p=0.385) and secondary (ADCOMS, p=0.345) clinical endpoints failed to show benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "elenbecestat",
+      "target_entity": "ENSG00000186318",
+      "support": "strong_support",
+      "affecting_arm_id": "core_study_elenbecestat_50_mg",
+      "reasoning": "Significant amyloid PET SUVR reduction (-12.83, p<0.001) demonstrates clear BACE1 target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186318",
+      "target_entity": "enzyme_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "core_study_elenbecestat_50_mg",
+      "reasoning": "Failed trial does not constitute affirmative evidence for the target-mechanism relationship despite confirmed engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "GO:0060134",
+      "support": "strong_support",
+      "affecting_arm_id": "core_study_elenbecestat_50_mg",
+      "reasoning": "Amyloid PET SUVR reduction directly demonstrates that enzyme inhibition successfully affected amyloid biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0060134",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "core_study_elenbecestat_50_mg",
+      "reasoning": "Despite confirmed biological modulation (amyloid reduction), clinical endpoints completely failed, contradicting the hypothesis that this biology drives disease progression"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimers_disease",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "CDR-SB is a well-validated clinical endpoint for Alzheimer's disease that was measured appropriately"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimers_disease__unselected",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with adequate power (p=0.385) and no responding subgroup identified"
+    }
+  ],
+  "confidence_overall": 0.85,
+  "needs_expert_review": false,
+  "review_reason": null
+}

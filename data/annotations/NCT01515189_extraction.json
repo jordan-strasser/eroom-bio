@@ -1,0 +1,292 @@
+{
+  "nct_id": "NCT01515189",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab",
+    "claimed_target": "CTLA-4",
+    "proposed_mechanism": "CTLA-4 checkpoint inhibition",
+    "intended_biology": "T-cell activation and anti-tumor immune response",
+    "target_population": "metastatic melanoma patients",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.84 (95% CI: 0.70-0.99) favoring 10 mg/kg vs 3 mg/kg",
+    "p_value": 0.04,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Brain metastases subgroup: 10 mg/kg showed numerically longer OS (7.00 vs 5.67 months, HR 0.71)"
+    ],
+    "safety_signals": [
+      "Higher dose associated with increased serious adverse events including hematologic toxicities and cardiac events"
+    ],
+    "dose_info": {
+      "dose": "3 mg/kg vs 10 mg/kg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.4,
+        "incidence_control_pct": 1.1,
+        "serious": true
+      },
+      {
+        "term": "Bicytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Disseminated intravascular coagulation",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pancytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac failure congestive",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "ipilimumab 3 mg/kg",
+    "sample_size": 831,
+    "duration": "approximately 48 months",
+    "duration_weeks": 208.6,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "compounds": [
+        "ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "compounds": [
+        "ipilimumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Survival rate at 1 year",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "1_year_survival"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Survival rate at 2 years",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "2_year_survival"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Survival rate at 3 years",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "3_year_survival"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Survival rate at 4 years",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "4_year_survival"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Survival rate at 5 years",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "5_year_survival"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 15.7,
+      "p_value": 0.04,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 11.53,
+      "p_value": 0.04,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.83,
+      "p_value": 0.1548,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.79,
+      "p_value": 0.1548,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": "Survival rate at 1 year",
+      "endpoint": "OS",
+      "effect_size": 54.28,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": "Survival rate at 1 year",
+      "endpoint": "OS",
+      "effect_size": 47.62,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": "Survival rate at 2 years",
+      "endpoint": "OS",
+      "effect_size": 38.46,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": "Survival rate at 2 years",
+      "endpoint": "OS",
+      "effect_size": 30.97,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": "Survival rate at 3 years",
+      "endpoint": "OS",
+      "effect_size": 31.16,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": "Survival rate at 3 years",
+      "endpoint": "OS",
+      "effect_size": 23.15,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": "Survival rate at 4 years",
+      "endpoint": "OS",
+      "effect_size": 26.63,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": "Survival rate at 4 years",
+      "endpoint": "OS",
+      "effect_size": 20.25,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_2_ipilimumab_10_mg_kg",
+      "subgroup_descriptor": "Survival rate at 5 years",
+      "endpoint": "OS",
+      "effect_size": 24.9,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_1_ipilimumab_3_mg_kg",
+      "subgroup_descriptor": "Survival rate at 5 years",
+      "endpoint": "OS",
+      "effect_size": 18.78,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": []
+}

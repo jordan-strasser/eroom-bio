@@ -218,8 +218,8 @@ class TestCuratedOnlyEdges:
             bucket=SupportBucket.STRONG_SUPPORT,
             source_type=EvidenceType.DATABASE_OT_DIRECT,
         )
-        # n_eff=3 for OT_DIRECT.
-        assert e.belief.evidence_strength == pytest.approx(3.0)
+        # Round-28: n_eff=12 for OT_DIRECT.
+        assert e.belief.evidence_strength == pytest.approx(12.0)
         assert _trust_weight(e.belief) > 0.0
 
     def test_cross_reference_record_has_minimal_trust(self):
@@ -238,7 +238,7 @@ class TestCuratedOnlyEdges:
         """Higher-tier curated records should always carry more trust
         than lower-tier ones (with the same bucket)."""
         tiers = [
-            EvidenceType.DATABASE_OT_DIRECT,        # 3.0
+            EvidenceType.DATABASE_OT_DIRECT,        # 12.0  (round-28)
             EvidenceType.DATABASE_OT_ASSOCIATION,   # 2.0
             EvidenceType.DATABASE_REACTOME_GO,      # 1.5
             EvidenceType.DATABASE_LINCS,            # 1.0
@@ -259,13 +259,15 @@ class TestCuratedOnlyEdges:
             prev_trust = tw
 
 
-class TestTrialEvidenceDominatesCurated:
-    """When an edge has BOTH a curated DB record AND a trial-attribution
-    record, the trial evidence should dominate the trust weight (since
-    CLINICAL_PHASE3 n_eff=15 >> DATABASE_OT_DIRECT n_eff=3)."""
+class TestPhase3StillOutweighsCurated:
+    """Round-28 raised the binding-tier n_eff (OT-direct = 12,
+    ChEMBL / mAb-table = 10) to reflect that molecular binding is a
+    cross-checked fact. But a primary clinical RCT should still carry
+    MORE evidence strength than a single curated binding record — the
+    Phase-3 trial is N=hundreds of patients, randomized, blinded; the
+    OT-direct entry aggregates upstream curators."""
 
-    def test_phase3_trial_dwarfs_curated_record(self):
-        # Same bucket, two sources.
+    def test_phase3_trial_above_curated_record(self):
         e_curated = _curated_edge(
             "cmpd", "tgt", EdgeType.AFFECTS,
             bucket=SupportBucket.STRONG_SUPPORT,
@@ -276,13 +278,14 @@ class TestTrialEvidenceDominatesCurated:
             bucket=SupportBucket.STRONG_SUPPORT,
             source_type=EvidenceType.CLINICAL_PHASE3, n_trials=1,
         )
-        # One Phase-3 record alone has 5× the evidence strength of
-        # one OT-direct curated record.
+        # Phase-3 evidence strength > OT-direct, but they're now in the
+        # same order of magnitude (15 vs 12). The ordering is the
+        # invariant; the ratio is data-defined.
         assert (
             e_trial.belief.evidence_strength
-            > 4 * e_curated.belief.evidence_strength
+            > e_curated.belief.evidence_strength
         )
-        # And much higher trust weight.
+        # Trust weight ordering is preserved.
         assert _trust_weight(e_trial.belief) > _trust_weight(e_curated.belief)
 
 

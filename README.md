@@ -43,57 +43,22 @@ A single failed trial produces *opposing* updates on different edges—strengthe
 
 ---
 
-## Current evaluation (2026-05-20)
+## Current evaluation (round 30)
 
-The most-evaluated experiment in the project to date — a 52-trial multi-indication training corpus + 5 well-known case studies held out for direction-prediction.
+Five well-known case studies anchor direction-prediction: nivolumab CheckMate-067 (success), solanezumab EXPEDITION (failure), bevacizumab AVANT (failure, adjuvant), torcetrapib ILLUMINATE (failure, off-target safety), selumetinib thyroid (success). They're scored two ways: **in-sample** (the trial's own evidence is attributed into the graph — an algorithmic-correctness gate; it *should* be called right) and **true holdout** (excluded from attribution, predicted only from other trials — the generalization test).
 
-### Setup
+| predictor | in-sample | true holdout |
+|---|---|---|
+| old (trust-weighted geomean, occurrence-safety) | 1/5 | 1/5 |
+| **round 30** (weakest-link + informed prior, failure-causing safety) | **5/5** | **3/5** |
 
-- **Training:** 52 NCT ids across 5 indications (melanoma, Alzheimer's, colorectal, atherosclerosis/hypercholesterolemia, thyroid). 12 dropped as non-therapeutic (behavioral, device, diagnostic, procedure studies). 40 training subgraphs produced.
-- **Holdout:** 5 case studies, added via the round 19 incremental-build mode:
-  - **nivolumab CheckMate-067** (success, melanoma)
-  - **solanezumab EXPEDITION** (failure, Alzheimer's — chain works, biology→outcome breaks)
-  - **bevacizumab AVANT** (failure, colorectal — wrong context: works in metastatic, fails in adjuvant)
-  - **torcetrapib ILLUMINATE** (failure, cardiovascular — off-target hypertension, not mechanism)
-  - **selumetinib thyroid Ho 2013** (success, niche — works in BRAF-mutant subset)
-- **Final snapshot:** 777 nodes, 1,459 edges, 91% chain coverage on the 178 chains.
+On 54 labeled trials, binary accuracy rose **0.50 → 0.685** (AUROC 0.56 → 0.65), lifting true successes without lifting failures. What drove it: a decisive weak link now vetoes the chain (bevacizumab's `responds_differently` for the adjuvant population), ignorance defers to an informed prior instead of sinking the chain, and tolerated toxicity no longer sinks an effective drug (nivolumab's irAEs).
 
-### Result: 4 of 5 direction-correct
+**The two holdout misses are data gaps, not predictor flaws:**
+- **torcetrapib** — its off-target cardiac safety isn't in CT.gov (no posted results). Fix: a PubMed ingester.
+- **bevacizumab** — `responds_differently` is population-only, so adjuvant-CRC chemo *successes* dilute the anti-VEGF-adjuvant *failure* signal on the shared edge. Adding 5 adjuvant-CRC trials moved it 0.69 → 0.53; the structural fix is mechanism-conditioned population sub-regions (a per-region belief field).
 
-| Case | Lit outcome | Efficacy | Safety | **P(success)** | Direction |
-|---|---|---:|---:|---:|---|
-| nivolumab | success | 0.856 | 0.067 | **0.799** | ✓ |
-| solanezumab | failure | 0.481 | 0.019 | **0.472** | ✓ <0.5 |
-| bevacizumab AVANT | failure | 0.482 | 0.038 | **0.464** | ✓ <0.5 |
-| torcetrapib | failure (safety-driven) | 0.652 | 0.000 | **0.652** | ✗ |
-| selumetinib thyroid | success | 0.723 | 0.000 | **0.723** | ✓ |
-
-### Edge decompositions correctly reflect literature failure modes
-
-The most informative case is **bevacizumab AVANT**. Literature says it fails in the adjuvant setting (not metastatic). The system's chain decomposition shows:
-
-```
-[UP ↑] affects                bevacizumab → VEGFA          E[p]=0.52  n_eff=19
-[UP ↑] modulates_via          VEGFA → angiogenesis_inhib   E[p]=0.55  n_eff=20
-[UP ↑] mechanism_affects      angiogenesis → biology       E[p]=0.50  n_eff=18
-[DN ↓] biology_drives         angiogenesis → colorectal    E[p]=0.40  n_eff=21
-[DN ↓] responds_differently   adjuvant_stage_iii → CRC     E[p]=0.29  n_eff=10  ← weakest
-```
-
-The system correctly identifies `responds_differently` for the adjuvant-stage-III population as the weakest link — exactly the failure mode AVANT demonstrated. Cross-trial learning surfaced the population/context bottleneck without being told to look there.
-
-### Where it misses, and why
-
-**Torcetrapib (the one miss).** The chain decomposition correctly shows torcetrapib's mechanism works (CETP inhibition raised HDL — literature-true). The failure was off-target cardiovascular safety. With zero torcetrapib-specific or CETP-class adverse-event evidence in the 52-trial corpus, `safety_penalty=0.000`. The safety architecture is in place (`causes_ae` and `target_associated_ae` edges both feed the penalty); the data is missing. This is a corpus coverage gap, queued for a deeper round 24 audit.
-
-### Trust calibration
-
-This is the most-evaluated state of the system, but it's **5 case studies, not a statistical sample**. Older claims about specific n=145 melanoma OOS AUROCs and "production-quality" cross-trial learning predate the v0.3.0 prediction-math rework and the round 19-22 architecture and shouldn't be over-interpreted. The honest scope:
-
-- The pipeline mechanically works end-to-end on a fresh multi-indication corpus
-- Cross-trial learning produces directional signal on 4 of 5 well-known case studies
-- The one miss is a known data-coverage gap, not an architectural failure
-- The result needs the [round 24 audit](audit/round_24_holdout_eval_audit_questions.md) (leakage check, edge provenance, monoclonal antibody resolver, torcetrapib safety propagation diagnostic) before it's load-bearing for any larger claim
+**Honest scope:** 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation; the predictor's knobs are pre-LOO-calibration. In-sample 5/5 is self-consistency (necessary, not sufficient); the holdout 3/5 is the real, small generalization signal.
 
 ---
 
@@ -135,15 +100,14 @@ Updates use a Beta-Binomial conjugate model. Each evidence record contributes N_
 | Preclinical in vitro | 1.0 | Cell line data |
 | Computational | 0.3 | Predicted, not measured |
 
-### Prediction (round 20: efficacy + safety)
+Round 25 split these into per-source curated-database tiers; **round 30** makes N_eff *precision-grounded* — the value above is the anchor for a median-N trial, scaled by the trial's actual patient count, with an independence/redundancy discount so correlated evidence (same study/sponsor) doesn't compound as if independent (flag-gated via `EROOM_NEFF_PRECISION`).
 
-P(success) decomposes into two components:
+### Prediction (round 30: weakest-link + informed prior, failure-causing safety)
 
-- **`efficacy_probability`** — trust-weighted geometric mean of chain edge beliefs (the mechanism-only view)
-- **`safety_penalty`** — soft-or aggregation over compound-specific (`causes_ae`) and on-mechanism (`target_associated_ae`) AE evidence, each AE contributing `severity_weight × belief_factor × trust_factor` (capped at 0.6)
-- **`overall_probability = efficacy_probability × (1 − safety_penalty)`**
+`overall = efficacy × (1 − safety_penalty)`.
 
-Severity weighting comes from the AE node's max observed CTCAE grade: Grade 1-2 = 0.05, Grade 3 = 0.15, Grade 4 = 0.30, Grade 5 = 0.50. Three-gate modulation (severity × belief × evidence) prevents AMBIGUOUS-bucket AEs from saturating the cap on well-evidenced drugs.
+- **Efficacy — weakest-link, not geometric mean.** A causal chain is only as strong as its weakest *well-evidenced* link, so efficacy is a **soft-min** over per-edge Beta samples (`P(success) ≈ P(weakest link)`) — replacing the earlier trust-weighted geometric mean, which diluted a decisive weak link by the n-th root. Under-evidenced edges sample under a **weak informed prior** (mean ~0.75), so ignorance defers to a plausible base rate instead of producing low samples that spuriously become the minimum. The Bayesian posterior's concentration thus replaces the old evidence-count "trust weight" (sparse → near prior; abundant → near observed). Env-tunable (`EROOM_SOFTMIN_T`, `EROOM_PRIOR_MEAN`/`EROOM_PRIOR_STRENGTH`); `EROOM_AGG=geomean` restores the legacy mean.
+- **Safety — failure-causing toxicity, not occurrence.** `causes_ae` / `target_associated_ae` measure AE *incidence*, but an effective drug with tolerated toxicity (e.g. nivolumab's irAEs in trials that *succeeded*) must not be penalized like one whose toxicity was dose-limiting. Each AE's penalty is gated by the fraction of its evidence from **dose-limiting-toxicity failures** vs tolerated/successful trials — soft-or of `severity × belief × trust × failure-causing` (capped). A serious AE floors at the grade-3 weight when CTCAE grade is missing (the common case). `EROOM_SAFETY_DLT_GATE=0` restores occurrence-only.
 
 ### Build modes (round 19)
 
@@ -257,9 +221,9 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 
 ## Current status
 
-- 852 tests passing on Python 3.12
-- 18 atomic rounds shipped to main (rounds 14-22)
-- Latest build: n=52 multi-indication + 5-trial holdout (2026-05-20). Result: 4/5 direction-correct, edge decompositions match literature failure modes on 4 of 5, one safety-driven miss attributed to corpus data gap. Round 24 audit queued to verify this isn't memorization, expose trial provenance on edges, fix monoclonal antibody target resolution, and diagnose the torcetrapib `target_associated_ae` propagation.
+- 1065 tests passing (non-integration) on Python 3.12
+- **Round 30** (branch `neff-precision-v1`): the predictor was rebuilt — weakest-link soft-min + informed prior efficacy, failure-causing-gated safety, and precision-grounded N_eff (trial sample size + an independence/redundancy discount) — all flag-gated, validated, then made default. Results under *Current evaluation* above.
+- Pending: a `modulates_via` demonstrated-vs-assumed classifier rule; the PubMed ingester (torcetrapib safety + N_eff p-values); the BioLORD node substrate (semantic redundancy + mechanism-conditioned populations); LOO calibration of the predictor knobs.
 
 ---
 

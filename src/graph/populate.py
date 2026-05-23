@@ -104,6 +104,7 @@ def _root_indication(indication_id: str) -> str:
     return parent_indication_for(indication_id) or indication_id
 from src.ingestion.lincs import (
     LINCSClient,
+    _category_to_direction,
     _category_to_mechanism_type,
     populate_lincs_signatures,
 )
@@ -117,6 +118,42 @@ from src.ingestion.opentargets import (
 
 logger = logging.getLogger(__name__)
 console = Console()
+
+
+# ── Round-28: parent-population coarsening ─────────────────────────────
+#
+# Pre-round-28 the parent PopulationNode for a trial composed its id
+# from EVERY axis the qualifier extractor (regex) and LLM-eligibility
+# pass produced. That over-specified the parent so cross-trial sharing
+# broke even between trials studying the same disease at the same
+# treatment line — NSABP C-08 emitted `responds_differently` evidence
+# to `colon_adenocarcinoma__histology_adenocarcinoma__line_adjuvant_treated__stage_iii`
+# while bev AVANT walked `colorectal_cancer__line_adjuvant__stage_iii`.
+# Two different nodes, no shared signal.
+#
+# Coarsening keeps the axes that are LOAD-BEARING for cross-trial
+# differentiation (treatment line, stage, extent of disease, treatment
+# setting) and demotes rare / disease-specific axes (histology, age,
+# severity, gene biomarker, prior_tx, response, …) to subgroup-only.
+# Subgroup PopulationNodes (built from extraction.subgroups) still get
+# the full feature set so rare-axis subgroup analyses keep their own
+# chains via the round-16 add_subgroup_chains path.
+_DEFAULT_POPULATION_AXES: frozenset[str] = frozenset({
+    "line",     # line of therapy — first / second / later / adjuvant
+    "stage",    # cancer staging — i / ii / iii / iv
+    "extent",   # disease spread — metastatic / unresectable / advanced / …
+    "setting",  # treatment context — adjuvant / neoadjuvant / maintenance
+})
+
+
+def _coarse_population_features(
+    features: list[SubgroupFeature],
+) -> list[SubgroupFeature]:
+    """Return the subset of ``features`` whose axis is in the round-28
+    parent-population whitelist. Order is preserved; the caller
+    typically passes the same list into PopulationNode.compose_id
+    which sorts internally."""
+    return [f for f in features if f.axis in _DEFAULT_POPULATION_AXES]
 
 # Round-20.5: structured drop log for trials the populator silently
 # skipped during build_trial_subgraphs. Wiped at the start of each
@@ -1084,11 +1121,21 @@ class PopulationPipeline:
                         combined_features.append(f)
                         _seen_slugs.add(f.slug())
 
+                # Round-28: coarsen the parent population's defining
+                # features to the load-bearing axes only. Rare-axis
+                # qualifiers (histology, age, severity, biomarker, …)
+                # are dropped from the parent slug so the parent groups
+                # trials studying the same disease at the same treatment
+                # line / stage. Rare-axis subgroups still get their own
+                # subgroup PopulationNodes downstream via the round-16
+                # add_subgroup_chains path.
+                parent_features = _coarse_population_features(combined_features)
+
                 # Compose the trial's default PopulationNode id from the
-                # canonical disease + combined features. With no
+                # canonical disease + coarsened features. With no
                 # features this falls back to ``{indication}__unselected``.
                 default_pop_id = PopulationNode.compose_id(
-                    canonical_id, combined_features,
+                    canonical_id, parent_features,
                 )
                 try:
                     self.graph.get_node(default_pop_id)
@@ -1096,10 +1143,10 @@ class PopulationPipeline:
                     self.graph.add_node(PopulationNode(
                         id=default_pop_id,
                         name=(
-                            cond if combined_features
+                            cond if parent_features
                             else f"All patients ({canonical_name})"
                         ),
-                        defining_features=list(combined_features),
+                        defining_features=list(parent_features),
                     ))
                 # responds_differently: default_population → indication.
                 # The trial's enrollment is itself a stratification of the
@@ -2231,6 +2278,9 @@ class PopulationPipeline:
                             mechanism_type=_category_to_mechanism_type(
                                 MechanismCategory(mech_id)
                             ),
+                            direction=_category_to_direction(
+                                MechanismCategory(mech_id)
+                            ),
                         ))
 
                     if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
@@ -3038,8 +3088,33 @@ class PopulationPipeline:
                 comp_id = self.resolve_entity(iv.name, "compound")
                 if not comp_id:
                     continue
+                # Round-27 fix: gate the cross-reference heuristic on
+                # whether the compound has a chembl-resolved canonical
+                # form. The round-26 bevacizumab AVANT regression was
+                # caused by THIS heuristic firing on the unresolved
+                # `bevacizumab_7_5_mg_kg` slug — its title contained
+                # "metastatic" which substring-matched "MET" gene_symbol,
+                # creating a phantom AFFECTS edge. Same root cause
+                # behind the checkpoint→APP leak (titles containing
+                # "application" / "approach" matched "APP"). For
+                # compounds OT/ChEMBL resolved, the AFFECTS edges are
+                # already populated via the canonical OT-direct path;
+                # this fallback only ever fired as a last-resort name-
+                # match, so gating it doesn't lose real signal.
+                try:
+                    comp_node = self.graph.get_node(comp_id)
+                except KeyError:
+                    continue
+                if not comp_node.get("chembl_id"):
+                    continue
                 # Try to find a target whose name/symbol appears in the
-                # trial title or intervention description
+                # trial title or intervention description. Round-27:
+                # tightened symbol min-length 3 → 4 (3-letter symbols
+                # like "APP", "MET", "AKT", "PIK", "RAF" alias too many
+                # English words to safely substring-match) AND use word
+                # boundaries (\bSYMBOL\b) so "met" in "metastatic" can't
+                # match MET. Long-name path keeps the 5-char minimum
+                # but also tightens to word-boundary match.
                 text = f"{trial.title} {iv.description}".lower()
                 for target_id in targets_in_graph:
                     try:
@@ -3048,10 +3123,16 @@ class PopulationPipeline:
                         continue
                     symbol = tdata.get("gene_symbol", "").lower()
                     name = tdata.get("name", "").lower()
-                    if symbol and len(symbol) >= 3 and symbol in text:
+                    if (
+                        symbol and len(symbol) >= 4
+                        and re.search(rf"\b{re.escape(symbol)}\b", text)
+                    ):
                         self._add_binds_edge(comp_id, target_id)
                         added += 1
-                    elif name and len(name) >= 5 and name in text:
+                    elif (
+                        name and len(name) >= 5
+                        and re.search(rf"\b{re.escape(name)}\b", text)
+                    ):
                         self._add_binds_edge(comp_id, target_id)
                         added += 1
         return added

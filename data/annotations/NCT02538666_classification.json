@@ -1,0 +1,137 @@
+{
+  "nct_id": "NCT02538666",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PD-1 or CTLA-4 engagement, but both nivolumab and ipilimumab are established checkpoint inhibitors with known binding profiles. 2. PATHWAY MODULATION: No pathway biomarker data reported to assess downstream T-cell activation or immune response changes. 3. CLINICAL TRANSLATION: Mixed results - the combination arm failed its primary OS endpoint (HR 0.92, p=0.3693) but showed success in PFS (HR 0.66). The monotherapy arm succeeded in both OS (HR 0.81) and PFS (HR 0.74). 4. POPULATION EFFECTS: Strong subgroup signal in TMB \u226513 mutations/mb patients where both arms showed OS benefit (combo HR 0.64, mono HR 0.62), suggesting the mechanism works in biomarker-selected populations. 5. CONFOUNDERS: No major trial design issues - adequate sample size (907 patients), long duration (317 weeks), appropriate comparator (placebo).",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "TMB \u226513 mutations/mb subgroup showed OS benefit for both combination (HR 0.64) and monotherapy (HR 0.62) arms, while overall population failed primary OS endpoint for combination"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "nivolumab_monotherapy",
+      "reasoning": "Nivolumab monotherapy arm succeeded in OS (HR 0.81) and PFS (HR 0.74), indicating target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination arm showed PFS benefit (HR 0.66) and TMB-high subgroup OS benefit (HR 0.64), indicating target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "strong_support",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination arm showed PFS benefit and TMB-high subgroup OS benefit, indicating CTLA-4 engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_monotherapy",
+      "reasoning": "Monotherapy succeeded but without biomarker data cannot confirm mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Mixed results for combination arm - PFS success but OS failure in overall population"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Mixed results for combination arm - PFS success but OS failure in overall population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_monotherapy",
+      "reasoning": "Monotherapy arm succeeded in both OS and PFS endpoints"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination failed primary OS endpoint despite PFS benefit, suggesting mechanism didn't fully translate"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination failed primary OS endpoint despite PFS benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "nivolumab_monotherapy",
+      "reasoning": "Monotherapy arm demonstrated OS and PFS benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination failed primary OS endpoint in overall population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "reasoning": "Combination failed primary OS endpoint in overall population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_lung_cancer",
+      "target_entity": "lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "OS endpoint captured benefit in monotherapy arm and TMB-high subgroups, demonstrating clinical relevance"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lung_cancer__extent_metastatic__line_second",
+      "target_entity": "lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Overall population failed primary OS endpoint for combination therapy despite monotherapy success"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lung_cancer__signature_tmb_high",
+      "target_entity": "lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "TMB \u226513 mutations/mb subgroup showed clear OS benefit for both arms (HR 0.64 combo, HR 0.62 mono)"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

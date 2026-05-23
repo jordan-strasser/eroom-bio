@@ -31,6 +31,13 @@ from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import SupportBucket, bucket_to_direction, modulation_bucket
 from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
+from src.annotation.meddra_hierarchy import MedDRAHierarchy
+
+
+def _meddra_hierarchy_singleton() -> MedDRAHierarchy:
+    """Lazy-load the round-28 MedDRA hierarchy. Returns a shared
+    instance — see MedDRAHierarchy.load_default for caching rules."""
+    return MedDRAHierarchy.load_default()
 from src.annotation.taxonomy import (
     ArmIncidence,
     FAILURE_MODE_RULES,
@@ -782,6 +789,12 @@ class Attributor:
                 quality_score=min(classification.confidence, 1.0),
                 timestamp=datetime.now(timezone.utc),
                 notes=item.get("reasoning", ""),
+                # Precision inputs for the principled-N_eff path (a no-op
+                # unless EROOM_NEFF_PRECISION is set). Trial-level stats;
+                # extraction is None on some call paths -> fields stay None.
+                n_obs=extraction.sample_size if extraction else None,
+                effect=extraction.effect_size if extraction else None,
+                p_value=extraction.p_value if extraction else None,
             )
 
             # Get pre-update belief
@@ -1328,6 +1341,7 @@ class Attributor:
         extraction: TrialExtraction,
         client: Any,  # anthropic.AsyncAnthropic—kept loose to avoid import cost in attributor
         meddra_cache: MeddraCache | None = None,
+        classification: "FailureClassification | None" = None,
     ) -> list[AppliedEdgeUpdate]:
         """Update causes_ae edges from a trial's structured adverse events.
 
@@ -1373,7 +1387,9 @@ class Attributor:
             preferred_term = normalized["preferred_term"]
             soc = normalized.get("system_organ_class", "")
             ae_id = ae_node_id(preferred_term)
-            self._ensure_ae_node(ae_id, preferred_term, soc, ae.grade)
+            self._ensure_ae_node(
+                ae_id, preferred_term, soc, ae.grade, serious=ae.serious,
+            )
 
             for compound_id in treatment_compound_ids:
                 # When arm_incidences is populated (CT.gov-structured path),
@@ -1406,7 +1422,18 @@ class Attributor:
                     quality_score=1.0,  # incidence-rate evidence is structured, not LLM-judgment
                     timestamp=datetime.now(timezone.utc),
                     notes=note,
-                    context={"ae_term_raw": ae.term, "ae_grade": ae.grade},
+                    context={
+                        "ae_term_raw": ae.term, "ae_grade": ae.grade,
+                        # Round-30 DLT-gate signal: did this AE come from a
+                        # trial whose failure was dose-limiting toxicity?
+                        # The safety-penalty gate weights failure-causing
+                        # toxicity over mere occurrence (see path_query).
+                        "failure_causing_tox": bool(
+                            classification is not None
+                            and classification.primary_failure_mode
+                            == FailureMode.DOSE_LIMITING_TOXICITY
+                        ),
+                    },
                 )
                 pre = self.graph.get_edge_belief(
                     compound_id, ae_id, EdgeType.CAUSES_AE
@@ -1471,8 +1498,19 @@ class Attributor:
         return out
 
     def _ensure_ae_node(
-        self, ae_id: str, preferred_term: str, soc: str, grade: str
+        self, ae_id: str, preferred_term: str, soc: str, grade: str,
+        *, serious: bool = False,
     ) -> None:
+        # Round-28: look up the MedDRA hierarchy parents (HLT / HLGT / SOC
+        # slug + canonical SOC name) so target_associated_ae propagation
+        # can aggregate at the SOC tier downstream. ``soc`` here is the
+        # free-text MedDRA SOC string emitted by the normalizer; the
+        # hierarchy uses it as a fallback when the PT isn't in the
+        # curated PT→SOC table.
+        hierarchy = _meddra_hierarchy_singleton()
+        parents = hierarchy.parents_for_pt(
+            ae_id, fallback_soc_name=soc,
+        )
         try:
             existing = self.graph.get_node(ae_id)
         except KeyError:
@@ -1481,6 +1519,11 @@ class Attributor:
                 name=preferred_term,
                 system_organ_class=soc,
                 severity_range=grade or "",
+                serious=bool(serious),
+                hlt_id=parents["hlt_id"],
+                hlgt_id=parents["hlgt_id"],
+                soc_id=parents["soc_id"],
+                soc_name=parents["soc_name"] or soc,
             ))
             return
         # Node exists—extend severity_range if this AE reported a new grade
@@ -1490,6 +1533,23 @@ class Attributor:
             existing_range = existing.get("severity_range") or ""
             merged = f"{existing_range},{grade}".strip(",")
             self.graph._graph.nodes[ae_id]["severity_range"] = merged
+        # Round-29: OR-merge `serious` across trials reporting the same AE.
+        # Any trial flagging serious=True locks the node's serious to True.
+        if serious and not existing.get("serious"):
+            self.graph._graph.nodes[ae_id]["serious"] = True
+        # Backfill round-28 hierarchy fields onto pre-existing nodes
+        # missing them (round-26 snapshots that loaded without these
+        # fields get them on first re-attribution). Only writes when
+        # the existing value is empty so previously-resolved hierarchy
+        # data is preserved.
+        if parents["soc_id"] and not existing.get("soc_id"):
+            self.graph._graph.nodes[ae_id]["soc_id"] = parents["soc_id"]
+        if parents["soc_name"] and not existing.get("soc_name"):
+            self.graph._graph.nodes[ae_id]["soc_name"] = parents["soc_name"]
+        if parents["hlt_id"] and not existing.get("hlt_id"):
+            self.graph._graph.nodes[ae_id]["hlt_id"] = parents["hlt_id"]
+        if parents["hlgt_id"] and not existing.get("hlgt_id"):
+            self.graph._graph.nodes[ae_id]["hlgt_id"] = parents["hlgt_id"]
 
     def _ensure_causes_ae_edge(self, compound_id: str, ae_id: str) -> None:
         try:
@@ -1778,6 +1838,7 @@ async def _main(
         if extraction is not None and extraction.adverse_events:
             ae_updates = await attributor.attribute_adverse_events(
                 trial, extraction, client=client, meddra_cache=meddra_cache,
+                classification=classification,
             )
             total_updates.extend(ae_updates)
 

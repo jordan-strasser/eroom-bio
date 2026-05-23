@@ -1,0 +1,153 @@
+{
+  "nct_id": "NCT02164916",
+  "therapeutic_hypothesis": {
+    "compound": "vemurafenib + cetuximab + irinotecan",
+    "claimed_target": "BRAF",
+    "proposed_mechanism": "BRAF inhibition combined with EGFR blockade and topoisomerase I inhibition",
+    "intended_biology": "enhanced tumor growth inhibition through multi-pathway targeting",
+    "target_population": "BRAF mutant metastatic colorectal cancer",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.48 (95% CI: 0.31-0.75), median PFS 4.3 vs 2.0 months",
+    "p_value": 0.001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "increased neutropenia with vemurafenib combination",
+      "higher rates of diarrhea and nausea in triple combination",
+      "increased febrile neutropenia in vemurafenib arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "neutrophil count decreased",
+        "grade": "3-5",
+        "incidence_treatment_pct": 32.6,
+        "incidence_control_pct": 6.5,
+        "serious": true
+      },
+      {
+        "term": "diarrhea",
+        "grade": "3-5",
+        "incidence_treatment_pct": 23.9,
+        "incidence_control_pct": 13.0,
+        "serious": false
+      },
+      {
+        "term": "nausea",
+        "grade": "3-5",
+        "incidence_treatment_pct": 19.6,
+        "incidence_control_pct": 2.2,
+        "serious": false
+      },
+      {
+        "term": "white blood cell decreased",
+        "grade": "3-5",
+        "incidence_treatment_pct": 17.4,
+        "incidence_control_pct": 0.0,
+        "serious": false
+      },
+      {
+        "term": "fatigue",
+        "grade": "3-5",
+        "incidence_treatment_pct": 15.2,
+        "incidence_control_pct": 15.2,
+        "serious": false
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 10.9,
+        "incidence_control_pct": 4.3,
+        "serious": true
+      },
+      {
+        "term": "anemia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.0,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "BRAF mutant metastatic colorectal cancer",
+    "comparator": "cetuximab + irinotecan",
+    "sample_size": 106,
+    "duration": "up to 3 years",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_cetuximab_irinotecan_hydrochloride",
+      "compounds": [
+        "cetuximab",
+        "irinotecan"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_cetuximab_irinotecan_hydrochloride_vemurafenib",
+      "compounds": [
+        "cetuximab",
+        "irinotecan",
+        "vemurafenib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_cetuximab_irinotecan_hydrochloride",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_ii_cetuximab_irinotecan_hydrochloride_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.3,
+      "p_value": 0.001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_i_cetuximab_irinotecan_hydrochloride",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 5.9,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "arm_ii_cetuximab_irinotecan_hydrochloride_vemurafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 9.6,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "vemurafenib",
+      "primary_compound_id": "cetuximab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "BRAF inhibition enhances EGFR blockade efficacy in BRAF mutant colorectal cancer",
+      "citation": "HR 0.48 (95% CI: 0.31-0.75), p = 0.001 for progression-free survival favoring the triple combination"
+    }
+  ]
+}

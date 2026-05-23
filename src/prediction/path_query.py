@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ import networkx as nx
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy import stats as sp_stats
+from scipy.special import logsumexp
 
 from src.graph.models import (
     CausalChain,
@@ -57,6 +59,14 @@ _SEVERITY_GRADE_TO_WEIGHT: dict[int, float] = {
 # Higher than grade 1-2 so a missing grade isn't free-pass safe; lower
 # than grade 3 so it doesn't over-penalize on absence of data.
 _UNKNOWN_GRADE_WEIGHT = 0.10
+# Round-29: when CTCAE grade is missing but the AE was flagged
+# ``serious=True`` by CT.gov (~90% of extractions), use this as a
+# coarse severity floor (= grade-3 weight). Deliberately not max
+# (grade 5 = 0.50): a Serious Adverse Event ≠ a fatal event, and we
+# preserve discrimination via belief_factor + trust_factor in the
+# three-gate math. When both grade and serious data are present, the
+# floor is just that — a floor; the grade-based weight wins if higher.
+_SERIOUS_FLOOR_WEIGHT = _SEVERITY_GRADE_TO_WEIGHT[3]
 
 
 def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
@@ -91,12 +101,61 @@ def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
     return max_grade
 
 
-def _ae_severity_weight(severity_range: str | None) -> float:
-    """Lookup the per-AE penalty weight from its severity_range field."""
+def _ae_severity_weight(
+    severity_range: str | None, *, serious: bool = False,
+) -> float:
+    """Lookup the per-AE penalty weight from its severity_range field.
+
+    Round-29: ``serious=True`` acts as a coarse severity floor at the
+    grade-3 weight. The corpus has CTCAE grade data on only ~11% of
+    extracted AEs (CT.gov rarely posts them), but the per-AE
+    ``serious`` flag is populated on ~90% — making it the primary
+    severity signal in practice. When grade IS present, the grade-based
+    weight wins if it exceeds the floor; an SAE flagged grade-5 still
+    gets the grade-5 weight.
+    """
     grade = _max_grade_from_severity_range(severity_range)
     if grade is None:
-        return _UNKNOWN_GRADE_WEIGHT
-    return _SEVERITY_GRADE_TO_WEIGHT.get(grade, _UNKNOWN_GRADE_WEIGHT)
+        grade_weight = _UNKNOWN_GRADE_WEIGHT
+    else:
+        grade_weight = _SEVERITY_GRADE_TO_WEIGHT.get(
+            grade, _UNKNOWN_GRADE_WEIGHT,
+        )
+    if serious:
+        return max(grade_weight, _SERIOUS_FLOOR_WEIGHT)
+    return grade_weight
+
+
+# Round-30: gate the safety penalty on FAILURE-CAUSING toxicity. causes_ae
+# measures AE *occurrence* (incidence) — but an effective drug with tolerated
+# toxicity (e.g. nivolumab irAEs in trials that SUCCEEDED) should not be
+# penalized like one whose toxicity was dose-limiting. Each AE's contribution
+# scales toward a floor when its evidence came from tolerated/successful
+# trials and toward full weight when it came from dose-limiting-toxicity
+# failures. Flag-gated (default off -> round-29 behavior unchanged).
+_SAFETY_DLT_FLOOR = 0.15
+
+
+def _safety_dlt_gate_enabled() -> bool:
+    # Default ON (round-30): penalize failure-causing toxicity, not occurrence.
+    # Set EROOM_SAFETY_DLT_GATE=0 to restore the round-29 occurrence behavior.
+    return os.environ.get("EROOM_SAFETY_DLT_GATE", "1").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _dlt_fraction(belief: EdgeBeliefState) -> float:
+    """Fraction of an AE edge's evidence tagged ``failure_causing_tox``.
+
+    Records are tagged at attribution from the source trial's failure mode
+    (DOSE_LIMITING_TOXICITY) — see ``attributor.attribute_adverse_events``.
+    Returns 1.0 when there are no records (no info -> don't gate).
+    """
+    recs = belief.evidence or []
+    if not recs:
+        return 1.0
+    fc = sum(1 for e in recs if (e.context or {}).get("failure_causing_tox"))
+    return fc / len(recs)
 
 
 def _regimen_constituents(
@@ -158,6 +217,41 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
+_SOFTMIN_T = float(os.environ.get("EROOM_SOFTMIN_T", "0.10"))  # soft-min temperature; ->0 approaches hard min
+
+# Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
+# for a WEAK prior centered on a plausible base rate, so an under-evidenced /
+# unobserved chain edge defers to "probably operative" (~0.75) instead of
+# producing low samples that spuriously become the weakest link. Weak
+# (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
+_INFORMED_PRIOR_MEAN = float(os.environ.get("EROOM_PRIOR_MEAN", "0.75"))
+_INFORMED_PRIOR_STRENGTH = float(os.environ.get("EROOM_PRIOR_STRENGTH", "2.0"))
+_INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
+_INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
+
+
+def _informed_prior_enabled() -> bool:
+    # Default ON (round-30): under-evidenced edges defer to a plausible base
+    # rate. Set EROOM_INFORMED_PRIOR=0 to restore the Beta(1,1) coin-flip prior.
+    return os.environ.get("EROOM_INFORMED_PRIOR", "1").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
+    """Sample an edge's Beta, optionally under a weak informed prior.
+
+    The stored belief is Beta(1+e_pos, 1+e_neg) (Beta(1,1) prior + evidence).
+    With EROOM_INFORMED_PRIOR we re-prior to Beta(a0+e_pos, b0+e_neg) where
+    Beta(a0,b0) has mean ~0.75 — so an unobserved edge samples around 0.75
+    (plausible) rather than uniform/low, and well-evidenced edges are
+    essentially unchanged (the weak prior is swamped).
+    """
+    a, b = belief.alpha, belief.beta
+    if _informed_prior_enabled():
+        a = _INFORMED_PRIOR_A + (belief.alpha - 1.0)
+        b = _INFORMED_PRIOR_B + (belief.beta - 1.0)
+    return rng.beta(max(a, 1e-6), max(b, 1e-6), size=n_samples)
 
 
 def _trust_weight(belief: EdgeBeliefState) -> float:
@@ -185,6 +279,29 @@ def _aggregate_samples(
     """
     if not edge_samples:
         return np.array([])
+    # Experimental aggregation modes (EROOM_AGG). The default trust-weighted
+    # geomean dilutes a decisive weak link; these test true conditional-chain
+    # probability (product / noisy-AND) and weakest-link (min / softmin).
+    # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
+    # decisive edge. Default ("" / geomean) keeps the existing behavior.
+    # Default softmin (round-30): weakest-link P(success). Set EROOM_AGG=geomean
+    # to restore the legacy trust-weighted geometric mean.
+    mode = os.environ.get("EROOM_AGG", "softmin").strip().lower()
+    if mode in ("product", "min", "softmin", "harmonic"):
+        stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
+        if mode == "product":
+            return np.prod(stack, axis=0)
+        if mode == "min":
+            return stack.min(axis=0)
+        if mode == "harmonic":
+            # power mean p=-1: dominated by the smallest edge (weakest-link)
+            # but accumulates multiple weak links AND is length-normalized —
+            # the middle ground between min (no discrimination) and product
+            # (length-tanks).
+            return stack.shape[0] / np.sum(1.0 / stack, axis=0)
+        return -_SOFTMIN_T * (
+            logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
+        )
     n_samples = edge_samples[0].shape[0]
     sum_w = float(sum(w for w in weights if w > 0.0))
     log_sum = np.zeros(n_samples)
@@ -223,6 +340,14 @@ class SafetyRisk(BaseModel):
     the same target have caused this AE—likely on-mechanism). The two
     travel together so the consumer can decide whether the risk is
     chemistry-related (changeable) or mechanism-related (intrinsic).
+
+    Round-29: ``severity_range`` carries the grade-token string used to
+    derive the severity weight. For ``causes_ae`` (compound source)
+    risks this comes from the PT-level AE node. For
+    ``target_associated_ae`` (target_class source) risks it comes from
+    the EDGE — target-scoped — because the SOC-tier AE node is shared
+    across targets and a global severity_range there would leak grade
+    data from one target class to another.
     """
 
     ae_id: str
@@ -230,6 +355,18 @@ class SafetyRisk(BaseModel):
     source: str  # "compound" | "target_class"
     belief_probability: float
     evidence_strength: float
+    severity_range: str = ""
+    # Round-29: did any contributing trial flag this AE as serious? For
+    # ``causes_ae`` risks this is the PT node's OR-merged ``serious``
+    # field. For ``target_associated_ae`` risks this is the per-target
+    # SOC-tier OR-aggregation stored on the edge. Acts as a grade-3
+    # severity floor in the safety-penalty math when CTCAE grade is
+    # missing (the majority case).
+    serious: bool = False
+    # Round-30 DLT-gate: fraction of this AE's evidence from trials whose
+    # failure was dose-limiting toxicity (vs AEs that merely occurred in
+    # tolerated/successful trials). 1.0 = no gating (default / back-compat).
+    failure_causing_fraction: float = 1.0
     contributing_compound_ids: list[str] = Field(default_factory=list)
 
 
@@ -298,7 +435,7 @@ class PredictionEngine:
         edge_samples: list[np.ndarray] = []
         trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
-            edge_samples.append(rng.beta(belief.alpha, belief.beta, size=n_samples))
+            edge_samples.append(_sample_edge(rng, belief, n_samples))
             trust_weights.append(_trust_weight(belief))
 
         # 3. Aggregate samples via trust-weighted geometric mean
@@ -450,14 +587,26 @@ class PredictionEngine:
             return 0.0
         contributions: list[float] = []
         for r in risks:
-            try:
-                ae_node = self.graph.get_node(r.ae_id)
-            except KeyError:
-                severity_weight = _UNKNOWN_GRADE_WEIGHT
-            else:
+            # Round-29: SafetyRisk now carries severity_range + the
+            # serious flag directly (target-scoped for
+            # target_associated_ae risks via edge metadata, PT-node-
+            # sourced for causes_ae). Both feed into the severity
+            # weight: an AE flagged serious=True floors the weight at
+            # the grade-3 tier even when CTCAE grade data is missing.
+            if r.severity_range or r.serious:
                 severity_weight = _ae_severity_weight(
-                    ae_node.get("severity_range")
+                    r.severity_range, serious=r.serious,
                 )
+            else:
+                try:
+                    ae_node = self.graph.get_node(r.ae_id)
+                except KeyError:
+                    severity_weight = _UNKNOWN_GRADE_WEIGHT
+                else:
+                    severity_weight = _ae_severity_weight(
+                        ae_node.get("severity_range"),
+                        serious=bool(ae_node.get("serious", False)),
+                    )
             # Three-gate modulation. Severity sets the ceiling
             # (manageable rash vs fatal cardiac event); belief_factor
             # scales by how strongly the AE rate actually moved above
@@ -475,7 +624,17 @@ class PredictionEngine:
             trust_factor = min(
                 1.0, math.log(r.evidence_strength + 1) / math.log(50),
             )
-            contributions.append(severity_weight * belief_factor * trust_factor)
+            contribution = severity_weight * belief_factor * trust_factor
+            if _safety_dlt_gate_enabled():
+                # Gate on failure-causing toxicity (see _dlt_fraction): an AE
+                # that merely occurred in tolerated/successful trials
+                # contributes only the floor share; toxicity that caused a
+                # dose-limiting failure contributes fully.
+                contribution *= (
+                    _SAFETY_DLT_FLOOR
+                    + (1.0 - _SAFETY_DLT_FLOOR) * r.failure_causing_fraction
+                )
+            contributions.append(contribution)
         penalty = 1.0
         for c in contributions:
             penalty *= (1.0 - c)
@@ -525,6 +684,12 @@ class PredictionEngine:
                 source="compound",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
+                # causes_ae: severity comes from the PT-level AE node
+                # itself, which is uniquely the PT (not shared across
+                # targets). No edge-level override needed.
+                severity_range=ae_node.get("severity_range") or "",
+                serious=bool(ae_node.get("serious", False)),
+                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=[chain.compound_id],
             ))
             seen_ae_ids.add(ae_id)
@@ -553,12 +718,27 @@ class PredictionEngine:
             contributing = [
                 rec.source_id for rec in belief.evidence
             ]
+            # Round-29: prefer the EDGE's severity_range + serious flag
+            # (both target-scoped, written by the SOC propagation in
+            # ae_propagation._rebuild_target_ae_edge). Fall back to the
+            # AE node's severity_range / serious for PT-tier
+            # target_associated_ae edges (where the AE node IS specific)
+            # and for legacy snapshots predating round-29.
+            edge_severity = (edge.get("severity_range") or "")
+            if not edge_severity:
+                edge_severity = ae_node.get("severity_range") or ""
+            edge_serious = edge.get("serious")
+            if edge_serious is None:
+                edge_serious = bool(ae_node.get("serious", False))
             risks.append(SafetyRisk(
                 ae_id=ae_id,
                 ae_name=ae_node.get("name", ae_id),
                 source="target_class",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
+                severity_range=edge_severity,
+                serious=bool(edge_serious),
+                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=contributing,
             ))
 

@@ -90,17 +90,84 @@ def strip_parenthetical_brand(name: str) -> str | None:
     return stripped
 
 
+# Round-27: dose-suffix patterns. CT.gov intervention names commonly
+# embed dose info ("Bevacizumab 7.5 mg/kg", "Capecitabine 1000 mg/m^2",
+# "Aspirin 81 mg PO daily"). Without stripping, the OT / ChEMBL lookup
+# fails because the dose-laden name isn't a canonical drug name; the
+# SapBERT canonicalization then keeps the dose-laden slug as the
+# canonical id and the cleaner bare name gets demoted to alias.
+# Worse, the bev → MET phantom edge in round 26 was created when the
+# unresolved dose-laden compound fell through to the cross-reference
+# name-match heuristic with no chembl_id gate.
+#
+# Patterns matched (case-insensitive, anchored to a word break):
+#   - mass dose: "7.5 mg", "200 mg", "100mg" — optionally followed by
+#     /kg or /m^2 or /m2 (BSA dosing).
+#   - other dose units: μg/mcg/ng/g, IU/MIU/MU/Units.
+#   - frequency / route: bid, tid, qid, qd, qhs, q4h, q6h, q8h, q12h, IV,
+#     PO, SC, IM (these often appear after the dose).
+# We do NOT strip "5-fluorouracil" (the leading 5 is the chemical name);
+# the patterns all require a space before the number to avoid that.
+_DOSE_PATTERN = re.compile(
+    r"\s+\d+(?:\.\d+)?\s*(?:mg|μg|ug|mcg|ng|g|iu|miu|mu|units?|u)"
+    r"(?:\s*/\s*(?:kg|m\^?2|m2|day|d))?"
+    r"\b",
+    re.IGNORECASE,
+)
+_FREQ_ROUTE_PATTERN = re.compile(
+    r"\s+(?:q\d+h|q[idh]s?\b|[bt]?id\b|qd\b|po\b|iv\b|sc\b|im\b)",
+    re.IGNORECASE,
+)
+
+
+def strip_dose_suffix(name: str) -> str:
+    """Strip dose/frequency/route phrases from a CT.gov intervention name.
+
+    "Bevacizumab 7.5 mg/kg" → "Bevacizumab"
+    "Capecitabine 1000 mg/m^2" → "Capecitabine"
+    "Aspirin 81 mg PO daily" → "Aspirin"
+
+    Idempotent — strings without dose patterns round-trip unchanged.
+    Does NOT touch leading numerics that are part of the chemical name
+    (e.g. "5-Fluorouracil" — the pattern requires whitespace before the
+    number).
+    """
+    if not name:
+        return name
+    s = _DOSE_PATTERN.sub("", name)
+    # Re-apply for second dose phrase ("X mg + Y mg" style).
+    s = _DOSE_PATTERN.sub("", s)
+    s = _FREQ_ROUTE_PATTERN.sub("", s)
+    # Collapse double spaces created by middle-of-string strips.
+    s = re.sub(r"\s+", " ", s).strip()
+    return s or name
+
+
 def canonical_compound_names(iv_name: str) -> list[str]:
     """Canonicalize an intervention name into one or more drug names.
 
-    Combines `split_combo_regimen` (handle multi-drug regimens) and
-    `strip_parenthetical_brand` (strip brand/code aliases) into the
-    single transformation both populator code paths need. The result is
-    always a non-empty list — even non-decomposable names round-trip as
-    a single-element list of the original name.
+    Pipeline (order matters):
+      1. ``strip_dose_suffix`` first, on the WHOLE input. CT.gov combo
+         names often have per-constituent doses ("Oxaliplatin +
+         Capecitabine 1000 mg/m^2 + Bevacizumab 7.5 mg/kg"), and
+         ``split_combo_regimen`` has a strict drug-name-shape regex that
+         rejects parts containing digits — so we must remove the dose
+         info before splitting (round-27 fix).
+      2. ``split_combo_regimen`` decomposes "Drug A + Drug B" into list.
+      3. ``strip_parenthetical_brand`` strips "(brand; codename)" tails.
+      4. ``strip_dose_suffix`` once more per-constituent as a safety net.
+
+    Always returns a non-empty list — non-decomposable names round-trip
+    as a single-element list of the cleaned name.
     """
-    sub_names = split_combo_regimen(iv_name) or [iv_name]
-    return [strip_parenthetical_brand(s) or s for s in sub_names]
+    dose_stripped = strip_dose_suffix(iv_name)
+    sub_names = split_combo_regimen(dose_stripped) or [dose_stripped]
+    out: list[str] = []
+    for s in sub_names:
+        bare = strip_parenthetical_brand(s) or s
+        bare = strip_dose_suffix(bare)
+        out.append(bare)
+    return out
 
 
 # ── Models ───────────────────────────────────────────────────────────────

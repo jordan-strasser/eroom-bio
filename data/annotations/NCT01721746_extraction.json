@@ -1,0 +1,220 @@
+{
+  "nct_id": "NCT01721746",
+  "therapeutic_hypothesis": {
+    "compound": "nivolumab",
+    "claimed_target": "PD-1",
+    "proposed_mechanism": "PD-1 checkpoint blockade",
+    "intended_biology": "T-cell activation and anti-tumor immunity",
+    "target_population": "advanced melanoma patients progressed following anti-CTLA-4 therapy",
+    "primary_endpoint": "objective response rate and overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "ORR 27.2% vs 9.8%; OS 15.74 vs 14.39 months",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "PD-L1 \u22655%: ORR 43.2% vs 12.2% (OR 5.49)",
+      "PD-L1 <5%: ORR 15.3% vs 13.8% (OR 1.13)",
+      "PD-L1 positive OS: 31.44 vs 16.72 months (HR 0.71)",
+      "PD-L1 negative OS: 11.14 vs 11.76 months (HR 1.03)"
+    ],
+    "safety_signals": [
+      "Immune-related adverse events including febrile neutropenia",
+      "Cardiac events including atrial fibrillation and myocardial infarction"
+    ],
+    "dose_info": {
+      "dose": "3 mg/kg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      },
+      {
+        "term": "Blood loss anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile bone marrow aplasia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Splenic haematoma",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Splenic lesion",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "unresectable or metastatic melanoma",
+    "comparator": "investigator's choice of dacarbazine or carboplatin plus paclitaxel",
+    "sample_size": 405,
+    "duration": "up to 96 months",
+    "duration_weeks": 4176.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "bms_936558_3_mg_kg_iv",
+      "compounds": [
+        "nivolumab"
+      ]
+    },
+    {
+      "arm_id": "investigator_s_choice_dacarbazine_or_carboplatin_paclitaxel",
+      "compounds": [
+        "dacarbazine",
+        "carboplatin",
+        "paclitaxel"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "<5% PD-L1 expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": ">=5% PD-L1 expression",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "positive"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "bms_936558_3_mg_kg_iv",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 27.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "investigator_s_choice_dacarbazine_or_carboplatin_paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 9.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "bms_936558_3_mg_kg_iv",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 15.74,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "investigator_s_choice_dacarbazine_or_carboplatin_paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 14.39,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "bms_936558_3_mg_kg_iv",
+      "subgroup_descriptor": "<5% PD-L1 expression",
+      "endpoint": "ORR",
+      "effect_size": 15.3,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "investigator_s_choice_dacarbazine_or_carboplatin_paclitaxel",
+      "subgroup_descriptor": "<5% PD-L1 expression",
+      "endpoint": "ORR",
+      "effect_size": 13.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "bms_936558_3_mg_kg_iv",
+      "subgroup_descriptor": ">=5% PD-L1 expression",
+      "endpoint": "ORR",
+      "effect_size": 43.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "investigator_s_choice_dacarbazine_or_carboplatin_paclitaxel",
+      "subgroup_descriptor": ">=5% PD-L1 expression",
+      "endpoint": "ORR",
+      "effect_size": 12.2,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

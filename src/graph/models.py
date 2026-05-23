@@ -429,6 +429,23 @@ class MechanismNode(BaseModel):
     name: str = Field(min_length=1)
     mechanism_type: MechanismType
     selectivity: str | None = None
+    # Round-28 directionality metadata. Populated from a table keyed on
+    # MechanismCategory in src/graph/populate.py. Values:
+    #   "inhibiting"  — the mechanism reduces the target's activity / a
+    #                   downstream process (kinase inhibition, receptor
+    #                   antagonism, angiogenesis inhibition, ...).
+    #   "activating"  — the mechanism increases the target's activity /
+    #                   a downstream process (immune costimulation,
+    #                   antigen-directed cytotoxicity, ...).
+    #   "modulating"  — bidirectional or context-dependent (hormone
+    #                   modulation, gene editing).
+    #   None          — unknown / OTHER. Backward-compatible default.
+    # The prediction math is direction-blind: P(success) reflects "edge
+    # operates" not "edge benefits the patient." Surfacing direction as
+    # metadata lets audits and graphguard flag chains where the math is
+    # being read as benefit-direction even though the underlying
+    # mechanism is inhibitory.
+    direction: str | None = None
 
 
 class BiologyNode(BaseModel):
@@ -541,6 +558,30 @@ class AdverseEventNode(BaseModel):
     # Observed CTCAE grade range across trials feeding this node, e.g.
     # "grade_1_3" or "grade_3_4". Updated when new evidence arrives.
     severity_range: str = ""
+    # Round-29: did any trial report this AE as a Serious Adverse Event?
+    # CT.gov's `serious=True` flag is populated for ~90% of extracted
+    # AEs even when CTCAE grade is missing (CT.gov rarely posts grades).
+    # The safety-penalty math uses this as a COARSE severity floor
+    # (≈ grade-3 weight) so an ungraded cardiac SAE doesn't fall to
+    # `_UNKNOWN_GRADE_WEIGHT=0.10`. OR-merged across trials reporting
+    # the same AE — any "serious=true" trial wins.
+    serious: bool = False
+    # Round-28 MedDRA hierarchy parents. Populated by
+    # src/annotation/meddra_hierarchy.py at AE-node creation time.
+    # Used by the SOC-tier `target_associated_ae` propagation so sibling
+    # compounds binding the same target aggregate at the SOC level even
+    # when their per-trial PT extractions land at disjoint terms.
+    #   - ``soc_id`` is a slug like "cardiac_disorders" (lower-snake).
+    #   - ``soc_name`` mirrors ``system_organ_class`` (the original
+    #     MedDRA string) for human-readable rendering.
+    #   - ``hlt_id`` / ``hlgt_id`` are intermediate hierarchy tiers;
+    #     populated only when the curated hierarchy file has them.
+    # All four default to empty strings for backward compat with
+    # pre-round-28 snapshots.
+    hlt_id: str = ""
+    hlgt_id: str = ""
+    soc_id: str = ""
+    soc_name: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -593,6 +634,23 @@ class EvidenceRecord(BaseModel):
     # evidence that doesn't match the queried indication's tissue. Empty for
     # context-free evidence (the default for everything except LINCS sigs).
     context: dict[str, Any] = Field(default_factory=dict)
+
+    # ── Principled-N_eff inputs (optional; default None = back-compat) ─────
+    # Quantitative properties of the evidence, consumed by the precision-
+    # aware n_eff path in ``src/inference/beliefs.py`` when the
+    # ``EROOM_NEFF_PRECISION`` flag is enabled. All default None so existing
+    # records and serialized snapshots load unchanged and reproduce the
+    # legacy type-constant n_eff exactly.
+    #   ``n_obs``      patient/observation count (trial enrollment / N)
+    #   ``effect``     reported point-estimate effect size (HR/OR/Δ), if any
+    #   ``p_value``    reported p-value, if any
+    #   ``cluster_key`` correlation-cluster id for the independence/redundancy
+    #                   discount at aggregation; records sharing a key are
+    #                   treated as non-independent (None = its own cluster)
+    n_obs: int | None = None
+    effect: float | None = None
+    p_value: float | None = None
+    cluster_key: str | None = None
 
 
 class EdgeBeliefState(BaseModel):

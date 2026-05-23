@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT04437511",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - donanemab achieved 87.03 centiloid reduction in amyloid PET signal vs 0.67 in placebo (p<0.0001), demonstrating robust amyloid plaque clearance. 2. PATHWAY MODULATION: Mixed pathway effects - while amyloid plaques were cleared as intended, tau PET showed no significant difference (p=0.4522), and there was concerning accelerated brain volume loss (-6.66 cm\u00b3 difference) and ventricular expansion (3.02 cm\u00b3 difference). This suggests the amyloid clearance pathway was engaged but with complex downstream effects. 3. CLINICAL TRANSLATION: Primary endpoint was met with statistical significance - iADRS showed 2.92 point difference (p=0.001), supported by secondary endpoints MMSE (0.47 difference, p=0.012) and ADAS-Cog13 (-1.33 difference, p=0.0006). Effect sizes are clinically meaningful for Alzheimer's disease. 4. POPULATION EFFECTS: Intermediate tau population showed enhanced benefit (3.25 vs 2.92 point iADRS difference), suggesting biomarker-defined subgroups may respond better. 5. CONFOUNDERS: No major trial design issues - adequate sample size (1736), appropriate duration (76 weeks), placebo-controlled design. Some safety signals including cardiac events and brain volume changes, but these did not prevent efficacy demonstration.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.3,
+      "evidence": "Accelerated brain volume loss and ventricular expansion raise questions about long-term safety profile, though these did not prevent completion of the efficacy trial"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "donanemab",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "87.03 centiloid reduction in amyloid PET signal vs 0.67 in placebo (p<0.0001) provides direct evidence of target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "antigen_directed_cytotoxicity",
+      "support": "ambiguous",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "While amyloid clearance was achieved, the mechanism's downstream effects showed mixed signals with concerning brain volume changes"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-8862803",
+      "support": "moderate_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Clinical efficacy was achieved suggesting the mechanism affected the relevant neurodegenerative pathways, though with some concerning downstream effects"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "alzheimer_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Primary endpoint met with clinically meaningful effect size (2.92 points, p=0.001) supported by multiple secondary cognitive endpoints"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimer_disease",
+      "target_entity": "alzheimer_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "iADRS primary endpoint was met and supported by concordant secondary endpoints (MMSE, ADAS-Cog13), demonstrating the endpoint captures clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimer_disease__signature_tmb_low",
+      "target_entity": "alzheimer_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Intermediate tau population showed enhanced benefit (3.25 vs 2.92 point iADRS difference) suggesting this biomarker-defined subgroup responds better"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

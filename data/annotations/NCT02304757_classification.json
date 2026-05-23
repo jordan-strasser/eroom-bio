@@ -1,0 +1,49 @@
+{
+  "nct_id": "NCT02304757",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial tested 99Tc-MDP against bone mineral density as a target. There is no direct evidence of target engagement - no PK/PD data showing the compound reached bone tissue or engaged bone formation pathways. The biomarker changes (PINP increase, CTX decrease) suggest some bone turnover activity but don't confirm specific target engagement. 2. PATHWAY MODULATION: The biomarker data shows mixed signals. PINP (bone formation marker) increased in the 99Tc-MDP arm, which could suggest bone formation activity. CTX (bone resorption marker) decreased, which is consistent with reduced bone breakdown. However, these changes are modest and the pattern is different from the active comparator Fosamax. 3. CLINICAL TRANSLATION: The primary endpoint was percent change in BMD. At 12 months, 99Tc-MDP showed 3.8% increase in lumbar spine BMD vs 5.1% for Fosamax, and 5.1% vs 4.6% for total hip BMD respectively. Without p-values or statistical significance testing reported, and with the active comparator (Fosamax) showing numerically superior or equivalent results, this suggests the experimental treatment did not demonstrate superior efficacy. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial appears adequately powered (n=142) and duration (12 months) seems appropriate for bone density changes. The main issue is lack of statistical analysis and comparison showing 99Tc-MDP was not superior to the established treatment Fosamax.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.6,
+      "evidence": "Biomarker changes (PINP increase, CTX decrease) suggest some bone turnover activity, but clinical endpoint (BMD change) was inferior to active comparator Fosamax, indicating the biological pathway was not effectively modulated to produce superior clinical benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-2426168",
+      "support": "weak_contradict",
+      "affecting_arm_id": "fosamax",
+      "reasoning": "Fosamax showed superior BMD improvement compared to 99Tc-MDP, but the mechanism-biology link for the experimental arm was not validated"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-2426168",
+      "target_entity": "differentiated_thyroid_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "fosamax",
+      "reasoning": "The experimental treatment failed to show superior efficacy compared to established therapy, suggesting the biological pathway did not drive meaningful clinical benefit in this indication"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_osteoporosis",
+      "target_entity": "differentiated_thyroid_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "BMD changes were measured and showed directional improvements in both arms, indicating the endpoint captures bone-related benefits relevant to osteoporosis in this population"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "differentiated_thyroid_cancer__line_adjuvant",
+      "target_entity": "differentiated_thyroid_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The experimental treatment showed inferior performance compared to standard therapy in this population, suggesting this population does not respond preferentially to the experimental approach"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "No p-values or statistical significance testing reported, making it difficult to definitively classify the trial outcome. The comparison to active control (Fosamax) suggests inferiority but without formal statistical testing this remains uncertain."
+}

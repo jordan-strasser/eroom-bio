@@ -85,7 +85,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Eroom Bio API",
     description="Knowledge graph and prediction service for clinical trials.",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 

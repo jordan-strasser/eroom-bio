@@ -1060,7 +1060,14 @@ class TestSlugifyDiseaseName:
 
 class TestCompoundTargetEdges:
     def test_adds_binds_to_when_symbol_in_text(self, pipeline, graph):
-        graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
+        # Round-27 fix: the cross-reference heuristic now requires the
+        # compound to have a resolved chembl_id (kills the phantom
+        # bev → MET and checkpoint → APP edges). Setting chembl_id on
+        # the test compound to exercise the kept-path.
+        graph.add_node(CompoundNode(
+            id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE,
+            chembl_id="CHEMBL941",
+        ))
         pipeline._index_node("C1", "Imatinib", "compound")
         graph.add_node(TargetNode(id="T_ABL", name="ABL1 kinase", gene_symbol="ABL1"))
 
@@ -1076,6 +1083,35 @@ class TestCompoundTargetEdges:
         # p_obs=0.65) applied to Beta(1, 1) → alpha=1.195, beta=1.105.
         assert belief.alpha == pytest.approx(1.195)
         assert belief.evidence[0].source_type.value == "database_cross_reference"
+
+    def test_skips_unresolved_compound(self, pipeline, graph):
+        """Round-27: cross-reference heuristic must NOT fire for
+        compounds lacking a chembl_id — that's how phantom edges land
+        on dose-laden / unresolved compound slugs.
+        """
+        # No chembl_id set on the compound — simulates the round-26
+        # `bevacizumab_7_5_mg_kg` regression.
+        graph.add_node(CompoundNode(
+            id="C_UNRESOLVED", name="Unresolved Compound",
+            modality=Modality.SMALL_MOLECULE,
+        ))
+        pipeline._index_node("C_UNRESOLVED", "Unresolved Compound", "compound")
+        graph.add_node(TargetNode(
+            id="T_MET", name="MET receptor", gene_symbol="MET",
+        ))
+
+        # Trial title contains "metastatic" → substring "met" — would
+        # have matched MET gene_symbol under the pre-round-27 heuristic.
+        trial = _make_trial(
+            drug_name="Unresolved Compound",
+            drug_desc="treats metastatic disease",
+            title="Phase 3 trial in metastatic colorectal cancer",
+        )
+        added = pipeline._add_compound_target_edges([trial])
+        # Round-27 gate skips because chembl_id is None — and tightened
+        # symbol min-length 3→4 + word boundary would also block MET
+        # (3 chars, and "met" not a whole word in "metastatic").
+        assert added == 0
 
     def test_no_edge_when_no_match(self, pipeline, graph):
         graph.add_node(CompoundNode(id="C1", name="Imatinib", modality=Modality.SMALL_MOLECULE))
@@ -1324,10 +1360,11 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "gp100_antigen", "ENSG00000185664", EdgeType.AFFECTS,
         )
-        # Round-25: vaccine-component pattern-match emits strong_support
-        # DATABASE_MAB_TABLE (n_eff=3) → Beta(3.85, 1.15).
-        assert belief.alpha == pytest.approx(3.85)
-        assert belief.beta == pytest.approx(1.15)
+        # Vaccine-component pattern-match emits strong_support
+        # DATABASE_MAB_TABLE (n_eff=10 after round-28) → α=1+10·0.95=10.5,
+        # β=1+10·0.05=1.5.
+        assert belief.alpha == pytest.approx(10.5)
+        assert belief.beta == pytest.approx(1.5)
         assert belief.evidence[0].source_type.value == "database_mab_table"
 
     def test_adds_all_three_targets_for_combo_peptide_vaccine(self, pipeline, graph):
@@ -1356,10 +1393,11 @@ class TestVaccineComponentTargets:
             ("ENSG00000120215", "MLANA"),
         ]:
             assert graph.get_node(ens)["gene_symbol"] == symbol
-            # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
+            # strong_support DATABASE_MAB_TABLE (n_eff=10 after round-28)
+            # → α=1+10·0.95=10.5.
             assert graph.get_edge_belief(
                 "combo_peptides", ens, EdgeType.AFFECTS,
-            ).alpha == pytest.approx(3.85)
+            ).alpha == pytest.approx(10.5)
 
     def test_idempotent_across_repeated_trials(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -1427,9 +1465,10 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "montanide_isa_51_vg", "ENSG00000162711", EdgeType.AFFECTS,
         )
-        # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
-        assert belief.alpha == pytest.approx(3.85)
-        assert belief.beta == pytest.approx(1.15)
+        # strong_support DATABASE_MAB_TABLE (n_eff=10 after round-28)
+        # → α=1+10·0.95=10.5, β=1+10·0.05=1.5.
+        assert belief.alpha == pytest.approx(10.5)
+        assert belief.beta == pytest.approx(1.5)
 
     def test_incomplete_freund_routes_to_nlrp3(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -2110,6 +2149,148 @@ class TestBuildTrialSubgraphFromExtraction:
         ]
         assert response_pops == []
 
+
+
+# ── Round-28: parent-population coarsening ──────────────────────────────
+
+
+class TestPopulationCoarsening:
+    """Round-28: parent PopulationNode ids drop rare-axis qualifiers.
+
+    Pre-round-28 the parent_population_id for NSABP C-08 (colorectal
+    adenocarcinoma, stage III, adjuvant) carried a `histology_adenocarcinoma`
+    qualifier that bev AVANT (colorectal_cancer, stage III, adjuvant) did
+    not — so two trials studying "adjuvant stage III CRC" emitted their
+    `responds_differently` evidence to disjoint nodes and the cross-trial
+    signal never aggregated. The round-28 coarsening keeps the load-bearing
+    axes (line, stage, extent, setting) and demotes the rare ones to
+    subgroup-only.
+    """
+
+    def test_default_axes_constant(self):
+        from src.graph.populate import _DEFAULT_POPULATION_AXES
+        # These four axes are the load-bearing ones for cross-trial
+        # differentiation. Demoting any of them would collapse trials
+        # at different lines / stages / settings into one parent and
+        # break per-trial discrimination.
+        assert {"line", "stage", "extent", "setting"} <= _DEFAULT_POPULATION_AXES
+
+    def test_rare_axes_dropped(self):
+        from src.graph.models import SubgroupFeature
+        from src.graph.populate import _coarse_population_features
+        feats = [
+            SubgroupFeature(axis="histology", level="adenocarcinoma"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+            SubgroupFeature(axis="age", level="elderly"),
+            SubgroupFeature(axis="prior_tx", level="chemotherapy_treated"),
+            SubgroupFeature(axis="gene", key="KRAS", level="mutant"),
+        ]
+        kept = _coarse_population_features(feats)
+        kept_axes = {f.axis for f in kept}
+        assert "line" in kept_axes
+        assert "stage" in kept_axes
+        assert "histology" not in kept_axes
+        assert "age" not in kept_axes
+        assert "prior_tx" not in kept_axes
+        assert "gene" not in kept_axes
+
+    def test_kept_features_compose_to_coarse_slug(self):
+        """The kept features drive a coarse parent slug — two trials
+        with the same kept features but different rare-axis features
+        land at the same parent_population_id."""
+        from src.graph.models import PopulationNode, SubgroupFeature
+        from src.graph.populate import _coarse_population_features
+
+        avant = [
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]
+        c08 = [
+            SubgroupFeature(axis="histology", level="adenocarcinoma"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]
+
+        avant_parent = PopulationNode.compose_id(
+            "colorectal_cancer", _coarse_population_features(avant),
+        )
+        c08_parent = PopulationNode.compose_id(
+            "colorectal_cancer", _coarse_population_features(c08),
+        )
+        assert avant_parent == c08_parent
+        assert "histology" not in avant_parent
+        assert "stage_iii" in avant_parent
+        assert "line_adjuvant" in avant_parent
+
+    def test_empty_features_still_unselected(self):
+        from src.graph.populate import _coarse_population_features
+        assert _coarse_population_features([]) == []
+
+
+# ── Round-28: MechanismNode.direction lookup table ──────────────────────
+
+
+class TestMechanismDirection:
+    """Round-28: MechanismNode carries a direction metadata field
+    (activating / inhibiting / modulating / None). The helper in
+    src/ingestion/lincs.py maps each MechanismCategory to a default
+    direction value used at node creation time."""
+
+    def test_inhibiting_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.KINASE_INHIBITION,
+            MechanismCategory.RECEPTOR_ANTAGONISM,
+            MechanismCategory.ANGIOGENESIS_INHIBITION,
+            MechanismCategory.ENZYME_INHIBITION,
+            MechanismCategory.PROTEIN_DEGRADATION,
+            MechanismCategory.ANTIMETABOLITE,
+            MechanismCategory.DNA_DAMAGE,
+            MechanismCategory.DNA_CROSSLINKING,
+            MechanismCategory.MICROTUBULE_BINDING,
+            MechanismCategory.CHECKPOINT_BLOCKADE,
+        ):
+            assert _category_to_direction(cat) == "inhibiting", cat
+
+    def test_activating_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.RECEPTOR_AGONISM,
+            MechanismCategory.IMMUNE_COSTIMULATION,
+            MechanismCategory.ANTIBODY_DEPENDENT_CYTOTOXICITY,
+            MechanismCategory.ANTIGEN_DIRECTED_CYTOTOXICITY,
+        ):
+            assert _category_to_direction(cat) == "activating", cat
+
+    def test_modulating_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.HORMONE_MODULATION,
+            MechanismCategory.GENE_EDITING,
+        ):
+            assert _category_to_direction(cat) == "modulating", cat
+
+    def test_other_is_none(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        assert _category_to_direction(MechanismCategory.OTHER) is None
+
+    def test_mechanism_node_default_direction_is_none(self):
+        from src.graph.models import MechanismNode, MechanismType
+        m = MechanismNode(id="x", name="X", mechanism_type=MechanismType.OTHER)
+        assert m.direction is None
+
+    def test_mechanism_node_accepts_direction(self):
+        from src.graph.models import MechanismNode, MechanismType
+        m = MechanismNode(
+            id="kinase_inhibition", name="kinase inhibition",
+            mechanism_type=MechanismType.INHIBITION, direction="inhibiting",
+        )
+        assert m.direction == "inhibiting"
 
 
 # ── Round-15 canonicalization: OT-derived aliases + chembl_id ────────────
