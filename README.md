@@ -47,18 +47,15 @@ A single failed trial produces *opposing* updates on different edges—strengthe
 
 Five well-known case studies anchor direction-prediction: nivolumab CheckMate-067 (success), solanezumab EXPEDITION (failure), bevacizumab AVANT (failure, adjuvant), torcetrapib ILLUMINATE (failure, off-target safety), selumetinib thyroid (success). They're scored two ways: **in-sample** (the trial's own evidence is attributed into the graph — an algorithmic-correctness gate; it *should* be called right) and **true holdout** (excluded from attribution, predicted only from other trials — the generalization test).
 
-| predictor | in-sample | true holdout |
-|---|---|---|
-| old (trust-weighted geomean, occurrence-safety) | 1/5 | 1/5 |
-| **round 30** (weakest-link + informed prior, failure-causing safety) | **5/5** | **3/5** |
-
-On 54 labeled trials, binary accuracy rose **0.50 → 0.685** (AUROC 0.56 → 0.65), lifting true successes without lifting failures. What drove it: a decisive weak link now vetoes the chain (bevacizumab's `responds_differently` for the adjuvant population), ignorance defers to an informed prior instead of sinking the chain, and tolerated toxicity no longer sinks an effective drug (nivolumab's irAEs).
+- **In-sample: 5/5** direction-correct — the algorithm reproduces the outcomes of trials whose own evidence is in the graph.
+- **True holdout: 3/5**, including both successes (nivolumab, selumetinib). Three mechanisms make this work: a decisive weak link can veto the chain (bevacizumab's `responds_differently` for the adjuvant population), an informed prior keeps ignorance from sinking the chain, and tolerated toxicity no longer sinks an effective drug (nivolumab's irAEs).
+- Across **54 labeled trials**: binary accuracy 0.69, AUROC 0.65 — lifting true successes without lifting failures.
 
 **The two holdout misses are data gaps, not predictor flaws:**
-- **torcetrapib** — its off-target cardiac safety isn't in CT.gov (no posted results). Fix: a PubMed ingester.
-- **bevacizumab** — `responds_differently` is population-only, so adjuvant-CRC chemo *successes* dilute the anti-VEGF-adjuvant *failure* signal on the shared edge. Adding 5 adjuvant-CRC trials moved it 0.69 → 0.53; the structural fix is mechanism-conditioned population sub-regions (a per-region belief field).
+- **torcetrapib** — its off-target cardiac safety isn't in CT.gov (no posted results); a PubMed ingester is the fix.
+- **bevacizumab** — `responds_differently` is population-only, so adjuvant-CRC chemo successes dilute the anti-VEGF-adjuvant failure on the shared edge; the structural fix is mechanism-conditioned population sub-regions.
 
-**Honest scope:** 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation; the predictor's knobs are pre-LOO-calibration. In-sample 5/5 is self-consistency (necessary, not sufficient); the holdout 3/5 is the real, small generalization signal.
+**Honest scope:** these 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation — in-sample is self-consistency, the holdout is the real (small) generalization test; the predictor's knobs are pre-calibration.
 
 ---
 
