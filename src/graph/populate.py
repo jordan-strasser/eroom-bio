@@ -104,6 +104,7 @@ def _root_indication(indication_id: str) -> str:
     return parent_indication_for(indication_id) or indication_id
 from src.ingestion.lincs import (
     LINCSClient,
+    _category_to_direction,
     _category_to_mechanism_type,
     populate_lincs_signatures,
 )
@@ -2229,6 +2230,9 @@ class PopulationPipeline:
                             id=mech_id,
                             name=mech_id.replace("_", " "),
                             mechanism_type=_category_to_mechanism_type(
+                                MechanismCategory(mech_id)
+                            ),
+                            direction=_category_to_direction(
                                 MechanismCategory(mech_id)
                             ),
                         ))

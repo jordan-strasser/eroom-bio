@@ -429,6 +429,23 @@ class MechanismNode(BaseModel):
     name: str = Field(min_length=1)
     mechanism_type: MechanismType
     selectivity: str | None = None
+    # Round-28 directionality metadata. Populated from a table keyed on
+    # MechanismCategory in src/graph/populate.py. Values:
+    #   "inhibiting"  — the mechanism reduces the target's activity / a
+    #                   downstream process (kinase inhibition, receptor
+    #                   antagonism, angiogenesis inhibition, ...).
+    #   "activating"  — the mechanism increases the target's activity /
+    #                   a downstream process (immune costimulation,
+    #                   antigen-directed cytotoxicity, ...).
+    #   "modulating"  — bidirectional or context-dependent (hormone
+    #                   modulation, gene editing).
+    #   None          — unknown / OTHER. Backward-compatible default.
+    # The prediction math is direction-blind: P(success) reflects "edge
+    # operates" not "edge benefits the patient." Surfacing direction as
+    # metadata lets audits and graphguard flag chains where the math is
+    # being read as benefit-direction even though the underlying
+    # mechanism is inhibitory.
+    direction: str | None = None
 
 
 class BiologyNode(BaseModel):

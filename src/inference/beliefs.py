@@ -104,7 +104,7 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.GENETIC_GWAS:        4.0,
     EvidenceType.PRECLINICAL_IN_VIVO: 2.0,
     EvidenceType.PRECLINICAL_IN_VITRO: 1.0,
-    # ── Round-25: per-source curated database n_eff values ──────────────
+    # ── Per-source curated database n_eff values ───────────────────────
     #
     # Picked from source character (curation depth, replication, primary
     # vs aggregate), NOT tuned against the 5-trial holdout audit. Doing
@@ -114,15 +114,26 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     #
     # Defensible reasoning per tier:
     #
-    # OT-direct, ChEMBL-direct, mAb-table → 3.0
+    # OT-direct → 12.0  (round-28 bump from 3.0)
+    # ChEMBL-direct, mAb-table → 10.0  (round-28 bump from 3.0)
     #   Multi-source curated assertions about a SPECIFIC compound-target
-    #   pair. OT aggregates ChEMBL + IUPHAR + DGIdb + drug labels — each
-    #   entry has been cross-checked. Comparable to a GWAS hit (n_eff=4)
-    #   but slightly weaker since GWAS is a primary statistical test and
-    #   these are curator's calls.
-    EvidenceType.DATABASE_OT_DIRECT:           3.0,
-    EvidenceType.DATABASE_CHEMBL:              3.0,
-    EvidenceType.DATABASE_MAB_TABLE:           3.0,
+    #   binding pair. These are molecular facts — "this antibody binds
+    #   this antigen", "this small molecule occupies this kinase's ATP
+    #   pocket" — not probabilistic claims about a clinical outcome.
+    #   The round-27 forensic audit found that a single OT-direct record
+    #   at n_eff=3 was being overwhelmed by ~3 Phase-3 trials at
+    #   n_eff=15 each, all classified AMBIGUOUS because trials assume
+    #   binding rather than demonstrate it. The AMBIGUOUS pseudocounts
+    #   dragged the AFFECTS posterior from molecular near-certainty
+    #   toward 0.5. Promoting curated binding records to a tier that
+    #   rivals one Phase-3 trial reflects what they actually represent
+    #   epistemically: cross-checked molecular biology, not noisy
+    #   clinical signal. OT-direct edges multi-source: ChEMBL + IUPHAR +
+    #   DGIdb + drug-label curation, so gets a small edge over ChEMBL
+    #   or hand-curated mAb tables alone.
+    EvidenceType.DATABASE_OT_DIRECT:          12.0,
+    EvidenceType.DATABASE_CHEMBL:             10.0,
+    EvidenceType.DATABASE_MAB_TABLE:          10.0,
     #
     # OT-association score, endpoint-class prior → 2.0
     #   Aggregate score COMBINING multiple evidence types via a heuristic

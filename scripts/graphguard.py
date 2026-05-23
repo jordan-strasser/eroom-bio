@@ -207,6 +207,29 @@ def _check_trial(
             f"population resolved to default `__unselected` — no subgroup features",
         ))
 
+    # ── Round-28: directionless-math interpretation flag ──────────────
+    # The chain math is direction-blind — P(success) reflects whether
+    # the edge operates, not whether operating it benefits the patient.
+    # For inhibitory mechanisms (the majority of oncology MoAs), a
+    # reader can mistakenly interpret "edge operates" as "the inhibitory
+    # cascade benefits the patient" — that's a separate claim. Emit a
+    # WARN with the direction so the audit reader doesn't conflate them.
+    if primary_chain.mechanism_id and primary_chain.mechanism_id != "UNKNOWN":
+        try:
+            mech_node = graph.get_node(primary_chain.mechanism_id)
+            direction = mech_node.get("direction")
+        except KeyError:
+            direction = None
+        if direction in ("inhibiting", "activating", "modulating"):
+            issues.append((
+                "WARN",
+                f"chain math is direction-blind; mechanism "
+                f"{primary_chain.mechanism_id!r} has direction="
+                f"{direction!r} per metadata. P(success) reflects edge "
+                f"operativity, NOT patient-benefit direction — interpret "
+                f"accordingly.",
+            ))
+
     # ── P0: too few traversable chain edges ───────────────────────────
     traversable = sum(
         1 for k in (

@@ -339,10 +339,22 @@ def analyze_one(
         ))
         return result_dict
 
+    # Round-28: surface mechanism.direction so the audit can show whether
+    # the chain math is treating an inhibitory mechanism as "edge operates"
+    # when a reader might interpret P(success) as "patient benefits."
+    mechanism_direction: str | None = None
+    if stored.mechanism_id and stored.mechanism_id != "UNKNOWN":
+        try:
+            m_node = graph.get_node(stored.mechanism_id)
+            mechanism_direction = m_node.get("direction")
+        except KeyError:
+            mechanism_direction = None
+
     result_dict["stored_chain"] = {
         "compound_id": stored.compound_id,
         "target_id": stored.target_id or "UNKNOWN",
         "mechanism_id": stored.mechanism_id or "UNKNOWN",
+        "mechanism_direction": mechanism_direction,
         "biology_id": stored.biology_id or "UNKNOWN",
         "indication_id": stored.indication_id or "UNKNOWN",
         "endpoint_id": stored.endpoint_id or "UNKNOWN",
@@ -428,10 +440,23 @@ def _render_one(d: dict) -> str:
     out.append("```\n")
     sc = d.get("stored_chain") or {}
     for k in ("compound_id", "target_id", "mechanism_id",
+              "mechanism_direction",
               "biology_id", "indication_id", "endpoint_id",
               "subgroup_population_id"):
         out.append(f"  {k:<22} {sc.get(k)}\n")
     out.append("```\n\n")
+    # Round-28: when mechanism direction is known, note that the chain
+    # math is direction-blind so a reader doesn't misread P(success).
+    md = sc.get("mechanism_direction")
+    if md in ("inhibiting", "activating", "modulating"):
+        out.append(
+            f"_Mechanism direction is `{md}` — the chain math reflects "
+            f"edge operativity (\"this mechanism is in play\"), not "
+            f"benefit direction. For inhibitory mechanisms, P(success) "
+            f"is interpreted as \"P(this inhibitory cascade is the right "
+            f"thing to do for this patient population)\", not \"P(target "
+            f"activity goes up)\"._\n\n"
+        )
 
     # Global flags
     if d.get("global_flags"):

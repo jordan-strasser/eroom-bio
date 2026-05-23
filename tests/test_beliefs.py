@@ -84,20 +84,32 @@ class TestNEffTable:
         )
 
     def test_database_curated_tiers_ordered_by_source_quality(self):
-        """Round-25: per-source database tiers ordered by curation
-        depth + primary-vs-aggregate character. OT-direct / ChEMBL /
-        mAb-table are top tier (multi-source curated specific
-        assertions); OT-association + endpoint-prior are aggregate /
-        heuristic-combined; pathway membership is single-curator;
-        fallback + cross-reference are derived / heuristic.
+        """Per-source database tiers ordered by curation depth +
+        primary-vs-aggregate character.
+
+        Round-28 bumped the OT-direct / ChEMBL / mAb-table tier well
+        above the round-25 value because the records assert MOLECULAR
+        BINDING (a fact), not a probabilistic clinical outcome. OT-direct
+        gets a small edge over ChEMBL / mAb-table because it aggregates
+        multiple primary sources (ChEMBL + IUPHAR + DGIdb + drug
+        labels), while ChEMBL alone or a hand-curated mAb table is a
+        single source.
+
+        Aggregate / heuristic tiers (OT-association, endpoint-prior)
+        sit below the binding tier; pathway annotation is
+        single-curator; LINCS is in-vitro perturbation; fallback +
+        cross-reference are derived / heuristic.
         """
         assert (
             EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_DIRECT]
-            == EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CHEMBL]
+            >= EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CHEMBL]
+        )
+        assert (
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CHEMBL]
             == EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_MAB_TABLE]
         )
         assert (
-            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_DIRECT]
+            EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CHEMBL]
             > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_OT_ASSOCIATION]
         )
         assert (
@@ -117,18 +129,22 @@ class TestNEffTable:
             > EVIDENCE_TYPE_N_EFF[EvidenceType.DATABASE_CROSS_REFERENCE]
         )
 
-    def test_database_top_tier_below_gwas_and_clinical(self):
-        """Round-25: even the strongest curated tier (OT-direct) should
-        not outweigh primary clinical or genetic evidence."""
+    def test_database_binding_tier_below_phase3(self):
+        """Round-28: curated binding records should sit below a single
+        Phase-3 trial but rival or exceed Phase-2 — molecular binding
+        is a cross-checked fact, not a noisy clinical signal."""
         for t in (
             EvidenceType.DATABASE_OT_DIRECT,
             EvidenceType.DATABASE_CHEMBL,
             EvidenceType.DATABASE_MAB_TABLE,
         ):
-            assert EVIDENCE_TYPE_N_EFF[EvidenceType.GENETIC_GWAS] > EVIDENCE_TYPE_N_EFF[t]
             assert (
-                EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2]
+                EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE3]
                 > EVIDENCE_TYPE_N_EFF[t]
+            )
+            assert (
+                EVIDENCE_TYPE_N_EFF[t]
+                > EVIDENCE_TYPE_N_EFF[EvidenceType.CLINICAL_PHASE2]
             )
 
 

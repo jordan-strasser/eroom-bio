@@ -65,19 +65,23 @@ class TestBeliefFromCuratedRecord:
             bucket=SupportBucket.STRONG_SUPPORT,
         )
         b = belief_from_curated_record(r)
-        # Starts at Beta(1,1), applies n_eff=3 * p_obs=0.95 → alpha=1+2.85, beta=1+0.15
-        assert b.alpha == pytest.approx(3.85)
-        assert b.beta == pytest.approx(1.15)
-        assert b.expected_probability == pytest.approx(3.85 / 5.0)
+        # OT_DIRECT default tier: n_eff=12 (round-28). Starts at
+        # Beta(1,1), applies p_obs=0.95 → α = 1 + 12·0.95 = 12.4,
+        # β = 1 + 12·0.05 = 1.6.
+        assert b.alpha == pytest.approx(12.4)
+        assert b.beta == pytest.approx(1.6)
+        assert b.expected_probability == pytest.approx(12.4 / 14.0)
 
     def test_moderate_support_lands_in_optimistic_range(self):
+        # OT_ASSOCIATION tier (n_eff=2) at MODERATE_SUPPORT (p_obs=0.80).
         r = make_curated_record(
             source_id="opentargets_assoc:X__Y",
             bucket=SupportBucket.MODERATE_SUPPORT,
+            source_type=EvidenceType.DATABASE_OT_ASSOCIATION,
         )
         b = belief_from_curated_record(r)
-        # n_eff=3 * p_obs=0.80 → alpha=1+2.4, beta=1+0.6
-        assert b.expected_probability == pytest.approx(3.4 / 5.0)
+        # α = 1 + 2·0.80 = 2.6, β = 1 + 2·0.20 = 1.4.
+        assert b.expected_probability == pytest.approx(2.6 / 4.0)
 
     def test_ambiguous_stays_centered(self):
         r = make_curated_record(
@@ -95,9 +99,9 @@ class TestBeliefFromCuratedRecord:
         half = belief_from_curated_record(make_curated_record(
             source_id="x", bucket=SupportBucket.STRONG_SUPPORT, quality_score=0.5,
         ))
-        # With half quality, evidence_strength is halved.
-        assert full.evidence_strength == pytest.approx(3.0)
-        assert half.evidence_strength == pytest.approx(1.5)
+        # OT_DIRECT n_eff=12; with half quality evidence_strength halves.
+        assert full.evidence_strength == pytest.approx(12.0)
+        assert half.evidence_strength == pytest.approx(6.0)
 
     def test_evidence_list_records_the_record(self):
         r = make_curated_record(

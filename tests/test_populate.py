@@ -1360,10 +1360,11 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "gp100_antigen", "ENSG00000185664", EdgeType.AFFECTS,
         )
-        # Round-25: vaccine-component pattern-match emits strong_support
-        # DATABASE_MAB_TABLE (n_eff=3) → Beta(3.85, 1.15).
-        assert belief.alpha == pytest.approx(3.85)
-        assert belief.beta == pytest.approx(1.15)
+        # Vaccine-component pattern-match emits strong_support
+        # DATABASE_MAB_TABLE (n_eff=10 after round-28) → α=1+10·0.95=10.5,
+        # β=1+10·0.05=1.5.
+        assert belief.alpha == pytest.approx(10.5)
+        assert belief.beta == pytest.approx(1.5)
         assert belief.evidence[0].source_type.value == "database_mab_table"
 
     def test_adds_all_three_targets_for_combo_peptide_vaccine(self, pipeline, graph):
@@ -1392,10 +1393,11 @@ class TestVaccineComponentTargets:
             ("ENSG00000120215", "MLANA"),
         ]:
             assert graph.get_node(ens)["gene_symbol"] == symbol
-            # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
+            # strong_support DATABASE_MAB_TABLE (n_eff=10 after round-28)
+            # → α=1+10·0.95=10.5.
             assert graph.get_edge_belief(
                 "combo_peptides", ens, EdgeType.AFFECTS,
-            ).alpha == pytest.approx(3.85)
+            ).alpha == pytest.approx(10.5)
 
     def test_idempotent_across_repeated_trials(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -1463,9 +1465,10 @@ class TestVaccineComponentTargets:
         belief = graph.get_edge_belief(
             "montanide_isa_51_vg", "ENSG00000162711", EdgeType.AFFECTS,
         )
-        # Round-25: strong_support DATABASE_CURATED → Beta(3.85, 1.15).
-        assert belief.alpha == pytest.approx(3.85)
-        assert belief.beta == pytest.approx(1.15)
+        # strong_support DATABASE_MAB_TABLE (n_eff=10 after round-28)
+        # → α=1+10·0.95=10.5, β=1+10·0.05=1.5.
+        assert belief.alpha == pytest.approx(10.5)
+        assert belief.beta == pytest.approx(1.5)
 
     def test_incomplete_freund_routes_to_nlrp3(self, pipeline, graph):
         graph.add_node(CompoundNode(
@@ -2146,6 +2149,71 @@ class TestBuildTrialSubgraphFromExtraction:
         ]
         assert response_pops == []
 
+
+
+# ── Round-28: MechanismNode.direction lookup table ──────────────────────
+
+
+class TestMechanismDirection:
+    """Round-28: MechanismNode carries a direction metadata field
+    (activating / inhibiting / modulating / None). The helper in
+    src/ingestion/lincs.py maps each MechanismCategory to a default
+    direction value used at node creation time."""
+
+    def test_inhibiting_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.KINASE_INHIBITION,
+            MechanismCategory.RECEPTOR_ANTAGONISM,
+            MechanismCategory.ANGIOGENESIS_INHIBITION,
+            MechanismCategory.ENZYME_INHIBITION,
+            MechanismCategory.PROTEIN_DEGRADATION,
+            MechanismCategory.ANTIMETABOLITE,
+            MechanismCategory.DNA_DAMAGE,
+            MechanismCategory.DNA_CROSSLINKING,
+            MechanismCategory.MICROTUBULE_BINDING,
+            MechanismCategory.CHECKPOINT_BLOCKADE,
+        ):
+            assert _category_to_direction(cat) == "inhibiting", cat
+
+    def test_activating_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.RECEPTOR_AGONISM,
+            MechanismCategory.IMMUNE_COSTIMULATION,
+            MechanismCategory.ANTIBODY_DEPENDENT_CYTOTOXICITY,
+            MechanismCategory.ANTIGEN_DIRECTED_CYTOTOXICITY,
+        ):
+            assert _category_to_direction(cat) == "activating", cat
+
+    def test_modulating_categories(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        for cat in (
+            MechanismCategory.HORMONE_MODULATION,
+            MechanismCategory.GENE_EDITING,
+        ):
+            assert _category_to_direction(cat) == "modulating", cat
+
+    def test_other_is_none(self):
+        from src.graph.models import MechanismCategory
+        from src.ingestion.lincs import _category_to_direction
+        assert _category_to_direction(MechanismCategory.OTHER) is None
+
+    def test_mechanism_node_default_direction_is_none(self):
+        from src.graph.models import MechanismNode, MechanismType
+        m = MechanismNode(id="x", name="X", mechanism_type=MechanismType.OTHER)
+        assert m.direction is None
+
+    def test_mechanism_node_accepts_direction(self):
+        from src.graph.models import MechanismNode, MechanismType
+        m = MechanismNode(
+            id="kinase_inhibition", name="kinase inhibition",
+            mechanism_type=MechanismType.INHIBITION, direction="inhibiting",
+        )
+        assert m.direction == "inhibiting"
 
 
 # ── Round-15 canonicalization: OT-derived aliases + chembl_id ────────────
