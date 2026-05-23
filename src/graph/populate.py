@@ -119,6 +119,42 @@ from src.ingestion.opentargets import (
 logger = logging.getLogger(__name__)
 console = Console()
 
+
+# ── Round-28: parent-population coarsening ─────────────────────────────
+#
+# Pre-round-28 the parent PopulationNode for a trial composed its id
+# from EVERY axis the qualifier extractor (regex) and LLM-eligibility
+# pass produced. That over-specified the parent so cross-trial sharing
+# broke even between trials studying the same disease at the same
+# treatment line — NSABP C-08 emitted `responds_differently` evidence
+# to `colon_adenocarcinoma__histology_adenocarcinoma__line_adjuvant_treated__stage_iii`
+# while bev AVANT walked `colorectal_cancer__line_adjuvant__stage_iii`.
+# Two different nodes, no shared signal.
+#
+# Coarsening keeps the axes that are LOAD-BEARING for cross-trial
+# differentiation (treatment line, stage, extent of disease, treatment
+# setting) and demotes rare / disease-specific axes (histology, age,
+# severity, gene biomarker, prior_tx, response, …) to subgroup-only.
+# Subgroup PopulationNodes (built from extraction.subgroups) still get
+# the full feature set so rare-axis subgroup analyses keep their own
+# chains via the round-16 add_subgroup_chains path.
+_DEFAULT_POPULATION_AXES: frozenset[str] = frozenset({
+    "line",     # line of therapy — first / second / later / adjuvant
+    "stage",    # cancer staging — i / ii / iii / iv
+    "extent",   # disease spread — metastatic / unresectable / advanced / …
+    "setting",  # treatment context — adjuvant / neoadjuvant / maintenance
+})
+
+
+def _coarse_population_features(
+    features: list[SubgroupFeature],
+) -> list[SubgroupFeature]:
+    """Return the subset of ``features`` whose axis is in the round-28
+    parent-population whitelist. Order is preserved; the caller
+    typically passes the same list into PopulationNode.compose_id
+    which sorts internally."""
+    return [f for f in features if f.axis in _DEFAULT_POPULATION_AXES]
+
 # Round-20.5: structured drop log for trials the populator silently
 # skipped during build_trial_subgraphs. Wiped at the start of each
 # populate_oncology call so each build's drop set is fresh. Read by
@@ -1085,11 +1121,21 @@ class PopulationPipeline:
                         combined_features.append(f)
                         _seen_slugs.add(f.slug())
 
+                # Round-28: coarsen the parent population's defining
+                # features to the load-bearing axes only. Rare-axis
+                # qualifiers (histology, age, severity, biomarker, …)
+                # are dropped from the parent slug so the parent groups
+                # trials studying the same disease at the same treatment
+                # line / stage. Rare-axis subgroups still get their own
+                # subgroup PopulationNodes downstream via the round-16
+                # add_subgroup_chains path.
+                parent_features = _coarse_population_features(combined_features)
+
                 # Compose the trial's default PopulationNode id from the
-                # canonical disease + combined features. With no
+                # canonical disease + coarsened features. With no
                 # features this falls back to ``{indication}__unselected``.
                 default_pop_id = PopulationNode.compose_id(
-                    canonical_id, combined_features,
+                    canonical_id, parent_features,
                 )
                 try:
                     self.graph.get_node(default_pop_id)
@@ -1097,10 +1143,10 @@ class PopulationPipeline:
                     self.graph.add_node(PopulationNode(
                         id=default_pop_id,
                         name=(
-                            cond if combined_features
+                            cond if parent_features
                             else f"All patients ({canonical_name})"
                         ),
-                        defining_features=list(combined_features),
+                        defining_features=list(parent_features),
                     ))
                 # responds_differently: default_population → indication.
                 # The trial's enrollment is itself a stratification of the

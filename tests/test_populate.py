@@ -2151,6 +2151,83 @@ class TestBuildTrialSubgraphFromExtraction:
 
 
 
+# ── Round-28: parent-population coarsening ──────────────────────────────
+
+
+class TestPopulationCoarsening:
+    """Round-28: parent PopulationNode ids drop rare-axis qualifiers.
+
+    Pre-round-28 the parent_population_id for NSABP C-08 (colorectal
+    adenocarcinoma, stage III, adjuvant) carried a `histology_adenocarcinoma`
+    qualifier that bev AVANT (colorectal_cancer, stage III, adjuvant) did
+    not — so two trials studying "adjuvant stage III CRC" emitted their
+    `responds_differently` evidence to disjoint nodes and the cross-trial
+    signal never aggregated. The round-28 coarsening keeps the load-bearing
+    axes (line, stage, extent, setting) and demotes the rare ones to
+    subgroup-only.
+    """
+
+    def test_default_axes_constant(self):
+        from src.graph.populate import _DEFAULT_POPULATION_AXES
+        # These four axes are the load-bearing ones for cross-trial
+        # differentiation. Demoting any of them would collapse trials
+        # at different lines / stages / settings into one parent and
+        # break per-trial discrimination.
+        assert {"line", "stage", "extent", "setting"} <= _DEFAULT_POPULATION_AXES
+
+    def test_rare_axes_dropped(self):
+        from src.graph.models import SubgroupFeature
+        from src.graph.populate import _coarse_population_features
+        feats = [
+            SubgroupFeature(axis="histology", level="adenocarcinoma"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+            SubgroupFeature(axis="age", level="elderly"),
+            SubgroupFeature(axis="prior_tx", level="chemotherapy_treated"),
+            SubgroupFeature(axis="gene", key="KRAS", level="mutant"),
+        ]
+        kept = _coarse_population_features(feats)
+        kept_axes = {f.axis for f in kept}
+        assert "line" in kept_axes
+        assert "stage" in kept_axes
+        assert "histology" not in kept_axes
+        assert "age" not in kept_axes
+        assert "prior_tx" not in kept_axes
+        assert "gene" not in kept_axes
+
+    def test_kept_features_compose_to_coarse_slug(self):
+        """The kept features drive a coarse parent slug — two trials
+        with the same kept features but different rare-axis features
+        land at the same parent_population_id."""
+        from src.graph.models import PopulationNode, SubgroupFeature
+        from src.graph.populate import _coarse_population_features
+
+        avant = [
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]
+        c08 = [
+            SubgroupFeature(axis="histology", level="adenocarcinoma"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]
+
+        avant_parent = PopulationNode.compose_id(
+            "colorectal_cancer", _coarse_population_features(avant),
+        )
+        c08_parent = PopulationNode.compose_id(
+            "colorectal_cancer", _coarse_population_features(c08),
+        )
+        assert avant_parent == c08_parent
+        assert "histology" not in avant_parent
+        assert "stage_iii" in avant_parent
+        assert "line_adjuvant" in avant_parent
+
+    def test_empty_features_still_unselected(self):
+        from src.graph.populate import _coarse_population_features
+        assert _coarse_population_features([]) == []
+
+
 # ── Round-28: MechanismNode.direction lookup table ──────────────────────
 
 
