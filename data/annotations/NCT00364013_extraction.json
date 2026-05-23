@@ -1,0 +1,181 @@
+{
+  "nct_id": "NCT00364013",
+  "therapeutic_hypothesis": {
+    "compound": "panitumumab + FOLFOX",
+    "claimed_target": "EGFR",
+    "proposed_mechanism": "EGFR antagonism blocking downstream proliferation signaling",
+    "intended_biology": "tumor growth inhibition in colorectal cancer",
+    "target_population": "metastatic colorectal cancer patients",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "PFS: 9.6 vs 8.0 months in KRAS wild-type (HR favoring combination, p=0.0234)",
+    "p_value": 0.0234,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "KRAS wild-type patients benefited from panitumumab addition (PFS 9.6 vs 8.0 months)",
+      "KRAS mutant patients showed no benefit or potential harm from panitumumab (PFS 7.3 vs 8.8 months)"
+    ],
+    "safety_signals": [
+      "Higher rates of serious adverse events in combination arm (262 vs 198)",
+      "More treatment discontinuations due to adverse events in combination arm (136 vs 84)",
+      "Increased serious treatment-related adverse events with panitumumab (162 vs 89)"
+    ],
+    "dose_info": {
+      "dose": "6 mg/kg panitumumab",
+      "schedule": "every 14 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.37,
+        "incidence_control_pct": 0.51,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.56,
+        "incidence_control_pct": 2.4,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.88,
+        "incidence_control_pct": 1.71,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.68,
+        "incidence_control_pct": 0.34,
+        "serious": true
+      },
+      {
+        "term": "leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.34,
+        "incidence_control_pct": 0.17,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic colorectal cancer",
+    "comparator": "FOLFOX alone",
+    "sample_size": 1183,
+    "duration": "maximum follow-up 109 weeks for PFS, 153 weeks for OS",
+    "duration_weeks": 109.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "folfox_panitumumab",
+      "compounds": [
+        "panitumumab",
+        "oxaliplatin",
+        "leucovorin",
+        "5-fluorouracil"
+      ]
+    },
+    {
+      "arm_id": "folfox",
+      "compounds": [
+        "oxaliplatin",
+        "leucovorin",
+        "5-fluorouracil"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Wild-type KRAS",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "KRAS",
+          "level": "wildtype"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Mutant KRAS",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "KRAS",
+          "level": "mutant"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "folfox_panitumumab",
+      "subgroup_descriptor": "Wild-type KRAS",
+      "endpoint": "PFS",
+      "effect_size": 9.6,
+      "p_value": 0.0234,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox",
+      "subgroup_descriptor": "Wild-type KRAS",
+      "endpoint": "PFS",
+      "effect_size": 8.0,
+      "p_value": 0.0234,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_panitumumab",
+      "subgroup_descriptor": "Mutant KRAS",
+      "endpoint": "PFS",
+      "effect_size": 7.3,
+      "p_value": 0.0227,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "folfox",
+      "subgroup_descriptor": "Mutant KRAS",
+      "endpoint": "PFS",
+      "effect_size": 8.8,
+      "p_value": 0.0227,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfox_panitumumab",
+      "subgroup_descriptor": "Wild-type KRAS",
+      "endpoint": "OS",
+      "effect_size": 23.9,
+      "p_value": 0.0723,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "folfox",
+      "subgroup_descriptor": "Wild-type KRAS",
+      "endpoint": "OS",
+      "effect_size": 19.7,
+      "p_value": 0.0723,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "panitumumab",
+      "primary_compound_id": "oxaliplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "EGFR blockade by panitumumab enhances cytotoxic efficacy of FOLFOX chemotherapy in KRAS wild-type tumors",
+      "citation": "Wild-type KRAS - FOLFOX + Panitumumab: 9.6 months PFS vs Wild-type KRAS - FOLFOX: 8.0 months PFS, p = 0.0234"
+    }
+  ]
+}

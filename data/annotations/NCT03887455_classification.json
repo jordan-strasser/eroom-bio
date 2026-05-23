@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT03887455",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data is available to assess whether lecanemab engaged amyloid beta or achieved target engagement. The extraction shows no target engagement evidence or biomarker changes. 2. PATHWAY MODULATION: Without biomarker data, there is no evidence that downstream biology changed as predicted. No pathway biomarkers or pharmacodynamic markers are reported. 3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in CDR-SB at 18 months) result is not reported - both effect size and p-value are listed as 'None'. However, the primary endpoint is listed as 'not met' (null), suggesting the trial failed to demonstrate efficacy. 4. POPULATION EFFECTS: No subgroup findings are reported, so there is no evidence of differential response in population subsets. 5. CONFOUNDERS: The trial appears to have adequate sample size (1906 participants) and duration (18 months core study), suggesting it was not underpowered or too short. No safety signals or dose-limiting toxicity are reported. The lack of any efficacy readout despite adequate trial design suggests insufficient information to determine the specific failure mechanism.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results reported (effect size and p-value both listed as 'None'), no biomarker data, no target engagement evidence, making it impossible to determine where in the causal chain the failure occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimers_disease",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "CDR-SB endpoint was measured but no result reported, making it impossible to assess whether the endpoint captures clinical benefit in Alzheimer's disease"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimers_disease__line_first",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial enrolled early Alzheimer's disease population but no efficacy results reported to assess population response"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial extraction shows no efficacy results despite adequate sample size and duration. This appears to be a data availability issue rather than a clear mechanistic failure, making classification difficult."
+}

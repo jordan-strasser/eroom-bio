@@ -1,0 +1,73 @@
+{
+  "nct_id": "NCT05116202",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for either RO7247669 (TLR9) or tiragolumab (TIGIT). Cannot determine if compounds reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes. 3. CLINICAL TRANSLATION: Mixed results across arms - some arms showed success (nivo+ipi 77.3% pRR, RO7247669 mono 80% pRR) while others showed partial (RO7247669+tiragolumab 60% pRR in neoadjuvant, atezolizumab+tiragolumab 45% pRR) or failure (RO7247669+tiragolumab 0% ORR in advanced cohort). The combination appears less effective than monotherapy. 4. POPULATION EFFECTS: Different cohorts (neoadjuvant vs advanced) showed different responses, with advanced cohort failing completely. 5. CONFOUNDERS: Multiple arms with different endpoints (pRR vs ORR) make direct comparison difficult. Safety signals include serious cardiac events (myocarditis, myocardial ischemia) and immune-related AEs.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "RO7247669 monotherapy showed 80% pRR success in neoadjuvant setting, but combination with tiragolumab showed reduced efficacy (60% pRR partial, 0% ORR failure in advanced). Different populations responded differently."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "other__melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_1_ro7247669_2100_mg",
+      "reasoning": "RO7247669 monotherapy achieved 80% pRR success in neoadjuvant melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "other__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "RO7247669+tiragolumab combination failed completely with 0% ORR in advanced melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "checkpoint_blockade__melanoma",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "Tiragolumab in combination failed to drive clinical benefit in advanced melanoma cohort"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "other__melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_1_ro7247669_2100_mg",
+      "reasoning": "RO7247669 monotherapy success suggests the mechanism translates to biological activity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "other__melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "Complete failure in advanced cohort suggests mechanism didn't translate effectively in this setting"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Both pRR and ORR endpoints provided clear differentiation between successful and failed arms"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Clear differential response between neoadjuvant (some success) and advanced (failure) populations"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to assess mechanism. Mixed results across multiple arms with different endpoints make mechanistic interpretation challenging. Serious cardiac safety signals may limit clinical development."
+}

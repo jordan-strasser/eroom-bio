@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT02477800",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether aducanumab engaged amyloid beta plaques. The trial provides no PD/PK data or target engagement biomarkers. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether downstream biology changed. 3. CLINICAL TRANSLATION: Primary endpoint (CDR-SB) clearly missed in both arms - low dose p=0.225, high dose p=0.833. All secondary endpoints (MMSE, ADAS-Cog 13, ADCS-ADL-MCI) also failed in both arms. Effect sizes were small and non-significant. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Study was adequately powered (N=1653) and duration (78 weeks) was appropriate for Alzheimer's disease progression. Study was discontinued for futility, not safety. This appears to be a straightforward efficacy failure without clear evidence of where in the causal chain the breakdown occurred.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to determine target engagement or pathway modulation. Cannot determine if failure was due to lack of target engagement, inadequate pathway modulation, or failure of biology to translate to clinical benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "low_dose",
+      "reasoning": "Low dose arm failed on primary endpoint CDR-SB (p=0.225) and all secondary endpoints, suggesting the biology did not drive clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "high_dose",
+      "reasoning": "High dose arm failed on primary endpoint CDR-SB (p=0.833) and all secondary endpoints, suggesting the biology did not drive clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-8862803",
+      "support": "weak_contradict",
+      "affecting_arm_id": "low_dose",
+      "reasoning": "Low dose arm failure suggests the mechanism did not effectively modulate the downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-8862803",
+      "support": "weak_contradict",
+      "affecting_arm_id": "high_dose",
+      "reasoning": "High dose arm failure suggests the mechanism did not effectively modulate the downstream biology"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_alzheimers_disease",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "CDR-SB is a well-established and regulatory-accepted endpoint for Alzheimer's disease clinical trials, capturing cognitive and functional decline"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimers_disease__unselected",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with adequate power (N=1653) and no responding subgroup identified, suggesting this population does not respond to this intervention"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

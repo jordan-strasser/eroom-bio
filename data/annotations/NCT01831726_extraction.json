@@ -1,23 +1,28 @@
 {
   "nct_id": "NCT01831726",
   "therapeutic_hypothesis": {
-    "compound": "Dovitinib (TKI258)",
-    "claimed_target": "Multiple receptor tyrosine kinases",
-    "proposed_mechanism": "Multi-targeted tyrosine kinase inhibition",
-    "intended_biology": "Inhibition of tumor pathway activations",
-    "target_population": "Patients with tumor pathway activations inhibited by dovitinib",
-    "primary_endpoint": "Clinical Benefit Rate (CBR) at 16 weeks",
+    "compound": "dovitinib",
+    "claimed_target": "FGFR/VEGFR/PDGFR",
+    "proposed_mechanism": "multi-kinase inhibition",
+    "intended_biology": "angiogenesis and growth factor signaling inhibition",
+    "target_population": "patients with tumor pathway activations inhibited by dovitinib",
+    "primary_endpoint": "clinical benefit rate at 16 weeks",
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": null,
-    "effect_size": "CBR: 11/80 (13.8%)",
+    "primary_endpoint_met": false,
+    "effect_size": "CBR 13.8% (11/80)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
-    "subgroup_findings": [],
+    "subgroup_findings": [
+      "1 partial response out of 80 patients",
+      "10 patients achieved stable disease"
+    ],
     "safety_signals": [
-      "Serious adverse events included hematologic toxicities (anemia, neutropenia, thrombocytopenia), gastrointestinal events (diarrhea, nausea, abdominal pain), and one cardiac arrest"
+      "serious hematologic toxicities including febrile neutropenia",
+      "gastrointestinal adverse events including hemorrhage",
+      "cardiac arrest reported"
     ],
     "dose_info": {
       "dose": "500 mg",
@@ -27,70 +32,70 @@
     },
     "adverse_events": [
       {
-        "term": "Anaemia",
+        "term": "anaemia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Febrile neutropenia",
+        "term": "febrile neutropenia",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Neutropenia",
+        "term": "neutropenia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Thrombocytopenia",
+        "term": "thrombocytopenia",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Cardiac arrest",
+        "term": "cardiac arrest",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Abdominal pain",
+        "term": "abdominal pain",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Diarrhoea",
+        "term": "diarrhoea",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Dysphagia",
+        "term": "dysphagia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Gastrointestinal haemorrhage",
+        "term": "gastrointestinal haemorrhage",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "Nausea",
+        "term": "nausea",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
@@ -99,10 +104,10 @@
     ]
   },
   "context": {
-    "indication": "Tumor pathway activations inhibited by dovitinib",
-    "comparator": "",
+    "indication": "tumor pathway activations inhibited by dovitinib",
+    "comparator": "historical control",
     "sample_size": 80,
-    "duration": "36 months",
+    "duration": "36 months follow-up",
     "duration_weeks": 156.42,
     "investigator_commentary": null
   },
@@ -110,11 +115,42 @@
     {
       "arm_id": "tki258",
       "compounds": [
-        "Dovitinib (TKI258)"
+        "dovitinib"
       ]
     }
   ],
-  "subgroups": [],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete response (CR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial response (PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable disease (SD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    }
+  ],
   "results_by_chain": [
     {
       "arm_id": "tki258",
@@ -122,7 +158,7 @@
       "endpoint": "CBR",
       "effect_size": 13.8,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "failure"
     },
     {
       "arm_id": "tki258",
@@ -130,7 +166,7 @@
       "endpoint": "ORR",
       "effect_size": 1.25,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "failure"
     },
     {
       "arm_id": "tki258",
@@ -138,7 +174,7 @@
       "endpoint": "PFS",
       "effect_size": 2.4,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "failure"
     },
     {
       "arm_id": "tki258",
@@ -147,6 +183,31 @@
       "effect_size": 13.5,
       "p_value": null,
       "outcome": "unknown"
+    },
+    {
+      "arm_id": "tki258",
+      "subgroup_descriptor": "Complete response (CR)",
+      "endpoint": "CBR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "tki258",
+      "subgroup_descriptor": "Partial response (PR)",
+      "endpoint": "CBR",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "tki258",
+      "subgroup_descriptor": "Stable disease (SD)",
+      "endpoint": "CBR",
+      "effect_size": 10.0,
+      "p_value": null,
+      "outcome": "partial"
     }
-  ]
+  ],
+  "modulation_entries": []
 }

@@ -1,0 +1,148 @@
+{
+  "nct_id": "NCT01687998",
+  "therapeutic_hypothesis": {
+    "compound": "evacetrapib",
+    "claimed_target": "CETP",
+    "proposed_mechanism": "cholesteryl ester transfer protein inhibition",
+    "intended_biology": "HDL cholesterol elevation and LDL cholesterol reduction",
+    "target_population": "high-risk vascular disease patients",
+    "primary_endpoint": "composite cardiovascular events (CV death, MI, stroke, coronary revascularization, hospitalization for unstable angina)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 1.006 (95% CI: 0.911-1.111)",
+    "p_value": 0.9054,
+    "target_engagement_evidence": "LDL-C reduced by 31.12%, HDL-C increased by 133.18%",
+    "biomarker_changes": [
+      "LDL-C decreased 31.12% vs 5.99% increase with placebo",
+      "HDL-C increased 133.18% vs 1.63% with placebo"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Hematologic adverse events including anemia, aplastic anemia, febrile neutropenia"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 0.63,
+        "serious": true
+      },
+      {
+        "term": "Aplastic anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.02,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.05,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Haemorrhagic anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.02,
+        "incidence_control_pct": 0.08,
+        "serious": true
+      },
+      {
+        "term": "Iron deficiency anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.03,
+        "incidence_control_pct": 0.08,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "high-risk vascular disease",
+    "comparator": "placebo",
+    "sample_size": 12092,
+    "duration": "up to 4 years",
+    "duration_weeks": 208.0,
+    "investigator_commentary": "Study termination due to insufficient efficacy."
+  },
+  "arms": [
+    {
+      "arm_id": "evacetrapib",
+      "compounds": [
+        "evacetrapib"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "LDL-C",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ldl_c"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "HDL-C",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hdl_c"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "evacetrapib",
+      "subgroup_descriptor": null,
+      "endpoint": "composite primary endpoint",
+      "effect_size": 1.006,
+      "p_value": 0.9054,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "composite primary endpoint",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "evacetrapib",
+      "subgroup_descriptor": "LDL-C",
+      "endpoint": "LDL-C percent change",
+      "effect_size": -31.12,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "evacetrapib",
+      "subgroup_descriptor": "HDL-C",
+      "endpoint": "HDL-C percent change",
+      "effect_size": 133.18,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

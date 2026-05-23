@@ -1,0 +1,150 @@
+{
+  "nct_id": "NCT02956486",
+  "therapeutic_hypothesis": {
+    "compound": "elenbecestat",
+    "claimed_target": "BACE1",
+    "proposed_mechanism": "beta-secretase inhibition",
+    "intended_biology": "amyloid beta production reduction",
+    "target_population": "early Alzheimer's disease patients",
+    "primary_endpoint": "change in CDR-SB score",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "LS Mean Difference = -0.17 (95% CI: -0.57\u20130.22)",
+    "p_value": 0.385,
+    "target_engagement_evidence": "Amyloid PET SUVR reduction: LS Mean Difference = -12.83 (95% CI: -18.79\u2013-6.88), p < 0.001",
+    "biomarker_changes": [
+      "Significant reduction in amyloid PET SUVR (-12.83 centiloids vs placebo, p<0.001)"
+    ],
+    "subgroup_findings": [
+      "In participants with baseline amyloid PET SUVR 1.2-1.6: CDR-SB LS Mean Difference = -0.23 (95% CI: -0.67\u20130.22), p = 0.316",
+      "In participants with baseline amyloid PET SUVR 1.2-1.6: ADCOMS LS Mean Difference = -0.03 (95% CI: -0.07\u20130.02), p = 0.254"
+    ],
+    "safety_signals": [
+      "Higher incidence of serious infections including pneumonia, influenza, cellulitis, diverticulitis",
+      "Unfavorable risk-benefit ratio led to trial termination"
+    ],
+    "dose_info": {
+      "dose": "50 mg",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 0.45,
+        "incidence_control_pct": 0.27,
+        "serious": true
+      },
+      {
+        "term": "influenza",
+        "grade": "",
+        "incidence_treatment_pct": 0.45,
+        "incidence_control_pct": 0.18,
+        "serious": true
+      },
+      {
+        "term": "urinary tract infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.27,
+        "incidence_control_pct": 0.18,
+        "serious": true
+      },
+      {
+        "term": "bronchitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.18,
+        "incidence_control_pct": 0.09,
+        "serious": true
+      },
+      {
+        "term": "cellulitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.18,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "diverticulitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.18,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "subcutaneous abscess",
+        "grade": "",
+        "incidence_treatment_pct": 0.18,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "early Alzheimer's disease",
+    "comparator": "placebo",
+    "sample_size": 2212,
+    "duration": "24 months",
+    "duration_weeks": 104.28,
+    "investigator_commentary": "Due to an unfavorable risk-benefit ratio including no evidence of potential efficacy, and the adverse event profile of E2609 being worse than placebo."
+  },
+  "arms": [
+    {
+      "arm_id": "core_study_elenbecestat_50_mg",
+      "compounds": [
+        "elenbecestat"
+      ]
+    },
+    {
+      "arm_id": "core_study_placebo",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "open_label_extension_phase_elenbecestat_50_mg",
+      "compounds": [
+        "elenbecestat"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "core_study_elenbecestat_50_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "CDR-SB",
+      "effect_size": -0.17,
+      "p_value": 0.385,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "core_study_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "CDR-SB",
+      "effect_size": 2.17,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "core_study_elenbecestat_50_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "ADCOMS",
+      "effect_size": -0.02,
+      "p_value": 0.345,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "core_study_elenbecestat_50_mg",
+      "subgroup_descriptor": null,
+      "endpoint": "Amyloid PET SUVR",
+      "effect_size": -12.83,
+      "p_value": 0.001,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

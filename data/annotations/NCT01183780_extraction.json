@@ -1,0 +1,142 @@
+{
+  "nct_id": "NCT01183780",
+  "therapeutic_hypothesis": {
+    "compound": "ramucirumab + FOLFIRI",
+    "claimed_target": "VEGFR2",
+    "proposed_mechanism": "VEGFR2 antagonism blocking angiogenesis",
+    "intended_biology": "tumor angiogenesis inhibition",
+    "target_population": "second-line metastatic colorectal cancer",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.844 (95% CI: 0.730-0.976)",
+    "p_value": 0.0219,
+    "target_engagement_evidence": "ramucirumab plasma concentrations achieved therapeutic levels with Cmin 46.3-77.9 ug/mL and Cmax 221-307 ug/mL",
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "increased febrile neutropenia in ramucirumab arm",
+      "thrombotic microangiopathy reported with ramucirumab",
+      "cardiac events including myocardial infarction and angina with ramucirumab"
+    ],
+    "dose_info": {
+      "dose": "8 mg/kg",
+      "schedule": "every 2 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": 1.5,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": 0.2,
+        "serious": true
+      },
+      {
+        "term": "thrombotic microangiopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "angina pectoris",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "second-line metastatic colorectal cancer",
+    "comparator": "FOLFIRI + placebo",
+    "sample_size": 1072,
+    "duration": "up to 39.36 months",
+    "duration_weeks": 171.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "folfiri_ramucirumab",
+      "compounds": [
+        "ramucirumab",
+        "irinotecan",
+        "folinic_acid",
+        "5-fluorouracil"
+      ]
+    },
+    {
+      "arm_id": "folfiri_placebo",
+      "compounds": [
+        "irinotecan",
+        "folinic_acid",
+        "5-fluorouracil",
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "folfiri_ramucirumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 13.3,
+      "p_value": 0.0219,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfiri_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 11.7,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfiri_ramucirumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.7,
+      "p_value": 0.0005,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "folfiri_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.5,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ramucirumab",
+      "primary_compound_id": "irinotecan",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "VEGFR2 blockade by ramucirumab enhances chemotherapy efficacy by reducing tumor angiogenesis and improving drug delivery",
+      "citation": "Ramucirumab + FOLFIRI demonstrated superior overall survival (HR 0.844, p=0.0219) and progression-free survival (HR 0.793, p=0.0005) compared to FOLFIRI + placebo"
+    }
+  ]
+}

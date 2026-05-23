@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT03114657",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - plasma amyloid beta 40 increased 112-fold and amyloid beta 42 increased 89-fold from baseline, indicating crenezumab successfully bound to and engaged amyloid beta. 2. PATHWAY MODULATION: Mixed evidence - while target engagement was clear, downstream biology showed only modest effects with brain volume decline reduced by 0.56% vs placebo and hippocampal volume decline reduced by 0.36% vs placebo. This suggests the mechanism partially engaged but with limited biological impact. 3. CLINICAL TRANSLATION: The primary endpoint (CDR-SB scale) was missed. The treatment arm showed a 1.89 point change vs 3.19 points in placebo, indicating some clinical benefit but insufficient to meet the primary endpoint threshold. 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess differential population responses. 5. CONFOUNDERS: The trial was adequately powered with 806 participants over 77 weeks. Safety profile was acceptable with similar AE rates between arms. The failure appears to be mechanistic rather than due to trial design issues.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Clear target engagement with 112-fold increase in plasma amyloid beta 40 and modest downstream biological effects (reduced brain volume decline), but primary clinical endpoint CDR-SB was missed despite some numerical improvement vs placebo"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "crenezumab",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "crenezumab",
+      "reasoning": "Clear target engagement demonstrated by 112-fold increase in plasma amyloid beta 40 and 89-fold increase in amyloid beta 42, confirming crenezumab bound to and engaged amyloid beta"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "antigen_directed_cytotoxicity",
+      "support": "ambiguous",
+      "affecting_arm_id": "crenezumab",
+      "reasoning": "Target was engaged but overall trial failed - cannot confirm the target acts via this specific mechanism based on trial outcome alone"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "R-HSA-8862803",
+      "support": "weak_contradict",
+      "affecting_arm_id": "crenezumab",
+      "reasoning": "Despite target engagement, downstream biological effects were modest (only 0.56% reduction in brain volume decline) and clinical endpoint was missed, suggesting mechanism did not effectively modulate the intended biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "crenezumab",
+      "reasoning": "Modest biological changes did not translate to meaningful clinical benefit on CDR-SB scale, suggesting this biology may not be the primary driver of disease progression in this population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_alzheimers_disease",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "CDR-SB scale showed directional improvement (1.89 vs 3.19 points) and is a well-established endpoint for Alzheimer's disease progression, demonstrating it can capture clinical benefit when present"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimers_disease__unselected",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint was missed in the overall prodromal to mild Alzheimer's population despite adequate power and duration, suggesting this population may not respond well to amyloid beta targeting"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

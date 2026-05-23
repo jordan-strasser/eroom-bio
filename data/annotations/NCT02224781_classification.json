@@ -1,0 +1,161 @@
+{
+  "nct_id": "NCT02224781",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data reported for target engagement, but clinical responses in both arms suggest targets were engaged. The immunotherapy arm achieved 68.3% 2-year OS vs 54.1% for BRAF inhibitor arm, both significantly different from historical controls, implying target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but differential clinical outcomes between mechanistically distinct arms (checkpoint blockade vs kinase inhibition) suggest downstream biology was modulated differently. 3. CLINICAL TRANSLATION: Mixed results - immunotherapy arm succeeded (68.3% 2-year OS, p=0.002) while BRAF inhibitor arm failed (54.1% 2-year OS, p=0.002 vs immunotherapy). This represents a head-to-head comparison where one mechanism translated to superior clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues - adequate duration (104 weeks), appropriate population (BRAF V600 mutant melanoma), no obvious manufacturing issues.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "BRAF inhibitor arm achieved 54.1% 2-year OS which is above historical controls for this population, suggesting the biology was engaged, but this was significantly inferior to the immunotherapy arm's 68.3% OS, indicating the BRAF/MEK pathway modulation did not translate to optimal clinical benefit in this head-to-head comparison"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm achieved 68.3% 2-year OS with p=0.002, indicating strong clinical response that implies target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm achieved 68.3% 2-year OS with p=0.002, indicating strong clinical response that implies target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib_mesylate",
+      "target_entity": "ENSG00000157764",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm achieved 54.1% 2-year OS, which is above historical controls, indicating target engagement occurred"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib_dimethyl_sulfoxide",
+      "target_entity": "ENSG00000126934",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm achieved 54.1% 2-year OS, which is above historical controls, indicating target engagement occurred"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Per round-28 rule, successful trial does not constitute affirmative evidence for mechanistic pathway - this is encoded in curated priors"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Per round-28 rule, successful trial does not constitute affirmative evidence for mechanistic pathway - this is encoded in curated priors"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "Per round-28 rule, failed trial does not constitute affirmative evidence for mechanistic pathway - this is encoded in curated priors"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "Per round-28 rule, failed trial does not constitute affirmative evidence for mechanistic pathway - this is encoded in curated priors"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm succeeded with 68.3% 2-year OS, indicating the checkpoint blockade mechanism effectively modulated downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm succeeded with 68.3% 2-year OS, indicating the checkpoint blockade mechanism effectively modulated downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm achieved some clinical benefit (54.1% OS above historical controls) but was significantly inferior to immunotherapy, suggesting kinase inhibition mechanism had limited downstream biological impact"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm achieved some clinical benefit (54.1% OS above historical controls) but was significantly inferior to immunotherapy, suggesting kinase inhibition mechanism had limited downstream biological impact"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm achieved 68.3% 2-year OS with p=0.002, demonstrating that CTLA-4 co-inhibition biology drives clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_a_immunotherapy",
+      "reasoning": "Immunotherapy arm achieved 68.3% 2-year OS with p=0.002, demonstrating that PD-1 co-inhibition biology drives clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm failed in head-to-head comparison (54.1% vs 68.3% OS, p=0.002), indicating protein phosphorylation biology had limited ability to drive optimal clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_braf_inhibitor_therapy",
+      "reasoning": "BRAF inhibitor arm failed in head-to-head comparison (54.1% vs 68.3% OS, p=0.002), indicating MAP2K/MAPK activation biology had limited ability to drive optimal clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_melanoma",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "2-year overall survival clearly differentiated between treatment arms (68.3% vs 54.1%, p=0.002) and is a well-established endpoint that captures clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cutaneous_melanoma__extent_unresectable__line_first__stage_iii",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Trial demonstrated clear differential response in this population with immunotherapy achieving 68.3% 2-year OS vs 54.1% for BRAF inhibitor therapy (p=0.002)"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

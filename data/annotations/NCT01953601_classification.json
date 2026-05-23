@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT01953601",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - verubecestat significantly reduced cortical amyloid SUVR (-0.05 to -0.06 vs +0.02 placebo, p<0.0001), confirming BACE1 inhibition and reduced amyloid production. 2. PATHWAY MODULATION: Mixed pathway signals - amyloid reduction was achieved as intended, but CSF total tau increased 33-43% vs 10% placebo, suggesting potential downstream pathway disruption or compensatory mechanisms. Hippocampal volume loss was similar across arms, indicating no neuroprotective benefit. 3. CLINICAL TRANSLATION: Primary endpoint (CDR-SB) failed - both 12mg (p=0.6734) and 40mg (p=0.0141 but worsening vs placebo) arms showed no clinical benefit despite target engagement. The 40mg arm actually showed significantly worse cognitive decline than placebo. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues - adequate sample size (1454), appropriate duration (130 weeks), placebo-controlled design. The failure appears mechanistic rather than methodological.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Target was engaged (amyloid SUVR reduced significantly) and intended biology moved (amyloid production decreased), but clinical endpoint (CDR-SB) failed to improve and actually worsened in the 40mg arm vs placebo"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "amyloid_beta_production_reduction",
+      "target_entity": "prodromal_alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Despite achieving the intended biology (amyloid reduction confirmed by SUVR), clinical outcomes worsened, strongly contradicting the hypothesis that amyloid reduction drives clinical benefit in prodromal AD"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "beta_secretase_inhibition",
+      "target_entity": "amyloid_beta_production_reduction",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "While amyloid SUVR decreased, the increase in CSF tau and lack of clinical benefit suggests the mechanism may have unintended downstream effects that offset the intended amyloid reduction"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

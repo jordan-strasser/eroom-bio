@@ -1,0 +1,200 @@
+{
+  "nct_id": "NCT02538666",
+  "therapeutic_hypothesis": {
+    "compound": "nivolumab + ipilimumab",
+    "claimed_target": "PD-1 and CTLA-4",
+    "proposed_mechanism": "dual checkpoint inhibition",
+    "intended_biology": "T-cell activation and anti-tumor immunity",
+    "target_population": "extensive-stage small cell lung cancer patients after platinum-based chemotherapy",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.92 (95% CI: 0.75-1.12)",
+    "p_value": 0.3693,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "TMB \u226513 mutations/mb showed improved OS with combination therapy",
+      "TMB high subgroups showed better PFS responses"
+    ],
+    "safety_signals": [
+      "Immune-related adverse events including thrombocytopenia",
+      "Hematologic toxicities including anemia and neutropenia"
+    ],
+    "dose_info": {
+      "dose": "nivolumab 1 mg/kg + ipilimumab 3 mg/kg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.5,
+        "incidence_control_pct": 2.6,
+        "serious": true
+      },
+      {
+        "term": "Immune thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "extensive-stage small cell lung cancer",
+    "comparator": "placebo",
+    "sample_size": 907,
+    "duration": "up to approximately 73 months",
+    "duration_weeks": 317.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "nivolumab_monotherapy",
+      "compounds": [
+        "nivolumab"
+      ]
+    },
+    {
+      "arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "compounds": [
+        "nivolumab",
+        "ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": []
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "\u226510 mutations/mb",
+      "features": [
+        {
+          "axis": "signature",
+          "key": "",
+          "level": "tmb_high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "< 10 mutations/mb",
+      "features": [
+        {
+          "axis": "signature",
+          "key": "",
+          "level": "tmb_low"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "\u226513 mutations/mb",
+      "features": [
+        {
+          "axis": "signature",
+          "key": "",
+          "level": "tmb_high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "<13 mutations/mb",
+      "features": [
+        {
+          "axis": "signature",
+          "key": "",
+          "level": "tmb_low"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.92,
+      "p_value": 0.3693,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "nivolumab_monotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.81,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_monotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.74,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.66,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_monotherapy",
+      "subgroup_descriptor": "\u226513 mutations/mb",
+      "endpoint": "OS",
+      "effect_size": 0.62,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "nivolumab_and_ipilimumab_combination_therapy",
+      "subgroup_descriptor": "\u226513 mutations/mb",
+      "endpoint": "OS",
+      "effect_size": 0.64,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ipilimumab",
+      "primary_compound_id": "nivolumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "CTLA-4 blockade should enhance PD-1 blockade by removing additional T-cell inhibitory signals",
+      "citation": "Hazard Ratio (HR) = 0.92 (95% CI: 0.75\u20131.12), p = 0.3693"
+    }
+  ]
+}

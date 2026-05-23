@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT01182285",
+  "trial_outcome": "failure",
+  "reasoning": "Working through the causal chain: 1) TARGET ENGAGEMENT: There is evidence of target engagement - NIS expression increased from 21% to 25% (median) and NIS mRNA expression increased, indicating the drug reached and modulated its intended target (histone deacetylase leading to NIS re-expression). 2) PATHWAY MODULATION: The downstream biology partially moved as predicted - NIS expression was restored, which was the intended biological effect of HDAC inhibition. 3) CLINICAL TRANSLATION: Despite biological activity, the clinical endpoint failed - 10/13 patients showed no radioactive iodine uptake post-treatment, and 6/8 patients in Phase 2 had progressive disease with only 1/8 achieving stable disease. 4) POPULATION EFFECTS: No clear subgroup responders identified. 5) CONFOUNDERS: The trial appears adequately designed with appropriate duration (16 weeks) and dosing. This represents a classic 'biology moved but endpoint flat' pattern where target engagement and some downstream biology occurred but didn't translate to the intended clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "NIS expression increased from 21% to 25% and NIS mRNA expression increased, confirming target engagement and partial biological activity, but 10/13 patients showed no radioactive iodine uptake and 6/8 Phase 2 patients had progressive disease"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "valproic_acid",
+      "target_entity": "ENSG00000112294",
+      "support": "strong_support",
+      "affecting_arm_id": "b2_phase_2_schedule_2",
+      "reasoning": "NIS expression increased from 21% to 25% and NIS mRNA expression increased, providing direct evidence of target engagement through the intended HDAC inhibition pathway"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112294",
+      "target_entity": "enzyme_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "b2_phase_2_schedule_2",
+      "reasoning": "Per round-28 rule, failed trials do not provide affirmative evidence for target-mechanism relationships even when target engagement is confirmed"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-916853",
+      "support": "weak_contradict",
+      "affecting_arm_id": "b2_phase_2_schedule_2",
+      "reasoning": "Target was engaged and some downstream biology moved (NIS expression), but the full mechanistic cascade failed to produce clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-916853",
+      "target_entity": "thyroid_neoplasm",
+      "support": "weak_contradict",
+      "affecting_arm_id": "b2_phase_2_schedule_2",
+      "reasoning": "Despite biological activity (NIS re-expression), clinical benefit was not achieved - 6/8 patients had progressive disease and radioactive iodine uptake was not restored in 10/13 patients"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_thyroid_neoplasm",
+      "target_entity": "thyroid_neoplasm",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The biomarker endpoint (radioactive iodine uptake and thyroglobulin levels) is an appropriate surrogate for thyroid cancer benefit and was clearly measured, though it failed to show improvement"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "thyroid_neoplasm__extent_metastatic__line_second",
+      "target_entity": "thyroid_neoplasm",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint clearly missed with 6/8 patients showing progressive disease and adequate trial duration, indicating this population did not respond to the intervention"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,67 @@
+{
+  "nct_id": "NCT00364013",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker data for EGFR engagement, but the differential response by KRAS status strongly suggests panitumumab engaged EGFR as intended. KRAS wild-type tumors depend on EGFR signaling, while KRAS mutant tumors bypass EGFR through constitutive downstream activation. The biomarker-stratified efficacy pattern (benefit in KRAS wild-type, no benefit in KRAS mutant) is mechanistically consistent with EGFR target engagement. 2. PATHWAY MODULATION: The KRAS-stratified response pattern indicates downstream pathway modulation occurred as predicted. In KRAS wild-type tumors, EGFR blockade would interrupt proliferation signaling, while in KRAS mutant tumors, constitutive RAS activation would bypass EGFR blockade. 3. CLINICAL TRANSLATION: The primary endpoint (PFS) was met with statistical significance (p=0.0234) in the overall population, driven by the KRAS wild-type subgroup (9.6 vs 8.0 months). The effect size is clinically meaningful. 4. POPULATION EFFECTS: Clear differential response by KRAS status - wild-type patients benefited (PFS 9.6 vs 8.0 months) while mutant patients showed no benefit or potential harm (PFS 7.3 vs 8.8 months). This validates the predictive biomarker hypothesis. 5. CONFOUNDERS: Well-powered study (N=1183) with adequate duration (109 weeks follow-up). Higher toxicity in combination arm but not dose-limiting. No major confounders identified.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "panitumumab",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "folfox_panitumumab",
+      "reasoning": "KRAS-stratified response pattern strongly indicates EGFR target engagement - benefit in KRAS wild-type (EGFR-dependent) but not KRAS mutant (EGFR-independent) tumors"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000146648",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "ambiguous",
+      "affecting_arm_id": "folfox_panitumumab",
+      "reasoning": "Trial success does not constitute affirmative evidence for the specific mechanism of action"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "R-HSA-177929",
+      "support": "strong_support",
+      "affecting_arm_id": "folfox_panitumumab",
+      "reasoning": "KRAS-stratified efficacy pattern confirms EGFR signaling pathway modulation as predicted by the mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-177929",
+      "target_entity": "colorectal_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "folfox_panitumumab",
+      "reasoning": "Primary endpoint met with statistical significance and clinically meaningful effect size in KRAS wild-type population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_colorectal_cancer",
+      "target_entity": "colorectal_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS is a well-established endpoint for colorectal cancer that captured the treatment benefit with statistical significance"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "colorectal_cancer__kras_wildtype",
+      "target_entity": "colorectal_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Clear differential response by KRAS status - wild-type patients benefited while mutant patients did not, validating the biomarker-defined population"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "colorectal_cancer__kras_mutant",
+      "target_entity": "colorectal_cancer",
+      "support": "strong_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "KRAS mutant patients showed no benefit or potential harm from panitumumab addition, with confirmed target engagement in wild-type patients proving the drug works but not in this population"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "needs_expert_review": false,
+  "review_reason": null
+}

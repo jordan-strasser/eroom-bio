@@ -1,0 +1,182 @@
+{
+  "nct_id": "NCT02273206",
+  "therapeutic_hypothesis": {
+    "compound": "Collaborative Care Intervention",
+    "claimed_target": "Depression and cancer screening behaviors",
+    "proposed_mechanism": "Integrated care management addressing both depression and preventive care barriers",
+    "intended_biology": "Behavioral modification through coordinated care delivery",
+    "target_population": "Low-income urban women with depression",
+    "primary_endpoint": "Cancer screening uptake and depression improvement",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Mixed results across endpoints",
+    "p_value": null,
+    "target_engagement_evidence": "PHQ9 depression scores improved in both arms (CCI: 4.60 point reduction, PCM: 5.05 point reduction)",
+    "biomarker_changes": [
+      "PHQ9 depression scores decreased from baseline to follow-up in both arms",
+      "Cancer screening rates increased across all three screening types"
+    ],
+    "subgroup_findings": [
+      "Colorectal cancer screening improved from 22.0% to 56.9% (CCI) vs 26.9% to 52.8% (PCM)",
+      "Breast cancer screening improved from 43.9% to 66.7% (CCI) vs 42.0% to 66.8% (PCM)",
+      "Cervical cancer screening improved from 42.3% to 61.6% (CCI) vs 41.7% to 64.6% (PCM)"
+    ],
+    "safety_signals": [
+      "One stroke event reported in collaborative care intervention arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Stroke",
+        "grade": "",
+        "incidence_treatment_pct": 0.26,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ],
+    "primary_endpoint_met_source": "reask"
+  },
+  "context": {
+    "indication": "Depression with suboptimal cancer screening",
+    "comparator": "Prevention Care Management for Cancer Screening only",
+    "sample_size": 802,
+    "duration": "12 months",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "compounds": [
+        "Prevention Care Management for Cancer Screening"
+      ]
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "compounds": [
+        "Prevention Care Management for Depression and Cancer Screening",
+        "Prevention Care Management for Cancer Screening"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Colorectal Cancer Screening - Baseline",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline_colorectal_screening"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Colorectal Cancer Screening - Follow Up",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "followup_colorectal_screening"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Breast Cancer Screening - Baseline",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline_breast_screening"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Breast Cancer Screening - Follow Up",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "followup_breast_screening"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Cervical Cancer Screening - Baseline",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline_cervical_screening"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Cervical Cancer Screening - Follow Up",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "followup_cervical_screening"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "subgroup_descriptor": "Colorectal Cancer Screening - Baseline",
+      "endpoint": "Colorectal Cancer Screening Rate",
+      "effect_size": 22.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "subgroup_descriptor": "Colorectal Cancer Screening - Baseline",
+      "endpoint": "Colorectal Cancer Screening Rate",
+      "effect_size": 26.9,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "subgroup_descriptor": "Colorectal Cancer Screening - Follow Up",
+      "endpoint": "Colorectal Cancer Screening Rate",
+      "effect_size": 56.9,
+      "p_value": 0.2562,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "subgroup_descriptor": "Colorectal Cancer Screening - Follow Up",
+      "endpoint": "Colorectal Cancer Screening Rate",
+      "effect_size": 52.8,
+      "p_value": 0.2562,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "subgroup_descriptor": null,
+      "endpoint": "PHQ9 Change",
+      "effect_size": 4.6,
+      "p_value": 0.39,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "subgroup_descriptor": null,
+      "endpoint": "PHQ9 Change",
+      "effect_size": 5.05,
+      "p_value": 0.39,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

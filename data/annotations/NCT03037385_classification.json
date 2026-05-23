@@ -1,0 +1,67 @@
+{
+  "nct_id": "NCT03037385",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with dose-dependent changes in MAPK pathway biomarkers DUSP6 (decreased up to 81.57%) and SPRY4 (decreased up to 75.65%) at higher doses, confirming pralsetinib engaged RET and modulated downstream signaling. 2. PATHWAY MODULATION: Clear downstream biology changes with MAPK pathway biomarkers responding in a dose-dependent manner, indicating the RET kinase inhibition mechanism successfully modulated the RAF/MAP kinase cascade. 3. CLINICAL TRANSLATION: Excellent clinical translation with ORR ranging from 56.7% to 85.2% across all RET-altered tumor subgroups, demonstrating robust clinical benefit. 4. POPULATION EFFECTS: Strong differential responses across biomarker-defined populations - RET-fusion positive thyroid cancer showed highest response (85.2%), treatment-naive patients generally outperformed pre-treated patients (78.3% vs 63.1% in NSCLC, 77.8% vs 56.7% in MTC), confirming the mechanism works best in RET-altered populations. 5. CONFOUNDERS: No significant confounders - adequate sample size (590 patients), manageable safety profile with MTD achieved at therapeutic dose (400mg), and consistent responses across multiple tumor types and biomarker subgroups.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pralsetinib",
+      "target_entity": "ENSG00000165731",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_dose_expansion",
+      "reasoning": "Dose-dependent changes in MAPK pathway biomarkers DUSP6 and SPRY4 provide direct evidence of RET target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000165731",
+      "target_entity": "kinase_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_dose_expansion",
+      "reasoning": "Downstream MAPK pathway biomarker changes confirm RET acts via kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5673001",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_dose_expansion",
+      "reasoning": "Dose-dependent decreases in DUSP6 and SPRY4 demonstrate kinase inhibition successfully modulated RAF/MAP kinase cascade"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_dose_expansion",
+      "reasoning": "High ORR (63.1-78.3%) in RET-altered NSCLC patients demonstrates RAF/MAP kinase cascade modulation drives clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_intestinal_disease",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR consistently captured clinical benefit across all RET-altered tumor subgroups with robust response rates"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__prior_tx_naive__ret_positive",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Treatment-naive RET-positive NSCLC patients showed superior response (78.3% vs 63.1% in pre-treated), demonstrating differential population response"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__prior_tx_treated__ret_positive",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Pre-treated RET-positive NSCLC patients showed strong but lower response (63.1%) compared to treatment-naive, confirming population-specific effects"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

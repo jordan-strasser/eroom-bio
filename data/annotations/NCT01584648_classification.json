@@ -1,0 +1,123 @@
+{
+  "nct_id": "NCT01584648",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Dabrafenib and metabolite plasma concentrations confirmed target engagement. Dabrafenib concentrations were higher in combo arm (92.1 ng/mL) vs mono (64.4 ng/mL), and trametinib concentrations were detectable only in combination arm, confirming both drugs reached their targets. 2. PATHWAY MODULATION: The combination showed superior pathway modulation compared to monotherapy, with PFS improving from 8.8 months (dabrafenib alone) to 10.2 months (combination), and OS from 18.7 to 25.8 months, indicating enhanced MAPK pathway blockade. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) was met with HR 0.73, demonstrating clear clinical benefit. Both PFS and OS showed meaningful improvements in the combination arm. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall BRAF-mutant melanoma population responded well. 5. CONFOUNDERS: Well-designed controlled trial with adequate duration (312 weeks) and sample size (423 patients). Higher SAE rate in combination arm (100/209 vs 80/211) but did not prevent efficacy demonstration.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "Dabrafenib plasma concentrations confirmed target engagement in combination arm with clinical success"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "Trametinib concentrations detectable only in combination arm with superior clinical outcomes"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_placebo",
+      "reasoning": "Dabrafenib monotherapy also showed clinical benefit (PFS 8.8 months, OS 18.7 months) confirming target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "BRAF kinase inhibition mechanism validated by superior combination efficacy"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "MEK kinase inhibition mechanism validated by combination benefit over monotherapy"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_placebo",
+      "reasoning": "BRAF kinase inhibition mechanism validated by monotherapy efficacy"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "Kinase inhibition affecting protein phosphorylation validated by combination clinical success"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "MEK kinase inhibition affecting MAP2K/MAPK activation validated by superior combination outcomes"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_placebo",
+      "reasoning": "BRAF kinase inhibition affecting protein phosphorylation validated by monotherapy efficacy"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "Protein phosphorylation pathway driving melanoma validated by combination clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_trametinib",
+      "reasoning": "MAP2K/MAPK activation pathway driving melanoma validated by superior combination outcomes"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": "dabrafenib_placebo",
+      "reasoning": "Protein phosphorylation pathway driving melanoma validated by monotherapy clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS endpoint successfully captured clinical benefit with meaningful effect size (HR 0.73) and concordant OS improvement"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_unresectable__line_first",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "BRAF-mutant unresectable first-line melanoma population showed strong response to targeted therapy with meaningful PFS and OS benefits"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "needs_expert_review": false,
+  "review_reason": null
+}

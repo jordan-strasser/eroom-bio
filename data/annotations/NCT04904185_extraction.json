@@ -1,0 +1,94 @@
+{
+  "nct_id": "NCT04904185",
+  "therapeutic_hypothesis": {
+    "compound": "MASE-T cells with lymphodepletion",
+    "claimed_target": "tumor-associated antigens",
+    "proposed_mechanism": "ex vivo expanded antigen-specific T cells target melanoma antigens after lymphodepletion conditioning",
+    "intended_biology": "adaptive immune response against melanoma",
+    "target_population": "patients with metastatic melanoma",
+    "primary_endpoint": "tolerability and feasibility",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "6/6 patients experienced grade III+ adverse events",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High rate of grade III+ adverse events (100% in Part A)",
+      "1 patient excluded due to feasibility issues"
+    ],
+    "dose_info": {
+      "dose": "Cyclophosphamide 500 mg/m2, Fludarabine 30 mg/m2, Pembrolizumab 2 mg/kg",
+      "schedule": "Cyclophosphamide day -4,-3,-2; Fludarabine day -4,-3; Pembrolizumab day -1 and day 21",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade III or worse adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 8,
+    "duration": "minimum: 43 days, median: 69 days, maximum: 128 days",
+    "duration_weeks": 9.9,
+    "investigator_commentary": "Evaluation of step A did not support addition of pembrolizumab in step B"
+  },
+  "arms": [
+    {
+      "arm_id": "part_a",
+      "compounds": [
+        "cyclophosphamide",
+        "fludarabine",
+        "MASE-T_cells"
+      ]
+    },
+    {
+      "arm_id": "part_b",
+      "compounds": [
+        "cyclophosphamide",
+        "fludarabine",
+        "MASE-T_cells",
+        "pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "part_a",
+      "subgroup_descriptor": null,
+      "endpoint": "tolerability",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "part_a",
+      "subgroup_descriptor": null,
+      "endpoint": "feasibility exclusions",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "part_a",
+      "subgroup_descriptor": null,
+      "endpoint": "BOR",
+      "effect_size": 3.0,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": []
+}

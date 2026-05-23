@@ -1,0 +1,97 @@
+{
+  "nct_id": "NCT00923247",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows vandetanib achieved comparable exposure to literature values (3.96 vs 4.77 ng/mL/mg), indicating target engagement. Bortezomib exposure was actually increased 96% due to pharmacokinetic interaction with vandetanib, suggesting both compounds engaged their targets. 2. PATHWAY MODULATION: Biomarker evidence shows downstream biology was modulated - calcitonin partial response in 5/16 Phase 1 patients and CEA partial response in 2/14 Phase 1 patients, indicating the combination affected relevant pathways in medullary thyroid carcinoma. 3. CLINICAL TRANSLATION: Despite target engagement and biomarker changes, clinical endpoints failed. Phase 2A combination arm showed PFS of only 3.67 months with 0 responses in 1 patient, while Phase 1 showed better results (PFS 30.2 months, 6/21 partial responses). This suggests the biology moved but didn't translate to consistent clinical benefit. 4. POPULATION EFFECTS: The dramatic difference between Phase 1 (partial success) and Phase 2A (failure) suggests potential population or dose-timing effects, though sample sizes are very small. 5. CONFOUNDERS: Trial was terminated due to slow accrual and investigator departure, which may have limited proper evaluation. However, the Phase 2A arm did complete its primary analysis and clearly failed.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Target engagement confirmed by adequate drug exposure, biomarker responses (calcitonin and CEA partial responses) demonstrated pathway modulation, but Phase 2A primary endpoint failed with PFS 3.67 months and 0 responses"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "vandetanib",
+      "target_entity": "ENSG00000142627",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
+      "reasoning": "Vandetanib exposure was comparable to literature values and biomarker responses were observed, confirming target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bortezomib",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
+      "reasoning": "Bortezomib exposure was increased 96% and biomarker responses were observed, confirming target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vandetanib",
+      "target_entity": "ENSG00000142627",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Target engagement confirmed by adequate drug exposure even in the failed Phase 2A arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bortezomib",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Target engagement confirmed by pharmacokinetic interaction data even in the failed Phase 2A arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-3928663",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Despite target engagement, the Phase 2A arm failed to show clinical benefit, suggesting the mechanism didn't effectively translate to downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "protein_degradation",
+      "target_entity": "protein_degradation__medullary_thyroid_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Despite target engagement, the Phase 2A arm failed to show clinical benefit, suggesting the mechanism didn't effectively translate to downstream biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-3928663",
+      "target_entity": "medullary_thyroid_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Phase 2A arm failed with PFS 3.67 months and 0 responses despite biomarker evidence of pathway modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "protein_degradation__medullary_thyroid_carcinoma",
+      "target_entity": "medullary_thyroid_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
+      "reasoning": "Phase 2A arm failed with PFS 3.67 months and 0 responses despite biomarker evidence of pathway modulation"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_medullary_thyroid_carcinoma",
+      "target_entity": "medullary_thyroid_carcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was measured and provided clear readout on tolerability, though efficacy endpoints failed"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "medullary_thyroid_carcinoma__extent_metastatic",
+      "target_entity": "medullary_thyroid_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Phase 2A arm in this population failed to show benefit with PFS 3.67 months and 0 responses"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}
