@@ -43,59 +43,22 @@ A single failed trial produces *opposing* updates on different edges—strengthe
 
 ---
 
-## Current evaluation (2026-05-20)
+## Current evaluation (round 30)
 
-> **Superseded by round 30** (see *Current status* below): the predictor has since been rebuilt — weakest-link soft-min + informed prior efficacy, failure-causing-gated safety, precision-grounded N_eff — and re-evaluated on the n=30-per-indication corpus. The n=52 / 4-of-5 result below is retained for history.
+Five well-known case studies anchor direction-prediction: nivolumab CheckMate-067 (success), solanezumab EXPEDITION (failure), bevacizumab AVANT (failure, adjuvant), torcetrapib ILLUMINATE (failure, off-target safety), selumetinib thyroid (success). They're scored two ways: **in-sample** (the trial's own evidence is attributed into the graph — an algorithmic-correctness gate; it *should* be called right) and **true holdout** (excluded from attribution, predicted only from other trials — the generalization test).
 
-The most-evaluated experiment in the project to date — a 52-trial multi-indication training corpus + 5 well-known case studies held out for direction-prediction.
+| predictor | in-sample | true holdout |
+|---|---|---|
+| old (trust-weighted geomean, occurrence-safety) | 1/5 | 1/5 |
+| **round 30** (weakest-link + informed prior, failure-causing safety) | **5/5** | **3/5** |
 
-### Setup
+On 54 labeled trials, binary accuracy rose **0.50 → 0.685** (AUROC 0.56 → 0.65), lifting true successes without lifting failures. What drove it: a decisive weak link now vetoes the chain (bevacizumab's `responds_differently` for the adjuvant population), ignorance defers to an informed prior instead of sinking the chain, and tolerated toxicity no longer sinks an effective drug (nivolumab's irAEs).
 
-- **Training:** 52 NCT ids across 5 indications (melanoma, Alzheimer's, colorectal, atherosclerosis/hypercholesterolemia, thyroid). 12 dropped as non-therapeutic (behavioral, device, diagnostic, procedure studies). 40 training subgraphs produced.
-- **Holdout:** 5 case studies, added via the round 19 incremental-build mode:
-  - **nivolumab CheckMate-067** (success, melanoma)
-  - **solanezumab EXPEDITION** (failure, Alzheimer's — chain works, biology→outcome breaks)
-  - **bevacizumab AVANT** (failure, colorectal — wrong context: works in metastatic, fails in adjuvant)
-  - **torcetrapib ILLUMINATE** (failure, cardiovascular — off-target hypertension, not mechanism)
-  - **selumetinib thyroid Ho 2013** (success, niche — works in BRAF-mutant subset)
-- **Final snapshot:** 777 nodes, 1,459 edges, 91% chain coverage on the 178 chains.
+**The two holdout misses are data gaps, not predictor flaws:**
+- **torcetrapib** — its off-target cardiac safety isn't in CT.gov (no posted results). Fix: a PubMed ingester.
+- **bevacizumab** — `responds_differently` is population-only, so adjuvant-CRC chemo *successes* dilute the anti-VEGF-adjuvant *failure* signal on the shared edge. Adding 5 adjuvant-CRC trials moved it 0.69 → 0.53; the structural fix is mechanism-conditioned population sub-regions (a per-region belief field).
 
-### Result: 4 of 5 direction-correct
-
-| Case | Lit outcome | Efficacy | Safety | **P(success)** | Direction |
-|---|---|---:|---:|---:|---|
-| nivolumab | success | 0.856 | 0.067 | **0.799** | ✓ |
-| solanezumab | failure | 0.481 | 0.019 | **0.472** | ✓ <0.5 |
-| bevacizumab AVANT | failure | 0.482 | 0.038 | **0.464** | ✓ <0.5 |
-| torcetrapib | failure (safety-driven) | 0.652 | 0.000 | **0.652** | ✗ |
-| selumetinib thyroid | success | 0.723 | 0.000 | **0.723** | ✓ |
-
-### Edge decompositions correctly reflect literature failure modes
-
-The most informative case is **bevacizumab AVANT**. Literature says it fails in the adjuvant setting (not metastatic). The system's chain decomposition shows:
-
-```
-[UP ↑] affects                bevacizumab → VEGFA          E[p]=0.52  n_eff=19
-[UP ↑] modulates_via          VEGFA → angiogenesis_inhib   E[p]=0.55  n_eff=20
-[UP ↑] mechanism_affects      angiogenesis → biology       E[p]=0.50  n_eff=18
-[DN ↓] biology_drives         angiogenesis → colorectal    E[p]=0.40  n_eff=21
-[DN ↓] responds_differently   adjuvant_stage_iii → CRC     E[p]=0.29  n_eff=10  ← weakest
-```
-
-The system correctly identifies `responds_differently` for the adjuvant-stage-III population as the weakest link — exactly the failure mode AVANT demonstrated. Cross-trial learning surfaced the population/context bottleneck without being told to look there.
-
-### Where it misses, and why
-
-**Torcetrapib (the one miss).** The chain decomposition correctly shows torcetrapib's mechanism works (CETP inhibition raised HDL — literature-true). The failure was off-target cardiovascular safety. With zero torcetrapib-specific or CETP-class adverse-event evidence in the 52-trial corpus, `safety_penalty=0.000`. The safety architecture is in place (`causes_ae` and `target_associated_ae` edges both feed the penalty); the data is missing. This is a corpus coverage gap, queued for a deeper round 24 audit.
-
-### Trust calibration
-
-This is the most-evaluated state of the system, but it's **5 case studies, not a statistical sample**. Older claims about specific n=145 melanoma OOS AUROCs and "production-quality" cross-trial learning predate the v0.3.0 prediction-math rework and the round 19-22 architecture and shouldn't be over-interpreted. The honest scope:
-
-- The pipeline mechanically works end-to-end on a fresh multi-indication corpus
-- Cross-trial learning produces directional signal on 4 of 5 well-known case studies
-- The one miss is a known data-coverage gap, not an architectural failure
-- The result needs the [round 24 audit](audit/round_24_holdout_eval_audit_questions.md) (leakage check, edge provenance, monoclonal antibody resolver, torcetrapib safety propagation diagnostic) before it's load-bearing for any larger claim
+**Honest scope:** 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation; the predictor's knobs are pre-LOO-calibration. In-sample 5/5 is self-consistency (necessary, not sufficient); the holdout 3/5 is the real, small generalization signal.
 
 ---
 
@@ -259,10 +222,8 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 ## Current status
 
 - 1065 tests passing (non-integration) on Python 3.12
-- **Round 30** (branch `neff-precision-v1`): the predictor was rebuilt — **weakest-link soft-min + informed prior** efficacy (replacing the trust-weighted geomean), **failure-causing-gated safety** (replacing occurrence-based), and **precision-grounded N_eff** (trial sample size + an independence/redundancy discount). All landed flag-gated, validated, then made default.
-- Evaluation (n=30-per-indication corpus + 5-trial holdout): a clean **in-sample** benchmark (each case study's own evidence embedded in the graph — an algorithmic-correctness gate) went **1/5 → 5/5**; the **true holdout** (case studies excluded from attribution) went **1/5 → 3/5**, with both effective-but-toxic successes (nivolumab, selumetinib) recovered. On 54 labeled trials, binary accuracy rose **0.50 → 0.685** (AUROC 0.56 → 0.65), lifting true successes without lifting failures.
-- The two remaining holdout misses are genuine **data gaps**, not predictor flaws: torcetrapib's off-target cardiac safety isn't in CT.gov (a PubMed-ingester target), and bevacizumab's adjuvant-CRC contradiction is diluted because `responds_differently` is population-only, not mechanism-conditioned (a per-region / BioLORD target — adding 5 adjuvant-CRC trials moved it 0.69 → 0.53).
-- Honest scope: 5 case studies + 54 labeled trials are a directional signal, not statistical validation; the new predictor's knobs are pre-LOO-calibration. Pending: a `modulates_via` demonstrated-vs-assumed classifier rule, the PubMed ingester, the BioLORD node substrate, and LOO calibration.
+- **Round 30** (branch `neff-precision-v1`): the predictor was rebuilt — weakest-link soft-min + informed prior efficacy, failure-causing-gated safety, and precision-grounded N_eff (trial sample size + an independence/redundancy discount) — all flag-gated, validated, then made default. Results under *Current evaluation* above.
+- Pending: a `modulates_via` demonstrated-vs-assumed classifier rule; the PubMed ingester (torcetrapib safety + N_eff p-values); the BioLORD node substrate (semantic redundancy + mechanism-conditioned populations); LOO calibration of the predictor knobs.
 
 ---
 
