@@ -45,6 +45,8 @@ A single failed trial produces *opposing* updates on different edges—strengthe
 
 ## Current evaluation (2026-05-20)
 
+> **Superseded by round 30** (see *Current status* below): the predictor has since been rebuilt — weakest-link soft-min + informed prior efficacy, failure-causing-gated safety, precision-grounded N_eff — and re-evaluated on the n=30-per-indication corpus. The n=52 / 4-of-5 result below is retained for history.
+
 The most-evaluated experiment in the project to date — a 52-trial multi-indication training corpus + 5 well-known case studies held out for direction-prediction.
 
 ### Setup
@@ -135,15 +137,14 @@ Updates use a Beta-Binomial conjugate model. Each evidence record contributes N_
 | Preclinical in vitro | 1.0 | Cell line data |
 | Computational | 0.3 | Predicted, not measured |
 
-### Prediction (round 20: efficacy + safety)
+Round 25 split these into per-source curated-database tiers; **round 30** makes N_eff *precision-grounded* — the value above is the anchor for a median-N trial, scaled by the trial's actual patient count, with an independence/redundancy discount so correlated evidence (same study/sponsor) doesn't compound as if independent (flag-gated via `EROOM_NEFF_PRECISION`).
 
-P(success) decomposes into two components:
+### Prediction (round 30: weakest-link + informed prior, failure-causing safety)
 
-- **`efficacy_probability`** — trust-weighted geometric mean of chain edge beliefs (the mechanism-only view)
-- **`safety_penalty`** — soft-or aggregation over compound-specific (`causes_ae`) and on-mechanism (`target_associated_ae`) AE evidence, each AE contributing `severity_weight × belief_factor × trust_factor` (capped at 0.6)
-- **`overall_probability = efficacy_probability × (1 − safety_penalty)`**
+`overall = efficacy × (1 − safety_penalty)`.
 
-Severity weighting comes from the AE node's max observed CTCAE grade: Grade 1-2 = 0.05, Grade 3 = 0.15, Grade 4 = 0.30, Grade 5 = 0.50. Three-gate modulation (severity × belief × evidence) prevents AMBIGUOUS-bucket AEs from saturating the cap on well-evidenced drugs.
+- **Efficacy — weakest-link, not geometric mean.** A causal chain is only as strong as its weakest *well-evidenced* link, so efficacy is a **soft-min** over per-edge Beta samples (`P(success) ≈ P(weakest link)`) — replacing the earlier trust-weighted geometric mean, which diluted a decisive weak link by the n-th root. Under-evidenced edges sample under a **weak informed prior** (mean ~0.75), so ignorance defers to a plausible base rate instead of producing low samples that spuriously become the minimum. The Bayesian posterior's concentration thus replaces the old evidence-count "trust weight" (sparse → near prior; abundant → near observed). Env-tunable (`EROOM_SOFTMIN_T`, `EROOM_PRIOR_MEAN`/`EROOM_PRIOR_STRENGTH`); `EROOM_AGG=geomean` restores the legacy mean.
+- **Safety — failure-causing toxicity, not occurrence.** `causes_ae` / `target_associated_ae` measure AE *incidence*, but an effective drug with tolerated toxicity (e.g. nivolumab's irAEs in trials that *succeeded*) must not be penalized like one whose toxicity was dose-limiting. Each AE's penalty is gated by the fraction of its evidence from **dose-limiting-toxicity failures** vs tolerated/successful trials — soft-or of `severity × belief × trust × failure-causing` (capped). A serious AE floors at the grade-3 weight when CTCAE grade is missing (the common case). `EROOM_SAFETY_DLT_GATE=0` restores occurrence-only.
 
 ### Build modes (round 19)
 
@@ -257,9 +258,11 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 
 ## Current status
 
-- 852 tests passing on Python 3.12
-- 18 atomic rounds shipped to main (rounds 14-22)
-- Latest build: n=52 multi-indication + 5-trial holdout (2026-05-20). Result: 4/5 direction-correct, edge decompositions match literature failure modes on 4 of 5, one safety-driven miss attributed to corpus data gap. Round 24 audit queued to verify this isn't memorization, expose trial provenance on edges, fix monoclonal antibody target resolution, and diagnose the torcetrapib `target_associated_ae` propagation.
+- 1065 tests passing (non-integration) on Python 3.12
+- **Round 30** (branch `neff-precision-v1`): the predictor was rebuilt — **weakest-link soft-min + informed prior** efficacy (replacing the trust-weighted geomean), **failure-causing-gated safety** (replacing occurrence-based), and **precision-grounded N_eff** (trial sample size + an independence/redundancy discount). All landed flag-gated, validated, then made default.
+- Evaluation (n=30-per-indication corpus + 5-trial holdout): a clean **in-sample** benchmark (each case study's own evidence embedded in the graph — an algorithmic-correctness gate) went **1/5 → 5/5**; the **true holdout** (case studies excluded from attribution) went **1/5 → 3/5**, with both effective-but-toxic successes (nivolumab, selumetinib) recovered. On 54 labeled trials, binary accuracy rose **0.50 → 0.685** (AUROC 0.56 → 0.65), lifting true successes without lifting failures.
+- The two remaining holdout misses are genuine **data gaps**, not predictor flaws: torcetrapib's off-target cardiac safety isn't in CT.gov (a PubMed-ingester target), and bevacizumab's adjuvant-CRC contradiction is diluted because `responds_differently` is population-only, not mechanism-conditioned (a per-region / BioLORD target — adding 5 adjuvant-CRC trials moved it 0.69 → 0.53).
+- Honest scope: 5 case studies + 54 labeled trials are a directional signal, not statistical validation; the new predictor's knobs are pre-LOO-calibration. Pending: a `modulates_via` demonstrated-vs-assumed classifier rule, the PubMed ingester, the BioLORD node substrate, and LOO calibration.
 
 ---
 
