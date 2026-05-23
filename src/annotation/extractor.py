@@ -230,6 +230,21 @@ def _safe_float(value: Any) -> float | None:
         return None
 
 
+def _safe_int(value: Any) -> int | None:
+    """Coerce an extracted sample-size-like value to int, or None.
+
+    Tolerant of the occasional float ("250.0") or numeric string the LLM
+    emits; non-numeric junk becomes None so a malformed value never breaks
+    extraction parsing (the precision n_eff path treats None as "no N").
+    """
+    if value is None:
+        return None
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
 def _parse_dose_info(raw: Any) -> DoseInfo:
     """Parse the structured dose_info block from the LLM response.
 
@@ -486,6 +501,7 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         primary_endpoint_met=results.get("primary_endpoint_met"),
         effect_size=effect_size,
         p_value=results.get("p_value"),
+        sample_size=_safe_int(context.get("sample_size")),
         biomarker_data={
             "target_engagement": results.get("target_engagement_evidence"),
             "biomarker_changes": results.get("biomarker_changes", []),
@@ -540,6 +556,7 @@ def _parse_document_response(
                 primary_endpoint_met=trial.get("primary_endpoint_met"),
                 effect_size=effect_size,
                 p_value=trial.get("p_value"),
+                sample_size=_safe_int(trial.get("sample_size")),
                 biomarker_data={
                     "target_engagement": trial.get("target_engagement_evidence"),
                     "biomarker_changes": trial.get("biomarker_changes", []),

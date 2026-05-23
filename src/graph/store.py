@@ -23,6 +23,7 @@ from src.inference.beliefs import (
     apply_virtual_evidence,
     effective_n_for_evidence,
     p_obs_for_bucket,
+    redundancy_factor,
 )
 
 
@@ -122,15 +123,20 @@ class GraphStore:
         # a different cellular context) but at reduced N_eff. Records
         # without a tissue tag are context-free and apply at full weight.
         belief = EdgeBeliefState(alpha=1.0, beta=1.0)
+        cluster_seen: dict[str, int] = {}
         for ev in stored.evidence:
             tissue = (ev.context or {}).get("tissue")
             if tissue is None or tissue in relevant_tissues:
                 tissue_weight = 1.0
             else:
                 tissue_weight = off_tissue_weight
+            eff_key = ev.cluster_key or ev.source_id
+            prior_same = cluster_seen.get(eff_key, 0)
             n_eff = effective_n_for_evidence(
-                ev.source_type, ev.quality_score
-            ) * tissue_weight
+                ev.source_type, ev.quality_score,
+                n_obs=ev.n_obs, edge_type=edge_type.value,
+            ) * tissue_weight * redundancy_factor(prior_same)
+            cluster_seen[eff_key] = prior_same + 1
             p_obs = p_obs_for_bucket(SupportBucket(ev.support))
             belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
         return EdgeBeliefState(
@@ -154,9 +160,18 @@ class GraphStore:
         data = self._get_edge_data(src_id, tgt_id, edge_type)
         belief = EdgeBeliefState.model_validate(data["belief"])
 
-        n_eff = effective_n_for_evidence(
-            evidence.source_type, evidence.quality_score
+        # Independence/redundancy: existing records on this edge that share
+        # the incoming one's correlation cluster (explicit cluster_key, else
+        # the source/study id) make it a non-independent observation.
+        eff_key = evidence.cluster_key or evidence.source_id
+        prior_same = sum(
+            1 for e in belief.evidence
+            if (e.cluster_key or e.source_id) == eff_key
         )
+        n_eff = effective_n_for_evidence(
+            evidence.source_type, evidence.quality_score,
+            n_obs=evidence.n_obs, edge_type=edge_type.value,
+        ) * redundancy_factor(prior_same)
         p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
 

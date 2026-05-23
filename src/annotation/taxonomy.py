@@ -375,6 +375,9 @@ class TrialExtraction(BaseModel):
     primary_endpoint_met: bool | None = None
     effect_size: float | None = None
     p_value: float | None = None
+    # Patient/observation count for the trial (LLM-extracted sample size;
+    # ~99% populated in practice). Feeds the precision-aware n_eff path.
+    sample_size: int | None = None
     biomarker_data: dict[str, Any] = Field(default_factory=dict)
     safety_signals: list[str] = Field(default_factory=list)
     subgroup_findings: list[str] = Field(default_factory=list)

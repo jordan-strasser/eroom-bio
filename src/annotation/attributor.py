@@ -789,6 +789,12 @@ class Attributor:
                 quality_score=min(classification.confidence, 1.0),
                 timestamp=datetime.now(timezone.utc),
                 notes=item.get("reasoning", ""),
+                # Precision inputs for the principled-N_eff path (a no-op
+                # unless EROOM_NEFF_PRECISION is set). Trial-level stats;
+                # extraction is None on some call paths -> fields stay None.
+                n_obs=extraction.sample_size if extraction else None,
+                effect=extraction.effect_size if extraction else None,
+                p_value=extraction.p_value if extraction else None,
             )
 
             # Get pre-update belief
