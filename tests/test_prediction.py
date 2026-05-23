@@ -400,18 +400,26 @@ class TestAggregateSamples:
         out = _aggregate_samples([s1, s2], [0.0, 0.0])
         assert np.allclose(out, [0.5, 0.5])
 
-    def test_full_trust_recovers_geomean(self):
+    def test_full_trust_recovers_geomean(self, monkeypatch):
+        monkeypatch.setenv("EROOM_AGG", "geomean")  # geomean is opt-in (default softmin)
         s1 = np.full(1000, 0.6)
         s2 = np.full(1000, 0.4)
         out = _aggregate_samples([s1, s2], [1.0, 1.0])
         expected = np.exp(0.5 * np.log(0.6) + 0.5 * np.log(0.4))
         assert np.allclose(out, expected)
 
-    def test_zero_weight_edges_dont_drag(self):
+    def test_zero_weight_edges_dont_drag(self, monkeypatch):
+        monkeypatch.setenv("EROOM_AGG", "geomean")  # trust-weighting is the geomean path (now opt-in)
         strong = np.full(100, 0.9)
         weak_samples = [np.full(100, 0.5) for _ in range(6)]
         out = _aggregate_samples([strong] + weak_samples, [1.0] + [0.0] * 6)
         assert np.allclose(out, 0.9)
+
+    def test_default_is_weakest_link_softmin(self):
+        # Round-30: default aggregation is softmin (weakest-link), not geomean.
+        out = _aggregate_samples([np.full(200, 0.9), np.full(200, 0.3)], [1.0, 1.0])
+        # dominated by the weak 0.3 link, well below geomean(0.9, 0.3) = 0.52
+        assert out.mean() < 0.45
 
 
 class TestWeightedGeomeanPredict:

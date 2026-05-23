@@ -137,7 +137,9 @@ _SAFETY_DLT_FLOOR = 0.15
 
 
 def _safety_dlt_gate_enabled() -> bool:
-    return os.environ.get("EROOM_SAFETY_DLT_GATE", "").strip().lower() in {
+    # Default ON (round-30): penalize failure-causing toxicity, not occurrence.
+    # Set EROOM_SAFETY_DLT_GATE=0 to restore the round-29 occurrence behavior.
+    return os.environ.get("EROOM_SAFETY_DLT_GATE", "1").strip().lower() in {
         "1", "true", "yes", "on",
     }
 
@@ -215,21 +217,23 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
-_SOFTMIN_T = 0.10   # soft-min temperature (EROOM_AGG=softmin); ->0 approaches hard min
+_SOFTMIN_T = float(os.environ.get("EROOM_SOFTMIN_T", "0.10"))  # soft-min temperature; ->0 approaches hard min
 
 # Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
 # for a WEAK prior centered on a plausible base rate, so an under-evidenced /
 # unobserved chain edge defers to "probably operative" (~0.75) instead of
 # producing low samples that spuriously become the weakest link. Weak
 # (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
-_INFORMED_PRIOR_MEAN = 0.75
-_INFORMED_PRIOR_STRENGTH = 2.0
+_INFORMED_PRIOR_MEAN = float(os.environ.get("EROOM_PRIOR_MEAN", "0.75"))
+_INFORMED_PRIOR_STRENGTH = float(os.environ.get("EROOM_PRIOR_STRENGTH", "2.0"))
 _INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
 _INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
 
 
 def _informed_prior_enabled() -> bool:
-    return os.environ.get("EROOM_INFORMED_PRIOR", "").strip().lower() in {
+    # Default ON (round-30): under-evidenced edges defer to a plausible base
+    # rate. Set EROOM_INFORMED_PRIOR=0 to restore the Beta(1,1) coin-flip prior.
+    return os.environ.get("EROOM_INFORMED_PRIOR", "1").strip().lower() in {
         "1", "true", "yes", "on",
     }
 
@@ -280,7 +284,9 @@ def _aggregate_samples(
     # probability (product / noisy-AND) and weakest-link (min / softmin).
     # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
     # decisive edge. Default ("" / geomean) keeps the existing behavior.
-    mode = os.environ.get("EROOM_AGG", "").strip().lower()
+    # Default softmin (round-30): weakest-link P(success). Set EROOM_AGG=geomean
+    # to restore the legacy trust-weighted geometric mean.
+    mode = os.environ.get("EROOM_AGG", "softmin").strip().lower()
     if mode in ("product", "min", "softmin", "harmonic"):
         stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
         if mode == "product":
