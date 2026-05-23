@@ -34,9 +34,10 @@ from collections import Counter
 from pathlib import Path
 
 from src.annotation.meddra_hierarchy import MedDRAHierarchy
-from src.graph.models import EdgeType
+from src.graph.models import EdgeType, MechanismCategory
 from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
+from src.ingestion.lincs import _category_to_direction
 
 
 _AE_HIERARCHY_FIELDS = ("hlt_id", "hlgt_id", "soc_id", "soc_name")
@@ -117,18 +118,53 @@ def _rebuild_soc_propagation(graph: GraphStore) -> Counter:
     return stats
 
 
+def _backfill_mechanism_direction(graph: GraphStore) -> Counter:
+    """Round-28: populate MechanismNode.direction on any node missing it.
+
+    New builds set ``direction`` at MechanismNode creation time. Existing
+    snapshots loaded with the new model schema have ``direction=None``
+    by default; this fills the field via the canonical lookup keyed on
+    MechanismCategory.
+    """
+    stats: Counter = Counter()
+    g = graph._graph  # noqa: SLF001
+    for node_id in list(g.nodes):
+        node = g.nodes[node_id]
+        if not isinstance(node_id, str):
+            continue
+        # MechanismNodes have mechanism_type — easier than passing the
+        # type name through here.
+        if "mechanism_type" not in node:
+            continue
+        stats["mechanism_nodes_seen"] += 1
+        if node.get("direction"):
+            continue
+        try:
+            cat = MechanismCategory(node_id)
+        except ValueError:
+            # Non-canonical id — skip rather than misclassify.
+            continue
+        direction = _category_to_direction(cat)
+        if direction:
+            node["direction"] = direction
+            stats["mechanism_nodes_backfilled"] += 1
+    return stats
+
+
 def migrate_snapshot(in_path: Path, out_path: Path) -> Counter:
     graph = GraphStore()
     graph.import_snapshot(str(in_path))
     hierarchy = MedDRAHierarchy.load_default()
 
     ae_stats = _backfill_ae_node_hierarchy(graph, hierarchy)
+    mech_stats = _backfill_mechanism_direction(graph)
     prop_stats = _rebuild_soc_propagation(graph)
 
     graph.export_snapshot(str(out_path))
 
     stats = Counter()
     stats.update(ae_stats)
+    stats.update(mech_stats)
     stats.update(prop_stats)
     return stats
 
@@ -155,6 +191,9 @@ def main() -> int:
         "ae_nodes_seen", "ae_nodes_backfilled",
         "ae_nodes_unchanged", "ae_nodes_no_soc_resolved",
     ):
+        print(f"  {key}: {stats.get(key, 0)}")
+    print("\nMechanism direction backfill:")
+    for key in ("mechanism_nodes_seen", "mechanism_nodes_backfilled"):
         print(f"  {key}: {stats.get(key, 0)}")
     print("\nSOC-tier propagation:")
     for key in (
