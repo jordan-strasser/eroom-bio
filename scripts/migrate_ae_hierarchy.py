@@ -33,6 +33,9 @@ import argparse
 from collections import Counter
 from pathlib import Path
 
+import json
+
+from src.annotation.meddra import MeddraCache, ae_node_id
 from src.annotation.meddra_hierarchy import MedDRAHierarchy
 from src.graph.models import EdgeType, MechanismCategory
 from src.graph.store import GraphStore
@@ -41,6 +44,55 @@ from src.ingestion.lincs import _category_to_direction
 
 
 _AE_HIERARCHY_FIELDS = ("hlt_id", "hlgt_id", "soc_id", "soc_name")
+
+
+def _backfill_ae_serious_from_extractions(
+    graph: GraphStore,
+    annotations_dir: Path = Path("data/annotations"),
+) -> Counter:
+    """Round-29 backfill: walk per-trial extraction files, OR-merge the
+    StructuredAE.serious flag onto each PT-level AE node.
+
+    Pre-round-29 snapshots have no ``serious`` field on AE nodes —
+    extraction has the flag (CT.gov populates it on ~90% of AEs) but
+    ``_ensure_ae_node`` discarded it. Backfilling lets the safety-
+    penalty math pick up the SAE signal without a fresh rebuild.
+    Idempotent: re-running OR-merges the same bools into the same state.
+    """
+    stats: Counter = Counter()
+    cache = MeddraCache()
+    g = graph._graph  # noqa: SLF001
+    if not annotations_dir.exists():
+        stats["extraction_files_seen"] = 0
+        return stats
+    extraction_paths = sorted(annotations_dir.glob("*_extraction.json"))
+    stats["extraction_files_seen"] = len(extraction_paths)
+    for p in extraction_paths:
+        try:
+            data = json.loads(p.read_text())
+        except json.JSONDecodeError:
+            continue
+        # AEs live under results.adverse_events (StructuredAE list).
+        results = data.get("results") or {}
+        for ae in results.get("adverse_events", []) or []:
+            if not isinstance(ae, dict):
+                continue
+            if not ae.get("serious"):
+                continue
+            term = (ae.get("term") or "").strip()
+            if not term:
+                continue
+            cached = cache.get(term)
+            if not cached or not cached.get("preferred_term"):
+                continue
+            node_id = ae_node_id(cached["preferred_term"])
+            if node_id not in g.nodes:
+                continue
+            if not g.nodes[node_id].get("serious"):
+                g.nodes[node_id]["serious"] = True
+                stats["ae_nodes_marked_serious"] += 1
+            stats["serious_flags_seen"] += 1
+    return stats
 
 
 def _backfill_ae_node_hierarchy(
@@ -157,6 +209,7 @@ def migrate_snapshot(in_path: Path, out_path: Path) -> Counter:
     hierarchy = MedDRAHierarchy.load_default()
 
     ae_stats = _backfill_ae_node_hierarchy(graph, hierarchy)
+    serious_stats = _backfill_ae_serious_from_extractions(graph)
     mech_stats = _backfill_mechanism_direction(graph)
     prop_stats = _rebuild_soc_propagation(graph)
 
@@ -164,6 +217,7 @@ def migrate_snapshot(in_path: Path, out_path: Path) -> Counter:
 
     stats = Counter()
     stats.update(ae_stats)
+    stats.update(serious_stats)
     stats.update(mech_stats)
     stats.update(prop_stats)
     return stats
@@ -190,6 +244,12 @@ def main() -> int:
     for key in (
         "ae_nodes_seen", "ae_nodes_backfilled",
         "ae_nodes_unchanged", "ae_nodes_no_soc_resolved",
+    ):
+        print(f"  {key}: {stats.get(key, 0)}")
+    print("\nRound-29 `serious` backfill (from extraction JSONs):")
+    for key in (
+        "extraction_files_seen", "serious_flags_seen",
+        "ae_nodes_marked_serious",
     ):
         print(f"  {key}: {stats.get(key, 0)}")
     print("\nMechanism direction backfill:")

@@ -1380,7 +1380,9 @@ class Attributor:
             preferred_term = normalized["preferred_term"]
             soc = normalized.get("system_organ_class", "")
             ae_id = ae_node_id(preferred_term)
-            self._ensure_ae_node(ae_id, preferred_term, soc, ae.grade)
+            self._ensure_ae_node(
+                ae_id, preferred_term, soc, ae.grade, serious=ae.serious,
+            )
 
             for compound_id in treatment_compound_ids:
                 # When arm_incidences is populated (CT.gov-structured path),
@@ -1478,7 +1480,8 @@ class Attributor:
         return out
 
     def _ensure_ae_node(
-        self, ae_id: str, preferred_term: str, soc: str, grade: str
+        self, ae_id: str, preferred_term: str, soc: str, grade: str,
+        *, serious: bool = False,
     ) -> None:
         # Round-28: look up the MedDRA hierarchy parents (HLT / HLGT / SOC
         # slug + canonical SOC name) so target_associated_ae propagation
@@ -1498,6 +1501,7 @@ class Attributor:
                 name=preferred_term,
                 system_organ_class=soc,
                 severity_range=grade or "",
+                serious=bool(serious),
                 hlt_id=parents["hlt_id"],
                 hlgt_id=parents["hlgt_id"],
                 soc_id=parents["soc_id"],
@@ -1511,6 +1515,10 @@ class Attributor:
             existing_range = existing.get("severity_range") or ""
             merged = f"{existing_range},{grade}".strip(",")
             self.graph._graph.nodes[ae_id]["severity_range"] = merged
+        # Round-29: OR-merge `serious` across trials reporting the same AE.
+        # Any trial flagging serious=True locks the node's serious to True.
+        if serious and not existing.get("serious"):
+            self.graph._graph.nodes[ae_id]["serious"] = True
         # Backfill round-28 hierarchy fields onto pre-existing nodes
         # missing them (round-26 snapshots that loaded without these
         # fields get them on first re-attribution). Only writes when

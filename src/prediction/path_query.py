@@ -57,6 +57,14 @@ _SEVERITY_GRADE_TO_WEIGHT: dict[int, float] = {
 # Higher than grade 1-2 so a missing grade isn't free-pass safe; lower
 # than grade 3 so it doesn't over-penalize on absence of data.
 _UNKNOWN_GRADE_WEIGHT = 0.10
+# Round-29: when CTCAE grade is missing but the AE was flagged
+# ``serious=True`` by CT.gov (~90% of extractions), use this as a
+# coarse severity floor (= grade-3 weight). Deliberately not max
+# (grade 5 = 0.50): a Serious Adverse Event ≠ a fatal event, and we
+# preserve discrimination via belief_factor + trust_factor in the
+# three-gate math. When both grade and serious data are present, the
+# floor is just that — a floor; the grade-based weight wins if higher.
+_SERIOUS_FLOOR_WEIGHT = _SEVERITY_GRADE_TO_WEIGHT[3]
 
 
 def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
@@ -91,12 +99,29 @@ def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
     return max_grade
 
 
-def _ae_severity_weight(severity_range: str | None) -> float:
-    """Lookup the per-AE penalty weight from its severity_range field."""
+def _ae_severity_weight(
+    severity_range: str | None, *, serious: bool = False,
+) -> float:
+    """Lookup the per-AE penalty weight from its severity_range field.
+
+    Round-29: ``serious=True`` acts as a coarse severity floor at the
+    grade-3 weight. The corpus has CTCAE grade data on only ~11% of
+    extracted AEs (CT.gov rarely posts them), but the per-AE
+    ``serious`` flag is populated on ~90% — making it the primary
+    severity signal in practice. When grade IS present, the grade-based
+    weight wins if it exceeds the floor; an SAE flagged grade-5 still
+    gets the grade-5 weight.
+    """
     grade = _max_grade_from_severity_range(severity_range)
     if grade is None:
-        return _UNKNOWN_GRADE_WEIGHT
-    return _SEVERITY_GRADE_TO_WEIGHT.get(grade, _UNKNOWN_GRADE_WEIGHT)
+        grade_weight = _UNKNOWN_GRADE_WEIGHT
+    else:
+        grade_weight = _SEVERITY_GRADE_TO_WEIGHT.get(
+            grade, _UNKNOWN_GRADE_WEIGHT,
+        )
+    if serious:
+        return max(grade_weight, _SERIOUS_FLOOR_WEIGHT)
+    return grade_weight
 
 
 def _regimen_constituents(
@@ -223,6 +248,14 @@ class SafetyRisk(BaseModel):
     the same target have caused this AE—likely on-mechanism). The two
     travel together so the consumer can decide whether the risk is
     chemistry-related (changeable) or mechanism-related (intrinsic).
+
+    Round-29: ``severity_range`` carries the grade-token string used to
+    derive the severity weight. For ``causes_ae`` (compound source)
+    risks this comes from the PT-level AE node. For
+    ``target_associated_ae`` (target_class source) risks it comes from
+    the EDGE — target-scoped — because the SOC-tier AE node is shared
+    across targets and a global severity_range there would leak grade
+    data from one target class to another.
     """
 
     ae_id: str
@@ -230,6 +263,14 @@ class SafetyRisk(BaseModel):
     source: str  # "compound" | "target_class"
     belief_probability: float
     evidence_strength: float
+    severity_range: str = ""
+    # Round-29: did any contributing trial flag this AE as serious? For
+    # ``causes_ae`` risks this is the PT node's OR-merged ``serious``
+    # field. For ``target_associated_ae`` risks this is the per-target
+    # SOC-tier OR-aggregation stored on the edge. Acts as a grade-3
+    # severity floor in the safety-penalty math when CTCAE grade is
+    # missing (the majority case).
+    serious: bool = False
     contributing_compound_ids: list[str] = Field(default_factory=list)
 
 
@@ -450,14 +491,26 @@ class PredictionEngine:
             return 0.0
         contributions: list[float] = []
         for r in risks:
-            try:
-                ae_node = self.graph.get_node(r.ae_id)
-            except KeyError:
-                severity_weight = _UNKNOWN_GRADE_WEIGHT
-            else:
+            # Round-29: SafetyRisk now carries severity_range + the
+            # serious flag directly (target-scoped for
+            # target_associated_ae risks via edge metadata, PT-node-
+            # sourced for causes_ae). Both feed into the severity
+            # weight: an AE flagged serious=True floors the weight at
+            # the grade-3 tier even when CTCAE grade data is missing.
+            if r.severity_range or r.serious:
                 severity_weight = _ae_severity_weight(
-                    ae_node.get("severity_range")
+                    r.severity_range, serious=r.serious,
                 )
+            else:
+                try:
+                    ae_node = self.graph.get_node(r.ae_id)
+                except KeyError:
+                    severity_weight = _UNKNOWN_GRADE_WEIGHT
+                else:
+                    severity_weight = _ae_severity_weight(
+                        ae_node.get("severity_range"),
+                        serious=bool(ae_node.get("serious", False)),
+                    )
             # Three-gate modulation. Severity sets the ceiling
             # (manageable rash vs fatal cardiac event); belief_factor
             # scales by how strongly the AE rate actually moved above
@@ -525,6 +578,11 @@ class PredictionEngine:
                 source="compound",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
+                # causes_ae: severity comes from the PT-level AE node
+                # itself, which is uniquely the PT (not shared across
+                # targets). No edge-level override needed.
+                severity_range=ae_node.get("severity_range") or "",
+                serious=bool(ae_node.get("serious", False)),
                 contributing_compound_ids=[chain.compound_id],
             ))
             seen_ae_ids.add(ae_id)
@@ -553,12 +611,26 @@ class PredictionEngine:
             contributing = [
                 rec.source_id for rec in belief.evidence
             ]
+            # Round-29: prefer the EDGE's severity_range + serious flag
+            # (both target-scoped, written by the SOC propagation in
+            # ae_propagation._rebuild_target_ae_edge). Fall back to the
+            # AE node's severity_range / serious for PT-tier
+            # target_associated_ae edges (where the AE node IS specific)
+            # and for legacy snapshots predating round-29.
+            edge_severity = (edge.get("severity_range") or "")
+            if not edge_severity:
+                edge_severity = ae_node.get("severity_range") or ""
+            edge_serious = edge.get("serious")
+            if edge_serious is None:
+                edge_serious = bool(ae_node.get("serious", False))
             risks.append(SafetyRisk(
                 ae_id=ae_id,
                 ae_name=ae_node.get("name", ae_id),
                 source="target_class",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
+                severity_range=edge_severity,
+                serious=bool(edge_serious),
                 contributing_compound_ids=contributing,
             ))
 

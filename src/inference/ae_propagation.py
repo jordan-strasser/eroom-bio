@@ -58,6 +58,39 @@ def soc_ae_node_id(soc_id: str) -> str:
     return f"{SOC_AE_PREFIX}{soc_id}"
 
 
+def _union_grade_tokens(severity_ranges: list[str]) -> str:
+    """Merge severity_range strings into a single comma-separated union.
+
+    Each input is the PT-tier `severity_range` of a contributing sibling
+    AE node — itself already a comma-separated list of grade tokens
+    accumulated across trials (e.g. ``"1,2,3-5"``). The union preserves
+    the existing PT-tier wire format so the existing
+    ``_max_grade_from_severity_range`` parser in
+    ``src/prediction/path_query.py`` can consume the result without
+    changes.
+
+    Tokens are de-duplicated. Order is stable across calls (first-seen
+    wins) so the propagation stays idempotent. Empty inputs and empty
+    tokens are skipped; the return is ``""`` iff every contributing PT
+    had an empty ``severity_range``.
+
+    Ranges like ``"3-5"`` are passed through as-is — the downstream
+    parser already understands range tokens and picks the upper bound.
+    """
+    seen: list[str] = []
+    seen_set: set[str] = set()
+    for s in severity_ranges:
+        if not s:
+            continue
+        for tok in s.split(","):
+            tok = tok.strip()
+            if not tok or tok in seen_set:
+                continue
+            seen.append(tok)
+            seen_set.add(tok)
+    return ",".join(seen)
+
+
 # Each compound binding a target contributes one vote about the target's
 # AE liability. The target-class hypothesis is one step removed from any
 # single trial, so each compound's vote carries less weight than a single
@@ -154,6 +187,7 @@ def _propagate_at_soc_tier(
         return []
     soc_name = (ae_node.get("soc_name") or "").strip()
     soc_ae_id = soc_ae_node_id(soc_id)
+
     _ensure_soc_ae_node(graph, soc_ae_id, soc_id, soc_name)
 
     updates: list[AppliedTargetAEUpdate] = []
@@ -161,8 +195,23 @@ def _propagate_at_soc_tier(
         contributing = _collect_soc_votes(graph, target_id, soc_id)
         if len(contributing) < _MIN_COMPOUNDS_FOR_TARGET_AE:
             continue
+        # Round-29: aggregate severity_range AND the `serious` flag
+        # across the contributing sibling PT-level AE nodes — both
+        # TARGET-SCOPED so different targets routing through this SOC
+        # carry their own severity. Stored on the target_associated_ae
+        # edge so the shared SOC AE node doesn't have to choose one
+        # target's severity over another. `serious=True` aggregated via
+        # OR acts as a coarse severity floor downstream when grade data
+        # is missing (CT.gov rarely posts grades but routinely flags
+        # SAEs).
+        pt_severities, any_serious = _collect_pt_severities_for_soc(
+            graph, target_id, soc_id,
+        )
+        aggregated_severity = _union_grade_tokens(pt_severities)
         update = _rebuild_target_ae_edge(
             graph, target_id, soc_ae_id, contributing,
+            severity_range=aggregated_severity,
+            serious=any_serious,
         )
         updates.append(update)
     return updates
@@ -174,7 +223,22 @@ def _ensure_soc_ae_node(
     soc_id: str,
     soc_name: str,
 ) -> None:
-    """Create the SOC-tier AE node if missing."""
+    """Create the SOC-tier AE node if missing.
+
+    The node carries identity / hierarchy metadata only — severity is
+    NOT stored on the node, because the same SOC AE node is referenced
+    by ``target_associated_ae`` edges from MANY different targets and
+    each target's contributing PT severities are different. Storing
+    severity on the shared node would leak grade data from one target
+    class to another (e.g. MEK-inhibitor cardiotoxicity grades would
+    inflate CETP-inhibitor cardiotoxicity weight).
+
+    Round-29 stores aggregated severity_range on the individual
+    ``target_associated_ae`` EDGE instead — see
+    ``_rebuild_target_ae_edge`` and the ``severity_range`` edge
+    metadata field. ``_compute_safety_penalty`` reads from the edge
+    when present, falling back to the node otherwise.
+    """
     try:
         graph.get_node(soc_ae_id)
     except KeyError:
@@ -235,6 +299,55 @@ def _collect_soc_votes(
     return contributing
 
 
+def _collect_pt_severities_for_soc(
+    graph: GraphStore,
+    target_id: str,
+    soc_id: str,
+) -> tuple[list[str], bool]:
+    """Return (severity_range strings, any-serious flag) across PT AE
+    nodes under ``soc_id`` that have a causes_ae from any compound
+    binding ``target_id`` whose belief passes the vote threshold.
+
+    Round-29: also OR-aggregates the ``serious`` flag across qualifying
+    PT nodes. CT.gov reports ``serious=True`` on ~90% of AEs even when
+    CTCAE grade is unavailable, so this is the primary severity signal
+    when ``severity_range`` is empty.
+
+    Mirrors the sibling-traversal in ``_collect_soc_votes`` (same
+    filter rules). Returns one severity string per qualifying PT node
+    (empty strings preserved) plus a single bool for the SOC-tier
+    serious-floor decision.
+    """
+    sibling_compound_ids = _compounds_binding_target(graph, target_id)
+    g = graph._graph
+    severities: list[str] = []
+    any_serious = False
+    for sib_id in sibling_compound_ids:
+        if sib_id not in g:
+            continue
+        for _src, candidate_ae_id, key in g.out_edges(sib_id, keys=True):
+            if key != EdgeType.CAUSES_AE.value:
+                continue
+            try:
+                ae_node = graph.get_node(candidate_ae_id)
+            except KeyError:
+                continue
+            if (ae_node.get("soc_id") or "") != soc_id:
+                continue
+            try:
+                belief = graph.get_edge_belief(
+                    sib_id, candidate_ae_id, EdgeType.CAUSES_AE,
+                )
+            except KeyError:
+                continue
+            if belief.evidence_strength < _MIN_EVIDENCE_STRENGTH_FOR_VOTE:
+                continue
+            severities.append(ae_node.get("severity_range") or "")
+            if ae_node.get("serious"):
+                any_serious = True
+    return severities, any_serious
+
+
 def _binds_to_targets(graph: GraphStore, compound_id: str) -> list[str]:
     """Targets the given compound binds_to (out-edges of type binds_to)."""
     g = graph._graph
@@ -285,11 +398,23 @@ def _rebuild_target_ae_edge(
     target_id: str,
     ae_id: str,
     contributing: list[tuple[str, EdgeBeliefState]],
+    *,
+    severity_range: str = "",
+    serious: bool = False,
 ) -> AppliedTargetAEUpdate:
     """Aggregate per-compound votes into a fresh target_associated_ae belief.
 
     Replaces the existing edge belief (if any) rather than appending,
     so the propagation is idempotent.
+
+    Round-29: ``severity_range`` is an OPTIONAL per-edge aggregation of
+    grade tokens collected from the contributing sibling PT-level AE
+    nodes (passed in by ``_propagate_at_soc_tier`` for SOC-tier edges).
+    For SOC-tier edges this is target-specific — different compounds
+    binding different targets see different SOC severities. PT-tier
+    edges leave severity_range empty (default) and the downstream
+    safety-penalty reader falls back to the AE node's own
+    ``severity_range``, which is already PT-specific.
     """
     # Capture the pre-update belief for diffing.
     try:
@@ -334,9 +459,15 @@ def _rebuild_target_ae_edge(
     # propagation needs a full rebuild instead.
     g = graph._graph
     aggregated.evidence = contributing_records
-    g.edges[target_id, ae_id, EdgeType.TARGET_ASSOCIATED_AE.value]["belief"] = (
-        aggregated.model_dump(mode="json")
-    )
+    edge_data = g.edges[target_id, ae_id, EdgeType.TARGET_ASSOCIATED_AE.value]
+    edge_data["belief"] = aggregated.model_dump(mode="json")
+    # Round-29: stash the target-scoped severity union AND `serious`
+    # flag on the edge so _compute_safety_penalty reads per-target
+    # severity (instead of the shared SOC AE node's globally-leaky
+    # value) and per-target seriousness (for the grade-3 floor when
+    # CTCAE grade is missing).
+    edge_data["severity_range"] = severity_range
+    edge_data["serious"] = bool(serious)
 
     return AppliedTargetAEUpdate(
         target_id=target_id,
