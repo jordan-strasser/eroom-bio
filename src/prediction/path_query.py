@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from pathlib import Path
 from typing import Any
 
@@ -122,6 +123,36 @@ def _ae_severity_weight(
     if serious:
         return max(grade_weight, _SERIOUS_FLOOR_WEIGHT)
     return grade_weight
+
+
+# Round-30: gate the safety penalty on FAILURE-CAUSING toxicity. causes_ae
+# measures AE *occurrence* (incidence) — but an effective drug with tolerated
+# toxicity (e.g. nivolumab irAEs in trials that SUCCEEDED) should not be
+# penalized like one whose toxicity was dose-limiting. Each AE's contribution
+# scales toward a floor when its evidence came from tolerated/successful
+# trials and toward full weight when it came from dose-limiting-toxicity
+# failures. Flag-gated (default off -> round-29 behavior unchanged).
+_SAFETY_DLT_FLOOR = 0.15
+
+
+def _safety_dlt_gate_enabled() -> bool:
+    return os.environ.get("EROOM_SAFETY_DLT_GATE", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _dlt_fraction(belief: EdgeBeliefState) -> float:
+    """Fraction of an AE edge's evidence tagged ``failure_causing_tox``.
+
+    Records are tagged at attribution from the source trial's failure mode
+    (DOSE_LIMITING_TOXICITY) — see ``attributor.attribute_adverse_events``.
+    Returns 1.0 when there are no records (no info -> don't gate).
+    """
+    recs = belief.evidence or []
+    if not recs:
+        return 1.0
+    fc = sum(1 for e in recs if (e.context or {}).get("failure_causing_tox"))
+    return fc / len(recs)
 
 
 def _regimen_constituents(
@@ -271,6 +302,10 @@ class SafetyRisk(BaseModel):
     # severity floor in the safety-penalty math when CTCAE grade is
     # missing (the majority case).
     serious: bool = False
+    # Round-30 DLT-gate: fraction of this AE's evidence from trials whose
+    # failure was dose-limiting toxicity (vs AEs that merely occurred in
+    # tolerated/successful trials). 1.0 = no gating (default / back-compat).
+    failure_causing_fraction: float = 1.0
     contributing_compound_ids: list[str] = Field(default_factory=list)
 
 
@@ -528,7 +563,17 @@ class PredictionEngine:
             trust_factor = min(
                 1.0, math.log(r.evidence_strength + 1) / math.log(50),
             )
-            contributions.append(severity_weight * belief_factor * trust_factor)
+            contribution = severity_weight * belief_factor * trust_factor
+            if _safety_dlt_gate_enabled():
+                # Gate on failure-causing toxicity (see _dlt_fraction): an AE
+                # that merely occurred in tolerated/successful trials
+                # contributes only the floor share; toxicity that caused a
+                # dose-limiting failure contributes fully.
+                contribution *= (
+                    _SAFETY_DLT_FLOOR
+                    + (1.0 - _SAFETY_DLT_FLOOR) * r.failure_causing_fraction
+                )
+            contributions.append(contribution)
         penalty = 1.0
         for c in contributions:
             penalty *= (1.0 - c)
@@ -583,6 +628,7 @@ class PredictionEngine:
                 # targets). No edge-level override needed.
                 severity_range=ae_node.get("severity_range") or "",
                 serious=bool(ae_node.get("serious", False)),
+                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=[chain.compound_id],
             ))
             seen_ae_ids.add(ae_id)
@@ -631,6 +677,7 @@ class PredictionEngine:
                 evidence_strength=belief.evidence_strength,
                 severity_range=edge_severity,
                 serious=bool(edge_serious),
+                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=contributing,
             ))
 

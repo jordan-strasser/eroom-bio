@@ -441,6 +441,18 @@ def _rebuild_target_ae_edge(
         aggregated = apply_virtual_evidence(
             aggregated, n_eff=_VOTE_N_EFF_PER_COMPOUND, p_obs=p_obs,
         )
+        # Round-30 DLT-gate: carry the contributing compound's
+        # failure-causing-toxicity signal through propagation, so the
+        # target-class (class-effect) AE belief knows whether the class's
+        # toxicity was dose-limiting or merely occurred in tolerated trials.
+        # Without this, class-effect toxicity (e.g. checkpoint-class irAEs)
+        # bypasses the safety DLT-gate. The vote is failure-causing iff a
+        # majority of the compound's underlying causes_ae records were.
+        _recs = belief.evidence or []
+        _fc = sum(
+            1 for e in _recs if (e.context or {}).get("failure_causing_tox")
+        )
+        _vote_dlt = bool(_recs and _fc / len(_recs) >= 0.5)
         contributing_records.append(EvidenceRecord(
             source_id=compound_id,
             source_type=EvidenceType.LITERATURE,  # synthesis vote, not raw evidence
@@ -451,7 +463,10 @@ def _rebuild_target_ae_edge(
                 f"target_associated_ae vote from causes_ae({compound_id}) "
                 f"= {belief.expected_probability:.3f}"
             ),
-            context={"propagation": "target_associated_ae_aggregation"},
+            context={
+                "propagation": "target_associated_ae_aggregation",
+                "failure_causing_tox": _vote_dlt,
+            },
         ))
 
     # Replace the stored belief in place. We bypass update_edge_belief

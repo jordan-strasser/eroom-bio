@@ -497,6 +497,7 @@ async def annotate_trial(
                 extraction,
                 client=extractor._client,
                 meddra_cache=meddra_cache or MeddraCache(),
+                classification=classification,
             )
             updates.extend(ae_updates)
     return extraction, classification, updates

@@ -1341,6 +1341,7 @@ class Attributor:
         extraction: TrialExtraction,
         client: Any,  # anthropic.AsyncAnthropic—kept loose to avoid import cost in attributor
         meddra_cache: MeddraCache | None = None,
+        classification: "FailureClassification | None" = None,
     ) -> list[AppliedEdgeUpdate]:
         """Update causes_ae edges from a trial's structured adverse events.
 
@@ -1421,7 +1422,18 @@ class Attributor:
                     quality_score=1.0,  # incidence-rate evidence is structured, not LLM-judgment
                     timestamp=datetime.now(timezone.utc),
                     notes=note,
-                    context={"ae_term_raw": ae.term, "ae_grade": ae.grade},
+                    context={
+                        "ae_term_raw": ae.term, "ae_grade": ae.grade,
+                        # Round-30 DLT-gate signal: did this AE come from a
+                        # trial whose failure was dose-limiting toxicity?
+                        # The safety-penalty gate weights failure-causing
+                        # toxicity over mere occurrence (see path_query).
+                        "failure_causing_tox": bool(
+                            classification is not None
+                            and classification.primary_failure_mode
+                            == FailureMode.DOSE_LIMITING_TOXICITY
+                        ),
+                    },
                 )
                 pre = self.graph.get_edge_belief(
                     compound_id, ae_id, EdgeType.CAUSES_AE
@@ -1826,6 +1838,7 @@ async def _main(
         if extraction is not None and extraction.adverse_events:
             ae_updates = await attributor.attribute_adverse_events(
                 trial, extraction, client=client, meddra_cache=meddra_cache,
+                classification=classification,
             )
             total_updates.extend(ae_updates)
 
