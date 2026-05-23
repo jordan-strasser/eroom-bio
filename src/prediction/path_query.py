@@ -12,6 +12,7 @@ import networkx as nx
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy import stats as sp_stats
+from scipy.special import logsumexp
 
 from src.graph.models import (
     CausalChain,
@@ -214,6 +215,39 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
+_SOFTMIN_T = 0.10   # soft-min temperature (EROOM_AGG=softmin); ->0 approaches hard min
+
+# Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
+# for a WEAK prior centered on a plausible base rate, so an under-evidenced /
+# unobserved chain edge defers to "probably operative" (~0.75) instead of
+# producing low samples that spuriously become the weakest link. Weak
+# (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
+_INFORMED_PRIOR_MEAN = 0.75
+_INFORMED_PRIOR_STRENGTH = 2.0
+_INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
+_INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
+
+
+def _informed_prior_enabled() -> bool:
+    return os.environ.get("EROOM_INFORMED_PRIOR", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
+    """Sample an edge's Beta, optionally under a weak informed prior.
+
+    The stored belief is Beta(1+e_pos, 1+e_neg) (Beta(1,1) prior + evidence).
+    With EROOM_INFORMED_PRIOR we re-prior to Beta(a0+e_pos, b0+e_neg) where
+    Beta(a0,b0) has mean ~0.75 — so an unobserved edge samples around 0.75
+    (plausible) rather than uniform/low, and well-evidenced edges are
+    essentially unchanged (the weak prior is swamped).
+    """
+    a, b = belief.alpha, belief.beta
+    if _informed_prior_enabled():
+        a = _INFORMED_PRIOR_A + (belief.alpha - 1.0)
+        b = _INFORMED_PRIOR_B + (belief.beta - 1.0)
+    return rng.beta(max(a, 1e-6), max(b, 1e-6), size=n_samples)
 
 
 def _trust_weight(belief: EdgeBeliefState) -> float:
@@ -241,6 +275,27 @@ def _aggregate_samples(
     """
     if not edge_samples:
         return np.array([])
+    # Experimental aggregation modes (EROOM_AGG). The default trust-weighted
+    # geomean dilutes a decisive weak link; these test true conditional-chain
+    # probability (product / noisy-AND) and weakest-link (min / softmin).
+    # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
+    # decisive edge. Default ("" / geomean) keeps the existing behavior.
+    mode = os.environ.get("EROOM_AGG", "").strip().lower()
+    if mode in ("product", "min", "softmin", "harmonic"):
+        stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
+        if mode == "product":
+            return np.prod(stack, axis=0)
+        if mode == "min":
+            return stack.min(axis=0)
+        if mode == "harmonic":
+            # power mean p=-1: dominated by the smallest edge (weakest-link)
+            # but accumulates multiple weak links AND is length-normalized —
+            # the middle ground between min (no discrimination) and product
+            # (length-tanks).
+            return stack.shape[0] / np.sum(1.0 / stack, axis=0)
+        return -_SOFTMIN_T * (
+            logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
+        )
     n_samples = edge_samples[0].shape[0]
     sum_w = float(sum(w for w in weights if w > 0.0))
     log_sum = np.zeros(n_samples)
@@ -374,7 +429,7 @@ class PredictionEngine:
         edge_samples: list[np.ndarray] = []
         trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
-            edge_samples.append(rng.beta(belief.alpha, belief.beta, size=n_samples))
+            edge_samples.append(_sample_edge(rng, belief, n_samples))
             trust_weights.append(_trust_weight(belief))
 
         # 3. Aggregate samples via trust-weighted geometric mean
