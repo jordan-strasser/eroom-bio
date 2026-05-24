@@ -3,8 +3,8 @@
   "therapeutic_hypothesis": {
     "compound": "TAS-102 (trifluridine/tipiracil)",
     "claimed_target": "thymidine phosphorylase and thymidylate synthase",
-    "proposed_mechanism": "nucleoside analog incorporation into DNA causing DNA damage and inhibition of thymidylate synthase",
-    "intended_biology": "DNA synthesis inhibition and cell cycle arrest",
+    "proposed_mechanism": "dual inhibition of DNA synthesis through thymidine analog incorporation and thymidylate synthase inhibition",
+    "intended_biology": "DNA synthesis disruption and tumor cell death",
     "target_population": "patients with metastatic colorectal cancer",
     "primary_endpoint": "overall survival",
     "rationale_strength": "moderate"
@@ -22,21 +22,21 @@
     "safety_signals": [
       "Grade 3-4 neutropenia in 33% of TAS-102 patients",
       "Grade 3-4 anemia in 18% of TAS-102 patients",
-      "Treatment-related deaths in 5 TAS-102 patients vs 1 placebo patient"
+      "Treatment-related deaths in 5 TAS-102 patients vs 1 placebo"
     ],
     "dose_info": {
       "dose": "35 mg/m2",
       "schedule": "twice daily on days 1-5 and 8-12 of each 28-day cycle",
       "max_tolerated_dose": "",
-      "dose_modifications": "27 patients discontinued due to TEAEs"
+      "dose_modifications": ""
     },
     "adverse_events": [
       {
-        "term": "anemia",
-        "grade": "any",
-        "incidence_treatment_pct": 77.1,
-        "incidence_control_pct": 38.5,
-        "serious": false
+        "term": "neutropenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 33.2,
+        "incidence_control_pct": 0.0,
+        "serious": true
       },
       {
         "term": "anemia",
@@ -46,27 +46,6 @@
         "serious": true
       },
       {
-        "term": "neutropenia",
-        "grade": "any",
-        "incidence_treatment_pct": 67.2,
-        "incidence_control_pct": 0.7,
-        "serious": false
-      },
-      {
-        "term": "neutropenia",
-        "grade": "3-4",
-        "incidence_treatment_pct": 33.2,
-        "incidence_control_pct": 0.0,
-        "serious": true
-      },
-      {
-        "term": "leukopenia",
-        "grade": "any",
-        "incidence_treatment_pct": 70.1,
-        "incidence_control_pct": 3.0,
-        "serious": false
-      },
-      {
         "term": "leukopenia",
         "grade": "3-4",
         "incidence_treatment_pct": 20.7,
@@ -74,10 +53,10 @@
         "serious": false
       },
       {
-        "term": "thrombocytopenia",
-        "grade": "any",
-        "incidence_treatment_pct": 35.4,
-        "incidence_control_pct": 7.4,
+        "term": "lymphopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 14.4,
+        "incidence_control_pct": 2.2,
         "serious": false
       },
       {
@@ -138,65 +117,45 @@
       "arm_id": "tas_102",
       "subgroup_descriptor": null,
       "endpoint": "OS",
-      "effect_size": 7.8,
+      "effect_size": 0.79,
       "p_value": 0.035,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 7.1,
-      "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "thymidine analog incorporation and thymidylate synthase inhibition disrupting DNA synthesis",
+      "biology_description": "DNA synthesis disruption and tumor cell death in metastatic colorectal cancer",
+      "population_description": "patients with metastatic colorectal cancer"
     },
     {
       "arm_id": "tas_102",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
-      "effect_size": 2.0,
+      "effect_size": 0.43,
       "p_value": 0.001,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 1.8,
-      "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "thymidine analog incorporation and thymidylate synthase inhibition disrupting DNA synthesis",
+      "biology_description": "DNA synthesis disruption and tumor cell death in metastatic colorectal cancer",
+      "population_description": "patients with metastatic colorectal cancer"
     },
     {
       "arm_id": "tas_102",
       "subgroup_descriptor": "Wild Type KRAS",
       "endpoint": "OS",
-      "effect_size": 8.6,
+      "effect_size": 0.77,
       "p_value": 0.083,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": "Wild Type KRAS",
-      "endpoint": "OS",
-      "effect_size": 7.4,
-      "p_value": null,
-      "outcome": "partial"
+      "outcome": "partial",
+      "mechanism_description": "thymidine analog incorporation and thymidylate synthase inhibition disrupting DNA synthesis",
+      "biology_description": "DNA synthesis disruption and tumor cell death in metastatic colorectal cancer",
+      "population_description": "patients with metastatic colorectal cancer and wild-type KRAS"
     },
     {
       "arm_id": "tas_102",
       "subgroup_descriptor": "Mutant Type KRAS",
       "endpoint": "OS",
-      "effect_size": 7.0,
+      "effect_size": 0.83,
       "p_value": 0.228,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": "Mutant Type KRAS",
-      "endpoint": "OS",
-      "effect_size": 6.5,
-      "p_value": null,
-      "outcome": "failure"
+      "outcome": "partial",
+      "mechanism_description": "thymidine analog incorporation and thymidylate synthase inhibition disrupting DNA synthesis",
+      "biology_description": "DNA synthesis disruption and tumor cell death in metastatic colorectal cancer",
+      "population_description": "patients with metastatic colorectal cancer and mutant KRAS"
     }
   ],
   "modulation_entries": []

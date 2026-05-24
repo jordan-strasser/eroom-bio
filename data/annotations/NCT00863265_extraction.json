@@ -3,21 +3,20 @@
   "therapeutic_hypothesis": {
     "compound": "ezetimibe + phytosterols",
     "claimed_target": "NPC1L1",
-    "proposed_mechanism": "inhibition of intestinal cholesterol absorption",
-    "intended_biology": "cholesterol metabolism and excretion",
+    "proposed_mechanism": "cholesterol absorption inhibition",
+    "intended_biology": "cholesterol metabolism modulation",
     "target_population": "subjects with hypercholesterolemia",
     "primary_endpoint": "cholesterol excretion, percent cholesterol absorption, LDL cholesterol",
-    "rationale_strength": "strong"
+    "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
     "effect_size": "LDL cholesterol reduced by 28 mg/dL with combination vs baseline (p<0.01)",
     "p_value": 0.01,
-    "target_engagement_evidence": "cholesterol absorption reduced from 69.0% to 32.6% with combination treatment",
+    "target_engagement_evidence": "cholesterol absorption reduced from 69.0% to 32.6% with combination",
     "biomarker_changes": [
       "cholesterol excretion increased from 505 to 962 mg/day",
-      "cholesterol absorption decreased from 69.0% to 32.6%",
-      "LDL cholesterol decreased from 129 to 101 mg/dL"
+      "cholesterol absorption decreased from 69.0% to 32.6%"
     ],
     "subgroup_findings": [],
     "safety_signals": [],
@@ -89,18 +88,21 @@
       "endpoint": "LDL cholesterol",
       "effect_size": -28.0,
       "p_value": 0.01,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "NPC1L1 inhibition by ezetimibe with phytosterol-mediated cholesterol absorption blockade",
+      "biology_description": "cholesterol metabolism modulation in hypercholesterolemia",
+      "population_description": "subjects with hypercholesterolemia"
     }
   ],
   "modulation_entries": [
     {
       "modulator_compound_id": "phytosterols",
       "primary_compound_id": "ezetimibe",
-      "affects_layer": "mechanism",
+      "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.85,
-      "hypothesis": "phytosterols provide additional cholesterol absorption inhibition beyond ezetimibe alone",
-      "citation": "Diet Plus Ezetimibe Plus Phytosterols: 32.6% absorption vs Diet Plus Ezetimibe: 46.2% absorption, p = <0.01"
+      "hypothesis": "phytosterols enhance ezetimibe's cholesterol-lowering effect through additive cholesterol absorption inhibition",
+      "citation": "Diet Plus Ezetimibe Plus Phytosterols: 32.6% cholesterol absorption vs Diet Plus Ezetimibe: 46.2% (p<0.01)"
     }
   ]
 }

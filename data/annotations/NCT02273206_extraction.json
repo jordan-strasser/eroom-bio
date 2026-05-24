@@ -1,30 +1,28 @@
 {
   "nct_id": "NCT02273206",
   "therapeutic_hypothesis": {
-    "compound": "Collaborative Care Intervention",
-    "claimed_target": "Depression and cancer screening behaviors",
-    "proposed_mechanism": "Integrated care management addressing both depression and preventive care barriers",
-    "intended_biology": "Behavioral modification through coordinated care delivery",
+    "compound": "Collaborative Care Management",
+    "claimed_target": "Depression and Cancer Screening Behaviors",
+    "proposed_mechanism": "Integrated behavioral intervention combining depression care management with cancer screening promotion",
+    "intended_biology": "Improvement in mental health outcomes and preventive care utilization",
     "target_population": "Low-income urban women with depression",
-    "primary_endpoint": "Cancer screening uptake and depression improvement",
+    "primary_endpoint": "Cancer screening uptake and depression symptom reduction",
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": false,
-    "effect_size": "Mixed results across endpoints",
+    "primary_endpoint_met": true,
+    "effect_size": "Colorectal screening increased from 22.0% to 56.9% (CCI) vs 26.9% to 52.8% (PCM); PHQ9 decreased by 4.60 points (CCI) vs 5.05 points (PCM)",
     "p_value": null,
-    "target_engagement_evidence": "PHQ9 depression scores improved in both arms (CCI: 4.60 point reduction, PCM: 5.05 point reduction)",
+    "target_engagement_evidence": "Significant improvements in cancer screening rates across all three types",
     "biomarker_changes": [
-      "PHQ9 depression scores decreased from baseline to follow-up in both arms",
-      "Cancer screening rates increased across all three screening types"
+      "PHQ9 depression scores decreased in both arms",
+      "SCL-20 depression scores improved"
     ],
     "subgroup_findings": [
-      "Colorectal cancer screening improved from 22.0% to 56.9% (CCI) vs 26.9% to 52.8% (PCM)",
-      "Breast cancer screening improved from 43.9% to 66.7% (CCI) vs 42.0% to 66.8% (PCM)",
-      "Cervical cancer screening improved from 42.3% to 61.6% (CCI) vs 41.7% to 64.6% (PCM)"
+      "No significant differences between intervention arms for most outcomes"
     ],
     "safety_signals": [
-      "One stroke event reported in collaborative care intervention arm"
+      "One stroke event in collaborative care intervention arm"
     ],
     "dose_info": {
       "dose": "",
@@ -40,15 +38,14 @@
         "incidence_control_pct": null,
         "serious": true
       }
-    ],
-    "primary_endpoint_met_source": "reask"
+    ]
   },
   "context": {
     "indication": "Depression with suboptimal cancer screening",
     "comparator": "Prevention Care Management for Cancer Screening only",
     "sample_size": 802,
     "duration": "12 months",
-    "duration_weeks": 52.0,
+    "duration_weeks": 52.1,
     "investigator_commentary": null
   },
   "arms": [
@@ -66,116 +63,51 @@
       ]
     }
   ],
-  "subgroups": [
-    {
-      "raw_descriptor": "Colorectal Cancer Screening - Baseline",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "baseline_colorectal_screening"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Colorectal Cancer Screening - Follow Up",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "followup_colorectal_screening"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Breast Cancer Screening - Baseline",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "baseline_breast_screening"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Breast Cancer Screening - Follow Up",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "followup_breast_screening"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Cervical Cancer Screening - Baseline",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "baseline_cervical_screening"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Cervical Cancer Screening - Follow Up",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "followup_cervical_screening"
-        }
-      ]
-    }
-  ],
+  "subgroups": [],
   "results_by_chain": [
     {
       "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
-      "subgroup_descriptor": "Colorectal Cancer Screening - Baseline",
-      "endpoint": "Colorectal Cancer Screening Rate",
-      "effect_size": 22.0,
-      "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "prevention_care_management_for_cancer_screening",
-      "subgroup_descriptor": "Colorectal Cancer Screening - Baseline",
-      "endpoint": "Colorectal Cancer Screening Rate",
-      "effect_size": 26.9,
-      "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
-      "subgroup_descriptor": "Colorectal Cancer Screening - Follow Up",
-      "endpoint": "Colorectal Cancer Screening Rate",
-      "effect_size": 56.9,
-      "p_value": 0.2562,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "prevention_care_management_for_cancer_screening",
-      "subgroup_descriptor": "Colorectal Cancer Screening - Follow Up",
-      "endpoint": "Colorectal Cancer Screening Rate",
-      "effect_size": 52.8,
-      "p_value": 0.2562,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
       "subgroup_descriptor": null,
-      "endpoint": "PHQ9 Change",
-      "effect_size": 4.6,
-      "p_value": 0.39,
-      "outcome": "success"
+      "endpoint": "Colorectal Cancer Screening",
+      "effect_size": 34.9,
+      "p_value": 0.0677,
+      "outcome": "success",
+      "mechanism_description": "Integrated care management targeting depression and preventive care behaviors",
+      "biology_description": "Enhanced preventive care utilization through coordinated behavioral intervention",
+      "population_description": "Low-income urban women with depression and suboptimal cancer screening"
     },
     {
       "arm_id": "prevention_care_management_for_cancer_screening",
       "subgroup_descriptor": null,
-      "endpoint": "PHQ9 Change",
-      "effect_size": 5.05,
+      "endpoint": "Colorectal Cancer Screening",
+      "effect_size": 25.9,
+      "p_value": 0.0677,
+      "outcome": "success",
+      "mechanism_description": "Care management focused specifically on cancer screening promotion",
+      "biology_description": "Preventive care utilization improvement through targeted screening intervention",
+      "population_description": "Low-income urban women with depression and suboptimal cancer screening"
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "subgroup_descriptor": null,
+      "endpoint": "PHQ9 Depression Score",
+      "effect_size": -4.6,
       "p_value": 0.39,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "Integrated care management targeting depression and preventive care behaviors",
+      "biology_description": "Depression symptom reduction through coordinated behavioral intervention",
+      "population_description": "Low-income urban women with depression and suboptimal cancer screening"
+    },
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "subgroup_descriptor": null,
+      "endpoint": "PHQ9 Depression Score",
+      "effect_size": -5.05,
+      "p_value": 0.39,
+      "outcome": "success",
+      "mechanism_description": "Care management focused specifically on cancer screening promotion",
+      "biology_description": "Depression symptom reduction through preventive care engagement",
+      "population_description": "Low-income urban women with depression and suboptimal cancer screening"
     }
   ],
   "modulation_entries": []

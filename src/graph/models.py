@@ -446,6 +446,14 @@ class MechanismNode(BaseModel):
     # being read as benefit-direction even though the underlying
     # mechanism is inhibitory.
     direction: str | None = None
+    # A.0: rich free-text description preserved from the trial's therapeutic
+    # hypothesis (proposed_mechanism). The id is a routing tag; this is the
+    # semantic substrate the BioLORD embedding work (A.1) consumes. First
+    # non-empty contributor wins (see populate._set_node_description);
+    # per-trial provenance is a later (A.2) refinement. Stripped from public
+    # snapshots only once it holds a *fine-tuned* vector — the text itself is
+    # public. See future_ideas/eroom_node_graph_kickoff.md (A.0).
+    description: str = ""
 
 
 class BiologyNode(BaseModel):
@@ -455,6 +463,9 @@ class BiologyNode(BaseModel):
     tissue_specificity: list[str] = Field(default_factory=list)
     known_redundancies: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    # A.0: rich free-text description from the trial's intended_biology.
+    # See MechanismNode.description.
+    description: str = ""
 
 
 class BiomarkerNode(BaseModel):
@@ -504,6 +515,12 @@ class PopulationNode(BaseModel):
     name: str = Field(min_length=1)
     defining_features: list[SubgroupFeature] = Field(default_factory=list)
     estimated_size: int | None = None
+    # A.0: rich free-text description — the subgroup's raw descriptor, or the
+    # trial's target_population for the parent enrollment cohort. The embedding
+    # substrate for mechanism-conditioned population sub-regions (the named
+    # structural fix for the bevacizumab AVANT holdout miss). See
+    # MechanismNode.description.
+    description: str = ""
 
     @staticmethod
     def compose_id(indication_id: str, features: list[SubgroupFeature]) -> str:
@@ -652,11 +669,31 @@ class EvidenceRecord(BaseModel):
     p_value: float | None = None
     cluster_key: str | None = None
 
+    # ── A.3 manifold-2 localization (optional; default = scalar-only path) ──
+    # The trial-specific source/target descriptions (A.0b per-chain, else the
+    # trial-level A.0a text) whose BioLORD embeddings place this record at a
+    # point (s, t) on the edge belief surface. Descriptions are public text;
+    # the embeddings are the private localization — stripped from public
+    # snapshots via the ``*_embedding`` suffix (src/boundary.py). Absent ⇒ the
+    # record updates only the scalar marginal, exactly as today.
+    source_description_in_trial: str = ""
+    target_description_in_trial: str = ""
+    source_embedding: list[float] | None = None
+    target_embedding: list[float] | None = None
+
 
 class EdgeBeliefState(BaseModel):
     alpha: float = Field(default=1.0, ge=0.0)
     beta: float = Field(default=1.0, ge=0.0)
     evidence: list[EvidenceRecord] = Field(default_factory=list)
+    # A.3: optional per-region belief field (manifold 2). The scalar (alpha,
+    # beta) above stays the PUBLIC marginal; this holds the (s,t)-localized
+    # anchor surface — the private "edge weights" (statements 2 & 4). Serialized
+    # as an opaque dict (``belief_field.BeliefField.to_dict``); the
+    # ``belief_field`` field name is private (src/boundary.py), so it is
+    # stripped from public snapshots and written only to private ones. None ⇒
+    # scalar-only (back-compat).
+    belief_field: dict[str, Any] | None = None
 
     @property
     def expected_probability(self) -> float:

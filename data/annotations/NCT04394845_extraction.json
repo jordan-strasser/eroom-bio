@@ -4,26 +4,26 @@
     "compound": "[18F]GTP1",
     "claimed_target": "tau protein",
     "proposed_mechanism": "PET tracer binding to tau aggregates",
-    "intended_biology": "tau protein imaging for Alzheimer's disease diagnosis",
+    "intended_biology": "tau pathology imaging in Alzheimer's disease",
     "target_population": "healthy Japanese participants",
     "primary_endpoint": "biodistribution and safety assessment",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "biodistribution characterized across organs with effective dose 0.0303 mSv/MBq (female), 0.0245 mSv/MBq (male)",
+    "effect_size": "biodistribution characterized across organs",
     "p_value": null,
-    "target_engagement_evidence": "brain uptake demonstrated with residence time 0.0375 MBq\u00d7hour/MBq (female), 0.0315 MBq\u00d7hour/MBq (male)",
+    "target_engagement_evidence": "brain uptake demonstrated with residence time 0.0315-0.0375 MBq\u00d7hour/MBq",
     "biomarker_changes": [
-      "progressive accumulation in urinary bladder over time",
-      "hepatic uptake and clearance demonstrated"
+      "organ-specific radiation absorbed doses measured",
+      "residence times calculated for all major organs"
     ],
     "subgroup_findings": [
-      "higher effective dose in females vs males",
-      "sex differences in organ-specific uptake patterns"
+      "sex differences in organ uptake patterns",
+      "liver showed highest uptake in both sexes"
     ],
     "safety_signals": [
-      "1 participant experienced adverse events"
+      "1 participant (16.7%) experienced adverse events"
     ],
     "dose_info": {
       "dose": "up to 370 MBq (10 mCi)",
@@ -42,11 +42,11 @@
     ]
   },
   "context": {
-    "indication": "Alzheimer Disease",
+    "indication": "Alzheimer disease (imaging study in healthy volunteers)",
     "comparator": "none",
     "sample_size": 6,
-    "duration": "5 days",
-    "duration_weeks": 0.71,
+    "duration": "5 days follow-up",
+    "duration_weeks": 0.7,
     "investigator_commentary": null
   },
   "arms": [
@@ -65,15 +65,10 @@
       "endpoint": "biodistribution",
       "effect_size": null,
       "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "18f_gtp1",
-      "subgroup_descriptor": null,
-      "endpoint": "safety",
-      "effect_size": null,
-      "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "tau protein binding for PET imaging",
+      "biology_description": "tau pathology visualization in Alzheimer's disease",
+      "population_description": "healthy Japanese participants"
     }
   ],
   "modulation_entries": []

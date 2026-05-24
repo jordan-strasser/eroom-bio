@@ -2,10 +2,10 @@
   "nct_id": "NCT02970981",
   "therapeutic_hypothesis": {
     "compound": "nivolumab + ipilimumab",
-    "claimed_target": "PD-1 + CTLA-4",
-    "proposed_mechanism": "dual checkpoint inhibition",
-    "intended_biology": "T-cell activation and anti-tumor immunity",
-    "target_population": "melanoma patients",
+    "claimed_target": "PD-1 and CTLA-4",
+    "proposed_mechanism": "dual checkpoint inhibition blocking PD-1 and CTLA-4 pathways",
+    "intended_biology": "enhanced T-cell activation and anti-tumor immunity",
+    "target_population": "patients with melanoma",
     "primary_endpoint": "relapse-free survival at 48 months",
     "rationale_strength": "strong"
   },
@@ -101,7 +101,7 @@
   },
   "context": {
     "indication": "melanoma",
-    "comparator": "none",
+    "comparator": "",
     "sample_size": 18,
     "duration": "48 months",
     "duration_weeks": 208.56,
@@ -124,7 +124,10 @@
       "endpoint": "RFS",
       "effect_size": 0.667,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "unknown",
+      "mechanism_description": "dual checkpoint inhibition via PD-1 and CTLA-4 blockade",
+      "biology_description": "enhanced T-cell activation and anti-tumor immunity in melanoma",
+      "population_description": "patients with melanoma"
     },
     {
       "arm_id": "nivolumab_and_ipilimumab",
@@ -132,7 +135,10 @@
       "endpoint": "OS",
       "effect_size": 0.889,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "unknown",
+      "mechanism_description": "dual checkpoint inhibition via PD-1 and CTLA-4 blockade",
+      "biology_description": "enhanced T-cell activation and anti-tumor immunity in melanoma",
+      "population_description": "patients with melanoma"
     }
   ],
   "modulation_entries": [
@@ -141,7 +147,7 @@
       "primary_compound_id": "nivolumab",
       "affects_layer": "biology",
       "direction": "neutral",
-      "confidence": 0.7,
+      "confidence": 0.6,
       "hypothesis": "CTLA-4 blockade enhances T-cell priming to amplify PD-1 blockade anti-tumor immunity",
       "citation": "Study of Combination of Ipilimumab and Nivolumab in Patients With Melanoma"
     }

@@ -3,8 +3,8 @@
   "therapeutic_hypothesis": {
     "compound": "ipilimumab + nivolumab + cabozantinib",
     "claimed_target": "CTLA-4, PD-1, VEGFR2/MET/KIT",
-    "proposed_mechanism": "dual checkpoint blockade with anti-angiogenic/kinase inhibition",
-    "intended_biology": "T cell activation and proliferation with tumor vasculature disruption",
+    "proposed_mechanism": "dual checkpoint blockade with multi-kinase inhibition",
+    "intended_biology": "T cell activation and anti-angiogenic/anti-tumor signaling",
     "target_population": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
     "primary_endpoint": "progression free survival",
     "rationale_strength": "moderate"
@@ -27,13 +27,6 @@
       "dose_modifications": ""
     },
     "adverse_events": [
-      {
-        "term": "Grade \u22653 treatment related adverse events",
-        "grade": "\u22653",
-        "incidence_treatment_pct": 50.0,
-        "incidence_control_pct": null,
-        "serious": true
-      },
       {
         "term": "Hypophysitis",
         "grade": "",
@@ -61,6 +54,13 @@
         "incidence_treatment_pct": 25.0,
         "incidence_control_pct": null,
         "serious": true
+      },
+      {
+        "term": "Grade \u22653 treatment related adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": false
       }
     ]
   },
@@ -68,17 +68,17 @@
     "indication": "refractory cutaneous melanoma",
     "comparator": "none",
     "sample_size": 4,
-    "duration": "13 months",
-    "duration_weeks": 56.5,
+    "duration": "7 months",
+    "duration_weeks": 30.4,
     "investigator_commentary": "Withdrawn support from BMS."
   },
   "arms": [
     {
       "arm_id": "cabozantinib_ipilimumab_nivolumab",
       "compounds": [
-        "cabozantinib",
         "ipilimumab",
-        "nivolumab"
+        "nivolumab",
+        "cabozantinib"
       ]
     }
   ],
@@ -90,15 +90,10 @@
       "endpoint": "PFS",
       "effect_size": 6.24,
       "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "cabozantinib_ipilimumab_nivolumab",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "failure"
+      "outcome": "unknown",
+      "mechanism_description": "CTLA-4 and PD-1 checkpoint blockade with VEGFR2/MET/KIT multi-kinase inhibition",
+      "biology_description": "T cell activation and anti-angiogenic signaling in refractory metastatic melanoma",
+      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma"
     }
   ],
   "modulation_entries": [
@@ -107,9 +102,9 @@
       "primary_compound_id": "nivolumab",
       "affects_layer": "biology",
       "direction": "neutral",
-      "confidence": 0.85,
-      "hypothesis": "anti-angiogenic therapy enhances immune checkpoint blockade by normalizing tumor vasculature and improving T cell infiltration",
-      "citation": "Cabozantinib is a potent small molecule inhibitor of multiple receptor tyrosine kinases. Cabozantinib inhibits VEGFR2, MER, KIT, and MET at single digit nanomolar IC50 concentrations."
+      "confidence": 0.6,
+      "hypothesis": "VEGFR2/MET inhibition enhances immune checkpoint blockade by reducing immunosuppressive angiogenesis",
+      "citation": "Withdrawn support from BMS."
     }
   ]
 }

@@ -3,21 +3,21 @@
   "therapeutic_hypothesis": {
     "compound": "LGX818 + MEK162",
     "claimed_target": "BRAF + MEK",
-    "proposed_mechanism": "dual BRAF and MEK inhibition to overcome resistance",
-    "intended_biology": "MAPK pathway blockade in BRAF-mutant melanoma",
+    "proposed_mechanism": "BRAF inhibition combined with MEK inhibition to overcome resistance",
+    "intended_biology": "MAPK pathway suppression in BRAF-mutant melanoma",
     "target_population": "BRAF mutant melanoma patients",
-    "primary_endpoint": "progression-free survival",
+    "primary_endpoint": "Progression Free Survival (PFS)",
     "rationale_strength": "strong"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "Combo 450 vs vemurafenib: 14.9 vs 7.3 months PFS; Combo 450 vs LGX818: 14.9 vs 9.6 months PFS",
+    "effect_size": "Combo 450 vs Vemurafenib: 14.9 vs 7.3 months PFS; Combo 450 vs LGX818: 14.9 vs 9.6 months PFS",
     "p_value": null,
     "target_engagement_evidence": "Plasma concentrations achieved for both LGX818 and MEK162",
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "Grade 2-3 LVEF reduction more common with combo",
+      "Grade 2-3 LVEF reduction more common with combination",
       "Creatine kinase elevation",
       "Cardiac events including atrial fibrillation",
       "Dermatologic toxicities"
@@ -44,22 +44,15 @@
         "serious": true
       },
       {
-        "term": "Creatine kinase elevation",
-        "grade": "3-4",
-        "incidence_treatment_pct": 22.4,
-        "incidence_control_pct": 1.1,
-        "serious": false
-      },
-      {
         "term": "Anaemia",
-        "grade": "",
+        "grade": "3-4",
         "incidence_treatment_pct": 2.6,
         "incidence_control_pct": 1.1,
         "serious": true
       },
       {
         "term": "Atrial fibrillation",
-        "grade": "",
+        "grade": "3-4",
         "incidence_treatment_pct": 0.5,
         "incidence_control_pct": 0.5,
         "serious": true
@@ -110,7 +103,10 @@
       "endpoint": "PFS",
       "effect_size": 14.9,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "BRAF inhibition combined with MEK inhibition to prevent resistance bypass",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
+      "population_description": "BRAF mutant melanoma patients"
     },
     {
       "arm_id": "vemurafenib",
@@ -118,7 +114,10 @@
       "endpoint": "PFS",
       "effect_size": 7.3,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "partial",
+      "mechanism_description": "BRAF V600E inhibition",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
+      "population_description": "BRAF mutant melanoma patients"
     },
     {
       "arm_id": "lgx818",
@@ -126,7 +125,10 @@
       "endpoint": "PFS",
       "effect_size": 9.6,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "partial",
+      "mechanism_description": "BRAF inhibition",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
+      "population_description": "BRAF mutant melanoma patients"
     },
     {
       "arm_id": "lgx818_300_mg_mek162",
@@ -134,42 +136,21 @@
       "endpoint": "PFS",
       "effect_size": 12.9,
       "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "lgx818_450_mg_mek162",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 33.6,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "vemurafenib",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 16.9,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "lgx818",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 23.5,
-      "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "BRAF inhibition combined with MEK inhibition to prevent resistance bypass",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
+      "population_description": "BRAF mutant melanoma patients"
     }
   ],
   "modulation_entries": [
     {
-      "modulator_compound_id": "mek162",
-      "primary_compound_id": "lgx818",
+      "modulator_compound_id": "MEK162",
+      "primary_compound_id": "LGX818",
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.85,
-      "hypothesis": "MEK162 prevents reactivation of MAPK signaling downstream of BRAF inhibition, enhancing and prolonging the anti-tumor effect of LGX818",
-      "citation": "Combo 450 vs LGX818 monotherapy: 14.9 vs 9.6 months PFS; Combo 450 vs vemurafenib: 14.9 vs 7.3 months PFS"
+      "hypothesis": "MEK inhibition prevents resistance bypass that occurs with BRAF inhibition alone",
+      "citation": "Combo 450 vs LGX818: 14.9 vs 9.6 months PFS; Combo 300 vs LGX818: 12.9 vs 7.4 months PFS"
     }
   ]
 }

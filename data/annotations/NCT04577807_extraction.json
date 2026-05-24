@@ -3,8 +3,8 @@
   "therapeutic_hypothesis": {
     "compound": "lerapolturev",
     "claimed_target": "tumor microenvironment",
-    "proposed_mechanism": "direct intratumoral injection to stimulate local immune activation",
-    "intended_biology": "immune system activation and tumor infiltration",
+    "proposed_mechanism": "direct intratumoral injection to activate local immune response",
+    "intended_biology": "immune activation and tumor infiltration enhancement",
     "target_population": "advanced PD-1 refractory melanoma",
     "primary_endpoint": "overall response rate",
     "rationale_strength": "moderate"
@@ -22,7 +22,7 @@
     "safety_signals": [
       "treatment-emergent adverse events in 24/27 patients",
       "immune-related adverse events in combination arms",
-      "discontinuations due to adverse events in 3 patients"
+      "3 patients discontinued due to adverse events"
     ],
     "dose_info": {
       "dose": "",
@@ -105,7 +105,7 @@
   },
   "context": {
     "indication": "advanced PD-1 refractory melanoma",
-    "comparator": "lerapolturev monotherapy vs lerapolturev plus anti-PD-1",
+    "comparator": "lerapolturev monotherapy vs combination with anti-PD-1",
     "sample_size": 27,
     "duration": "24 months",
     "duration_weeks": 104.3,
@@ -131,50 +131,46 @@
     {
       "arm_id": "arm_1_lerapolturev",
       "subgroup_descriptor": null,
-      "endpoint": "overall response",
-      "effect_size": 1.0,
+      "endpoint": "ORR",
+      "effect_size": 7.7,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "direct intratumoral injection for local immune activation",
+      "biology_description": "immune activation and tumor microenvironment modulation in advanced melanoma",
+      "population_description": "PD-1 refractory advanced melanoma patients"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
       "subgroup_descriptor": null,
-      "endpoint": "overall response",
-      "effect_size": 1.0,
+      "endpoint": "ORR",
+      "effect_size": 7.7,
       "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "arm_1_lerapolturev",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 4.3,
-      "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 10.5,
-      "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure",
+      "mechanism_description": "intratumoral immune activation combined with PD-1 checkpoint blockade",
+      "biology_description": "enhanced immune activation and checkpoint inhibition in advanced melanoma",
+      "population_description": "PD-1 refractory advanced melanoma patients"
     },
     {
       "arm_id": "arm_1_lerapolturev",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
-      "effect_size": 1.9,
+      "effect_size": 2.05,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "direct intratumoral injection for local immune activation",
+      "biology_description": "immune activation and tumor microenvironment modulation in advanced melanoma",
+      "population_description": "PD-1 refractory advanced melanoma patients"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
-      "effect_size": 1.6,
+      "effect_size": 2.65,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "intratumoral immune activation combined with PD-1 checkpoint blockade",
+      "biology_description": "enhanced immune activation and checkpoint inhibition in advanced melanoma",
+      "population_description": "PD-1 refractory advanced melanoma patients"
     }
   ],
   "modulation_entries": [
@@ -184,8 +180,8 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "lerapolturev intratumoral injection intended to enhance anti-PD-1 efficacy through local immune activation",
-      "citation": "Overall response rates were low in both monotherapy and combination arms with only 2/27 total responses"
+      "hypothesis": "intratumoral lerapolturev injection enhances local immune activation to overcome PD-1 resistance",
+      "citation": "combination arm showed similar response rates to monotherapy with no clear enhancement"
     }
   ]
 }

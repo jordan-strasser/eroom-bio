@@ -3,27 +3,28 @@
   "therapeutic_hypothesis": {
     "compound": "evolocumab",
     "claimed_target": "PCSK9",
-    "proposed_mechanism": "PCSK9 inhibition prevents degradation of LDL receptors",
-    "intended_biology": "enhanced LDL cholesterol clearance from plasma",
+    "proposed_mechanism": "PCSK9 inhibition to prevent LDL receptor degradation",
+    "intended_biology": "cholesterol metabolism regulation",
     "target_population": "Japanese patients with hyperlipidemia or mixed dyslipidemia at high cardiovascular risk",
     "primary_endpoint": "percent change from baseline in LDL-C at weeks 10-12",
     "rationale_strength": "strong"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "~70-77% reduction in LDL-C vs placebo",
+    "effect_size": "~70-75% reduction in LDL-C",
     "p_value": 0.001,
-    "target_engagement_evidence": "robust LDL-C reduction demonstrates PCSK9 inhibition",
+    "target_engagement_evidence": "Significant LDL-C reduction consistent with PCSK9 inhibition",
     "biomarker_changes": [
-      "LDL-C reduced 64-77% vs placebo",
-      "Non-HDL-C reduced 61-69% vs placebo",
-      "Apolipoprotein B reduced 56-65% vs placebo",
-      "Lipoprotein(a) reduced 40-52% vs placebo",
-      "HDL-C increased 9-16% vs placebo"
+      "LDL-C reduced 64-77%",
+      "Non-HDL-C reduced 58-69%",
+      "Apolipoprotein B reduced 55-65%",
+      "Lipoprotein(a) reduced 40-52%",
+      "HDL-C increased 7-16%"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "6 serious adverse events across arms: pneumonia bacterial, contusion, rotator cuff syndrome, endometrial cancer, brain stem infarction, epilepsy"
+      "Generally well tolerated",
+      "Serious adverse events were infrequent and not clearly drug-related"
     ],
     "dose_info": {
       "dose": "140 mg",
@@ -33,42 +34,42 @@
     },
     "adverse_events": [
       {
-        "term": "pneumonia bacterial",
+        "term": "Pneumonia bacterial",
         "grade": "",
         "incidence_treatment_pct": 2.0,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "contusion",
+        "term": "Contusion",
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 2.0,
         "serious": true
       },
       {
-        "term": "rotator cuff syndrome",
+        "term": "Rotator cuff syndrome",
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 2.0,
         "serious": true
       },
       {
-        "term": "endometrial cancer",
+        "term": "Endometrial cancer",
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 2.0,
         "serious": true
       },
       {
-        "term": "brain stem infarction",
+        "term": "Brain stem infarction",
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 1.9,
         "serious": true
       },
       {
-        "term": "epilepsy",
+        "term": "Epilepsy",
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 2.0,
@@ -143,34 +144,46 @@
     {
       "arm_id": "a5_evolocumab_q2w",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -73.7,
       "p_value": 0.001,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hyperlipidemic patients",
+      "population_description": "Japanese patients with hyperlipidemia at high cardiovascular risk on low-dose atorvastatin"
     },
     {
       "arm_id": "a5_evolocumab_qm",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -70.0,
       "p_value": 0.001,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hyperlipidemic patients",
+      "population_description": "Japanese patients with hyperlipidemia at high cardiovascular risk on low-dose atorvastatin"
     },
     {
       "arm_id": "a20_evolocumab_q2w",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -74.8,
       "p_value": 0.001,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hyperlipidemic patients",
+      "population_description": "Japanese patients with hyperlipidemia at high cardiovascular risk on high-dose atorvastatin"
     },
     {
       "arm_id": "a20_evolocumab_qm",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -76.9,
       "p_value": 0.001,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hyperlipidemic patients",
+      "population_description": "Japanese patients with hyperlipidemia at high cardiovascular risk on high-dose atorvastatin"
     }
   ],
   "modulation_entries": [
@@ -180,7 +193,7 @@
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.9,
-      "hypothesis": "PCSK9 inhibition by evolocumab enhances atorvastatin's LDL-lowering effect by preventing LDL receptor degradation",
+      "hypothesis": "PCSK9 inhibition amplifies statin-mediated cholesterol reduction by preventing LDL receptor degradation",
       "citation": "LS Mean Treatment Difference = -73.97 (95% CI: -78.54\u2013-69.41), p = <0.001"
     }
   ]

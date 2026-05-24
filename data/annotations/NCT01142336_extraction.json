@@ -6,18 +6,18 @@
     "proposed_mechanism": "cholesterol synthesis inhibition",
     "intended_biology": "amyloid beta metabolism modulation",
     "target_population": "Alzheimer's disease patients",
-    "primary_endpoint": "change in CSF biomarkers (A\u03b242, total tau, ptau181)",
+    "primary_endpoint": "change in CSF A\u03b242, total tau, and ptau181 at 1 year",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "no significant changes in CSF biomarkers",
+    "effect_size": "A\u03b242: 0.5 vs 5.3 pg/ml change; total tau: 1.6 vs -0.1 pg/ml; ptau181: 1.7 vs -2.9 pg/ml",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [
-      "CSF A\u03b242 change: placebo +5.3 pg/ml vs simvastatin +0.5 pg/ml (p=0.53)",
-      "CSF total tau change: placebo -0.1 pg/ml vs simvastatin +1.6 pg/ml (p=0.36)",
-      "CSF ptau181 change: placebo -2.9 pg/ml vs simvastatin +1.7 pg/ml (p=0.25)"
+      "CSF A\u03b242 change: simvastatin 0.5 pg/ml vs placebo 5.3 pg/ml (p=0.53)",
+      "CSF total tau change: simvastatin 1.6 pg/ml vs placebo -0.1 pg/ml (p=0.36)",
+      "CSF ptau181 change: simvastatin 1.7 pg/ml vs placebo -2.9 pg/ml (p=0.25)"
     ],
     "subgroup_findings": [],
     "safety_signals": [],
@@ -46,7 +46,9 @@
     },
     {
       "arm_id": "placebo",
-      "compounds": []
+      "compounds": [
+        "placebo"
+      ]
     }
   ],
   "subgroups": [],
@@ -54,50 +56,13 @@
     {
       "arm_id": "simvastatin",
       "subgroup_descriptor": null,
-      "endpoint": "CSF A\u03b242 change",
-      "effect_size": 0.5,
+      "endpoint": "CSF biomarkers",
+      "effect_size": null,
       "p_value": 0.53,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "CSF A\u03b242 change",
-      "effect_size": 5.3,
-      "p_value": 0.53,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "simvastatin",
-      "subgroup_descriptor": null,
-      "endpoint": "CSF total tau change",
-      "effect_size": 1.6,
-      "p_value": 0.36,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "CSF total tau change",
-      "effect_size": -0.1,
-      "p_value": 0.36,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "simvastatin",
-      "subgroup_descriptor": null,
-      "endpoint": "CSF ptau181 change",
-      "effect_size": 1.7,
-      "p_value": 0.25,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "CSF ptau181 change",
-      "effect_size": -2.9,
-      "p_value": 0.25,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "HMG-CoA reductase inhibition reducing cholesterol synthesis",
+      "biology_description": "amyloid beta metabolism modulation in Alzheimer's disease",
+      "population_description": "Alzheimer's disease patients"
     }
   ],
   "modulation_entries": []

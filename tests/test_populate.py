@@ -2001,6 +2001,125 @@ class TestBuildTrialSubgraphFromExtraction:
         unknowns = [c for c in ts.chains if c.outcome == TrialOutcome.UNKNOWN]
         assert len(unknowns) == 10  # 12 total - 2 filled
 
+    def test_preserves_descriptions_onto_semantic_nodes(self, graph):
+        """A.0: trial-level mechanism/biology descriptions and population
+        descriptions (parent target_population + subgroup raw descriptor) land
+        on the corresponding nodes as the BioLORD embedding substrate."""
+        from src.annotation.taxonomy import (
+            ExtractedArm, ExtractedSubgroup, ChainResult, TrialExtraction,
+        )
+        from src.graph.models import (
+            BiologyNode, MechanismNode, MechanismType,
+            EndpointNode, EndpointType, RegulatoryStatus,
+            IndicationNode, CompoundNode, Modality, TargetNode,
+        )
+        from src.ingestion.clinicaltrials import ArmGroup
+
+        trial = TrialRecord(
+            nct_id="NCT_DESC", title="Desc test", phase="3", status="COMPLETED",
+            conditions=["Melanoma"],
+            interventions=[Intervention(name="Nivolumab", type="BIOLOGICAL")],
+            primary_outcomes=[OutcomeMeasure(measure="Overall Survival")],
+            arm_groups=[
+                ArmGroup(group_id="nivo", title="Nivolumab",
+                         intervention_names=["Nivolumab"]),
+            ],
+            has_results=True,
+        )
+        graph.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        graph.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        graph.add_node(TargetNode(id="ENSG_PD1", name="PD-1", gene_symbol="PD-1"))
+        graph.add_node(MechanismNode(id="checkpoint_blockade", name="cb", mechanism_type=MechanismType.ANTAGONISM))
+        graph.add_node(BiologyNode(id="R-HSA-389948", name="PD-1 sig"))
+        graph.add_node(EndpointNode(
+            id="OS_melanoma", name="OS",
+            endpoint_type=EndpointType.PRIMARY, regulatory_status=RegulatoryStatus.ACCEPTED,
+        ))
+
+        extraction = TrialExtraction(
+            trial_id="NCT_DESC",
+            arms=[ExtractedArm(arm_id="nivo", compounds=["Nivolumab"])],
+            subgroups=[
+                ExtractedSubgroup(raw_descriptor="PD-L1 ≥1%",
+                                 features=[{"axis": "gene", "key": "CD274", "level": "high"}]),
+            ],
+            results_by_chain=[
+                ChainResult(arm_id="nivo", subgroup_descriptor="PD-L1 ≥1%",
+                           endpoint="OS", effect_size=0.5, outcome="success"),
+            ],
+            mechanism_description="PD-1 checkpoint blockade restoring T-cell cytotoxicity",
+            biology_description="T-cell exhaustion reversal in the tumor microenvironment",
+            target_population_description="treatment-naive metastatic melanoma patients",
+        )
+
+        build_trial_subgraph_from_extraction(
+            graph, trial, extraction,
+            target_by_arm={"nivo": "ENSG_PD1"},
+            mechanism_id="checkpoint_blockade",
+            biology_id="R-HSA-389948",
+            indication_id="melanoma",
+            endpoint_ids={"OS": "OS_melanoma"},
+        )
+
+        assert graph.get_node("checkpoint_blockade")["description"] == (
+            "PD-1 checkpoint blockade restoring T-cell cytotoxicity"
+        )
+        assert graph.get_node("R-HSA-389948")["description"] == (
+            "T-cell exhaustion reversal in the tumor microenvironment"
+        )
+        assert graph.get_node("melanoma__unselected")["description"] == (
+            "treatment-naive metastatic melanoma patients"
+        )
+        # Subgroup population carries its raw descriptor as the substrate.
+        assert graph.get_node("melanoma__cd274_positive")["description"] == "PD-L1 ≥1%"
+
+    def test_attach_descriptions_from_extractions_production_path(self, graph, tmp_path):
+        """A.0 production path: the real build creates nodes before extractions
+        exist, then attaches descriptions from cached extraction JSON to the
+        Mechanism / Biology / Population nodes a trial's chains touch."""
+        import json as _json
+        from src.graph.models import (
+            BiologyNode, MechanismNode, MechanismType, PopulationNode,
+            CausalChain, TrialSubgraph,
+        )
+        from src.graph.populate import attach_node_descriptions_from_extractions
+
+        graph.add_node(MechanismNode(id="kinase_inhibition", name="kinase inhibition",
+                                     mechanism_type=MechanismType.ANTAGONISM))
+        graph.add_node(BiologyNode(id="R-HSA-1", name="some pathway"))
+        graph.add_node(PopulationNode(id="nsclc__unselected", name="nsclc unselected"))
+        graph.add_node(PopulationNode(id="nsclc__egfr_mutant", name="EGFR mutant (nsclc)"))
+
+        def _chain(pop):
+            return CausalChain(
+                arm_id="a", compound_id="c", subgroup_population_id=pop,
+                target_id="t", mechanism_id="kinase_inhibition", biology_id="R-HSA-1",
+                indication_id="nsclc", endpoint_id="e",
+            )
+        graph.set_trial_subgraph(TrialSubgraph(
+            trial_id="NCT_A0", parent_population_id="nsclc__unselected",
+            chains=[_chain("nsclc__unselected"), _chain("nsclc__egfr_mutant")],
+        ))
+
+        (tmp_path / "NCT_A0_extraction.json").write_text(_json.dumps({
+            "nct_id": "NCT_A0",
+            "therapeutic_hypothesis": {
+                "proposed_mechanism": "EGFR tyrosine kinase inhibition",
+                "intended_biology": "blocking proliferative signaling",
+                "target_population": "EGFR-mutant NSCLC patients",
+            },
+        }))
+
+        n = attach_node_descriptions_from_extractions(graph, tmp_path)
+        # mechanism + biology + parent pop (chain 1) + subgroup pop (chain 2);
+        # mech/bio dedup across the two chains (first-non-empty-wins).
+        assert n == 4
+        assert graph.get_node("kinase_inhibition")["description"] == "EGFR tyrosine kinase inhibition"
+        assert graph.get_node("R-HSA-1")["description"] == "blocking proliferative signaling"
+        assert graph.get_node("nsclc__unselected")["description"] == "EGFR-mutant NSCLC patients"
+        # subgroup pop falls back to its own (descriptor-bearing) name
+        assert graph.get_node("nsclc__egfr_mutant")["description"] == "EGFR mutant (nsclc)"
+
     def test_skips_subgroup_when_all_features_canonicalize_to_other(self, graph):
         """Continuous PD readouts and analysis-timepoint markers aren't
         real subgroups. When canonicalization can't place any feature on

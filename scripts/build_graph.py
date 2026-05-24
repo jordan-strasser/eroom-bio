@@ -34,6 +34,7 @@ from src.annotation.classifier import Classifier
 from src.annotation.extractor import Extractor
 from src.graph.populate import (
     PopulationPipeline,
+    attach_node_descriptions_from_extractions,
     seed_responds_differently_from_extractions,
 )
 from src.graph.store import GraphStore
@@ -612,10 +613,17 @@ async def main(
     rd_added, chains_added = await seed_responds_differently_from_extractions(
         seed_graph, ANNOTATIONS_DIR,
     )
+    # A.0: preserve the trials' rich free-text descriptions onto the Mechanism
+    # / Biology / Population nodes as the BioLORD embedding substrate (A.1).
+    # Reads the same cached extractions — no new LLM call.
+    desc_set = attach_node_descriptions_from_extractions(
+        seed_graph, ANNOTATIONS_DIR,
+    )
     seed_graph.export_snapshot(str(initial_path))
     console.print(
         f"  seeded {rd_added} responds_differently edges, "
-        f"forked {chains_added} subgroup chains"
+        f"forked {chains_added} subgroup chains, "
+        f"set {desc_set} node descriptions"
     )
 
     # Step 3c: classify each trial against the seeded graph so the

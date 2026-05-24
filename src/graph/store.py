@@ -25,6 +25,16 @@ from src.inference.beliefs import (
     p_obs_for_bucket,
     redundancy_factor,
 )
+from src.boundary import (
+    assert_public_safe,
+    require_under_private_root,
+    strip_private,
+)
+from src.inference.belief_field import (
+    BeliefField,
+    apply_virtual_evidence_local,
+    field_enabled,
+)
 
 
 class GraphStore:
@@ -175,6 +185,26 @@ class GraphStore:
         p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
 
+        # A.3 (flag-gated, EROOM_BELIEF_FIELD): also localize this evidence on
+        # the per-region belief field when it carries (s, t) embeddings. The
+        # scalar update above is unchanged — default behavior and public
+        # predictions are byte-identical until the flag is on. The field is the
+        # private "edge weights" (stripped from public snapshots).
+        if (
+            field_enabled()
+            and evidence.source_embedding is not None
+            and evidence.target_embedding is not None
+        ):
+            bf = BeliefField.from_dict(belief.belief_field or {})
+            apply_virtual_evidence_local(
+                bf,
+                s=evidence.source_embedding,
+                t=evidence.target_embedding,
+                n_eff=n_eff,
+                p_obs=p_obs,
+            )
+            belief.belief_field = bf.to_dict()
+
         belief.evidence.append(evidence)
         data["belief"] = belief.model_dump(mode="json")
         return belief
@@ -257,32 +287,67 @@ class GraphStore:
 
     # ── Persistence ──────────────────────────────────────────────────────
 
-    def export_snapshot(self, filepath: str) -> None:
-        """Serialize graph + trial_subgraphs sidecar to a single JSON file.
+    def _build_snapshot_payload(self) -> dict[str, Any]:
+        """Full serializable payload (public + any private values present).
 
         Format:
             {
               "graph": <node_link_data>,
-              "trial_subgraphs": {trial_id: TrialSubgraph.model_dump()}
+              "trial_subgraphs": {trial_id: TrialSubgraph.model_dump()},
+              "applied_attribution_trial_ids": [...]
             }
-
-        Old-format snapshots (bare node_link_data) are still readable by
-        ``import_snapshot`` for backwards compatibility with previously
-        exported graphs that pre-date the sidecar.
         """
         graph_data = nx.node_link_data(self._graph)
         trials_data = {
             tid: ts.model_dump(mode="json")
             for tid, ts in self.trial_subgraphs.items()
         }
-        payload = {
+        return {
             "graph": graph_data,
             "trial_subgraphs": trials_data,
             "applied_attribution_trial_ids": sorted(
                 self.applied_attribution_trial_ids
             ),
         }
-        Path(filepath).write_text(json.dumps(payload, indent=2, default=str))
+
+    def export_snapshot(self, filepath: str) -> None:
+        """Serialize the **public** projection of the graph to one JSON file.
+
+        Private values (fine-tuned embeddings, trained boxes, per-region
+        belief fields — anything matching ``src/boundary.py``'s convention)
+        are stripped before writing, so the committed ``data/exports/``
+        artifact is clean by construction even when the in-memory graph holds
+        them during a combined build. An ``assert_public_safe`` self-check
+        then turns any field that slips the convention into a loud failure
+        rather than a silent leak. See ``src/boundary.py`` for the contract.
+
+        The scalar ``Beta(alpha, beta)`` edge belief, evidence provenance, and
+        trial subgraphs are public and pass through unchanged — the public
+        snapshot stays exactly as marketed today.
+
+        Old-format snapshots (bare node_link_data) remain readable by
+        ``import_snapshot`` for backwards compatibility.
+        """
+        public_payload = strip_private(self._build_snapshot_payload())
+        assert_public_safe(public_payload, source=filepath)
+        Path(filepath).write_text(
+            json.dumps(public_payload, indent=2, default=str)
+        )
+
+    def export_private_snapshot(self, filepath: str) -> None:
+        """Serialize the **full** payload (public + private values) for the
+        enterprise tree.
+
+        Refuses any ``filepath`` outside ``boundary.private_root()`` so a
+        private snapshot can never be written into the tracked ``data/exports/``
+        directory by a slipped argument. Use this for the per-region belief
+        field and any other manifold-2/3 artifacts.
+        """
+        target = require_under_private_root(filepath)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(self._build_snapshot_payload(), indent=2, default=str)
+        )
 
     def import_snapshot(self, filepath: str) -> None:
         raw = json.loads(Path(filepath).read_text())

@@ -6,7 +6,7 @@
     "proposed_mechanism": "MEK inhibition",
     "intended_biology": "MAPK pathway suppression",
     "target_population": "BRAF V600E/K mutation-positive advanced or metastatic melanoma",
-    "primary_endpoint": "Progression-free survival in BRAF V600E mutation-positive participants without brain metastases",
+    "primary_endpoint": "Progression-free survival",
     "rationale_strength": "strong"
   },
   "results": {
@@ -16,13 +16,13 @@
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "BRAF V600E patients: median PFS 4.8 months vs 1.4 months",
-      "BRAF V600K patients: response rate lower than V600E",
-      "Prior chemotherapy vs chemotherapy-naive showed similar benefit"
+      "BRAF V600E patients without brain metastases: PFS 4.8 vs 1.4 months",
+      "BRAF V600E patients without prior chemotherapy: PFS 4.8 vs 1.4 months",
+      "BRAF V600E patients with prior chemotherapy: PFS 4.8 vs 2.7 months"
     ],
     "safety_signals": [
       "Cellulitis and erysipelas were notable serious adverse events",
-      "Various infections reported more frequently with trametinib"
+      "Various infections reported including pneumonia and eye infections"
     ],
     "dose_info": {
       "dose": "",
@@ -60,45 +60,10 @@
         "serious": true
       },
       {
-        "term": "Eye infection",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Klebsiella infection",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Localized infection",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
-        "term": "Lymphangitis",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
-        "serious": true
-      },
-      {
         "term": "Pneumonia",
         "grade": "",
         "incidence_treatment_pct": 0.5,
         "incidence_control_pct": 1.0,
-        "serious": true
-      },
-      {
-        "term": "Rash pustular",
-        "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": null,
         "serious": true
       }
     ]
@@ -177,27 +142,14 @@
   "results_by_chain": [
     {
       "arm_id": "gsk1120212",
-      "subgroup_descriptor": "BRAF V600E mutation-positive",
-      "endpoint": "PFS",
-      "effect_size": 4.8,
-      "p_value": 0.0001,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "chemotherapy",
-      "subgroup_descriptor": "BRAF V600E mutation-positive",
-      "endpoint": "PFS",
-      "effect_size": 1.4,
-      "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "gsk1120212",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 4.9,
-      "p_value": null,
-      "outcome": "success"
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "MEK inhibition in BRAF-mutant melanoma",
+      "biology_description": "MAPK pathway suppression in advanced melanoma",
+      "population_description": "BRAF V600E/K mutation-positive advanced or metastatic melanoma"
     },
     {
       "arm_id": "chemotherapy",
@@ -205,23 +157,32 @@
       "endpoint": "PFS",
       "effect_size": 1.5,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation and microtubule disruption",
+      "biology_description": "cell cycle arrest and apoptosis in advanced melanoma",
+      "population_description": "BRAF V600E/K mutation-positive advanced or metastatic melanoma"
     },
     {
       "arm_id": "gsk1120212",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 15.6,
-      "p_value": null,
-      "outcome": "success"
+      "subgroup_descriptor": "BRAF V600E mutation-positive",
+      "endpoint": "PFS",
+      "effect_size": 4.8,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "MEK inhibition in BRAF V600E-mutant melanoma",
+      "biology_description": "MAPK pathway suppression in V600E-mutant advanced melanoma",
+      "population_description": "BRAF V600E mutation-positive advanced melanoma without brain metastases"
     },
     {
       "arm_id": "chemotherapy",
-      "subgroup_descriptor": null,
-      "endpoint": "OS",
-      "effect_size": 11.3,
+      "subgroup_descriptor": "BRAF V600E mutation-positive",
+      "endpoint": "PFS",
+      "effect_size": 1.4,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation and microtubule disruption",
+      "biology_description": "cell cycle arrest and apoptosis in V600E-mutant advanced melanoma",
+      "population_description": "BRAF V600E mutation-positive advanced melanoma without brain metastases"
     }
   ],
   "modulation_entries": []

@@ -480,6 +480,11 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
             effect_size=es_value,
             p_value=cr.get("p_value"),
             outcome=(cr.get("outcome") or "unknown").lower(),
+            # A.0b per-chain contextualized descriptions (absent in pre-A.0b
+            # cached extractions → default "").
+            mechanism_description=(cr.get("mechanism_description") or "").strip(),
+            biology_description=(cr.get("biology_description") or "").strip(),
+            population_description=(cr.get("population_description") or "").strip(),
         ))
 
     # Structured dose_info supersedes the legacy results.dose_information
@@ -516,6 +521,12 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         dose_info=dose_info,
         adverse_events=adverse_events,
         modulation_entries=modulation_entries,
+        # A.0: preserve the trial's rich free-text hypothesis descriptions so
+        # the populator can attach them to Mechanism / Biology / Population
+        # nodes (the embedding substrate). Already in raw_json — no new call.
+        mechanism_description=hypothesis.get("proposed_mechanism", "") or "",
+        biology_description=hypothesis.get("intended_biology", "") or "",
+        target_population_description=hypothesis.get("target_population", "") or "",
     )
 
 

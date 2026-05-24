@@ -128,6 +128,47 @@ class TestParseResponse:
         assert extraction.primary_endpoint_met is True
         assert extraction.p_value == 0.003
 
+    def test_preserves_hypothesis_descriptions(self):
+        # A.0: the rich free-text hypothesis fields are carried onto
+        # TrialExtraction (they already exist in every cached extraction's
+        # raw JSON, which is what makes the backfill free).
+        raw = {
+            "nct_id": "NCT_DESC",
+            "therapeutic_hypothesis": {
+                "proposed_mechanism": "VEGFR2 inhibition blocking tumor angiogenesis",
+                "intended_biology": "angiogenesis inhibition in solid tumors",
+                "target_population": "patients with metastatic colorectal cancer",
+            },
+        }
+        ex = _parse_extraction_response(raw, "NCT_DESC")
+        assert ex.mechanism_description == "VEGFR2 inhibition blocking tumor angiogenesis"
+        assert ex.biology_description == "angiogenesis inhibition in solid tumors"
+        assert ex.target_population_description == (
+            "patients with metastatic colorectal cancer"
+        )
+
+    def test_parses_per_chain_descriptions_a0b(self):
+        # A.0b: contextualized per-chain descriptions land on ChainResult;
+        # absent fields default to "" (pre-A.0b cached extractions parse fine).
+        raw = {
+            "nct_id": "NCT_A0B",
+            "results_by_chain": [
+                {
+                    "arm_id": "arm_1", "endpoint": "PFS", "outcome": "failure",
+                    "mechanism_description": "VEGFR2 inhibition in tumor vasculature",
+                    "biology_description": "angiogenesis inhibition in stage III adjuvant CRC",
+                    "population_description": "resected stage III colon cancer",
+                },
+                {"arm_id": "arm_2", "endpoint": "OS", "outcome": "unknown"},
+            ],
+        }
+        ex = _parse_extraction_response(raw, "NCT_A0B")
+        c0, c1 = ex.results_by_chain
+        assert c0.mechanism_description == "VEGFR2 inhibition in tumor vasculature"
+        assert c0.biology_description == "angiogenesis inhibition in stage III adjuvant CRC"
+        assert c0.population_description == "resected stage III colon cancer"
+        assert c1.mechanism_description == ""  # absent → default
+
     def test_extracts_effect_size_float(self):
         extraction = _parse_extraction_response(VALID_RESPONSE_JSON, "NCT00000001")
         assert extraction.effect_size == pytest.approx(0.73)

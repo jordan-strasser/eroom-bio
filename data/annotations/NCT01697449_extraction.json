@@ -3,26 +3,26 @@
   "therapeutic_hypothesis": {
     "compound": "bevacizumab",
     "claimed_target": "VEGF",
-    "proposed_mechanism": "VEGF inhibition",
-    "intended_biology": "angiogenesis inhibition",
+    "proposed_mechanism": "VEGF neutralization to inhibit angiogenesis",
+    "intended_biology": "tumor angiogenesis inhibition",
     "target_population": "patients with metastatic colorectal cancer",
     "primary_endpoint": "safety (percentage of participants with at least one adverse event)",
     "rationale_strength": "strong"
   },
   "results": {
     "primary_endpoint_met": null,
-    "effect_size": "15.2% of participants experienced at least one adverse event",
+    "effect_size": "15.2% adverse event rate",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "Clinical benefit rate 72% in resectable/potentially resectable CRC at baseline",
-      "Clinical benefit rate 69% in unresectable CRC at baseline",
+      "Clinical benefit rate 72% in resectable/potentially resectable CRC",
+      "Clinical benefit rate 69% in unresectable CRC",
       "34.5% of unresectable patients became resectable postbaseline"
     ],
     "safety_signals": [
       "15.2% overall adverse event rate",
-      "Serious adverse events included neutropenia (5/191), hypertension (3/191), and various thromboembolic events"
+      "Serious adverse events included neutropenia (5/191), hypertension (3/191), and various thrombotic events"
     ],
     "dose_info": {
       "dose": "",
@@ -145,10 +145,13 @@
     {
       "arm_id": "cohort",
       "subgroup_descriptor": null,
-      "endpoint": "AE rate",
-      "effect_size": 15.2,
+      "endpoint": "PFS",
+      "effect_size": 9.0,
       "p_value": null,
-      "outcome": "unknown"
+      "outcome": "unknown",
+      "mechanism_description": "VEGF neutralization inhibiting tumor angiogenesis",
+      "biology_description": "angiogenesis inhibition in metastatic colorectal cancer",
+      "population_description": "patients with metastatic colorectal cancer"
     },
     {
       "arm_id": "cohort",
@@ -156,7 +159,10 @@
       "endpoint": "clinical benefit rate",
       "effect_size": 72.0,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "VEGF neutralization inhibiting tumor angiogenesis",
+      "biology_description": "angiogenesis inhibition in metastatic colorectal cancer",
+      "population_description": "patients with resectable or potentially resectable metastatic colorectal cancer"
     },
     {
       "arm_id": "cohort",
@@ -164,15 +170,10 @@
       "endpoint": "clinical benefit rate",
       "effect_size": 69.0,
       "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "cohort",
-      "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 9.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "outcome": "success",
+      "mechanism_description": "VEGF neutralization inhibiting tumor angiogenesis",
+      "biology_description": "angiogenesis inhibition in metastatic colorectal cancer",
+      "population_description": "patients with unresectable metastatic colorectal cancer"
     }
   ],
   "modulation_entries": []

@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT04902144",
   "therapeutic_hypothesis": {
-    "compound": "Tiered genetic testing approach with peer coaching",
-    "claimed_target": "Healthcare delivery optimization",
-    "proposed_mechanism": "Systematic identification and coaching to increase genetic testing uptake",
-    "intended_biology": "Cancer predisposition screening and risk assessment",
+    "compound": "Behavioral Intervention (Peer Coaching)",
+    "claimed_target": "Patient behavior and healthcare utilization",
+    "proposed_mechanism": "Peer coaching to improve uptake of genetic counseling and testing",
+    "intended_biology": "Healthcare decision-making and genetic testing utilization",
     "target_population": "Cancer patients meeting criteria for genetic counseling and testing",
     "primary_endpoint": "Uptake of genetic testing",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "25/48 (52.1%) vs 29/100 (29.0%) genetic testing uptake",
+    "effect_size": "25/48 (52.1%) with coaching vs 29/100 (29.0%) without coaching",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
@@ -26,7 +26,7 @@
     "adverse_events": []
   },
   "context": {
-    "indication": "Multiple solid tumors (breast, colon, ovarian, pancreatic, prostate carcinoma)",
+    "indication": "Multiple cancer types (breast, colon, ovarian, pancreatic, prostate carcinoma)",
     "comparator": "Medical data collection without peer coaching",
     "sample_size": 6,
     "duration": "1 year and 4 months",
@@ -37,7 +37,7 @@
     {
       "arm_id": "screening_medical_records_coaching",
       "compounds": [
-        "tiered_genetic_testing_approach"
+        "Behavioral Intervention"
       ]
     }
   ],
@@ -46,10 +46,13 @@
     {
       "arm_id": "screening_medical_records_coaching",
       "subgroup_descriptor": null,
-      "endpoint": "Genetic testing uptake",
-      "effect_size": 25.0,
+      "endpoint": "Uptake of genetic testing",
+      "effect_size": 52.1,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "partial",
+      "mechanism_description": "Peer coaching intervention to modify patient healthcare-seeking behavior",
+      "biology_description": "Healthcare decision-making processes in cancer patients eligible for genetic testing",
+      "population_description": "Cancer patients meeting criteria for genetic counseling and testing across multiple tumor types"
     }
   ],
   "modulation_entries": []

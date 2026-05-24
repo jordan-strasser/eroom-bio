@@ -1,0 +1,185 @@
+"""Manifold 2: the per-region edge belief field (A.3).
+
+PUBLIC code/math, per the open-methods boundary (statements 2 & 4: code/schema
+public, the populated edge *weights* private). The scalar ``Beta(alpha, beta)``
+on ``EdgeBeliefState`` stays the public marginal; this localizes evidence by
+``(s, t)`` so that distinct evidence on the *same* edge — e.g. a trial's
+"VEGF → thrombopoietin" vs another's "VEGF → hypertension" — lands at different
+surface points instead of averaging together.
+
+The populated anchors are the private artifact: they serialize to the
+``belief_field`` container on ``EdgeBeliefState`` (a field name ``src/boundary``
+strips from public snapshots) and to private snapshots only. The per-record
+``(s, t)`` come from BioLORD embeddings of the source/target descriptions and
+are likewise stripped (``*_embedding``).
+
+Representation: a sparse anchor list. Each evidence record adds
+``(s_i, t_i, alpha_i, beta_i)`` with ``(alpha_i, beta_i) = (n_eff·p_obs,
+n_eff·(1−p_obs))`` — the same increment the scalar ``apply_virtual_evidence``
+applies. Query at ``(s', t')`` is cosine-kernel-weighted aggregation. Chain
+prediction integrates along the trajectory (the prediction engine — *not*
+manifold 3, which conditions on outcomes and lives in ``eroom-enterprise``).
+"""
+
+from __future__ import annotations
+
+import math
+import os
+from dataclasses import dataclass, field
+from typing import Any
+
+
+def field_enabled() -> bool:
+    """True when the manifold-2 belief-field path is switched on
+    (``EROOM_BELIEF_FIELD``). Default off — the scalar Beta path is unchanged
+    and public predictions are byte-identical until this is set."""
+    return os.environ.get("EROOM_BELIEF_FIELD", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+PRIOR_ALPHA = 1.0
+PRIOR_BETA = 1.0
+DEFAULT_BANDWIDTH = 0.25  # cosine-kernel bandwidth; smaller = sharper locality
+
+
+@dataclass
+class FieldAnchor:
+    """One evidence record's localized contribution: ``(s, t) → Beta(α, β)``."""
+
+    s: list[float]
+    t: list[float]
+    alpha: float  # n_eff * p_obs       (success pseudo-count increment)
+    beta: float   # n_eff * (1 - p_obs) (failure pseudo-count increment)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"s": self.s, "t": self.t, "alpha": self.alpha, "beta": self.beta}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "FieldAnchor":
+        return cls(
+            s=[float(x) for x in d["s"]],
+            t=[float(x) for x in d["t"]],
+            alpha=float(d["alpha"]),
+            beta=float(d["beta"]),
+        )
+
+
+@dataclass
+class BeliefField:
+    """Sparse anchor-list surface over the joint (source, target) space."""
+
+    anchors: list[FieldAnchor] = field(default_factory=list)
+    bandwidth: float = DEFAULT_BANDWIDTH
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"bandwidth": self.bandwidth, "anchors": [a.to_dict() for a in self.anchors]}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "BeliefField":
+        return cls(
+            anchors=[FieldAnchor.from_dict(a) for a in d.get("anchors", [])],
+            bandwidth=float(d.get("bandwidth", DEFAULT_BANDWIDTH)),
+        )
+
+
+def _cosine(a: list[float], b: list[float]) -> float:
+    dot = na = nb = 0.0
+    for x, y in zip(a, b):
+        dot += x * y
+        na += x * x
+        nb += y * y
+    if na == 0.0 or nb == 0.0:
+        return 0.0
+    return dot / ((na ** 0.5) * (nb ** 0.5))
+
+
+def apply_virtual_evidence_local(
+    field_: BeliefField,
+    *,
+    s: list[float],
+    t: list[float],
+    n_eff: float,
+    p_obs: float,
+) -> BeliefField:
+    """Localized counterpart of ``apply_virtual_evidence``: add one anchor at
+    ``(s, t)`` rather than updating the whole-edge scalar. Mutates and returns
+    ``field_``. Same ``(n_eff, p_obs)`` semantics as the scalar path.
+    """
+    if n_eff < 0:
+        raise ValueError(f"n_eff must be non-negative, got {n_eff!r}")
+    if not 0.0 <= p_obs <= 1.0:
+        raise ValueError(f"p_obs must be in [0, 1], got {p_obs!r}")
+    field_.anchors.append(
+        FieldAnchor(s=list(s), t=list(t), alpha=n_eff * p_obs, beta=n_eff * (1.0 - p_obs))
+    )
+    return field_
+
+
+def query(
+    field_: BeliefField,
+    s: list[float],
+    t: list[float],
+    *,
+    prior_alpha: float = PRIOR_ALPHA,
+    prior_beta: float = PRIOR_BETA,
+) -> tuple[float, float]:
+    """Kernel-weighted ``Beta(alpha, beta)`` at ``(s, t)``.
+
+    ``weight_i = exp((cos(s, s_i) + cos(t, t_i) − 2) / bandwidth)`` — an anchor
+    at the exact ``(s, t)`` gets weight 1; far anchors decay toward 0. Returns
+    ``(prior_alpha + Σ w_i·alpha_i, prior_beta + Σ w_i·beta_i)``, so a query in
+    a region with no nearby evidence falls back to the prior.
+    """
+    a, b = prior_alpha, prior_beta
+    for anc in field_.anchors:
+        w = math.exp((_cosine(s, anc.s) + _cosine(t, anc.t) - 2.0) / field_.bandwidth)
+        a += w * anc.alpha
+        b += w * anc.beta
+    return (a, b)
+
+
+def expected_p(field_: BeliefField, s: list[float], t: list[float]) -> float:
+    """Localized expected success probability at ``(s, t)``."""
+    a, b = query(field_, s, t)
+    return a / (a + b)
+
+
+def localize_record(
+    record: Any,
+    *,
+    source_description: str,
+    target_description: str,
+    embed_fn,
+) -> Any:
+    """Populate an evidence record's (s, t) localization from descriptions.
+
+    Sets ``source/target_description_in_trial`` (public text) and
+    ``source/target_embedding`` (private, BioLORD via ``embed_fn``) so the
+    store's flag-gated path can place the record on the edge belief field.
+    Duck-typed on the record (no models import). Mutates and returns it; a
+    blank description leaves that side unlocalized. This is the seam the
+    attributor calls once it carries the chain's A.0b descriptions.
+    """
+    if source_description:
+        record.source_description_in_trial = source_description
+        record.source_embedding = embed_fn(source_description)
+    if target_description:
+        record.target_description_in_trial = target_description
+        record.target_embedding = embed_fn(target_description)
+    return record
+
+
+def chain_integral(steps: list[tuple[BeliefField, list[float], list[float]]]) -> float:
+    """Geometric mean of the local Beta means along a chain trajectory.
+
+    ``steps`` is the chain's ``(field, s, t)`` per edge. This composes
+    manifolds 1∘2 into the prediction engine; the outcome-conditioned
+    manifold 3 is a separate, private learner (eroom-enterprise).
+    """
+    if not steps:
+        return PRIOR_ALPHA / (PRIOR_ALPHA + PRIOR_BETA)
+    log_sum = 0.0
+    for f, s, t in steps:
+        log_sum += math.log(max(expected_p(f, s, t), 1e-9))
+    return math.exp(log_sum / len(steps))

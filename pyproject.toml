@@ -38,6 +38,15 @@ dev = [
 sapbert = [
     "sentence-transformers>=2.5",
 ]
+# A.1: BioLORD node embeddings (the semantic substrate, manifold 1). Same
+# sentence-transformers stack as [sapbert]; the FremyCompany/BioLORD-2023
+# weights download to ~/.cache/huggingface on first use. Without this extra,
+# node `description` fields stay un-embedded and the box geometry (A.2) falls
+# back to id-only. NB: BioLORD is UMLS/SNOMED-trained — clear that licensing
+# before shipping *fine-tuned* weights commercially (see BOUNDARY.md).
+biolord = [
+    "sentence-transformers>=2.5",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -1,17 +1,17 @@
 {
   "nct_id": "NCT05116202",
   "therapeutic_hypothesis": {
-    "compound": "RO7247669 (Tobemstomig) + Tiragolumab",
-    "claimed_target": "TLR9 + TIGIT",
-    "proposed_mechanism": "TLR9 agonism combined with TIGIT checkpoint inhibition",
-    "intended_biology": "Enhanced anti-tumor immune response through innate immune activation and T-cell co-stimulation",
-    "target_population": "Patients with melanoma",
-    "primary_endpoint": "Pathologic Response Rate (pRR) for neoadjuvant cohort and Objective Response Rate (ORR) for advanced cohort",
+    "compound": "RO7247669 (Tobemstomig)",
+    "claimed_target": "TLR9",
+    "proposed_mechanism": "TLR9 agonism to enhance immune activation",
+    "intended_biology": "immune system activation and anti-tumor immunity",
+    "target_population": "patients with melanoma",
+    "primary_endpoint": "pathologic response rate (pRR) for Cohort 1 and objective response rate (ORR) for Cohort 2",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "pRR 60% vs 77.3% control (neoadjuvant); ORR 0% (advanced)",
+    "effect_size": "pRR 80.0% (RO7247669 2100mg) vs 77.3% (control); ORR 0% (Cohort 2)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
@@ -28,8 +28,8 @@
       "Meningitis aseptic"
     ],
     "dose_info": {
-      "dose": "RO7247669 2100 mg or 600 mg; Tiragolumab 600 mg",
-      "schedule": "every 21 days",
+      "dose": "2100 mg or 600 mg",
+      "schedule": "Day 1 of each 21 day cycle",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -70,9 +70,16 @@
         "serious": true
       },
       {
+        "term": "Immune-mediated hepatitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 4.5,
+        "serious": true
+      },
+      {
         "term": "Cellulitis",
         "grade": "",
-        "incidence_treatment_pct": 7.1,
+        "incidence_treatment_pct": 2.5,
         "incidence_control_pct": 4.5,
         "serious": true
       }
@@ -130,8 +137,8 @@
     {
       "arm_id": "cohort_1_ro7247669_600_mg_tiragolumab",
       "compounds": [
-        "tiragolumab",
-        "ro7247669"
+        "ro7247669",
+        "tiragolumab"
       ]
     }
   ],
@@ -143,7 +150,10 @@
       "endpoint": "pRR",
       "effect_size": 77.3,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PD-1 and CTLA-4 checkpoint inhibition",
+      "biology_description": "immune checkpoint blockade in melanoma",
+      "population_description": "patients with melanoma eligible for neoadjuvant therapy"
     },
     {
       "arm_id": "cohort_1_ro7247669_2100_mg",
@@ -151,7 +161,10 @@
       "endpoint": "pRR",
       "effect_size": 80.0,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "TLR9 agonism",
+      "biology_description": "innate immune activation in melanoma",
+      "population_description": "patients with melanoma eligible for neoadjuvant therapy"
     },
     {
       "arm_id": "cohort_1_atezolizumab_tiragolumab",
@@ -159,7 +172,10 @@
       "endpoint": "pRR",
       "effect_size": 45.0,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "failure",
+      "mechanism_description": "PD-L1 and TIGIT checkpoint inhibition",
+      "biology_description": "dual checkpoint blockade in melanoma",
+      "population_description": "patients with melanoma eligible for neoadjuvant therapy"
     },
     {
       "arm_id": "cohort_1_ro7247669_2100_mg_tiragolumab",
@@ -167,7 +183,10 @@
       "endpoint": "pRR",
       "effect_size": 60.0,
       "p_value": null,
-      "outcome": "partial"
+      "outcome": "partial",
+      "mechanism_description": "TLR9 agonism with TIGIT checkpoint inhibition",
+      "biology_description": "innate immune activation with checkpoint blockade in melanoma",
+      "population_description": "patients with melanoma eligible for neoadjuvant therapy"
     },
     {
       "arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
@@ -175,7 +194,10 @@
       "endpoint": "ORR",
       "effect_size": 0.0,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "TLR9 agonism with TIGIT checkpoint inhibition",
+      "biology_description": "innate immune activation with checkpoint blockade in advanced melanoma",
+      "population_description": "patients with advanced melanoma"
     }
   ],
   "modulation_entries": [
@@ -185,8 +207,8 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "TIGIT inhibition should enhance TLR9 agonist-induced anti-tumor immunity",
-      "citation": "Cohort 1: RO7247669 + Tiragolumab pRR 60.0% vs RO7247669 alone 80.0%; Cohort 2: RO7247669 + Tiragolumab ORR 0%"
+      "hypothesis": "TIGIT inhibition enhances TLR9-mediated immune activation",
+      "citation": "Cohort 1: RO7247669 + Tiragolumab pRR 60.0% vs RO7247669 alone 80.0%; Cohort 2: ORR 0%"
     }
   ]
 }

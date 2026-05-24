@@ -3,21 +3,21 @@
   "therapeutic_hypothesis": {
     "compound": "alirocumab",
     "claimed_target": "PCSK9",
-    "proposed_mechanism": "PCSK9 inhibition",
-    "intended_biology": "cholesterol metabolism",
-    "target_population": "patients with high or very high CV risk with hypercholesterolemia not adequately controlled with lipid-modifying therapy",
+    "proposed_mechanism": "PCSK9 inhibition to prevent LDL receptor degradation",
+    "intended_biology": "cholesterol metabolism regulation",
+    "target_population": "patients with high or very high CV risk with hypercholesterolemia not adequately controlled",
     "primary_endpoint": "percentage of SYDNEY-associated product technical complaints",
     "rationale_strength": "strong"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "0.5% SYDNEY-associated PTCs (95% CI: 0.0-3.2)",
+    "effect_size": "0.5% PTC rate (95% CI: 0.0-3.2)",
     "p_value": null,
     "target_engagement_evidence": "Free PCSK9 reduced to 78.3-88.9 ng/mL, total PCSK9 increased to 3370-3481 ng/mL",
     "biomarker_changes": [
-      "Free PCSK9 concentrations reduced (78.3-88.9 ng/mL)",
-      "Total PCSK9 concentrations increased (3370-3481 ng/mL)",
-      "LDL-C reduction 51.2-66.2% at Week 4"
+      "Free PCSK9 concentrations reduced",
+      "Total PCSK9 concentrations increased",
+      "LDL-C reduced by 51-66%"
     ],
     "subgroup_findings": [
       "Device-related PTCs: 0%",
@@ -25,10 +25,8 @@
       "Treatment-emergent ADA positive: 1-2 participants"
     ],
     "safety_signals": [
-      "Acute myocardial infarction in AI arm",
-      "Coronary artery disease in SYDNEY arm",
-      "Alanine aminotransferase increased",
-      "Chondritis"
+      "Well tolerated with low PTC rates",
+      "Few treatment-emergent anti-drug antibodies"
     ],
     "dose_info": {
       "dose": "300 mg",
@@ -68,7 +66,7 @@
     ]
   },
   "context": {
-    "indication": "hypercholesterolemia with high or very high CV risk",
+    "indication": "hypercholesterolemia with high or very high cardiovascular risk",
     "comparator": "current auto-injector device",
     "sample_size": 69,
     "duration": "16 weeks",
@@ -115,22 +113,12 @@
       ]
     },
     {
-      "raw_descriptor": "Undetermined",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "undetermined"
-        }
-      ]
-    },
-    {
       "raw_descriptor": "Pre-existing ADA",
       "features": [
         {
           "axis": "other",
           "key": "",
-          "level": "preexisting_ada"
+          "level": "pre_existing_ada"
         }
       ]
     },
@@ -153,102 +141,41 @@
           "level": "treatment_emergent_ada"
         }
       ]
-    },
-    {
-      "raw_descriptor": "Week 8",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "week_8"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Week 12",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "week_12"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Week 16",
-      "features": [
-        {
-          "axis": "other",
-          "key": "",
-          "level": "week_16"
-        }
-      ]
     }
   ],
   "results_by_chain": [
     {
-      "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": null,
-      "endpoint": "SYDNEY-associated PTCs overall",
-      "effect_size": 0.5,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": "Device-related",
-      "endpoint": "PTCs",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": "Participant-related",
-      "endpoint": "PTCs",
-      "effect_size": 0.5,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
       "arm_id": "auto_injector_device_ai",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -51.2,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hypercholesterolemia",
+      "population_description": "patients with high or very high CV risk with inadequately controlled hypercholesterolemia"
     },
     {
       "arm_id": "new_auto_injector_device_sydney",
       "subgroup_descriptor": null,
-      "endpoint": "LDL-C percent change",
+      "endpoint": "LDL-C reduction",
       "effect_size": -66.2,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hypercholesterolemia",
+      "population_description": "patients with high or very high CV risk with inadequately controlled hypercholesterolemia"
     },
     {
       "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": "Week 8",
-      "endpoint": "LDL-C percent change",
-      "effect_size": -53.737,
+      "subgroup_descriptor": null,
+      "endpoint": "PTC rate",
+      "effect_size": 0.5,
       "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": "Week 12",
-      "endpoint": "LDL-C percent change",
-      "effect_size": -58.61,
-      "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "new_auto_injector_device_sydney",
-      "subgroup_descriptor": "Week 16",
-      "endpoint": "LDL-C percent change",
-      "effect_size": -56.991,
-      "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "PCSK9 inhibition preventing LDL receptor degradation",
+      "biology_description": "cholesterol metabolism regulation in hypercholesterolemia",
+      "population_description": "patients with high or very high CV risk with inadequately controlled hypercholesterolemia"
     }
   ],
   "modulation_entries": []

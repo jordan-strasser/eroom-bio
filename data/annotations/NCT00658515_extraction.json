@@ -20,7 +20,7 @@
     "subgroup_findings": [],
     "safety_signals": [
       "Similar rates of serious cardiac adverse events between arms",
-      "Numerically higher unstable angina in dalcetrapib arm (49 vs 39 events)"
+      "Slightly higher unstable angina in dalcetrapib arm (49 vs 39 events)"
     ],
     "dose_info": {
       "dose": "600 mg",
@@ -105,8 +105,8 @@
     "indication": "stable coronary heart disease with recent acute coronary syndrome",
     "comparator": "placebo plus evidence-based medical care",
     "sample_size": 15871,
-    "duration": "up to 53 months",
-    "duration_weeks": 230.4,
+    "duration": "48 months",
+    "duration_weeks": 208.6,
     "investigator_commentary": null
   },
   "arms": [
@@ -131,7 +131,10 @@
       "endpoint": "cardiovascular mortality and morbidity",
       "effect_size": 0.03405,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "CETP inhibition reducing cholesteryl ester transfer from HDL to apoB-containing lipoproteins",
+      "biology_description": "HDL cholesterol elevation and reverse cholesterol transport enhancement in coronary heart disease",
+      "population_description": "stable coronary heart disease patients with recent acute coronary syndrome"
     },
     {
       "arm_id": "placebo",
@@ -139,23 +142,10 @@
       "endpoint": "cardiovascular mortality and morbidity",
       "effect_size": 0.032759,
       "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "dalcetrapib_ro4607381",
-      "subgroup_descriptor": null,
-      "endpoint": "all cause mortality",
-      "effect_size": 226.0,
-      "p_value": null,
-      "outcome": "unknown"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": null,
-      "endpoint": "all cause mortality",
-      "effect_size": 229.0,
-      "p_value": null,
-      "outcome": "unknown"
+      "outcome": "unknown",
+      "mechanism_description": "standard evidence-based medical care without CETP modulation",
+      "biology_description": "baseline cardiovascular risk management in coronary heart disease",
+      "population_description": "stable coronary heart disease patients with recent acute coronary syndrome"
     }
   ],
   "modulation_entries": []

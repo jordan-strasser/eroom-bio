@@ -29,6 +29,7 @@ sorted stable-id order so the result is deterministic across rebuilds.
 from __future__ import annotations
 
 import logging
+import os
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -333,6 +334,87 @@ def _update_chain_references(
     return rewrites
 
 
+def embedding_merge_enabled() -> bool:
+    """A.4 feature flag (``EROOM_EMBEDDING_MERGE``). Default off — the build
+    path stays crosswalk-only until the embedding merger is threshold-validated
+    on the gold set (A.5)."""
+    return os.environ.get("EROOM_EMBEDDING_MERGE", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def embedding_merge_pairs(
+    graph: "GraphStore",
+    *,
+    embed_fn=None,
+    threshold: float = 0.92,
+) -> list[tuple[str, str]]:
+    """Biology-node pairs the embedding merger judges equivalent — semantic
+    twins the Reactome↔GO crosswalk missed (e.g. a slug node vs its Reactome
+    pathway, or two pathways with no shared GO term but near-identical
+    descriptions).
+
+    Cosine ≥ ``threshold`` on BioLORD embeddings of each node's A.0 description
+    (falling back to its name). PUBLIC code (open methods); the merge DECISION
+    is flag-gated and the threshold should be validated on the gold set before
+    it goes default. ``embed_fn`` is injectable so tests stay offline.
+    """
+    bio = [
+        (n["id"], (n.get("description") or n.get("name") or "").strip())
+        for n in graph.get_nodes_by_type("BiologyNode")
+    ]
+    bio = [(i, t) for i, t in bio if t]
+    if len(bio) < 2:
+        return []
+    if embed_fn is None:
+        from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
+    from src.graph.biolord_embeddings import cosine_similarity
+
+    vecs = {i: embed_fn(t) for i, t in bio}
+    ids = [i for i, _ in bio]
+    pairs: list[tuple[str, str]] = []
+    for a in range(len(ids)):
+        for b in range(a + 1, len(ids)):
+            if cosine_similarity(vecs[ids[a]], vecs[ids[b]]) >= threshold:
+                pairs.append((ids[a], ids[b]))
+    return pairs
+
+
+def augment_classes_with_pairs(
+    classes: list[set[str]], pairs: list[tuple[str, str]],
+) -> list[set[str]]:
+    """Union crosswalk equivalence classes that an embedding-merge pair bridges.
+
+    Pairs between two nodes the crosswalk left as singletons still merge them.
+    Returns only classes with ≥2 members (singletons are no-op merges).
+    """
+    parent: dict[str, str] = {}
+
+    def find(x: str) -> str:
+        parent.setdefault(x, x)
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    def union(a: str, b: str) -> None:
+        parent[find(a)] = find(b)
+
+    for cls in classes:
+        members = list(cls)
+        for m in members[1:]:
+            union(members[0], m)
+    for a, b in pairs:
+        union(a, b)
+
+    groups: dict[str, set[str]] = {}
+    for node in list(parent):
+        groups.setdefault(find(node), set()).add(node)
+    return [g for g in groups.values() if len(g) >= 2]
+
+
 async def merge_equivalent_biology_nodes(
     graph: "GraphStore",
     lincs_client: "LINCSClient",
@@ -354,6 +436,15 @@ async def merge_equivalent_biology_nodes(
     reactome_ids = [b for b in bio_nodes if b.startswith("R-")]
     crosswalk = await fetch_reactome_to_go_crosswalk(reactome_ids, lincs_client)
     classes = find_equivalence_classes(bio_nodes, crosswalk)
+
+    # A.4 (flag-gated, EROOM_EMBEDDING_MERGE): catch semantic equivalence the
+    # ontology crosswalk missed, via BioLORD cosine on node descriptions. Off
+    # by default so the crosswalk-only build path is unchanged until validated.
+    if embedding_merge_enabled():
+        emb_pairs = embedding_merge_pairs(graph)
+        if emb_pairs:
+            classes = augment_classes_with_pairs(classes, emb_pairs)
+            logger.info("A.4 embedding merger added %d pairs", len(emb_pairs))
 
     nodes_removed: list[str] = []
     winner_by_loser: dict[str, str] = {}

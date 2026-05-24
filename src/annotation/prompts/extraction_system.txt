@@ -68,7 +68,10 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
       "endpoint": "string—endpoint label, e.g. 'PFS', 'OS'",
       "effect_size": float or null,
       "p_value": float or null,
-      "outcome": "success|failure|partial|unknown"
+      "outcome": "success|failure|partial|unknown",
+      "mechanism_description": "string—how THIS arm's compound engages its molecular target/mechanism (e.g. 'VEGFR2 inhibition in tumor vasculature'). Lead with the mechanism; you may name the disease setting, but do NOT describe the patient cohort or co-administered drugs.",
+      "biology_description": "string—the downstream biological PROCESS this chain modulates, led by the process and only lightly contextualized by disease/stage (e.g. 'angiogenesis inhibition in stage III adjuvant colorectal cancer'). Do NOT restate co-administered drugs (that belongs in mechanism) or patient-eligibility details (that belongs in population).",
+      "population_description": "string—the patient COHORT for this cell (e.g. 'treatment-naive stage III colon cancer after resection'); for null subgroup_descriptor, describe the parent enrollment population. Do NOT describe the drug or the biology."
     }
   ],
   "modulation_entries": [
@@ -154,6 +157,7 @@ DO NOT emit a subgroup for the following—these are not patient subgroups and s
 - For `arms`: include EVERY treatment arm the trial defined, including comparators (placebo / standard of care). Combination arms must list each constituent compound as a separate entry in `compounds`.
 - For `subgroups`: include only subgroups for which the trial REPORTED separate results (subgroups defined in protocol but not reported separately should not appear here). If the trial reported only the overall population, leave `subgroups` empty.
 - For `results_by_chain`: emit one entry per (arm × reported subgroup) cell that has a numeric or qualitative outcome. Use `subgroup_descriptor: null` for results that apply to the whole enrolled population. The string in `subgroup_descriptor` MUST match a `raw_descriptor` in `subgroups`.
+- The three per-chain descriptions must each LEAD WITH THEIR OWN LAYER and stay distinct: mechanism = how the target is engaged; biology = the downstream process; population = the patient cohort. Share only the disease/stage as light context, so two chains in different settings read differently (e.g. "angiogenesis inhibition in stage III adjuvant CRC" vs "...in metastatic RCC") — but never let one field restate another (no co-administered drugs in biology, no cohort-eligibility details in biology or mechanism). Keeping the layers separate is what keeps their embeddings in the right region. Keep each to one concise clause.
 - For `primary_endpoint_met`: true if the trial met its primary endpoint, false if it did not, null if unclear.
 - For `rationale_strength`: "strong" = validated target + prior clinical evidence, "moderate" = preclinical + biological rationale, "weak" = limited supporting data, "unclear" = insufficient information.
 - When the trial was TERMINATED or WITHDRAWN with no posted results but a "Why Stopped" reason is provided:

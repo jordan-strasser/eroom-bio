@@ -46,6 +46,21 @@ htmlcov/
 # Reproducible API + download caches
 data/cache/
 
+# Private / enterprise artifacts — SECOND layer only. The primary boundary is
+# enforced in code at serialization time (src/boundary.py strips private
+# values from public snapshots; export_private_snapshot writes only under
+# EROOM_PRIVATE_ROOT, which must be OUTSIDE this repo). These patterns are a
+# backstop so a stray private write can't be `git add`-ed by accident. They
+# are NOT the boundary — never rely on them alone. See BOUNDARY.md.
+data/private/
+*.safetensors
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.npy
+*.npz
+
 # Local scratch / out-of-baseline notes
 onboarding/
 

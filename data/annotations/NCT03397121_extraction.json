@@ -3,7 +3,7 @@
   "therapeutic_hypothesis": {
     "compound": "inclisiran",
     "claimed_target": "PCSK9",
-    "proposed_mechanism": "small interfering RNA that inhibits PCSK9 synthesis",
+    "proposed_mechanism": "siRNA-mediated inhibition of PCSK9 synthesis",
     "intended_biology": "cholesterol metabolism regulation",
     "target_population": "subjects with heterozygous familial hypercholesterolemia",
     "primary_endpoint": "percent change in LDL-C from baseline",
@@ -11,18 +11,19 @@
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "-49.52% difference in LDL-C change vs placebo (95% CI: -55.04 to -43.99)",
+    "effect_size": "-49.52% difference in LDL-C change vs placebo",
     "p_value": 0.0001,
     "target_engagement_evidence": "PCSK9 reduced by 60.68% vs 17.66% increase with placebo",
     "biomarker_changes": [
-      "PCSK9 decreased 60.68% vs placebo increase 17.66%",
-      "Total cholesterol decreased 25.11% vs placebo increase 6.66%",
-      "Apolipoprotein B decreased 33.14% vs placebo increase 2.93%",
-      "Non-HDL cholesterol decreased 34.93% vs placebo increase 7.43%"
+      "PCSK9 decreased 60.68% vs baseline",
+      "Total cholesterol decreased 25.11% vs baseline",
+      "Apolipoprotein B decreased 33.14% vs baseline",
+      "Non-HDL cholesterol decreased 34.93% vs baseline"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "Cardiovascular events including myocardial infarction, unstable angina, aortic valve stenosis, cardiac arrest, and heart failure observed in inclisiran group"
+      "Cardiovascular events including myocardial infarction, unstable angina, aortic valve stenosis",
+      "Cardiac events including cardiac arrest and heart failure"
     ],
     "dose_info": {
       "dose": "",
@@ -57,6 +58,20 @@
         "grade": "",
         "incidence_treatment_pct": 0.83,
         "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Arteriosclerosis coronary artery",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.42,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.42,
         "serious": true
       },
       {
@@ -119,15 +134,21 @@
       "endpoint": "LDL-C percent change",
       "effect_size": -41.15,
       "p_value": 0.0001,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "siRNA-mediated PCSK9 synthesis inhibition",
+      "biology_description": "cholesterol metabolism regulation in familial hypercholesterolemia",
+      "population_description": "subjects with heterozygous familial hypercholesterolemia"
     },
     {
       "arm_id": "placebo",
       "subgroup_descriptor": null,
       "endpoint": "LDL-C percent change",
       "effect_size": 8.37,
-      "p_value": 0.0001,
-      "outcome": "success"
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "no active intervention",
+      "biology_description": "baseline cholesterol metabolism in familial hypercholesterolemia",
+      "population_description": "subjects with heterozygous familial hypercholesterolemia"
     }
   ],
   "modulation_entries": []

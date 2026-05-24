@@ -1023,6 +1023,16 @@ class PopulationPipeline:
             if ex_chembl:
                 compound_chembl_index.setdefault(ex_chembl, existing_id)
             ex_emb = existing_node.get("embedding")
+            if not ex_emb:
+                # Public snapshots no longer persist embeddings — they're a
+                # recomputable cache artifact, not graph state, and the
+                # boundary (src/boundary.py) strips them so fine-tuned vectors
+                # can't leak into committed data/exports/. Rehydrate the
+                # canonicalization vector from the SapBERT cache by name so
+                # incremental --base-snapshot builds keep full cosine
+                # canonicalization rather than silently degrading to
+                # chembl + alias matching.
+                ex_emb = self._rehydrate_compound_embedding(existing_node)
             if ex_emb:
                 compound_embedding_index.append((existing_id, ex_emb))
 
@@ -3255,6 +3265,38 @@ class PopulationPipeline:
 
         return comp.id, False
 
+    def _rehydrate_compound_embedding(
+        self, node: dict[str, Any]
+    ) -> list[float] | None:
+        """Recompute a compound node's SapBERT vector from the on-disk cache.
+
+        Public snapshots are stripped of embeddings by the artifact boundary
+        (``src/boundary.py``), so on an incremental ``--base-snapshot`` load
+        the existing InterventionNodes carry no ``embedding``. The vector is a
+        deterministic function of the compound name + the (public) SapBERT
+        model, cached at ``data/cache/sapbert_embeddings.json`` — so we
+        re-derive it by name. That's a cache hit on any machine that built the
+        snapshot, and a graceful ``None`` (chembl + alias canonicalization
+        only) when the ``sapbert`` extra isn't installed or the name is empty.
+        """
+        name = node.get("name") or node.get("id")
+        if not name:
+            return None
+        try:
+            from src.graph.sapbert_embeddings import (
+                SapBertUnavailable,
+                embed_compound_name,
+            )
+            try:
+                return embed_compound_name(
+                    name,
+                    cache_path=self._cache_dir / "sapbert_embeddings.json",
+                )
+            except SapBertUnavailable:
+                return None
+        except ImportError:
+            return None
+
     def _merge_compound_into_existing(
         self, incoming: "InterventionNode", existing_id: str,
     ) -> None:
@@ -3772,6 +3814,84 @@ def ensure_parent_population(
     return pop_id
 
 
+def _set_node_description(
+    graph: GraphStore, node_id: str, description: str
+) -> bool:
+    """Attach a node's free-text description if it doesn't already have one.
+
+    The canonical id is a routing tag; the description is the semantic
+    substrate the BioLORD embedding work (A.1) consumes. First non-empty
+    contributor wins, so a node shared across trials keeps a stable
+    representative description (the per-trial provenance list is a later A.2
+    refinement). No-op (returns False) for an absent node, empty text, or a
+    node that already has a description.
+    """
+    if not description:
+        return False
+    try:
+        data = graph._graph.nodes[node_id]  # noqa: SLF001
+    except KeyError:
+        return False
+    if data.get("description"):
+        return False
+    data["description"] = description
+    return True
+
+
+def attach_node_descriptions_from_extractions(
+    graph: GraphStore, annotations_dir: Path,
+) -> int:
+    """A.0: attach each trial's rich free-text descriptions to the Mechanism /
+    Biology / Population nodes its chains touch, sourced from cached
+    extractions.
+
+    This is the production path (the real build creates nodes in ``populate``,
+    *before* extractions exist, then runs this after the extract step). The
+    canonical id is a routing tag; the description is the BioLORD substrate
+    (A.1). Reads cached extraction JSON only — no new LLM call, so a
+    ``--keep-annotations`` rebuild backfills for free.
+
+    Per node, first non-empty contributor wins:
+      - Mechanism node ← the trial's ``proposed_mechanism``
+      - Biology node   ← the trial's ``intended_biology``
+      - Parent population ← the trial's ``target_population``
+      - Subgroup population ← its own node name (already encodes the
+        descriptor; richer trial-contextualized text is the deferred A.0b)
+
+    Returns the number of node descriptions set.
+    """
+    set_count = 0
+    for path in sorted(annotations_dir.glob("*_extraction.json")):
+        try:
+            data = json.loads(path.read_text())
+        except json.JSONDecodeError:
+            continue
+        nct_id = data.get("nct_id")
+        if not nct_id:
+            continue
+        try:
+            ts = graph.get_trial_subgraph_by_id(nct_id)
+        except KeyError:
+            continue
+        hyp = data.get("therapeutic_hypothesis") or {}
+        mech_desc = (hyp.get("proposed_mechanism") or "").strip()
+        bio_desc = (hyp.get("intended_biology") or "").strip()
+        parent_pop_desc = (hyp.get("target_population") or "").strip()
+        for chain in ts.chains:
+            set_count += _set_node_description(graph, chain.mechanism_id, mech_desc)
+            set_count += _set_node_description(graph, chain.biology_id, bio_desc)
+            pop_id = chain.subgroup_population_id
+            if pop_id == ts.parent_population_id:
+                pop_desc = parent_pop_desc
+            else:
+                try:
+                    pop_desc = graph.get_node(pop_id).get("name", "") or ""
+                except KeyError:
+                    pop_desc = ""
+            set_count += _set_node_description(graph, pop_id, pop_desc)
+    return set_count
+
+
 def build_trial_subgraph_from_extraction(
     graph: GraphStore,
     trial: TrialRecord,
@@ -3887,6 +4007,26 @@ def build_trial_subgraph_from_extraction(
                 defining_features=list(feats),
             ))
         subgroup_pop_ids[sg.raw_descriptor] = pop_id
+
+    # A.0: preserve the trial's rich free-text descriptions onto the semantic
+    # nodes so BioLORD (A.1) embeds a real description rather than the
+    # routing-tag id. Mechanism / biology are trial-level (one therapeutic
+    # hypothesis); population descriptions are the parent target_population and
+    # each subgroup's raw descriptor. All sourced from existing extraction
+    # fields, so a populate re-run backfills with no new LLM call.
+    _set_node_description(
+        graph, mechanism_id, getattr(extraction, "mechanism_description", "")
+    )
+    _set_node_description(
+        graph, biology_id, getattr(extraction, "biology_description", "")
+    )
+    _set_node_description(
+        graph,
+        parent_pop_id,
+        getattr(extraction, "target_population_description", ""),
+    )
+    for _raw_desc, _pop_id in subgroup_pop_ids.items():
+        _set_node_description(graph, _pop_id, _raw_desc)
 
     # Index per-chain results by (arm_id, pop_id, endpoint_class).
     # Multiple raw descriptors may collapse onto the same canonical pop_id

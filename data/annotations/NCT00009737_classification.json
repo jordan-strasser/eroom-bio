@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT00009737",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether capecitabine engaged thymidylate synthase. However, capecitabine is a well-established prodrug that converts to 5-FU and inhibits thymidylate synthase - this is a known mechanism with strong literature support. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm DNA synthesis inhibition or downstream effects. 3. CLINICAL TRANSLATION: Mixed results - primary endpoint (disease-free survival) narrowly missed significance (HR 0.87, p=0.053), but relapse-free survival was significant (HR 0.86, p=0.041). Overall survival trended positive but missed (HR 0.84, p=0.071). This suggests biological activity but incomplete clinical translation. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial appears adequately powered (n=1987) with appropriate duration (156 weeks). Safety profile was manageable with expected toxicities. The narrow miss on primary endpoint with positive secondary endpoint suggests the mechanism may work but with limited effect size.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "Primary endpoint narrowly missed (p=0.053) but relapse-free survival was significant (p=0.041), suggesting biological activity with incomplete clinical translation"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "capecitabine",
+      "target_entity": "ENSG00000176890",
+      "support": "strong_support",
+      "affecting_arm_id": "capecitabine",
+      "reasoning": "Capecitabine is a well-established thymidylate synthase inhibitor prodrug with known target engagement mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000176890",
+      "target_entity": "antimetabolite",
+      "support": "ambiguous",
+      "affecting_arm_id": "capecitabine",
+      "reasoning": "No direct evidence of mechanism modulation from this trial, though the mechanism is well-established"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antimetabolite",
+      "target_entity": "R-HSA-499943",
+      "support": "weak_support",
+      "affecting_arm_id": "capecitabine",
+      "reasoning": "Positive signal on relapse-free survival suggests some biological activity downstream of antimetabolite mechanism"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-499943",
+      "target_entity": "colorectal_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "capecitabine",
+      "reasoning": "Mixed endpoint results - relapse-free survival positive but primary disease-free survival narrowly missed, suggesting limited disease impact"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS_colorectal_cancer",
+      "target_entity": "colorectal_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Disease-free survival is an established endpoint for adjuvant colorectal cancer trials and was measured appropriately"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "colorectal_cancer__extent_resectable__line_adjuvant",
+      "target_entity": "colorectal_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Positive trend on primary endpoint (HR 0.87, p=0.053) and significant relapse-free survival in adjuvant resectable population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -262,6 +262,16 @@ class ChainResult(BaseModel):
     effect_size: float | None = None
     p_value: float | None = None
     outcome: str = "unknown"  # success | failure | partial | unknown
+    # A.0b: per-chain *contextualized* free-text descriptions, emitted by the
+    # extractor for sharper manifold-2 (s,t) localization — the same edge gets
+    # distinct evidence points (e.g. "VEGFR2 inhibition in tumor vasculature"
+    # vs a different chain's framing). Default "" so pre-A.0b cached
+    # extractions parse unchanged; A.3 uses them (falling back to the
+    # trial-level descriptions) to place each evidence record on the edge
+    # belief surface. See future_ideas/manifold_learning.md.
+    mechanism_description: str = ""
+    biology_description: str = ""
+    population_description: str = ""
 
 
 class DoseInfo(BaseModel):
@@ -398,6 +408,15 @@ class TrialExtraction(BaseModel):
     # modulator-affects-edge claim. Defaults to empty; trials with no
     # combination interactions simply emit []. See ``ModulationEntry``.
     modulation_entries: list[ModulationEntry] = Field(default_factory=list)
+    # A.0: trial-level rich free-text descriptions, preserved from the
+    # therapeutic hypothesis so the populator can attach them to the
+    # Mechanism / Biology / parent-Population nodes as the BioLORD embedding
+    # substrate (the canonical id is just a routing tag). Already present in
+    # every cached extraction's raw JSON, so backfilling them is a populate
+    # re-run with no new LLM call. See future_ideas/eroom_node_graph_kickoff.md.
+    mechanism_description: str = ""
+    biology_description: str = ""
+    target_population_description: str = ""
 
 
 class FailureClassification(BaseModel):
