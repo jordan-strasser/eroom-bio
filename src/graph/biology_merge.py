@@ -347,7 +347,7 @@ def embedding_merge_pairs(
     graph: "GraphStore",
     *,
     embed_fn=None,
-    threshold: float = 0.92,
+    threshold: float = 0.95,
 ) -> list[tuple[str, str]]:
     """Biology-node pairs the embedding merger judges equivalent — semantic
     twins the Reactome↔GO crosswalk missed (e.g. a slug node vs its Reactome
@@ -356,8 +356,18 @@ def embedding_merge_pairs(
 
     Cosine ≥ ``threshold`` on BioLORD embeddings of each node's A.0 description
     (falling back to its name). PUBLIC code (open methods); the merge DECISION
-    is flag-gated and the threshold should be validated on the gold set before
-    it goes default. ``embed_fn`` is injectable so tests stay offline.
+    is flag-gated (``EROOM_EMBEDDING_MERGE``, default off).
+
+    **Gold-set validation (2026-05-24, scripts/eval_merge_threshold.py):** raw
+    cosine is a WEAK merge discriminator — best F1 only ~0.53 because `sibling`
+    (mean 0.63, max 0.98) and `parent_of`/`child_of` (max ~0.99) pairs often
+    score as high as true `merge` pairs (mean 0.95). At the old 0.92 default,
+    precision was ~0.35 (would over-merge distinct biology, irreversibly). The
+    default is raised to 0.95 (precision-leaning) and the flag stays OFF; the
+    recommended upgrade is to gate the decision on the manifold-1 **box
+    relation** (`box_embeddings.relation == "merge"`), which uses learned
+    containment to separate merge from is-a/sibling — needs a graph-node-pair
+    eval to validate before enabling. ``embed_fn`` is injectable for tests.
     """
     bio = [
         (n["id"], (n.get("description") or n.get("name") or "").strip())
