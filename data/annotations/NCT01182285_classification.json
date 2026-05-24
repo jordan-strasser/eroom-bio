@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT01182285",
   "trial_outcome": "failure",
-  "reasoning": "Working through the causal chain: 1) TARGET ENGAGEMENT: There is evidence of target engagement - NIS expression increased from 21% to 25% (median) and NIS mRNA expression increased, indicating the drug reached and modulated its intended target (histone deacetylase leading to NIS re-expression). 2) PATHWAY MODULATION: The downstream biology partially moved as predicted - NIS expression was restored, which was the intended biological effect of HDAC inhibition. 3) CLINICAL TRANSLATION: Despite biological activity, the clinical endpoint failed - 10/13 patients showed no radioactive iodine uptake post-treatment, and 6/8 patients in Phase 2 had progressive disease with only 1/8 achieving stable disease. 4) POPULATION EFFECTS: No clear subgroup responders identified. 5) CONFOUNDERS: The trial appears adequately designed with appropriate duration (16 weeks) and dosing. This represents a classic 'biology moved but endpoint flat' pattern where target engagement and some downstream biology occurred but didn't translate to the intended clinical benefit.",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial shows minimal target engagement evidence. NIS expression increased only marginally from 21% to 25% relative to GAPDH, which is a very modest change that may not represent meaningful biological activity. The claimed target is histone deacetylase, but the biomarker measured (NIS expression) is a downstream readout, not direct HDAC engagement. 2. PATHWAY MODULATION: The intended mechanism was HDAC inhibition leading to chromatin remodeling and NIS gene re-expression. The minimal 4% increase in NIS expression suggests the pathway was barely modulated, if at all. This represents weak evidence of pathway engagement. 3. CLINICAL TRANSLATION: The primary endpoint of radioactive iodine uptake restoration completely failed - 0/13 patients achieved complete response and 10/13 had no RAI uptake post-treatment. In Phase 2, 6/7 patients had progressive disease with only 1/7 achieving stable disease. This represents clear clinical failure. 4. POPULATION EFFECTS: No meaningful subgroup responses were identified. The single patient with stable disease represents a minimal response that could be within natural disease variation. 5. CONFOUNDERS: The study was small (N=13) but adequately designed for a proof-of-concept study. The 16-week duration appears appropriate for the mechanism. No major confounders identified.",
   "failure_modes": [
     {
-      "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.8,
-      "evidence": "NIS expression increased from 21% to 25% and NIS mRNA expression increased, confirming target engagement and partial biological activity, but 10/13 patients showed no radioactive iodine uptake and 6/8 Phase 2 patients had progressive disease"
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "NIS expression increased minimally from 21% to 25% relative to GAPDH, suggesting the target was engaged but the downstream biology (meaningful NIS re-expression) was not achieved. The 4% increase is within measurement variability and insufficient to restore radioiodine sensitivity."
     }
   ],
   "edges_to_update": [
@@ -14,17 +14,41 @@
       "edge_type": "affects",
       "source_entity": "valproic_acid",
       "target_entity": "ENSG00000112294",
-      "support": "strong_support",
+      "support": "weak_support",
+      "affecting_arm_id": "a_phase_i_radioiodine_resistant",
+      "reasoning": "Minimal NIS expression increase suggests some target engagement occurred, though the readout is indirect"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "valproic_acid",
+      "target_entity": "ENSG00000112294",
+      "support": "weak_support",
       "affecting_arm_id": "b2_phase_2_schedule_2",
-      "reasoning": "NIS expression increased from 21% to 25% and NIS mRNA expression increased, providing direct evidence of target engagement through the intended HDAC inhibition pathway"
+      "reasoning": "Minimal NIS expression increase suggests some target engagement occurred, though the readout is indirect"
     },
     {
       "edge_type": "modulates_via",
       "source_entity": "ENSG00000112294",
       "target_entity": "enzyme_inhibition",
-      "support": "ambiguous",
+      "support": "weak_contradict",
+      "affecting_arm_id": "a_phase_i_radioiodine_resistant",
+      "reasoning": "Target was engaged but the intended mechanism (meaningful chromatin remodeling leading to NIS re-expression) did not occur - only minimal 4% increase in NIS expression"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112294",
+      "target_entity": "enzyme_inhibition",
+      "support": "weak_contradict",
       "affecting_arm_id": "b2_phase_2_schedule_2",
-      "reasoning": "Per round-28 rule, failed trials do not provide affirmative evidence for target-mechanism relationships even when target engagement is confirmed"
+      "reasoning": "Target was engaged but the intended mechanism (meaningful chromatin remodeling leading to NIS re-expression) did not occur - only minimal 4% increase in NIS expression"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-916853",
+      "support": "weak_contradict",
+      "affecting_arm_id": "a_phase_i_radioiodine_resistant",
+      "reasoning": "The mechanism failed to produce meaningful downstream biological changes - NIS re-expression was minimal and radioiodine uptake was not restored"
     },
     {
       "edge_type": "mechanism_affects",
@@ -32,15 +56,23 @@
       "target_entity": "R-HSA-916853",
       "support": "weak_contradict",
       "affecting_arm_id": "b2_phase_2_schedule_2",
-      "reasoning": "Target was engaged and some downstream biology moved (NIS expression), but the full mechanistic cascade failed to produce clinical benefit"
+      "reasoning": "The mechanism failed to produce meaningful downstream biological changes - NIS re-expression was minimal and radioiodine uptake was not restored"
     },
     {
       "edge_type": "biology_drives",
       "source_entity": "R-HSA-916853",
       "target_entity": "thyroid_neoplasm",
-      "support": "weak_contradict",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "a_phase_i_radioiodine_resistant",
+      "reasoning": "Primary endpoint completely failed - 0/13 patients achieved complete response and 10/13 had no RAI uptake post-treatment"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-916853",
+      "target_entity": "thyroid_neoplasm",
+      "support": "moderate_contradict",
       "affecting_arm_id": "b2_phase_2_schedule_2",
-      "reasoning": "Despite biological activity (NIS re-expression), clinical benefit was not achieved - 6/8 patients had progressive disease and radioactive iodine uptake was not restored in 10/13 patients"
+      "reasoning": "6/7 patients had progressive disease with only 1/7 achieving stable disease, indicating the biology did not drive clinical benefit"
     },
     {
       "edge_type": "endpoint_captures",
@@ -48,7 +80,7 @@
       "target_entity": "thyroid_neoplasm",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "The biomarker endpoint (radioactive iodine uptake and thyroglobulin levels) is an appropriate surrogate for thyroid cancer benefit and was clearly measured, though it failed to show improvement"
+      "reasoning": "The endpoint (radioiodine uptake and NIS expression) is mechanistically relevant for thyroid cancer and was measured appropriately"
     },
     {
       "edge_type": "responds_differently",
@@ -56,10 +88,10 @@
       "target_entity": "thyroid_neoplasm",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint clearly missed with 6/8 patients showing progressive disease and adequate trial duration, indicating this population did not respond to the intervention"
+      "reasoning": "This population showed poor response with 0/13 complete responses and majority having progressive disease"
     }
   ],
-  "confidence_overall": 0.7,
+  "confidence_overall": 0.6,
   "needs_expert_review": false,
   "review_reason": null
 }

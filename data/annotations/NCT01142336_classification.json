@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT01142336",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported. The trial measured CSF biomarkers but not HMG-CoA reductase activity or cholesterol synthesis markers that would confirm target engagement. 2. PATHWAY MODULATION: The intended pathway was cholesterol synthesis inhibition leading to amyloid beta metabolism modulation. However, CSF biomarkers showed no beneficial changes - A\u03b242 increased slightly in simvastatin arm (+0.5 vs +5.3 in placebo, p=0.53), total tau increased (+1.6 vs -0.1 in placebo, p=0.36), and ptau181 increased (+1.7 vs -2.9 in placebo, p=0.25). None of these changes were statistically significant and the direction was not consistently favorable. 3. CLINICAL TRANSLATION: The primary endpoint (CSF biomarker changes) was not met. All p-values were >0.05 and effect sizes were small and inconsistent. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial appears adequately powered for biomarker detection with 52-week duration appropriate for CSF biomarker changes. No obvious confounders identified.",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported. The trial used 40mg simvastatin daily for 52 weeks, which is a standard cholesterol-lowering dose, suggesting HMG-CoA reductase was likely engaged, but this wasn't measured directly. 2. PATHWAY MODULATION: No evidence that cholesterol synthesis inhibition modulated the intended amyloid beta metabolism pathway. CSF biomarkers showed no beneficial changes - A\u03b242 increased less in simvastatin vs placebo (0.5 vs 5.3 pg/ml), total tau increased more (1.6 vs -0.1 pg/ml), and ptau181 increased while placebo decreased (1.7 vs -2.9 pg/ml). All p-values were non-significant (0.53, 0.36, 0.25). 3. CLINICAL TRANSLATION: The primary endpoint (CSF biomarker changes) was not met, with p=0.53 for the composite measure. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Small sample size (N=49) may have contributed to lack of power, but the biomarker trends were in the wrong direction, suggesting the mechanism itself didn't engage the intended biology.",
   "failure_modes": [
     {
       "mode": "target_engaged_biology_not_moved",
-      "confidence": 0.6,
-      "evidence": "While target engagement was not directly measured, simvastatin is a well-established HMG-CoA reductase inhibitor with known pharmacology. The failure appears to be at the level of translating cholesterol synthesis inhibition to meaningful changes in amyloid metabolism, as evidenced by lack of beneficial CSF biomarker changes despite adequate dosing and duration."
+      "confidence": 0.7,
+      "evidence": "Standard cholesterol-lowering dose of simvastatin likely engaged HMG-CoA reductase, but CSF biomarkers showed no beneficial modulation of amyloid metabolism - A\u03b242, tau, and ptau181 all trended in unfavorable directions compared to placebo"
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,15 @@
       "target_entity": "ENSG00000113161",
       "support": "strong_support",
       "affecting_arm_id": "simvastatin",
-      "reasoning": "Simvastatin is a well-established HMG-CoA reductase inhibitor with extensive pharmacological evidence of target engagement, regardless of this trial's clinical outcome"
+      "reasoning": "Standard 40mg daily dose of simvastatin is well-established to engage HMG-CoA reductase for cholesterol lowering"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "enzyme_inhibition",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Target was likely engaged but the intended mechanism (enzyme inhibition leading to amyloid modulation) did not activate - biomarkers showed no beneficial pathway modulation"
     },
     {
       "edge_type": "mechanism_affects",
@@ -24,7 +32,7 @@
       "target_entity": "GO:0015936",
       "support": "weak_contradict",
       "affecting_arm_id": "simvastatin",
-      "reasoning": "The mechanism of enzyme inhibition affecting coenzyme A metabolic processes did not translate to the intended downstream biology of amyloid metabolism modulation, as evidenced by lack of beneficial CSF biomarker changes"
+      "reasoning": "Enzyme inhibition mechanism did not translate to beneficial modulation of coenzyme A metabolic processes relevant to amyloid metabolism"
     },
     {
       "edge_type": "biology_drives",
@@ -32,7 +40,7 @@
       "target_entity": "alzheimers_disease",
       "support": "weak_contradict",
       "affecting_arm_id": "simvastatin",
-      "reasoning": "Modulation of coenzyme A metabolic processes did not drive meaningful changes in Alzheimer's disease biomarkers, suggesting this biological pathway may not be critical for the disease"
+      "reasoning": "Modulation of coenzyme A metabolic processes did not drive improvement in Alzheimer's disease biomarkers"
     },
     {
       "edge_type": "endpoint_captures",
@@ -40,7 +48,7 @@
       "target_entity": "alzheimers_disease",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "CSF biomarkers (A\u03b242, total tau, ptau181) are well-established and regulatory-accepted surrogate markers for Alzheimer's disease pathology and were measured appropriately"
+      "reasoning": "CSF A\u03b242, tau, and ptau181 are well-established biomarkers that capture Alzheimer's disease pathology"
     },
     {
       "edge_type": "responds_differently",
@@ -48,10 +56,10 @@
       "target_entity": "alzheimers_disease",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "The unselected Alzheimer's disease population showed no response to simvastatin treatment with adequate power and appropriate biomarker endpoints, p-values all >0.20"
+      "reasoning": "Primary endpoint missed with p=0.53, adequate trial duration, no responding subgroup signal"
     }
   ],
-  "confidence_overall": 0.6,
+  "confidence_overall": 0.7,
   "needs_expert_review": false,
   "review_reason": null
 }

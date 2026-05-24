@@ -1,12 +1,12 @@
 {
   "nct_id": "NCT00104871",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm proteasome inhibition. The dose used (1.3 mg/m\u00b2) is the standard FDA-approved dose for bortezomib, suggesting adequate target engagement should have occurred, but this cannot be confirmed from the trial data. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether protein degradation pathways were modulated downstream of proteasome inhibition. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% objective response rate (0/24 patients achieved complete or partial response). However, 11/20 evaluable patients (55%) achieved stable disease, suggesting some biological activity. 4. POPULATION EFFECTS: No subgroup analysis by biomarkers reported. The population was metastatic thyroid cancer refractory to radioactive iodine - a challenging population but appropriate for the mechanism. 5. CONFOUNDERS: Single-arm Phase 2 design with small sample size (n=24). Multiple serious adverse events occurred but did not appear to limit dosing at the standard 1.3 mg/m\u00b2 dose. The 12-week duration appears adequate for assessment.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm proteasome inhibition. The dose used (1.3 mg/m\u00b2) is the standard FDA-approved dose for bortezomib, suggesting adequate exposure, but no direct target engagement evidence is provided. 2. PATHWAY MODULATION: No pharmacodynamic markers reported to confirm protein accumulation or proteasome inhibition downstream effects. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0% objective response rate (0/24 patients achieved complete or partial response). However, 11/20 evaluable patients (55%) achieved stable disease, suggesting some biological activity. 4. POPULATION EFFECTS: No biomarker-defined subgroups identified. The stable disease rate suggests the mechanism may have some activity but insufficient for objective responses in this thyroid cancer population. 5. CONFOUNDERS: Single-arm Phase II design with small sample size (n=24). Multiple serious adverse events reported but not clearly dose-limiting. The failure appears to be primarily due to insufficient efficacy in this indication rather than trial design issues.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
       "confidence": 0.6,
-      "evidence": "55% stable disease rate suggests some biological activity (tumor growth control), but 0% objective response rate indicates the endpoint did not capture meaningful clinical benefit"
+      "evidence": "55% stable disease rate suggests some biological activity (tumor growth control) but 0% objective response rate indicates insufficient activity to meet the clinical endpoint"
     }
   ],
   "edges_to_update": [
@@ -16,7 +16,7 @@
       "target_entity": "protein_degradation__insular_thyroid_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "bortezomib",
-      "reasoning": "Primary endpoint failed with 0% ORR, but 55% stable disease suggests partial biological activity - mechanism had some effect but insufficient for clinical benefit"
+      "reasoning": "Primary endpoint failed with 0% ORR, but 55% stable disease suggests some biological activity - mechanism may have engaged but was insufficient for meaningful clinical benefit"
     },
     {
       "edge_type": "biology_drives",
@@ -24,15 +24,15 @@
       "target_entity": "insular_thyroid_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "bortezomib",
-      "reasoning": "Failed primary endpoint (0% ORR) indicates protein degradation disruption did not drive meaningful clinical benefit in this thyroid cancer population"
+      "reasoning": "0% objective response rate indicates protein degradation biology did not drive meaningful clinical benefit in thyroid cancer, despite some disease stabilization"
     },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "ORR_papillary_thyroid_cancer",
       "target_entity": "insular_thyroid_cancer",
-      "support": "weak_contradict",
+      "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR was 0% despite 55% stable disease rate, suggesting ORR may not capture the biological activity that did occur in this indication"
+      "reasoning": "ORR was clearly measured and is an appropriate endpoint for assessing anti-tumor activity in thyroid cancer"
     },
     {
       "edge_type": "responds_differently",
@@ -40,7 +40,7 @@
       "target_entity": "insular_thyroid_cancer",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint clearly missed (0% ORR) in this metastatic, radioiodine-refractory population with adequate power for a Phase 2 single-arm trial"
+      "reasoning": "0% response rate in this refractory metastatic thyroid cancer population with adequate sample size indicates this population does not respond to proteasome inhibition"
     }
   ],
   "confidence_overall": 0.6,

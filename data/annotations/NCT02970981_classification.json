@@ -1,22 +1,59 @@
 {
   "nct_id": "NCT02970981",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 or CTLA-4 engagement. Cannot assess if the drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or downstream biology measurements reported. Cannot determine if checkpoint blockade pathways were activated. 3. CLINICAL TRANSLATION: Primary endpoint was relapse-free survival at 48 months. The trial reports 12/18 participants (66.7%) were relapse-free, but no p-value or statistical significance testing is provided. Without a control arm or historical benchmark comparison, this result is uninterpretable. The effect size of 0.667 for RFS suggests potential benefit but lacks statistical validation. 4. POPULATION EFFECTS: No subgroup analyses reported. Single-arm design prevents population-specific response assessment. 5. CONFOUNDERS: This appears to be a small single-arm study (N=18) with no control group. The lack of a comparator makes it impossible to determine if the observed RFS rate represents treatment benefit or natural disease course. The study design fundamentally limits interpretability of efficacy results.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 or CTLA-4 engagement. Cannot assess if targets were hit. 2. PATHWAY MODULATION: No pathway biomarkers or downstream immune activation markers reported. Cannot determine if checkpoint blockade mechanisms were activated. 3. CLINICAL TRANSLATION: Primary endpoint was relapse-free survival at 48 months. Only 12/18 participants (66.7%) were relapse-free, which appears suboptimal for an adjuvant melanoma setting where higher RFS rates would be expected. No p-value reported and outcome marked as 'unknown' suggests the endpoint was not met. OS effect size of 0.889 also suggests no survival benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. Single-arm design limits population assessment. 5. CONFOUNDERS: This appears to be a small single-arm study (N=18) which is severely underpowered for definitive efficacy assessment. The lack of a control arm and small sample size make it impossible to determine if the observed RFS rate represents efficacy or natural disease course.",
   "failure_modes": [
     {
-      "mode": "insufficient_information",
+      "mode": "underpowered",
       "confidence": 0.9,
-      "evidence": "Single-arm trial with N=18, no control group, no p-values reported, and no historical benchmark provided for comparison. The 66.7% RFS rate at 48 months cannot be interpreted without a reference point."
+      "evidence": "Single-arm study with only 18 participants is severely underpowered to demonstrate efficacy for adjuvant melanoma treatment. No control arm for comparison and no statistical testing reported."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data, no target engagement evidence, no p-values reported, and outcomes marked as 'unknown'. Cannot assess where in the causal chain the failure occurred."
     }
   ],
   "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab",
+      "reasoning": "RFS of 66.7% at 48 months appears suboptimal for adjuvant melanoma, suggesting the biology did not drive sufficient clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab",
+      "reasoning": "Same rationale as PD-1 pathway - suboptimal RFS suggests CTLA-4 biology did not drive sufficient benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab",
+      "reasoning": "Suboptimal clinical outcomes suggest the checkpoint blockade mechanism did not effectively modulate the intended biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_ipilimumab",
+      "reasoning": "Same rationale - checkpoint blockade mechanism appears ineffective at driving the CTLA-4 biology"
+    },
     {
       "edge_type": "endpoint_captures",
       "source_entity": "RFS_melanoma",
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "RFS endpoint was measured and showed 66.7% at 48 months, but without a control arm or historical benchmark, the clinical benefit translation cannot be assessed"
+      "reasoning": "Single-arm design with no control makes it impossible to assess whether the observed RFS rate represents clinical benefit or natural disease course"
     },
     {
       "edge_type": "responds_differently",
@@ -24,10 +61,10 @@
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Single-arm design with 66.7% RFS rate provides no comparator to assess whether this population responds differently than expected"
+      "reasoning": "Single-arm design with small sample size provides no comparative data to assess population response"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm trial with no control group, no statistical testing, and no historical benchmark makes efficacy assessment impossible. The trial design fundamentally limits mechanistic interpretation."
+  "review_reason": "Single-arm design with very small sample size (N=18) and no reported statistical testing makes it difficult to definitively classify this as a mechanistic failure versus a trial design limitation. The lack of biomarker data compounds the uncertainty about where in the causal chain any failure occurred."
 }
