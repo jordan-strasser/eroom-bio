@@ -390,6 +390,50 @@ def embedding_merge_pairs(
     return pairs
 
 
+def box_merge_pairs(
+    graph: "GraphStore",
+    boxes: dict,
+    *,
+    node_type: str = "BiologyNode",
+) -> list[tuple[str, str]]:
+    """Biology-node pairs the manifold-1 **box relation** judges `merge`.
+
+    Where ``embedding_merge_pairs`` thresholds raw cosine (which the gold set
+    showed conflates merge with sibling/parent — F1 ~0.53), this uses the
+    trained box geometry: ``relation == "merge"`` requires the two boxes to be
+    near-coincident (mutually contained). A parent/child pair — one box
+    contained in the other — is classified `parent_of`/`child_of` and is NOT
+    merged, which is the precision raw cosine lacked. ``boxes`` maps node_id ->
+    ``box_embeddings.Box`` (load from the private ``manifold1_boxes.json``).
+    Only nodes that have a fitted box participate.
+
+    **Validation (52-graph, 2026-05-24): still NOT safe to enable.** This does
+    respect hierarchy (0 Reactome ancestor-pairs merged, unlike cosine), but it
+    still over-merges biologically-distinct pairs whose *descriptions* are
+    near-identical — e.g. "Co-inhibition by PD-1" vs "Co-inhibition by CTLA4"
+    (distinct checkpoints), and templated slug nodes ("antimetabolite biology"
+    vs "interleukin signaling"). Embedding-of-description can't see the
+    gene-level distinction (PD-1 != CTLA4), so no box-size calibration fixes it.
+    Conclusion: the ontology crosswalk remains the more reliable merger; an
+    embedding merger needs a gene/target-aware signal (or a node-pair gold set
+    to set a high-precision operating point) before it's worth enabling. The
+    flag (``EROOM_EMBEDDING_MERGE``) stays OFF.
+    """
+    from src.graph.box_embeddings import relation
+
+    ids = [
+        n["id"]
+        for n in graph.get_nodes_by_type(node_type)
+        if n["id"] in boxes
+    ]
+    pairs: list[tuple[str, str]] = []
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            if relation(boxes[ids[i]], boxes[ids[j]]) == "merge":
+                pairs.append((ids[i], ids[j]))
+    return pairs
+
+
 def augment_classes_with_pairs(
     classes: list[set[str]], pairs: list[tuple[str, str]],
 ) -> list[set[str]]:
