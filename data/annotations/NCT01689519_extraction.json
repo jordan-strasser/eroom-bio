@@ -17,9 +17,7 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "cardiac events including atrial fibrillation",
-      "myocardial infarction",
-      "cardiac failure"
+      "cardiac events including atrial fibrillation, myocardial infarction, cardiac failure"
     ],
     "dose_info": {
       "dose": "",
@@ -64,6 +62,13 @@
         "serious": true
       },
       {
+        "term": "cardiac tamponade",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
         "term": "myocardial infarction",
         "grade": "",
         "incidence_treatment_pct": 0.8,
@@ -75,6 +80,20 @@
         "grade": "",
         "incidence_treatment_pct": null,
         "incidence_control_pct": 1.6,
+        "serious": true
+      },
+      {
+        "term": "supraventricular tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
         "serious": true
       }
     ]
@@ -112,8 +131,8 @@
       "effect_size": 12.6,
       "p_value": 0.0001,
       "outcome": "success",
-      "mechanism_description": "MEK inhibition combined with BRAF inhibition in MAPK pathway",
-      "biology_description": "dual MAPK pathway blockade in metastatic melanoma",
+      "mechanism_description": "dual MEK and BRAF inhibition in MAPK pathway",
+      "biology_description": "proliferation and survival pathway blockade in metastatic melanoma",
       "population_description": "BRAF-mutant metastatic melanoma patients"
     },
     {
@@ -124,7 +143,7 @@
       "p_value": null,
       "outcome": "partial",
       "mechanism_description": "BRAF V600 kinase inhibition",
-      "biology_description": "MAPK pathway inhibition in metastatic melanoma",
+      "biology_description": "proliferation pathway inhibition in metastatic melanoma",
       "population_description": "BRAF-mutant metastatic melanoma patients"
     },
     {
@@ -134,8 +153,8 @@
       "effect_size": 22.5,
       "p_value": 0.005,
       "outcome": "success",
-      "mechanism_description": "MEK inhibition combined with BRAF inhibition in MAPK pathway",
-      "biology_description": "dual MAPK pathway blockade in metastatic melanoma",
+      "mechanism_description": "dual MEK and BRAF inhibition in MAPK pathway",
+      "biology_description": "proliferation and survival pathway blockade in metastatic melanoma",
       "population_description": "BRAF-mutant metastatic melanoma patients"
     },
     {
@@ -146,7 +165,7 @@
       "p_value": null,
       "outcome": "partial",
       "mechanism_description": "BRAF V600 kinase inhibition",
-      "biology_description": "MAPK pathway inhibition in metastatic melanoma",
+      "biology_description": "proliferation pathway inhibition in metastatic melanoma",
       "population_description": "BRAF-mutant metastatic melanoma patients"
     }
   ],
@@ -157,7 +176,7 @@
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.9,
-      "hypothesis": "MEK inhibition prevents MAPK pathway reactivation that limits BRAF inhibitor efficacy",
+      "hypothesis": "MEK inhibition prevents reactivation of MAPK signaling downstream of BRAF inhibition",
       "citation": "HR 0.65 (95% CI: 0.53-0.79), p = <0.0001 for PFS; median PFS 12.6 vs 7.2 months"
     }
   ]

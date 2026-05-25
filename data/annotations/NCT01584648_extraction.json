@@ -11,17 +11,18 @@
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "HR 0.73 (95% CI: 0.59-0.91) for PFS",
+    "effect_size": "HR 0.73 (95% CI: 0.59-0.91)",
     "p_value": null,
     "target_engagement_evidence": "dabrafenib plasma concentrations achieved therapeutic levels in both arms",
     "biomarker_changes": [
-      "trametinib concentrations 9.9-19.0 ng/mL in combination arm vs 0.0-0.05 ng/mL in placebo arm",
-      "dabrafenib concentrations similar between arms (92-1310 ng/mL)"
+      "trametinib concentrations 9.9-19.0 ng/mL in combination arm vs 0.0 ng/mL in placebo arm",
+      "dabrafenib concentrations similar between arms (92.1-1309.6 ng/mL combination vs 64.4-1362.3 ng/mL monotherapy)"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "serious adverse events in 100/209 combination patients vs 80/211 placebo patients",
-      "on-treatment deaths: 29/209 combination vs 25/211 placebo"
+      "higher rate of serious adverse events in combination arm (100/209 vs 80/211)",
+      "cardiac toxicity including atrial fibrillation and cardiac failure",
+      "hematologic toxicity including anemia, neutropenia, thrombocytopenia"
     ],
     "dose_info": {
       "dose": "dabrafenib 150 mg twice daily + trametinib 2 mg once daily",
@@ -40,7 +41,7 @@
       {
         "term": "febrile neutropenia",
         "grade": "",
-        "incidence_treatment_pct": null,
+        "incidence_treatment_pct": 0.0,
         "incidence_control_pct": 0.9,
         "serious": true
       },
@@ -54,8 +55,15 @@
       {
         "term": "cardiac failure",
         "grade": "",
-        "incidence_treatment_pct": null,
+        "incidence_treatment_pct": 0.0,
         "incidence_control_pct": 0.9,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": 0.0,
         "serious": true
       }
     ]
@@ -92,8 +100,8 @@
       "effect_size": 10.2,
       "p_value": null,
       "outcome": "success",
-      "mechanism_description": "dual MAPK pathway inhibition via BRAF V600 kinase blockade and MEK1/2 inhibition",
-      "biology_description": "MAPK signaling suppression in BRAF-mutant melanoma",
+      "mechanism_description": "dual BRAF and MEK inhibition blocking MAPK pathway signaling",
+      "biology_description": "enhanced MAPK pathway suppression in BRAF-mutant melanoma",
       "population_description": "BRAF-mutant melanoma patients"
     },
     {
@@ -103,8 +111,8 @@
       "effect_size": 8.8,
       "p_value": null,
       "outcome": "partial",
-      "mechanism_description": "BRAF V600 kinase inhibition",
-      "biology_description": "partial MAPK signaling suppression in BRAF-mutant melanoma",
+      "mechanism_description": "BRAF inhibition blocking mutant BRAF kinase activity",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
       "population_description": "BRAF-mutant melanoma patients"
     },
     {
@@ -114,8 +122,8 @@
       "effect_size": 25.8,
       "p_value": null,
       "outcome": "success",
-      "mechanism_description": "dual MAPK pathway inhibition via BRAF V600 kinase blockade and MEK1/2 inhibition",
-      "biology_description": "MAPK signaling suppression in BRAF-mutant melanoma",
+      "mechanism_description": "dual BRAF and MEK inhibition blocking MAPK pathway signaling",
+      "biology_description": "enhanced MAPK pathway suppression in BRAF-mutant melanoma",
       "population_description": "BRAF-mutant melanoma patients"
     },
     {
@@ -125,8 +133,8 @@
       "effect_size": 18.7,
       "p_value": null,
       "outcome": "partial",
-      "mechanism_description": "BRAF V600 kinase inhibition",
-      "biology_description": "partial MAPK signaling suppression in BRAF-mutant melanoma",
+      "mechanism_description": "BRAF inhibition blocking mutant BRAF kinase activity",
+      "biology_description": "MAPK pathway suppression in BRAF-mutant melanoma",
       "population_description": "BRAF-mutant melanoma patients"
     }
   ],
@@ -137,8 +145,8 @@
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.85,
-      "hypothesis": "MEK inhibition prevents reactivation of MAPK signaling downstream of BRAF blockade",
-      "citation": "PFS improved from 8.8 months with dabrafenib alone to 10.2 months with combination (HR 0.73), OS improved from 18.7 to 25.8 months (HR 0.81)"
+      "hypothesis": "MEK inhibition prevents reactivation of MAPK signaling downstream of BRAF inhibition",
+      "citation": "PFS improved from 8.8 months with dabrafenib alone to 10.2 months with combination (HR 0.73), OS improved from 18.7 to 25.8 months"
     }
   ]
 }

@@ -45,7 +45,7 @@
       "target_entity": "antimetabolite__melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "cohort_0",
-      "reasoning": "Failed trial suggests mechanism did not translate to clinical benefit, though severely underpowered"
+      "reasoning": "Chain failure with no biomarker data to localize where mechanism broke"
     },
     {
       "edge_type": "mechanism_affects",
@@ -53,7 +53,7 @@
       "target_entity": "dna_damage__melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "cohort_0",
-      "reasoning": "Failed trial suggests mechanism did not translate to clinical benefit, though severely underpowered"
+      "reasoning": "Chain failure with no biomarker data to localize where mechanism broke"
     },
     {
       "edge_type": "mechanism_affects",
@@ -61,7 +61,7 @@
       "target_entity": "R-HSA-912526",
       "support": "weak_contradict",
       "affecting_arm_id": "cohort_0",
-      "reasoning": "Failed trial suggests mechanism did not translate to clinical benefit, though severely underpowered"
+      "reasoning": "Chain failure with no biomarker data to localize where mechanism broke"
     },
     {
       "edge_type": "endpoint_captures",
@@ -69,18 +69,18 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "RECIST response is a well-established endpoint for melanoma clinical benefit assessment"
+      "reasoning": "RECIST response was measured and is a standard endpoint for melanoma, though severely underpowered trial"
     },
     {
       "edge_type": "responds_differently",
       "source_entity": "cutaneous_melanoma__extent_metastatic__line_second",
       "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Only 1/3 response rate suggests this population did not respond well, though sample size extremely small"
+      "reasoning": "Primary endpoint missed with adequate endpoint but severely underpowered study"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Extremely small sample size (N=3) and early termination for non-scientific reasons make mechanistic interpretation highly uncertain. The single partial response could represent either genuine activity or chance occurrence."
+  "review_reason": "Severely underpowered study (N=3) terminated early for commercial reasons makes mechanistic interpretation highly uncertain"
 }

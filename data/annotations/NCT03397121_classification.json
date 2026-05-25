@@ -1,7 +1,7 @@
 {
   "nct_id": "NCT03397121",
   "trial_outcome": "success",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. PCSK9 levels were reduced by 60.68% vs 17.66% increase with placebo, demonstrating clear siRNA-mediated inhibition of PCSK9 synthesis. 2. PATHWAY MODULATION: Downstream biology changed as predicted. Multiple cholesterol metabolism biomarkers moved in the expected direction: total cholesterol decreased 25.11%, apolipoprotein B decreased 33.14%, and non-HDL cholesterol decreased 34.93% vs baseline. 3. CLINICAL TRANSLATION: The primary endpoint was met with strong statistical significance. LDL-C decreased by 49.52% vs placebo (p=0.0001), representing a clinically meaningful reduction in the target population of heterozygous familial hypercholesterolemia. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population response was robust. 5. CONFOUNDERS: No major trial design issues. Adequate sample size (482 patients), appropriate duration (77.1 weeks), and placebo-controlled design. Some cardiovascular safety signals noted but did not prevent efficacy demonstration.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - PCSK9 levels were reduced by 60.68% vs 17.66% increase with placebo, demonstrating clear siRNA-mediated inhibition of PCSK9 synthesis. 2. PATHWAY MODULATION: Downstream biology changed as predicted - cholesterol metabolism was modulated with total cholesterol decreased 25.11%, ApoB decreased 33.14%, and non-HDL cholesterol decreased 34.93% vs baseline, all consistent with PCSK9 inhibition effects. 3. CLINICAL TRANSLATION: The clinical endpoint improved significantly - LDL-C decreased by 49.52% vs placebo (p=0.0001), meeting the primary endpoint with a clinically meaningful effect size. 4. POPULATION EFFECTS: No subgroup analysis reported, but the overall population (heterozygous familial hypercholesterolemia) responded robustly. 5. CONFOUNDERS: No major trial design issues - adequate sample size (482), appropriate duration (77 weeks), placebo-controlled design with clear statistical significance.",
   "failure_modes": [],
   "edges_to_update": [
     {
@@ -10,7 +10,7 @@
       "target_entity": "ENSG00000169174",
       "support": "strong_support",
       "affecting_arm_id": "inclisiran",
-      "reasoning": "PCSK9 levels reduced by 60.68% vs 17.66% increase with placebo, demonstrating clear target engagement"
+      "reasoning": "PCSK9 levels reduced by 60.68% vs placebo increase of 17.66%, demonstrating clear target engagement"
     },
     {
       "edge_type": "modulates_via",
@@ -18,7 +18,7 @@
       "target_entity": "gene_editing",
       "support": "strong_support",
       "affecting_arm_id": "inclisiran",
-      "reasoning": "Target engagement led to downstream pathway modulation as evidenced by multiple cholesterol metabolism biomarkers moving in expected direction"
+      "reasoning": "Target engagement led to downstream pathway modulation as evidenced by cholesterol metabolism changes"
     },
     {
       "edge_type": "mechanism_affects",
@@ -26,7 +26,7 @@
       "target_entity": "R-HSA-381426",
       "support": "strong_support",
       "affecting_arm_id": "inclisiran",
-      "reasoning": "Gene editing mechanism successfully modulated cholesterol metabolism biology with multiple confirmatory biomarkers"
+      "reasoning": "siRNA-mediated gene editing mechanism successfully modulated cholesterol metabolism biology with multiple confirmatory biomarkers"
     },
     {
       "edge_type": "biology_drives",
@@ -34,7 +34,7 @@
       "target_entity": "familial_hypercholesterolemia",
       "support": "strong_support",
       "affecting_arm_id": "inclisiran",
-      "reasoning": "Cholesterol metabolism regulation translated to clinically meaningful LDL-C reduction (-49.52% vs placebo, p=0.0001)"
+      "reasoning": "Cholesterol metabolism modulation translated to clinically meaningful LDL-C reduction (-49.52% vs placebo, p=0.0001)"
     },
     {
       "edge_type": "endpoint_captures",
@@ -42,7 +42,7 @@
       "target_entity": "familial_hypercholesterolemia",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "LDL-C percent change is a well-established surrogate endpoint for familial hypercholesterolemia and was met with strong statistical significance"
+      "reasoning": "LDL-C percent change endpoint clearly captured clinical benefit with strong statistical significance and clinically meaningful effect size"
     },
     {
       "edge_type": "responds_differently",
@@ -50,7 +50,7 @@
       "target_entity": "familial_hypercholesterolemia",
       "support": "strong_support",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful effect size in the target population"
+      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful effect size in this population"
     }
   ],
   "confidence_overall": 0.9,

@@ -24,7 +24,7 @@
       "target_entity": "R-HSA-177929",
       "support": "weak_contradict",
       "affecting_arm_id": "gefitinib_250mg",
-      "reasoning": "Despite likely target engagement, complete absence of objective responses suggests the mechanism did not effectively modulate downstream biology in this indication"
+      "reasoning": "Complete absence of objective responses despite implied target engagement suggests the kinase inhibition mechanism did not effectively modulate EGFR signaling biology in this context"
     },
     {
       "edge_type": "biology_drives",
@@ -32,7 +32,7 @@
       "target_entity": "head_and_neck_cancer",
       "support": "weak_contradict",
       "affecting_arm_id": "gefitinib_250mg",
-      "reasoning": "The biology-to-indication link failed as evidenced by 0% objective response rate despite some disease stabilization"
+      "reasoning": "EGFR signaling modulation did not translate to clinical benefit in thyroid cancer, suggesting this biology does not drive disease progression in this indication"
     },
     {
       "edge_type": "endpoint_captures",
@@ -40,7 +40,7 @@
       "target_entity": "head_and_neck_cancer",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR was clearly measured and reported (0%), providing definitive readout on treatment effect"
+      "reasoning": "Objective response rate was clearly measured and provided definitive negative result, demonstrating the endpoint can capture treatment effects in this indication"
     },
     {
       "edge_type": "responds_differently",
@@ -48,10 +48,10 @@
       "target_entity": "head_and_neck_cancer",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "Primary endpoint completely missed with 0% ORR, adequate measurement, no responding subgroup identified"
+      "reasoning": "Complete absence of objective responses in this iodine-refractory thyroid cancer population suggests this population does not respond to EGFR inhibition"
     }
   ],
   "confidence_overall": 0.6,
-  "needs_expert_review": false,
-  "review_reason": null
+  "needs_expert_review": true,
+  "review_reason": "No direct target engagement or pathway biomarker data available - inference of target engagement based solely on toxicity profile pattern. Small sample size (N=27) may also be a contributing factor to consider."
 }

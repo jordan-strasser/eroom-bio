@@ -1,17 +1,12 @@
 {
   "nct_id": "NCT00923247",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Vandetanib increased bortezomib Cmax/D from 0.98 to 1.92 ng/mL/mg (p=0.019), demonstrating pharmacokinetic interaction and drug exposure. Biomarker responses (calcitonin partial response in 5/16 Phase I patients, CEA partial response in 2/14 Phase I patients) suggest biological activity. 2. PATHWAY MODULATION: The biomarker responses indicate downstream pathway engagement - calcitonin and CEA are relevant biomarkers for medullary thyroid cancer and their reduction suggests the intended biology was modulated. 3. CLINICAL TRANSLATION: Mixed results across phases. Phase I showed promising activity (6/21 partial responses, 28.6% response rate, PFS 30.2 weeks). However, Phase II combination arm at MTD showed complete failure (0 responses, PFS 3.02 weeks). This suggests the mechanism worked in Phase I but failed to translate at the established MTD in Phase II. 4. POPULATION EFFECTS: No clear subgroup analysis reported, but the stark difference between Phase I and Phase II suggests dose or patient selection factors may be important. 5. CONFOUNDERS: Trial was terminated due to slow accrual and investigator departure, which may have affected patient selection and follow-up. The Phase II failure despite Phase I success suggests either wrong dose selection or population differences.",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement for both compounds. Vandetanib exposure was comparable to literature values, confirming VEGFR2/EGFR/RET engagement. Bortezomib showed clear proteasome engagement with clearance reduced by 45% when combined with vandetanib, and significant increases in Cmax (96%, p=0.019) and AUC (88%, p=0.052). 2. PATHWAY MODULATION: Downstream biology showed mixed signals. Calcitonin partial response in 5/16 Phase I patients and CEA partial response in 2/14 patients suggest some pathway modulation. The drug interaction data confirms both compounds reached therapeutic levels. 3. CLINICAL TRANSLATION: Mixed clinical outcomes across phases. Phase I combination arm showed partial success with 6/21 patients achieving partial response and PFS of 30.2 weeks. However, Phase II combination arm failed with PFS of only 3.67 months and 0/1 response rate. 4. POPULATION EFFECTS: Limited population analysis due to small sample size, but Phase I vs Phase II difference suggests potential population or dose-timing effects. 5. CONFOUNDERS: Trial was terminated due to slow accrual and investigator departure, limiting full assessment. The mixed Phase I success vs Phase II failure pattern suggests the combination may work but requires optimization.",
   "failure_modes": [
     {
       "mode": "wrong_timeframe",
       "confidence": 0.7,
-      "evidence": "Phase I showed activity but Phase II at the established MTD completely failed, suggesting the dose-finding or timing may have been suboptimal"
-    },
-    {
-      "mode": "underpowered",
-      "confidence": 0.6,
-      "evidence": "Trial terminated due to slow accrual with only 22 patients total, likely underpowered to detect true treatment effect"
+      "evidence": "Phase I showed promising activity (6/21 partial responses, 30.2 week PFS) but Phase II at MTD failed (3.67 month PFS), suggesting the dosing schedule or treatment duration may not have been optimal for sustained efficacy"
     }
   ],
   "edges_to_update": [
@@ -21,7 +16,7 @@
       "target_entity": "ENSG00000142627",
       "support": "strong_support",
       "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Biomarker responses (calcitonin and CEA partial responses) and clinical activity in Phase I demonstrate target engagement"
+      "reasoning": "Vandetanib exposure was comparable to literature values, confirming target engagement"
     },
     {
       "edge_type": "affects",
@@ -29,23 +24,23 @@
       "target_entity": "UNKNOWN",
       "support": "strong_support",
       "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Increased bortezomib exposure (Cmax/D nearly doubled) and biomarker responses indicate proteasome target engagement"
+      "reasoning": "Bortezomib clearance reduced by 45% and significant increases in Cmax/AUC confirm proteasome engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142627",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
+      "reasoning": "Target engagement confirmed and some downstream biomarker activity (calcitonin, CEA responses) suggests pathway modulation"
     },
     {
       "edge_type": "mechanism_affects",
       "source_entity": "kinase_inhibition",
       "target_entity": "R-HSA-3928663",
-      "support": "moderate_support",
+      "support": "weak_support",
       "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Phase I showed clinical activity and biomarker responses suggesting kinase inhibition mechanism was active"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "protein_degradation",
-      "target_entity": "protein_degradation__medullary_thyroid_carcinoma",
-      "support": "moderate_support",
-      "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Phase I activity with enhanced bortezomib exposure suggests protein degradation mechanism contributed to efficacy"
+      "reasoning": "Phase I showed clinical activity suggesting mechanism translated to some biological effect"
     },
     {
       "edge_type": "biology_drives",
@@ -53,31 +48,23 @@
       "target_entity": "medullary_thyroid_carcinoma",
       "support": "weak_support",
       "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Phase I showed clinical responses but Phase II failed, suggesting biology may drive disease but translation is inconsistent"
+      "reasoning": "Phase I combination showed partial responses (6/21) and extended PFS (30.2 weeks) suggesting biology drove some clinical benefit"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "protein_degradation__medullary_thyroid_carcinoma",
-      "target_entity": "medullary_thyroid_carcinoma",
-      "support": "weak_support",
-      "affecting_arm_id": "phase_1_vandetanib_and_bortezomib",
-      "reasoning": "Phase I responses suggest protein degradation biology may drive disease but Phase II failure indicates inconsistent translation"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "kinase_inhibition",
-      "target_entity": "R-HSA-3928663",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "vandetanib",
+      "target_entity": "ENSG00000142627",
+      "support": "strong_support",
       "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
-      "reasoning": "Phase II combination arm showed complete failure (0 responses) despite using the established MTD"
+      "reasoning": "Target engagement maintained at MTD dosing"
     },
     {
-      "edge_type": "mechanism_affects",
-      "source_entity": "protein_degradation",
-      "target_entity": "protein_degradation__medullary_thyroid_carcinoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "bortezomib",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
       "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
-      "reasoning": "Phase II combination arm complete failure suggests protein degradation mechanism did not translate at MTD"
+      "reasoning": "Proteasome engagement confirmed by PK interaction data"
     },
     {
       "edge_type": "biology_drives",
@@ -85,15 +72,7 @@
       "target_entity": "medullary_thyroid_carcinoma",
       "support": "weak_contradict",
       "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
-      "reasoning": "Phase II complete failure (0 responses, PFS 3.02 weeks) suggests biology did not drive clinical benefit"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "protein_degradation__medullary_thyroid_carcinoma",
-      "target_entity": "medullary_thyroid_carcinoma",
-      "support": "weak_contradict",
-      "affecting_arm_id": "phase_2_a_vandetanib_and_bortezomib_at_the_mtd",
-      "reasoning": "Phase II complete failure suggests protein degradation biology did not drive clinical benefit at MTD"
+      "reasoning": "Phase II combination arm failed with short PFS (3.67 months) and no responses, suggesting biology did not drive clinical benefit at this dosing/schedule"
     },
     {
       "edge_type": "endpoint_captures",
@@ -101,7 +80,7 @@
       "target_entity": "medullary_thyroid_carcinoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Safety endpoint was successfully established (MTD determined) and safety profile was manageable despite some serious AEs"
+      "reasoning": "Safety endpoint was successfully assessed and MTD was established, providing meaningful information for this indication"
     },
     {
       "edge_type": "responds_differently",
@@ -109,10 +88,10 @@
       "target_entity": "medullary_thyroid_carcinoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Mixed results between Phase I (28.6% response rate) and Phase II (0% response rate) make population response unclear"
+      "reasoning": "Mixed results between Phase I and Phase II suggest population response is unclear - Phase I showed activity but Phase II failed"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Stark discrepancy between Phase I activity (28.6% response rate, biomarker responses) and Phase II complete failure (0 responses) at the established MTD requires expert interpretation of dose-finding methodology and patient selection differences"
+  "review_reason": "Complex multi-phase trial with contradictory results between Phase I success and Phase II failure, terminated early due to non-scientific factors, making mechanistic interpretation challenging"
 }

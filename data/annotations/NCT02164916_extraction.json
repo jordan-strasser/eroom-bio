@@ -63,6 +63,13 @@
         "serious": false
       },
       {
+        "term": "Anemia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.0,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
         "term": "Febrile neutropenia",
         "grade": "3-5",
         "incidence_treatment_pct": 10.9,
@@ -70,11 +77,25 @@
         "serious": true
       },
       {
-        "term": "Anemia",
+        "term": "Hypokalemia",
         "grade": "3-5",
-        "incidence_treatment_pct": 13.0,
-        "incidence_control_pct": 0.0,
-        "serious": true
+        "incidence_treatment_pct": 10.9,
+        "incidence_control_pct": 2.2,
+        "serious": false
+      },
+      {
+        "term": "Vomiting",
+        "grade": "3-5",
+        "incidence_treatment_pct": 10.9,
+        "incidence_control_pct": 2.2,
+        "serious": false
+      },
+      {
+        "term": "Dehydration",
+        "grade": "3-5",
+        "incidence_treatment_pct": 10.9,
+        "incidence_control_pct": 6.5,
+        "serious": false
       }
     ]
   },
@@ -103,28 +124,61 @@
       ]
     }
   ],
-  "subgroups": [],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF mutant",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "mutant"
+        }
+      ]
+    }
+  ],
   "results_by_chain": [
     {
       "arm_id": "arm_i_cetuximab_irinotecan_hydrochloride",
-      "subgroup_descriptor": null,
+      "subgroup_descriptor": "BRAF mutant",
       "endpoint": "PFS",
       "effect_size": 2.0,
       "p_value": null,
       "outcome": "failure",
       "mechanism_description": "EGFR inhibition and topoisomerase I inhibition in BRAF mutant tumors",
-      "biology_description": "tumor growth suppression through dual pathway inhibition in metastatic colorectal cancer",
+      "biology_description": "tumor growth inhibition in metastatic colorectal cancer",
       "population_description": "BRAF mutant metastatic colorectal cancer patients"
     },
     {
       "arm_id": "arm_ii_cetuximab_irinotecan_hydrochloride_vemurafenib",
-      "subgroup_descriptor": null,
+      "subgroup_descriptor": "BRAF mutant",
       "endpoint": "PFS",
       "effect_size": 4.3,
       "p_value": 0.001,
       "outcome": "success",
       "mechanism_description": "BRAF V600E inhibition combined with EGFR blockade and topoisomerase I inhibition",
-      "biology_description": "enhanced tumor growth suppression through triple pathway blockade in metastatic colorectal cancer",
+      "biology_description": "tumor growth inhibition through combined pathway blockade in metastatic colorectal cancer",
+      "population_description": "BRAF mutant metastatic colorectal cancer patients"
+    },
+    {
+      "arm_id": "arm_i_cetuximab_irinotecan_hydrochloride",
+      "subgroup_descriptor": "BRAF mutant",
+      "endpoint": "OS",
+      "effect_size": 5.9,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "EGFR inhibition and topoisomerase I inhibition in BRAF mutant tumors",
+      "biology_description": "tumor growth inhibition in metastatic colorectal cancer",
+      "population_description": "BRAF mutant metastatic colorectal cancer patients"
+    },
+    {
+      "arm_id": "arm_ii_cetuximab_irinotecan_hydrochloride_vemurafenib",
+      "subgroup_descriptor": "BRAF mutant",
+      "endpoint": "OS",
+      "effect_size": 9.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "BRAF V600E inhibition combined with EGFR blockade and topoisomerase I inhibition",
+      "biology_description": "tumor growth inhibition through combined pathway blockade in metastatic colorectal cancer",
       "population_description": "BRAF mutant metastatic colorectal cancer patients"
     }
   ],
@@ -135,7 +189,7 @@
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.85,
-      "hypothesis": "BRAF inhibition enhances EGFR blockade efficacy by preventing downstream pathway reactivation",
+      "hypothesis": "BRAF inhibition enhances EGFR blockade efficacy by preventing MAPK pathway reactivation",
       "citation": "Hazard Ratio (HR) = 0.48 (95% CI: 0.31\u20130.75), p = 0.001"
     }
   ]

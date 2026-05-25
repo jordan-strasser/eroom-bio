@@ -5,13 +5,13 @@
     "claimed_target": "CDC7",
     "proposed_mechanism": "CDC7 kinase inhibition",
     "intended_biology": "cell cycle arrest and apoptosis",
-    "target_population": "advanced solid tumors",
+    "target_population": "patients with metastatic pancreatic cancer, colorectal cancer, and other advanced solid tumors",
     "primary_endpoint": "disease control rate",
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": true,
-    "effect_size": "DCR 46.2-58.8% across tumor types",
+    "primary_endpoint_met": false,
+    "effect_size": "DCR 46.2-58.8% across tumor cohorts",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
@@ -19,7 +19,8 @@
     "safety_signals": [
       "50% DLT rate in safety cohort",
       "high rates of hematologic toxicity",
-      "gastrointestinal bleeding events"
+      "gastrointestinal hemorrhage",
+      "intestinal perforation"
     ],
     "dose_info": {
       "dose": "",
@@ -28,6 +29,13 @@
       "dose_modifications": "33.3-53.3% required dose modifications"
     },
     "adverse_events": [
+      {
+        "term": "dose limiting toxicities",
+        "grade": "",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
       {
         "term": "neutrophil count decreased",
         "grade": "",
@@ -45,32 +53,32 @@
       {
         "term": "abdominal pain",
         "grade": "",
-        "incidence_treatment_pct": null,
+        "incidence_treatment_pct": 8.3,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "upper gastrointestinal haemorrhage",
         "grade": "",
-        "incidence_treatment_pct": null,
+        "incidence_treatment_pct": 6.7,
         "incidence_control_pct": null,
         "serious": true
       },
       {
         "term": "nausea",
         "grade": "",
-        "incidence_treatment_pct": null,
+        "incidence_treatment_pct": 13.3,
         "incidence_control_pct": null,
         "serious": true
       }
     ]
   },
   "context": {
-    "indication": "advanced solid tumors including metastatic pancreatic cancer, colorectal cancer, esophageal neoplasms, and non-small-cell lung cancer",
+    "indication": "metastatic pancreatic cancer, colorectal cancer, esophageal neoplasms, and non-small-cell lung cancer",
     "comparator": "none",
     "sample_size": 101,
     "duration": "up to 14 months treatment",
-    "duration_weeks": 60.9,
+    "duration_weeks": 60.8,
     "investigator_commentary": null
   },
   "arms": [
