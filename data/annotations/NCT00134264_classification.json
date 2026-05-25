@@ -1,49 +1,16 @@
 {
   "nct_id": "NCT00134264",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to assess whether torcetrapib engaged CETP or whether atorvastatin engaged HMGCR. Cannot determine if targets were hit. 2. PATHWAY MODULATION: No pathway biomarkers reported (HDL levels, LDL levels, cholesterol metabolism markers). Cannot assess if downstream biology changed. 3. CLINICAL TRANSLATION: Trial was terminated early for safety reasons based on increased mortality in the torcetrapib arm, indicating the primary cardiovascular endpoint was not met and there was harm. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a large adequately-powered trial (N=15,067) that was terminated for safety, not efficacy failure alone. The early termination for increased mortality suggests dose-limiting toxicity prevented proper assessment of the cardiovascular benefit hypothesis.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to assess whether torcetrapib engaged CETP or whether atorvastatin engaged HMGCR. Cannot determine if targets were hit. 2. PATHWAY MODULATION: No pathway biomarkers reported (e.g., HDL levels, cholesterol synthesis markers) to assess downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (time to first major cardiovascular event) results are not reported - no effect size or p-value provided. However, the trial is classified as a failure, suggesting the primary endpoint was not met. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a large trial (N=15,067) which should provide adequate power. No safety signals reported that would suggest dose-limiting toxicity. The lack of reported results suggests either the trial was terminated early or failed to meet its primary endpoint.",
   "failure_modes": [
     {
-      "mode": "dose_limiting_toxicity",
+      "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "Trial was terminated early due to increased mortality in the torcetrapib combination arm, preventing adequate assessment of the cardiovascular benefit hypothesis"
+      "evidence": "No primary endpoint results reported (no effect size, p-value, or outcome data), no biomarker data, no target engagement evidence, and no safety readout despite large sample size"
     }
   ],
-  "edges_to_update": [
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-8964041",
-      "target_entity": "coronary_disease",
-      "support": "weak_contradict",
-      "affecting_arm_id": "torcetrapib_atorvastatin",
-      "reasoning": "Trial terminated for safety before cardiovascular benefit could be demonstrated, suggesting LDL remodeling pathway did not drive coronary disease improvement in this context"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "enzyme_inhibition",
-      "target_entity": "R-HSA-8964041",
-      "support": "weak_contradict",
-      "affecting_arm_id": "torcetrapib_atorvastatin",
-      "reasoning": "Early termination for toxicity suggests the enzyme inhibition mechanism did not translate to beneficial LDL remodeling effects"
-    },
-    {
-      "edge_type": "endpoint_captures",
-      "source_entity": "composite_survival_diabetes_mellitus",
-      "target_entity": "coronary_disease",
-      "support": "moderate_support",
-      "affecting_arm_id": null,
-      "reasoning": "Composite cardiovascular endpoint was sensitive enough to detect harm signal leading to early termination, indicating it captures coronary disease outcomes"
-    },
-    {
-      "edge_type": "responds_differently",
-      "source_entity": "coronary_disease__unselected",
-      "target_entity": "coronary_disease",
-      "support": "moderate_contradict",
-      "affecting_arm_id": null,
-      "reasoning": "Population with coronary disease and diabetes showed increased mortality rather than benefit from torcetrapib combination"
-    }
-  ],
-  "confidence_overall": 0.4,
+  "edges_to_update": [],
+  "confidence_overall": 0.2,
   "needs_expert_review": true,
-  "review_reason": "Limited information available - no biomarker data, no specific safety details, and unclear whether this was terminated for efficacy failure or pure safety concerns. The classification as dose-limiting toxicity is inferred from the early termination context but lacks detailed AE data."
+  "review_reason": "Trial provides no usable efficacy or safety readout despite large sample size - unclear if terminated early or results simply not extracted"
 }

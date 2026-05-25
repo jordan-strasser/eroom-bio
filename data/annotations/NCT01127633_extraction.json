@@ -3,29 +3,30 @@
   "therapeutic_hypothesis": {
     "compound": "solanezumab",
     "claimed_target": "amyloid beta",
-    "proposed_mechanism": "amyloid beta clearance",
-    "intended_biology": "reduction of amyloid plaque burden",
-    "target_population": "Alzheimer's disease patients",
-    "primary_endpoint": "safety monitoring - number of participants with drug-related AEs or SAEs",
+    "proposed_mechanism": "monoclonal antibody binding to soluble amyloid beta peptides",
+    "intended_biology": "amyloid plaque clearance and prevention of amyloid aggregation",
+    "target_population": "patients with mild to moderate Alzheimer's disease",
+    "primary_endpoint": "safety monitoring - number of participants with drug-related adverse events or serious adverse events",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
     "effect_size": "SAE: 299/734 solanezumab vs 308/723 placebo; Other AE: 514/734 solanezumab vs 485/723 placebo",
     "p_value": null,
-    "target_engagement_evidence": "plasma amyloid beta levels measured but no significant changes",
+    "target_engagement_evidence": "plasma amyloid beta levels measured but no significant changes observed",
     "biomarker_changes": [
-      "A\u03b2 1-40 plasma levels: minimal difference between groups",
-      "A\u03b2 1-42 plasma levels: minimal difference between groups",
-      "Florbetapir PET amyloid imaging: -0.01 SUVr change with solanezumab vs 0.00 with placebo"
+      "plasma A\u03b2 1-40 levels similar between groups",
+      "plasma A\u03b2 1-42 levels similar between groups",
+      "hippocampal volume loss similar between groups",
+      "amyloid imaging showed minimal change (-0.01 SUVr solanezumab vs 0.00 placebo)"
     ],
     "subgroup_findings": [
-      "Mild AD showed numerically better outcomes on some measures vs moderate AD",
-      "Hippocampal volume loss similar between groups in both mild and moderate AD"
+      "mild Alzheimer's disease showed numerically better outcomes on some measures",
+      "moderate Alzheimer's disease showed mixed results across endpoints"
     ],
     "safety_signals": [
-      "Similar SAE rates between groups",
-      "Cardiovascular events including atrial fibrillation, MI, angina reported"
+      "similar rates of serious adverse events between groups",
+      "cardiac events including atrial fibrillation and myocardial infarction observed in both groups"
     ],
     "dose_info": {
       "dose": "400 mg",
@@ -35,40 +36,41 @@
     },
     "adverse_events": [
       {
-        "term": "serious adverse events",
+        "term": "anaemia",
         "grade": "",
-        "incidence_treatment_pct": 40.7,
-        "incidence_control_pct": 42.6,
-        "serious": true
-      },
-      {
-        "term": "other adverse events",
-        "grade": "",
-        "incidence_treatment_pct": 70.0,
-        "incidence_control_pct": 67.1,
-        "serious": false
-      },
-      {
-        "term": "atrial fibrillation",
-        "grade": "",
-        "incidence_treatment_pct": 1.2,
-        "incidence_control_pct": 0.7,
+        "incidence_treatment_pct": 0.27,
+        "incidence_control_pct": 0.41,
         "serious": true
       },
       {
         "term": "acute myocardial infarction",
         "grade": "",
-        "incidence_treatment_pct": 0.5,
-        "incidence_control_pct": 0.6,
+        "incidence_treatment_pct": 0.55,
+        "incidence_control_pct": 0.55,
+        "serious": true
+      },
+      {
+        "term": "angina pectoris",
+        "grade": "",
+        "incidence_treatment_pct": 0.55,
+        "incidence_control_pct": 0.28,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.23,
+        "incidence_control_pct": 0.69,
         "serious": true
       }
-    ]
+    ],
+    "primary_endpoint_met_source": "reask"
   },
   "context": {
     "indication": "Alzheimer's disease",
     "comparator": "placebo",
     "sample_size": 1457,
-    "duration": "104 weeks",
+    "duration": "up to 8 years with 104-week primary endpoint",
     "duration_weeks": 104.0,
     "investigator_commentary": "Solanezumab did not meet the primary endpoint in study H8A-MC-LZAX."
   },
@@ -93,7 +95,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "mild_ad"
+          "level": "mild_alzheimers"
         }
       ]
     },
@@ -103,7 +105,7 @@
         {
           "axis": "other",
           "key": "",
-          "level": "moderate_ad"
+          "level": "moderate_alzheimers"
         }
       ]
     }
@@ -115,7 +117,10 @@
       "endpoint": "ADAS-Cog14",
       "effect_size": 17.56,
       "p_value": 0.974,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "monoclonal antibody binding to soluble amyloid beta peptides",
+      "biology_description": "amyloid plaque clearance in Alzheimer's disease",
+      "population_description": "patients with mild to moderate Alzheimer's disease"
     },
     {
       "arm_id": "placebo",
@@ -123,7 +128,10 @@
       "endpoint": "ADAS-Cog14",
       "effect_size": 17.58,
       "p_value": 0.974,
-      "outcome": "failure"
+      "outcome": "unknown",
+      "mechanism_description": "placebo control",
+      "biology_description": "natural disease progression in Alzheimer's disease",
+      "population_description": "patients with mild to moderate Alzheimer's disease"
     },
     {
       "arm_id": "solanezumab",
@@ -131,15 +139,10 @@
       "endpoint": "NPI",
       "effect_size": 5.41,
       "p_value": null,
-      "outcome": "failure"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": "Mild Alzheimer's Disease",
-      "endpoint": "NPI",
-      "effect_size": 4.49,
-      "p_value": null,
-      "outcome": "failure"
+      "outcome": "partial",
+      "mechanism_description": "monoclonal antibody binding to soluble amyloid beta peptides",
+      "biology_description": "amyloid plaque clearance in mild Alzheimer's disease",
+      "population_description": "patients with mild Alzheimer's disease"
     },
     {
       "arm_id": "solanezumab",
@@ -147,15 +150,10 @@
       "endpoint": "NPI",
       "effect_size": 8.1,
       "p_value": null,
-      "outcome": "partial"
-    },
-    {
-      "arm_id": "placebo",
-      "subgroup_descriptor": "Moderate Alzheimer's Disease",
-      "endpoint": "NPI",
-      "effect_size": 11.9,
-      "p_value": null,
-      "outcome": "partial"
+      "outcome": "success",
+      "mechanism_description": "monoclonal antibody binding to soluble amyloid beta peptides",
+      "biology_description": "amyloid plaque clearance in moderate Alzheimer's disease",
+      "population_description": "patients with moderate Alzheimer's disease"
     }
   ],
   "modulation_entries": []

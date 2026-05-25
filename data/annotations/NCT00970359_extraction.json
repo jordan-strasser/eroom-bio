@@ -3,15 +3,15 @@
   "therapeutic_hypothesis": {
     "compound": "AZD6244",
     "claimed_target": "MEK",
-    "proposed_mechanism": "MEK inhibition to restore radioiodine uptake",
-    "intended_biology": "reactivation of sodium-iodide symporter expression and iodine uptake in thyroid cancer cells",
-    "target_population": "patients with RAI-refractory metastatic thyroid cancer",
-    "primary_endpoint": "increased iodine uptake on I-124 PET scan",
+    "proposed_mechanism": "selective MEK inhibition",
+    "intended_biology": "reacquisition of radioactive iodine uptake in RAI-refractory tumors",
+    "target_population": "RAI-refractory metastatic thyroid cancer patients",
+    "primary_endpoint": "increased propensity for iodine uptake on I-124 PET scan",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "12/20 patients (60%) showed new/increased iodine uptake",
+    "effect_size": "12/20 patients (60%) acquired increased iodine uptake",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [
@@ -34,14 +34,14 @@
     },
     "adverse_events": [
       {
-        "term": "gastric ulcer",
+        "term": "Gastric ulcer",
         "grade": "",
         "incidence_treatment_pct": 4.2,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "myelodysplastic syndrome",
+        "term": "Myelodysplastic syndrome",
         "grade": "",
         "incidence_treatment_pct": 4.2,
         "incidence_control_pct": null,
@@ -110,35 +110,36 @@
   "results_by_chain": [
     {
       "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
-      "subgroup_descriptor": "New and/or increase",
-      "endpoint": "iodine uptake restoration",
-      "effect_size": 12.0,
+      "subgroup_descriptor": null,
+      "endpoint": "iodine uptake reacquisition",
+      "effect_size": 0.6,
       "p_value": null,
-      "outcome": "success"
+      "outcome": "success",
+      "mechanism_description": "MEK inhibition in thyroid tumor cells",
+      "biology_description": "restoration of iodine uptake machinery in RAI-refractory thyroid cancer",
+      "population_description": "RAI-refractory metastatic thyroid cancer patients with and without BRAF mutation"
     },
     {
       "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
-      "subgroup_descriptor": "Remained the same or less",
-      "endpoint": "iodine uptake restoration",
-      "effect_size": 8.0,
+      "subgroup_descriptor": "New and/or increase",
+      "endpoint": "iodine uptake reacquisition",
+      "effect_size": null,
       "p_value": null,
-      "outcome": "failure"
+      "outcome": "success",
+      "mechanism_description": "MEK inhibition in thyroid tumor cells",
+      "biology_description": "restoration of iodine uptake machinery in RAI-refractory thyroid cancer",
+      "population_description": "patients who developed new or increased iodine uptake"
     },
     {
       "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
       "subgroup_descriptor": "Partial Response",
       "endpoint": "tumor response",
-      "effect_size": 5.0,
+      "effect_size": null,
       "p_value": null,
-      "outcome": "success"
-    },
-    {
-      "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
-      "subgroup_descriptor": "Stable Disease",
-      "endpoint": "tumor response",
-      "effect_size": 3.0,
-      "p_value": null,
-      "outcome": "partial"
+      "outcome": "success",
+      "mechanism_description": "MEK inhibition in thyroid tumor cells",
+      "biology_description": "tumor growth inhibition in RAI-refractory thyroid cancer",
+      "population_description": "patients achieving partial response by RECIST criteria"
     }
   ],
   "modulation_entries": []

@@ -3,15 +3,15 @@
   "therapeutic_hypothesis": {
     "compound": "bevacizumab + FOLFOX4/XELOX",
     "claimed_target": "VEGF",
-    "proposed_mechanism": "VEGF inhibition to reduce tumor angiogenesis",
-    "intended_biology": "anti-angiogenic therapy to prevent metastatic recurrence",
-    "target_population": "high risk stage II or stage III colon cancer patients post-surgery",
+    "proposed_mechanism": "VEGF inhibition to block tumor angiogenesis",
+    "intended_biology": "angiogenesis inhibition in adjuvant colorectal cancer",
+    "target_population": "patients with high risk stage II or stage III colon cancer after surgery",
     "primary_endpoint": "disease-free survival",
-    "rationale_strength": "strong"
+    "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": false,
-    "effect_size": "p = 0.2024 for DFS comparison",
+    "effect_size": "p = 0.2024 for DFS",
     "p_value": 0.2024,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
@@ -48,6 +48,13 @@
         "serious": true
       },
       {
+        "term": "Rectal haemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.1,
+        "serious": true
+      },
+      {
         "term": "Intestinal obstruction",
         "grade": "",
         "incidence_treatment_pct": 0.7,
@@ -55,17 +62,17 @@
         "serious": true
       },
       {
-        "term": "Rectal haemorrhage",
+        "term": "Nausea",
         "grade": "",
-        "incidence_treatment_pct": 0.4,
-        "incidence_control_pct": 0.1,
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": null,
         "serious": true
       }
     ]
   },
   "context": {
-    "indication": "high risk stage II or stage III colon cancer",
-    "comparator": "FOLFOX4",
+    "indication": "high risk stage II or stage III colon cancer after surgery",
+    "comparator": "FOLFOX4 alone",
     "sample_size": 3451,
     "duration": "36 months follow-up",
     "duration_weeks": 156.4,
@@ -105,8 +112,11 @@
       "subgroup_descriptor": null,
       "endpoint": "DFS",
       "effect_size": null,
-      "p_value": 0.2024,
-      "outcome": "success"
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA synthesis inhibition and platinum-DNA crosslinking in colorectal cancer cells",
+      "biology_description": "cytotoxic cell death in adjuvant stage III colon cancer",
+      "population_description": "high risk stage II or stage III colon cancer patients after surgical resection"
     },
     {
       "arm_id": "folfox4_bv",
@@ -114,7 +124,10 @@
       "endpoint": "DFS",
       "effect_size": null,
       "p_value": 0.2024,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "VEGF inhibition combined with DNA synthesis inhibition and platinum-DNA crosslinking",
+      "biology_description": "angiogenesis inhibition plus cytotoxic cell death in adjuvant stage III colon cancer",
+      "population_description": "high risk stage II or stage III colon cancer patients after surgical resection"
     },
     {
       "arm_id": "xelox_bv",
@@ -122,7 +135,10 @@
       "endpoint": "DFS",
       "effect_size": null,
       "p_value": 0.2024,
-      "outcome": "failure"
+      "outcome": "failure",
+      "mechanism_description": "VEGF inhibition combined with fluoropyrimidine and platinum-DNA crosslinking",
+      "biology_description": "angiogenesis inhibition plus cytotoxic cell death in adjuvant stage III colon cancer",
+      "population_description": "high risk stage II or stage III colon cancer patients after surgical resection"
     }
   ],
   "modulation_entries": [
@@ -132,8 +148,8 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "bevacizumab anti-angiogenic effects should enhance oxaliplatin-based chemotherapy efficacy in preventing recurrence",
-      "citation": "p = 0.2024 for DFS comparison showing no significant benefit of adding bevacizumab"
+      "hypothesis": "VEGF inhibition should enhance chemotherapy efficacy by normalizing tumor vasculature and improving drug delivery",
+      "citation": "p = 0.2024 for DFS comparison, median DFS not reached in any arm due to low event rates"
     }
   ]
 }
