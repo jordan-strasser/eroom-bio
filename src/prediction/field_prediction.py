@@ -63,20 +63,75 @@ def trial_chain_descriptions(extraction_path: str | Path) -> dict[str, str]:
     return out
 
 
+# Backbone: (chain src attr, chain tgt attr, edge_type, src desc-source, tgt
+# desc-source). Mirrors materialize_belief_field.EDGE_SPECS — (s,t) on every edge.
+_BACKBONE = [
+    ("compound_id", "target_id", "affects", "node", "node"),
+    ("target_id", "mechanism_id", "modulates_via", "node", "mechanism"),
+    ("mechanism_id", "biology_id", "mechanism_affects", "mechanism", "biology"),
+    ("biology_id", "indication_id", "biology_drives", "biology", "node"),
+    ("biology_id", "endpoint_id", "reflects_biology", "biology", "node"),
+    ("endpoint_id", "indication_id", "endpoint_captures", "node", "node"),
+    ("subgroup_population_id", "indication_id", "responds_differently", "population", "node"),
+]
+_PER_ARM = {"mechanism", "biology", "population"}
+
+
+def build_st_desc_map(
+    graph, nct: str, *, annotations_dir: str = "data/annotations",
+) -> dict[tuple[str, str, str], tuple[str, str]]:
+    """Per-edge ``(source, target, edge_type) -> (s_desc, t_desc)`` for a trial,
+    from its OWN arms — so each edge is queried at the arm that traverses it (the
+    multi-arm fix). Per-arm endpoints (mechanism/biology/population) use the arm's
+    A.0b description; fixed endpoints use the node's own v2 description. Covers
+    every backbone edge."""
+    from src.graph.box_embeddings import chain_descriptions_by_arm
+
+    by_arm = chain_descriptions_by_arm(annotations_dir)
+    ts = graph.trial_subgraphs.get(nct)
+    out: dict[tuple[str, str, str], tuple[str, str]] = {}
+    if not ts:
+        return out
+
+    def ndesc(nid: str) -> str:
+        try:
+            nd = graph.get_node(nid)
+        except KeyError:
+            return ""
+        return (nd.get("description") or nd.get("name") or "").strip()
+
+    for ch in ts.chains:
+        d = by_arm.get((nct, ch.arm_id), {})
+        for s_attr, t_attr, et, s_src, t_src in _BACKBONE:
+            s_id, t_id = getattr(ch, s_attr, None), getattr(ch, t_attr, None)
+            if not s_id or not t_id or s_id == "UNKNOWN" or t_id == "UNKNOWN":
+                continue
+            s_desc = d.get(s_src, "") if s_src in _PER_ARM else ndesc(s_id)
+            t_desc = d.get(t_src, "") if t_src in _PER_ARM else ndesc(t_id)
+            if s_desc and t_desc:
+                out[(s_id, t_id, et)] = (s_desc, t_desc)
+    return out
+
+
 def localized_chain_probability(
     edge_contributions: list,
     field_map: dict[tuple[str, str, str], BeliefField],
-    descs: dict[str, str],
+    st_desc_map: dict[tuple[str, str, str], tuple[str, str]],
     *,
     embed_fn: Callable[[str], list[float]],
-    indication_name: str = "",
+    bandwidth: float | None = None,
     embed_cache: dict[str, list[float]] | None = None,
 ) -> tuple[float, float, list[dict]]:
     """Return ``(p_scalar, p_localized, per_edge)`` for one chain.
 
     Both aggregate the same edges via the engine's softmin; ``p_scalar`` uses
-    each edge's marginal mean, ``p_localized`` swaps in the field-queried mean at
-    this trial's (s,t) for the localizable edges (others keep their scalar mean).
+    each edge's marginal mean, ``p_localized`` swaps in the field-queried mean for
+    the localizable edges. ``st_desc_map`` gives the *correct per-chain (s,t)
+    text* per edge ``(source, target, edge_type) -> (s_desc, t_desc)`` — built
+    from the trial's own arm (so a multi-arm trial queries each edge at the arm
+    that actually traverses it, not a trial-level first-non-empty). ``bandwidth``
+    overrides the field kernel width at query time (for the sweep) without
+    re-materializing.
     """
     cache = embed_cache if embed_cache is not None else {}
 
@@ -93,15 +148,16 @@ def localized_chain_probability(
         et = ec.edge_type.value
         key = (ec.source_id, ec.target_id, et)
         field = field_map.get(key)
-        spec = _EDGE_DESC.get(et)
+        pair = st_desc_map.get(key)
         localized = False
-        if field is not None and spec is not None:
-            s_key, t_key, t_special = spec
-            s_desc = descs.get(s_key, "")
-            t_desc = indication_name if t_special == "indication_name" else descs.get(t_key, "")
-            if s_desc and t_desc:
-                local_mean = expected_p(field, emb(s_desc), emb(t_desc))
-                localized = True
+        if field is not None and pair and pair[0] and pair[1]:
+            if bandwidth is not None:
+                field = BeliefField(anchors=field.anchors, bandwidth=bandwidth,
+                                    marginal_alpha=field.marginal_alpha,
+                                    marginal_beta=field.marginal_beta,
+                                    fallback_strength=field.fallback_strength)
+            local_mean = expected_p(field, emb(pair[0]), emb(pair[1]))
+            localized = True
         scalar_means.append(scalar_mean)
         local_means.append(local_mean)
         weights.append(_trust_weight(b))

@@ -70,26 +70,42 @@ def _trial_descriptions(ann_dir: Path) -> dict[str, dict[str, str]]:
     return out
 
 
-# edge_type -> (chain src attr, chain tgt attr, src desc-key, tgt desc-key, tgt special).
-# RESPONDS_DIFFERENTLY's target is the indication node name (no A.0b description).
+# (s,t) on EVERY backbone edge. Per edge: (chain src attr, chain tgt attr,
+# src desc-source, tgt desc-source). A desc-source of "mechanism"/"biology"/
+# "population" is a per-arm A.0b key (varies per trial-arm → localizes); "node"
+# uses the endpoint's own v2 description (fixed per node → that edge's field
+# collapses toward the scalar). Now that every node is described (v2), every
+# edge is a queryable surface — incl. the decisive modulates_via.
 EDGE_SPECS = {
-    EdgeType.MECHANISM_AFFECTS: (
-        "mechanism_id", "biology_id", "mechanism", "biology", None,
-    ),
-    EdgeType.RESPONDS_DIFFERENTLY: (
-        "subgroup_population_id", "indication_id", "population", None, "indication_name",
-    ),
+    EdgeType.AFFECTS: ("compound_id", "target_id", "node", "node"),
+    EdgeType.MODULATES_VIA: ("target_id", "mechanism_id", "node", "mechanism"),
+    EdgeType.MECHANISM_AFFECTS: ("mechanism_id", "biology_id", "mechanism", "biology"),
+    EdgeType.BIOLOGY_DRIVES: ("biology_id", "indication_id", "biology", "node"),
+    EdgeType.REFLECTS_BIOLOGY: ("biology_id", "endpoint_id", "biology", "node"),
+    EdgeType.ENDPOINT_CAPTURES: ("endpoint_id", "indication_id", "node", "node"),
+    EdgeType.RESPONDS_DIFFERENTLY: ("subgroup_population_id", "indication_id", "population", "node"),
 }
+_PER_ARM = {"mechanism", "biology", "population"}
+
+
+def _node_desc(g, node_id: str) -> str:
+    try:
+        nd = g.get_node(node_id)
+    except KeyError:
+        return ""
+    return (nd.get("description") or nd.get("name") or "").strip()
 
 
 def _chain_st_pairs(
-    g, by_arm, et, src_id, tgt_id, tgt_name,
+    g, by_arm, et, src_id, tgt_id,
 ) -> dict[str, list[tuple[str, str]]]:
     """``nct -> [distinct (s_desc, t_desc) pairs]`` for the chains of each trial
-    that traverse this edge (chain endpoints == edge endpoints), using per-arm
-    A.0b descriptions. This is what lets two trials' evidence on the *same* edge
-    land at different (s,t) — and a combo trial's distinct arms stay distinct."""
-    s_attr, t_attr, s_key, t_key, t_special = EDGE_SPECS[et]
+    that traverse this edge. Per-arm endpoints (mechanism/biology/population) use
+    the arm's A.0b description (so two trials' evidence on the same edge stays
+    separable); fixed endpoints use the node's own description."""
+    s_attr, t_attr, s_src, t_src = EDGE_SPECS[et]
+    s_node = _node_desc(g, src_id) if s_src not in _PER_ARM else None
+    t_node = _node_desc(g, tgt_id) if t_src not in _PER_ARM else None
     out: dict[str, list[tuple[str, str]]] = {}
     for nct, ts in g.trial_subgraphs.items():
         seen: set[tuple[str, str]] = set()
@@ -97,8 +113,8 @@ def _chain_st_pairs(
             if getattr(ch, s_attr) != src_id or getattr(ch, t_attr) != tgt_id:
                 continue
             d = by_arm.get((nct, ch.arm_id), {})
-            s_desc = d.get(s_key, "")
-            t_desc = tgt_name if t_special == "indication_name" else d.get(t_key, "")
+            s_desc = d.get(s_src, "") if s_src in _PER_ARM else s_node
+            t_desc = d.get(t_src, "") if t_src in _PER_ARM else t_node
             if not s_desc or not t_desc:
                 continue
             pair = (s_desc, t_desc)
@@ -119,7 +135,6 @@ def main() -> int:
     g = GraphStore()
     g.import_snapshot(args.graph)
     by_arm = chain_descriptions_by_arm(args.annotations)  # per-(nct,arm) A.0b descs
-    descs = _trial_descriptions(Path(args.annotations))    # trial-level fallback
     emb_cache: dict[str, list[float]] = {}
 
     def embed(text: str) -> list[float]:
@@ -130,30 +145,20 @@ def main() -> int:
     edges_localized = 0
     anchors_total = 0
     sample = None
-    for et, (_s_attr, _t_attr, src_key, tgt_key, tgt_special) in EDGE_SPECS.items():
+    for et in EDGE_SPECS:
         for e in g.get_edges_by_type(et):
             belief = EdgeBeliefState.model_validate(e["belief"])
             if not belief.evidence:
                 continue
-            tgt_name = ""
-            if tgt_special == "indication_name":
-                try:
-                    tgt_name = g.get_node(e["target_id"]).get("name", "") or e["target_id"]
-                except KeyError:
-                    tgt_name = e["target_id"]
-            pairs_by_nct = _chain_st_pairs(
-                g, by_arm, et, e["source_id"], e["target_id"], tgt_name,
-            )
+            pairs_by_nct = _chain_st_pairs(g, by_arm, et, e["source_id"], e["target_id"])
+            # node-level (s,t) fallback for records whose nct has no matching chain
+            sd, td_ = _node_desc(g, e["source_id"]), _node_desc(g, e["target_id"])
+            node_pair = (sd, td_) if sd and td_ else None
             field = BeliefField()
             for ev in belief.evidence:
-                pairs = pairs_by_nct.get(ev.source_id)
-                if not pairs:  # no chain matched this edge → trial-level fallback
-                    td = descs.get(ev.source_id, {})
-                    s_desc = td.get(src_key, "")
-                    t_desc = tgt_name if tgt_special == "indication_name" else td.get(tgt_key, "")
-                    if not s_desc or not t_desc:
-                        continue
-                    pairs = [(s_desc, t_desc)]
+                pairs = pairs_by_nct.get(ev.source_id) or ([node_pair] if node_pair else None)
+                if not pairs:
+                    continue
                 n_eff = effective_n_for_evidence(
                     ev.source_type, ev.quality_score, n_obs=ev.n_obs,
                     edge_type=et.value,

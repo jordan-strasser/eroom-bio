@@ -31,9 +31,9 @@ def test_localized_swaps_field_mean_for_localizable_edge():
     field_map = {
         ("M", "B", "mechanism_affects"): BeliefField(marginal_alpha=3.0, marginal_beta=7.0),
     }
-    descs = {"mechanism": "VEGFR2 inhibition", "biology": "angiogenesis", "population": ""}
+    st_map = {("M", "B", "mechanism_affects"): ("VEGFR2 inhibition", "angiogenesis")}
     p_scalar, p_local, per_edge = localized_chain_probability(
-        edges, field_map, descs, embed_fn=lambda t: [float(len(t)), 1.0],
+        edges, field_map, st_map, embed_fn=lambda t: [float(len(t)), 1.0],
     )
     # localizable edge moved 0.8 -> ~0.3; non-localizable stayed 0.6
     me = next(e for e in per_edge if e["edge"].startswith("M--"))
@@ -46,18 +46,19 @@ def test_localized_swaps_field_mean_for_localizable_edge():
 
 def test_no_field_means_scalar_equals_localized():
     edges = [_ec("M", "B", EdgeType.MECHANISM_AFFECTS, 8.0, 2.0)]
+    st_map = {("M", "B", "mechanism_affects"): ("x", "y")}
     p_scalar, p_local, _ = localized_chain_probability(
-        edges, {}, {"mechanism": "x", "biology": "y"}, embed_fn=lambda t: [1.0, 0.0],
+        edges, {}, st_map, embed_fn=lambda t: [1.0, 0.0],
     )
     assert abs(p_scalar - p_local) < 1e-9  # no field → identical
 
 
-def test_missing_descriptions_falls_back_to_scalar():
+def test_missing_st_desc_falls_back_to_scalar():
     edges = [_ec("M", "B", EdgeType.MECHANISM_AFFECTS, 8.0, 2.0)]
     field_map = {("M", "B", "mechanism_affects"): BeliefField(marginal_alpha=3.0, marginal_beta=7.0)}
-    # no mechanism/biology descriptions → can't form (s,t) → scalar
+    # field exists but no (s,t) text for this edge → can't query → scalar
     p_scalar, p_local, per_edge = localized_chain_probability(
-        edges, field_map, {"mechanism": "", "biology": ""}, embed_fn=lambda t: [1.0, 0.0],
+        edges, field_map, {}, embed_fn=lambda t: [1.0, 0.0],
     )
     assert not per_edge[0]["is_localized"]
     assert abs(p_scalar - p_local) < 1e-9
