@@ -1568,6 +1568,16 @@ class PopulationPipeline:
                         # safer to keep.
                         continue
 
+                    # Rescue: if Open Targets resolved this compound to molecular
+                    # target(s), it's a real therapeutic — drugs have targets,
+                    # imaging dyes / diagnostics don't. ChEMBL's therapeutic_flag
+                    # is too noisy to drop a drug that OT says hits a target. This
+                    # disambiguates the diagnostic-shaped profile (therapeutic_flag
+                    # False + max_phase None) that real drugs share with Fluorescein
+                    # by metadata alone. Only ever *un-drops*, never adds a drop.
+                    if ot_data and ot_data.get("targets"):
+                        continue
+
                     meta = await self._chembl_client.get_molecule_metadata(
                         chembl_id,
                     )
