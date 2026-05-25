@@ -28,12 +28,15 @@ from src.prediction.field_prediction import (
 )
 from src.prediction.path_query import predict_clinical_hypothesis
 
+# NCT -> (label, literature outcome, drug-of-interest slug). The drug slug picks
+# the chain to predict on for multi-arm trials (e.g. bevacizumab's arm in AVANT,
+# not the chemo-only arm).
 HOLDOUTS = {
-    "NCT01844505": ("nivolumab CheckMate-067", "success"),
-    "NCT01127633": ("solanezumab EXPEDITION", "failure"),
-    "NCT00112918": ("bevacizumab AVANT", "failure"),
-    "NCT00134264": ("torcetrapib ILLUMINATE", "failure"),
-    "NCT00970359": ("selumetinib thyroid", "success"),
+    "NCT01844505": ("nivolumab CheckMate-067", "success", "nivolumab"),
+    "NCT01127633": ("solanezumab EXPEDITION", "failure", "solanezumab"),
+    "NCT00112918": ("bevacizumab AVANT", "failure", "bevacizumab"),
+    "NCT00134264": ("torcetrapib ILLUMINATE", "failure", "torcetrapib"),
+    "NCT00970359": ("selumetinib thyroid", "success", "selumetinib"),
 }
 
 
@@ -43,12 +46,15 @@ def _ok(p, lit):
 
 def _evaluate(g, field_map, embed_fn, cache, bandwidth=None):
     rows = []
-    for nct, (name, lit) in HOLDOUTS.items():
+    for nct, (name, lit, drug) in HOLDOUTS.items():
         ts = g.trial_subgraphs.get(nct)
         if not ts or not ts.chains:
             rows.append((nct, name, lit, None, None, None, "not-in-graph"))
             continue
-        ch = ts.chains[0]
+        # predict on the chain whose compound is the drug of interest (the arm
+        # that matters for a multi-arm trial), else fall back to the first chain.
+        matching = [c for c in ts.chains if drug in (c.compound_id or "").lower()]
+        ch = (matching or ts.chains)[0]
         try:
             result = predict_clinical_hypothesis(g, ch.compound_id, ch.indication_id, n_samples=2000)
         except Exception as e:  # noqa: BLE001
