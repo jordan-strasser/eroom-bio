@@ -626,6 +626,24 @@ async def main(
         f"set {desc_set} node descriptions"
     )
 
+    # Step 3b.5 (v2 / Q4): give EVERY node type a description + canonical
+    # name_id, so the manifold-1 substrate (BioLORD embeddings / boxes / (s,t))
+    # is meaningful on Target/Compound/Indication/Endpoint too — not just the
+    # Mechanism/Biology/Population nodes that extractions describe. Haiku +
+    # cache, so rebuilds are cheap. The geometric merge stays a separate,
+    # re-runnable projection (scripts/build_groundup.py), not baked in here.
+    console.rule("[bold]Step 3b.5: descriptions + name_id (all node types)[/bold]")
+    from src.graph.descriptions import assign_name_ids, generate_node_descriptions
+    gen_desc = await generate_node_descriptions(
+        seed_graph, client, concurrency=concurrency,
+    )
+    n_name_ids = assign_name_ids(seed_graph)
+    seed_graph.export_snapshot(str(initial_path))
+    console.print(
+        f"  generated {gen_desc} node descriptions (Haiku), "
+        f"assigned {n_name_ids} name_ids"
+    )
+
     # Step 3c: classify each trial against the seeded graph so the
     # classifier prompt can ground edge updates in canonical node IDs.
     console.rule("[bold]Step 3c: classify (with entity context)[/bold]")
