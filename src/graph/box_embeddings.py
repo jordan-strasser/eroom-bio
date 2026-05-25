@@ -163,11 +163,18 @@ def fit_boxes(
         nid: Box.cube(np.asarray(vec, float), leaf_half_width)
         for nid, vec in centers.items()
     }
+    return _expand_hierarchy(boxes, parent_child, margin)
+
+
+def _expand_hierarchy(
+    boxes: dict[str, Box], parent_child: list[tuple[str, str]], margin: float,
+) -> dict[str, Box]:
+    """Expand each parent box (children first) to bound its children + margin,
+    so parent ⊇ child holds by construction. Mutates and returns ``boxes``."""
     kids: dict[str, list[str]] = {nid: [] for nid in boxes}
     pairs = [(p, c) for p, c in parent_child if p in boxes and c in boxes]
     for parent, child in pairs:
         kids[parent].append(child)
-
     for nid in _leaves_first_order(list(boxes), pairs):
         if not kids[nid]:
             continue
@@ -179,6 +186,24 @@ def fit_boxes(
         span = np.maximum(hi - lo, 1e-9)
         boxes[nid] = Box(min=lo - margin * span, max=hi + margin * span)
     return boxes
+
+
+def box_from_points(points, *, leaf_half_width: float = 0.05, margin: float = 0.1) -> Box:
+    """A node's initial box = the bounding box of ALL its description embeddings
+    (the region spanning every text that routes through it), or a leaf cube for
+    a single point. **Finding-1 fix:** a categorical node like
+    ``kinase_inhibition`` becomes a *region* over {EGFR, MEK, BRAF ...}
+    inhibition instead of a point at the first contributor's description.
+    """
+    arr = np.asarray(points, float)
+    if arr.ndim == 1:
+        arr = arr.reshape(1, -1)
+    if len(arr) == 1:
+        return Box.cube(arr[0], leaf_half_width)
+    lo = arr.min(axis=0)
+    hi = arr.max(axis=0)
+    span = np.maximum(hi - lo, 2 * leaf_half_width)  # floor so a tight cluster keeps volume
+    return Box(min=lo - margin * span, max=hi + margin * span)
 
 
 # ── Persistence (trained params are PRIVATE) ─────────────────────────────────
@@ -292,41 +317,96 @@ def biology_parent_child_pairs(graph, ancestors_fn=None) -> list[tuple[str, str]
     return pairs
 
 
+def chain_descriptions_by_arm(annotations_dir) -> dict:
+    """``(nct, arm_id) -> {mechanism, biology, population}`` from the A.0b
+    per-chain descriptions in cached extractions (first non-empty per field per
+    arm). Arm-level, so combo arms with distinct mechanisms stay distinct."""
+    out: dict = {}
+    for p in sorted(Path(annotations_dir).glob("*_extraction.json")):
+        try:
+            d = json.loads(p.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        nct = d.get("nct_id")
+        if not nct:
+            continue
+        for cr in d.get("results_by_chain", []) or []:
+            arm = cr.get("arm_id")
+            if not arm:
+                continue
+            e = out.setdefault((nct, arm), {"mechanism": "", "biology": "", "population": ""})
+            for key, field in (("mechanism", "mechanism_description"),
+                               ("biology", "biology_description"),
+                               ("population", "population_description")):
+                if not e[key]:
+                    v = (cr.get(field) or "").strip()
+                    if v:
+                        e[key] = v
+    return out
+
+
+def node_text_sets(graph, node_types, annotations_dir) -> dict[str, list[str]]:
+    """Per-node SET of the A.0b descriptions that route through it, mapped via
+    the graph chains' (nct, arm) → node ids. This is what makes a categorical
+    node's box span all its trials' specific descriptions (Finding-1 fix)."""
+    by_arm = chain_descriptions_by_arm(annotations_dir)
+    sel = set(node_types)
+    sets: dict[str, set] = {}
+    for nct, ts in graph.trial_subgraphs.items():
+        for ch in ts.chains:
+            d = by_arm.get((nct, ch.arm_id), {})
+            if "MechanismNode" in sel and d.get("mechanism"):
+                sets.setdefault(ch.mechanism_id, set()).add(d["mechanism"])
+            if "BiologyNode" in sel and d.get("biology"):
+                sets.setdefault(ch.biology_id, set()).add(d["biology"])
+            if "PopulationNode" in sel and d.get("population"):
+                sets.setdefault(ch.subgroup_population_id, set()).add(d["population"])
+    return {k: sorted(v) for k, v in sets.items()}
+
+
 def fit_graph_boxes(
     graph,
     *,
     node_types: tuple[str, ...] = ("PopulationNode", "BiologyNode", "MechanismNode"),
     embed_fn=None,
     ancestors_fn=None,
+    annotations_dir=None,
     leaf_half_width: float = 0.05,
     margin: float = 0.05,
 ) -> dict[str, Box]:
-    """Fit manifold-1 boxes for the graph: BioLORD centers + ontology pairs.
+    """Fit manifold-1 boxes: each node's box is the **region spanning all its
+    A.0b descriptions** (Finding-1 fix), expanded so ontology parents contain
+    their children.
 
-    Centers are ``embed_fn(description or name)`` for each selected node;
-    ``embed_fn`` defaults to ``biolord_embeddings.embed_text`` (lazy import so
-    this module needs no ML deps to import or unit-test — inject a stub in
-    tests). Supervision is currently the population hierarchy; nodes without
-    parent/child supervision get a leaf cube (still usable for merge/sibling
-    via overlap). Trained boxes are returned; persist with :func:`save_boxes`
-    (private) and/or :func:`apply_boxes_to_graph`.
+    With ``annotations_dir``, a node's initial box is the bounding box of every
+    per-chain description routing through it (``node_text_sets``) — so a
+    categorical node like ``kinase_inhibition`` is a region over EGFR/MEK/BRAF
+    inhibition, not a point at the first contributor. Without it (unit tests),
+    each node falls back to a single ``description``/``name`` leaf cube.
+    ``embed_fn`` defaults to ``biolord_embeddings.embed_text`` (lazy import).
     """
     if embed_fn is None:
         from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
 
     selected = set(node_types)
-    centers: dict[str, list[float]] = {}
+    text_sets = node_text_sets(graph, node_types, annotations_dir) if annotations_dir else {}
+
+    initial: dict[str, Box] = {}
     for nid, data in graph._graph.nodes(data=True):  # noqa: SLF001
         if data.get("node_type") not in selected:
             continue
-        text = (data.get("description") or "").strip() or (data.get("name") or "").strip()
-        if not text:
+        texts = text_sets.get(nid) or []
+        if not texts:
+            t = (data.get("description") or "").strip() or (data.get("name") or "").strip()
+            if t:
+                texts = [t]
+        if not texts:
             continue
-        centers[nid] = embed_fn(text)
+        initial[nid] = box_from_points(
+            [embed_fn(t) for t in texts], leaf_half_width=leaf_half_width
+        )
 
     pairs = population_parent_child_pairs(graph)
     if "BiologyNode" in selected:
         pairs = pairs + biology_parent_child_pairs(graph, ancestors_fn=ancestors_fn)
-    return fit_boxes(
-        centers, pairs, leaf_half_width=leaf_half_width, margin=margin,
-    )
+    return _expand_hierarchy(initial, pairs, margin)

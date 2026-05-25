@@ -41,6 +41,7 @@ def field_enabled() -> bool:
 PRIOR_ALPHA = 1.0
 PRIOR_BETA = 1.0
 DEFAULT_BANDWIDTH = 0.25  # cosine-kernel bandwidth; smaller = sharper locality
+FALLBACK_STRENGTH = 2.0   # pseudo-count mass of the marginal fallback (see query)
 
 
 @dataclass
@@ -67,20 +68,47 @@ class FieldAnchor:
 
 @dataclass
 class BeliefField:
-    """Sparse anchor-list surface over the joint (source, target) space."""
+    """Sparse anchor-list surface over the joint (source, target) space.
+
+    ``marginal_alpha/beta`` carry the edge's scalar ``Beta`` so that a query in
+    a region with no nearby anchors falls back to the **pooled edge belief**
+    (the public marginal), not to a flat 0.5 — making the field a strict
+    *refinement* of the scalar: local where there's evidence, pooled otherwise.
+    Default (1, 1) reproduces the old flat-prior behaviour.
+    """
 
     anchors: list[FieldAnchor] = field(default_factory=list)
     bandwidth: float = DEFAULT_BANDWIDTH
+    marginal_alpha: float = PRIOR_ALPHA
+    marginal_beta: float = PRIOR_BETA
+    fallback_strength: float = FALLBACK_STRENGTH
 
     def to_dict(self) -> dict[str, Any]:
-        return {"bandwidth": self.bandwidth, "anchors": [a.to_dict() for a in self.anchors]}
+        return {
+            "bandwidth": self.bandwidth,
+            "marginal_alpha": self.marginal_alpha,
+            "marginal_beta": self.marginal_beta,
+            "fallback_strength": self.fallback_strength,
+            "anchors": [a.to_dict() for a in self.anchors],
+        }
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "BeliefField":
         return cls(
             anchors=[FieldAnchor.from_dict(a) for a in d.get("anchors", [])],
             bandwidth=float(d.get("bandwidth", DEFAULT_BANDWIDTH)),
+            marginal_alpha=float(d.get("marginal_alpha", PRIOR_ALPHA)),
+            marginal_beta=float(d.get("marginal_beta", PRIOR_BETA)),
+            fallback_strength=float(d.get("fallback_strength", FALLBACK_STRENGTH)),
         )
+
+    def fallback_prior(self) -> tuple[float, float]:
+        """The marginal-centered prior pseudo-counts: ``fallback_strength``
+        units of mass placed at the edge's scalar mean. Far-from-evidence
+        queries return this → ``E[p]`` = the pooled edge mean."""
+        total = self.marginal_alpha + self.marginal_beta
+        p = self.marginal_alpha / total if total > 0 else 0.5
+        return self.fallback_strength * p, self.fallback_strength * (1.0 - p)
 
 
 def _cosine(a: list[float], b: list[float]) -> float:
@@ -120,18 +148,16 @@ def query(
     field_: BeliefField,
     s: list[float],
     t: list[float],
-    *,
-    prior_alpha: float = PRIOR_ALPHA,
-    prior_beta: float = PRIOR_BETA,
 ) -> tuple[float, float]:
     """Kernel-weighted ``Beta(alpha, beta)`` at ``(s, t)``.
 
     ``weight_i = exp((cos(s, s_i) + cos(t, t_i) − 2) / bandwidth)`` — an anchor
     at the exact ``(s, t)`` gets weight 1; far anchors decay toward 0. Returns
-    ``(prior_alpha + Σ w_i·alpha_i, prior_beta + Σ w_i·beta_i)``, so a query in
-    a region with no nearby evidence falls back to the prior.
+    ``(prior_a + Σ w_i·alpha_i, prior_b + Σ w_i·beta_i)`` where ``(prior_a,
+    prior_b)`` is the field's marginal-centered fallback, so a query in a region
+    with no nearby evidence falls back to the **pooled edge belief** (not 0.5).
     """
-    a, b = prior_alpha, prior_beta
+    a, b = field_.fallback_prior()
     for anc in field_.anchors:
         w = math.exp((_cosine(s, anc.s) + _cosine(t, anc.t) - 2.0) / field_.bandwidth)
         a += w * anc.alpha

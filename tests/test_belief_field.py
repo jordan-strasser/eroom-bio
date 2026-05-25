@@ -57,11 +57,30 @@ def test_same_edge_distinct_st_stays_separable():
     assert p_success_region - p_failure_region > 0.5
 
 
+def test_far_query_falls_back_to_edge_marginal():
+    """A query with no nearby anchors returns the edge's pooled scalar mean, not
+    0.5 — the field is a strict refinement of the scalar, not a reset to
+    ignorance. (Q3: marginal-centered fallback prior.)"""
+    f = BeliefField(marginal_alpha=8.0, marginal_beta=2.0)  # pooled mean = 0.8
+    apply_virtual_evidence_local(f, s=[1.0, 0.0], t=[1.0, 0.0], n_eff=20.0, p_obs=0.1)  # local failure
+    near = expected_p(f, [1.0, 0.0], [1.0, 0.0])
+    far = expected_p(f, [0.0, 1.0], [0.0, 1.0])
+    assert near < 0.3                      # dominated by the local failure anchor
+    assert far == pytest.approx(0.8, abs=0.02)  # reverts to the pooled 0.8, not 0.5
+
+
+def test_default_field_fallback_is_half():
+    """Default marginal (1,1) reproduces the old flat-prior behaviour."""
+    assert expected_p(BeliefField(), [0.0, 1.0], [0.0, 1.0]) == pytest.approx(0.5)
+    assert BeliefField().fallback_prior() == (1.0, 1.0)
+
+
 def test_serialization_roundtrip():
-    f = BeliefField(bandwidth=0.3)
+    f = BeliefField(bandwidth=0.3, marginal_alpha=6.0, marginal_beta=4.0)
     apply_virtual_evidence_local(f, s=[0.5, 0.5], t=[0.1, 0.9], n_eff=10.0, p_obs=0.7)
     f2 = BeliefField.from_dict(f.to_dict())
     assert f2.bandwidth == 0.3
+    assert (f2.marginal_alpha, f2.marginal_beta) == (6.0, 4.0)
     assert len(f2.anchors) == 1
     assert f2.anchors[0].alpha == pytest.approx(7.0)
 

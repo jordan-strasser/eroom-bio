@@ -44,8 +44,8 @@ def main() -> int:
     bio_pairs = biology_parent_child_pairs(g)
     print(f"  {len(bio_pairs)} biology parent→child pairs")
 
-    print("fitting boxes (BioLORD centers + supervision)…")
-    boxes = fit_graph_boxes(g)
+    print("fitting boxes (per-node description SET → region + supervision)…")
+    boxes = fit_graph_boxes(g, annotations_dir="data/annotations")
     print(f"  fit {len(boxes)} boxes")
     # biology is-a sanity: a parent pathway should test parent_of its child
     for parent, child in bio_pairs[:3]:
