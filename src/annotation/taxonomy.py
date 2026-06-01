@@ -333,6 +333,15 @@ class StructuredAE(BaseModel):
     incidence_control_pct: float | None = None
     arm_incidences: list[ArmIncidence] = Field(default_factory=list)
     serious: bool = False
+    # Relative-effect fields for literature-derived AEs (PubMed enrichment).
+    # Abstracts report a hazard/risk ratio + 95% CI rather than per-arm
+    # incidences. When ``hazard_ratio`` is present the support bucket is graded
+    # by effect size GATED on the CI excluding 1.0 (significance), which captures
+    # rare-but-decisive endpoints (a trial-terminating mortality HR) that the
+    # absolute-rate-delta path under-grades because the incidence gap is tiny.
+    hazard_ratio: float | None = None
+    hr_ci_low: float | None = None
+    hr_ci_high: float | None = None
 
 
 class ModulationEntry(BaseModel):

@@ -10,8 +10,10 @@ from src.annotation.pubmed_safety import (
     merge_pubmed_safety,
     needs_pubmed_enrichment,
 )
+from src.annotation.attributor import _ae_support_bucket, _hr_support_bucket
 from src.annotation.taxonomy import StructuredAE, TrialExtraction
 from src.ingestion.clinicaltrials import Reference, TrialRecord, _parse_study
+from src.inference.beliefs import SupportBucket
 
 
 def _trial(status: str = "TERMINATED", references=None) -> TrialRecord:
@@ -77,6 +79,30 @@ def test_committed_torcetrapib_cache_is_valid():
     assert death and death[0].serious
     # treatment > control so the causes_ae bucket reads support, not background
     assert death[0].incidence_treatment_pct > death[0].incidence_control_pct
+    # HR + CI carried so the significance-aware bucket grades it STRONG, not WEAK
+    assert death[0].hazard_ratio == 1.58 and death[0].hr_ci_low > 1.0
+    assert any("cardiovascular" in a.term.lower() for a in safety.adverse_events)
+
+
+def test_hr_support_bucket_grades_by_significance_and_magnitude():
+    # trial-terminating mortality HR: significant (CI excludes 1.0) + large -> STRONG
+    assert _hr_support_bucket(1.58, 1.14, 2.19) == SupportBucket.STRONG_SUPPORT
+    # moderate significant effect
+    assert _hr_support_bucket(1.25, 1.09, 1.44) == SupportBucket.MODERATE_SUPPORT
+    # same point estimate but CI spans 1.0 -> not significant -> AMBIGUOUS
+    assert _hr_support_bucket(1.58, 0.90, 2.50) == SupportBucket.AMBIGUOUS
+    # protective (drug arm safer) -> contradict side
+    assert _hr_support_bucket(0.60, 0.40, 0.85) == SupportBucket.STRONG_CONTRADICT
+    # missing CI -> can't establish significance -> AMBIGUOUS
+    assert _hr_support_bucket(1.58, None, None) == SupportBucket.AMBIGUOUS
+
+
+def test_ae_support_bucket_hr_takes_precedence_over_rate():
+    # the tiny absolute rate delta alone -> WEAK; with the HR it's STRONG
+    assert _ae_support_bucket(1.23, 0.78) == SupportBucket.WEAK_SUPPORT
+    assert _ae_support_bucket(
+        1.23, 0.78, hazard_ratio=1.58, hr_ci_low=1.14, hr_ci_high=2.19,
+    ) == SupportBucket.STRONG_SUPPORT
 
 
 def test_parse_study_captures_references():

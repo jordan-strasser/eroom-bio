@@ -10,15 +10,29 @@
       "incidence_treatment_pct": 1.23,
       "incidence_control_pct": 0.78,
       "arm_incidences": [],
-      "serious": true
+      "serious": true,
+      "hazard_ratio": 1.58,
+      "hr_ci_low": 1.14,
+      "hr_ci_high": 2.19
+    },
+    {
+      "term": "Major cardiovascular event",
+      "meddra_term": "",
+      "grade": "4",
+      "incidence_treatment_pct": null,
+      "incidence_control_pct": null,
+      "arm_incidences": [],
+      "serious": true,
+      "hazard_ratio": 1.25,
+      "hr_ci_low": 1.09,
+      "hr_ci_high": 1.44
     }
   ],
   "safety_signals": [
     "Systolic blood pressure increased by 5.4 mm Hg vs baseline in the torcetrapib arm (off-target pressor effect)",
     "Decreased serum potassium with increased serum sodium, bicarbonate, and aldosterone (off-target mineralocorticoid effect)",
-    "Increased risk of major cardiovascular events (HR 1.25, 95% CI 1.09-1.44)",
     "Trial terminated early for increased death and cardiac events; described as an off-target effect of torcetrapib of unknown mechanism, though adverse effects related to CETP inhibition could not be excluded"
   ],
   "source": "pubmed_abstract",
-  "note": "Agent-curated from PubMed via the Claude PubMed MCP. According to PubMed, Barter PJ et al., 'Effects of torcetrapib in patients at high risk for coronary events,' N Engl J Med 2007;357(21):2109-2122 (DOI 10.1056/NEJMoa0706628, PMID 17984165). NCT00134264 (ILLUMINATE) was terminated for increased mortality/cardiac events. The death incidence (1.23% torcetrapib+atorvastatin vs 0.78% atorvastatin; HR 1.58) is the trial's reported all-cause-mortality result; the +5.4 mmHg BP rise and the potassium/sodium/bicarbonate/aldosterone shifts are continuous off-target findings captured as safety_signals because they are not per-arm incidences."
+  "note": "Agent-curated from PubMed via the Claude PubMed MCP. According to PubMed, Barter PJ et al., 'Effects of torcetrapib in patients at high risk for coronary events,' N Engl J Med 2007;357(21):2109-2122 (DOI 10.1056/NEJMoa0706628, PMID 17984165). NCT00134264 (ILLUMINATE, n=15067) was terminated for increased mortality/cardiac events. Death: HR 1.58 (95% CI 1.14-2.19); incidence 1.23% torcetrapib+atorvastatin vs 0.78% atorvastatin. Major cardiovascular event: HR 1.25 (95% CI 1.09-1.44). Both CIs exclude 1.0 (significant), so the HR-aware bucket grades them STRONG/MODERATE rather than WEAK/AMBIGUOUS from the tiny absolute rate delta. BP/electrolyte/aldosterone are continuous off-target findings kept as safety_signals."
 }

@@ -462,10 +462,46 @@ def _log_unrouted_modulation(
 # ── AE attribution helpers ──────────────────────────────────────────────
 
 
+def _hr_support_bucket(
+    hr: float | None, ci_low: float | None, ci_high: float | None,
+) -> SupportBucket:
+    """Grade an AE from a hazard/risk ratio + 95% CI (literature-derived AEs).
+
+    The CI is the SIGNIFICANCE gate: if it spans 1.0 (or is missing) the effect
+    is indistinguishable from background -> AMBIGUOUS. When the CI excludes 1.0,
+    grade by magnitude:
+        HR >= 1.5 (<= 0.67) -> STRONG; >= 1.25 (<= 0.80) -> MODERATE; else WEAK.
+    This captures rare-but-decisive endpoints — a trial-terminating mortality
+    HR 1.58 (95% CI 1.14-2.19) is STRONG here, vs WEAK on the absolute-rate path
+    (delta 0.45pp). First-pass calibration on principle (significance gate +
+    relative-effect tiers), NOT tuned on the 5-trial holdout; refit downstream of
+    the calibration harness alongside the rate cutoffs.
+    """
+    if hr is None or ci_low is None or ci_high is None:
+        return SupportBucket.AMBIGUOUS
+    if ci_low <= 1.0 <= ci_high:
+        return SupportBucket.AMBIGUOUS  # CI spans 1.0 — not significant
+    if hr >= 1.0:
+        if hr >= 1.5:
+            return SupportBucket.STRONG_SUPPORT
+        if hr >= 1.25:
+            return SupportBucket.MODERATE_SUPPORT
+        return SupportBucket.WEAK_SUPPORT
+    if hr <= 0.67:
+        return SupportBucket.STRONG_CONTRADICT
+    if hr <= 0.80:
+        return SupportBucket.MODERATE_CONTRADICT
+    return SupportBucket.WEAK_CONTRADICT
+
+
 def _ae_support_bucket(
     treatment_pct: float | None,
     control_pct: float | None,
     treatment_n: int | None = None,
+    *,
+    hazard_ratio: float | None = None,
+    hr_ci_low: float | None = None,
+    hr_ci_high: float | None = None,
 ) -> SupportBucket:
     """Map per-arm AE incidence to a SupportBucket for the causes_ae edge.
 
@@ -492,7 +528,13 @@ def _ae_support_bucket(
 
     Calibration of these cutoffs is downstream of the calibration harness
     (NEXT_SESSION follow-up #1) just like the bucket→p_obs table.
+
+    A hazard/risk ratio + CI (literature-derived AEs) takes precedence via
+    ``_hr_support_bucket`` — a significant relative effect on a rare hard
+    endpoint shouldn't be lost to a small absolute incidence delta.
     """
+    if hazard_ratio is not None:
+        return _hr_support_bucket(hazard_ratio, hr_ci_low, hr_ci_high)
     if treatment_pct is None:
         return SupportBucket.AMBIGUOUS
     c = control_pct if control_pct is not None else 0.0
@@ -1409,6 +1451,8 @@ class Attributor:
 
                 bucket = _ae_support_bucket(
                     tx_pct, ctrl_pct, treatment_n=tx_n,
+                    hazard_ratio=ae.hazard_ratio,
+                    hr_ci_low=ae.hr_ci_low, hr_ci_high=ae.hr_ci_high,
                 )
                 note = _format_ae_note(
                     ae, preferred_term, tx_pct=tx_pct, ctrl_pct=ctrl_pct,
