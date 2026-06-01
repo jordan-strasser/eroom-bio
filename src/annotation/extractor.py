@@ -22,6 +22,7 @@ from src.annotation.taxonomy import (
     StructuredAE,
     TrialExtraction,
 )
+from src.annotation.pubmed_safety import maybe_enrich_from_cache
 from src.ingestion.clinicaltrials import TrialRecord
 
 logger = logging.getLogger(__name__)
@@ -642,7 +643,8 @@ class Extractor:
             try:
                 cached_raw = json.loads(cache_path.read_text())
                 extraction = _parse_extraction_response(cached_raw, trial.nct_id)
-                return _overlay_structured_aes(extraction, trial)
+                return _overlay_structured_aes(
+                    maybe_enrich_from_cache(extraction, trial), trial)
             except (json.JSONDecodeError, KeyError) as exc:
                 logger.warning(
                     "Cached extraction for %s unreadable (%s); re-extracting",
@@ -660,7 +662,8 @@ class Extractor:
         ):
             extraction = await self._reask_endpoint_met(trial, extraction, raw_json)
         self._save_annotation(trial.nct_id, raw_json)
-        return _overlay_structured_aes(extraction, trial)
+        return _overlay_structured_aes(
+            maybe_enrich_from_cache(extraction, trial), trial)
 
     async def _reask_endpoint_met(
         self,

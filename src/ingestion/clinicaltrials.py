@@ -210,6 +210,20 @@ def is_drug_like(intervention: "Intervention") -> bool:
     return intervention.type in DRUG_LIKE_INTERVENTION_TYPES
 
 
+class Reference(BaseModel):
+    """A linked publication from CT.gov ``referencesModule.references``.
+
+    For terminated/withdrawn trials with no posted results, the canonical safety
+    signal often lives only in a linked paper (e.g. torcetrapib's BP/aldosterone
+    effect in PMID 17984165), never in the structured record. ``type`` is
+    CT.gov's BACKGROUND / RESULT / DERIVED.
+    """
+
+    pmid: str = ""
+    citation: str = ""
+    type: str = ""
+
+
 class TrialRecord(BaseModel):
     nct_id: str
     title: str
@@ -245,6 +259,11 @@ class TrialRecord(BaseModel):
     # qualifier regex can't capture. Empty when the trial's CT.gov
     # record omits the eligibility module.
     eligibility_criteria: str = ""
+    # Linked publications (referencesModule). PMIDs here are often the only
+    # mechanistic/safety signal for terminated trials with no resultsSection;
+    # the PubMed safety-enrichment path fetches these abstracts. Empty when
+    # CT.gov omits the references module.
+    references: list[Reference] = Field(default_factory=list)
 
 
 # ── Parsing helpers ──────────────────────────────────────────────────────
@@ -332,6 +351,17 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
     # Subgroup stratifier descriptors only appear in posted results.
     subgroup_descriptors = _parse_subgroup_descriptors(results_section)
 
+    # Linked publications (PMIDs) — often the only safety signal for terminated
+    # trials with no resultsSection (e.g. torcetrapib's NEJM paper).
+    references = [
+        Reference(
+            pmid=r.get("pmid", ""),
+            citation=r.get("citation", ""),
+            type=r.get("type", ""),
+        )
+        for r in proto.get("referencesModule", {}).get("references", [])
+    ]
+
     return TrialRecord(
         nct_id=ident.get("nctId", ""),
         title=ident.get("briefTitle", ""),
@@ -351,6 +381,7 @@ def _parse_study(raw: dict[str, Any]) -> TrialRecord:
         arm_groups=arm_groups,
         subgroup_descriptors=subgroup_descriptors,
         eligibility_criteria=elig_mod.get("eligibilityCriteria", "") or "",
+        references=references,
     )
 
 
