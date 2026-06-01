@@ -81,7 +81,25 @@ def test_committed_torcetrapib_cache_is_valid():
     assert death[0].incidence_treatment_pct > death[0].incidence_control_pct
     # HR + CI carried so the significance-aware bucket grades it STRONG, not WEAK
     assert death[0].hazard_ratio == 1.58 and death[0].hr_ci_low > 1.0
+    # failure_causing so the DLT safety gate counts it fully (the abstract says
+    # the trial was terminated *because of* these events)
+    assert death[0].failure_causing
     assert any("cardiovascular" in a.term.lower() for a in safety.adverse_events)
+
+
+def test_maybe_enrich_by_nct_gates_on_cache_and_empty_aes(tmp_path, monkeypatch):
+    monkeypatch.setattr(ps, "_ANNOTATIONS_DIR", tmp_path)
+    safety = PubmedSafety(nct_id="NCT99",
+                          adverse_events=[StructuredAE(term="death", serious=True)])
+    (tmp_path / "NCT99_pubmed_safety.json").write_text(safety.model_dump_json())
+    # terminal/empty + cache exists -> enriches (no TrialRecord needed)
+    out = ps.maybe_enrich_by_nct(TrialExtraction(trial_id="NCT99"), "NCT99")
+    assert any(a.term == "death" for a in out.adverse_events)
+    # already has AEs -> no-op (won't overwrite)
+    ex = TrialExtraction(trial_id="NCT99", adverse_events=[StructuredAE(term="rash")])
+    assert [a.term for a in ps.maybe_enrich_by_nct(ex, "NCT99").adverse_events] == ["rash"]
+    # no cache -> no-op
+    assert ps.maybe_enrich_by_nct(TrialExtraction(trial_id="NONE"), "NONE").adverse_events == []
 
 
 def test_hr_support_bucket_grades_by_significance_and_magnitude():

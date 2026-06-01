@@ -1473,9 +1473,12 @@ class Attributor:
                         # The safety-penalty gate weights failure-causing
                         # toxicity over mere occurrence (see path_query).
                         "failure_causing_tox": bool(
-                            classification is not None
-                            and classification.primary_failure_mode
-                            == FailureMode.DOSE_LIMITING_TOXICITY
+                            ae.failure_causing
+                            or (
+                                classification is not None
+                                and classification.primary_failure_mode
+                                == FailureMode.DOSE_LIMITING_TOXICITY
+                            )
                         ),
                     },
                 )
@@ -1875,6 +1878,14 @@ async def _main(
                 trial_id, exc,
             )
             extraction = None
+
+        # PubMed safety enrichment: attribution re-reads the raw extraction JSON
+        # (bypassing extractor.extract's hook), so apply the cache HERE — this is
+        # the point that actually lands the causes_ae edges for terminated trials
+        # whose safety signal lived only in a linked paper (e.g. torcetrapib).
+        if extraction is not None:
+            from src.annotation.pubmed_safety import maybe_enrich_by_nct
+            extraction = maybe_enrich_by_nct(extraction, trial_id)
 
         updates = attributor.attribute(classification, trial, extraction)
         total_updates.extend(updates)

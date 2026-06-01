@@ -124,6 +124,24 @@ def maybe_enrich_from_cache(
     return merge_pubmed_safety(extraction, safety)
 
 
+def maybe_enrich_by_nct(extraction: TrialExtraction, nct_id: str) -> TrialExtraction:
+    """Build-side enrichment for the **attribution** step, where no TrialRecord
+    is in scope (attribution re-reads the raw extraction JSON, bypassing the
+    extractor-side ``maybe_enrich_from_cache`` hook). Gates on the committed cache
+    existing + the extraction's AE list being empty — the cache is only produced
+    for trials that already passed ``needs_pubmed_enrichment`` (terminal status +
+    empty AEs + PMIDs), so its existence implies the trigger was met.
+
+    THIS is the integration point that actually lands the ``causes_ae`` edges:
+    it must run before ``attribute_adverse_events`` in ``attributor._main``."""
+    if getattr(extraction, "adverse_events", None):
+        return extraction
+    safety = load_pubmed_safety(nct_id)
+    if safety is None:
+        return extraction
+    return merge_pubmed_safety(extraction, safety)
+
+
 def write_pubmed_safety(safety: PubmedSafety) -> Path:
     """Persist a cache artifact (used by the agent-curated producer)."""
     _ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)

@@ -342,6 +342,13 @@ class StructuredAE(BaseModel):
     hazard_ratio: float | None = None
     hr_ci_low: float | None = None
     hr_ci_high: float | None = None
+    # Literature can state that an AE *caused* the trial's termination (e.g.
+    # torcetrapib's abstract: "terminated prematurely because of an increased
+    # risk of death and cardiac events"). When True, this AE's evidence is tagged
+    # failure_causing_tox so the round-30 DLT safety gate counts it fully rather
+    # than flooring it as mere occurrence — even when the structured failure-mode
+    # classification is insufficient_information (empty resultsSection).
+    failure_causing: bool = False
 
 
 class ModulationEntry(BaseModel):
