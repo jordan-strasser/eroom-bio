@@ -370,6 +370,7 @@ async def main(
     allow_partial_subgraphs: bool = False,
     exclude_from_attribution: list[str] | None = None,
     assemble: bool = False,
+    enrich_pubmed: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
     if incremental:
@@ -600,7 +601,7 @@ async def main(
     console.print(f"  wrote {initial_path}")
 
     console.rule("[bold]Step 3a: extract[/bold]")
-    extractor = Extractor(client)
+    extractor = Extractor(client, enrich_pubmed=enrich_pubmed)
     classifier = Classifier(client)
     extracted = await extract_all(trials, extractor, concurrency=concurrency)
     console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
@@ -847,6 +848,17 @@ if __name__ == "__main__":
              "--add-trials re-ran attribution on holdouts.",
     )
     parser.add_argument(
+        "--enrich-pubmed", action="store_true",
+        help="Scale producer (the in-build 3rd call): for TERMINATED/WITHDRAWN "
+             "trials with no posted AEs but >=1 reference PMID, fetch the linked "
+             "abstract(s) via NCBI E-utilities and run a focused Anthropic call to "
+             "extract structured safety (HR/CI/failure_causing), written to the "
+             "<nct>_pubmed_safety.json the attribution step merges. Off by default "
+             "(network + an extra LLM call for the subset). Grounds program-ending "
+             "off-target toxicity (e.g. torcetrapib) the empty structured record "
+             "never captured.",
+    )
+    parser.add_argument(
         "--assemble", action="store_true",
         help="Step 5: after attribution, run the v2 post-build geometry — fit "
              "boxes on all 7 chain node types, resolve the box-geometry is-a "
@@ -885,4 +897,5 @@ if __name__ == "__main__":
         allow_partial_subgraphs=args.allow_partial_subgraphs,
         exclude_from_attribution=exclude_from_attribution or None,
         assemble=args.assemble,
+        enrich_pubmed=args.enrich_pubmed,
     ))

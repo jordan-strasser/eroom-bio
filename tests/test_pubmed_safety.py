@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, patch
+
+import pytest
+
 import src.annotation.pubmed_safety as ps
 from src.annotation.pubmed_safety import (
     PubmedSafety,
@@ -135,3 +139,53 @@ def test_parse_study_captures_references():
     }
     rec = _parse_study(raw)
     assert rec.references and rec.references[0].pmid == "17984165"
+
+
+# ── Scale producer (the in-build 3rd call) ───────────────────────────────────
+
+def _fake_anthropic_response(text: str):
+    block = type("Block", (), {"type": "text", "text": text})()
+    return type("Resp", (), {"content": [block]})()
+
+
+@pytest.mark.asyncio
+async def test_produce_pubmed_safety_builds_artifact_from_abstract():
+    trial = TrialRecord(nct_id="NCT00134264", title="ILLUMINATE", status="TERMINATED",
+                        references=[Reference(pmid="17984165")])
+    pubmed = type("PC", (), {})()
+    pubmed.fetch_abstracts = AsyncMock(return_value={"17984165": "...torcetrapib increased death..."})
+    fake_json = (
+        '{"adverse_events":[{"term":"Death from any cause","grade":"5","serious":true,'
+        '"hazard_ratio":1.58,"hr_ci_low":1.14,"hr_ci_high":2.19,"failure_causing":true}],'
+        '"safety_signals":["Systolic BP increased 5.4 mmHg"]}'
+    )
+    with patch("src.annotation.extractor._call_messages_with_backoff",
+               new=AsyncMock(return_value=_fake_anthropic_response(fake_json))):
+        safety = await ps.produce_pubmed_safety(object(), pubmed, trial)
+    assert safety is not None and safety.pmids == ["17984165"]
+    assert safety.source == "pubmed_ncbi_3rd_call"
+    death = safety.adverse_events[0]
+    assert death.term == "Death from any cause"
+    assert death.hazard_ratio == 1.58 and death.failure_causing and death.serious
+    assert safety.safety_signals == ["Systolic BP increased 5.4 mmHg"]
+
+
+@pytest.mark.asyncio
+async def test_produce_pubmed_safety_none_when_no_abstracts():
+    trial = TrialRecord(nct_id="NCT1", title="t", status="TERMINATED",
+                        references=[Reference(pmid="999")])
+    pubmed = type("PC", (), {})()
+    pubmed.fetch_abstracts = AsyncMock(return_value={})
+    assert await ps.produce_pubmed_safety(object(), pubmed, trial) is None
+
+
+@pytest.mark.asyncio
+async def test_produce_pubmed_safety_none_when_no_pmids():
+    trial = TrialRecord(nct_id="NCT1", title="t", status="TERMINATED", references=[])
+    assert await ps.produce_pubmed_safety(object(), object(), trial) is None
+
+
+def test_parse_json_object_strips_fences_and_prose():
+    assert ps._parse_json_object('```json\n{"a": 1}\n```') == {"a": 1}
+    assert ps._parse_json_object('prose before {"a": 2} after') == {"a": 2}
+    assert ps._parse_json_object("not json at all") is None

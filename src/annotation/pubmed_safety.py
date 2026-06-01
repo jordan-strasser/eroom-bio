@@ -143,8 +143,134 @@ def maybe_enrich_by_nct(extraction: TrialExtraction, nct_id: str) -> TrialExtrac
 
 
 def write_pubmed_safety(safety: PubmedSafety) -> Path:
-    """Persist a cache artifact (used by the agent-curated producer)."""
+    """Persist a cache artifact (used by both producers)."""
     _ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)
     path = _safety_path(safety.nct_id)
     path.write_text(json.dumps(safety.model_dump(mode="json"), indent=2) + "\n")
     return path
+
+
+# ── Scale producer: the in-build 3rd call (NCBI fetch + focused Anthropic) ────
+
+_SAFETY_EXTRACT_SYSTEM = """You extract drug-attributable SAFETY findings from the \
+abstract(s) of a clinical trial that was terminated/withdrawn and posted no \
+structured results. Your output grounds the trial's safety signal in the literature.
+
+Return ONLY JSON (no prose, no markdown fences):
+{
+  "adverse_events": [
+    {
+      "term": "<concise AE term, e.g. 'Death from any cause'>",
+      "grade": "<CTCAE 1-5 if inferable else ''; death=5, life-threatening=4>",
+      "serious": true,
+      "incidence_treatment_pct": <number or null>,
+      "incidence_control_pct": <number or null>,
+      "hazard_ratio": <number or null>,
+      "hr_ci_low": <number or null>,
+      "hr_ci_high": <number or null>,
+      "failure_causing": <true if the abstract names this AE as a reason the trial was stopped>
+    }
+  ],
+  "safety_signals": ["<continuous/mechanistic findings not expressible as per-arm incidence, e.g. blood-pressure or electrolyte changes>"]
+}
+
+Rules:
+- Only findings ATTRIBUTABLE TO THE STUDY DRUG (vs comparator/placebo). Skip baseline characteristics and efficacy endpoints.
+- Prefer hazard/risk ratios + their 95% CI when reported — the strongest signal. Always include the CI bounds so significance can be judged.
+- failure_causing=true for an AE the abstract names as a reason the trial stopped (e.g. "terminated because of increased death and cardiac events").
+- If there are no drug-attributable safety findings, return {"adverse_events": [], "safety_signals": []}."""
+
+_AE_FIELDS = (
+    "term", "grade", "serious", "incidence_treatment_pct", "incidence_control_pct",
+    "hazard_ratio", "hr_ci_low", "hr_ci_high", "failure_causing",
+)
+
+
+def _parse_json_object(raw: str) -> dict | None:
+    s = (raw or "").strip()
+    if s.startswith("```"):
+        parts = s.split("```")
+        s = parts[1] if len(parts) >= 2 else s
+        if s.lower().startswith("json"):
+            s = s[4:]
+        s = s.strip()
+    try:
+        return json.loads(s)
+    except (ValueError, TypeError):
+        i, j = s.find("{"), s.rfind("}")
+        if 0 <= i < j:
+            try:
+                return json.loads(s[i:j + 1])
+            except ValueError:
+                return None
+        return None
+
+
+async def produce_pubmed_safety(
+    anthropic_client, pubmed_client, trial, *, max_pmids: int = 3,
+) -> PubmedSafety | None:
+    """In-build scale producer (the dedicated 3rd call). Fetch the trial's top
+    reference abstracts via NCBI, then a single-shot focused Anthropic call
+    extracts structured safety (StructuredAEs w/ HR/CI/failure_causing +
+    safety_signals). Returns the SAME ``PubmedSafety`` artifact the agent-curated
+    path produces, or ``None`` if no abstracts / nothing extracted. Producer-
+    agnostic downstream: the trigger + cache + merge don't care who wrote it."""
+    pmids = [
+        r.pmid for r in (getattr(trial, "references", None) or [])
+        if getattr(r, "pmid", "")
+    ][:max_pmids]
+    if not pmids:
+        return None
+    abstracts = await pubmed_client.fetch_abstracts(pmids)
+    if not abstracts:
+        return None
+    return await _extract_safety_from_abstracts(
+        anthropic_client, getattr(trial, "nct_id", ""), abstracts,
+    )
+
+
+async def _extract_safety_from_abstracts(
+    anthropic_client, nct_id: str, abstracts: dict[str, str],
+) -> PubmedSafety | None:
+    # Lazy import: extractor imports this module, so importing it at module level
+    # would be circular.
+    from src.annotation.extractor import MODEL, _call_messages_with_backoff
+
+    blocks = "\n\n".join(f"=== PMID {pmid} ===\n{text}" for pmid, text in abstracts.items())
+    user = (
+        f"Trial: {nct_id}\nReference abstract(s):\n\n{blocks}\n\n"
+        "Extract the drug-attributable safety findings as JSON per the schema."
+    )
+    resp = await _call_messages_with_backoff(
+        anthropic_client, model=MODEL, max_tokens=1500,
+        system=_SAFETY_EXTRACT_SYSTEM,
+        messages=[{"role": "user", "content": user}],
+    )
+    raw = "".join(
+        getattr(b, "text", "") for b in resp.content
+        if getattr(b, "type", "") == "text"
+    )
+    data = _parse_json_object(raw)
+    if not data:
+        return None
+
+    aes: list[StructuredAE] = []
+    for a in data.get("adverse_events", []) or []:
+        if not isinstance(a, dict) or not a.get("term"):
+            continue
+        try:
+            aes.append(StructuredAE(**{
+                k: a[k] for k in _AE_FIELDS if a.get(k) is not None
+            }))
+        except (TypeError, ValueError):
+            continue
+    signals = [s for s in (data.get("safety_signals") or []) if isinstance(s, str) and s.strip()]
+    if not aes and not signals:
+        return None
+    return PubmedSafety(
+        nct_id=nct_id, pmids=list(abstracts.keys()),
+        adverse_events=aes, safety_signals=signals,
+        source="pubmed_ncbi_3rd_call",
+        note=(f"Auto-extracted in-build via NCBI efetch + focused Anthropic call "
+              f"from PMIDs {list(abstracts.keys())}."),
+    )
