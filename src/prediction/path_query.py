@@ -270,12 +270,17 @@ def _aggregate_samples(
     edge_samples: list[np.ndarray],
     weights: list[float],
 ) -> np.ndarray:
-    """Combine per-edge sample arrays via trust-weighted geometric mean.
+    """Combine per-edge sample arrays into one chain-probability sample array.
 
-    Callers are responsible for dropping zero-evidence edges upstream so
-    every entry here has positive weight. The fallback branch (sum_w <= 0)
-    survives only as a safety net — it produces an unweighted geomean so
-    we don't blow up if an empty chain ever slips through.
+    Default is weakest-link **softmin** (``EROOM_AGG``, round-30); the legacy
+    **trust-weighted geometric mean** is the ``EROOM_AGG=geomean`` branch below
+    (``product``/``min``/``harmonic`` also available). The softmin family runs
+    unweighted on purpose — don't down-weight a sparse-but-decisive edge; only
+    the geomean branch consumes ``weights``.
+
+    Callers drop zero-evidence edges upstream so every entry has positive
+    weight. The fallback branch (sum_w <= 0) is a safety net — an unweighted
+    geomean so we don't blow up if an empty chain ever slips through.
     """
     if not edge_samples:
         return np.array([])
@@ -421,11 +426,12 @@ class PredictionEngine:
     ) -> PredictionResult:
         """Compositional prediction via Monte Carlo sampling along one causal chain.
 
-        Aggregation: trust-weighted geometric mean. Edges with no evidence
-        beyond the prior contribute little; edges with substantial evidence
-        dominate. Trial-level prediction (across multiple arms × subgroups)
-        is the caller's responsibility—predict each chain and aggregate
-        as appropriate (e.g. per arm, per subgroup, or trial-wide).
+        Aggregation: weakest-link softmin by default (``EROOM_AGG``, round-30;
+        ``geomean`` restores the legacy trust-weighted geometric mean). Edges
+        with no evidence beyond the prior are dropped upstream. Trial-level
+        prediction (across multiple arms × subgroups) is the caller's
+        responsibility—predict each chain and aggregate as appropriate (e.g.
+        per arm, per subgroup, or trial-wide).
         """
         # 1. Collect edges and their beliefs
         edges = self._collect_edges(chain)
@@ -438,7 +444,7 @@ class PredictionEngine:
             edge_samples.append(_sample_edge(rng, belief, n_samples))
             trust_weights.append(_trust_weight(belief))
 
-        # 3. Aggregate samples via trust-weighted geometric mean
+        # 3. Aggregate samples (default softmin; EROOM_AGG=geomean for legacy)
         samples = _aggregate_samples(edge_samples, trust_weights)
 
         # 4. Compute statistics (mechanism-only — the "efficacy" view).
