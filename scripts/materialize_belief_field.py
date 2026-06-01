@@ -1,7 +1,7 @@
 """Materialize the manifold-2 belief field on a snapshot (post-hoc), PRIVATE.
 
-For each ``mechanism_affects`` and ``responds_differently`` edge, this replays
-the edge's *existing* evidence records — the same ``(n_eff, p_obs)`` the scalar
+For each backbone edge (all seven types in ``EDGE_SPECS``), this replays the
+edge's *existing* evidence records — the same ``(n_eff, p_obs)`` the scalar
 update used — but localized at ``(s, t) = BioLORD(per-chain A.0b descriptions)``.
 
 **Per-chain localization (Finding-2 fix).** An evidence record carries only its
@@ -124,17 +124,23 @@ def _chain_st_pairs(
     return out
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="Materialize manifold-2 belief field (A.3).")
-    ap.add_argument("--graph", default="data/exports/multi_indication_52_annotated.json")
-    ap.add_argument("--annotations", default="data/annotations")
-    args = ap.parse_args()
+def materialize_field(
+    graph_path: str, *, annotations_dir: str = "data/annotations",
+) -> dict:
+    """Replay every backbone edge's *existing* evidence localized at
+    ``(s, t) = BioLORD(per-arm descriptions)`` and write the private belief-field
+    snapshot under ``EROOM_PRIVATE_ROOT``. No new evidence — a strict refinement
+    of the scalar marginal (see module docstring). Returns a summary dict
+    ``{edges_localized, anchors_total, out, sample?}``.
 
+    Reused by ``build_graph --assemble`` so the field is regenerated with every
+    build (the field is post-hoc by construction — boundary strips it from the
+    public snapshot — so without this it drifts stale relative to the graph)."""
     from src.graph.biolord_embeddings import embed_text
 
     g = GraphStore()
-    g.import_snapshot(args.graph)
-    by_arm = chain_descriptions_by_arm(args.annotations)  # per-(nct,arm) A.0b descs
+    g.import_snapshot(graph_path)
+    by_arm = chain_descriptions_by_arm(annotations_dir)  # per-(nct,arm) A.0b descs
     emb_cache: dict[str, list[float]] = {}
 
     def embed(text: str) -> list[float]:
@@ -186,18 +192,38 @@ def main() -> int:
                     sample = (e["source_id"], e["target_id"], et, field)
 
     root = private_root(create=True)
-    out = root / (Path(args.graph).stem + "_belief_field.json")
+    out = root / (Path(graph_path).stem + "_belief_field.json")
     g.export_private_snapshot(str(out))
-    print(f"localized {edges_localized} edges, {anchors_total} anchors total")
-    print(f"private snapshot (with belief_field) -> {out}")
-
+    result: dict = {
+        "edges_localized": edges_localized,
+        "anchors_total": anchors_total,
+        "out": str(out),
+    }
     if sample is not None:
         sid, tid, et, field = sample
         # Separability spot-check: query at each anchor's own (s,t).
         ps = [expected_p(field, a.s, a.t) for a in field.anchors]
-        print(f"sample edge {sid} --{et.value}--> {tid}: {len(field.anchors)} anchors, "
-              f"localized P range [{min(ps):.2f}, {max(ps):.2f}] "
-              f"(spread {max(ps) - min(ps):.2f} = evidence kept separable)")
+        result["sample"] = {
+            "src": sid, "tgt": tid, "etype": et.value,
+            "anchors": len(field.anchors), "p_min": min(ps), "p_max": max(ps),
+        }
+    return result
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Materialize manifold-2 belief field (A.3).")
+    ap.add_argument("--graph", default="data/exports/multi_indication_52_annotated.json")
+    ap.add_argument("--annotations", default="data/annotations")
+    args = ap.parse_args()
+
+    r = materialize_field(args.graph, annotations_dir=args.annotations)
+    print(f"localized {r['edges_localized']} edges, {r['anchors_total']} anchors total")
+    print(f"private snapshot (with belief_field) -> {r['out']}")
+    s = r.get("sample")
+    if s is not None:
+        print(f"sample edge {s['src']} --{s['etype']}--> {s['tgt']}: {s['anchors']} anchors, "
+              f"localized P range [{s['p_min']:.2f}, {s['p_max']:.2f}] "
+              f"(spread {s['p_max'] - s['p_min']:.2f} = evidence kept separable)")
     return 0
 
 

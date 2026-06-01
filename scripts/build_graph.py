@@ -369,6 +369,7 @@ async def main(
     min_subgraph_success_rate: float = 0.75,
     allow_partial_subgraphs: bool = False,
     exclude_from_attribution: list[str] | None = None,
+    assemble: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
     if incremental:
@@ -682,6 +683,33 @@ async def main(
         exclude_from_attribution=exclude_from_attribution,
     )
 
+    # Step 5 (--assemble): the v2 post-build geometry. The per-(s,t) belief field
+    # and the box / is-a geometry are PRIVATE artifacts the boundary strips from
+    # the public snapshot, so they're materialized post-hoc — and therefore drift
+    # stale unless regenerated on every build (this is exactly how the field fell
+    # behind at 2/7 while the code already did 7). Wiring the two former scripts
+    # (assemble_v2 + materialize_belief_field) in here keeps the field in lockstep
+    # with the graph. Off by default: adds BioLORD embedding compute and needs
+    # EROOM_PRIVATE_ROOT. Node-merge stays a separate, re-runnable projection
+    # (assemble_v2 --merge), deliberately NOT baked in here.
+    if assemble:
+        console.rule("[bold]Step 5: assemble geometry + materialize (s,t) field[/bold]")
+        from scripts.assemble_v2 import assemble_geometry
+        from scripts.materialize_belief_field import materialize_field
+
+        geo = assemble_geometry(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
+        console.print(
+            f"  geometry: {geo['boxes']} boxes, "
+            f"is-a SUBTYPE_OF {geo['subtype_before']}→{geo['subtype_after']} "
+            f"(+{geo['subtype_added']})"
+        )
+        fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
+        console.print(
+            f"  (s,t) field: {fld['edges_localized']} edges localized, "
+            f"{fld['anchors_total']} anchors"
+        )
+        console.print(f"  private artifacts -> {geo['private_root']}")
+
     final = GraphStore()
     final.import_snapshot(str(annotated_path))
     stats = final.stats()
@@ -818,6 +846,19 @@ if __name__ == "__main__":
              "attribution. Fixes the round-24 contamination bug where "
              "--add-trials re-ran attribution on holdouts.",
     )
+    parser.add_argument(
+        "--assemble", action="store_true",
+        help="Step 5: after attribution, run the v2 post-build geometry — fit "
+             "boxes on all 7 chain node types, resolve the box-geometry is-a "
+             "hierarchy (public SUBTYPE_OF edges), and materialize the per-(s,t) "
+             "belief field. Boxes + field are PRIVATE artifacts written under "
+             "EROOM_PRIVATE_ROOT (defaults to ~/.eroom/private; point it at the "
+             "enterprise artifacts dir for canonical builds). Off by default — "
+             "adds BioLORD embedding compute. Replaces the manual assemble_v2 + "
+             "materialize_belief_field two-script dance so the (s,t) field can't "
+             "drift stale relative to the graph. Node-merge stays separate "
+             "(assemble_v2 --merge).",
+    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
     add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
@@ -843,4 +884,5 @@ if __name__ == "__main__":
         min_subgraph_success_rate=args.min_subgraph_success_rate,
         allow_partial_subgraphs=args.allow_partial_subgraphs,
         exclude_from_attribution=exclude_from_attribution or None,
+        assemble=args.assemble,
     ))

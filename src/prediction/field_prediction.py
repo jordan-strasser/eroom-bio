@@ -7,10 +7,15 @@ descriptions (the point on the edge surface its mechanism actually touched), the
 aggregates with the SAME softmin as `path_query._aggregate_samples` — so the two
 are directly comparable and the only difference is localization.
 
-Only `mechanism_affects` and `responds_differently` edges carry a field
-(materialized for those); every other edge contributes its scalar mean either
-way, so a chain's (s,t) P differs from its scalar P exactly insofar as its
-localizable edges have evidence that differs from the pooled marginal.
+All seven backbone edge types carry a field (see
+`materialize_belief_field.EDGE_SPECS`). Edges whose endpoints are both fixed
+node descriptions (`affects`, `endpoint_captures`) materialize a field that
+collapses toward the scalar — every anchor sits at the same (s,t) — so they
+effectively contribute their scalar mean. Edges with at least one per-arm
+endpoint (`mechanism_affects`, `modulates_via`, `biology_drives`,
+`reflects_biology`, `responds_differently`) genuinely localize: a chain's (s,t)
+P differs from its scalar P insofar as those edges' per-arm evidence differs
+from the pooled marginal.
 """
 
 from __future__ import annotations
@@ -21,16 +26,8 @@ from typing import Callable
 
 import numpy as np
 
-from src.graph.models import EdgeType
 from src.inference.belief_field import BeliefField, expected_p
 from src.prediction.path_query import _aggregate_samples, _trust_weight
-
-# edge_type -> (source desc-key, target desc-key, target-special). Matches
-# materialize_belief_field.EDGE_SPECS.
-_EDGE_DESC = {
-    EdgeType.MECHANISM_AFFECTS.value: ("mechanism", "biology", None),
-    EdgeType.RESPONDS_DIFFERENTLY.value: ("population", None, "indication_name"),
-}
 
 
 def load_edge_fields(field_snapshot: str | Path) -> dict[tuple[str, str, str], BeliefField]:
