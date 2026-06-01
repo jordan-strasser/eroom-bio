@@ -371,6 +371,7 @@ async def main(
     exclude_from_attribution: list[str] | None = None,
     assemble: bool = False,
     enrich_pubmed: bool = False,
+    bottom_up: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
     if incremental:
@@ -422,6 +423,12 @@ async def main(
             raise SystemExit(
                 "--add-trials / --add-corpus require --base-snapshot."
             )
+
+    if bottom_up and incremental:
+        raise SystemExit(
+            "--bottom-up is a fresh chains-first build; not yet compatible with "
+            "--base-snapshot incremental mode."
+        )
 
     # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
     # combo nukes data/annotations/ on its way to the SystemExit.
@@ -514,13 +521,26 @@ async def main(
             )
             return
     client = anthropic.AsyncAnthropic(timeout=60.0)
-    pipeline = PopulationPipeline(graph, anthropic_client=client)
-    await pipeline.populate_oncology(
-        max_trials=max_trials,
-        include_terminated_no_results=include_terminated,
-        condition=condition,
-        trials=trials,
-    )
+    if bottom_up:
+        # Chains-first build: resolve each trial in ISOLATION, then reassemble via
+        # the re-runnable node_merge projection (vs top-down's overlap-first shared
+        # store). Faithful to top-down on n=10 — chains 61==61 (0 missing, 0
+        # splits), belief coverage 205/258 vs 203/257. See populate_bottomup.
+        from src.graph.populate_bottomup import build_bottomup
+        graph = await build_bottomup(trials, client, condition=condition)
+        console.print(
+            f"  [bold]bottom-up (chains-first) build[/bold]: "
+            f"{graph.stats()['node_count']} nodes, "
+            f"{len(graph.trial_subgraphs)} trial subgraphs"
+        )
+    else:
+        pipeline = PopulationPipeline(graph, anthropic_client=client)
+        await pipeline.populate_oncology(
+            max_trials=max_trials,
+            include_terminated_no_results=include_terminated,
+            condition=condition,
+            trials=trials,
+        )
 
     # Round-20.5 / round-21 followup: silent-drop guard.
     # build_trial_subgraphs skips a trial when its indication / endpoint
@@ -859,6 +879,15 @@ if __name__ == "__main__":
              "never captured.",
     )
     parser.add_argument(
+        "--bottom-up", action="store_true",
+        help="Build chains-first (Stage 3, WIP): resolve each trial in isolation "
+             "into trial-scoped nodes, then reassemble via the re-runnable "
+             "node_merge projection — vs the default top-down overlap-first build. "
+             "Faithful to top-down on n=10 (chains 61==61, belief coverage matches). "
+             "Fresh builds only (not --base-snapshot). The point at scale: "
+             "append-only ingestion + retune any merge without a rebuild.",
+    )
+    parser.add_argument(
         "--assemble", action="store_true",
         help="Step 5: after attribution, run the v2 post-build geometry — fit "
              "boxes on all 7 chain node types, resolve the box-geometry is-a "
@@ -898,4 +927,5 @@ if __name__ == "__main__":
         exclude_from_attribution=exclude_from_attribution or None,
         assemble=args.assemble,
         enrich_pubmed=args.enrich_pubmed,
+        bottom_up=args.bottom_up,
     ))

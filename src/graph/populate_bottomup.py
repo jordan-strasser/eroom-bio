@@ -11,24 +11,22 @@ only and any merge (id OR geometric tier) is re-tunable without a rebuild.
     Phase 1  per-trial resolve + build (isolated)   -> list[trial-scoped GraphStore]
     Phase 2  union + node_merge.assemble (projection) -> merged GraphStore
 
-============================ STATUS: SCAFFOLD (WIP) ============================
-- Phase 2 (assemble) is DONE + proven: node_merge reconstructs the n=52 top-down
-  graph exactly (367 instances -> 226 concepts == top-down 226, 0 lost). See
-  populate_groundup (the explode->merge faithfulness harness).
-- Phase 1 here REUSES PopulationPipeline per-trial. The open risk being validated
-  is cross-trial canonicalization: codename->INN sharing and one-IndicationNode-
-  per-disease happen at RESOLVE time in top-down, but must move to MERGE time here
-  (each trial resolves alone). The n=10 -> n=52 faithfulness audit (node/edge
-  counts + per-edge beliefs vs the top-down build) is the bar before the
-  populate.py -> populate_topdown.py rename.
-- TODO before production: (a) carry edge beliefs/priors through the namespace +
-  merge (explode_to_chains_first drops them — fine for the structural harness, not
-  for a real build); (b) validate per-trial populate doesn't trip populate_oncology
-  batch assumptions (diagnostic filter, codename resolution operate over a list);
-  (c) wire build_graph --bottom-up; (d) the n=52 audit.
+======================= STATUS: WORKING BUILD MODE (WIP) =======================
+Runs END-TO-END via ``build_graph --bottom-up``: on n=10 it produces an annotated
+graph with 100% chain coverage (8/8 trials full) through the full
+build->extract->classify->attribute pipeline. Validated faithful to top-down on
+n=10:
+  - chain concepts 61 == 61 (0 missing, 0 splits);
+  - belief coverage 205/258 vs top-down 203/257 (populate stage, like-for-like);
+  - same keep/drop decisions (8/10 — the 2 drops are non-therapeutic, a PET tracer
+    + a no-drug-arm study, which top-down also drops);
+  - edge beliefs preserved through namespace+merge (``_namespace_graph``) and ids
+    canonicalized post-merge (``_canonicalize_ids``) so the graph is usable.
 
-Leave populate.py untouched until this passes the audit (the user's de-risking
-plan: new file now, rename later).
+REMAINING before it can REPLACE populate.py: (a) the n=52 faithfulness audit (scale
+the n=10 check); (b) a holdout P(success) parity check vs the top-down graph;
+(c) the populate.py -> populate_topdown.py rename. Leave populate.py untouched
+until then (the de-risking plan: new file now, rename later).
 """
 
 from __future__ import annotations
