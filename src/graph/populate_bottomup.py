@@ -36,11 +36,51 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-from src.graph.node_merge import MergeConfig, assemble
-from src.graph.populate_groundup import explode_to_chains_first
+from src.graph.node_merge import DEFAULT_NODE_TYPES, MergeConfig, assemble
+from src.graph.populate_groundup import ROLE_ATTRS, _UNKNOWN
 from src.graph.store import GraphStore
 
 logger = logging.getLogger(__name__)
+
+
+def _namespace_graph(g_t: GraphStore, nct: str) -> GraphStore:
+    """Rename every node id to ``{id}#{nct}``, preserving edges (WITH their
+    Beta beliefs / evidence), chains, and recording ``ontology_id`` (the original
+    id) as the Tier-1 merge key.
+
+    Unlike ``populate_groundup.explode_to_chains_first`` (structural-only — it
+    rebuilds bare backbone edges for the faithfulness *comparison*), this keeps
+    every edge's ``belief`` so the merged graph is attribution/prediction-ready —
+    the merge then unions beliefs via ``node_merge._merge_belief_data``.
+    """
+    out = GraphStore()
+
+    def scoped(nid: str) -> str:
+        return f"{nid}#{nct}"
+
+    for nid in g_t._graph.nodes:  # noqa: SLF001
+        sid = scoped(nid)
+        attrs = dict(g_t._graph.nodes[nid])  # noqa: SLF001
+        out._graph.add_node(sid, **attrs)  # noqa: SLF001
+        n = out._graph.nodes[sid]  # noqa: SLF001
+        n["ontology_id"] = nid          # original (canonical) id = merge key
+        n["from_trial"] = nct
+        if "id" in n:
+            n["id"] = sid
+    for s, t, key, data in g_t._graph.edges(keys=True, data=True):  # noqa: SLF001
+        out._graph.add_edge(scoped(s), scoped(t), key=key, **dict(data))  # noqa: SLF001
+    for ts in g_t.trial_subgraphs.values():
+        new_chains = []
+        for ch in ts.chains:
+            upd = {a: scoped(getattr(ch, a)) for a in ROLE_ATTRS
+                   if getattr(ch, a, None) and getattr(ch, a) != _UNKNOWN}
+            new_chains.append(ch.model_copy(update=upd))
+        ppid = ts.parent_population_id
+        out.set_trial_subgraph(ts.model_copy(update={
+            "chains": new_chains,
+            "parent_population_id": scoped(ppid) if ppid else ppid,
+        }))
+    return out
 
 
 def _union_into(dst: GraphStore, src: GraphStore) -> None:
@@ -86,16 +126,20 @@ async def build_bottomup(
         await PopulationPipeline(g_t, anthropic_client=anthropic_client).populate_oncology(
             condition=condition, trials=[trial],
         )
-        # Namespace its chain nodes to {id}#{nct} (reuse the explode harness on a
-        # single-trial store) so the union can't collide across trials.
-        scoped = explode_to_chains_first(g_t)
+        # Namespace its full graph to {id}#{nct} (preserving edge beliefs) so the
+        # union can't collide across trials and the merge has beliefs to fold.
+        scoped = _namespace_graph(g_t, getattr(trial, "nct_id", ""))
         _union_into(merged, scoped)
         logger.info("bottom-up Phase 1: built %s (%d scoped nodes)",
                     getattr(trial, "nct_id", "?"), scoped._graph.number_of_nodes())  # noqa: SLF001
 
     # Phase 2: the re-runnable projection. Tier-1 (id) by default; pass a config
-    # with enable_biolord to also fold the geometric tier.
+    # with enable_biolord to also fold the geometric tier. Merge all canonical-id
+    # node types — incl. AdverseEvent/Biomarker, which are shared across trials
+    # (one MedDRA PT = one node) but absent from the chain-only DEFAULT_NODE_TYPES.
+    # TrialNode is deliberately excluded (each trial is inherently unique).
     cfg = merge_config or MergeConfig(
+        node_types=DEFAULT_NODE_TYPES + ("AdverseEventNode", "BiomarkerNode"),
         enable_id=True, enable_name_id=False, enable_sapbert=False, enable_biolord=False,
     )
     report = assemble(merged, cfg, embed_fn=embed_fn)
