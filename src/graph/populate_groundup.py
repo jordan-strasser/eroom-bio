@@ -1,5 +1,5 @@
 """Ground-up (chains-first) graph assembly — the Q2 bottom-up build, parallel to
-the top-down ``PopulationPipeline.populate_oncology``.
+the top-down ``PopulationPipeline.populate_trials``.
 
 Top-down builds nodes straight into a shared store, sharing by exact-id match at
 ``add_node`` time (overlap created implicitly). Ground-up inverts that: each

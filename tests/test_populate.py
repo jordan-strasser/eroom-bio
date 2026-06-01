@@ -1714,7 +1714,7 @@ class TestPopulateOncology:
             return_value={"search": {"hits": []}}
         )
 
-        summary = await pipeline.populate_oncology(max_trials=10)
+        summary = await pipeline.populate_trials(max_trials=10)
 
         assert summary["trials_fetched"] == 1
         assert summary["compounds"] >= 1
@@ -1789,7 +1789,7 @@ class TestPopulateOncology:
 
         pipeline._ot_client._post = mock_post
 
-        summary = await pipeline.populate_oncology(max_trials=10)
+        summary = await pipeline.populate_trials(max_trials=10)
         assert summary["targets"] >= 1
         assert summary["edges"] >= 1
 
@@ -1808,7 +1808,7 @@ class TestPopulateOncology:
         pipeline._ot_client._post = AsyncMock(side_effect=RuntimeError("API down"))
 
         # Should not raise—just logs and continues
-        summary = await pipeline.populate_oncology(max_trials=10)
+        summary = await pipeline.populate_trials(max_trials=10)
         assert summary["trials_fetched"] == 1
 
 
@@ -2514,7 +2514,7 @@ class TestRespondsDifferentlyForUnselected:
     def test_unselected_edge_created_in_isolation(self, pipeline):
         """Directly exercise the populator's round-16 edge-creation
         block on synthesized state (canonical_id + default_pop_id +
-        empty qualifiers). Bypasses the full populate_oncology pipeline
+        empty qualifiers). Bypasses the full populate_trials pipeline
         which the test fixture can't run end-to-end (mocked LLM /
         no OT / no CT.gov)."""
         from src.graph.models import (
@@ -2579,7 +2579,7 @@ class TestPopulatorCodenameToINN:
             primary_outcomes=[OutcomeMeasure(measure="OS", timeframe="2y")],
             enrollment=20, has_results=True, arm_groups=[],
         )
-        await pipeline.populate_oncology(trials=[trial])
+        await pipeline.populate_trials(trials=[trial])
 
         # Canonical id should be 'selumetinib', not 'azd6244'
         assert "selumetinib" in pipeline.graph._graph  # noqa: SLF001
@@ -2615,7 +2615,7 @@ class TestPopulatorCodenameToINN:
             primary_outcomes=[OutcomeMeasure(measure="OS", timeframe="2y")],
             enrollment=100, has_results=True, arm_groups=[],
         )
-        await pipeline.populate_oncology(trials=[trial])
+        await pipeline.populate_trials(trials=[trial])
 
         # 'cisplatin' isn't in CODENAME_TO_INN → no remap
         assert "cisplatin" in pipeline.graph._graph  # noqa: SLF001

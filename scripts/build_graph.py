@@ -2,7 +2,7 @@
 
 Single fetch, four phases:
   1. Pull trials from ClinicalTrials.gov (one network call, reused below).
-  2. PopulationPipeline.populate_oncology—initial graph + skeleton
+  2. PopulationPipeline.populate_trials—initial graph + skeleton
      trial subgraphs.
   3. Extractor + Classifier—write per-trial annotations to
      data/annotations/.
@@ -535,7 +535,7 @@ async def main(
         )
     else:
         pipeline = PopulationPipeline(graph, anthropic_client=client)
-        await pipeline.populate_oncology(
+        await pipeline.populate_trials(
             max_trials=max_trials,
             include_terminated_no_results=include_terminated,
             condition=condition,

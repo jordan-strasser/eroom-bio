@@ -157,7 +157,7 @@ def _coarse_population_features(
 
 # Round-20.5: structured drop log for trials the populator silently
 # skipped during build_trial_subgraphs. Wiped at the start of each
-# populate_oncology call so each build's drop set is fresh. Read by
+# populate_trials call so each build's drop set is fresh. Read by
 # the orchestrator's drop-rate threshold check + by tests asserting
 # no-silent-loss.
 _DROPPED_TRIAL_SUBGRAPHS_LOG = Path("data/dev/dropped_trial_subgraphs.jsonl")
@@ -879,7 +879,7 @@ class PopulationPipeline:
 
     # ── Main pipeline ────────────────────────────────────────────────────
 
-    async def populate_oncology(
+    async def populate_trials(
         self,
         max_trials: int = 500,
         include_terminated_no_results: bool = True,
@@ -3234,7 +3234,7 @@ class PopulationPipeline:
 
         ``existing_chembl_index`` is ``chembl_id → existing_compound_id``,
         ``embedding_index`` is ``[(existing_id, embedding_vector), ...]``.
-        Both built once at populate_oncology start.
+        Both built once at populate_trials start.
         """
         # 1. stable_id (chembl_id) match.
         incoming_chembl = comp.stable_id
@@ -3416,7 +3416,7 @@ class PopulationPipeline:
         """Build skeleton TrialSubgraphs (TrialNode + arms + parent population).
 
         Produces one chain per arm at the trial's qualified default
-        PopulationNode (see step 2 of ``populate_oncology``). For a trial
+        PopulationNode (see step 2 of ``populate_trials``). For a trial
         whose condition is "Stage IIIC Cutaneous Melanoma", the parent
         population is ``melanoma__histology_cutaneous__stage_iii``; for a
         trial whose condition has no parseable qualifiers it falls back
@@ -4435,7 +4435,7 @@ async def _main(area: str, max_trials: int, condition: str) -> None:
     pipeline = PopulationPipeline(graph, anthropic_client=client)
 
     if area == "oncology":
-        await pipeline.populate_oncology(
+        await pipeline.populate_trials(
             max_trials=max_trials, condition=condition,
         )
     else:

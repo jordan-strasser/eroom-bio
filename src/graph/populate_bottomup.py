@@ -1,6 +1,6 @@
 """Bottom-up (chains-first) graph build — the production Stage-3 builder.
 
-Inverts the top-down ``populate.py`` (``PopulationPipeline.populate_oncology``):
+Inverts the top-down ``populate.py`` (``PopulationPipeline.populate_trials``):
 instead of resolving every trial's nodes into a SHARED store (sharing implicitly
 by canonical-id match at ``add_node`` time), this builds each trial's subgraph in
 ISOLATION (trial-scoped ``{id}#{nct}`` ids), then reassembles the population with
@@ -155,7 +155,7 @@ async def build_bottomup(
     for trial in trials:
         # Phase 1: resolve + build THIS trial alone into its own store.
         g_t = GraphStore()
-        await PopulationPipeline(g_t, anthropic_client=anthropic_client).populate_oncology(
+        await PopulationPipeline(g_t, anthropic_client=anthropic_client).populate_trials(
             condition=condition, trials=[trial],
         )
         # Namespace its full graph to {id}#{nct} (preserving edge beliefs) so the

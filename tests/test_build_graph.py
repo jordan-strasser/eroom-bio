@@ -53,7 +53,7 @@ class TestClassifySuccessRateAbort:
         (tmp_path / "annotations").mkdir()
         (tmp_path / "corpora").mkdir()
 
-        # Stub every heavy step. populate_oncology / seed / attribute /
+        # Stub every heavy step. populate_trials / seed / attribute /
         # the GraphStore.import_snapshot at the end are all bypassed —
         # the only path we care about is fetch → extract → classify and
         # the abort check that fires immediately after.
@@ -74,7 +74,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -125,7 +125,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -179,7 +179,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -367,7 +367,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             await build_graph.main(
                 condition="melanoma", max_trials=10, include_terminated=False,
                 concurrency=2, area="oncology", base_snapshot=str(base),
@@ -430,7 +430,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,
@@ -452,7 +452,7 @@ class TestIncrementalBuildOrchestration:
     ):
         """If --add-trials lists an NCT already in the base snapshot,
         the orchestrator must filter it out before handing the list to
-        populate_oncology — otherwise the populator runs LLM-cost
+        populate_trials — otherwise the populator runs LLM-cost
         canonicalization on already-known trials."""
         monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
         monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
@@ -499,7 +499,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = populate_mock
+            mock_pop.populate_trials = populate_mock
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,
@@ -552,7 +552,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = populate_mock
+            mock_pop.populate_trials = populate_mock
 
             with pytest.raises(SystemExit, match="trial subgraph build success rate"):
                 await build_graph.main(
@@ -649,7 +649,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             # 2 built of 10 input = 20% raw, but 8 are legitimate
             # drops so eligible_count = 2 and rate = 2/2 = 100%.
             # The 75% threshold should PASS.
@@ -704,7 +704,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
             # 0 built, 8 bug-indicating drops, 2 unknown drops →
             # eligible_count = 10 - 0 (no legitimate) = 10; rate = 0%.
             with pytest.raises(SystemExit, match="success rate"):
@@ -753,7 +753,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = AsyncMock(return_value=None)
+            mock_pop.populate_trials = AsyncMock(return_value=None)
 
             # Should NOT raise SystemExit despite 0% subgraph success.
             await build_graph.main(
@@ -799,7 +799,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_oncology = populate_mock
+            mock_pop.populate_trials = populate_mock
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,

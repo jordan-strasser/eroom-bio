@@ -85,7 +85,7 @@ async def main() -> int:
     # shared build), both at populate stage (pre-attribution).
     from src.graph.populate import PopulationPipeline
     td_pop = GraphStore()
-    await PopulationPipeline(td_pop, anthropic_client=client).populate_oncology(trials=trials)
+    await PopulationPipeline(td_pop, anthropic_client=client).populate_trials(trials=trials)
     print(f"\n=== belief coverage, populate-stage (pre-attribution) ===")
     print(f"  bottom-up: {_ewb(g)}/{g._graph.number_of_edges()} edges with beliefs")  # noqa: SLF001
     print(f"  top-down:  {_ewb(td_pop)}/{td_pop._graph.number_of_edges()} edges with beliefs")  # noqa: SLF001
