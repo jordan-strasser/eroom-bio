@@ -50,7 +50,24 @@ async def _call_messages_with_backoff(
     Honors the ``retry-after`` response header when present; otherwise waits
     ``RATE_LIMIT_BASE_WAIT * 2**attempt`` seconds. Up to ``RATE_LIMIT_MAX_RETRIES``
     attempts before re-raising.
+
+    Prompt caching: a string ``system`` kwarg is promoted to a single
+    cache-controlled text block (ephemeral breakpoint), so the large, identical
+    per-trial system prompts (extraction ~4k tok, classification ~9.8k tok) bill
+    cached reads at ~10% of input price after the first call within the 5-min
+    TTL. GA — no beta header. Callers that already pass ``system`` as a block
+    list (or omit it) are left untouched.
     """
+    system = kwargs.get("system")
+    if isinstance(system, str) and system:
+        kwargs["system"] = [
+            {
+                "type": "text",
+                "text": system,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
+
     _transient = (
         anthropic.RateLimitError,
         anthropic.APITimeoutError,
