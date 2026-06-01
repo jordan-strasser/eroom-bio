@@ -35,14 +35,21 @@ def _subtype_count(g: GraphStore) -> int:
 
 def assemble_geometry(
     graph_path: str, *, annotations_dir: str = "data/annotations",
-    merge: str | None = None,
+    merge: str | None = None, out: str | None = None,
 ) -> dict:
     """Fit boxes on all 7 chain node types, resolve the box-geometry is-a
-    hierarchy (public SUBTYPE_OF edges written back to ``graph_path``), and save
-    boxes + a private box snapshot under ``EROOM_PRIVATE_ROOT``. The optional
-    ``merge`` ("id" or "biolord:<thr>") runs the node_merge projection first.
-    Returns ``{nodes, trials, boxes, subtype_before, subtype_added,
-    private_root, merged?}``.
+    hierarchy (public SUBTYPE_OF edges), and save boxes + a private box snapshot
+    under ``EROOM_PRIVATE_ROOT``. Returns ``{nodes, trials, boxes, subtype_*,
+    out_graph, private_root, merged?}``.
+
+    Merge is a NON-DESTRUCTIVE projection. The optional ``merge`` ("id" or
+    "biolord:<thr>") runs the node_merge pass first; because that COLLAPSES nodes,
+    the result is written to a separate ``out`` (auto-derived as
+    ``<stem>.merged-<tag>.json`` when not given) so the pre-merge source snapshot
+    stays immutable. Re-run at a new threshold to re-project — cheap, offline, no
+    rebuild (the per-chain evidence + (s,t) anchors are preserved and merges are a
+    lossless union). Without ``merge`` it writes the is-a edges back to
+    ``graph_path`` in place (additive, non-destructive).
 
     Reused by ``build_graph --assemble`` (geometry half; the field half is
     ``materialize_belief_field.materialize_field``)."""
@@ -67,22 +74,29 @@ def assemble_geometry(
         result["merged"] = {
             "before": rep.nodes_before, "after": rep.nodes_after, "by_type": rep.by_type,
         }
+        # A merge collapses nodes — never clobber the pre-merge source. Emit a
+        # threshold-tagged projection so thresholds can be retuned by re-running
+        # (cheap, offline) from the same immutable source — no rebuild.
+        if out is None:
+            tag = merge.replace(":", "").replace(".", "")
+            out = str(Path(graph_path).with_suffix("")) + f".merged-{tag}.json"
 
+    target = out or graph_path
     boxes = fit_graph_boxes(g, node_types=ALL_CHAIN_TYPES, annotations_dir=annotations_dir)
     apply_boxes_to_graph(g, boxes)
     before = _subtype_count(g)
     added = resolve_hierarchy(g, boxes, node_types=ALL_CHAIN_TYPES)  # dict[type, count]
     after = _subtype_count(g)
 
-    # public structure (is-a edges) back to the snapshot; boxes are private
-    g.export_snapshot(graph_path)
+    # public structure (is-a edges) to the target snapshot; boxes are private
+    g.export_snapshot(target)
     root = private_root(create=True)
     save_boxes(boxes, root / "manifold1_boxes.json")
-    g.export_private_snapshot(str(root / (Path(graph_path).stem + "_with_boxes.json")))
+    g.export_private_snapshot(str(root / (Path(target).stem + "_with_boxes.json")))
     result.update({
         "boxes": len(boxes), "subtype_before": before, "subtype_after": after,
         "subtype_added": sum(added.values()), "subtype_added_by_type": added,
-        "private_root": str(root),
+        "out_graph": target, "private_root": str(root),
     })
     return result
 
@@ -93,9 +107,16 @@ def main() -> int:
     ap.add_argument("--annotations", default="data/annotations")
     ap.add_argument("--merge", default=None,
                     help="Run node_merge projection first, e.g. 'biolord:0.85' or 'id'.")
+    ap.add_argument("--out", default=None,
+                    help="Write the assembled graph here instead of overwriting "
+                         "--graph. With --merge this auto-defaults to "
+                         "<graph>.merged-<tag>.json so the pre-merge source stays "
+                         "immutable — re-run at a new threshold to re-project, no "
+                         "rebuild.")
     args = ap.parse_args()
 
-    r = assemble_geometry(args.graph, annotations_dir=args.annotations, merge=args.merge)
+    r = assemble_geometry(args.graph, annotations_dir=args.annotations,
+                          merge=args.merge, out=args.out)
     print(f"loaded {r['nodes']} nodes, {r['trials']} trials")
     if "merged" in r:
         m = r["merged"]
@@ -103,8 +124,10 @@ def main() -> int:
     print(f"fit {r['boxes']} boxes; box-geometry is-a edges: SUBTYPE_OF "
           f"{r['subtype_before']} -> {r['subtype_after']} "
           f"(added {r['subtype_added']}, by_type={r['subtype_added_by_type']})")
+    print(f"  assembled graph -> {r['out_graph']}"
+          + ("  (source preserved)" if r['out_graph'] != args.graph else ""))
     print(f"  boxes + private snapshot -> {r['private_root']}")
-    print("now run: python -m scripts.materialize_belief_field --graph", args.graph)
+    print("now run: python -m scripts.materialize_belief_field --graph", r['out_graph'])
     return 0
 
 
