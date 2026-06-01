@@ -100,6 +100,40 @@ def _union_into(dst: GraphStore, src: GraphStore) -> None:
         dst.set_trial_subgraph(ts)
 
 
+def _canonicalize_ids(g: GraphStore) -> int:
+    """Rename each surviving merged node from its winner-instance id
+    (``{id}#{nct}``) back to its canonical ``ontology_id``, rewriting edges +
+    chains. After the merge every ontology_id has exactly one survivor, so the
+    mapping is injective — the result is a normal canonical-id graph the
+    annotation/prediction pipeline can consume (OT/MedDRA lookups assume canonical
+    ids). Returns the number of nodes renamed."""
+    import networkx as nx
+
+    mapping: dict[str, str] = {}
+    for nid in list(g._graph.nodes):  # noqa: SLF001
+        oid = g._graph.nodes[nid].get("ontology_id")  # noqa: SLF001
+        if oid and oid != nid and oid not in g._graph and oid not in mapping.values():  # noqa: SLF001
+            mapping[nid] = oid
+    if not mapping:
+        return 0
+    nx.relabel_nodes(g._graph, mapping, copy=False)  # noqa: SLF001 — renames nodes + edges
+    for nid in g._graph.nodes:  # noqa: SLF001
+        if "id" in g._graph.nodes[nid]:  # noqa: SLF001
+            g._graph.nodes[nid]["id"] = nid  # noqa: SLF001
+    for ts in list(g.trial_subgraphs.values()):
+        new_chains = []
+        for ch in ts.chains:
+            upd = {a: mapping[v] for a in ROLE_ATTRS
+                   if (v := getattr(ch, a, None)) and v in mapping}
+            new_chains.append(ch.model_copy(update=upd) if upd else ch)
+        ppid = ts.parent_population_id
+        g.set_trial_subgraph(ts.model_copy(update={
+            "chains": new_chains,
+            "parent_population_id": mapping.get(ppid, ppid),
+        }))
+    return len(mapping)
+
+
 async def build_bottomup(
     trials: list[Any],
     anthropic_client: Any,
@@ -143,6 +177,7 @@ async def build_bottomup(
         enable_id=True, enable_name_id=False, enable_sapbert=False, enable_biolord=False,
     )
     report = assemble(merged, cfg, embed_fn=embed_fn)
-    logger.info("bottom-up Phase 2: assembled -> %d nodes (merged by_type=%s)",
-                merged._graph.number_of_nodes(), report.by_type)  # noqa: SLF001
+    renamed = _canonicalize_ids(merged)
+    logger.info("bottom-up Phase 2: assembled -> %d nodes (by_type=%s, canonicalized %d ids)",
+                merged._graph.number_of_nodes(), report.by_type, renamed)  # noqa: SLF001
     return merged

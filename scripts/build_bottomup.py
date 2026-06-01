@@ -70,14 +70,25 @@ async def main() -> int:
     g = await build_bottomup(trials, client)
 
     survivors = {nct for nct, ts in g.trial_subgraphs.items() if ts.chains}
-    edges_with_belief = sum(
-        1 for *_e, d in g._graph.edges(keys=True, data=True)  # noqa: SLF001
-        if (d.get("belief") or {}).get("evidence")
-    )
+
+    def _ewb(graph: GraphStore) -> int:
+        return sum(1 for *_e, d in graph._graph.edges(keys=True, data=True)  # noqa: SLF001
+                   if (d.get("belief") or {}).get("evidence"))
+
+    scoped_left = sum(1 for n in g._graph.nodes if "#" in str(n))  # noqa: SLF001
     print(f"\n=== bottom-up build (n={len(trials)}) ===")
     print(f"  nodes={g._graph.number_of_nodes()}  edges={g._graph.number_of_edges()}  "  # noqa: SLF001
-          f"edges_with_belief={edges_with_belief}")
+          f"edges_with_belief={_ewb(g)}  nodes_still_scoped(#nct)={scoped_left}")
     print(f"  surviving trials={len(survivors)}  concepts={len(_concepts(g))}")
+
+    # Like-for-like belief coverage: a top-down populate on the SAME trials (one
+    # shared build), both at populate stage (pre-attribution).
+    from src.graph.populate import PopulationPipeline
+    td_pop = GraphStore()
+    await PopulationPipeline(td_pop, anthropic_client=client).populate_oncology(trials=trials)
+    print(f"\n=== belief coverage, populate-stage (pre-attribution) ===")
+    print(f"  bottom-up: {_ewb(g)}/{g._graph.number_of_edges()} edges with beliefs")  # noqa: SLF001
+    print(f"  top-down:  {_ewb(td_pop)}/{td_pop._graph.number_of_edges()} edges with beliefs")  # noqa: SLF001
 
     # Faithfulness vs top-down (mi_v2) on the SAME surviving trials.
     td = GraphStore()
