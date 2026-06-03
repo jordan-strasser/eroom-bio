@@ -456,6 +456,36 @@ class TrialExtraction(BaseModel):
     target_population_description: str = ""
 
 
+# Soft gate weight applied to the trial's evidence when its outcome
+# conditions the whole causal chain (outcome-conditioning attributor). A
+# genuine TRIAL-CONDUCT failure (the chain was never properly tested:
+# recruitment collapse, dosing/manufacturing error, administrative/funding
+# termination, gross underpowering) should barely move the mechanistic
+# beliefs — the trial isn't evidence about the biology. A valid test
+# (whatever the outcome) gets full weight.
+#
+# CRUCIAL: wrong endpoint, wrong population SUBGROUP, wrong
+# target/mechanism/biology are CHAIN failures, NOT operational — they DO
+# condition the chain at full weight (gate 1.0). Only true trial-conduct
+# problems gate down. Default conservatively to a valid test when unsure.
+OPERATIONAL_GATE_WEIGHT: float = 0.2
+VALID_TEST_GATE_WEIGHT: float = 1.0
+
+
+def gate_weight_for(operational_failure: bool | None) -> float:
+    """Derive the chain-conditioning gate weight from the coarse signal.
+
+    ``True``  → the failure was operational (chain never properly tested)
+                → low weight, so the trial barely perturbs the mechanism beliefs.
+    ``False`` / ``None`` → valid test (or unknown) → full weight. Conservative
+                by design: we only down-weight when the classifier is positive
+                the failure was trial conduct, never on a guess.
+    """
+    if operational_failure is True:
+        return OPERATIONAL_GATE_WEIGHT
+    return VALID_TEST_GATE_WEIGHT
+
+
 class FailureClassification(BaseModel):
     """Classification of a trial's failure mode."""
 
@@ -465,6 +495,24 @@ class FailureClassification(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     reasoning: str = ""
     evidence_quotes: list[str] = Field(default_factory=list)
+    # Coarse per-trial gate (outcome-conditioning redesign). True ⇒ the
+    # failure was a TRIAL-CONDUCT problem (the chain was never properly
+    # tested: recruitment collapse, dosing/manufacturing error,
+    # administrative/funding termination, gross underpowering) — the
+    # outcome-conditioning attributor then applies the trial's evidence at
+    # ``OPERATIONAL_GATE_WEIGHT`` so it barely moves the mechanism beliefs.
+    # False / None ⇒ a valid test (full weight), whatever the outcome.
+    # This is NOT edge attribution and NOT the 13-category failure mode —
+    # it's one coarse "was the chain actually tested?" bit. Default None so
+    # cached classifications written before this field parse unchanged and
+    # fall back to full weight (valid test). See ``gate_weight_for``.
+    operational_failure: bool | None = None
+
+    @property
+    def gate_weight(self) -> float:
+        """Chain-conditioning weight in (0, 1] derived from
+        ``operational_failure`` (see ``gate_weight_for``)."""
+        return gate_weight_for(self.operational_failure)
 
 
 class EdgeAttribution(BaseModel):

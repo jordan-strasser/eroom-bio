@@ -57,11 +57,15 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
     }
   ],
   "confidence_overall": 0.0-1.0,
+  "operational_failure": true|false,
   "needs_expert_review": true|false,
   "review_reason": "string or null—why expert review is needed"
 }
 
 Rules:
+- **`operational_failure` — ONE coarse question: was the causal chain actually TESTED?** Set `true` ONLY when the trial failed for a TRIAL-CONDUCT reason that means the mechanism was never given a fair test: recruitment collapse / failure to accrue, an administrative or funding termination, a sponsor business decision, a manufacturing / drug-supply / formulation error that prevented adequate exposure, or gross underpowering (terminated far below the planned enrollment). In those cases the trial is NOT evidence about the biology, so the system down-weights it.
+    - Set `false` (the default) for any trial that DID test the chain — including every kind of CHAIN failure: wrong endpoint, wrong population SUBGROUP, wrong target / mechanism / biology, target-engaged-but-biology-flat, biology-moved-but-endpoint-flat, dose-limiting toxicity that still produced an efficacy readout, or a clean adequately-powered efficacy miss. A wrong-population or wrong-endpoint failure is a REAL test whose negative result the chain must absorb — it is NOT operational.
+    - When unsure, set `false`. This bit only down-weights; defaulting to `false` (valid test) is the conservative choice. It is orthogonal to `trial_outcome` and to the `failure_modes` taxonomy — successful trials are virtually always `false`.
 - For failure/partial trials: provide at least one failure_mode entry (the mechanistic category that best fits). For successful trials: failure_modes is optional and descriptive—include entries only when there are real trial-design weak points to surface; otherwise return [].
 - For successful trials, edges_to_update should use one of the *_support buckets. For failed trials, use *_contradict for edges the failure refutes; for the upstream `modulates_via` edge see the dedicated MODULATES_VIA rule below — its direction keys off demonstrated mechanism engagement, NOT trial outcome (demonstrated engagement → support even on a failed trial; target-engaged-but-pathway-flat → contradict; engagement unmeasured → emit NO record; measured-but-equivocal → ambiguous), so do NOT blanket-default it to `ambiguous`. For mid-chain edges (`mechanism_affects`, `biology_drives`, `endpoint_captures`, `reflects_biology`, `responds_differently`), `*_support` from a failed trial is still allowed when the trial directly validates the edge (e.g. an endpoint that captured the disease well even though the drug missed). For `affects` see the dedicated AFFECTS rule directly below — do NOT default to `ambiguous`.
 

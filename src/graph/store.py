@@ -159,6 +159,9 @@ class GraphStore:
         tgt_id: str,
         edge_type: EdgeType,
         evidence: EvidenceRecord,
+        *,
+        n_eff_override: float | None = None,
+        p_obs_override: float | None = None,
     ) -> EdgeBeliefState:
         """Beta-Binomial conjugate update from one evidence record.
 
@@ -166,23 +169,44 @@ class GraphStore:
         owns the I/O (reads the edge belief, computes the update, writes
         it back, and appends the record to the replay log); the math
         itself lives in ``apply_virtual_evidence``.
+
+        ``n_eff_override`` / ``p_obs_override`` (outcome-conditioning
+        attributor): when supplied, the caller has already computed the
+        precise virtual sample size (and/or the implied p_obs) for this
+        record — e.g. the per-edge explaining-away split of one failed
+        trial's evidence across its chain — so the standard
+        ``effective_n_for_evidence`` × redundancy derivation is bypassed.
+        The EvidenceRecord is STILL appended to the replay log (with the
+        override stashed in ``context`` so the update stays replayable),
+        only the (n_eff, p_obs) used for THIS conjugate step changes.
         """
         data = self._get_edge_data(src_id, tgt_id, edge_type)
         belief = EdgeBeliefState.model_validate(data["belief"])
 
-        # Independence/redundancy: existing records on this edge that share
-        # the incoming one's correlation cluster (explicit cluster_key, else
-        # the source/study id) make it a non-independent observation.
-        eff_key = evidence.cluster_key or evidence.source_id
-        prior_same = sum(
-            1 for e in belief.evidence
-            if (e.cluster_key or e.source_id) == eff_key
-        )
-        n_eff = effective_n_for_evidence(
-            evidence.source_type, evidence.quality_score,
-            n_obs=evidence.n_obs, edge_type=edge_type.value,
-        ) * redundancy_factor(prior_same)
-        p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
+        if n_eff_override is not None:
+            n_eff = n_eff_override
+        else:
+            # Independence/redundancy: existing records on this edge that
+            # share the incoming one's correlation cluster (explicit
+            # cluster_key, else the source/study id) make it a
+            # non-independent observation.
+            eff_key = evidence.cluster_key or evidence.source_id
+            prior_same = sum(
+                1 for e in belief.evidence
+                if (e.cluster_key or e.source_id) == eff_key
+            )
+            n_eff = effective_n_for_evidence(
+                evidence.source_type, evidence.quality_score,
+                n_obs=evidence.n_obs, edge_type=edge_type.value,
+            ) * redundancy_factor(prior_same)
+        if p_obs_override is not None:
+            if not 0.0 <= p_obs_override <= 1.0:
+                raise ValueError(
+                    f"p_obs_override must be in [0, 1], got {p_obs_override!r}"
+                )
+            p_obs = p_obs_override
+        else:
+            p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
 
         # A.3 (flag-gated, EROOM_BELIEF_FIELD): also localize this evidence on

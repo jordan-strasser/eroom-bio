@@ -352,6 +352,16 @@ def _parse_classification(
 
     evidence_quotes = [m.get("evidence", "") for m in modes if m.get("evidence")]
 
+    # Coarse trial-conduct gate (outcome-conditioning redesign). The
+    # classifier emits a single optional boolean: was this an OPERATIONAL
+    # failure (the chain was never properly tested) rather than a valid
+    # test of the mechanism? Absent / non-bool ⇒ None ⇒ full weight
+    # (conservative). Read from the raw JSON so cached classifications
+    # without the field fall back to valid-test.
+    operational_failure = raw.get("operational_failure")
+    if not isinstance(operational_failure, bool):
+        operational_failure = None
+
     classification = FailureClassification(
         trial_id=trial_id,
         primary_failure_mode=primary_mode,
@@ -359,6 +369,7 @@ def _parse_classification(
         confidence=confidence,
         reasoning=raw.get("reasoning", ""),
         evidence_quotes=evidence_quotes,
+        operational_failure=operational_failure,
     )
 
     # Stash extra fields for serialization

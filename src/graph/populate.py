@@ -3932,6 +3932,10 @@ class PopulationPipeline:
                     "title": trial.title,
                     "status": trial.status,
                     "enrollment": trial.enrollment,
+                    # Verbatim sponsor-stated stop reason (CT.gov whyStopped),
+                    # RAW text only. Mirrors TrialNode.metadata so the trial's
+                    # own words persist into the subgraph snapshot too.
+                    "why_stopped": trial.why_stopped,
                 },
             )
             self.graph.set_trial_subgraph(ts)
@@ -3954,6 +3958,13 @@ def seed_trial_node(graph: GraphStore, trial: TrialRecord) -> str:
         metadata={
             "conditions": list(trial.conditions),
             "has_results": trial.has_results,
+            # Verbatim sponsor-stated stop/failure reason (CT.gov
+            # whyStopped). RAW text only — not a classified judgment.
+            # Persisted on the node so the graph snapshot carries the
+            # trial's own words for why it stopped (often the only
+            # mechanistic signal for terminated trials with no results).
+            # None when CT.gov omitted it.
+            "why_stopped": trial.why_stopped,
         },
     )
     graph.add_node(node)
@@ -4562,6 +4573,10 @@ def build_trial_subgraph_from_extraction(
             "title": trial.title,
             "status": trial.status,
             "enrollment": trial.enrollment,
+            # Verbatim sponsor-stated stop reason (CT.gov whyStopped),
+            # RAW text only. Mirrors TrialNode.metadata so the trial's own
+            # words persist into the subgraph snapshot too.
+            "why_stopped": trial.why_stopped,
         },
     )
     graph.set_trial_subgraph(ts)

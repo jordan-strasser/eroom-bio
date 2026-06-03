@@ -29,7 +29,14 @@ from src.graph.models import (
 )
 from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
-from src.inference.beliefs import SupportBucket, bucket_to_direction, modulation_bucket
+from src.inference.beliefs import (
+    SupportBucket,
+    _precision_multiplier,
+    bucket_to_direction,
+    effective_n_for_evidence,
+    modulation_bucket,
+    p_obs_for_bucket,
+)
 from src.annotation.meddra import MeddraCache, ae_node_id, normalize_ae_term
 from src.annotation.meddra_hierarchy import MedDRAHierarchy
 
@@ -97,6 +104,102 @@ _EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
 _UNKNOWN_PLACEHOLDER = "UNKNOWN"
 
 
+# ── Outcome-conditioning p_obs constants ─────────────────────────────────
+#
+# The outcome-conditioning attributor conditions the WHOLE causal chain by
+# edge id on the trial's per-arm outcome, rather than name-matching a
+# classifier-emitted failing edge to a chain edge. A single trial can't
+# pinpoint WHICH edge failed (premature falsification), so failure mass is
+# SPREAD across the chain (explaining-away) and is deliberately MODEST —
+# trial failure ≠ mechanistic falsification.
+#
+# SUCCESS  (conjunctive — the whole path operated): every backbone edge
+#          gets a support update at full trial weight.
+# FAILURE  (disjunctive — ≥1 edge weak, unknown which): the failure mass is
+#          split across the chain weighted toward the currently-uncertain
+#          edges (explaining-away), each at a MODEST contradict p_obs.
+# PARTIAL  : a weaker / more ambiguous version of failure.
+#
+# p_obs values reuse the BUCKET_TO_P_OBS scale (see beliefs.py): MODERATE
+# = 0.80 / 0.20, WEAK = 0.65 / 0.35.
+_SUCCESS_P_OBS = p_obs_for_bucket(SupportBucket.MODERATE_SUPPORT)   # 0.80
+_PARTIAL_SUPPORT_P_OBS = p_obs_for_bucket(SupportBucket.WEAK_SUPPORT)  # 0.65
+_FAILURE_P_OBS = p_obs_for_bucket(SupportBucket.MODERATE_CONTRADICT)  # 0.20
+_PARTIAL_CONTRADICT_P_OBS = p_obs_for_bucket(SupportBucket.WEAK_CONTRADICT)  # 0.35
+
+
+# Bucket label recorded on the EvidenceRecord per outcome (so the support
+# string on the replay log is sensible; the actual p_obs is injected via
+# p_obs_override so the conjugate step matches the constants above).
+_OUTCOME_TO_SUPPORT_BUCKET: dict["TrialOutcome", SupportBucket] = {
+    TrialOutcome.SUCCESS: SupportBucket.MODERATE_SUPPORT,
+    TrialOutcome.PARTIAL: SupportBucket.WEAK_CONTRADICT,
+    TrialOutcome.FAILURE: SupportBucket.MODERATE_CONTRADICT,
+}
+
+
+def _chain_backbone_edges(chain: CausalChain) -> list[tuple[str, str, EdgeType]]:
+    """All (src_id, tgt_id, edge_type) backbone edges this chain implies.
+
+    Walks the canonical causal hypothesis:
+        compound → target          (AFFECTS)
+        target   → mechanism       (MODULATES_VIA)
+        mechanism→ biology         (MECHANISM_AFFECTS)
+        biology  → indication      (BIOLOGY_DRIVES)
+    and, when an endpoint is present:
+        biology  → endpoint        (REFLECTS_BIOLOGY)
+        endpoint → indication      (ENDPOINT_CAPTURES)
+
+    Placeholder (``UNKNOWN``) ids are skipped — an edge can't be conditioned
+    if one of its endpoints was never resolved. The caller additionally
+    gates on the edge actually existing in the graph (a Beta belief lives
+    there). RESPONDS_DIFFERENTLY is intentionally NOT walked here: it's the
+    population→indication edge whose evidence comes from the always-on
+    observable-statistics emission, not from conditioning the mechanism
+    chain on the arm's outcome.
+    """
+    out: list[tuple[str, str, EdgeType]] = []
+
+    def _add(src: str, tgt: str, et: EdgeType) -> None:
+        if not src or not tgt:
+            return
+        if src == _UNKNOWN_PLACEHOLDER or tgt == _UNKNOWN_PLACEHOLDER:
+            return
+        out.append((src, tgt, et))
+
+    _add(chain.compound_id, chain.target_id, EdgeType.AFFECTS)
+    _add(chain.target_id, chain.mechanism_id, EdgeType.MODULATES_VIA)
+    _add(chain.mechanism_id, chain.biology_id, EdgeType.MECHANISM_AFFECTS)
+    _add(chain.biology_id, chain.indication_id, EdgeType.BIOLOGY_DRIVES)
+    if chain.endpoint_id and chain.endpoint_id != _UNKNOWN_PLACEHOLDER:
+        _add(chain.biology_id, chain.endpoint_id, EdgeType.REFLECTS_BIOLOGY)
+        _add(chain.endpoint_id, chain.indication_id, EdgeType.ENDPOINT_CAPTURES)
+    return out
+
+
+def _trial_level_outcome(
+    classification: "FailureClassification",
+) -> "TrialOutcome | None":
+    """The classifier's trial-LEVEL outcome, or None.
+
+    Read from ``classification._raw["trial_outcome"]`` (the classifier emits
+    ``success`` / ``failure`` / ``partial`` / ``unknown`` there). Used as the
+    coarsest conditioning signal when per-arm outcomes don't resolve. Returns
+    None for ``unknown`` / missing / unparseable values.
+    """
+    raw = getattr(classification, "_raw", {}) or {}
+    value = raw.get("trial_outcome")
+    if not value:
+        return None
+    try:
+        outcome = TrialOutcome(value)
+    except ValueError:
+        return None
+    if outcome == TrialOutcome.UNKNOWN:
+        return None
+    return outcome
+
+
 # TrialOutcome → ordinal scale for arm-differential bucket mapping.
 # UNKNOWN is excluded — pairs involving an unknown outcome yield no
 # modulation evidence (returned as None below).
@@ -161,11 +264,25 @@ def _aggregate_arm_outcomes(
 ) -> dict[str, TrialOutcome]:
     """Per-arm authoritative outcome, keyed by graph arm_id.
 
-    Reads from extraction.results_by_chain when provided, mapping the
-    LLM-emitted arm_ids onto graph arm_ids by compound-set match. This
-    is the primary path: chain.outcome is never written back from the
-    extraction in the current populate flow, so it stays UNKNOWN even
-    when the extraction reports per-arm outcomes.
+    Reads from extraction.results_by_chain when provided. Resolution of
+    each result's arm_id to a graph arm_id is two-stage:
+
+      1. DIRECT arm_id match (preferred). Round-9 arm-id alignment made
+         the CT.gov ``group_id`` the single source of truth — both the
+         extractor and the populator emit it verbatim — so a
+         ``ChainResult.arm_id`` is usually already a graph arm_id.
+         A direct match is the most reliable signal and crucially does
+         NOT depend on canonicalizing free-text compound names (which
+         fails for codename / cell-therapy drugs like "RO7247669" or
+         "Drosophila-peptide pulsed ... autologous CD8+ PBL").
+      2. COMPOUND-SET match (fallback). When the LLM ignored the menu and
+         invented its own arm slug, fall back to matching the extraction
+         arm's normalized compound set against a graph arm's compound ids
+         (``_map_extraction_arms_to_graph``).
+
+    chain.outcome is never written back from the extraction in the
+    current populate flow, so it stays UNKNOWN even when the extraction
+    reports per-arm outcomes — hence the extraction path above is primary.
 
     Falls back to ``chain.outcome`` when the extraction is unavailable
     or doesn't yield a mapping — exercised by unit tests that fixture
@@ -173,12 +290,18 @@ def _aggregate_arm_outcomes(
     """
     by_arm: dict[str, TrialOutcome] = {}
     if extraction is not None:
+        graph_arm_ids = {arm.arm_id for arm in trial.arms}
         ext_to_graph = _map_extraction_arms_to_graph(trial, extraction)
         for cr in getattr(extraction, "results_by_chain", []) or []:
             # Parent-population results only (subgroup_descriptor is null).
             if cr.subgroup_descriptor is not None:
                 continue
-            graph_arm_id = ext_to_graph.get(cr.arm_id)
+            # Stage 1: direct arm_id match (round-9 alignment); Stage 2:
+            # compound-set fallback.
+            if cr.arm_id in graph_arm_ids:
+                graph_arm_id = cr.arm_id
+            else:
+                graph_arm_id = ext_to_graph.get(cr.arm_id)
             if graph_arm_id is None:
                 continue
             try:
@@ -682,49 +805,35 @@ class Attributor:
         trial: TrialSubgraph,
         extraction: "TrialExtraction | None" = None,
     ) -> list[AppliedEdgeUpdate]:
-        """Translate a classification into concrete edge updates.
+        """Translate a trial's per-arm outcomes into concrete edge updates.
 
-        Each classifier-emitted edge update is routed to the specific chain
-        whose canonical ids match the classifier's free-text source/target
-        entity names—preventing the misrouting bug where (e.g.)
-        Ipilimumab→CTLA-4 evidence lands on the nivolumab→PD-1 edge in a
-        combo trial. Updates that don't match any chain are logged to
-        ``data/dev/unrouted_attribution_updates.jsonl`` rather than
-        silently misapplied.
+        Outcome-conditioning redesign: a single trial cannot pinpoint WHICH
+        edge of its causal chain failed (that would be premature
+        falsification), so the backbone is NOT attributed by name-matching a
+        classifier-emitted failing edge to a chain edge. Instead the trial's
+        per-arm OUTCOME conditions the WHOLE chain by edge id, and the
+        cross-trial OVERLAP (shared pathway nodes) triangulates the
+        responsible edge over many trials. Failure ≠ falsification, so
+        FAILURE updates are MODEST and spread across the chain
+        (explaining-away). See ``_condition_chain_on_outcomes``.
 
-        ``extraction`` (optional) is the trial's structured extraction; if
-        present, modulation-edge emission reads per-arm outcomes from
-        ``results_by_chain`` (mapping LLM arm_ids to graph arm_ids by
-        compound-set match). Without it, modulation emission falls back
-        to ``chain.outcome``, which is UNKNOWN in current populate flows
-        — so production callers should always pass the extraction.
+        AE attribution and ALL modulation emissions (arm-differential,
+        single-arm-combo, LLM-anchored) are unchanged and still run below.
+
+        ``extraction`` (optional) is the trial's structured extraction; it
+        supplies the per-arm outcomes (``results_by_chain``) and the
+        trial enrollment N (``sample_size``) used to weight the
+        conditioning, and lets modulation emission read per-arm outcomes.
+        Production callers should always pass it.
         """
         raw = getattr(classification, "_raw", {})
+        # Round 3.3 schema retained ``edges_to_update`` from the classifier,
+        # but the backbone is no longer name-matched from it — the trial's
+        # per-arm outcome conditions the whole chain. ``raw_edges`` is read
+        # only to keep the round-16 attempted-updates counter meaningful.
         raw_edges = raw.get("edges_to_update", [])
-        rule = FAILURE_MODE_RULES.get(classification.primary_failure_mode)
-        # For trial_outcome=success, the failure-mode label is descriptive
-        # only—the schema forces a pick but mechanistic-failure rules
-        # don't apply when nothing failed. Disabling the cross-check lets
-        # the per-edge bucket drive the update directly; otherwise a
-        # successful subgroup trial labeled efficacy_in_subgroup_only loses
-        # its biology_drives validation to the cross-check.
-        if raw.get("trial_outcome") == "success":
-            rule = None
         phase = trial.phase
         evidence_type = _PHASE_TO_EVIDENCE.get(phase, EvidenceType.LITERATURE)
-
-        # Pre-compute name-resolution helpers from the graph's nodes (one
-        # pass per node type used here).
-        name_index = _build_name_index(
-            self.graph,
-            node_types={
-                "InterventionNode", "CompoundNode",  # accept both names
-                "TargetNode", "MechanismNode",
-                "BiologyNode", "EndpointNode", "IndicationNode",
-                "PopulationNode",
-            },
-        )
-        arm_by_id = {arm.arm_id: arm for arm in trial.arms}
 
         updates: list[AppliedEdgeUpdate] = []
         # Per-trial dedup: an (edge_type, src_id, tgt_id) triple may be
@@ -743,125 +852,21 @@ class Attributor:
 
         # Round-16: reset per-call counters. Orchestrator reads
         # last_attempted_updates + last_dropped_updates after each
-        # attribute() call to enforce build-level drop thresholds.
+        # attribute() call to enforce build-level drop thresholds. The
+        # outcome-conditioning backbone never "drops" (it conditions the
+        # chain by id, no name-match step that can miss); the counters are
+        # kept for back-compat and driven by the modulation paths.
         self.last_attempted_updates = len(raw_edges)
         self.last_dropped_updates = 0
 
-        for item in raw_edges:
-            edge_type_str = item.get("edge_type", "")
-            # Round 3.3 renamed `binds_to` → `affects`. Cached classifier
-            # outputs from earlier rounds still emit `binds_to`; accept it
-            # as an alias so we don't need to re-classify every trial just
-            # for the rename.
-            if edge_type_str == "binds_to":
-                edge_type_str = "affects"
-            try:
-                edge_type = EdgeType(edge_type_str)
-            except ValueError:
-                logger.warning("Unknown edge type '%s', skipping", edge_type_str)
-                self.last_dropped_updates += 1
-                continue
-            if edge_type in (EdgeType.COMPOSED_OF, EdgeType.SUBTYPE_OF):
-                # Structural edges aren't classifier-modulable.
-                self.last_dropped_updates += 1
-                continue
-
-            support_str = item.get("support", "ambiguous")
-            try:
-                bucket = SupportBucket(support_str)
-            except ValueError:
-                logger.warning(
-                    "Unknown support bucket %r, defaulting to ambiguous", support_str,
-                )
-                bucket = SupportBucket.AMBIGUOUS
-
-            src_id, tgt_id, route_reason = self._route_to_chain_edge(
-                edge_type, trial, arm_by_id, name_index, item
-            )
-            if not src_id or not tgt_id:
-                reason = route_reason or "no_chain_match"
-                if reason == "entity_not_in_trial":
-                    logger.warning(
-                        "Dropping classifier update for trial %s: "
-                        "%s %r → %r is not in the trial subgraph "
-                        "(possible LLM hallucination of off-trial entity)",
-                        trial.trial_id,
-                        edge_type_str,
-                        item.get("source_entity"),
-                        item.get("target_entity"),
-                    )
-                _log_unrouted(trial.trial_id, item, reason=reason)
-                self.last_dropped_updates += 1
-                continue
-
-            arm_tag = item.get("affecting_arm_id")
-            edge_key = (edge_type_str, src_id, tgt_id, arm_tag)
-            if edge_key in applied_edges:
-                logger.debug(
-                    "Skipping duplicate update for trial %s: %s %s → %s "
-                    "(arm=%s)",
-                    trial.trial_id, edge_type_str, src_id, tgt_id, arm_tag,
-                )
-                continue
-            applied_edges.add(edge_key)
-
-            # Cross-check with taxonomy rule. If the classifier picked a
-            # bucket whose coarse direction disagrees with the taxonomy's
-            # expectation for this failure mode, downgrade to AMBIGUOUS —
-            # the conjugate update then contributes only neutral pseudocounts.
-            ev_direction = bucket_to_direction(bucket)
-            if rule:
-                if ev_direction == EvidenceDirection.CONTRADICTING and edge_type in rule.edges_to_strengthen:
-                    logger.debug(
-                        "Classifier says contradict %s but taxonomy says strengthen—using ambiguous",
-                        edge_type_str,
-                    )
-                    bucket = SupportBucket.AMBIGUOUS
-                elif ev_direction == EvidenceDirection.SUPPORTING and edge_type in rule.edges_to_weaken:
-                    logger.debug(
-                        "Classifier says support %s but taxonomy says weaken—using ambiguous",
-                        edge_type_str,
-                    )
-                    bucket = SupportBucket.AMBIGUOUS
-
-            evidence = EvidenceRecord(
-                source_id=trial.trial_id,
-                source_type=evidence_type,
-                support=bucket.value,
-                quality_score=min(classification.confidence, 1.0),
-                timestamp=datetime.now(timezone.utc),
-                notes=item.get("reasoning", ""),
-                # Precision inputs for the principled-N_eff path (a no-op
-                # unless EROOM_NEFF_PRECISION is set). Trial-level stats;
-                # extraction is None on some call paths -> fields stay None.
-                n_obs=extraction.sample_size if extraction else None,
-                effect=extraction.effect_size if extraction else None,
-                p_value=extraction.p_value if extraction else None,
-            )
-
-            # Get pre-update belief
-            try:
-                pre_belief = self.graph.get_edge_belief(src_id, tgt_id, edge_type)
-            except KeyError:
-                logger.debug(
-                    "Edge %s -> %s (%s) not in graph, skipping",
-                    src_id, tgt_id, edge_type_str,
-                )
-                continue
-
-            # Apply update
-            post_belief = self.graph.update_edge_belief(
-                src_id, tgt_id, edge_type, evidence
-            )
-
-            updates.append(AppliedEdgeUpdate(
-                source_id=src_id,
-                target_id=tgt_id,
-                edge_type=edge_type,
-                evidence=evidence,
-                pre_update_belief=pre_belief,
-                post_update_belief=post_belief,
-            ))
+        # ── Backbone: outcome conditions the WHOLE chain (the core) ─────────
+        # Replaces the old name-matched ``for item in raw_edges`` loop. The
+        # trial's per-arm outcome is folded onto every backbone edge of every
+        # chain on that arm, by edge id. Modulation + AE emission below are
+        # unchanged.
+        updates.extend(self._condition_chain_on_outcomes(
+            trial, classification, extraction, evidence_type, applied_edges,
+        ))
 
         # Arm-differential modulation edges (round 8 v0.2.0). For trials
         # with arm pairs where one is a strict subset of another, emit
@@ -894,28 +899,201 @@ class Attributor:
             extraction=extraction,
         ))
 
-        # Failure-trial backstop. The classifier prompt explicitly requires
-        # at least one upstream causal-chain edge update on a failure trial
-        # (a missed endpoint refutes part of the chain even when biomarker
-        # data is absent), but the LLM occasionally returns zero edges
-        # anyway, especially at confidence_overall <0.5. Without a backstop
-        # the trial is silent — 0 evidence on every chain, no learning from
-        # the failure. Inject a default `biology_drives weak_contradict`
-        # against the parent chain so the failure signal lands somewhere.
-        outcome = raw.get("trial_outcome")
-        if outcome == "failure":
-            biology_drives_applied = any(
-                et == EdgeType.BIOLOGY_DRIVES.value
-                for et, _, _, _ in applied_edges
-            )
-            if not biology_drives_applied and trial.chains:
-                default_update = self._emit_failure_backstop(
-                    trial, classification, evidence_type,
-                )
-                if default_update is not None:
-                    updates.append(default_update)
+        # NOTE: the round-14 failure-trial backstop (auto-emit a default
+        # biology_drives weak_contradict when the classifier returned zero
+        # edges on a failure trial) is removed under the outcome-conditioning
+        # redesign. ``_condition_chain_on_outcomes`` ALWAYS conditions every
+        # backbone edge of every chain on an arm with a known outcome, so a
+        # failure trial can never leave its chains silent — the backstop's
+        # job is now structurally guaranteed. ``_emit_failure_backstop`` is
+        # kept (as a no-op-by-disuse helper) for reference / tests.
 
         return updates
+
+    def _condition_chain_on_outcomes(
+        self,
+        trial: TrialSubgraph,
+        classification: FailureClassification,
+        extraction: "TrialExtraction | None",
+        evidence_type: EvidenceType,
+        applied_edges: set[tuple[str, str, str, str | None]],
+    ) -> list[AppliedEdgeUpdate]:
+        """Condition every backbone edge of every chain on its arm's outcome.
+
+        THE CORE of the outcome-conditioning redesign. For each arm with a
+        known outcome, every chain on that arm has its backbone edges
+        (AFFECTS, MODULATES_VIA, MECHANISM_AFFECTS, BIOLOGY_DRIVES, and —
+        when an endpoint is present — REFLECTS_BIOLOGY, ENDPOINT_CAPTURES)
+        updated by EDGE ID, no name-matching.
+
+        Trial weight::
+
+            w_base = effective_n_for_evidence(evidence_type,
+                                              quality=classification.confidence)
+                     * f_N            # saturating √N population multiplier
+                     * gate_weight    # operational-failure gate (Piece 2)
+
+        ``f_N`` = ``beliefs._precision_multiplier(extraction.sample_size)``
+        called DIRECTLY (independent of EROOM_NEFF_PRECISION — the outcome
+        path is always f(N)-weighted): concave √N, anchored 350, floored 0.5,
+        ceiled 2.5, so a huge trial counts more than a tiny one but not
+        linearly more.
+
+        Per-outcome update math:
+
+        SUCCESS (conjunctive — the whole path operated): every backbone edge
+            gets a SUPPORT update at full ``w_base`` (p_obs=0.80).
+
+        FAILURE (disjunctive — ≥1 edge weak, unknown which) → EXPLAINING-AWAY.
+            For each backbone edge i compute its current ``E[p_i]`` from the
+            pre-update belief; set unnormalized weak-weight ``u_i = 1 - E[p_i]``
+            and normalize ``w_i = u_i / Σ u_j`` (uniform 1/L if all u_i == 0).
+            Edge i gets a MODEST CONTRADICT (p_obs=0.20) with
+            ``n_eff = w_base * w_i``. High-E[p] curated edges (a binds_to with
+            α≫β) absorb ≈0 of the failure (self-protect); the uncertain causal
+            edges absorb most. Because the total failure mass ``w_base`` is
+            SPLIT across the chain, one trial can never collapse an edge.
+            Symmetric with the softmin/weakest-link prediction.
+
+        PARTIAL: the same explaining-away split as failure but with a WEAKER
+            contradict (p_obs=0.35) — modest and ambiguous.
+
+        Dedup: an (edge_type, src, tgt, arm_id) tuple is conditioned once
+        per arm even when two chains of that arm share it (reuses
+        ``applied_edges``). The EvidenceRecord is always recorded on the edge
+        (replayable) even though n_eff/p_obs are injected directly.
+        """
+        outcomes = _aggregate_arm_outcomes(trial, extraction)
+        fallback = False
+        if not outcomes:
+            # Trial-level-outcome fallback. The extraction couldn't resolve a
+            # per-arm outcome (e.g. all results_by_chain entries are
+            # ``unknown``, or the arm-ids didn't reconcile), but the
+            # classifier reported a TRIAL-LEVEL outcome. A trial-level
+            # failure/partial/success IS an outcome and is still the coarsest
+            # valid signal to condition the chain on — applying it to every
+            # arm's chains is faithful to "the outcome conditions the chain,"
+            # and recovers chains that per-arm conditioning would leave silent
+            # (the equivalent of the round-16 always-on emission, now driven
+            # by the trial outcome rather than name-matched edges).
+            trial_outcome = _trial_level_outcome(classification)
+            if trial_outcome is None:
+                return []
+            outcomes = {arm.arm_id: trial_outcome for arm in trial.arms}
+            if not outcomes:
+                return []
+            fallback = True
+
+        n_obs = extraction.sample_size if extraction else None
+        f_n = _precision_multiplier(n_obs)
+        gate_weight = classification.gate_weight
+        quality = min(classification.confidence, 1.0)
+        # Type-constant N_eff × quality, exactly as the legacy path computes
+        # its base (we call effective_n_for_evidence so the per-source
+        # constant + quality discount are honored), then scale by the
+        # saturating f(N) and the operational gate.
+        base_n = effective_n_for_evidence(evidence_type, quality)
+        w_base = base_n * f_n * gate_weight
+
+        emitted: list[AppliedEdgeUpdate] = []
+        for chain in trial.chains:
+            outcome = outcomes.get(chain.arm_id)
+            if outcome is None or outcome == TrialOutcome.UNKNOWN:
+                continue
+
+            # Dedup scope. Normally per-arm: each arm's outcome is independent
+            # evidence, so a backbone edge shared by two arms is conditioned
+            # once per arm (both votes count). Under the trial-level FALLBACK,
+            # every arm carries the SAME trial-level guess, so conditioning a
+            # shared downstream edge once per arm would apply that single guess
+            # N_arms times — an over-count. Dedup arm-independently (None) in
+            # fallback so each unique edge is conditioned exactly once.
+            dedup_arm = None if fallback else chain.arm_id
+
+            # Collect the chain's backbone edges that actually exist in the
+            # graph (skip placeholders + missing edges). The explaining-away
+            # normalization is over THIS set.
+            live_edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
+            for src_id, tgt_id, et in _chain_backbone_edges(chain):
+                edge_key = (et.value, src_id, tgt_id, dedup_arm)
+                if edge_key in applied_edges:
+                    continue
+                try:
+                    pre = self.graph.get_edge_belief(src_id, tgt_id, et)
+                except KeyError:
+                    continue
+                live_edges.append((src_id, tgt_id, et, pre))
+
+            if not live_edges:
+                continue
+
+            # Per-edge fractions + p_obs by outcome.
+            #   ``fracs[i]`` is edge i's SHARE of the trial mass w_base;
+            #   ``n_eff_i = w_base * fracs[i]``.
+            if outcome == TrialOutcome.SUCCESS:
+                # Conjunctive: every edge gets the FULL trial weight (the
+                # whole path operated, so each link is independently
+                # supported — no split).
+                fracs = [1.0] * len(live_edges)
+                p_obs = _SUCCESS_P_OBS
+            else:
+                # FAILURE / PARTIAL: explaining-away split toward uncertain
+                # edges. u_i = 1 - E[p_i]; frac_i = u_i / Σ u_j (uniform if all 0).
+                us = [max(0.0, 1.0 - pre.expected_probability)
+                      for (_, _, _, pre) in live_edges]
+                total_u = sum(us)
+                if total_u <= 0.0:
+                    fracs = [1.0 / len(live_edges)] * len(live_edges)
+                else:
+                    fracs = [u / total_u for u in us]
+                p_obs = (
+                    _FAILURE_P_OBS if outcome == TrialOutcome.FAILURE
+                    else _PARTIAL_CONTRADICT_P_OBS
+                )
+
+            support_bucket = _OUTCOME_TO_SUPPORT_BUCKET[outcome]
+            for (src_id, tgt_id, et, pre), w_i in zip(live_edges, fracs):
+                n_eff_i = w_base * w_i
+                applied_edges.add((et.value, src_id, tgt_id, dedup_arm))
+                evidence = EvidenceRecord(
+                    source_id=trial.trial_id,
+                    source_type=evidence_type,
+                    support=support_bucket.value,
+                    quality_score=quality,
+                    timestamp=datetime.now(timezone.utc),
+                    notes=(
+                        f"outcome-conditioned (arm={chain.arm_id}, "
+                        f"outcome={outcome.value}, w_base={w_base:.3f}, "
+                        f"w_i={w_i:.3f}, n_eff={n_eff_i:.3f}, "
+                        f"p_obs={p_obs:.2f}, gate={gate_weight:.2f}, "
+                        f"f_N={f_n:.3f})"
+                    ),
+                    n_obs=n_obs,
+                    effect=extraction.effect_size if extraction else None,
+                    p_value=extraction.p_value if extraction else None,
+                    context={
+                        "outcome_conditioned": True,
+                        "arm_id": chain.arm_id,
+                        "outcome": outcome.value,
+                        "explain_away_weight": w_i,
+                        "n_eff_applied": n_eff_i,
+                        "p_obs_applied": p_obs,
+                        "gate_weight": gate_weight,
+                    },
+                )
+                post = self.graph.update_edge_belief(
+                    src_id, tgt_id, et, evidence,
+                    n_eff_override=n_eff_i, p_obs_override=p_obs,
+                )
+                emitted.append(AppliedEdgeUpdate(
+                    source_id=src_id,
+                    target_id=tgt_id,
+                    edge_type=et,
+                    evidence=evidence,
+                    pre_update_belief=pre,
+                    post_update_belief=post,
+                ))
+        return emitted
 
     def _emit_failure_backstop(
         self,
@@ -1857,11 +2035,15 @@ async def _main(
             except (ValueError, KeyError):
                 pass
 
+        _op_fail = clf_data.get("operational_failure")
+        if not isinstance(_op_fail, bool):
+            _op_fail = None
         classification = FailureClassification(
             trial_id=trial_id,
             primary_failure_mode=primary_mode,
             confidence=clf_data.get("confidence_overall", 0.5),
             reasoning=clf_data.get("reasoning", ""),
+            operational_failure=_op_fail,
         )
         classification._raw = clf_data  # type: ignore[attr-defined]
 
