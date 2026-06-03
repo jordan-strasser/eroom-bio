@@ -489,6 +489,53 @@ draw();net.once('stabilizationIterationsDone',()=>net.fit());
 </script></body></html>"""
 
 
+def open_html(path: Path) -> None:
+    """Best-effort: open ``path`` in the default browser. Swallows failures so a
+    headless / CI build never breaks just because there's no display."""
+    import subprocess
+    import sys
+    import webbrowser
+    try:
+        if sys.platform == "darwin":
+            subprocess.run(["open", str(path)], check=False)
+        else:
+            webbrowser.open(f"file://{Path(path).resolve()}")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def write_chain_html(
+    area: str | None = None,
+    *,
+    snapshot: str | None = None,
+    suffix: str = "annotated",
+    limit: int = 5,
+    trials: list[str] | None = None,
+    out: str | None = None,
+) -> tuple[Path, dict]:
+    """Render the chain (debug) view to an HTML file; return ``(path, data)``.
+
+    Importable so a build can render + auto-open the viz at the end of a run
+    (``build_graph --viz``). ``area`` resolves ``data/exports/<area>_<suffix>.json``
+    and uses ``<area>_premerge.json`` for a faithful before-merge block when present.
+    """
+    target = snapshot or area
+    if not target:
+        raise ValueError("write_chain_html needs area or snapshot")
+    path = _resolve(target, suffix)
+    snap = load_snapshot(path)
+    VIZ_DIR.mkdir(parents=True, exist_ok=True)
+    before_snap = None
+    if area:
+        pm = EXPORTS / f"{area}_premerge.json"
+        if pm.exists():
+            before_snap = load_snapshot(pm)
+    data = extract_chains(snap, before_snap=before_snap, limit=limit, trials=trials)
+    out_path = Path(out) if out else VIZ_DIR / f"{path.stem}_chains.html"
+    out_path.write_text(render_chain_html(f"{path.stem} — causal hypothesis chains", data))
+    return out_path, data
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--area")
@@ -498,36 +545,38 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=5)
     ap.add_argument("--trials")
     ap.add_argument("--out")
+    ap.add_argument("--no-open", action="store_true",
+                    help="render only; don't auto-open the HTML in a browser")
     args = ap.parse_args()
 
     target = args.snapshot or args.area
     if not target:
         ap.error("pass --area or --snapshot")
-    path = _resolve(target, args.suffix)
-    snap = load_snapshot(path)
-    VIZ_DIR.mkdir(parents=True, exist_ok=True)
 
     if args.mode == "explorer":
+        path = _resolve(target, args.suffix)
+        snap = load_snapshot(path)
+        VIZ_DIR.mkdir(parents=True, exist_ok=True)
         out = Path(args.out) if args.out else VIZ_DIR / f"{path.stem}_explorer.html"
         d = to_vis(snap)
         out.write_text(render_explorer_html(path.stem, [(path.stem, d)]))
         print(f"  explorer: {len(d['nodes'])} nodes, {len(d['edges'])} edges → {out}")
+        if not args.no_open:
+            open_html(out)
         return
 
     trials = [t.strip() for t in args.trials.split(",")] if args.trials else None
-    before_snap = None
-    if args.area:                              # faithful before-block from the premerge dump
-        pm = EXPORTS / f"{args.area}_premerge.json"
-        if pm.exists():
-            before_snap = load_snapshot(pm)
-    data = extract_chains(snap, before_snap=before_snap, limit=args.limit, trials=trials)
-    out = Path(args.out) if args.out else VIZ_DIR / f"{path.stem}_chains.html"
-    out.write_text(render_chain_html(f"{path.stem} — causal hypothesis chains", data))
+    out, data = write_chain_html(
+        area=args.area, snapshot=args.snapshot, suffix=args.suffix,
+        limit=args.limit, trials=trials, out=args.out,
+    )
     print(f"  chains shown: {len(data['chains'])} of {data['n_total']}")
     for c in data["chains"]:
         names = " → ".join(c["roles"].get(r, {}).get("after", {}).get("name", "·") for r in BACKBONE_SIG)
         print(f"    {c['trial']}: {names}")
     print(f"→ {out}  ({out.stat().st_size // 1024} KB)")
+    if not args.no_open:
+        open_html(out)
 
 
 if __name__ == "__main__":
