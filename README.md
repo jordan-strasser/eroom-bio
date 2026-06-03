@@ -165,13 +165,15 @@ r = predict_clinical_hypothesis(g, None, "melanoma", target_id="ENSG00000188389"
 r.overall_probability   # efficacy × (1 − safety_penalty)
 ```
 
-**Evaluate on holdouts — compose-and-scan** (`scripts/eval_holdout_compose.py`), the honest true-holdout: it predicts test trials *without building them into the graph*, anchors on the target, scores only where the chain lands, and returns honest "unknown" when the corpus has no knowledge to generalize from — rather than fabricating a number.
+**Evaluate on holdouts — compose-and-scan** (`scripts/eval_holdout_compose.py`), the honest true-holdout: it predicts test trials *without building them into the graph*, anchors on the target, scores only where the chain lands, and returns honest "unknown" when the corpus has no knowledge to generalize from — rather than fabricating a number. Three modes:
 
 ```bash
-python -m scripts.eval_holdout_compose --graph data/exports/<area>_annotated.json
+python -m scripts.eval_holdout_compose --graph data/exports/<area>_annotated.json          # classic-5 direction (default)
+python -m scripts.eval_holdout_compose --graph G --field <field.json>                       # + (s,t)-field-localized vs scalar
+python -m scripts.eval_holdout_compose --graph G --auroc --corpus <name> [--field <f>]       # AUROC + accuracy over a corpus
 ```
 
-(`eval_dual.py` is the older build-the-holdout-in path; prefer compose-and-scan.)
+For leave-one-out calibration (AUROC / Brier / calibration bins), use `scripts/eval_predictions_loo.py`.
 
 **Inspect causal chains** (columns by node type, per-row before-merge vs converged after-merge) — also wired as the `/graph-inspect` skill:
 
