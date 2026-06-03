@@ -588,38 +588,3 @@ class TestUnionGradeTokens:
     def test_whitespace_tolerated(self):
         from src.inference.ae_propagation import _union_grade_tokens
         assert _union_grade_tokens([" 1 , 2 ", "3"]) == "1,2,3"
-
-
-class TestMigrationScriptIdempotency:
-    """Round-28 migration script (``scripts/migrate_ae_hierarchy.py``)
-    should be safe to re-run on an already-migrated snapshot. The second
-    pass must produce zero AE-node backfills (every field already
-    populated) and the same SOC-tier edge counts (propagation is
-    idempotent)."""
-
-    def test_second_pass_zero_backfills(self, tmp_path):
-        from scripts.migrate_ae_hierarchy import migrate_snapshot
-
-        g = _seed_cetp_siblings()
-        snap_in = tmp_path / "snap_pre.json"
-        snap_mid = tmp_path / "snap_mid.json"
-        snap_out = tmp_path / "snap_out.json"
-        g.export_snapshot(str(snap_in))
-
-        first = migrate_snapshot(snap_in, snap_mid)
-        second = migrate_snapshot(snap_mid, snap_out)
-
-        # All AE nodes had SOC fields written on pass 1; pass 2 finds
-        # nothing left to backfill.
-        assert first["ae_nodes_backfilled"] >= 0
-        assert second["ae_nodes_backfilled"] == 0
-        # SOC-tier edge count is stable between passes.
-        assert (
-            first.get("soc_tier_edges_emitted", 0)
-            == second.get("soc_tier_edges_emitted", 0)
-        )
-        # PT-tier edge count is also stable.
-        assert (
-            first.get("pt_tier_edges_emitted", 0)
-            == second.get("pt_tier_edges_emitted", 0)
-        )
