@@ -28,18 +28,7 @@ Most systems record whether trials pass or fail. Eroom Bio records **where in th
 
 **Conflict detection.** When trials disagree about the same mechanistic link — same compound, same target, contradicting evidence — the system flags it. These are the interesting questions, not the settled ones.
 
-**Structured failure decomposition.** When a trial fails, the system classifies *where* in the causal chain it broke—using a 13-category mechanistic taxonomy:
-
-| Failure mode | What it means | Which edges update |
-|---|---|---|
-| No target engagement | Drug didn't bind/modulate target | Weakens `affects`, `modulates_via` |
-| Target engaged, biology not moved | Hit target, pathway didn't respond | Weakens `mechanism_affects` |
-| Biology moved, endpoint flat | Biomarker changed, clinical outcome didn't | Weakens `endpoint_captures` |
-| Efficacy in subgroup only | Worked in subgroup, diluted in full population | Strengthens subgroup `responds_differently` |
-| Dose-limiting toxicity | Can't reach therapeutic dose | Compound-specific `causes_ae` |
-| Wrong population | Mechanism valid, patients lack driving biology | Strengthens mechanism, weakens population |
-
-A single failed trial produces *opposing* updates on different edges—strengthening the links that worked, weakening the one that broke.
+**Structured failure decomposition.** A single trial can't reliably pinpoint *which* link broke—attributing failure to one edge from one trial is premature falsification. So the trial's **outcome conditions the whole chain**: on a failure, contradictory evidence is distributed across the chain's links by *explaining-away*—it flows to the under-evidenced links while curated molecular facts (a confirmed binding) self-protect; on a success, every link is reinforced. The **overlap across many trials** then triangulates the responsible edge—a link that recurs in failed chains and rarely in successful ones is the one the evidence implicates. The failure classifier's job is a coarse **operational-vs-mechanistic gate** (did the trial actually *test* the chain, or fail for recruitment / dosing / funding reasons?), not per-trial edge attribution. This keeps each trial's evidence honest and lets the responsible pathway emerge from the corpus rather than from a single noisy guess.
 
 ---
 
@@ -141,34 +130,53 @@ export ANTHROPIC_API_KEY=your_key
 export CLUE_API_KEY=your_key  # optional, for LINCS data
 ```
 
-Reproduce the n=52 multi-indication build:
+### Running it — the entry points that matter
+
+The repo has many scripts and flags; in practice you use a small set. This is that subset.
+
+**Build the graph.** One driver — `scripts/build_graph.py` (fetch → populate → annotate → attribute). **Invoke it as a module**: `python scripts/build_graph.py` silently breaks `--assemble`.
+
 ```bash
 python -m scripts.build_graph \
-  --corpus multi_indication_52_train \
-  --max-trials 52 \
-  --area multi_indication_52 \
-  --include-terminated \
-  --allow-partial-subgraphs
+  --corpus multi_indication_52_train \   # frozen NCT-id list → reproducible build
+  --max-trials 60 \
+  --bottom-up \                          # chains-first build — the production mode
+  --assemble \                           # materialize geometry + the (s,t) belief field
+  --allow-partial-classify --allow-partial-subgraphs
 ```
 
-Add the 5 holdout case studies incrementally:
-```bash
-python -m scripts.build_graph \
-  --base-snapshot data/exports/multi_indication_52_annotated.json \
-  --add-trials NCT01844505,NCT01127633,NCT00112918,NCT00134264,NCT00970359 \
-  --area multi_indication_52 \
-  --allow-partial-subgraphs
+The flags that actually matter (the rest are rarely needed):
+
+| Flag | When you reach for it |
+|---|---|
+| `--bottom-up` | Always, for a real build — per-trial isolated subgraphs → a re-runnable merge. Omitting it falls back to the legacy top-down path. |
+| `--assemble` | Materialize the geometry (boxes, is-a) and the per-`(s,t)` belief field. Requires `python -m`. |
+| `--corpus <name>` | Pin a frozen NCT-id list (written on first use) — reproducible builds. |
+| `--reannotate NCT,NCT…` | **Iterate on prompts.** Deletes only those trials' caches, re-runs just them, preserves every other annotation — append-only. This is *not* a fresh build. |
+| `--keep-annotations` | Reuse cached extract+classify (populate-only iteration). **Footgun:** without it, a fresh build WIPES `data/annotations/`. |
+| `--base-snapshot … --add-trials …` | Extend an existing snapshot (attribution is idempotent). |
+
+**Predict a clinical hypothesis.** `compound_id` may be `None` — pass `target_id` to predict a *novel compound on a familiar target* (the chain is walked from the target onward):
+
+```python
+from src.prediction.path_query import predict_clinical_hypothesis
+r = predict_clinical_hypothesis(g, "nivolumab", "melanoma")                         # familiar compound
+r = predict_clinical_hypothesis(g, None, "melanoma", target_id="ENSG00000188389")   # novel anti-PD-1
+r.overall_probability   # efficacy × (1 − safety_penalty)
 ```
 
-Run the case-study audit:
+**Evaluate on holdouts — compose-and-scan** (`scripts/eval_holdout_compose.py`), the honest true-holdout: it predicts test trials *without building them into the graph*, anchors on the target, scores only where the chain lands, and returns honest "unknown" when the corpus has no knowledge to generalize from — rather than fabricating a number.
+
 ```bash
-python -m scripts.case_study_audit \
-  --graph data/exports/multi_indication_52_annotated.json
+python -m scripts.eval_holdout_compose --graph data/exports/<area>_annotated.json
 ```
 
-Verify the SapBERT canonicalization layer:
+(`eval_dual.py` is the older build-the-holdout-in path; prefer compose-and-scan.)
+
+**Inspect causal chains** (columns by node type, per-row before-merge vs converged after-merge) — also wired as the `/graph-inspect` skill:
+
 ```bash
-python -m scripts.verify_sapbert
+python scripts/visualize_graph.py --area <area> --mode chain
 ```
 
 Run the API:
@@ -197,7 +205,7 @@ data/
   dev/          # Per-build observability logs (dropped trials,
                 # unrouted updates, unmapped subgroup features)
 audit/          # Per-round audit notes + case-study reports (gitignored)
-tests/          # 852 tests
+tests/          # 1227 tests (non-integration)
 scripts/        # Build + analysis tools
 docs/           # Architecture spec
 ```
@@ -218,9 +226,10 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 
 ## Current status
 
-- 1065 tests passing (non-integration) on Python 3.12
-- **Round 30** (branch `neff-precision-v1`): the predictor was rebuilt — weakest-link soft-min + informed prior efficacy, failure-causing-gated safety, and precision-grounded N_eff (trial sample size + an independence/redundancy discount) — all flag-gated, validated, then made default. Results under *Current evaluation* above.
-- Pending: a `modulates_via` demonstrated-vs-assumed classifier rule; the PubMed ingester (torcetrapib safety + N_eff p-values); the BioLORD node substrate (semantic redundancy + mechanism-conditioned populations); LOO calibration of the predictor knobs.
+- 1227 tests passing (non-integration) on Python 3.11+
+- **Chains-first v2 (on `main`).** The build is per-trial isolated subgraphs → a re-runnable merge (`--bottom-up`); the abstraction ladder sits at true scale (Target → Mechanism = Reactome signaling pathway → Biology = general process; drug-class is metadata on the compound, operativity on the `modulates_via` edge); and **attribution is outcome-conditioning** — the trial outcome conditions the whole chain by explaining-away, the failure classifier is a coarse operational gate, and cross-trial overlap triangulates the failing edge.
+- **Holdout (compose-and-scan, target-anchored).** 3/3 direction-correct on every classic case study whose target the corpus knows (nivolumab→melanoma, torcetrapib→CVD, selumetinib→thyroid); the two whose target is absent from the small corpus are honest "unknown"s, not misses.
+- Pending: an evidence-depth check on the lighter-conditioned holdouts; the PubMed ingester (off-target safety not posted to CT.gov); LOO calibration of the predictor knobs; the BioLORD node substrate.
 
 ---
 
