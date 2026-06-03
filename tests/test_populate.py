@@ -2946,10 +2946,14 @@ async def test_arm_level_description_is_biology_identity_not_reactome(tmp_path):
 @pytest.mark.asyncio
 async def test_mechanism_category_lands_as_node_metadata(tmp_path):
     """The extractor's per-(arm, intervention) ``mechanism_category`` is stamped
-    onto ``MechanismNode.category`` by ``_populate_trial_mechanisms``. The node
-    identity stays the resolved MechanismCategory id (round-28 direction/type
-    derivation keeps working); category is the coarse bucket carried as metadata.
-    When a drug has no extracted category, it falls back to the resolved id."""
+    onto ``MechanismNode.category`` by ``_populate_trial_mechanisms``. Semantic-
+    layers redesign: the node IDENTITY is the Reactome signaling pathway resolved
+    from the target gene (pembrolizumab → PDCD1 → R-HSA-389948 "Co-inhibition by
+    PD-1"); category is the coarse drug-class bucket carried as METADATA on that
+    pathway node, and round-28 direction/type derivation keeps working off it.
+    A non-ENSG target (cyclophosphamide → CHEBI DNA) has no resolvable pathway, so
+    it falls back to the enum slug. When a drug has no extracted category, the
+    category metadata falls back to the resolved enum id."""
     import json
 
     from src.graph.models import (
@@ -3017,14 +3021,22 @@ async def test_mechanism_category_lands_as_node_metadata(tmp_path):
         [trial], compound_targets, annotations_dir=tmp_path,
     )
 
-    # Both mechanism nodes exist (ids = resolved MechanismCategory values) and
-    # carry the category metadata.
+    # Non-ENSG target (DNA) → no resolvable Reactome pathway → enum-slug node,
+    # carrying the extracted category metadata.
     assert g.get_node("dna_crosslinking")["category"] == "dna_crosslinking"
-    # Pembrolizumab had no extracted category → falls back to the resolved id.
-    assert g.get_node("checkpoint_blockade")["category"] == "checkpoint_blockade"
+    # ENSG target (PDCD1) → resolves to the Reactome signaling pathway; the node
+    # IDENTITY is the pathway id, and pembrolizumab (no extracted category)
+    # carries the resolved enum bucket as category metadata on that pathway node.
+    pd1_path = g.get_node("R-HSA-389948")  # Co-inhibition by PD-1
+    assert pd1_path["category"] == "checkpoint_blockade"
+    # The enum-slug node was NOT created for the ENSG-resolved mechanism.
+    with pytest.raises(KeyError):
+        g.get_node("checkpoint_blockade")
     # Round-28 derivation still works: direction populated off MechanismCategory.
     assert g.get_node("dna_crosslinking")["direction"] == "inhibiting"
-    assert g.get_node("checkpoint_blockade")["direction"] == "inhibiting"
+    assert pd1_path["direction"] == "inhibiting"
+    # The PD-1 pathway node carries the human-readable Reactome name.
+    assert pd1_path["name"] == "Co-inhibition by PD-1"
 
 
 # ── Mechanism-identity flip (Phase C): node id = molecular-action description ──
@@ -3049,14 +3061,18 @@ def test_mechanism_id_from_description_is_content_address():
 
 
 @pytest.mark.asyncio
-async def test_mechanism_identity_flip_distinct_nodes_per_action(tmp_path):
-    """Phase C end-to-end: when a per-(arm, intervention) ``mechanism_description``
-    exists, the MechanismNode IDENTITY is the content-address of that specific
-    action. A PD-1 blocker and a CTLA4 blocker — same drug-class CATEGORY
-    (checkpoint_blockade) — become DISTINCT mechanism nodes (distinct ``mech:``
-    ids), with ``category`` the shared coarse bucket and ``mechanism_type`` /
-    ``direction`` derived from that category (NOT from the node id, which is no
-    longer an enum value). The chains are repointed at the content-address ids."""
+async def test_mechanism_identity_is_reactome_pathway_per_target(tmp_path):
+    """Semantic-layers redesign end-to-end: the MechanismNode IDENTITY is the
+    localized molecular SIGNALING PATHWAY the target gene drives (a Reactome
+    pathway resolved from the gene), NOT the drug-class action mode. A PD-1
+    blocker and a CTLA4 blocker — same drug-class CATEGORY (checkpoint_blockade)
+    — become DISTINCT mechanism nodes because their target genes sit in DISTINCT
+    Reactome pathways (PDCD1 → R-HSA-389948 "Co-inhibition by PD-1"; CTLA4 →
+    R-HSA-389513 "Co-inhibition by CTLA4"). ``category`` is the shared coarse
+    bucket carried as metadata; ``mechanism_type`` / ``direction`` derive from
+    that category (NOT from the node id, which is a Reactome id). The chains are
+    repointed at the Reactome pathway ids. (Uses the on-disk Reactome cache, so
+    this runs offline.)"""
     import json
 
     from src.graph.models import (
@@ -3064,7 +3080,6 @@ async def test_mechanism_identity_flip_distinct_nodes_per_action(tmp_path):
         IndicationNode, PopulationNode, TargetNode, TrialArm, TrialOutcome,
         TrialSubgraph,
     )
-    from src.graph.populate import _mechanism_id_from_description
     from src.graph.store import GraphStore
     from src.ingestion.clinicaltrials import TrialRecord
 
@@ -3102,7 +3117,9 @@ async def test_mechanism_identity_flip_distinct_nodes_per_action(tmp_path):
         )],
     ))
 
-    # Distinct molecular-action descriptions; SAME category for both.
+    # Distinct molecular-action descriptions; SAME category for both. The
+    # description rides along as the node's free-text substrate; identity is the
+    # Reactome pathway, not the description.
     (tmp_path / "NCT_FLIP_extraction.json").write_text(json.dumps({
         "nct_id": "NCT_FLIP",
         "results_by_chain": [
@@ -3125,43 +3142,56 @@ async def test_mechanism_identity_flip_distinct_nodes_per_action(tmp_path):
         [trial], compound_targets, annotations_dir=tmp_path,
     )
 
-    pd1_id = _mechanism_id_from_description("PD-1 checkpoint blockade")
-    ctla4_id = _mechanism_id_from_description("CTLA4 co-inhibition")
-
-    # DISTINCT mechanism nodes (the flip): the enum slug is gone as an identity.
+    # The two checkpoint pathways are distinct nodes (the gene → pathway split).
+    pd1_id = "R-HSA-389948"   # Co-inhibition by PD-1 (PDCD1 top-ranked pathway)
+    ctla4_id = "R-HSA-389513"  # Co-inhibition by CTLA4 (CTLA4's checkpoint pathway)
     assert pd1_id != ctla4_id
     pd1 = g.get_node(pd1_id)
     ctla4 = g.get_node(ctla4_id)
-    assert pd1["name"] == "PD-1 checkpoint blockade"
-    assert ctla4["name"] == "CTLA4 co-inhibition"
-    assert pd1["description"] == "PD-1 checkpoint blockade"
+    assert pd1["name"] == "Co-inhibition by PD-1"
+    assert ctla4["name"] == "Co-inhibition by CTLA4"
 
     # SHARED coarse drug-class bucket carried as metadata.
     assert pd1["category"] == "checkpoint_blockade"
     assert ctla4["category"] == "checkpoint_blockade"
 
-    # type/direction derived from the CATEGORY, not the (content-address) id.
+    # type/direction derived from the CATEGORY, not the (Reactome) id.
     assert pd1["direction"] == "inhibiting"
     assert ctla4["direction"] == "inhibiting"
     assert pd1["mechanism_type"] == ctla4["mechanism_type"]
 
-    # The enum-slug node was NOT created (identity is the action description).
+    # The enum-slug node was NOT created (identity is the Reactome pathway).
     with pytest.raises(KeyError):
         g.get_node("checkpoint_blockade")
 
-    # The rebuilt chains point at the content-address ids.
+    # target → mechanism modulates_via edges point at the pathway nodes.
+    assert g._graph.has_edge(
+        "ENSG00000188389", pd1_id, key=EdgeType.MODULATES_VIA.value,
+    )
+    assert g._graph.has_edge(
+        "ENSG00000163599", ctla4_id, key=EdgeType.MODULATES_VIA.value,
+    )
+
+    # The rebuilt chains include one chain per (constituent, mechanism pathway),
+    # with each constituent's top pathway being its checkpoint co-inhibition.
     ts = g.get_trial_subgraph_by_id("NCT_FLIP")
-    chain_mech_ids = {c.compound_id: c.mechanism_id for c in ts.chains}
-    assert chain_mech_ids["nivolumab"] == pd1_id
-    assert chain_mech_ids["ipilimumab"] == ctla4_id
+    nivo_mechs = {c.mechanism_id for c in ts.chains if c.compound_id == "nivolumab"}
+    ipi_mechs = {c.mechanism_id for c in ts.chains if c.compound_id == "ipilimumab"}
+    assert pd1_id in nivo_mechs
+    assert ctla4_id in ipi_mechs
+    # The two constituents do not share their checkpoint pathway node.
+    assert pd1_id not in ipi_mechs
+    assert ctla4_id not in nivo_mechs
 
 
 @pytest.mark.asyncio
-async def test_mechanism_falls_back_to_enum_slug_without_description(tmp_path):
-    """Phase C back-compat: a chain whose extraction carries NO
-    ``mechanism_description`` keeps the enum-slug node id (so existing snapshots
-    and non-bottom-up paths are unchanged), and ``mechanism_type`` / ``direction``
-    still derive correctly from the resolved category."""
+async def test_mechanism_falls_back_to_enum_slug_without_resolvable_pathway(tmp_path):
+    """Semantic-layers redesign fallback: when the target gene has NO resolvable
+    Reactome signaling pathway (here a non-ENSG target with no gene symbol), the
+    MechanismNode falls back to the coarse drug-class enum slug, and
+    ``mechanism_type`` / ``direction`` still derive correctly from the resolved
+    category. (The fallback trigger is now an unresolvable gene, NOT a missing
+    description — pathway identity supersedes the old content-address path.)"""
     import json
 
     from src.graph.models import (
@@ -3173,25 +3203,27 @@ async def test_mechanism_falls_back_to_enum_slug_without_description(tmp_path):
     from src.ingestion.clinicaltrials import TrialRecord
 
     g = GraphStore()
-    g.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
-    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(CompoundNode(id="dacarbazine", name="Dacarbazine"))
+    # Non-ENSG target id (CHEBI) → _resolve_gene_pathways short-circuits (the
+    # Reactome lookup is gated to ENSG ids) and returns no pathways.
+    g.add_node(TargetNode(id="CHEBI:16991", name="DNA", gene_symbol="CHEBI:16991"))
     g.add_node(IndicationNode(id="melanoma", name="melanoma"))
     parent_pop = "melanoma__unselected"
     g.add_node(PopulationNode(id=parent_pop, name="melanoma (all)"))
     g.add_edge(GraphEdge(
-        source_id="pembrolizumab", target_id="ENSG00000188389",
+        source_id="dacarbazine", target_id="CHEBI:16991",
         edge_type=EdgeType.AFFECTS, belief=EdgeBeliefState(),
-        metadata={"implied_mechanism": "checkpoint_blockade"},
+        metadata={"implied_mechanism": "dna_crosslinking"},
     ))
     arm = TrialArm(
-        arm_id="mono", regimen_compound_id="pembrolizumab",
-        compound_ids=["pembrolizumab"], is_combination=False,
+        arm_id="mono", regimen_compound_id="dacarbazine",
+        compound_ids=["dacarbazine"], is_combination=False,
     )
     g.set_trial_subgraph(TrialSubgraph(
         trial_id="NCT_FB", arms=[arm], parent_population_id=parent_pop,
         chains=[CausalChain(
-            arm_id="mono", compound_id="pembrolizumab",
-            subgroup_population_id=parent_pop, target_id="ENSG00000188389",
+            arm_id="mono", compound_id="dacarbazine",
+            subgroup_population_id=parent_pop, target_id="CHEBI:16991",
             mechanism_id="UNKNOWN", biology_id="UNKNOWN", indication_id="melanoma",
             endpoint_id="ORR_melanoma", outcome=TrialOutcome.PARTIAL,
         )],
@@ -3200,22 +3232,22 @@ async def test_mechanism_falls_back_to_enum_slug_without_description(tmp_path):
     (tmp_path / "NCT_FB_extraction.json").write_text(json.dumps({
         "nct_id": "NCT_FB",
         "results_by_chain": [
-            {"arm_id": "mono", "intervention": "pembrolizumab",
-             "outcome": "partial", "mechanism_category": "checkpoint_blockade"},
+            {"arm_id": "mono", "intervention": "dacarbazine",
+             "outcome": "partial", "mechanism_category": "dna_crosslinking"},
         ],
     }))
     trial = TrialRecord(nct_id="NCT_FB", title="t", conditions=["melanoma"])
     pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
     await pipe._populate_trial_mechanisms(
-        [trial], {"pembrolizumab": ["ENSG00000188389"]}, annotations_dir=tmp_path,
+        [trial], {"dacarbazine": ["CHEBI:16991"]}, annotations_dir=tmp_path,
     )
 
-    # Enum-slug id preserved (no content-address); direction derived from category.
-    node = g.get_node("checkpoint_blockade")
-    assert node["category"] == "checkpoint_blockade"
+    # Enum-slug id used as the no-pathway fallback; direction off MechanismCategory.
+    node = g.get_node("dna_crosslinking")
+    assert node["category"] == "dna_crosslinking"
     assert node["direction"] == "inhibiting"
     ts = g.get_trial_subgraph_by_id("NCT_FB")
-    assert ts.chains[0].mechanism_id == "checkpoint_blockade"
+    assert ts.chains[0].mechanism_id == "dna_crosslinking"
 
 
 def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
@@ -3231,3 +3263,264 @@ def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
     assert "enable_sapbert=True" in src
     assert 'sapbert_node_types=("MechanismNode",)' in src
     assert 'biolord_node_types=("BiologyNode",)' in src
+
+
+# ── Semantic-layers redesign: mechanism = target-gene Reactome pathway ────────
+
+
+def _single_constituent_subgraph(
+    nct: str, compound_id: str, target_id: str, indication: str,
+):
+    """Build a one-arm, one-constituent TrialSubgraph with a single UNKNOWN-
+    mechanism chain — the shape ``_populate_trial_mechanisms`` consumes."""
+    from src.graph.models import (
+        CausalChain, TrialArm, TrialOutcome, TrialSubgraph,
+    )
+
+    parent_pop = f"{indication}__unselected"
+    arm = TrialArm(
+        arm_id="mono", regimen_compound_id=compound_id,
+        compound_ids=[compound_id], is_combination=False,
+    )
+    return parent_pop, TrialSubgraph(
+        trial_id=nct, arms=[arm], parent_population_id=parent_pop,
+        chains=[CausalChain(
+            arm_id="mono", compound_id=compound_id,
+            subgroup_population_id=parent_pop, target_id=target_id,
+            mechanism_id="UNKNOWN", biology_id="UNKNOWN", indication_id=indication,
+            endpoint_id=f"ORR_{indication}", outcome=TrialOutcome.PARTIAL,
+        )],
+    )
+
+
+@pytest.mark.asyncio
+async def test_mechanism_keeps_multiple_pathways_not_capped_to_one():
+    """Semantic-layers redesign: a target gene sits in MANY Reactome pathways
+    and that full FOOTPRINT is desired data, so the mechanism layer is NOT capped
+    to one pathway (unlike biology's ``_BIOLOGY_PATHWAY_CAP = 1``). EGFR resolves
+    to a large pathway set; ``_populate_trial_mechanisms`` materializes one
+    MechanismNode per kept pathway (id = Reactome stable id) and fans the chain
+    out one chain per mechanism pathway. (Uses the on-disk Reactome cache.)"""
+    from src.graph.models import (
+        CompoundNode, EdgeBeliefState, EdgeType, GraphEdge, IndicationNode,
+        PopulationNode, TargetNode,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="erlotinib", name="Erlotinib"))
+    g.add_node(TargetNode(id="ENSG00000146648", name="EGFR", gene_symbol="EGFR"))
+    g.add_node(IndicationNode(id="nsclc", name="nsclc"))
+    g.add_edge(GraphEdge(
+        source_id="erlotinib", target_id="ENSG00000146648",
+        edge_type=EdgeType.AFFECTS, belief=EdgeBeliefState(),
+        metadata={"implied_mechanism": "kinase_inhibition"},
+    ))
+    parent_pop, ts = _single_constituent_subgraph(
+        "NCT_EGFR", "erlotinib", "ENSG00000146648", "nsclc",
+    )
+    g.add_node(PopulationNode(id=parent_pop, name="nsclc (all)"))
+    g.set_trial_subgraph(ts)
+
+    trial = TrialRecord(nct_id="NCT_EGFR", title="t", conditions=["nsclc"])
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        [trial], {"erlotinib": ["ENSG00000146648"]},
+    )
+
+    # NOT capped to 1: several distinct Reactome-pathway MechanismNodes exist,
+    # bounded by _MECHANISM_PATHWAY_CAP, and the chain fanned out one per pathway.
+    out = g.get_trial_subgraph_by_id("NCT_EGFR")
+    mech_ids = {c.mechanism_id for c in out.chains}
+    assert len(mech_ids) > 1, mech_ids
+    assert len(mech_ids) <= pipe._MECHANISM_PATHWAY_CAP
+    # Every kept mechanism is a Reactome pathway node (id = R-HSA-…) carrying the
+    # drug-class category as metadata; the enum slug is NOT a mechanism node.
+    for mid in mech_ids:
+        assert mid.startswith("R-HSA-"), mid
+        node = g.get_node(mid)
+        assert node["category"] == "kinase_inhibition"
+        # target → mechanism modulates_via edge exists for each kept pathway.
+        assert g._graph.has_edge(
+            "ENSG00000146648", mid, key=EdgeType.MODULATES_VIA.value,
+        )
+    with pytest.raises(KeyError):
+        g.get_node("kinase_inhibition")
+    # The canonical EGFR signaling pathway is among the kept mechanisms.
+    assert "R-HSA-177929" in mech_ids  # Signaling by EGFR
+
+
+@pytest.mark.asyncio
+async def test_mechanism_pathway_shared_across_targets_merges_to_one_node():
+    """Semantic-layers redesign: the mechanism layer is where knowledge COMPOUNDS
+    across targets. An EGFR inhibitor and a MET inhibitor both have the
+    ``R-HSA-5673001`` "RAF/MAP kinase cascade" pathway in their footprint, so both
+    resolve to the SAME MechanismNode id — within a single graph that is literally
+    one node, with BOTH targets' ``modulates_via`` edges landing on it. (This is
+    what the Tier-1 ``ontology_id`` merge in node_merge collapses across trials in
+    a bottom-up build.) Uses the on-disk Reactome cache."""
+    from src.graph.models import (
+        CompoundNode, EdgeBeliefState, EdgeType, GraphEdge, IndicationNode,
+        PopulationNode, TargetNode,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="erlotinib", name="Erlotinib"))
+    g.add_node(CompoundNode(id="crizotinib", name="Crizotinib"))
+    g.add_node(TargetNode(id="ENSG00000146648", name="EGFR", gene_symbol="EGFR"))
+    g.add_node(TargetNode(id="ENSG00000105976", name="MET", gene_symbol="MET"))
+    g.add_node(IndicationNode(id="nsclc", name="nsclc"))
+    for cid, tid in (("erlotinib", "ENSG00000146648"),
+                     ("crizotinib", "ENSG00000105976")):
+        g.add_edge(GraphEdge(
+            source_id=cid, target_id=tid, edge_type=EdgeType.AFFECTS,
+            belief=EdgeBeliefState(),
+            metadata={"implied_mechanism": "kinase_inhibition"},
+        ))
+    for nct, cid, tid in (("NCT_EGFR", "erlotinib", "ENSG00000146648"),
+                          ("NCT_MET", "crizotinib", "ENSG00000105976")):
+        parent_pop, ts = _single_constituent_subgraph(nct, cid, tid, "nsclc")
+        try:
+            g.get_node(parent_pop)
+        except KeyError:
+            g.add_node(PopulationNode(id=parent_pop, name="nsclc (all)"))
+        g.set_trial_subgraph(ts)
+
+    trials = [
+        TrialRecord(nct_id="NCT_EGFR", title="t", conditions=["nsclc"]),
+        TrialRecord(nct_id="NCT_MET", title="t", conditions=["nsclc"]),
+    ]
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        trials,
+        {"erlotinib": ["ENSG00000146648"], "crizotinib": ["ENSG00000105976"]},
+    )
+
+    # The shared RAF/MAP kinase cascade is ONE MechanismNode that BOTH targets
+    # modulate — the cross-target compounding the redesign exists to enable.
+    shared = "R-HSA-5673001"  # RAF/MAP kinase cascade
+    g.get_node(shared)  # exists (raises if not)
+    assert g._graph.has_edge(
+        "ENSG00000146648", shared, key=EdgeType.MODULATES_VIA.value,
+    )
+    assert g._graph.has_edge(
+        "ENSG00000105976", shared, key=EdgeType.MODULATES_VIA.value,
+    )
+    # Both trials have a chain on the shared mechanism node.
+    egfr_chains = g.get_trial_subgraph_by_id("NCT_EGFR").chains
+    met_chains = g.get_trial_subgraph_by_id("NCT_MET").chains
+    assert any(c.mechanism_id == shared for c in egfr_chains)
+    assert any(c.mechanism_id == shared for c in met_chains)
+
+
+@pytest.mark.asyncio
+async def test_biology_stays_description_identity_even_with_ensg_target(tmp_path):
+    """Semantic-layers redesign: biology identity is DESCRIPTION-ONLY. Even when
+    the chain's target is an ENSG gene with a rich Reactome footprint (which the
+    MECHANISM layer now consumes), ``_populate_trial_biology`` does NOT resolve
+    Reactome for biology — the Biology node is the content-address of the
+    extracted physiological-process description. With no description, biology is
+    left UNRESOLVED (UNKNOWN), NOT a Reactome pathway or a {mech}__{ind} slug."""
+    import json
+
+    from src.graph.models import (
+        CausalChain, CompoundNode, IndicationNode, MechanismNode, PopulationNode,
+        TargetNode, TrialOutcome, TrialSubgraph,
+    )
+    from src.graph.populate import _biology_id_from_description
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="erlotinib", name="Erlotinib"))
+    g.add_node(TargetNode(id="ENSG00000146648", name="EGFR", gene_symbol="EGFR"))
+    # Mechanism node is now a Reactome pathway (the redesign); the chain points
+    # at it. Biology must still come from the description, not this pathway.
+    g.add_node(MechanismNode(
+        id="R-HSA-177929", name="Signaling by EGFR", mechanism_type="inhibition",
+        category="kinase_inhibition",
+    ))
+    g.add_node(IndicationNode(id="nsclc", name="nsclc"))
+    parent_pop = "nsclc__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="nsclc (all)"))
+
+    def _chain(bio):
+        return CausalChain(
+            arm_id="mono", compound_id="erlotinib",
+            subgroup_population_id=parent_pop, target_id="ENSG00000146648",
+            mechanism_id="R-HSA-177929", biology_id=bio, indication_id="nsclc",
+            endpoint_id="ORR_nsclc", outcome=TrialOutcome.PARTIAL,
+        )
+
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_BIO", arms=[], parent_population_id=parent_pop,
+        chains=[_chain("UNKNOWN")],
+    ))
+    (tmp_path / "NCT_BIO_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_BIO",
+        "results_by_chain": [
+            {"arm_id": "mono", "intervention": "erlotinib", "outcome": "partial",
+             "biology_description": "tumor proliferation arrest"},
+        ],
+    }))
+    trial = TrialRecord(nct_id="NCT_BIO", title="t", conditions=["nsclc"])
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_biology([trial], annotations_dir=tmp_path)
+
+    out = g.get_trial_subgraph_by_id("NCT_BIO")
+    bio_id = _biology_id_from_description("tumor proliferation arrest")
+    assert out.chains[0].biology_id == bio_id  # description content-address
+    assert g.get_node(bio_id)["description"] == "tumor proliferation arrest"
+    # Biology did NOT become a Reactome pathway (that's mechanism's job now).
+    assert not bio_id.startswith("R-HSA-")
+    # mechanism_affects edge wired from the Reactome MECHANISM to the description
+    # BIOLOGY node.
+    from src.graph.models import EdgeType
+    assert g._graph.has_edge(
+        "R-HSA-177929", bio_id, key=EdgeType.MECHANISM_AFFECTS.value,
+    )
+
+
+@pytest.mark.asyncio
+async def test_biology_unresolved_when_no_description(tmp_path):
+    """Semantic-layers redesign: with NO extracted biology description, biology is
+    left UNRESOLVED (``biology_id`` = UNKNOWN, tagged ``unresolved_biology``) —
+    the old target-gene → Reactome fallback and the {mech}__{ind} slug are both
+    gone, so biology never silently borrows the mechanism's pathway."""
+    from src.graph.models import (
+        CausalChain, CompoundNode, IndicationNode, MechanismNode, PopulationNode,
+        TargetNode, TrialOutcome, TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="erlotinib", name="Erlotinib"))
+    g.add_node(TargetNode(id="ENSG00000146648", name="EGFR", gene_symbol="EGFR"))
+    g.add_node(MechanismNode(
+        id="R-HSA-177929", name="Signaling by EGFR", mechanism_type="inhibition",
+        category="kinase_inhibition",
+    ))
+    g.add_node(IndicationNode(id="nsclc", name="nsclc"))
+    parent_pop = "nsclc__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="nsclc (all)"))
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_NOBIO", arms=[], parent_population_id=parent_pop,
+        chains=[CausalChain(
+            arm_id="mono", compound_id="erlotinib",
+            subgroup_population_id=parent_pop, target_id="ENSG00000146648",
+            mechanism_id="R-HSA-177929", biology_id="UNKNOWN", indication_id="nsclc",
+            endpoint_id="ORR_nsclc", outcome=TrialOutcome.PARTIAL,
+        )],
+    ))
+    trial = TrialRecord(nct_id="NCT_NOBIO", title="t", conditions=["nsclc"])
+    # No annotations_dir → no biology description anywhere.
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_biology([trial])
+
+    out = g.get_trial_subgraph_by_id("NCT_NOBIO")
+    assert out.chains[0].biology_id == "UNKNOWN"
+    assert out.chains[0].metadata.get("unresolved_biology") is True

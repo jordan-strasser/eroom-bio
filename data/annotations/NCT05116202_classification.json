@@ -1,17 +1,12 @@
 {
   "nct_id": "NCT05116202",
   "trial_outcome": "partial",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to assess target engagement for RO7247669 or tiragolumab. Cannot determine if compounds reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes. 3. CLINICAL TRANSLATION: Mixed results across arms - RO7247669 monotherapy achieved 80% pRR (success), nivo+ipi control achieved 77.3% pRR (success), but RO7247669+tiragolumab combo only achieved 60% pRR (partial) and 0% ORR in metastatic cohort (failure). The combination appears inferior to monotherapy. 4. POPULATION EFFECTS: Neoadjuvant setting showed better responses than metastatic setting (60% vs 0% for combo). 5. CONFOUNDERS: Serious cardiac AEs (myocarditis, myocardial ischemia, ventricular fibrillation) may have limited dosing or treatment duration.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to assess target engagement for RO7247669 or tiragolumab. Cannot determine if compounds reached their intended targets (TLR9 and TIGIT respectively). 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether TLR9 agonism or TIGIT blockade occurred as intended. 3. CLINICAL TRANSLATION: Mixed results across arms - RO7247669 monotherapy showed 80% pRR (success), but combination arms with tiragolumab showed lower response rates (60% and 0% vs 77.3% control). The combination appears to have reduced efficacy compared to monotherapy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues identified. The trial appears adequately designed with appropriate comparator (nivolumab + ipilimumab).",
   "failure_modes": [
     {
-      "mode": "dose_limiting_toxicity",
-      "confidence": 0.7,
-      "evidence": "Multiple serious cardiac adverse events including myocarditis (5%), myocardial ischemia (2.5%), and ventricular fibrillation (2.5%) in treatment arms, which likely limited optimal dosing"
-    },
-    {
-      "mode": "wrong_population",
-      "confidence": 0.6,
-      "evidence": "Stark difference between neoadjuvant (60% pRR) and metastatic (0% ORR) cohorts suggests mechanism may work in earlier disease stages but not advanced disease"
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker or pharmacodynamic data available to assess target engagement or pathway modulation for either RO7247669 or tiragolumab"
     }
   ],
   "edges_to_update": [
@@ -21,7 +16,23 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_1_ro7247669_2100_mg",
-      "reasoning": "RO7247669 monotherapy achieved 80% pRR, demonstrating immune activation can drive clinical benefit in neoadjuvant melanoma"
+      "reasoning": "RO7247669 monotherapy achieved 80% pRR, suggesting immune activation biology can drive melanoma response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:238a77a585e0",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_1_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "RO7247669 + tiragolumab combination showed reduced efficacy (60% pRR) compared to monotherapy, suggesting combination may interfere with immune activation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:238a77a585e0",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "Cohort 2 combination arm showed 0% ORR, indicating immune activation biology failed to drive clinical benefit in this population"
     },
     {
       "edge_type": "biology_drives",
@@ -29,15 +40,7 @@
       "target_entity": "melanoma",
       "support": "strong_support",
       "affecting_arm_id": "cohort_1_nivolumab_ipilimumab",
-      "reasoning": "Nivolumab+ipilimumab control arm achieved 77.3% pRR, confirming T-cell mediated immunity drives benefit in neoadjuvant melanoma"
-    },
-    {
-      "edge_type": "biology_drives",
-      "source_entity": "bio:238a77a585e0",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
-      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
-      "reasoning": "0% ORR in metastatic cohort suggests immune activation may not drive benefit in advanced melanoma"
+      "reasoning": "Nivolumab + ipilimumab control arm achieved 77.3% pRR, confirming T-cell mediated immunity drives melanoma response"
     },
     {
       "edge_type": "biology_drives",
@@ -45,23 +48,23 @@
       "target_entity": "melanoma",
       "support": "weak_contradict",
       "affecting_arm_id": "cohort_1_atezolizumab_tiragolumab",
-      "reasoning": "Atezolizumab+tiragolumab achieved only 45% pRR, below the successful control arm, suggesting this checkpoint combination is less effective"
+      "reasoning": "Atezolizumab + tiragolumab combination showed only 45% pRR, lower than expected for checkpoint blockade in melanoma"
     },
     {
       "edge_type": "mechanism_affects",
-      "source_entity": "other",
+      "source_entity": "mech:f339473c16b4",
       "target_entity": "bio:238a77a585e0",
       "support": "moderate_support",
       "affecting_arm_id": "cohort_1_ro7247669_2100_mg",
-      "reasoning": "RO7247669 monotherapy success (80% pRR) suggests the mechanism effectively drives immune activation in neoadjuvant setting"
+      "reasoning": "RO7247669 monotherapy success (80% pRR) suggests TLR9 agonism can effectively drive immune activation"
     },
     {
       "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "bio:b7810065331b",
-      "support": "strong_support",
-      "affecting_arm_id": "cohort_1_nivolumab_ipilimumab",
-      "reasoning": "Nivolumab+ipilimumab success confirms checkpoint blockade effectively drives T-cell immunity"
+      "source_entity": "mech:f339473c16b4",
+      "target_entity": "bio:238a77a585e0",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_2_ro7247669_2100_mg_tiragolumab",
+      "reasoning": "Cohort 2 combination failure (0% ORR) suggests TLR9 agonism may not effectively drive immune activation in all contexts"
     },
     {
       "edge_type": "endpoint_captures",
@@ -69,7 +72,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Pathologic response rate showed clear differentiation between effective (77-80%) and less effective (45-60%) treatments, demonstrating endpoint sensitivity"
+      "reasoning": "Pathologic response rate showed clear differentiation between arms and is an established surrogate for melanoma benefit"
     },
     {
       "edge_type": "responds_differently",
@@ -77,10 +80,10 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Clear response differences between neoadjuvant (60-80% pRR) and metastatic (0% ORR) settings indicate population-specific responses"
+      "reasoning": "Trial showed differential responses across treatment arms in the melanoma population, with monotherapy outperforming combinations"
     }
   ],
   "confidence_overall": 0.6,
   "needs_expert_review": true,
-  "review_reason": "Mixed outcomes across multiple arms with serious cardiac toxicity signals require expert assessment of risk-benefit profile and optimal patient selection"
+  "review_reason": "Mixed results across arms with no biomarker data to explain why monotherapy succeeded while combinations failed. The apparent negative interaction between RO7247669 and tiragolumab requires mechanistic interpretation."
 }

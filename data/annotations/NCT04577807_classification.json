@@ -1,46 +1,35 @@
 {
   "nct_id": "NCT04577807",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: The trial measured changes in CD8+ TILs and PD-L1 expression as biomarkers. While specific quantitative results aren't provided, the fact that these immune activation markers were measured and reported suggests some level of target engagement occurred. TLR9 agonism would be expected to activate innate immunity and increase immune cell infiltration. 2. PATHWAY MODULATION: The biomarker data indicates that the intended immune activation pathway was engaged to some degree, as evidenced by changes in CD8+ tumor infiltrating lymphocytes and PD-L1 expression. This suggests the TLR9 agonism mechanism did modulate downstream immune biology. 3. CLINICAL TRANSLATION: Despite evidence of biological activity, clinical endpoints failed dramatically. ORR was only 7.4% overall (7.7% monotherapy, 7.1% combination), which is well below any meaningful response threshold for melanoma. PFS was also poor at ~2 months in both arms. 4. POPULATION EFFECTS: No subgroup analyses were reported, so we cannot identify any responding subsets. 5. CONFOUNDERS: The trial had a small sample size (N=27) and high rates of serious adverse events including infections (pneumonia 9.1%, sepsis 9.1%, urosepsis 16.7%) which may have limited dosing or duration. However, the treatment duration was substantial at 104 weeks, suggesting the primary issue was not timeframe.",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data for TLR9 is reported. The trial mentions biomarker changes in CD8+ TILs and PD-L1 expression, but these are downstream immune markers rather than direct evidence of TLR9 engagement. 2. PATHWAY MODULATION: The biomarker changes suggest some immune activation occurred (CD8+ TIL changes, PD-L1 expression changes), indicating the toll-like receptor agonism mechanism may have engaged to some degree. 3. CLINICAL TRANSLATION: Both arms failed dramatically - monotherapy arm achieved only 7.7% ORR and combination arm 7.1% ORR, far below any meaningful clinical threshold for advanced melanoma. 4. POPULATION EFFECTS: No subgroup analyses reported, so cannot assess differential responses. 5. CONFOUNDERS: This was a small single-arm study (n=27) in PD-1 refractory melanoma, a notoriously difficult population. High rates of serious adverse events (33.3% dehydration, 33.3% hyponatremia, multiple infections) suggest significant toxicity that may have limited dosing or duration.",
   "failure_modes": [
     {
       "mode": "biology_moved_endpoint_flat",
-      "confidence": 0.8,
-      "evidence": "Biomarker evidence shows changes in CD8+ TILs and PD-L1 expression indicating immune activation occurred, but ORR was only 7.4% and PFS ~2 months, showing no clinical translation of the biological activity"
+      "confidence": 0.7,
+      "evidence": "Biomarker changes in CD8+ TILs and PD-L1 expression suggest immune activation occurred, but ORR remained extremely low at 7.1-7.7% in both arms"
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "High rates of serious adverse events including 33.3% dehydration, 33.3% hyponatremia, plus multiple serious infections (pneumonia, sepsis, urosepsis) with treatment discontinuations due to AEs"
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "modulates_via",
-      "source_entity": "UNKNOWN",
-      "target_entity": "antigen_directed_cytotoxicity",
-      "support": "moderate_support",
+      "edge_type": "mechanism_affects",
+      "source_entity": "mech:c074d1b90252",
+      "target_entity": "bio:238a77a585e0",
+      "support": "weak_support",
       "affecting_arm_id": "arm_1_lerapolturev",
-      "reasoning": "Changes in CD8+ TILs and PD-L1 expression demonstrate that TLR9 engagement did activate the intended immune pathway"
-    },
-    {
-      "edge_type": "modulates_via",
-      "source_entity": "UNKNOWN",
-      "target_entity": "antigen_directed_cytotoxicity",
-      "support": "moderate_support",
-      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "reasoning": "Changes in CD8+ TILs and PD-L1 expression demonstrate that TLR9 engagement did activate the intended immune pathway in combination arm"
+      "reasoning": "Biomarker changes in CD8+ TILs suggest toll-like receptor agonism did activate immune responses"
     },
     {
       "edge_type": "mechanism_affects",
-      "source_entity": "antigen_directed_cytotoxicity",
+      "source_entity": "mech:c074d1b90252",
       "target_entity": "bio:238a77a585e0",
-      "support": "moderate_support",
-      "affecting_arm_id": "arm_1_lerapolturev",
-      "reasoning": "Biomarker changes in CD8+ TILs and PD-L1 expression confirm the mechanism did affect immune biology"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "antigen_directed_cytotoxicity",
-      "target_entity": "bio:238a77a585e0",
-      "support": "moderate_support",
+      "support": "weak_support",
       "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "reasoning": "Biomarker changes in CD8+ TILs and PD-L1 expression confirm the mechanism did affect immune biology in combination arm"
+      "reasoning": "Biomarker changes in CD8+ TILs suggest toll-like receptor agonism did activate immune responses in combination arm"
     },
     {
       "edge_type": "biology_drives",
@@ -48,7 +37,7 @@
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": "arm_1_lerapolturev",
-      "reasoning": "Despite confirmed immune activation, ORR was only 7.7% and PFS 2.05 months, indicating immune biology did not drive clinical benefit"
+      "reasoning": "Despite immune activation biomarkers, ORR was only 7.7% indicating immune activation did not drive clinical benefit"
     },
     {
       "edge_type": "biology_drives",
@@ -56,7 +45,15 @@
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "reasoning": "Despite confirmed immune activation, ORR was only 7.1% and PFS 2.65 months, indicating immune biology did not drive clinical benefit in combination"
+      "reasoning": "Despite immune activation biomarkers, ORR was only 7.1% indicating immune activation did not drive clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "reasoning": "Anti-PD-1 component failed to drive benefit in this PD-1 refractory population with 7.1% ORR"
     },
     {
       "edge_type": "endpoint_captures",
@@ -64,7 +61,7 @@
       "target_entity": "melanoma",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "ORR is a well-established endpoint for melanoma that was clearly measured and reported, showing definitive lack of clinical benefit"
+      "reasoning": "ORR is a standard and well-validated endpoint for melanoma clinical benefit assessment"
     },
     {
       "edge_type": "responds_differently",
@@ -72,10 +69,10 @@
       "target_entity": "melanoma",
       "support": "moderate_contradict",
       "affecting_arm_id": null,
-      "reasoning": "This PD-1 refractory population showed poor response rates (7.4% overall) despite immune activation, indicating this population does not respond well to TLR9 agonism"
+      "reasoning": "PD-1 refractory melanoma population showed very poor response rates (7.1-7.7%) to both monotherapy and combination approaches"
     }
   ],
-  "confidence_overall": 0.7,
-  "needs_expert_review": false,
-  "review_reason": null
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Biomarker data suggests immune activation occurred but clinical translation failed dramatically. High toxicity rates may have limited optimal dosing. Expert review needed to assess whether this represents true mechanism failure or dose-limiting toxicity preventing adequate target engagement."
 }

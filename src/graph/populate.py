@@ -596,22 +596,19 @@ def _biology_id_from_description(description: str) -> str:
 
 
 def _mechanism_id_from_description(description: str) -> str:
-    """Content-address handle for a description-defined MechanismNode.
+    """Content-address handle for a description-defined MechanismNode. SUPERSEDED.
 
-    Mechanism-identity flip (Phase C): a Mechanism node's IDENTITY is the
-    SPECIFIC molecular action the drug performs (e.g. "PD-1 checkpoint
-    blockade", "CTLA4 co-inhibition", "CDK4/6 kinase inhibition"), carried in
-    its extracted ``mechanism_description``. The coarse drug-class functional
-    bucket (the ``MechanismCategory`` enum — checkpoint_blockade,
-    kinase_inhibition, …) is METADATA on ``MechanismNode.category``, not the
-    identity. This mirrors :func:`_biology_id_from_description` exactly: a
-    stable content-address (like a git blob hash) over the normalized
-    description text, so identical actions across trials collapse to the same
-    id (exact Tier-1 merge) and near-identical phrasings pool at the SapBERT
-    precision tier (BioLORD over-merges PD-1-vs-CTLA4 to cosine 1.0; SapBERT
-    keeps them distinct — see populate_bottomup.build_bottomup's MergeConfig).
-    The ``mech:`` prefix distinguishes these from enum-slug fallback ids (used
-    for back-compat when a chain has no extracted description).
+    Semantic-layers redesign: a Mechanism node's IDENTITY is now the localized
+    molecular SIGNALING PATHWAY the target gene drives (a Reactome pathway id —
+    see ``_populate_trial_mechanisms`` + ``_resolve_gene_pathways``), NOT a
+    content-address of the extracted action description. This helper (and the
+    ``mech:`` content-address path it backed) is retained only so the unit test
+    and any external callers don't break; the live populate flow no longer uses
+    it. The extracted action description still rides along as the node's
+    free-text substrate + the pathway re-rank context.
+
+    Kept behavior: a stable content-address (git-blob-style hash) over the
+    normalized description text. Mirrors :func:`_biology_id_from_description`.
     """
     norm = " ".join(description.strip().lower().split())
     return "mech:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
@@ -2268,34 +2265,48 @@ class PopulationPipeline:
     ) -> int:
         """Resolve target + mechanism PER CONSTITUENT and rebuild chains.
 
-        A combo arm tests N mechanism paths simultaneously, so it produces
-        N chains—one per constituent compound—rather than collapsing both
-        constituents onto a single chain backbone. Mono arms produce one
-        chain (unchanged).
+        Semantic-layers redesign: a Mechanism node IS the localized molecular
+        SIGNALING PATHWAY the target gene drives (a Reactome pathway — RAS/MAPK,
+        PI3K/AKT, "Co-inhibition by PD-1", …), NOT the drug-class action mode.
+        This is the layer where mechanistic knowledge COMPOUNDS across targets:
+        an EGFR inhibitor and a BRAF inhibitor both hit MAPK, so both resolve to
+        the SAME Reactome pathway id and the Tier-1 id merge collapses them onto
+        one MechanismNode.
+
+        A combo arm tests N mechanism paths simultaneously, so it produces at
+        least N chains—one per constituent compound. Each constituent further
+        fans out one chain PER resolved mechanism pathway (the gene's full
+        signaling footprint), all sharing the same downstream biology.
 
         Per constituent we:
           1. Look up the constituent's primary target via OT-resolved
              ``compound_targets`` (first entry; can be UNKNOWN if OT had
              no hit).
-          2. Infer a MechanismCategory for that (constituent, target)
-             pair via Haiku.
-          3. Ensure the MechanismNode exists and add the constituent's
-             ``target → mechanism`` modulates_via edge (idempotent).
+          2. Resolve the drug-class ``MechanismCategory`` (structured
+             ``implied_mechanism`` on the AFFECTS edge, else Haiku) → carried as
+             ``category`` METADATA (round-28 ``mechanism_type`` / ``direction``
+             derive from it).
+          3. Resolve the target GENE → Reactome pathway footprint via the shared
+             ``_resolve_gene_pathways`` core. The MechanismNode IDENTITY (id +
+             name) is the Reactome pathway; add the ``target → mechanism``
+             modulates_via edge (idempotent) for each pathway. When the gene has
+             no resolvable pathway, fall back to the category enum slug.
 
-        ``annotations_dir`` (abstraction-ladder redesign): when the build
-        extracted before populate, the per-(arm, intervention)
-        ``mechanism_category`` the extractor emitted is stamped onto the
-        constituent's ``MechanismNode.category`` metadata (the coarse
-        drug-class bucket; the node's identity/scale remains the specific
-        molecular action, carried in its ``description``). Falls back to the
-        resolved ``MechanismCategory`` id when no extracted category is present.
+        ``annotations_dir`` (semantic-layers redesign): when the build extracted
+        before populate, the per-(arm, intervention) ``mechanism_category`` the
+        extractor emitted is preferred for the ``category`` metadata, and the
+        extracted ``mechanism`` action description (when present) rides along as
+        the node's free-text substrate + the pathway re-rank context. The
+        node IDENTITY is the Reactome pathway, not a content-address of the
+        description (that path is superseded).
 
         The chain list is then rebuilt: for every existing
-        subgroup_population_id × arm cell, emit one chain per
-        constituent. ``chain.compound_id`` is the constituent (not the
+        subgroup_population_id × arm cell, emit one chain per (constituent,
+        mechanism pathway). ``chain.compound_id`` is the constituent (not the
         combo regimen) so binds_to lookup walks to the constituent's own
         target. ``chain.metadata["regimen_id"]`` records the arm's
-        regimen for downstream grouping.
+        regimen for downstream grouping. ``chain.biology_id`` is left UNKNOWN —
+        biology is assigned later in ``_populate_trial_biology``.
 
         Returns the number of new modulates_via edges added.
         """
@@ -2316,6 +2327,24 @@ class PopulationPipeline:
             )
 
         cache = JSONCache(self._cache_dir / "mechanism_inferences.json")
+
+        # Semantic-layers redesign: the MechanismNode is the localized molecular
+        # signaling pathway the target gene drives (Reactome), resolved here via
+        # the shared gene→pathway core. One LINCSClient + QuickGOClient per call
+        # so the on-disk Reactome / GO caches are shared across trials. Both are
+        # keyless for the endpoints we use, so construction tolerates a missing
+        # CLUE_API_KEY; if LINCSClient can't construct at all we fall back to the
+        # category enum slug (the pre-redesign behavior).
+        lincs_client: "LINCSClient | None"
+        try:
+            lincs_client = LINCSClient()
+        except Exception:
+            logger.debug("LINCSClient unavailable for mechanism resolution",
+                         exc_info=True)
+            lincs_client = None
+        from src.ingestion.quickgo import QuickGOClient
+        quickgo_client = QuickGOClient()
+
         added = 0
         for trial in trials:
             try:
@@ -2325,8 +2354,21 @@ class PopulationPipeline:
             if not ts.arms:
                 continue
 
+            # The trial's representative indication, for the pathway re-rank
+            # context. Chains in a trial share the same root indication
+            # (build_trial_subgraphs anchored them on the parent disease); take
+            # the first resolved one, else UNKNOWN (the resolver tolerates it).
+            trial_indication_id = _UNKNOWN
+            for _ch in ts.chains:
+                if _ch.indication_id and _ch.indication_id != _UNKNOWN:
+                    trial_indication_id = _ch.indication_id
+                    break
+
             # Per-(arm, constituent) backbones. Order within each arm
             # follows arm.compound_ids so chain ordering is deterministic.
+            # A single constituent can produce MULTIPLE backbone entries — one
+            # per resolved mechanism pathway (the gene's signaling footprint) —
+            # which fans the chain out one chain per mechanism pathway.
             backbones: dict[str, list[dict[str, str]]] = {}
 
             for arm in ts.arms:
@@ -2424,87 +2466,136 @@ class PopulationPipeline:
                             # resolved enum slug as the bucket.
                             category_value = enum_slug
 
-                    # Mechanism-identity flip: when a description exists the node
-                    # id is its content-address (PD-1-blockade and CTLA4-blockade
-                    # become DISTINCT nodes that share only ``category`` + their
-                    # downstream biology). With no description (no annotations_dir,
-                    # or a pre-fix cached extraction) fall back to the enum slug so
-                    # existing snapshots / non-bottom-up paths are unchanged.
-                    if mech_desc:
-                        mech_id = _mechanism_id_from_description(mech_desc)
-                        mech_name = mech_desc[:120]
-                    else:
-                        mech_id = enum_slug
-                        mech_name = enum_slug.replace("_", " ")
-
-                    # Round-28 type/direction derivation. mech_id is NO LONGER an
-                    # enum value when a description drives it, so derive these from
-                    # the resolved CATEGORY, not the node id. Guard for a category
-                    # that isn't a valid enum (keep the OTHER / None fallback that
-                    # ``_category_to_*`` already provides).
+                    # Round-28 type/direction derivation. The mechanism node id
+                    # is the Reactome pathway id (NOT an enum value), so derive
+                    # type/direction from the resolved CATEGORY. Guard for a
+                    # category that isn't a valid enum (keep the OTHER / None
+                    # fallback that ``_category_to_*`` already provides).
                     try:
                         category_enum = MechanismCategory(category_value)
                     except ValueError:
                         category_enum = MechanismCategory.OTHER
 
-                    try:
-                        self.graph.get_node(mech_id)
-                    except KeyError:
-                        self.graph.add_node(MechanismNode(
-                            id=mech_id,
-                            name=mech_name,
-                            mechanism_type=_category_to_mechanism_type(
-                                category_enum
-                            ),
-                            direction=_category_to_direction(category_enum),
-                            category=category_value,
-                            description=mech_desc,
-                        ))
-                    else:
-                        # Idempotent backfill: a node created earlier (in a prior
-                        # trial / arm, or before this redesign) may lack a
-                        # category. Stamp it without overwriting an existing one.
-                        node_data = self.graph._graph.nodes[mech_id]  # noqa: SLF001
-                        if not node_data.get("category"):
-                            node_data["category"] = category_value
+                    def _ensure_mechanism(
+                        mech_id: str, mech_name: str, description: str,
+                        source: str,
+                    ) -> None:
+                        """Create (idempotently) the MechanismNode + the
+                        target→mechanism ``modulates_via`` edge, and append the
+                        backbone entry. ``category``/``mechanism_type``/
+                        ``direction`` come from the resolved drug-class category
+                        (metadata); identity (id+name) is the signaling pathway."""
+                        nonlocal added
+                        try:
+                            self.graph.get_node(mech_id)
+                        except KeyError:
+                            self.graph.add_node(MechanismNode(
+                                id=mech_id,
+                                name=mech_name,
+                                mechanism_type=_category_to_mechanism_type(
+                                    category_enum
+                                ),
+                                direction=_category_to_direction(category_enum),
+                                category=category_value,
+                                description=description,
+                            ))
+                        else:
+                            # Idempotent backfill: a node created earlier (prior
+                            # trial / arm, or a pathway shared across targets) may
+                            # lack a category. Stamp without overwriting.
+                            node_data = self.graph._graph.nodes[mech_id]  # noqa: SLF001
+                            if not node_data.get("category"):
+                                node_data["category"] = category_value
 
-                    if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
-                        target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
-                    ):
-                        # Round-25: trial-inference mechanism. The mechanism
-                        # was inferred from a trial's therapeutic_hypothesis
-                        # combined with the compound's curated mechanism
-                        # class. Treated as a CHEMBL-tier record (the
-                        # mechanism class itself comes from ChEMBL via OT).
-                        modulates_record = make_curated_record(
-                            source_id=f"trial_inference:{trial.nct_id}__{cid}",
-                            bucket=SupportBucket.MODERATE_SUPPORT,
-                            source_type=EvidenceType.DATABASE_CHEMBL,
-                            notes=(
-                                f"target→mechanism inferred from trial "
-                                f"{trial.nct_id} arm {arm.arm_id} "
-                                f"compound {cid}"
-                            ),
+                        if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
+                            target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
+                        ):
+                            # Round-25: trial-inference mechanism. The mechanism
+                            # was inferred from a trial's therapeutic_hypothesis
+                            # combined with the compound's curated mechanism
+                            # class. Treated as a CHEMBL-tier record (the
+                            # mechanism class itself comes from ChEMBL via OT).
+                            modulates_record = make_curated_record(
+                                source_id=(
+                                    f"trial_inference:{trial.nct_id}__{cid}"
+                                    f"__{mech_id}"
+                                ),
+                                bucket=SupportBucket.MODERATE_SUPPORT,
+                                source_type=EvidenceType.DATABASE_CHEMBL,
+                                notes=(
+                                    f"target→mechanism inferred from trial "
+                                    f"{trial.nct_id} arm {arm.arm_id} "
+                                    f"compound {cid}"
+                                ),
+                            )
+                            self.graph.add_edge(GraphEdge(
+                                source_id=target_id,
+                                target_id=mech_id,
+                                edge_type=EdgeType.MODULATES_VIA,
+                                belief=belief_from_curated_record(
+                                    modulates_record
+                                ),
+                                metadata={
+                                    "source": source,
+                                    "trial_id": trial.nct_id,
+                                    "arm_id": arm.arm_id,
+                                    "constituent_id": cid,
+                                },
+                            ))
+                            added += 1
+
+                        arm_entries.append({
+                            "compound_id": cid,
+                            "target_id": target_id or _UNKNOWN,
+                            "mechanism_id": mech_id,
+                        })
+
+                    # Mechanism = the localized molecular SIGNALING PATHWAY(S) the
+                    # target gene drives (semantic-layers redesign). Resolve the
+                    # gene → Reactome pathway footprint via the shared core; the
+                    # MechanismNode becomes each Reactome pathway (id + name) and
+                    # the chain fans out one chain per pathway. KEEP MULTIPLE
+                    # pathways (the gene's full footprint — the messy
+                    # polypharmacology vs the clean clinical hypothesis is desired
+                    # data); capped at ``_MECHANISM_PATHWAY_CAP`` only to bound the
+                    # combinatorial fan-out. The extracted drug-class category
+                    # (``mech_desc``/``extracted_cat``) rides along as METADATA.
+                    pathways, mech_source, _mech_score = (
+                        await self._resolve_gene_pathways(
+                            target_id or _UNKNOWN,
+                            # Re-rank context: the resolved category slug (expands
+                            # via MECHANISM_PATHWAY_TOKENS) plus the extracted
+                            # action description when present.
+                            (mech_desc or category_value),
+                            trial_indication_id,
+                            lincs_client,
+                            quickgo_client=quickgo_client,
                         )
-                        self.graph.add_edge(GraphEdge(
-                            source_id=target_id,
-                            target_id=mech_id,
-                            edge_type=EdgeType.MODULATES_VIA,
-                            belief=belief_from_curated_record(modulates_record),
-                            metadata={
-                                "source": "trial_inference",
-                                "trial_id": trial.nct_id,
-                                "arm_id": arm.arm_id,
-                                "constituent_id": cid,
-                            },
-                        ))
-                        added += 1
+                    )
 
-                    arm_entries.append({
-                        "compound_id": cid,
-                        "target_id": target_id or _UNKNOWN,
-                        "mechanism_id": mech_id,
-                    })
+                    if pathways:
+                        for pathway in pathways[: self._MECHANISM_PATHWAY_CAP]:
+                            _ensure_mechanism(
+                                mech_id=pathway.stable_id,
+                                mech_name=pathway.display_name or pathway.stable_id,
+                                # The node identity is the pathway; the extracted
+                                # action description (when any) is preserved as the
+                                # node's free-text substrate for later embedding.
+                                description=mech_desc,
+                                source=mech_source,
+                            )
+                    else:
+                        # No resolvable signaling pathway for the gene (target
+                        # UNKNOWN / non-ENSG / no gene symbol / Reactome+GO empty)
+                        # → fall back to the coarse drug-class enum slug so the
+                        # chain still has a mechanism backbone. NOT a content-
+                        # address: pathway identity supersedes that path.
+                        _ensure_mechanism(
+                            mech_id=enum_slug,
+                            mech_name=enum_slug.replace("_", " "),
+                            description=mech_desc,
+                            source="trial_inference",
+                        )
                 backbones[arm.arm_id] = arm_entries
 
             # Rebuild chains: for every (arm, subgroup_pop) cell already
@@ -2551,6 +2642,134 @@ class PopulationPipeline:
 
         return added
 
+    async def _resolve_gene_pathways(
+        self,
+        target_id: str,
+        context_name: str,
+        indication_id: str,
+        lincs_client: "LINCSClient | None",
+        quickgo_client: "QuickGOClient | None" = None,
+    ) -> tuple[list[Any], str, float]:
+        """Resolve a TARGET GENE → ranked localized signaling pathways.
+
+        Shared gene→pathway core (semantic-layers redesign): the target's
+        gene symbol drives a Reactome lookup, context-re-ranked and
+        GO-augmented. This is the MECHANISM layer's identity source (the
+        localized molecular signaling pathway the target drives — RAS/MAPK,
+        "Co-inhibition by PD-1", …) and also the legacy no-description biology
+        fallback. The Reactome/LINCS/QuickGO logic lives ONCE here;
+        :meth:`_resolve_real_biology` (biology fallback) and
+        :meth:`_populate_trial_mechanisms` (mechanism identity) both call it.
+
+        ``context_name`` is the chain context used for re-ranking — the
+        mechanism category slug works as well here as it did when this was
+        biology-internal (it expands via ``MECHANISM_PATHWAY_TOKENS``).
+
+        Returns ``(pathways, chosen_source, primary_score)``:
+          * ``pathways`` — Reactome ``ReactomePathway`` (or QuickGO ``GOTerm``)
+            objects ranked best-first; empty when target is UNKNOWN / non-ENSG,
+            the gene symbol is missing, or Reactome+GO return nothing.
+          * ``chosen_source`` — ``"reactome_target_lookup"`` or
+            ``"quickgo_target_lookup"``.
+          * ``primary_score`` — context-overlap score of the top pathway.
+        """
+        # Reactome lookup via the target's gene symbol. Reactome is the
+        # source of truth for "which pathways contain this protein";
+        # LINCSClient already wraps the call + on-disk cache.
+        if (
+            target_id == _UNKNOWN
+            or lincs_client is None
+            or not target_id.startswith("ENSG")
+        ):
+            return ([], "reactome_target_lookup", 0.0)
+
+        try:
+            target_node = self.graph.get_node(target_id)
+        except KeyError:
+            return ([], "reactome_target_lookup", 0.0)
+        gene_symbol = target_node.get("gene_symbol") or ""
+        if not gene_symbol:
+            return ([], "reactome_target_lookup", 0.0)
+
+        try:
+            pathways = await lincs_client.get_pathways_for_gene(gene_symbol)
+        except Exception:
+            logger.debug(
+                "Reactome lookup failed for %s (target %s)",
+                gene_symbol, target_id, exc_info=True,
+            )
+            pathways = []
+
+        if not pathways:
+            return ([], "reactome_target_lookup", 0.0)
+
+        # Re-rank by relevance to the chain context (mechanism + indication
+        # + gene symbol) before slicing the top-N. Reactome's default order
+        # is citation-frequency-driven and routinely puts off-context
+        # pathways first (CRBN → SARS therapeutics, VEGFA → platelet
+        # degranulation).
+        from src.graph.pathway_ranker import rerank_pathways, score_candidate
+
+        pathways = rerank_pathways(
+            pathways,
+            mechanism_name=context_name,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
+
+        # GO augmentation: always query QuickGO for the gene's BP annotations
+        # and let the scoring comparison decide whether Reactome's best
+        # candidate or GO's best is more context-relevant. With strict ``>``
+        # comparison, ties keep Reactome (the more heavily curated source by
+        # default); GO only wins on a real improvement. QuickGO results are
+        # cached on disk, so the per-gene cost is one HTTP call on first build.
+        chosen_source = "reactome_target_lookup"
+        if quickgo_client is not None:
+            top_reactome_score = score_candidate(
+                pathways[0],
+                mechanism_name=context_name,
+                indication_name=indication_id,
+                gene_symbol=gene_symbol,
+            )
+            from src.graph import hgnc_resolver
+
+            uniprot_acc = hgnc_resolver.uniprot_for_symbol(gene_symbol)
+            if uniprot_acc:
+                try:
+                    go_terms = await quickgo_client.get_terms_for_uniprot(
+                        uniprot_acc,
+                    )
+                except Exception:
+                    logger.debug(
+                        "QuickGO lookup failed for %s (%s)",
+                        gene_symbol, uniprot_acc, exc_info=True,
+                    )
+                    go_terms = []
+                if go_terms:
+                    go_terms = rerank_pathways(
+                        go_terms,
+                        mechanism_name=context_name,
+                        indication_name=indication_id,
+                        gene_symbol=gene_symbol,
+                    )
+                    top_go_score = score_candidate(
+                        go_terms[0],
+                        mechanism_name=context_name,
+                        indication_name=indication_id,
+                        gene_symbol=gene_symbol,
+                    )
+                    if top_go_score > top_reactome_score:
+                        pathways = go_terms
+                        chosen_source = "quickgo_target_lookup"
+
+        primary_score = score_candidate(
+            pathways[0],
+            mechanism_name=context_name,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
+        return (pathways, chosen_source, primary_score)
+
     # Number of Reactome pathways materialized as distinct BiologyNodes
     # per (target, mechanism) pair. Set to 1 in round 3.4: at single-
     # indication corpus scale clinical trials don't report pathway-
@@ -2564,6 +2783,18 @@ class PopulationPipeline:
     # biomarker data justifies it).
     _BIOLOGY_PATHWAY_CAP = 1
 
+    # Number of Reactome pathways materialized as distinct MechanismNodes per
+    # (constituent, target). Semantic-layers redesign: a Mechanism node IS the
+    # localized molecular signaling pathway the target drives, and a gene sits
+    # in MANY pathways — that full footprint (the messy polypharmacology vs the
+    # clean clinical hypothesis) is desired data, so unlike biology we keep a
+    # GENEROUS cap and fan the chain out one chain per mechanism pathway. The
+    # per-pathway chains share the same downstream biology. Cross-target
+    # compounding is then automatic: EGFR's MAPK pathway id and BRAF's MAPK
+    # pathway id are the SAME Reactome stable_id, so the Tier-1 id merge in
+    # node_merge collapses them onto one MechanismNode.
+    _MECHANISM_PATHWAY_CAP = 8
+
     async def _resolve_real_biology(
         self,
         target_id: str,
@@ -2572,7 +2803,14 @@ class PopulationPipeline:
         lincs_client: "LINCSClient | None",
         quickgo_client: "QuickGOClient | None" = None,
     ) -> tuple[list[str], bool]:
-        """Resolve a chain's biology to real Reactome pathway(s).
+        """Resolve a chain's biology to real Reactome pathway(s). LEGACY.
+
+        Semantic-layers redesign: the live ``_populate_trial_biology`` path no
+        longer calls this — biology identity is description-only, and the
+        target-gene → Reactome resolution moved to the MECHANISM layer
+        (``_populate_trial_mechanisms``, which shares the same
+        ``_resolve_gene_pathways`` core). Retained for back-compat / tests that
+        patch it.
 
         Always keyed on the chain's TARGET — same mechanism with a
         different target maps to different pathways (e.g. nivo's PD-1
@@ -2614,122 +2852,26 @@ class PopulationPipeline:
         except ValueError:
             return ([], False)
 
-        # Reactome lookup via the target's gene symbol. Reactome is the
-        # source of truth for "which pathways contain this protein";
-        # LINCSClient already wraps the call + on-disk cache.
-        if (
-            target_id == _UNKNOWN
-            or lincs_client is None
-            or not target_id.startswith("ENSG")
-        ):
-            return ([], False)
-
-        try:
-            target_node = self.graph.get_node(target_id)
-        except KeyError:
-            return ([], False)
-        gene_symbol = target_node.get("gene_symbol") or ""
-        if not gene_symbol:
-            return ([], False)
-
-        try:
-            pathways = await lincs_client.get_pathways_for_gene(gene_symbol)
-        except Exception:
-            logger.debug(
-                "Reactome lookup failed for %s (target %s)",
-                gene_symbol, target_id, exc_info=True,
-            )
-            pathways = []
-
+        # Gene → ranked pathways via the shared resolver core (Reactome
+        # lookup + context re-rank + GO augmentation). Same logic the
+        # mechanism layer uses; lives once in ``_resolve_gene_pathways``.
+        # ``mechanism_id`` (a category slug on this legacy path) is the
+        # re-rank context — it expands via ``MECHANISM_PATHWAY_TOKENS``.
+        pathways, chosen_source, primary_score = await self._resolve_gene_pathways(
+            target_id, mechanism_id, indication_id, lincs_client,
+            quickgo_client=quickgo_client,
+        )
         if not pathways:
             return ([], False)
 
-        # Re-rank by relevance to the chain context (mechanism + indication
-        # + gene symbol) before slicing the top-N. Reactome's default order
-        # is citation-frequency-driven and routinely puts off-context
-        # pathways first (CRBN → SARS therapeutics, VEGFA → platelet
-        # degranulation). The full list is still preserved on
-        # ``pathway_ids`` so cross-indication queries against the
-        # alternates remain answerable.
-        from src.graph.pathway_ranker import rerank_pathways, score_candidate
-
-        pathways = rerank_pathways(
-            pathways,
-            mechanism_name=mechanism_id,
-            indication_name=indication_id,
-            gene_symbol=gene_symbol,
-        )
-
-        # GO augmentation: always query QuickGO for the gene's BP annotations
-        # and let the scoring comparison decide whether Reactome's best
-        # candidate or GO's best is more context-relevant. The previous
-        # "trigger only when Reactome scores 0" rule was a false-negative
-        # trap — it kept Reactome whenever it had even a coincidental
-        # score-1 match, missing cases where GO offered a clearly stronger
-        # term. With strict ``>`` comparison, ties keep Reactome (the more
-        # heavily curated source by default); GO only wins on a real
-        # improvement. QuickGO results are cached on disk, so the per-gene
-        # cost is one HTTP call on first build, then zero.
-        chosen_source = "reactome_target_lookup"
-        reactome_candidates = pathways  # remember for metadata trace
-        if quickgo_client is not None:
-            top_reactome_score = score_candidate(
-                pathways[0],
-                mechanism_name=mechanism_id,
-                indication_name=indication_id,
-                gene_symbol=gene_symbol,
-            )
-            from src.graph import hgnc_resolver
-
-            uniprot_acc = hgnc_resolver.uniprot_for_symbol(gene_symbol)
-            if uniprot_acc:
-                try:
-                    go_terms = await quickgo_client.get_terms_for_uniprot(
-                        uniprot_acc,
-                    )
-                except Exception:
-                    logger.debug(
-                        "QuickGO lookup failed for %s (%s)",
-                        gene_symbol, uniprot_acc, exc_info=True,
-                    )
-                    go_terms = []
-                if go_terms:
-                    go_terms = rerank_pathways(
-                        go_terms,
-                        mechanism_name=mechanism_id,
-                        indication_name=indication_id,
-                        gene_symbol=gene_symbol,
-                    )
-                    top_go_score = score_candidate(
-                        go_terms[0],
-                        mechanism_name=mechanism_id,
-                        indication_name=indication_id,
-                        gene_symbol=gene_symbol,
-                    )
-                    if top_go_score > top_reactome_score:
-                        pathways = go_terms
-                        chosen_source = "quickgo_target_lookup"
-
-        # Build the alternate lists for whichever source won. When GO wins,
-        # also keep the Reactome candidates we considered (by id+name) so
-        # the audit trail isn't lost — the Reactome list is what Reactome
-        # *thinks* CRBN's biology is, even if we chose to rely on GO.
+        gene_symbol = self.graph.get_node(target_id).get("gene_symbol") or ""
+        # Full pathway list preserved on ``pathway_ids`` so cross-indication
+        # queries against the alternates remain answerable. ``reactome_
+        # alternatives`` trace is dropped from this legacy biology fallback
+        # (the shared resolver returns only the winning source's ranked list).
         all_pathway_ids = [p.stable_id for p in pathways]
         pathway_display_names = {p.stable_id: p.display_name for p in pathways}
-        reactome_alternatives_meta = (
-            {p.stable_id: p.display_name for p in reactome_candidates}
-            if chosen_source == "quickgo_target_lookup" else {}
-        )
-        # Top context-overlap score for the chosen primary. Stored on the
-        # node so a later biology-merge sweep can pick the higher-scored
-        # winner when two equivalent nodes (Reactome ↔ GO crosswalk) need
-        # to collapse, without re-running the chain context.
-        primary_score = score_candidate(
-            pathways[0],
-            mechanism_name=mechanism_id,
-            indication_name=indication_id,
-            gene_symbol=gene_symbol,
-        )
+        reactome_alternatives_meta: dict[str, str] = {}
 
         biology_ids: list[str] = []
         for pathway in pathways[: self._BIOLOGY_PATHWAY_CAP]:
@@ -2851,51 +2993,43 @@ class PopulationPipeline:
     ) -> int:
         """Give every chain's Biology node its identity.
 
-        Abstraction-ladder redesign — a Biology node is the GENERAL
-        physiological process the drug drives (e.g. "T-cell mediated anti-tumor
-        immunity"), SHARED across every drug/disease that drives it. Its
-        identity comes from the extracted ``biology_description``, NOT from the
-        target-gene → Reactome pathway: that resolution sits at mechanism/pathway
-        scale and must not occupy the biology slot (a PD-1 inhibitor's biology is
-        the anti-tumor-immunity process, not the Reactome pathway "Co-inhibition
-        by PD-1"). Per-chain identity, most→least preferred:
+        Semantic-layers redesign — a Biology node is the GENERAL physiological
+        process the drug drives (e.g. "T-cell mediated anti-tumor immunity"),
+        SHARED across every drug/disease that drives it. Its identity is
+        DESCRIPTION-ONLY: it comes from the extracted ``biology_description``,
+        NEVER from the target-gene → Reactome pathway. That resolution sits at
+        the MECHANISM layer now (``_populate_trial_mechanisms``) and must not
+        occupy the biology slot (a PD-1 inhibitor's biology is the
+        anti-tumor-immunity process, not the Reactome pathway "Co-inhibition by
+        PD-1"). Per-chain identity:
 
           1. ``biology_description`` present (the build extracted before populate,
              ``annotations_dir`` threaded) → CONTENT-ADDRESS the description
              (``bio:<sha1>``), with the description as the node name/description.
-             Reactome is NOT consulted. Cross-trial consolidation is the
+             Reactome is NEVER consulted. Cross-trial consolidation is the
              downstream BioLORD description merge (Tier-3 geometric merge of
              near-identical phrasings; identical text collapses exactly).
-          2. No description (legacy / no-annotations path) → target-gene →
-             Reactome pathway via ``_resolve_real_biology`` (LINCS-wired biology
-             already on the graph, else a Reactome API lookup keyed on the
-             target's gene symbol). Multiple pathways fan the chain out one chain
-             per pathway, capped at ``_BIOLOGY_PATHWAY_CAP``.
-          3. No description AND Reactome empty → ``{mechanism}__{indication}``
-             slug fallback, tagged ``metadata["unresolved_biology"] = True`` for
-             downstream auditing.
+          2. No description (legacy / no-annotations path, or the extractor
+             emitted none) → biology is left UNRESOLVED (``biology_id`` =
+             ``UNKNOWN``, tagged ``metadata["unresolved_biology"] = True`` for
+             downstream auditing). NO Reactome fallback, NO
+             ``{mechanism}__{indication}`` slug.
 
         Returns the count of new biology nodes + chain rewrites combined.
         """
         from src.graph.models import BiologyNode  # local import
 
-        # One LINCSClient per pipeline run so the Reactome HTTP cache +
-        # on-disk JSON cache are shared across trials. If the env doesn't
-        # have CLUE_API_KEY set, LINCSClient construction may fail —
-        # but get_pathways_for_gene only uses the Reactome endpoint
-        # which is keyless, so we tolerate either path here.
+        # One LINCSClient per pipeline run, used only by the end-of-pass
+        # ``merge_equivalent_biology_nodes`` sweep (Reactome↔GO crosswalk).
+        # Biology identity no longer consults Reactome, so this is purely for
+        # the merge step; tolerate a missing CLUE_API_KEY (the crosswalk
+        # endpoints are keyless).
         lincs_client: "LINCSClient | None"
         try:
             lincs_client = LINCSClient()
         except Exception:
             logger.debug("LINCSClient unavailable", exc_info=True)
             lincs_client = None
-
-        # QuickGO is keyless and used only as a fallback when Reactome's
-        # best pathway has zero context overlap. Constructed once per run
-        # so the disk cache is shared.
-        from src.ingestion.quickgo import QuickGOClient
-        quickgo_client = QuickGOClient()
 
         # Semantic-layers redesign: when the build has already extracted
         # (annotations_dir set), a chain's Biology node takes its identity from
@@ -2938,13 +3072,6 @@ class PopulationPipeline:
             if not ts.chains:
                 continue
 
-            # Resolve once per (target, mechanism, indication) tuple so
-            # each Reactome lookup is amortized across all chains that
-            # share that backbone.
-            resolution_cache: dict[
-                tuple[str, str, str], tuple[list[str], bool]
-            ] = {}
-
             new_chains: list[CausalChain] = []
             for chain in ts.chains:
                 mech_id = chain.mechanism_id
@@ -2954,7 +3081,7 @@ class PopulationPipeline:
                     new_chains.append(chain)
                     continue
 
-                # The chain's extracted biology description (abstraction-ladder
+                # The chain's extracted biology description (semantic-layers
                 # redesign). Present only when the build extracted before
                 # populate (annotations_dir threaded). Resolution order, most→
                 # least specific:
@@ -2983,176 +3110,110 @@ class PopulationPipeline:
                             )
                             or intended_bio_by_nct.get(trial.nct_id, "")
                         ).strip()
-                use_description_identity = (
-                    annotations_dir is not None and bool(bio_desc)
-                )
 
-                # Abstraction-ladder redesign — biology identity from the
-                # extracted PHYSIOLOGICAL-PROCESS description, NOT the target-gene
-                # → Reactome pathway. The biology node IS the general process the
-                # drug drives (shared across every drug/disease that drives it);
-                # the target-gene → Reactome resolution lives at mechanism/pathway
-                # scale and must NOT occupy the biology slot (a PD-1 inhibitor's
-                # biology is "T-cell mediated anti-tumor immunity", not the
-                # Reactome pathway "Co-inhibition by PD-1"). So when a description
-                # exists we DON'T resolve Reactome at all — its only role now is
-                # the no-description fallback. Cross-trial consolidation is the
-                # downstream BioLORD description merge.
-                if use_description_identity:
-                    biology_ids: list[str] = []
-                else:
-                    key = (target_id, mech_id, ind_id)
-                    if key in resolution_cache:
-                        biology_ids, _ = resolution_cache[key]
-                    else:
-                        biology_ids, _ = await self._resolve_real_biology(
-                            target_id, mech_id, ind_id, lincs_client,
-                            quickgo_client=quickgo_client,
-                        )
-                        resolution_cache[key] = (biology_ids, False)
-
-                if not biology_ids:
-                    # Reached when (a) a description exists — the abstraction-
-                    # ladder PRIMARY path, where ``biology_ids`` was forced empty
-                    # above so Reactome is bypassed entirely — or (b) no
-                    # description AND Reactome resolved nothing. Two node-identity
-                    # paths accordingly:
-                    #  (a) description-identity (the redesign): the Biology node
-                    #      IS its extracted general-process description — a
-                    #      content-address handle, with the description set so the
-                    #      BioLORD merge pools equivalent biology across trials
-                    #      and accumulates evidence on one node. NO
-                    #      {mech}__{indication} slug.
-                    #  (b) legacy / no-extraction: the {mech}__{indication}
-                    #      slug, tagged unresolved for audit.
-                    if use_description_identity:
-                        bio_node_id = _biology_id_from_description(bio_desc)
-                        bio_node_name = bio_desc[:120]
-                        bio_node_meta = {"source": "trial_biology_description"}
-                        edge_source = "trial_biology_description"
-                    else:
-                        bio_node_id = normalize_entity(
-                            f"{mech_id}__{ind_id}", "BiologyNode",
-                        )
-                        bio_node_name = (
-                            f"{mech_id.replace('_', ' ')} biology in {ind_id}"
-                        )
-                        bio_node_meta = {"source": "trial_biology_fallback"}
-                        edge_source = "trial_biology_fallback"
-                    try:
-                        self.graph.get_node(bio_node_id)
-                    except KeyError:
-                        self.graph.add_node(BiologyNode(
-                            id=bio_node_id,
-                            name=bio_node_name,
-                            description=bio_desc if use_description_identity else "",
-                            pathway_ids=[],
-                            metadata=bio_node_meta,
-                        ))
-                        added += 1
-
-                    if not self.graph._graph.has_edge(  # noqa: SLF001
-                        mech_id, bio_node_id,
-                        key=EdgeType.MECHANISM_AFFECTS.value,
-                    ):
-                        # DATABASE_FALLBACK record either way: the populate-stage
-                        # prior is intentionally weak. For description-identity
-                        # biology the EVIDENCE comes from the Phase-2 geometric
-                        # merge pooling many trials' records onto one node — not
-                        # from a higher per-record n_eff (Phase-B keeps the
-                        # belief seeding identical to isolate the identity change).
-                        fallback_record = make_curated_record(
-                            source_id=f"{edge_source}:{mech_id}__{bio_node_id}",
-                            bucket=SupportBucket.WEAK_SUPPORT,
-                            source_type=EvidenceType.DATABASE_FALLBACK,
-                            notes=(
-                                f"description-defined biology ({mech_id})"
-                                if use_description_identity
-                                else f"synthesized biology slug fallback "
-                                f"({mech_id} in {ind_id})"
-                            ),
-                        )
-                        self.graph.add_edge(GraphEdge(
-                            source_id=mech_id,
-                            target_id=bio_node_id,
-                            edge_type=EdgeType.MECHANISM_AFFECTS,
-                            belief=belief_from_curated_record(fallback_record),
-                            metadata={"source": edge_source},
-                        ))
-
-                    if not self.graph._graph.has_edge(  # noqa: SLF001
-                        bio_node_id, ind_id,
-                        key=EdgeType.BIOLOGY_DRIVES.value,
-                    ):
-                        # Round-25: same borrow-with-evidence pattern as
-                        # the reactome_target_lookup case above.
-                        borrowed = EdgeBeliefState()
-                        if target_id != _UNKNOWN:
-                            try:
-                                borrowed = self.graph.get_edge_belief(
-                                    target_id, ind_id,
-                                    EdgeType.BIOLOGY_DRIVES,
-                                )
-                            except KeyError:
-                                pass
-                        self.graph.add_edge(GraphEdge(
-                            source_id=bio_node_id,
-                            target_id=ind_id,
-                            edge_type=EdgeType.BIOLOGY_DRIVES,
-                            belief=EdgeBeliefState(
-                                alpha=borrowed.alpha,
-                                beta=borrowed.beta,
-                                evidence=list(borrowed.evidence),
-                            ),
-                            metadata={
-                                "source": edge_source,
-                                "borrowed_from": (
-                                    f"{target_id}->{ind_id}"
-                                    if target_id != _UNKNOWN else None
-                                ),
-                            },
-                        ))
-
+                # Semantic-layers redesign — biology identity is DESCRIPTION-ONLY.
+                # A Biology node IS the general physiological PROCESS the drug
+                # drives (shared across every drug/disease that drives it), so its
+                # identity comes purely from the extracted PHYSIOLOGICAL-PROCESS
+                # description. The target-gene → Reactome resolution lives at the
+                # MECHANISM layer now (``_populate_trial_mechanisms``) and must NOT
+                # occupy the biology slot — so biology NO LONGER consults Reactome
+                # at all. When a chain has no extracted biology description, leave
+                # biology UNRESOLVED (``_UNKNOWN``, tagged for audit) rather than
+                # synthesizing a {mech}__{indication} slug. Cross-trial
+                # consolidation is the downstream BioLORD description merge.
+                if not bio_desc:
                     md = dict(chain.metadata)
-                    if use_description_identity:
-                        md.pop("unresolved_biology", None)
-                    else:
-                        md["unresolved_biology"] = True
+                    md["unresolved_biology"] = True
                     new_chains.append(chain.model_copy(update={
-                        "biology_id": bio_node_id,
+                        "biology_id": _UNKNOWN,
                         "metadata": md,
                     }))
                     continue
 
-                # No extracted description (the no-annotations / legacy path) and
-                # Reactome DID resolve → fall back to the target-gene pathway as
-                # the biology id. One pathway → set biology_id; multiple → fan out
-                # one chain per pathway (distinct biological hypotheses tested by
-                # the same trial cell). Reached only when ``use_description_identity``
-                # is False (the abstraction-ladder redesign routes any chain WITH
-                # a description to the content-address path above), so there is no
-                # description to stamp here.
-                if len(biology_ids) == 1:
-                    bio_id = biology_ids[0]
-                    if chain.biology_id == bio_id:
-                        new_chains.append(chain)
-                    else:
-                        md = dict(chain.metadata)
-                        md.pop("unresolved_biology", None)
-                        new_chains.append(chain.model_copy(update={
-                            "biology_id": bio_id,
-                            "metadata": md,
-                        }))
-                        added += 1
-                else:
-                    for bio_id in biology_ids:
-                        md = dict(chain.metadata)
-                        md.pop("unresolved_biology", None)
-                        new_chains.append(chain.model_copy(update={
-                            "biology_id": bio_id,
-                            "metadata": md,
-                        }))
-                        added += 1
+                # Description-identity: the Biology node IS its extracted
+                # general-process description — a content-address handle, with the
+                # description set so the BioLORD merge pools equivalent biology
+                # across trials and accumulates evidence on one node.
+                bio_node_id = _biology_id_from_description(bio_desc)
+                bio_node_name = bio_desc[:120]
+                edge_source = "trial_biology_description"
+                try:
+                    self.graph.get_node(bio_node_id)
+                except KeyError:
+                    self.graph.add_node(BiologyNode(
+                        id=bio_node_id,
+                        name=bio_node_name,
+                        description=bio_desc,
+                        pathway_ids=[],
+                        metadata={"source": "trial_biology_description"},
+                    ))
+                    added += 1
+
+                if not self.graph._graph.has_edge(  # noqa: SLF001
+                    mech_id, bio_node_id,
+                    key=EdgeType.MECHANISM_AFFECTS.value,
+                ):
+                    # DATABASE_FALLBACK record: the populate-stage prior is
+                    # intentionally weak. For description-identity biology the
+                    # EVIDENCE comes from the Phase-2 geometric merge pooling many
+                    # trials' records onto one node — not from a higher per-record
+                    # n_eff (belief seeding is kept identical to isolate the
+                    # identity change).
+                    fallback_record = make_curated_record(
+                        source_id=f"{edge_source}:{mech_id}__{bio_node_id}",
+                        bucket=SupportBucket.WEAK_SUPPORT,
+                        source_type=EvidenceType.DATABASE_FALLBACK,
+                        notes=f"description-defined biology ({mech_id})",
+                    )
+                    self.graph.add_edge(GraphEdge(
+                        source_id=mech_id,
+                        target_id=bio_node_id,
+                        edge_type=EdgeType.MECHANISM_AFFECTS,
+                        belief=belief_from_curated_record(fallback_record),
+                        metadata={"source": edge_source},
+                    ))
+
+                if not self.graph._graph.has_edge(  # noqa: SLF001
+                    bio_node_id, ind_id,
+                    key=EdgeType.BIOLOGY_DRIVES.value,
+                ):
+                    # Round-25: borrow the target → indication BIOLOGY_DRIVES
+                    # prior (with its evidence list) so the new biology →
+                    # indication edge carries the curated-DB provenance.
+                    borrowed = EdgeBeliefState()
+                    if target_id != _UNKNOWN:
+                        try:
+                            borrowed = self.graph.get_edge_belief(
+                                target_id, ind_id,
+                                EdgeType.BIOLOGY_DRIVES,
+                            )
+                        except KeyError:
+                            pass
+                    self.graph.add_edge(GraphEdge(
+                        source_id=bio_node_id,
+                        target_id=ind_id,
+                        edge_type=EdgeType.BIOLOGY_DRIVES,
+                        belief=EdgeBeliefState(
+                            alpha=borrowed.alpha,
+                            beta=borrowed.beta,
+                            evidence=list(borrowed.evidence),
+                        ),
+                        metadata={
+                            "source": edge_source,
+                            "borrowed_from": (
+                                f"{target_id}->{ind_id}"
+                                if target_id != _UNKNOWN else None
+                            ),
+                        },
+                    ))
+
+                md = dict(chain.metadata)
+                md.pop("unresolved_biology", None)
+                new_chains.append(chain.model_copy(update={
+                    "biology_id": bio_node_id,
+                    "metadata": md,
+                }))
 
             if new_chains != list(ts.chains):
                 self.graph.set_trial_subgraph(
