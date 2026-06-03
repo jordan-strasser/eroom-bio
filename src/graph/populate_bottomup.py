@@ -132,6 +132,22 @@ def _canonicalize_ids(g: GraphStore) -> int:
     return len(mapping)
 
 
+def _prune_orphan_biology(g: GraphStore) -> int:
+    """Remove BiologyNodes no chain references — ghost pathway nodes left by
+    dropped/extra trials whose chains never survived into a trial_subgraph (e.g.
+    target-gene→Reactome biology created during populate for a trial later
+    dropped). Keeps the biology layer to what the surviving chains actually use."""
+    referenced = {
+        ch.biology_id for ts in g.trial_subgraphs.values()
+        for ch in ts.chains if getattr(ch, "biology_id", None)
+    }
+    orphans = [n["id"] for n in g.get_nodes_by_type("BiologyNode")
+               if n["id"] not in referenced]
+    for nid in orphans:
+        g._graph.remove_node(nid)  # noqa: SLF001
+    return len(orphans)
+
+
 async def build_bottomup(
     trials: list[Any],
     anthropic_client: Any,
@@ -196,6 +212,8 @@ async def build_bottomup(
     )
     report = assemble(merged, cfg, embed_fn=embed_fn)
     renamed = _canonicalize_ids(merged)
-    logger.info("bottom-up Phase 2: assembled -> %d nodes (by_type=%s, canonicalized %d ids)",
-                merged._graph.number_of_nodes(), report.by_type, renamed)  # noqa: SLF001
+    pruned_bio = _prune_orphan_biology(merged)
+    logger.info("bottom-up Phase 2: assembled -> %d nodes (by_type=%s, canonicalized %d ids, "
+                "pruned %d orphan biology)",
+                merged._graph.number_of_nodes(), report.by_type, renamed, pruned_bio)  # noqa: SLF001
     return merged

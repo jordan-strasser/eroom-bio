@@ -4081,19 +4081,25 @@ def _lookup_chain_intervention_desc(
     if name:
         keys.add(_intervention_key(name))
     keys.discard("")
+    if not keys:
+        return None
+    # Match this drug to its results_by_chain entry, most→least specific:
+    #   (1) exact in THIS arm; (2) exact in ANY arm — a drug's biology is
+    #   arm-independent, and a combo arm is often another arm + one extra drug
+    #   with only one arm detailed by the extractor; (3) salt-form/stem in any
+    #   arm ("fludarabine" ~ "fludarabine_phosphate" — the LLM drops salt suffixes).
+    def _stem_eq(a: str, b: str) -> bool:
+        return a == b or a.startswith(b + "_") or b.startswith(a + "_")
+
     for k in keys:
         entry = desc_by_arm_iv.get((nct_id, chain.arm_id, k))
         if entry:
             return entry
-    # Arm-INDEPENDENT fallback: a drug's biology does not depend on which arm it
-    # is in. When a combination arm = another arm + one extra drug and the
-    # extractor only detailed one arm (e.g. part_a described, part_b not), match
-    # this intervention's entry from ANY arm of the same trial — so part_b chains
-    # inherit their own drug's biology instead of a generic fallback.
-    for k in keys:
-        for (_n, _arm, _iv), entry in desc_by_arm_iv.items():
-            if _n == nct_id and _iv == k:
-                return entry
+    for _match in ((lambda iv, k: iv == k), _stem_eq):
+        for k in keys:
+            for (_n, _arm, _iv), entry in desc_by_arm_iv.items():
+                if _n == nct_id and _match(_iv, k):
+                    return entry
     return None
 
 
