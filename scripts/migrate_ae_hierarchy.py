@@ -184,9 +184,14 @@ def _backfill_mechanism_direction(graph: GraphStore) -> Counter:
         node = g.nodes[node_id]
         if not isinstance(node_id, str):
             continue
-        # MechanismNodes have mechanism_type — easier than passing the
-        # type name through here.
-        if "mechanism_type" not in node:
+        # Detect MechanismNodes by the authoritative ``node_type`` marker the
+        # store stamps on every node. (Previously this keyed off the presence
+        # of a ``mechanism_type`` field, but the semantic-layers redesign moved
+        # ``mechanism_type`` onto InterventionNode too, so that heuristic now
+        # over-matches.) This backfill targets the legacy id-is-category
+        # MechanismNodes only; pathway-id nodes won't parse as a
+        # MechanismCategory below and are skipped.
+        if node.get("node_type") != "MechanismNode":
             continue
         stats["mechanism_nodes_seen"] += 1
         if node.get("direction"):

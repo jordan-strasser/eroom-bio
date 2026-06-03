@@ -215,11 +215,19 @@ def _check_trial(
     # cascade benefits the patient" — that's a separate claim. Emit a
     # WARN with the direction so the audit reader doesn't conflate them.
     if primary_chain.mechanism_id and primary_chain.mechanism_id != "UNKNOWN":
-        try:
-            mech_node = graph.get_node(primary_chain.mechanism_id)
-            direction = mech_node.get("direction")
-        except KeyError:
-            direction = None
+        # Semantic-layers redesign: ``direction`` is per-(drug, pathway) and
+        # lives on the ``modulates_via`` (target → mechanism) edge metadata, not
+        # on the (drug-agnostic) MechanismNode. Read it from the edge for this
+        # chain's target → mechanism pair.
+        direction = None
+        if primary_chain.target_id and primary_chain.target_id != "UNKNOWN":
+            edge_data = graph._graph.get_edge_data(  # noqa: SLF001
+                primary_chain.target_id,
+                primary_chain.mechanism_id,
+                key=EdgeType.MODULATES_VIA.value,
+            )
+            if edge_data:
+                direction = (edge_data.get("metadata") or {}).get("direction")
         if direction in ("inhibiting", "activating", "modulating"):
             issues.append((
                 "WARN",

@@ -374,7 +374,9 @@ def chain_descriptions_by_arm_intervention(annotations_dir) -> dict:
 
     Abstraction-ladder redesign also surfaces ``mechanism_category`` (the
     drug-class functional ontology bucket) per (arm, drug) so the populator can
-    stamp it onto the constituent's ``MechanismNode.category`` metadata.
+    stamp it onto the constituent's ``InterventionNode.category`` metadata (the
+    drug-class properties live on the DRUG, not the shared signaling-pathway
+    MechanismNode; ``direction`` lands on the ``modulates_via`` edge).
 
     Entries with an empty ``intervention`` (pre-fix cached extractions, or
     mono-arm entries that omit it) are not indexed here — callers fall back to

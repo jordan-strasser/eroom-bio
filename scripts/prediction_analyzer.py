@@ -339,16 +339,28 @@ def analyze_one(
         ))
         return result_dict
 
-    # Round-28: surface mechanism.direction so the audit can show whether
+    # Round-28: surface the mechanism direction so the audit can show whether
     # the chain math is treating an inhibitory mechanism as "edge operates"
     # when a reader might interpret P(success) as "patient benefits."
+    # Semantic-layers redesign: ``direction`` is per-(drug, pathway) and lives on
+    # the ``modulates_via`` (target → mechanism) edge metadata, not on the
+    # (drug-agnostic) MechanismNode. Read it from the edge for this chain.
     mechanism_direction: str | None = None
-    if stored.mechanism_id and stored.mechanism_id != "UNKNOWN":
-        try:
-            m_node = graph.get_node(stored.mechanism_id)
-            mechanism_direction = m_node.get("direction")
-        except KeyError:
-            mechanism_direction = None
+    if (
+        stored.mechanism_id
+        and stored.mechanism_id != "UNKNOWN"
+        and stored.target_id
+        and stored.target_id != "UNKNOWN"
+    ):
+        edge_data = graph._graph.get_edge_data(  # noqa: SLF001
+            stored.target_id,
+            stored.mechanism_id,
+            key=EdgeType.MODULATES_VIA.value,
+        )
+        if edge_data:
+            mechanism_direction = (
+                edge_data.get("metadata") or {}
+            ).get("direction")
 
     result_dict["stored_chain"] = {
         "compound_id": stored.compound_id,

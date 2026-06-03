@@ -69,6 +69,26 @@ class TestCompoundNode:
         with pytest.raises(ValidationError):
             CompoundNode(id="", name="Test", modality=Modality.OTHER)
 
+    def test_drug_class_properties_default_none(self):
+        """Semantic-layers redesign: the drug-class ``category`` +
+        ``mechanism_type`` live on the InterventionNode (the drug), not the
+        shared signaling-pathway MechanismNode. Both default None so existing
+        snapshots load unchanged."""
+        node = CompoundNode(id="C1", name="Test")
+        assert node.category is None
+        assert node.mechanism_type is None
+
+    def test_carries_category_and_mechanism_type(self):
+        """A drug's intrinsic class (category) and the MechanismType it derives
+        to are stored on the drug node."""
+        node = CompoundNode(
+            id="pembrolizumab", name="Pembrolizumab",
+            category="checkpoint_blockade",
+            mechanism_type=MechanismType.ANTAGONISM,
+        )
+        assert node.category == "checkpoint_blockade"
+        assert node.mechanism_type == MechanismType.ANTAGONISM
+
 
 class TestTargetNode:
     def test_create(self):
@@ -135,6 +155,14 @@ class TestMechanismNode:
     def test_optional_selectivity(self):
         node = MechanismNode(id="M1", name="Test", mechanism_type=MechanismType.OTHER)
         assert node.selectivity is None
+
+    def test_mechanism_type_defaults_none(self):
+        """Semantic-layers redesign: the MechanismNode is a shared,
+        drug-agnostic Reactome pathway, so ``mechanism_type`` (a drug-class
+        property) is now Optional + defaults None. Existing snapshots that set
+        it still load."""
+        node = MechanismNode(id="R-HSA-5673001", name="RAF/MAP kinase cascade")
+        assert node.mechanism_type is None
 
     def test_category_defaults_none(self):
         # Abstraction-ladder redesign: category (the coarse drug-class bucket)

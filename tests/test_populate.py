@@ -3021,20 +3021,38 @@ async def test_mechanism_category_lands_as_node_metadata(tmp_path):
         [trial], compound_targets, annotations_dir=tmp_path,
     )
 
-    # Non-ENSG target (DNA) → no resolvable Reactome pathway → enum-slug node,
-    # carrying the extracted category metadata.
-    assert g.get_node("dna_crosslinking")["category"] == "dna_crosslinking"
+    # Semantic-layers redesign: the drug-class category is stamped on the
+    # InterventionNode (the DRUG), not the (shared) MechanismNode. cyclophosphamide
+    # carried an explicit extracted category; pembrolizumab omitted it, so it falls
+    # back to the resolved enum bucket (checkpoint_blockade).
+    assert g.get_node("cyclophosphamide")["category"] == "dna_crosslinking"
+    assert g.get_node("pembrolizumab")["category"] == "checkpoint_blockade"
+    # mechanism_type derives from the category, also on the drug node.
+    assert g.get_node("cyclophosphamide")["mechanism_type"] == "other"
+    assert g.get_node("pembrolizumab")["mechanism_type"] == "antagonism"
+
+    # Non-ENSG target (DNA) → no resolvable Reactome pathway → enum-slug node;
+    # the pathway node carries NO drug-class category/direction.
+    enum_node = g.get_node("dna_crosslinking")
+    assert enum_node.get("category") is None
+    assert enum_node.get("direction") is None
     # ENSG target (PDCD1) → resolves to the Reactome signaling pathway; the node
-    # IDENTITY is the pathway id, and pembrolizumab (no extracted category)
-    # carries the resolved enum bucket as category metadata on that pathway node.
+    # IDENTITY is the pathway id and it is drug-agnostic (no category/direction).
     pd1_path = g.get_node("R-HSA-389948")  # Co-inhibition by PD-1
-    assert pd1_path["category"] == "checkpoint_blockade"
+    assert pd1_path.get("category") is None
+    assert pd1_path.get("direction") is None
     # The enum-slug node was NOT created for the ENSG-resolved mechanism.
     with pytest.raises(KeyError):
         g.get_node("checkpoint_blockade")
-    # Round-28 derivation still works: direction populated off MechanismCategory.
-    assert g.get_node("dna_crosslinking")["direction"] == "inhibiting"
-    assert pd1_path["direction"] == "inhibiting"
+    # Direction lives on the modulates_via (target → mechanism) EDGE.
+    cyclo_edge = g._graph.get_edge_data(
+        "CHEBI:16991", "dna_crosslinking", key=EdgeType.MODULATES_VIA.value,
+    )
+    assert (cyclo_edge["metadata"] or {})["direction"] == "inhibiting"
+    pd1_edge = g._graph.get_edge_data(
+        "ENSG00000188389", "R-HSA-389948", key=EdgeType.MODULATES_VIA.value,
+    )
+    assert (pd1_edge["metadata"] or {})["direction"] == "inhibiting"
     # The PD-1 pathway node carries the human-readable Reactome name.
     assert pd1_path["name"] == "Co-inhibition by PD-1"
 
@@ -3068,11 +3086,12 @@ async def test_mechanism_identity_is_reactome_pathway_per_target(tmp_path):
     blocker and a CTLA4 blocker — same drug-class CATEGORY (checkpoint_blockade)
     — become DISTINCT mechanism nodes because their target genes sit in DISTINCT
     Reactome pathways (PDCD1 → R-HSA-389948 "Co-inhibition by PD-1"; CTLA4 →
-    R-HSA-389513 "Co-inhibition by CTLA4"). ``category`` is the shared coarse
-    bucket carried as metadata; ``mechanism_type`` / ``direction`` derive from
-    that category (NOT from the node id, which is a Reactome id). The chains are
-    repointed at the Reactome pathway ids. (Uses the on-disk Reactome cache, so
-    this runs offline.)"""
+    R-HSA-389513 "Co-inhibition by CTLA4"). The shared pathway node carries NO
+    drug-class properties: ``category`` + ``mechanism_type`` (the shared coarse
+    bucket) live on each DRUG (InterventionNode), and ``direction`` lives on each
+    ``modulates_via`` edge — so a pathway hit by two different-class drugs is
+    never ambiguous. The chains are repointed at the Reactome pathway ids. (Uses
+    the on-disk Reactome cache, so this runs offline.)"""
     import json
 
     from src.graph.models import (
@@ -3151,26 +3170,36 @@ async def test_mechanism_identity_is_reactome_pathway_per_target(tmp_path):
     assert pd1["name"] == "Co-inhibition by PD-1"
     assert ctla4["name"] == "Co-inhibition by CTLA4"
 
-    # SHARED coarse drug-class bucket carried as metadata.
-    assert pd1["category"] == "checkpoint_blockade"
-    assert ctla4["category"] == "checkpoint_blockade"
+    # The pathway nodes are DRUG-AGNOSTIC: no category/direction/mechanism_type
+    # on the shared MechanismNode (semantic-layers redesign).
+    for path_node in (pd1, ctla4):
+        assert path_node.get("category") is None
+        assert path_node.get("direction") is None
+        assert path_node.get("mechanism_type") is None
 
-    # type/direction derived from the CATEGORY, not the (Reactome) id.
-    assert pd1["direction"] == "inhibiting"
-    assert ctla4["direction"] == "inhibiting"
-    assert pd1["mechanism_type"] == ctla4["mechanism_type"]
+    # The SHARED coarse drug-class bucket + derived mechanism_type live on each
+    # DRUG (InterventionNode) — both checkpoint blockers carry it identically.
+    nivo = g.get_node("nivolumab")
+    ipi = g.get_node("ipilimumab")
+    assert nivo["category"] == "checkpoint_blockade"
+    assert ipi["category"] == "checkpoint_blockade"
+    assert nivo["mechanism_type"] == ipi["mechanism_type"] == "antagonism"
 
     # The enum-slug node was NOT created (identity is the Reactome pathway).
     with pytest.raises(KeyError):
         g.get_node("checkpoint_blockade")
 
-    # target → mechanism modulates_via edges point at the pathway nodes.
-    assert g._graph.has_edge(
+    # target → mechanism modulates_via edges point at the pathway nodes, and
+    # each carries this drug's direction-of-effect in its metadata.
+    pd1_edge = g._graph.get_edge_data(
         "ENSG00000188389", pd1_id, key=EdgeType.MODULATES_VIA.value,
     )
-    assert g._graph.has_edge(
+    ctla4_edge = g._graph.get_edge_data(
         "ENSG00000163599", ctla4_id, key=EdgeType.MODULATES_VIA.value,
     )
+    assert pd1_edge is not None and ctla4_edge is not None
+    assert (pd1_edge["metadata"] or {})["direction"] == "inhibiting"
+    assert (ctla4_edge["metadata"] or {})["direction"] == "inhibiting"
 
     # The rebuilt chains include one chain per (constituent, mechanism pathway),
     # with each constituent's top pathway being its checkpoint co-inhibition.
@@ -3242,10 +3271,19 @@ async def test_mechanism_falls_back_to_enum_slug_without_resolvable_pathway(tmp_
         [trial], {"dacarbazine": ["CHEBI:16991"]}, annotations_dir=tmp_path,
     )
 
-    # Enum-slug id used as the no-pathway fallback; direction off MechanismCategory.
+    # Enum-slug id used as the no-pathway fallback. The mechanism node is
+    # drug-agnostic — category/direction are NOT on it.
     node = g.get_node("dna_crosslinking")
-    assert node["category"] == "dna_crosslinking"
-    assert node["direction"] == "inhibiting"
+    assert node.get("category") is None
+    assert node.get("direction") is None
+    # Drug-class category + mechanism_type land on the DRUG (InterventionNode).
+    assert g.get_node("dacarbazine")["category"] == "dna_crosslinking"
+    assert g.get_node("dacarbazine")["mechanism_type"] == "other"
+    # direction-of-effect lives on the modulates_via edge.
+    edge = g._graph.get_edge_data(
+        "CHEBI:16991", "dna_crosslinking", key=EdgeType.MODULATES_VIA.value,
+    )
+    assert (edge["metadata"] or {})["direction"] == "inhibiting"
     ts = g.get_trial_subgraph_by_id("NCT_FB")
     assert ts.chains[0].mechanism_id == "dna_crosslinking"
 
@@ -3335,18 +3373,26 @@ async def test_mechanism_keeps_multiple_pathways_not_capped_to_one():
     mech_ids = {c.mechanism_id for c in out.chains}
     assert len(mech_ids) > 1, mech_ids
     assert len(mech_ids) <= pipe._MECHANISM_PATHWAY_CAP
-    # Every kept mechanism is a Reactome pathway node (id = R-HSA-…) carrying the
-    # drug-class category as metadata; the enum slug is NOT a mechanism node.
+    # Every kept mechanism is a drug-agnostic Reactome pathway node (id =
+    # R-HSA-…) — NO drug-class category on it; the enum slug is NOT a node.
     for mid in mech_ids:
         assert mid.startswith("R-HSA-"), mid
         node = g.get_node(mid)
-        assert node["category"] == "kinase_inhibition"
-        # target → mechanism modulates_via edge exists for each kept pathway.
+        assert node.get("category") is None
+        # target → mechanism modulates_via edge exists for each kept pathway,
+        # carrying erlotinib's direction-of-effect in its metadata.
         assert g._graph.has_edge(
             "ENSG00000146648", mid, key=EdgeType.MODULATES_VIA.value,
         )
+        edge = g._graph.get_edge_data(
+            "ENSG00000146648", mid, key=EdgeType.MODULATES_VIA.value,
+        )
+        assert (edge["metadata"] or {})["direction"] == "inhibiting"
     with pytest.raises(KeyError):
         g.get_node("kinase_inhibition")
+    # The drug-class category + mechanism_type land on the DRUG (InterventionNode).
+    assert g.get_node("erlotinib")["category"] == "kinase_inhibition"
+    assert g.get_node("erlotinib")["mechanism_type"] == "inhibition"
     # The canonical EGFR signaling pathway is among the kept mechanisms.
     assert "R-HSA-177929" in mech_ids  # Signaling by EGFR
 
@@ -3414,6 +3460,86 @@ async def test_mechanism_pathway_shared_across_targets_merges_to_one_node():
     met_chains = g.get_trial_subgraph_by_id("NCT_MET").chains
     assert any(c.mechanism_id == shared for c in egfr_chains)
     assert any(c.mechanism_id == shared for c in met_chains)
+
+
+@pytest.mark.asyncio
+async def test_shared_pathway_is_unambiguous_across_different_drug_classes():
+    """Semantic-layers redesign — the ambiguity fix. ``R-HSA-5673001`` (RAF/MAP
+    kinase cascade) is in BOTH EGFR's footprint (engaged by erlotinib, a kinase
+    INHIBITOR) and IL2RA's footprint (engaged by aldesleukin / IL-2, a receptor
+    AGONIST). These two drugs are DIFFERENT classes, so a single
+    ``category``/``direction`` scalar on the shared pathway node would be WRONG
+    for one of them. After the redesign the pathway node is drug-agnostic (clean),
+    each DRUG carries its own ``category``/``mechanism_type``, and each
+    ``modulates_via`` EDGE carries its own ``direction``. (On-disk Reactome cache.)
+    """
+    from src.graph.models import (
+        CompoundNode, EdgeBeliefState, EdgeType, GraphEdge, IndicationNode,
+        PopulationNode, TargetNode,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="erlotinib", name="Erlotinib"))
+    g.add_node(CompoundNode(id="aldesleukin", name="Aldesleukin"))
+    g.add_node(TargetNode(id="ENSG00000146648", name="EGFR", gene_symbol="EGFR"))
+    g.add_node(TargetNode(id="ENSG00000134460", name="IL2RA", gene_symbol="IL2RA"))
+    g.add_node(IndicationNode(id="rcc", name="renal cell carcinoma"))
+    # erlotinib = kinase INHIBITOR; aldesleukin (IL-2) = receptor AGONIST.
+    for cid, tid, mech in (
+        ("erlotinib", "ENSG00000146648", "kinase_inhibition"),
+        ("aldesleukin", "ENSG00000134460", "receptor_agonism"),
+    ):
+        g.add_edge(GraphEdge(
+            source_id=cid, target_id=tid, edge_type=EdgeType.AFFECTS,
+            belief=EdgeBeliefState(), metadata={"implied_mechanism": mech},
+        ))
+    for nct, cid, tid in (("NCT_EGFR2", "erlotinib", "ENSG00000146648"),
+                          ("NCT_IL2", "aldesleukin", "ENSG00000134460")):
+        parent_pop, ts = _single_constituent_subgraph(nct, cid, tid, "rcc")
+        try:
+            g.get_node(parent_pop)
+        except KeyError:
+            g.add_node(PopulationNode(id=parent_pop, name="rcc (all)"))
+        g.set_trial_subgraph(ts)
+
+    trials = [
+        TrialRecord(nct_id="NCT_EGFR2", title="t", conditions=["rcc"]),
+        TrialRecord(nct_id="NCT_IL2", title="t", conditions=["rcc"]),
+    ]
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        trials,
+        {"erlotinib": ["ENSG00000146648"],
+         "aldesleukin": ["ENSG00000134460"]},
+    )
+
+    shared = "R-HSA-5673001"  # RAF/MAP kinase cascade — in BOTH footprints
+    node = g.get_node(shared)
+    # The shared pathway node is DRUG-AGNOSTIC: no ambiguous category/direction/
+    # mechanism_type. This is the whole point of the redesign.
+    assert node.get("category") is None
+    assert node.get("direction") is None
+    assert node.get("mechanism_type") is None
+
+    # Each DRUG carries its own (different) class on its InterventionNode.
+    assert g.get_node("erlotinib")["category"] == "kinase_inhibition"
+    assert g.get_node("erlotinib")["mechanism_type"] == "inhibition"
+    assert g.get_node("aldesleukin")["category"] == "receptor_agonism"
+    assert g.get_node("aldesleukin")["mechanism_type"] == "agonism"
+
+    # Each modulates_via EDGE into the shared pathway carries its own direction:
+    # erlotinib INHIBITS the cascade; aldesleukin ACTIVATES it.
+    egfr_edge = g._graph.get_edge_data(
+        "ENSG00000146648", shared, key=EdgeType.MODULATES_VIA.value,
+    )
+    il2ra_edge = g._graph.get_edge_data(
+        "ENSG00000134460", shared, key=EdgeType.MODULATES_VIA.value,
+    )
+    assert egfr_edge is not None and il2ra_edge is not None
+    assert (egfr_edge["metadata"] or {})["direction"] == "inhibiting"
+    assert (il2ra_edge["metadata"] or {})["direction"] == "activating"
 
 
 @pytest.mark.asyncio

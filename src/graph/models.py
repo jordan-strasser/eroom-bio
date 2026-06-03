@@ -387,6 +387,24 @@ class InterventionNode(BaseModel):
     # therapies, vaccines, novel agents that aren't in ChEMBL but
     # SapBERT can still embed by name).
     embedding: list[float] | None = None
+    # Drug-class properties (semantic-layers redesign, 2026-06-02). These
+    # are intrinsic to the DRUG, not to the shared signaling-pathway
+    # MechanismNode — a Reactome pathway (e.g. R-HSA-5673001 "RAF/MAP
+    # kinase cascade") is engaged by drugs of different classes (a kinase
+    # inhibitor AND aldesleukin), so a single ``category``/``mechanism_type``
+    # scalar on the pathway node would be wrong for one of them. They live
+    # here instead, keyed to the drug.
+    #   ``category``        the coarse drug-class functional bucket — a
+    #                       ``MechanismCategory`` value (checkpoint_blockade,
+    #                       kinase_inhibition, …). Stored as a string for
+    #                       loader/back-compat tolerance; ``None`` when no
+    #                       category was classified.
+    #   ``mechanism_type``  the broader ``MechanismType`` enum the category
+    #                       maps to (see ``_CATEGORY_TO_MECHANISM_TYPE`` in
+    #                       src/ingestion/lincs.py). ``None`` when unknown.
+    # Back-compat: both default ``None`` so existing snapshots load unchanged.
+    category: str | None = None
+    mechanism_type: MechanismType | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -427,35 +445,30 @@ class TargetNode(BaseModel):
 class MechanismNode(BaseModel):
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
-    mechanism_type: MechanismType
+    # Semantic-layers redesign (2026-06-02): the MechanismNode IS a shared,
+    # drug-agnostic Reactome signaling pathway (id = ``R-HSA-…``), engaged by
+    # many drugs across classes. Drug-class properties no longer live here —
+    # ``mechanism_type`` is the drug's, so it moved to ``InterventionNode``;
+    # ``direction`` is per-(drug, pathway), so it moved to the ``modulates_via``
+    # edge ``metadata["direction"]``. ``mechanism_type`` is kept on the model
+    # (now Optional + ``None`` default) for back-compat: existing snapshots that
+    # stamped it still load, and the legacy LINCS category-id path
+    # (``populate_lincs_signatures``) — where the node id IS a single
+    # MechanismCategory so the type is unambiguous — still sets it.
+    mechanism_type: MechanismType | None = None
     selectivity: str | None = None
-    # Round-28 directionality metadata. Populated from a table keyed on
-    # MechanismCategory in src/graph/populate.py. Values:
-    #   "inhibiting"  — the mechanism reduces the target's activity / a
-    #                   downstream process (kinase inhibition, receptor
-    #                   antagonism, angiogenesis inhibition, ...).
-    #   "activating"  — the mechanism increases the target's activity /
-    #                   a downstream process (immune costimulation,
-    #                   antigen-directed cytotoxicity, ...).
-    #   "modulating"  — bidirectional or context-dependent (hormone
-    #                   modulation, gene editing).
-    #   None          — unknown / OTHER. Backward-compatible default.
-    # The prediction math is direction-blind: P(success) reflects "edge
-    # operates" not "edge benefits the patient." Surfacing direction as
-    # metadata lets audits and graphguard flag chains where the math is
-    # being read as benefit-direction even though the underlying
-    # mechanism is inhibitory.
+    # ── Vestigial on a drug-agnostic pathway node (kept for back-compat) ──
+    # ``direction`` and ``category`` are DRUG/edge properties, not pathway
+    # properties — a single Reactome pathway hit by drugs of different classes
+    # has no single direction/category. New trial-population builds no longer
+    # stamp these here (``populate._populate_trial_mechanisms`` writes
+    # ``category`` to the chain's InterventionNode and ``direction`` to the
+    # ``modulates_via`` edge instead). Fields retained with ``None`` defaults so
+    # existing snapshots that carry a value continue to load unchanged.
+    #   ``direction`` — "inhibiting" / "activating" / "modulating" / None.
+    #   ``category``  — a ``MechanismCategory`` value (the coarse drug-class
+    #                   bucket), or None.
     direction: str | None = None
-    # Abstraction-ladder redesign: the coarse drug-class functional ontology
-    # (a ``MechanismCategory`` value — checkpoint_blockade, kinase_inhibition,
-    # …) carried as METADATA rather than as the node's only identity signal.
-    # The node's identity / scale is the SPECIFIC molecular action (its
-    # ``description``, sourced from the extracted ``mechanism_description``);
-    # ``category`` is the bucket it rolls up into, used by audits and by the
-    # round-28 direction/type derivation. Populated from the classified /
-    # extracted ``mechanism_category`` (see populate._populate_trial_mechanisms);
-    # ``None`` when no category was supplied. Backward-compatible default so
-    # existing snapshots / cached graphs load unchanged.
     category: str | None = None
     # A.0: rich free-text description preserved from the trial's therapeutic
     # hypothesis (proposed_mechanism). The id is a routing tag; this is the

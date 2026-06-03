@@ -2283,9 +2283,12 @@ class PopulationPipeline:
              ``compound_targets`` (first entry; can be UNKNOWN if OT had
              no hit).
           2. Resolve the drug-class ``MechanismCategory`` (structured
-             ``implied_mechanism`` on the AFFECTS edge, else Haiku) → carried as
-             ``category`` METADATA (round-28 ``mechanism_type`` / ``direction``
-             derive from it).
+             ``implied_mechanism`` on the AFFECTS edge, else Haiku). The category
+             + the ``MechanismType`` it derives to are DRUG properties → stamped
+             onto the chain's InterventionNode (the compound). The per-(drug,
+             pathway) ``direction`` it derives to is written into each
+             ``modulates_via`` edge's metadata. NONE of the three land on the
+             (drug-agnostic, shared) Reactome MechanismNode.
           3. Resolve the target GENE → Reactome pathway footprint via the shared
              ``_resolve_gene_pathways`` core. The MechanismNode IDENTITY (id +
              name) is the Reactome pathway; add the ``target → mechanism``
@@ -2315,8 +2318,9 @@ class PopulationPipeline:
             return 0
 
         # Per-(arm, intervention) extracted mechanism_category, used to stamp
-        # MechanismNode.category metadata. Empty when the build hasn't extracted
-        # yet (no annotations_dir) — category then defaults to the resolved id.
+        # the InterventionNode's ``category`` (drug-class) metadata. Empty when
+        # the build hasn't extracted yet (no annotations_dir) — category then
+        # defaults to the resolved enum id.
         cat_by_arm_iv: dict = {}
         if annotations_dir is not None:
             from src.graph.box_embeddings import (
@@ -2449,12 +2453,12 @@ class PopulationPipeline:
                             if mech_desc and extracted_cat:
                                 break
 
-                    # Category metadata: prefer the extractor's
+                    # Drug-class category: prefer the extractor's
                     # ``mechanism_category`` when it's a valid MechanismCategory
                     # value; otherwise fall back to the resolved enum slug
-                    # (itself a MechanismCategory value in this path). The node's
-                    # IDENTITY/scale is the specific molecular action; category is
-                    # the coarse drug-class bucket it rolls up into.
+                    # (itself a MechanismCategory value in this path). This is the
+                    # coarse drug-class bucket; it is stamped onto the DRUG
+                    # (InterventionNode), not the shared pathway MechanismNode.
                     category_value = enum_slug
                     if extracted_cat:
                         try:
@@ -2466,25 +2470,50 @@ class PopulationPipeline:
                             # resolved enum slug as the bucket.
                             category_value = enum_slug
 
-                    # Round-28 type/direction derivation. The mechanism node id
-                    # is the Reactome pathway id (NOT an enum value), so derive
-                    # type/direction from the resolved CATEGORY. Guard for a
-                    # category that isn't a valid enum (keep the OTHER / None
-                    # fallback that ``_category_to_*`` already provides).
+                    # Semantic-layers redesign (2026-06-02): the drug-class
+                    # CATEGORY + the MechanismType it derives to are properties
+                    # of the DRUG, not of the shared Reactome signaling pathway.
+                    # Derive them from the resolved category (guard for a
+                    # category that isn't a valid enum — keep the OTHER / None
+                    # fallback that ``_category_to_*`` already provides) and stamp
+                    # them onto the chain's InterventionNode (the compound
+                    # ``cid``), NOT onto the MechanismNode. ``direction`` is
+                    # per-(drug, pathway) and is written into each
+                    # ``modulates_via`` edge's metadata below.
                     try:
                         category_enum = MechanismCategory(category_value)
                     except ValueError:
                         category_enum = MechanismCategory.OTHER
+                    mechanism_type_value = _category_to_mechanism_type(
+                        category_enum
+                    ).value
+                    direction_value = _category_to_direction(category_enum)
+
+                    # Stamp drug-class category + mechanism_type onto the
+                    # InterventionNode (the drug). A drug has a single intrinsic
+                    # class regardless of how many pathways it engages, so write
+                    # once per constituent (idempotent backfill — don't clobber a
+                    # value an earlier arm/trial already set).
+                    try:
+                        iv_data = self.graph._graph.nodes[cid]  # noqa: SLF001
+                    except KeyError:
+                        iv_data = None
+                    if iv_data is not None:
+                        if not iv_data.get("category"):
+                            iv_data["category"] = category_value
+                        if not iv_data.get("mechanism_type"):
+                            iv_data["mechanism_type"] = mechanism_type_value
 
                     def _ensure_mechanism(
                         mech_id: str, mech_name: str, description: str,
                         source: str,
                     ) -> None:
-                        """Create (idempotently) the MechanismNode + the
-                        target→mechanism ``modulates_via`` edge, and append the
-                        backbone entry. ``category``/``mechanism_type``/
-                        ``direction`` come from the resolved drug-class category
-                        (metadata); identity (id+name) is the signaling pathway."""
+                        """Create (idempotently) the drug-agnostic MechanismNode
+                        (a Reactome signaling pathway — id + name + description ARE
+                        the pathway, no drug-class properties) + the
+                        target→mechanism ``modulates_via`` edge (which carries
+                        this drug's ``direction`` in its metadata), and append the
+                        backbone entry."""
                         nonlocal added
                         try:
                             self.graph.get_node(mech_id)
@@ -2492,20 +2521,8 @@ class PopulationPipeline:
                             self.graph.add_node(MechanismNode(
                                 id=mech_id,
                                 name=mech_name,
-                                mechanism_type=_category_to_mechanism_type(
-                                    category_enum
-                                ),
-                                direction=_category_to_direction(category_enum),
-                                category=category_value,
                                 description=description,
                             ))
-                        else:
-                            # Idempotent backfill: a node created earlier (prior
-                            # trial / arm, or a pathway shared across targets) may
-                            # lack a category. Stamp without overwriting.
-                            node_data = self.graph._graph.nodes[mech_id]  # noqa: SLF001
-                            if not node_data.get("category"):
-                                node_data["category"] = category_value
 
                         if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
                             target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
@@ -2540,6 +2557,14 @@ class PopulationPipeline:
                                     "trial_id": trial.nct_id,
                                     "arm_id": arm.arm_id,
                                     "constituent_id": cid,
+                                    # Per-(drug, pathway) direction-of-effect.
+                                    # Lives on the EDGE (not the shared pathway
+                                    # node) because how a drug engages a pathway
+                                    # — inhibiting / activating / modulating — is
+                                    # specific to this (drug, pathway) pair.
+                                    # Derived from the drug's category. Omitted
+                                    # (None) for OTHER / unclassified.
+                                    "direction": direction_value,
                                 },
                             ))
                             added += 1
@@ -2559,7 +2584,9 @@ class PopulationPipeline:
                     # polypharmacology vs the clean clinical hypothesis is desired
                     # data); capped at ``_MECHANISM_PATHWAY_CAP`` only to bound the
                     # combinatorial fan-out. The extracted drug-class category
-                    # (``mech_desc``/``extracted_cat``) rides along as METADATA.
+                    # lives on the InterventionNode + modulates_via edge (above),
+                    # not the pathway node; ``mech_desc`` is the pathway re-rank
+                    # context + the node's free-text substrate.
                     pathways, mech_source, _mech_score = (
                         await self._resolve_gene_pathways(
                             target_id or _UNKNOWN,
