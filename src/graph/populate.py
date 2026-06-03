@@ -595,6 +595,28 @@ def _biology_id_from_description(description: str) -> str:
     return "bio:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
 
 
+def _mechanism_id_from_description(description: str) -> str:
+    """Content-address handle for a description-defined MechanismNode.
+
+    Mechanism-identity flip (Phase C): a Mechanism node's IDENTITY is the
+    SPECIFIC molecular action the drug performs (e.g. "PD-1 checkpoint
+    blockade", "CTLA4 co-inhibition", "CDK4/6 kinase inhibition"), carried in
+    its extracted ``mechanism_description``. The coarse drug-class functional
+    bucket (the ``MechanismCategory`` enum — checkpoint_blockade,
+    kinase_inhibition, …) is METADATA on ``MechanismNode.category``, not the
+    identity. This mirrors :func:`_biology_id_from_description` exactly: a
+    stable content-address (like a git blob hash) over the normalized
+    description text, so identical actions across trials collapse to the same
+    id (exact Tier-1 merge) and near-identical phrasings pool at the SapBERT
+    precision tier (BioLORD over-merges PD-1-vs-CTLA4 to cosine 1.0; SapBERT
+    keeps them distinct — see populate_bottomup.build_bottomup's MergeConfig).
+    The ``mech:`` prefix distinguishes these from enum-slug fallback ids (used
+    for back-compat when a chain has no extracted description).
+    """
+    norm = " ".join(description.strip().lower().split())
+    return "mech:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
+
+
 # Curated mapping for cancer-vaccine constituents that Open Targets cannot
 # resolve to a target. Covers three classes:
 #   1. Tumor-associated-antigen (TAA) peptides → tumor antigen gene
@@ -2357,25 +2379,41 @@ class PopulationPipeline:
                             cache=cache,
                             cache_key=f"{trial.nct_id}::{arm.arm_id}::{cid}",
                         )
-                    mech_id = normalize_entity(mech_value, "MechanismNode")
+                    # The resolved enum slug (a ``MechanismCategory`` value).
+                    # Used as: (a) the no-description fallback node id, for
+                    # back-compat; (b) the default ``category`` bucket when the
+                    # extractor didn't emit one.
+                    enum_slug = normalize_entity(mech_value, "MechanismNode")
 
-                    # Abstraction-ladder redesign: the drug-class functional
-                    # ontology bucket for THIS constituent, carried as
-                    # MechanismNode.category metadata. Prefer the extractor's
-                    # per-(arm, intervention) ``mechanism_category`` when it's a
-                    # valid MechanismCategory value; otherwise fall back to the
-                    # resolved mechanism id (itself a MechanismCategory value in
-                    # this path). The node's IDENTITY/scale is the specific
-                    # molecular action (its ``description``); category is the
-                    # coarse bucket it rolls up into.
-                    category_value = mech_id
+                    # Mechanism-identity flip (Phase C). The extractor's
+                    # per-(arm, intervention) entry carries BOTH the specific
+                    # molecular-action ``mechanism`` description (the node's new
+                    # IDENTITY) AND the coarse ``mechanism_category`` bucket
+                    # (METADATA). Pull both from the SAME entry so id + category
+                    # stay consistent. Mirrors the biology path's lookup keys.
+                    mech_desc = ""
                     extracted_cat = ""
                     if cat_by_arm_iv:
                         for k in self._mechanism_intervention_keys(cid):
                             entry = cat_by_arm_iv.get((trial.nct_id, arm.arm_id, k))
-                            if entry and (entry.get("mechanism_category") or "").strip():
+                            if not entry:
+                                continue
+                            if not mech_desc and (entry.get("mechanism") or "").strip():
+                                mech_desc = entry["mechanism"].strip()
+                            if not extracted_cat and (
+                                entry.get("mechanism_category") or ""
+                            ).strip():
                                 extracted_cat = entry["mechanism_category"].strip()
+                            if mech_desc and extracted_cat:
                                 break
+
+                    # Category metadata: prefer the extractor's
+                    # ``mechanism_category`` when it's a valid MechanismCategory
+                    # value; otherwise fall back to the resolved enum slug
+                    # (itself a MechanismCategory value in this path). The node's
+                    # IDENTITY/scale is the specific molecular action; category is
+                    # the coarse drug-class bucket it rolls up into.
+                    category_value = enum_slug
                     if extracted_cat:
                         try:
                             category_value = MechanismCategory(
@@ -2383,22 +2421,44 @@ class PopulationPipeline:
                             ).value
                         except ValueError:
                             # Not a recognized category value — keep the
-                            # resolved mech_id as the bucket.
-                            category_value = mech_id
+                            # resolved enum slug as the bucket.
+                            category_value = enum_slug
+
+                    # Mechanism-identity flip: when a description exists the node
+                    # id is its content-address (PD-1-blockade and CTLA4-blockade
+                    # become DISTINCT nodes that share only ``category`` + their
+                    # downstream biology). With no description (no annotations_dir,
+                    # or a pre-fix cached extraction) fall back to the enum slug so
+                    # existing snapshots / non-bottom-up paths are unchanged.
+                    if mech_desc:
+                        mech_id = _mechanism_id_from_description(mech_desc)
+                        mech_name = mech_desc[:120]
+                    else:
+                        mech_id = enum_slug
+                        mech_name = enum_slug.replace("_", " ")
+
+                    # Round-28 type/direction derivation. mech_id is NO LONGER an
+                    # enum value when a description drives it, so derive these from
+                    # the resolved CATEGORY, not the node id. Guard for a category
+                    # that isn't a valid enum (keep the OTHER / None fallback that
+                    # ``_category_to_*`` already provides).
+                    try:
+                        category_enum = MechanismCategory(category_value)
+                    except ValueError:
+                        category_enum = MechanismCategory.OTHER
 
                     try:
                         self.graph.get_node(mech_id)
                     except KeyError:
                         self.graph.add_node(MechanismNode(
                             id=mech_id,
-                            name=mech_id.replace("_", " "),
+                            name=mech_name,
                             mechanism_type=_category_to_mechanism_type(
-                                MechanismCategory(mech_id)
+                                category_enum
                             ),
-                            direction=_category_to_direction(
-                                MechanismCategory(mech_id)
-                            ),
+                            direction=_category_to_direction(category_enum),
                             category=category_value,
+                            description=mech_desc,
                         ))
                     else:
                         # Idempotent backfill: a node created earlier (in a prior

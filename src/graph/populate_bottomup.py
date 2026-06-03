@@ -207,7 +207,15 @@ async def build_bottomup(
     # DEFAULT_NODE_TYPES. TrialNode is deliberately excluded (each is unique).
     cfg = merge_config or MergeConfig(
         node_types=DEFAULT_NODE_TYPES + ("AdverseEventNode", "BiomarkerNode"),
-        enable_id=True, enable_name_id=False, enable_sapbert=False,
+        enable_id=True, enable_name_id=False,
+        # Mechanism-identity flip (Phase C): mechanism node ids are now
+        # content-addresses of the specific molecular-action description
+        # (PD-1-blockade ≠ CTLA4-blockade). BioLORD over-merges those siblings
+        # (their description cosine ≈ 1.0), so route MechanismNode through the
+        # SapBERT precision tier instead, which keeps distinct actions apart.
+        # BiologyNode stays on BioLORD (sibling-merge is correct at the biology
+        # scale). The SapBERT tier lazy-loads its embedder inside node_merge.
+        enable_sapbert=True, sapbert_node_types=("MechanismNode",),
         enable_biolord=True, biolord_node_types=("BiologyNode",),
     )
     report = assemble(merged, cfg, embed_fn=embed_fn)

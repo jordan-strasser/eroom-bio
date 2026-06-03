@@ -3025,3 +3025,209 @@ async def test_mechanism_category_lands_as_node_metadata(tmp_path):
     # Round-28 derivation still works: direction populated off MechanismCategory.
     assert g.get_node("dna_crosslinking")["direction"] == "inhibiting"
     assert g.get_node("checkpoint_blockade")["direction"] == "inhibiting"
+
+
+# ── Mechanism-identity flip (Phase C): node id = molecular-action description ──
+
+
+def test_mechanism_id_from_description_is_content_address():
+    """A description-defined MechanismNode id is a content-address over the
+    normalized description (Phase C: the node IS the specific molecular action)
+    — NOT an enum slug. Mirrors ``_biology_id_from_description``: case/whitespace
+    normalized so phrasing-identical actions collapse to one id; distinct actions
+    get distinct ids. The ``mech:`` prefix separates these from enum-slug ids."""
+    from src.graph.populate import _mechanism_id_from_description
+
+    a = _mechanism_id_from_description("PD-1 checkpoint blockade")
+    b = _mechanism_id_from_description("pd-1   checkpoint   blockade")
+    c = _mechanism_id_from_description("CTLA4 co-inhibition")
+
+    assert a.startswith("mech:") and len(a) == len("mech:") + 12
+    assert a == b          # normalized (case + collapsed whitespace) → same id
+    assert a != c          # distinct molecular action → distinct content-address
+    assert "__" not in a   # not an enum slug
+
+
+@pytest.mark.asyncio
+async def test_mechanism_identity_flip_distinct_nodes_per_action(tmp_path):
+    """Phase C end-to-end: when a per-(arm, intervention) ``mechanism_description``
+    exists, the MechanismNode IDENTITY is the content-address of that specific
+    action. A PD-1 blocker and a CTLA4 blocker — same drug-class CATEGORY
+    (checkpoint_blockade) — become DISTINCT mechanism nodes (distinct ``mech:``
+    ids), with ``category`` the shared coarse bucket and ``mechanism_type`` /
+    ``direction`` derived from that category (NOT from the node id, which is no
+    longer an enum value). The chains are repointed at the content-address ids."""
+    import json
+
+    from src.graph.models import (
+        CausalChain, CompoundNode, EdgeBeliefState, EdgeType, GraphEdge,
+        IndicationNode, PopulationNode, TargetNode, TrialArm, TrialOutcome,
+        TrialSubgraph,
+    )
+    from src.graph.populate import _mechanism_id_from_description
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="nivolumab", name="Nivolumab"))
+    g.add_node(CompoundNode(id="ipilimumab", name="Ipilimumab"))
+    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(TargetNode(id="ENSG00000163599", name="CTLA4", gene_symbol="CTLA4"))
+    g.add_node(IndicationNode(id="melanoma", name="melanoma"))
+    parent_pop = "melanoma__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="melanoma (all)"))
+
+    # AFFECTS edges carry `implied_mechanism` so the LLM is never called; both
+    # resolve to the SAME coarse enum bucket (checkpoint_blockade).
+    for cid, tid in (("nivolumab", "ENSG00000188389"),
+                     ("ipilimumab", "ENSG00000163599")):
+        g.add_edge(GraphEdge(
+            source_id=cid, target_id=tid, edge_type=EdgeType.AFFECTS,
+            belief=EdgeBeliefState(),
+            metadata={"implied_mechanism": "checkpoint_blockade"},
+        ))
+
+    # One combo arm, two constituents (each its own chain after rebuild).
+    arm = TrialArm(
+        arm_id="combo", regimen_compound_id="nivolumab__ipilimumab",
+        compound_ids=["nivolumab", "ipilimumab"], is_combination=True,
+    )
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_FLIP", arms=[arm], parent_population_id=parent_pop,
+        chains=[CausalChain(
+            arm_id="combo", compound_id="nivolumab",
+            subgroup_population_id=parent_pop, target_id="ENSG00000188389",
+            mechanism_id="UNKNOWN", biology_id="UNKNOWN", indication_id="melanoma",
+            endpoint_id="ORR_melanoma", outcome=TrialOutcome.PARTIAL,
+        )],
+    ))
+
+    # Distinct molecular-action descriptions; SAME category for both.
+    (tmp_path / "NCT_FLIP_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_FLIP",
+        "results_by_chain": [
+            {"arm_id": "combo", "intervention": "nivolumab", "outcome": "partial",
+             "mechanism_description": "PD-1 checkpoint blockade",
+             "mechanism_category": "checkpoint_blockade"},
+            {"arm_id": "combo", "intervention": "ipilimumab", "outcome": "partial",
+             "mechanism_description": "CTLA4 co-inhibition",
+             "mechanism_category": "checkpoint_blockade"},
+        ],
+    }))
+
+    compound_targets = {
+        "nivolumab": ["ENSG00000188389"],
+        "ipilimumab": ["ENSG00000163599"],
+    }
+    trial = TrialRecord(nct_id="NCT_FLIP", title="t", conditions=["melanoma"])
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        [trial], compound_targets, annotations_dir=tmp_path,
+    )
+
+    pd1_id = _mechanism_id_from_description("PD-1 checkpoint blockade")
+    ctla4_id = _mechanism_id_from_description("CTLA4 co-inhibition")
+
+    # DISTINCT mechanism nodes (the flip): the enum slug is gone as an identity.
+    assert pd1_id != ctla4_id
+    pd1 = g.get_node(pd1_id)
+    ctla4 = g.get_node(ctla4_id)
+    assert pd1["name"] == "PD-1 checkpoint blockade"
+    assert ctla4["name"] == "CTLA4 co-inhibition"
+    assert pd1["description"] == "PD-1 checkpoint blockade"
+
+    # SHARED coarse drug-class bucket carried as metadata.
+    assert pd1["category"] == "checkpoint_blockade"
+    assert ctla4["category"] == "checkpoint_blockade"
+
+    # type/direction derived from the CATEGORY, not the (content-address) id.
+    assert pd1["direction"] == "inhibiting"
+    assert ctla4["direction"] == "inhibiting"
+    assert pd1["mechanism_type"] == ctla4["mechanism_type"]
+
+    # The enum-slug node was NOT created (identity is the action description).
+    with pytest.raises(KeyError):
+        g.get_node("checkpoint_blockade")
+
+    # The rebuilt chains point at the content-address ids.
+    ts = g.get_trial_subgraph_by_id("NCT_FLIP")
+    chain_mech_ids = {c.compound_id: c.mechanism_id for c in ts.chains}
+    assert chain_mech_ids["nivolumab"] == pd1_id
+    assert chain_mech_ids["ipilimumab"] == ctla4_id
+
+
+@pytest.mark.asyncio
+async def test_mechanism_falls_back_to_enum_slug_without_description(tmp_path):
+    """Phase C back-compat: a chain whose extraction carries NO
+    ``mechanism_description`` keeps the enum-slug node id (so existing snapshots
+    and non-bottom-up paths are unchanged), and ``mechanism_type`` / ``direction``
+    still derive correctly from the resolved category."""
+    import json
+
+    from src.graph.models import (
+        CausalChain, CompoundNode, EdgeBeliefState, EdgeType, GraphEdge,
+        IndicationNode, PopulationNode, TargetNode, TrialArm, TrialOutcome,
+        TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
+    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(IndicationNode(id="melanoma", name="melanoma"))
+    parent_pop = "melanoma__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="melanoma (all)"))
+    g.add_edge(GraphEdge(
+        source_id="pembrolizumab", target_id="ENSG00000188389",
+        edge_type=EdgeType.AFFECTS, belief=EdgeBeliefState(),
+        metadata={"implied_mechanism": "checkpoint_blockade"},
+    ))
+    arm = TrialArm(
+        arm_id="mono", regimen_compound_id="pembrolizumab",
+        compound_ids=["pembrolizumab"], is_combination=False,
+    )
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_FB", arms=[arm], parent_population_id=parent_pop,
+        chains=[CausalChain(
+            arm_id="mono", compound_id="pembrolizumab",
+            subgroup_population_id=parent_pop, target_id="ENSG00000188389",
+            mechanism_id="UNKNOWN", biology_id="UNKNOWN", indication_id="melanoma",
+            endpoint_id="ORR_melanoma", outcome=TrialOutcome.PARTIAL,
+        )],
+    ))
+    # Extraction with category only, NO mechanism_description.
+    (tmp_path / "NCT_FB_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_FB",
+        "results_by_chain": [
+            {"arm_id": "mono", "intervention": "pembrolizumab",
+             "outcome": "partial", "mechanism_category": "checkpoint_blockade"},
+        ],
+    }))
+    trial = TrialRecord(nct_id="NCT_FB", title="t", conditions=["melanoma"])
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        [trial], {"pembrolizumab": ["ENSG00000188389"]}, annotations_dir=tmp_path,
+    )
+
+    # Enum-slug id preserved (no content-address); direction derived from category.
+    node = g.get_node("checkpoint_blockade")
+    assert node["category"] == "checkpoint_blockade"
+    assert node["direction"] == "inhibiting"
+    ts = g.get_trial_subgraph_by_id("NCT_FB")
+    assert ts.chains[0].mechanism_id == "checkpoint_blockade"
+
+
+def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
+    """Phase C merge wiring: the default bottom-up MergeConfig routes
+    MechanismNode through the SapBERT precision tier (content-address action
+    siblings like PD-1- vs CTLA4-blockade have BioLORD cosine ≈ 1.0 and would
+    over-merge), while BiologyNode stays on the BioLORD semantic tier."""
+    import inspect
+
+    from src.graph import populate_bottomup
+
+    src = inspect.getsource(populate_bottomup.build_bottomup)
+    assert "enable_sapbert=True" in src
+    assert 'sapbert_node_types=("MechanismNode",)' in src
+    assert 'biolord_node_types=("BiologyNode",)' in src
