@@ -24,7 +24,7 @@ explicit "effective sample size" semantics rather than ad-hoc multipliers.
 evidence record; the bucket maps to a fixed probability. Free-floating
 0–1 confidence floats from an LLM are notoriously miscalibrated; bucketed
 emissions are far more repeatable, and the seven values can be empirically
-recalibrated with a small held-out set (see ``calibration.py``).
+recalibrated with a small held-out set (calibration is a pending follow-up).
 
 Both tables are deliberately exported as plain dicts so callers can swap
 them in tests or after calibration without subclassing.
@@ -96,7 +96,7 @@ BUCKET_TO_P_OBS: dict[SupportBucket, float] = {
 #     not move beliefs much absent corroborating evidence.
 #
 # These are pre-calibration defaults—once a labeled holdout of
-# ≥50 trials exists, refit via ``calibration.py`` to minimize Brier.
+# ≥50 trials exists, refit against the labeled set to minimize Brier.
 EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     EvidenceType.CLINICAL_PHASE3:    15.0,
     EvidenceType.CLINICAL_PHASE2:     6.0,
@@ -191,8 +191,8 @@ def p_obs_for_bucket(bucket: SupportBucket) -> float:
 # reproduces its legacy type-constant. Only the dispersion around that anchor
 # is new signal, which keeps the rollout no-regression.
 #
-# All values are pre-calibration defaults; ``calibration.py`` is meant to
-# refit them against held-out outcomes (Brier / ECE).
+# All values are pre-calibration defaults; a future calibration pass is
+# meant to refit them against held-out outcomes (Brier / ECE).
 _N_REF_ANCHOR = 350.0        # reference patient N (≈ corpus median enrollment 353); mult == 1 here
 _PRECISION_EXPONENT = 0.5    # concave in N (sqrt): 4x patients -> 2x weight
 _PRECISION_MULT_FLOOR = 0.5  # a small trial is still worth >= half the anchor

@@ -282,7 +282,7 @@ class EvidenceType(str, Enum):
     # CHARACTER of each source — curation depth, primary-vs-aggregate,
     # known replication behavior — NOT tuned against the holdout audit.
     # All are flagged as starting defaults pending real calibration on
-    # a ≥50-trial labeled set per calibration.py.
+    # a ≥50-trial labeled set (via a future calibration pass).
 
     # Drug→target binding curated by Open Targets (aggregates ChEMBL,
     # IUPHAR, DGIdb, drug labels). Primary assertion, multi-source

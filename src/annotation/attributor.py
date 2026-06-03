@@ -18,7 +18,6 @@ from src.graph.models import (
     CausalChain,
     EdgeBeliefState,
     EdgeType,
-    EvidenceDirection,
     EvidenceRecord,
     EvidenceType,
     GraphEdge,
@@ -32,7 +31,6 @@ from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import (
     SupportBucket,
     _precision_multiplier,
-    bucket_to_direction,
     effective_n_for_evidence,
     modulation_bucket,
     p_obs_for_bucket,
@@ -47,7 +45,6 @@ def _meddra_hierarchy_singleton() -> MedDRAHierarchy:
     return MedDRAHierarchy.load_default()
 from src.annotation.taxonomy import (
     ArmIncidence,
-    FAILURE_MODE_RULES,
     FailureClassification,
     FailureMode,
     ModulationEntry,
@@ -58,10 +55,6 @@ from src.annotation.taxonomy import (
 logger = logging.getLogger(__name__)
 
 _ANNOTATIONS_DIR = Path("data/annotations")
-# Misrouted-update audit log—written when a classifier-emitted edge update
-# can't be matched to any chain in the trial subgraph. The expected use is
-# vocab/extraction-prompt review, not silent drop.
-_UNROUTED_LOG_PATH = Path("data/dev/unrouted_attribution_updates.jsonl")
 # v0.3.0 unrouted modulation log — separate file so unroutable LLM
 # modulation_entries don't drown in the classifier unrouted log. A high
 # count here signals the extraction prompt is emitting entity ids that
@@ -78,26 +71,6 @@ _PHASE_TO_EVIDENCE: dict[str, EvidenceType] = {
     "3": EvidenceType.CLINICAL_PHASE3,
     "4": EvidenceType.CLINICAL_PHASE3,
 }
-
-# Node-type pairs each edge type connects (source_type, target_type). Used to
-# constrain free-text entity-name → canonical-id resolution to plausible
-# node types.
-_EDGE_TYPE_TO_NODE_TYPES: dict[EdgeType, tuple[str, str]] = {
-    EdgeType.AFFECTS:              ("InterventionNode", "TargetNode"),
-    EdgeType.MODULATES_VIA:        ("TargetNode", "MechanismNode"),
-    EdgeType.MECHANISM_AFFECTS:    ("MechanismNode", "BiologyNode"),
-    EdgeType.BIOLOGY_DRIVES:       ("BiologyNode", "IndicationNode"),
-    EdgeType.REFLECTS_BIOLOGY:     ("BiologyNode", "EndpointNode"),
-    EdgeType.ENDPOINT_CAPTURES:    ("EndpointNode", "IndicationNode"),
-    EdgeType.RESPONDS_DIFFERENTLY: ("PopulationNode", "IndicationNode"),
-    EdgeType.CAUSES_AE:            ("InterventionNode", "AdverseEventNode"),
-    EdgeType.TARGET_ASSOCIATED_AE: ("TargetNode", "AdverseEventNode"),
-    # Structural (no Beta belief, like COMPOSED_OF). Classifier never
-    # emits these directly — they're added by the populator from the
-    # _INDICATION_HIERARCHY table.
-    EdgeType.SUBTYPE_OF:           ("IndicationNode", "IndicationNode"),
-}
-
 
 # Sentinel used in CausalChain fields when a graph id wasn't yet resolved
 # (e.g. by populate.py before extraction filled in the biology id).
@@ -372,187 +345,6 @@ _NON_ALNUM_RE = __import__("re").compile(r"[^a-z0-9]+")
 def _norm_name(text: str) -> str:
     """Lowercase, strip non-alphanumerics. PD-1 / PD1 / pd_1 → 'pd1'."""
     return _NON_ALNUM_RE.sub("", (text or "").lower())
-
-
-class _NameIndex:
-    """Case-insensitive, punctuation-insensitive name → node-id index.
-
-    Built once per ``attribute()`` call. ``matches`` returns True for an
-    exact normalized match or a substring containment (length-gated to
-    avoid 1-2 char noise). Normalization strips dashes and spaces so
-    "CTLA-4" / "CTLA4" / "ctla 4" all collapse to "ctla4".
-    """
-    def __init__(self) -> None:
-        # node_id -> list of normalized names
-        self._names_by_id: dict[str, list[str]] = {}
-
-    def add(self, node_type: str, node_id: str, names: list[str]) -> None:
-        normed: list[str] = []
-        for name in names:
-            n = _norm_name(name)
-            if n:
-                normed.append(n)
-        # Always include the id itself as a fallback name to match against
-        #—some classifier emissions reuse the canonical id directly.
-        normed.append(_norm_name(node_id))
-        self._names_by_id.setdefault(node_id, []).extend(normed)
-
-    def matches(self, node_id: str, query: str) -> bool:
-        q = _norm_name(query)
-        if not q:
-            return False
-        names = self._names_by_id.get(node_id, [])
-        for name in names:
-            if name == q:
-                return True
-        if len(q) < 3:
-            return False
-        for name in names:
-            if len(name) < 3:
-                continue
-            if q in name or name in q:
-                return True
-        return False
-
-
-def _build_name_index(
-    graph: GraphStore, *, node_types: set[str]
-) -> _NameIndex:
-    """Build a name → node-id index for lookup at attribution time.
-
-    For TargetNodes, also seed the index with HGNC aliases of the
-    canonical gene_symbol (so a classifier emitting "PD-1" routes to
-    the same node as its HUGO canonical "PDCD1"). HGNC lookup is
-    best-effort—when the resolver isn't loaded the index falls back
-    to name + gene_symbol only.
-    """
-    from src.graph.hgnc_resolver import (
-        _ALIAS_TO_CANONICAL,
-        canonical_symbol,
-        is_loaded as hgnc_loaded,
-    )
-
-    idx = _NameIndex()
-
-    # Reverse the HGNC dict once: canonical → list[alias]. Cheap because
-    # HGNC has ~50k canonicals and we only iterate Targets here.
-    canonical_to_aliases: dict[str, list[str]] = {}
-    if hgnc_loaded() and _ALIAS_TO_CANONICAL is not None:
-        for alias_norm, canonical in _ALIAS_TO_CANONICAL.items():
-            canonical_to_aliases.setdefault(canonical, []).append(alias_norm)
-
-    for node_type in node_types:
-        for node in graph.get_nodes_by_type(node_type):
-            names = [node.get("name", "")]
-            if node_type == "TargetNode":
-                gs = node.get("gene_symbol", "") or ""
-                if gs:
-                    names.append(gs)
-                # Alias expansion: if gene_symbol resolves through HGNC,
-                # add every known alias so any classifier-emitted variant
-                # ("PD-1", "PDL1", "B7-H1") matches the same TargetNode.
-                if gs:
-                    canonical = canonical_symbol(gs) or gs.upper()
-                    for alias_norm in canonical_to_aliases.get(canonical, []):
-                        names.append(alias_norm)
-            idx.add(node_type, node["id"], names)
-    return idx
-
-
-def _chain_edges_for_type(
-    chain: CausalChain,
-    arm: TrialArm,
-    edge_type: EdgeType,
-) -> list[tuple[str, str]]:
-    """All (source_id, target_id) candidates this chain implies for the edge type.
-
-    binds_to gets one candidate per constituent compound on the arm—that
-    way the classifier-emitted ``Ipilimumab → CTLA-4`` update routes to the
-    ipi mono chain (or the combo chain's ipi side), never to the nivo→PD-1
-    pair.
-    """
-    if edge_type == EdgeType.AFFECTS:
-        return [(cid, chain.target_id) for cid in arm.compound_ids]
-    if edge_type == EdgeType.MODULATES_VIA:
-        return [(chain.target_id, chain.mechanism_id)]
-    if edge_type == EdgeType.MECHANISM_AFFECTS:
-        return [(chain.mechanism_id, chain.biology_id)]
-    if edge_type == EdgeType.BIOLOGY_DRIVES:
-        return [(chain.biology_id, chain.indication_id)]
-    if edge_type == EdgeType.REFLECTS_BIOLOGY:
-        return [(chain.biology_id, chain.endpoint_id)]
-    if edge_type == EdgeType.ENDPOINT_CAPTURES:
-        return [(chain.endpoint_id, chain.indication_id)]
-    if edge_type == EdgeType.RESPONDS_DIFFERENTLY:
-        return [(chain.subgroup_population_id, chain.indication_id)]
-    return []
-
-
-def _score_pair_against_names(
-    src_id: str,
-    tgt_id: str,
-    src_name: str,
-    tgt_name: str,
-    name_index: _NameIndex,
-) -> tuple[int, bool]:
-    """Returns ``(score, explicit_mismatch)``.
-
-    Score 2: both source and target match the classifier-emitted names.
-    Score 1: one side matches, other side has no name to check (empty
-             classifier emission). Falls back rather than dropping.
-    Score 0: either at least one side has a name that *doesn't* match
-             (``explicit_mismatch=True``), or both sides are empty
-             (``explicit_mismatch=False``).
-    """
-    src_match = name_index.matches(src_id, src_name) if src_name else None
-    tgt_match = name_index.matches(tgt_id, tgt_name) if tgt_name else None
-
-    if src_match is False or tgt_match is False:
-        return 0, True
-
-    score = 0
-    if src_match:
-        score += 1
-    if tgt_match:
-        score += 1
-    return score, False
-
-
-def _log_unrouted(trial_id: str, item: dict[str, Any], *, reason: str) -> None:
-    _UNROUTED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    record = {
-        "trial_id": trial_id,
-        "edge_type": item.get("edge_type"),
-        "source_entity": item.get("source_entity"),
-        "target_entity": item.get("target_entity"),
-        "support": item.get("support"),
-        "reason": reason,
-        "logged_at": datetime.now(timezone.utc).isoformat(),
-    }
-    with _UNROUTED_LOG_PATH.open("a") as fh:
-        fh.write(json.dumps(record) + "\n")
-
-
-def _resolve_arm_id(
-    llm_arm_id: str,
-    arm_by_id: dict[str, TrialArm],
-) -> str | None:
-    """Map an LLM-emitted arm_id to a real arm_id in the trial subgraph.
-
-    Both extractor and classifier prompts enumerate the trial's
-    CT.gov-derived `group_id` values and instruct the LLM to use them
-    verbatim (see `_format_arm_id_menu` in classifier.py and the
-    Arm Groups section of extraction_user.txt). Resolution is therefore
-    an exact dict lookup — no fuzzy matching, no token overlap, no
-    compound-set heuristics. When the LLM ignores the constraint and
-    invents a slug anyway, the standard unrouted log surfaces it as a
-    prompt-regression signal instead of silently routing the wrong arm.
-    """
-    if not llm_arm_id:
-        return None
-    if llm_arm_id in arm_by_id:
-        return llm_arm_id
-    return None
 
 
 def _log_unrouted_modulation(
@@ -905,8 +697,7 @@ class Attributor:
         # redesign. ``_condition_chain_on_outcomes`` ALWAYS conditions every
         # backbone edge of every chain on an arm with a known outcome, so a
         # failure trial can never leave its chains silent — the backstop's
-        # job is now structurally guaranteed. ``_emit_failure_backstop`` is
-        # kept (as a no-op-by-disuse helper) for reference / tests.
+        # job is now structurally guaranteed.
 
         return updates
 
@@ -1094,63 +885,6 @@ class Attributor:
                     post_update_belief=post,
                 ))
         return emitted
-
-    def _emit_failure_backstop(
-        self,
-        trial: TrialSubgraph,
-        classification: FailureClassification,
-        evidence_type: EvidenceType,
-    ) -> AppliedEdgeUpdate | None:
-        """Auto-emit `biology_drives weak_contradict` for a silent failure trial.
-
-        Used only when the classifier returned zero `biology_drives` edges
-        on a failure trial — the prompt rule was violated, and the graph
-        otherwise gets no signal from the failure. Targets the parent
-        chain's (biology_id → indication_id) edge with a deliberately
-        low-strength bucket because the classifier didn't independently
-        reason about the contradict; we're back-filling the structural
-        expectation, not adding new mechanistic information.
-        """
-        parent_chain = trial.chains[0]
-        src_id = parent_chain.biology_id
-        tgt_id = parent_chain.indication_id
-        try:
-            pre = self.graph.get_edge_belief(src_id, tgt_id, EdgeType.BIOLOGY_DRIVES)
-        except KeyError:
-            logger.debug(
-                "Failure backstop skipped for %s: biology_drives %s → %s not in graph",
-                trial.trial_id, src_id, tgt_id,
-            )
-            return None
-        evidence = EvidenceRecord(
-            source_id=trial.trial_id,
-            source_type=evidence_type,
-            support=SupportBucket.WEAK_CONTRADICT.value,
-            quality_score=min(classification.confidence, 1.0),
-            timestamp=datetime.now(timezone.utc),
-            notes=(
-                "Failure-trial backstop: classifier returned zero "
-                "biology_drives edges on a failure outcome, so a default "
-                "weak_contradict is emitted on the parent chain."
-            ),
-        )
-        post = self.graph.update_edge_belief(
-            src_id, tgt_id, EdgeType.BIOLOGY_DRIVES, evidence,
-        )
-        logger.warning(
-            "Failure-trial backstop fired for %s: classifier emitted 0 "
-            "biology_drives on outcome=failure; auto-emitted weak_contradict "
-            "on %s → %s",
-            trial.trial_id, src_id, tgt_id,
-        )
-        return AppliedEdgeUpdate(
-            source_id=src_id,
-            target_id=tgt_id,
-            edge_type=EdgeType.BIOLOGY_DRIVES,
-            evidence=evidence,
-            pre_update_belief=pre,
-            post_update_belief=post,
-        )
 
     def _emit_arm_differential_modulations(
         self,
@@ -1814,108 +1548,6 @@ class Attributor:
             "edges_updated": len(updates),
             "largest_changes": largest,
         }
-
-    def _route_to_chain_edge(
-        self,
-        edge_type: EdgeType,
-        trial: TrialSubgraph,
-        arm_by_id: dict[str, TrialArm],
-        name_index: "_NameIndex",
-        item: dict[str, Any],
-    ) -> tuple[str | None, str | None, str | None]:
-        """Pick the chain whose canonical ids best match the classifier's
-        free-text source/target entity names, then return that chain's
-        ``(source_id, target_id, reason)`` for the given edge type.
-
-        Returns ``reason=None`` on success. On failure, ids are ``None``
-        and reason is one of:
-          - ``"no_chain_match"``—no chain in the trial subgraph has
-            non-UNKNOWN candidates for this edge type. Means the trial
-            is too sparsely populated to verify the update.
-          - ``"entity_not_in_trial"``—candidate pairs exist, but the
-            classifier's named source/target match nothing among them.
-            This is the hallucination guard: graph-build trusts only
-            entities derivable from the trial subgraph, so if the
-            classifier invents an off-trial entity the update is
-            dropped rather than misrouted.
-          - ``"unknown_arm_id:<arm>"``—v1 of classifier-per-arm
-            emission: the classifier tagged this update with an
-            arm_id that isn't in the trial. The LLM hallucinated.
-
-        Open Targets-seeded biology_drives gets a special pass-through:
-        OT writes a single (target_id, indication_id) edge during populate
-        and the trial-time biology id may be a different node, so we
-        update the OT-keyed edge instead.
-
-        ``affecting_arm_id`` on the item, when non-null, restricts the
-        chain iteration to chains whose ``arm_id`` matches. This is the
-        v1 fix for multi-arm trials where a constituent appears in
-        several arms — the LLM's per-arm tag picks the right chain
-        instead of entity-name matching to whichever chain came first.
-        """
-        if edge_type == EdgeType.BIOLOGY_DRIVES:
-            ot_coords = trial.metadata.get("ot_biology_drives")
-            if ot_coords:
-                return ot_coords.get("source_id"), ot_coords.get("target_id"), None
-
-        src_name = (item.get("source_entity") or "").strip()
-        tgt_name = (item.get("target_entity") or "").strip()
-        affecting_arm_id = item.get("affecting_arm_id")
-
-        # Phase B: if the classifier tagged this update with an arm_id,
-        # restrict chain iteration to that arm's chains. Falls back to
-        # all-chains entity-name matching when the tag is null (back-
-        # compat for cached classifications written pre-v1).
-        #
-        # The LLM tends to emit natural arm slugs ("ipilimumab_alone",
-        # "cmp001_plus_nivo") that don't exact-match the populator's
-        # long-form slugs ("arm_a_ipilimumab", "nivolumab_and_cmp_001_
-        # combination"). Same "LLM doesn't know graph-internal ids"
-        # problem we hit with v0.3 modulation. Two-stage match:
-        #   1. Exact arm_id match.
-        #   2. Normalized substring match: when exactly one graph arm
-        #      contains (or is contained by) the LLM's slug after
-        #      alnum-lowercasing, use it.
-        # Only unroute as unknown_arm_id when neither pass resolves.
-        if affecting_arm_id:
-            resolved_arm_id = _resolve_arm_id(
-                affecting_arm_id, arm_by_id,
-            )
-            if resolved_arm_id is None:
-                return None, None, f"unknown_arm_id:{affecting_arm_id}"
-            candidate_chains = [
-                c for c in trial.chains if c.arm_id == resolved_arm_id
-            ]
-        else:
-            candidate_chains = list(trial.chains)
-
-        best: tuple[str, str] | None = None
-        best_score = -1
-        any_candidate = False
-        any_explicit_mismatch = False
-        for chain in candidate_chains:
-            arm = arm_by_id.get(chain.arm_id)
-            if arm is None:
-                continue
-            for src_id, tgt_id in _chain_edges_for_type(chain, arm, edge_type):
-                if src_id == _UNKNOWN_PLACEHOLDER or tgt_id == _UNKNOWN_PLACEHOLDER:
-                    continue
-                any_candidate = True
-                score, mismatched = _score_pair_against_names(
-                    src_id, tgt_id, src_name, tgt_name, name_index,
-                )
-                if mismatched:
-                    any_explicit_mismatch = True
-                if score > best_score:
-                    best_score = score
-                    best = (src_id, tgt_id)
-
-        if best is not None and best_score >= 1:
-            return best[0], best[1], None
-
-        if any_candidate and any_explicit_mismatch:
-            return None, None, "entity_not_in_trial"
-        return None, None, "no_chain_match"
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────

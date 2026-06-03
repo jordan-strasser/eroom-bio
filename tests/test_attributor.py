@@ -180,16 +180,6 @@ def _outcome_extraction(
 
 
 @pytest.fixture(autouse=True)
-def _isolated_unrouted_log(tmp_path, monkeypatch):
-    """Redirect the unrouted-attribution audit log to a per-test tmp
-    file so tests never read or unlink the real `data/dev/...jsonl`.
-    """
-    log_path = tmp_path / "unrouted_attribution_updates.jsonl"
-    monkeypatch.setattr(_attributor_module, "_UNROUTED_LOG_PATH", log_path)
-    yield log_path
-
-
-@pytest.fixture(autouse=True)
 def _isolated_unrouted_mod_log(tmp_path, monkeypatch):
     """Same idea for the v0.3.0 modulation unrouted log."""
     log_path = tmp_path / "unrouted_modulation_entries.jsonl"

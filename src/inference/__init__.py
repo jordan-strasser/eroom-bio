@@ -2,8 +2,7 @@
 
 This package owns the principled Beta-Binomial conjugate update used to
 turn evidence records into edge belief updates. See ``beliefs.py`` for
-the canonical recipe and ``calibration.py`` for the (stubbed) empirical
-fitting harness.
+the canonical recipe.
 """
 
 from src.inference.beliefs import (
