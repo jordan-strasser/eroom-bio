@@ -80,6 +80,15 @@ class MergeConfig:
     # SapBERT separates true distinct entities (PD-1 0.67 vs synonym ~0.75), so a
     # high threshold is the precision tier BioLORD lacks. Tunable per the eval.
     sapbert_threshold: float = 0.80
+    # Per-type gates for the geometric tiers (design-doc Open Decision #2: Tier-3
+    # is a per-type call, not global). ``None`` = apply to every configured type
+    # (back-compat). The merge signal belongs at different scales: BioLORD
+    # (semantic) at the BIOLOGY scale — sibling-merge is correct there — but it
+    # over-merges at the mechanism/target scale (PD-1 vs CTLA4 cosine = 1.000),
+    # where SapBERT (entity-linking) is the right precision tier. So set e.g.
+    # ``biolord_node_types=("BiologyNode",)`` and ``sapbert_node_types=("MechanismNode",)``.
+    biolord_node_types: tuple[str, ...] | None = None
+    sapbert_node_types: tuple[str, ...] | None = None
 
 
 class NodeMergeReport(BaseModel):
@@ -143,12 +152,17 @@ def _classes_for_type(
     nodes: dict[str, dict],
     config: MergeConfig,
     *,
+    node_type: str,
     embed_fn: Callable[[str], list[float]] | None,
     sapbert_embed_fn: Callable[[str], list[float]] | None,
     boxes: dict[str, "Box"] | None,
     crosswalk: dict[str, str] | None,
 ) -> list[set[str]]:
-    """Build merge classes for one node type by unioning all enabled tiers."""
+    """Build merge classes for one node type by unioning all enabled tiers.
+
+    ``node_type`` gates the per-type geometric tiers (``biolord_node_types`` /
+    ``sapbert_node_types``) so a semantic vs entity-linking signal can be chosen
+    per layer rather than globally."""
     ids = list(nodes)
     uf = _UF(ids)
 
@@ -181,7 +195,11 @@ def _classes_for_type(
             for other in group[1:]:
                 uf.union(group[0], other)
 
-    if config.enable_sapbert and sapbert_embed_fn is not None:
+    if (
+        config.enable_sapbert and sapbert_embed_fn is not None
+        and (config.sapbert_node_types is None
+             or node_type in config.sapbert_node_types)
+    ):
         from src.graph.biolord_embeddings import cosine_similarity
         named = [(nid, (nodes[nid].get("name") or "").strip()) for nid in ids]
         named = [(i, n) for i, n in named if n]
@@ -192,7 +210,11 @@ def _classes_for_type(
                 if cosine_similarity(svecs[skeys[a]], svecs[skeys[b]]) >= config.sapbert_threshold:
                     uf.union(skeys[a], skeys[b])
 
-    if config.enable_biolord and embed_fn is not None:
+    if (
+        config.enable_biolord and embed_fn is not None
+        and (config.biolord_node_types is None
+             or node_type in config.biolord_node_types)
+    ):
         from src.graph.biolord_embeddings import cosine_similarity
         texts = [(nid, _node_text(nodes[nid])) for nid in ids]
         texts = [(i, t) for i, t in texts if t]
@@ -427,7 +449,8 @@ def assemble(
         if len(nodes) < 2:
             continue
         classes = _classes_for_type(
-            nodes, config, embed_fn=embed_fn, sapbert_embed_fn=sapbert_embed_fn,
+            nodes, config, node_type=node_type,
+            embed_fn=embed_fn, sapbert_embed_fn=sapbert_embed_fn,
             boxes=boxes, crosswalk=crosswalk,
         )
         for class_ in classes:

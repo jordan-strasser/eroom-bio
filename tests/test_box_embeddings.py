@@ -177,3 +177,86 @@ def test_boxes_are_stripped_from_public_snapshot(tmp_path):
     text = out.read_text()
     assert "box_min" not in text
     assert "box_max" not in text
+
+
+# ── Per-(arm, intervention) chain descriptions (combo-arm biology fix) ─────────
+
+
+def _write_extraction(tmp_path, payload):
+    import json
+
+    (tmp_path / f"{payload['nct_id']}_extraction.json").write_text(json.dumps(payload))
+
+
+def test_intervention_key_normalizes_like_compound_slug():
+    from src.graph.box_embeddings import _intervention_key
+
+    assert _intervention_key("MASE-T cells") == "mase_t_cells"
+    assert _intervention_key("Cyclophosphamide") == "cyclophosphamide"
+    assert _intervention_key("  PD-1 / nivolumab ") == "pd_1_nivolumab"
+    assert _intervention_key("") == ""
+
+
+def test_chain_descriptions_by_arm_intervention_keys_per_drug(tmp_path):
+    """A combo arm with two drugs emits two entries; the index keys each drug's
+    distinct biology under (nct, arm, intervention) so the populator can attach
+    drug-specific biology rather than one shared arm-level description."""
+    from src.graph.box_embeddings import chain_descriptions_by_arm_intervention
+
+    _write_extraction(tmp_path, {
+        "nct_id": "NCT_COMBO",
+        "results_by_chain": [
+            {
+                "arm_id": "part_b", "intervention": "cyclophosphamide",
+                "endpoint": "ORR", "outcome": "partial",
+                "mechanism_description": "DNA alkylation",
+                "biology_description": "DNA-damage-induced apoptosis",
+                "mechanism_category": "dna_crosslinking",
+            },
+            {
+                "arm_id": "part_b", "intervention": "Pembrolizumab",
+                "endpoint": "ORR", "outcome": "partial",
+                "mechanism_description": "PD-1 checkpoint blockade",
+                "biology_description": "T-cell mediated anti-tumor immunity",
+                # no mechanism_category → defaults to "" (back-compat)
+            },
+        ],
+    })
+    idx = chain_descriptions_by_arm_intervention(tmp_path)
+    # Keyed per-drug (intervention slug), distinct biology each.
+    assert idx[("NCT_COMBO", "part_b", "cyclophosphamide")]["biology"] == (
+        "DNA-damage-induced apoptosis"
+    )
+    assert idx[("NCT_COMBO", "part_b", "pembrolizumab")]["biology"] == (
+        "T-cell mediated anti-tumor immunity"
+    )
+    # Abstraction-ladder redesign: mechanism_category carried per-drug;
+    # absent → "" (back-compat with pre-redesign cached extractions).
+    assert idx[("NCT_COMBO", "part_b", "cyclophosphamide")]["mechanism_category"] == (
+        "dna_crosslinking"
+    )
+    assert idx[("NCT_COMBO", "part_b", "pembrolizumab")]["mechanism_category"] == ""
+
+
+def test_chain_descriptions_by_arm_intervention_skips_empty_intervention(tmp_path):
+    """Entries without an intervention (pre-fix cached extractions) are NOT
+    indexed here — callers fall back to the per-arm index, preserving behavior.
+    The legacy per-arm index still returns the (shared) description."""
+    from src.graph.box_embeddings import (
+        chain_descriptions_by_arm,
+        chain_descriptions_by_arm_intervention,
+    )
+
+    _write_extraction(tmp_path, {
+        "nct_id": "NCT_LEGACY",
+        "results_by_chain": [
+            {
+                "arm_id": "arm_1", "endpoint": "PFS", "outcome": "failure",
+                "biology_description": "angiogenesis inhibition",
+            },
+        ],
+    })
+    assert chain_descriptions_by_arm_intervention(tmp_path) == {}
+    assert chain_descriptions_by_arm(tmp_path)[("NCT_LEGACY", "arm_1")]["biology"] == (
+        "angiogenesis inhibition"
+    )

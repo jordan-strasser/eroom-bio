@@ -1,10 +1,10 @@
 {
   "nct_id": "NCT01271907",
   "therapeutic_hypothesis": {
-    "compound": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ T cells",
+    "compound": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
     "claimed_target": "melanoma antigens",
-    "proposed_mechanism": "adoptive transfer of tumor-reactive CD8+ T cells",
-    "intended_biology": "anti-tumor immune response",
+    "proposed_mechanism": "melanoma antigen recognition and T-cell activation",
+    "intended_biology": "adoptive T-cell cytotoxicity",
     "target_population": "metastatic cutaneous melanoma",
     "primary_endpoint": "clinical response by RECIST",
     "rationale_strength": "moderate"
@@ -16,14 +16,14 @@
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [
-      "1 partial response, 2 progressive disease in 3 treated patients"
+      "1 partial response, 2 progressive disease, 0 complete response, 0 stable disease"
     ],
     "safety_signals": [
-      "3 participants experienced adverse events"
+      "3 participants with adverse events"
     ],
     "dose_info": {
-      "dose": "up to 1x10e10 CTL-05 cells",
-      "schedule": "single infusion",
+      "dose": "Up to 1x10e10 CTL-05 cells",
+      "schedule": "",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -31,7 +31,7 @@
   },
   "context": {
     "indication": "metastatic cutaneous melanoma",
-    "comparator": "none",
+    "comparator": "",
     "sample_size": 3,
     "duration": "7 months",
     "duration_weeks": 30.4,
@@ -43,7 +43,7 @@
       "compounds": [
         "fludarabine",
         "cyclophosphamide",
-        "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+        "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
         "aldesleukin"
       ]
     },
@@ -52,7 +52,7 @@
       "compounds": [
         "fludarabine",
         "cyclophosphamide",
-        "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+        "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
         "aldesleukin"
       ]
     },
@@ -61,7 +61,7 @@
       "compounds": [
         "fludarabine",
         "cyclophosphamide",
-        "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+        "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
         "aldesleukin"
       ]
     }
@@ -111,87 +111,84 @@
   "results_by_chain": [
     {
       "arm_id": "cohort_0",
+      "intervention": "fludarabine",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA synthesis inhibition",
+      "biology_description": "lymphodepletion",
+      "population_description": "metastatic cutaneous melanoma",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "cohort_0",
+      "intervention": "cyclophosphamide",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "lymphodepletion",
+      "population_description": "metastatic cutaneous melanoma",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "cohort_0",
+      "intervention": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
       "subgroup_descriptor": null,
       "endpoint": "clinical response",
       "effect_size": 0.33,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "adoptive transfer of ex vivo expanded melanoma-reactive CD8+ T cells",
-      "biology_description": "anti-tumor immune response in metastatic melanoma",
-      "population_description": "metastatic cutaneous melanoma patients"
+      "outcome": "partial",
+      "mechanism_description": "melanoma antigen recognition and T-cell activation",
+      "biology_description": "adoptive T-cell cytotoxicity",
+      "population_description": "metastatic cutaneous melanoma",
+      "mechanism_category": "antigen_directed_cytotoxicity"
     },
     {
       "arm_id": "cohort_0",
-      "subgroup_descriptor": "Complete Response",
+      "intervention": "aldesleukin",
+      "subgroup_descriptor": null,
       "endpoint": "clinical response",
-      "effect_size": 0.0,
+      "effect_size": null,
       "p_value": null,
       "outcome": "failure",
-      "mechanism_description": "adoptive transfer of ex vivo expanded melanoma-reactive CD8+ T cells",
-      "biology_description": "anti-tumor immune response in metastatic melanoma",
-      "population_description": "patients achieving complete response"
-    },
-    {
-      "arm_id": "cohort_0",
-      "subgroup_descriptor": "Partial Response",
-      "endpoint": "clinical response",
-      "effect_size": 1.0,
-      "p_value": null,
-      "outcome": "success",
-      "mechanism_description": "adoptive transfer of ex vivo expanded melanoma-reactive CD8+ T cells",
-      "biology_description": "anti-tumor immune response in metastatic melanoma",
-      "population_description": "patients achieving partial response"
-    },
-    {
-      "arm_id": "cohort_0",
-      "subgroup_descriptor": "Progressive Disease",
-      "endpoint": "clinical response",
-      "effect_size": 2.0,
-      "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "adoptive transfer of ex vivo expanded melanoma-reactive CD8+ T cells",
-      "biology_description": "anti-tumor immune response in metastatic melanoma",
-      "population_description": "patients with progressive disease"
-    },
-    {
-      "arm_id": "cohort_0",
-      "subgroup_descriptor": "Stable Disease",
-      "endpoint": "clinical response",
-      "effect_size": 0.0,
-      "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "adoptive transfer of ex vivo expanded melanoma-reactive CD8+ T cells",
-      "biology_description": "anti-tumor immune response in metastatic melanoma",
-      "population_description": "patients achieving stable disease"
+      "mechanism_description": "IL-2 receptor activation",
+      "biology_description": "T-cell proliferation and activation",
+      "population_description": "metastatic cutaneous melanoma",
+      "mechanism_category": "immune_costimulation"
     }
   ],
   "modulation_entries": [
     {
       "modulator_compound_id": "fludarabine",
-      "primary_compound_id": "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+      "primary_compound_id": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.75,
-      "hypothesis": "lymphodepletion creates space for adoptively transferred T cells to expand and persist",
-      "citation": "fludarabine, cyclophosphamide, Drosophila-peptide pulsed Melanoma-reactive autologous CD8+ PBL"
+      "hypothesis": "lymphodepleting preparative regimen creates space for adoptive T-cell engraftment and expansion",
+      "citation": "Drosophila Generated PBL Administered in Combination With a Lymphodepleting Preparative Regimen"
     },
     {
       "modulator_compound_id": "cyclophosphamide",
-      "primary_compound_id": "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+      "primary_compound_id": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
       "affects_layer": "biology",
       "direction": "amplifies",
       "confidence": 0.75,
-      "hypothesis": "lymphodepletion creates space for adoptively transferred T cells to expand and persist",
-      "citation": "fludarabine, cyclophosphamide, Drosophila-peptide pulsed Melanoma-reactive autologous CD8+ PBL"
+      "hypothesis": "lymphodepleting preparative regimen creates space for adoptive T-cell engraftment and expansion",
+      "citation": "Drosophila Generated PBL Administered in Combination With a Lymphodepleting Preparative Regimen"
     },
     {
       "modulator_compound_id": "aldesleukin",
-      "primary_compound_id": "drosophila_peptide_pulsed_melanoma_reactive_autologous_cd8_pbl",
+      "primary_compound_id": "Drosophila-peptide pulsed melanoma-reactive autologous CD8+ PBL",
       "affects_layer": "biology",
       "direction": "amplifies",
-      "confidence": 0.75,
-      "hypothesis": "IL-2 supports T cell expansion and activation following adoptive transfer",
-      "citation": "Aldesleukin 125,000 IU/kg/dose as a daily subcutaneous injection"
+      "confidence": 0.7,
+      "hypothesis": "IL-2 support enhances adoptive T-cell survival and proliferation in vivo",
+      "citation": "Supportive Systemic Aldesleukin"
     }
   ]
 }

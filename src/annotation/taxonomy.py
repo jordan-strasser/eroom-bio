@@ -262,6 +262,17 @@ class ChainResult(BaseModel):
     effect_size: float | None = None
     p_value: float | None = None
     outcome: str = "unknown"  # success | failure | partial | unknown
+    # Combo-arm biology fix: a results_by_chain entry now describes ONE drug's
+    # causal chain within the arm, not the whole arm. ``intervention`` names
+    # that drug (a single compound name / slug, matching one of the arm's
+    # ``compounds`` entries) so the populator can attach this entry's
+    # mechanism/biology descriptions to the per-compound fanned-out chain
+    # (``CausalChain.compound_id``) rather than stamping one arm-level
+    # description onto every constituent. Default "" so (a) pre-fix cached
+    # extractions parse unchanged and (b) mono-arm entries that omit it fall
+    # back to per-arm keying. See feedback_simple_faithful / the combo-arm
+    # biology-fusion fix.
+    intervention: str = ""
     # A.0b: per-chain *contextualized* free-text descriptions, emitted by the
     # extractor for sharper manifold-2 (s,t) localization — the same edge gets
     # distinct evidence points (e.g. "VEGFR2 inhibition in tumor vasculature"
@@ -272,6 +283,16 @@ class ChainResult(BaseModel):
     mechanism_description: str = ""
     biology_description: str = ""
     population_description: str = ""
+    # Abstraction-ladder redesign: the drug-class functional ontology bucket
+    # for THIS entry's ``intervention`` drug — a free-text label the extractor
+    # maps to a ``MechanismCategory`` value (e.g. "checkpoint_blockade",
+    # "kinase_inhibition", "dna_crosslinking"). The MechanismNode's IDENTITY is
+    # the specific action (``mechanism_description``); this is the COARSE class
+    # it rolls up into, carried onto ``MechanismNode.category`` as metadata so
+    # audits + round-28 direction/type derivation keep a categorical handle.
+    # Default "" so (a) pre-redesign cached extractions parse unchanged and
+    # (b) entries that omit it simply contribute no category.
+    mechanism_category: str = ""
 
 
 class DoseInfo(BaseModel):

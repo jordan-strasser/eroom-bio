@@ -168,6 +168,50 @@ class TestParseResponse:
         assert c0.biology_description == "angiogenesis inhibition in stage III adjuvant CRC"
         assert c0.population_description == "resected stage III colon cancer"
         assert c1.mechanism_description == ""  # absent → default
+        assert c0.intervention == ""  # absent → default (back-compat)
+
+    def test_parses_per_chain_intervention(self):
+        # Combo-arm biology fix: each results_by_chain entry names the single
+        # drug it describes; absent → "" so pre-fix cached extractions parse.
+        raw = {
+            "nct_id": "NCT_IV",
+            "results_by_chain": [
+                {"arm_id": "part_b", "intervention": "Cyclophosphamide",
+                 "outcome": "partial", "biology_description": "DNA-damage apoptosis"},
+                {"arm_id": "part_b", "intervention": "pembrolizumab",
+                 "outcome": "partial", "biology_description": "anti-tumor immunity"},
+                {"arm_id": "arm_2", "outcome": "unknown"},  # no intervention
+            ],
+        }
+        ex = _parse_extraction_response(raw, "NCT_IV")
+        c0, c1, c2 = ex.results_by_chain
+        assert c0.intervention == "Cyclophosphamide"
+        assert c1.intervention == "pembrolizumab"
+        assert c2.intervention == ""
+
+    def test_parses_per_chain_mechanism_category(self):
+        # Abstraction-ladder redesign: each entry's drug-class functional bucket
+        # parses onto ChainResult.mechanism_category; absent → "" so pre-redesign
+        # cached extractions parse unchanged (back-compat).
+        raw = {
+            "nct_id": "NCT_CAT",
+            "results_by_chain": [
+                {"arm_id": "part_b", "intervention": "cyclophosphamide",
+                 "outcome": "partial",
+                 "mechanism_description": "DNA cross-linking / alkylation",
+                 "mechanism_category": "dna_crosslinking"},
+                {"arm_id": "part_b", "intervention": "pembrolizumab",
+                 "outcome": "partial",
+                 "mechanism_description": "PD-1 checkpoint blockade",
+                 "mechanism_category": "checkpoint_blockade"},
+                {"arm_id": "arm_2", "outcome": "unknown"},  # no category
+            ],
+        }
+        ex = _parse_extraction_response(raw, "NCT_CAT")
+        c0, c1, c2 = ex.results_by_chain
+        assert c0.mechanism_category == "dna_crosslinking"
+        assert c1.mechanism_category == "checkpoint_blockade"
+        assert c2.mechanism_category == ""  # absent → default (back-compat)
 
     def test_extracts_effect_size_float(self):
         extraction = _parse_extraction_response(VALID_RESPONSE_JSON, "NCT00000001")

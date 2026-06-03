@@ -317,6 +317,19 @@ def biology_parent_child_pairs(graph, ancestors_fn=None) -> list[tuple[str, str]
     return pairs
 
 
+def _intervention_key(name: str) -> str:
+    """Normalize an LLM intervention string to a comparison key.
+
+    Matches the ``InterventionNode`` slug rule (lowercase, non-alphanumeric
+    runs → underscore) so a results_by_chain ``intervention`` can be compared
+    against a chain's ``compound_id`` / compound node name without importing the
+    full ``normalize_entity`` machinery (kept light so this module stays free of
+    a graph-models dependency)."""
+    import re
+
+    return re.sub(r"[^a-z0-9]+", "_", (name or "").strip().lower()).strip("_")
+
+
 def chain_descriptions_by_arm(annotations_dir) -> dict:
     """``(nct, arm_id) -> {mechanism, biology, population}`` from the A.0b
     per-chain descriptions in cached extractions (first non-empty per field per
@@ -338,6 +351,58 @@ def chain_descriptions_by_arm(annotations_dir) -> dict:
             for key, field in (("mechanism", "mechanism_description"),
                                ("biology", "biology_description"),
                                ("population", "population_description")):
+                if not e[key]:
+                    v = (cr.get(field) or "").strip()
+                    if v:
+                        e[key] = v
+    return out
+
+
+def chain_descriptions_by_arm_intervention(annotations_dir) -> dict:
+    """``(nct, arm_id, intervention_key) -> {mechanism, biology, population,
+    mechanism_category}``.
+
+    Combo-arm biology fix: a results_by_chain entry now carries an
+    ``intervention`` field naming the single drug whose chain it describes, so
+    co-administered drugs with different mechanisms get DIFFERENT descriptions.
+    This index keys those descriptions per (trial, arm, drug) — the populator
+    looks up THIS chain's compound (``CausalChain.compound_id`` / its node name,
+    normalized via :func:`_intervention_key`) to attach the drug-specific
+    biology, instead of stamping one arm-level description onto every fanned-out
+    constituent (which made distinct biology nodes share a description and then
+    wrongly fuse in the BioLORD merge).
+
+    Abstraction-ladder redesign also surfaces ``mechanism_category`` (the
+    drug-class functional ontology bucket) per (arm, drug) so the populator can
+    stamp it onto the constituent's ``MechanismNode.category`` metadata.
+
+    Entries with an empty ``intervention`` (pre-fix cached extractions, or
+    mono-arm entries that omit it) are not indexed here — callers fall back to
+    :func:`chain_descriptions_by_arm`, preserving prior behavior. First
+    non-empty value per field per (arm, intervention) wins."""
+    out: dict = {}
+    for p in sorted(Path(annotations_dir).glob("*_extraction.json")):
+        try:
+            d = json.loads(p.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        nct = d.get("nct_id")
+        if not nct:
+            continue
+        for cr in d.get("results_by_chain", []) or []:
+            arm = cr.get("arm_id")
+            iv = _intervention_key(cr.get("intervention") or "")
+            if not arm or not iv:
+                continue
+            e = out.setdefault(
+                (nct, arm, iv),
+                {"mechanism": "", "biology": "", "population": "",
+                 "mechanism_category": ""},
+            )
+            for key, field in (("mechanism", "mechanism_description"),
+                               ("biology", "biology_description"),
+                               ("population", "population_description"),
+                               ("mechanism_category", "mechanism_category")):
                 if not e[key]:
                     v = (cr.get(field) or "").strip()
                     if v:

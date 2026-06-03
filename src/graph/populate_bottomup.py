@@ -137,8 +137,10 @@ async def build_bottomup(
     anthropic_client: Any,
     *,
     condition: str = "cancer",
+    annotations_dir: str | None = None,
     merge_config: MergeConfig | None = None,
     embed_fn: Callable[[str], list[float]] | None = None,
+    premerge_dump_path: str | None = None,
 ) -> GraphStore:
     """Phase 1 (per-trial isolated resolve+build) -> Phase 2 (union + assemble).
 
@@ -156,7 +158,7 @@ async def build_bottomup(
         # Phase 1: resolve + build THIS trial alone into its own store.
         g_t = GraphStore()
         await PopulationPipeline(g_t, anthropic_client=anthropic_client).populate_trials(
-            condition=condition, trials=[trial],
+            condition=condition, trials=[trial], annotations_dir=annotations_dir,
         )
         # Namespace its full graph to {id}#{nct} (preserving edge beliefs) so the
         # union can't collide across trials and the merge has beliefs to fold.
@@ -165,14 +167,32 @@ async def build_bottomup(
         logger.info("bottom-up Phase 1: built %s (%d scoped nodes)",
                     getattr(trial, "nct_id", "?"), scoped._graph.number_of_nodes())  # noqa: SLF001
 
-    # Phase 2: the re-runnable projection. Tier-1 (id) by default; pass a config
-    # with enable_biolord to also fold the geometric tier. Merge all canonical-id
-    # node types — incl. AdverseEvent/Biomarker, which are shared across trials
-    # (one MedDRA PT = one node) but absent from the chain-only DEFAULT_NODE_TYPES.
-    # TrialNode is deliberately excluded (each trial is inherently unique).
+    # Phase 2: the re-runnable projection. Tier-1 (id) for every type, PLUS the
+    # Tier-3 BioLORD geometric merge gated to BiologyNode only. Biology takes its
+    # identity from the extracted process description (populate.py
+    # _populate_trial_biology), so two trials' biology pools when the
+    # descriptions are semantically close even if their ontology ids differ or
+    # one didn't resolve — this is what recovers the cross-trial evidence the
+    # old per-trial slug fragmented. BioLORD is scoped OUT of mechanism/target
+    # (it over-merges siblings there; SapBERT is the right tier — Phase C).
+    if premerge_dump_path:
+        # Additive: dump the Phase-1 union (PRE-assemble) so the chain
+        # visualizer's before-block is faithful — each chain still references its
+        # OWN per-trial node instances; the merge destroys that mapping, so it
+        # can't be reconstructed afterwards. No effect on the build itself.
+        # Public snapshot (ids/names/descriptions/chains) — enough for the viz
+        # before-block; private export would trip the open-methods boundary guard
+        # (it must live under the private root, not data/exports/).
+        merged.export_snapshot(premerge_dump_path)
+        logger.info("bottom-up: pre-merge snapshot -> %s", premerge_dump_path)
+
+    # Merge all canonical-id node types — incl. AdverseEvent/Biomarker, shared
+    # across trials (one MedDRA PT = one node) but absent from the chain-only
+    # DEFAULT_NODE_TYPES. TrialNode is deliberately excluded (each is unique).
     cfg = merge_config or MergeConfig(
         node_types=DEFAULT_NODE_TYPES + ("AdverseEventNode", "BiomarkerNode"),
-        enable_id=True, enable_name_id=False, enable_sapbert=False, enable_biolord=False,
+        enable_id=True, enable_name_id=False, enable_sapbert=False,
+        enable_biolord=True, biolord_node_types=("BiologyNode",),
     )
     report = assemble(merged, cfg, embed_fn=embed_fn)
     renamed = _canonicalize_ids(merged)

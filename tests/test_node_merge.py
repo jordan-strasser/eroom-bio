@@ -160,6 +160,40 @@ def test_sapbert_tier_separates_siblings_biolord_merges():
     assert g._graph.number_of_nodes() == 2  # noqa: SLF001  (SapBERT keeps them distinct)
 
 
+# ── Per-type geometric-tier gate (Tier-3 belongs at the biology scale) ───────
+
+
+def test_biolord_tier_gated_per_node_type():
+    """``biolord_node_types`` scopes the Tier-3 geometric merge to one layer.
+    Same identical-embedding biology pair: gating BioLORD IN for BiologyNode
+    merges it; gating it to a DIFFERENT type leaves it untouched. This is what
+    keeps the semantic merge at the biology scale (correct) and OUT of
+    mechanism/target (where it would over-merge distinct entities)."""
+    def embed(_text):                      # everything embeds identically → cos 1.0
+        return [1.0, 0.0]
+
+    def build():
+        g = GraphStore()
+        g.add_node(_bio("bio:aaaaaaaaaaaa", desc="formation of new blood vessels"))
+        g.add_node(_bio("bio:bbbbbbbbbbbb", desc="growth of tumor vasculature"))
+        return g
+
+    g_in = build()
+    cfg_in = MergeConfig(node_types=("BiologyNode",), enable_id=False,
+                         enable_name_id=False, enable_sapbert=False,
+                         enable_biolord=True, biolord_threshold=0.85,
+                         biolord_node_types=("BiologyNode",))
+    assert assemble(g_in, cfg_in, embed_fn=embed).by_type.get("BiologyNode") == 1
+
+    g_out = build()
+    cfg_out = MergeConfig(node_types=("BiologyNode",), enable_id=False,
+                          enable_name_id=False, enable_sapbert=False,
+                          enable_biolord=True, biolord_threshold=0.85,
+                          biolord_node_types=("MechanismNode",))  # biology gated OUT
+    assert assemble(g_out, cfg_out, embed_fn=embed).by_type.get("BiologyNode", 0) == 0
+    assert g_out._graph.number_of_nodes() == 2  # noqa: SLF001  (both survive)
+
+
 # ── Lossless belief union + replay + belief_field anchors ────────────────────
 
 

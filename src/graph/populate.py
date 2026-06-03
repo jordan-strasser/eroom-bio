@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import re
@@ -576,6 +577,24 @@ async def infer_population_for_trial(
 _UNKNOWN = "UNKNOWN"
 
 
+def _biology_id_from_description(description: str) -> str:
+    """Content-address handle for a description-defined BiologyNode.
+
+    Semantic-layers redesign: a Biology node's IDENTITY is its extracted
+    physiological-process description + that description's BioLORD embedding.
+    This id is *not* a slug — it fabricates no meaning from neighboring layers
+    (the old ``{mechanism}__{indication}`` slug glued the two layers around
+    biology into a fake key). It's a stable content-address (like a git blob
+    hash) over the normalized description text: identical descriptions across
+    trials collapse to the same id (exact Tier-1 merge), and near-identical
+    phrasings pool via the Tier-3 BioLORD geometric merge. The human-readable
+    identity lives in the node's ``name`` + ``description``; the real curated
+    cross-ref (Reactome/GO), when it resolves, is used as the handle instead.
+    """
+    norm = " ".join(description.strip().lower().split())
+    return "bio:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
+
+
 # Curated mapping for cancer-vaccine constituents that Open Targets cannot
 # resolve to a target. Covers three classes:
 #   1. Tumor-associated-antigen (TAA) peptides → tumor antigen gene
@@ -885,7 +904,12 @@ class PopulationPipeline:
         include_terminated_no_results: bool = True,
         condition: str = "cancer",
         trials: list[TrialRecord] | None = None,
+        annotations_dir: str | Path | None = None,
     ) -> dict[str, Any]:
+        # annotations_dir: when set (the build now extracts BEFORE populate),
+        # the biology step reads each trial's extracted biology description and
+        # gives the Biology node its identity from that description rather than
+        # a per-trial ontology lookup. None preserves the legacy resolve path.
         # Round-20.5: clear the drop log at the start of every build so
         # it reflects ONLY this run's silent skips. Any entries left
         # over from a prior build would otherwise confuse the
@@ -1406,7 +1430,9 @@ class PopulationPipeline:
         # intervention text and add the canonical target→mechanism
         # modulates_via edge.
         console.print("[bold]Resolving mechanisms per trial...[/bold]")
-        mech_added = await self._populate_trial_mechanisms(trials, compound_targets)
+        mech_added = await self._populate_trial_mechanisms(
+            trials, compound_targets, annotations_dir=annotations_dir,
+        )
         console.print(f"  Added {mech_added} modulates_via edges")
 
         # Step 6: LINCS L1000 Touchstone signatures.
@@ -1430,7 +1456,9 @@ class PopulationPipeline:
         # routes return nothing; falling-back chains are tagged
         # ``metadata["unresolved_biology"] = True`` for audit.
         console.print("[bold]Resolving biology per trial...[/bold]")
-        bio_added = await self._populate_trial_biology(trials)
+        bio_added = await self._populate_trial_biology(
+            trials, annotations_dir=annotations_dir,
+        )
         console.print(f"  Added {bio_added} biology nodes / chain links")
 
         # Summary
@@ -2189,10 +2217,32 @@ class PopulationPipeline:
             added += 1
         return added
 
+    def _mechanism_intervention_keys(self, compound_id: str) -> set[str]:
+        """Intervention-match keys for a constituent compound.
+
+        Mirrors :func:`_lookup_chain_intervention_desc`'s key derivation
+        (used for biology) so the mechanism path looks up the same per-(arm,
+        intervention) extraction entries: the compound id AND its node name
+        (the LLM names the drug, which canonicalizes to either), normalized
+        via ``box_embeddings._intervention_key``.
+        """
+        from src.graph.box_embeddings import _intervention_key
+
+        keys = {_intervention_key(compound_id)}
+        try:
+            name = self.graph.get_node(compound_id).get("name") or ""
+        except KeyError:
+            name = ""
+        if name:
+            keys.add(_intervention_key(name))
+        keys.discard("")
+        return keys
+
     async def _populate_trial_mechanisms(
         self,
         trials: list[TrialRecord],
         compound_targets: dict[str, list[str]],
+        annotations_dir: str | Path | None = None,
     ) -> int:
         """Resolve target + mechanism PER CONSTITUENT and rebuild chains.
 
@@ -2210,6 +2260,14 @@ class PopulationPipeline:
           3. Ensure the MechanismNode exists and add the constituent's
              ``target → mechanism`` modulates_via edge (idempotent).
 
+        ``annotations_dir`` (abstraction-ladder redesign): when the build
+        extracted before populate, the per-(arm, intervention)
+        ``mechanism_category`` the extractor emitted is stamped onto the
+        constituent's ``MechanismNode.category`` metadata (the coarse
+        drug-class bucket; the node's identity/scale remains the specific
+        molecular action, carried in its ``description``). Falls back to the
+        resolved ``MechanismCategory`` id when no extracted category is present.
+
         The chain list is then rebuilt: for every existing
         subgroup_population_id × arm cell, emit one chain per
         constituent. ``chain.compound_id`` is the constituent (not the
@@ -2222,6 +2280,18 @@ class PopulationPipeline:
         if self._anthropic is None:
             logger.info("No anthropic client; skipping mechanism inference")
             return 0
+
+        # Per-(arm, intervention) extracted mechanism_category, used to stamp
+        # MechanismNode.category metadata. Empty when the build hasn't extracted
+        # yet (no annotations_dir) — category then defaults to the resolved id.
+        cat_by_arm_iv: dict = {}
+        if annotations_dir is not None:
+            from src.graph.box_embeddings import (
+                chain_descriptions_by_arm_intervention,
+            )
+            cat_by_arm_iv = chain_descriptions_by_arm_intervention(
+                annotations_dir
+            )
 
         cache = JSONCache(self._cache_dir / "mechanism_inferences.json")
         added = 0
@@ -2289,6 +2359,33 @@ class PopulationPipeline:
                         )
                     mech_id = normalize_entity(mech_value, "MechanismNode")
 
+                    # Abstraction-ladder redesign: the drug-class functional
+                    # ontology bucket for THIS constituent, carried as
+                    # MechanismNode.category metadata. Prefer the extractor's
+                    # per-(arm, intervention) ``mechanism_category`` when it's a
+                    # valid MechanismCategory value; otherwise fall back to the
+                    # resolved mechanism id (itself a MechanismCategory value in
+                    # this path). The node's IDENTITY/scale is the specific
+                    # molecular action (its ``description``); category is the
+                    # coarse bucket it rolls up into.
+                    category_value = mech_id
+                    extracted_cat = ""
+                    if cat_by_arm_iv:
+                        for k in self._mechanism_intervention_keys(cid):
+                            entry = cat_by_arm_iv.get((trial.nct_id, arm.arm_id, k))
+                            if entry and (entry.get("mechanism_category") or "").strip():
+                                extracted_cat = entry["mechanism_category"].strip()
+                                break
+                    if extracted_cat:
+                        try:
+                            category_value = MechanismCategory(
+                                normalize_entity(extracted_cat, "MechanismNode")
+                            ).value
+                        except ValueError:
+                            # Not a recognized category value — keep the
+                            # resolved mech_id as the bucket.
+                            category_value = mech_id
+
                     try:
                         self.graph.get_node(mech_id)
                     except KeyError:
@@ -2301,7 +2398,15 @@ class PopulationPipeline:
                             direction=_category_to_direction(
                                 MechanismCategory(mech_id)
                             ),
+                            category=category_value,
                         ))
+                    else:
+                        # Idempotent backfill: a node created earlier (in a prior
+                        # trial / arm, or before this redesign) may lack a
+                        # category. Stamp it without overwriting an existing one.
+                        node_data = self.graph._graph.nodes[mech_id]  # noqa: SLF001
+                        if not node_data.get("category"):
+                            node_data["category"] = category_value
 
                     if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
                         target_id, mech_id, key=EdgeType.MODULATES_VIA.value,
@@ -2679,22 +2784,36 @@ class PopulationPipeline:
 
         return (biology_ids, False)
 
-    async def _populate_trial_biology(self, trials: list[TrialRecord]) -> int:
-        """Resolve every chain's biology to real Reactome pathways when
-        possible; fan chains out per pathway.
+    async def _populate_trial_biology(
+        self,
+        trials: list[TrialRecord],
+        annotations_dir: str | Path | None = None,
+    ) -> int:
+        """Give every chain's Biology node its identity.
 
-        Resolution per chain:
-          1. LINCS-wired Reactome biology already on the graph (preferred).
-          2. Reactome API lookup keyed on the target's gene symbol
-             (``LINCSClient.get_pathways_for_gene``, cached).
-          3. ``{mechanism}__{indication}`` slug fallback, tagged
-             ``metadata["unresolved_biology"] = True`` for downstream
-             auditing.
+        Abstraction-ladder redesign — a Biology node is the GENERAL
+        physiological process the drug drives (e.g. "T-cell mediated anti-tumor
+        immunity"), SHARED across every drug/disease that drives it. Its
+        identity comes from the extracted ``biology_description``, NOT from the
+        target-gene → Reactome pathway: that resolution sits at mechanism/pathway
+        scale and must not occupy the biology slot (a PD-1 inhibitor's biology is
+        the anti-tumor-immunity process, not the Reactome pathway "Co-inhibition
+        by PD-1"). Per-chain identity, most→least preferred:
 
-        When step 1 or 2 returns multiple pathway nodes, the chain fans
-        out one chain per pathway — each pathway is a distinct
-        biological hypothesis and accumulates its own evidence. Capped
-        at ``_BIOLOGY_PATHWAY_CAP`` per (target, mechanism) pair.
+          1. ``biology_description`` present (the build extracted before populate,
+             ``annotations_dir`` threaded) → CONTENT-ADDRESS the description
+             (``bio:<sha1>``), with the description as the node name/description.
+             Reactome is NOT consulted. Cross-trial consolidation is the
+             downstream BioLORD description merge (Tier-3 geometric merge of
+             near-identical phrasings; identical text collapses exactly).
+          2. No description (legacy / no-annotations path) → target-gene →
+             Reactome pathway via ``_resolve_real_biology`` (LINCS-wired biology
+             already on the graph, else a Reactome API lookup keyed on the
+             target's gene symbol). Multiple pathways fan the chain out one chain
+             per pathway, capped at ``_BIOLOGY_PATHWAY_CAP``.
+          3. No description AND Reactome empty → ``{mechanism}__{indication}``
+             slug fallback, tagged ``metadata["unresolved_biology"] = True`` for
+             downstream auditing.
 
         Returns the count of new biology nodes + chain rewrites combined.
         """
@@ -2717,6 +2836,38 @@ class PopulationPipeline:
         # so the disk cache is shared.
         from src.ingestion.quickgo import QuickGOClient
         quickgo_client = QuickGOClient()
+
+        # Semantic-layers redesign: when the build has already extracted
+        # (annotations_dir set), a chain's Biology node takes its identity from
+        # the trial's extracted biology description. Resolution order, most→
+        # least specific:
+        #   1. per-(arm, intervention) — the description for THIS drug's chain
+        #      (combo-arm biology fix: distinct drugs in one arm get distinct
+        #      biology, so their resolved Reactome/GO nodes don't fuse).
+        #   2. per-arm (A.0b) — legacy/mono-arm path, shared across the arm.
+        #   3. trial-level intended_biology (A.0) — last-resort fallback.
+        desc_by_arm: dict = {}
+        desc_by_arm_iv: dict = {}
+        intended_bio_by_nct: dict[str, str] = {}
+        if annotations_dir is not None:
+            from src.graph.box_embeddings import (
+                chain_descriptions_by_arm,
+                chain_descriptions_by_arm_intervention,
+            )
+            desc_by_arm = chain_descriptions_by_arm(annotations_dir)
+            desc_by_arm_iv = chain_descriptions_by_arm_intervention(annotations_dir)
+            for _p in sorted(Path(annotations_dir).glob("*_extraction.json")):
+                try:
+                    _d = json.loads(_p.read_text())
+                except (OSError, json.JSONDecodeError):
+                    continue
+                _nct = _d.get("nct_id")
+                if _nct:
+                    intended_bio_by_nct[_nct] = (
+                        (_d.get("therapeutic_hypothesis") or {}).get(
+                            "intended_biology"
+                        ) or ""
+                    ).strip()
 
         added = 0
         for trial in trials:
@@ -2743,65 +2894,134 @@ class PopulationPipeline:
                     new_chains.append(chain)
                     continue
 
-                key = (target_id, mech_id, ind_id)
-                if key in resolution_cache:
-                    biology_ids, _ = resolution_cache[key]
-                else:
-                    biology_ids, _ = await self._resolve_real_biology(
-                        target_id, mech_id, ind_id, lincs_client,
-                        quickgo_client=quickgo_client,
+                # The chain's extracted biology description (abstraction-ladder
+                # redesign). Present only when the build extracted before
+                # populate (annotations_dir threaded). Resolution order, most→
+                # least specific:
+                #   1. per-(arm, intervention) for THIS chain's compound — the
+                #      description for THIS drug's chain (combo-arm fix: distinct
+                #      drugs in one arm get distinct biology),
+                #   2. per-arm (A.0b),
+                #   3. trial-level intended_biology (A.0).
+                # The description becomes the biology node IDENTITY below, so two
+                # constituents with distinct descriptions get distinct content-
+                # address ids — the combo-arm fusion that an earlier "only stamp a
+                # compound-specific description" guard protected against can no
+                # longer occur.
+                bio_desc = ""
+                if annotations_dir is not None:
+                    iv_entry = _lookup_chain_intervention_desc(
+                        self.graph, desc_by_arm_iv, trial.nct_id, chain,
                     )
-                    resolution_cache[key] = (biology_ids, False)
+                    iv_bio = (iv_entry.get("biology") or "").strip() if iv_entry else ""
+                    if iv_bio:
+                        bio_desc = iv_bio
+                    else:
+                        bio_desc = (
+                            (desc_by_arm.get((trial.nct_id, chain.arm_id)) or {}).get(
+                                "biology"
+                            )
+                            or intended_bio_by_nct.get(trial.nct_id, "")
+                        ).strip()
+                use_description_identity = (
+                    annotations_dir is not None and bool(bio_desc)
+                )
+
+                # Abstraction-ladder redesign — biology identity from the
+                # extracted PHYSIOLOGICAL-PROCESS description, NOT the target-gene
+                # → Reactome pathway. The biology node IS the general process the
+                # drug drives (shared across every drug/disease that drives it);
+                # the target-gene → Reactome resolution lives at mechanism/pathway
+                # scale and must NOT occupy the biology slot (a PD-1 inhibitor's
+                # biology is "T-cell mediated anti-tumor immunity", not the
+                # Reactome pathway "Co-inhibition by PD-1"). So when a description
+                # exists we DON'T resolve Reactome at all — its only role now is
+                # the no-description fallback. Cross-trial consolidation is the
+                # downstream BioLORD description merge.
+                if use_description_identity:
+                    biology_ids: list[str] = []
+                else:
+                    key = (target_id, mech_id, ind_id)
+                    if key in resolution_cache:
+                        biology_ids, _ = resolution_cache[key]
+                    else:
+                        biology_ids, _ = await self._resolve_real_biology(
+                            target_id, mech_id, ind_id, lincs_client,
+                            quickgo_client=quickgo_client,
+                        )
+                        resolution_cache[key] = (biology_ids, False)
 
                 if not biology_ids:
-                    # Step 3: slug fallback. Seed the slug biology + its
-                    # mechanism_affects / biology_drives edges (same as
-                    # the legacy path), tag the chain as unresolved.
-                    slug_id = normalize_entity(
-                        f"{mech_id}__{ind_id}", "BiologyNode",
-                    )
+                    # Reached when (a) a description exists — the abstraction-
+                    # ladder PRIMARY path, where ``biology_ids`` was forced empty
+                    # above so Reactome is bypassed entirely — or (b) no
+                    # description AND Reactome resolved nothing. Two node-identity
+                    # paths accordingly:
+                    #  (a) description-identity (the redesign): the Biology node
+                    #      IS its extracted general-process description — a
+                    #      content-address handle, with the description set so the
+                    #      BioLORD merge pools equivalent biology across trials
+                    #      and accumulates evidence on one node. NO
+                    #      {mech}__{indication} slug.
+                    #  (b) legacy / no-extraction: the {mech}__{indication}
+                    #      slug, tagged unresolved for audit.
+                    if use_description_identity:
+                        bio_node_id = _biology_id_from_description(bio_desc)
+                        bio_node_name = bio_desc[:120]
+                        bio_node_meta = {"source": "trial_biology_description"}
+                        edge_source = "trial_biology_description"
+                    else:
+                        bio_node_id = normalize_entity(
+                            f"{mech_id}__{ind_id}", "BiologyNode",
+                        )
+                        bio_node_name = (
+                            f"{mech_id.replace('_', ' ')} biology in {ind_id}"
+                        )
+                        bio_node_meta = {"source": "trial_biology_fallback"}
+                        edge_source = "trial_biology_fallback"
                     try:
-                        self.graph.get_node(slug_id)
+                        self.graph.get_node(bio_node_id)
                     except KeyError:
                         self.graph.add_node(BiologyNode(
-                            id=slug_id,
-                            name=(
-                                f"{mech_id.replace('_', ' ')} biology in "
-                                f"{ind_id}"
-                            ),
+                            id=bio_node_id,
+                            name=bio_node_name,
+                            description=bio_desc if use_description_identity else "",
                             pathway_ids=[],
-                            metadata={"source": "trial_biology_fallback"},
+                            metadata=bio_node_meta,
                         ))
                         added += 1
 
                     if not self.graph._graph.has_edge(  # noqa: SLF001
-                        mech_id, slug_id,
+                        mech_id, bio_node_id,
                         key=EdgeType.MECHANISM_AFFECTS.value,
                     ):
-                        # Round-25: DATABASE_FALLBACK record. The slug
-                        # is synthesized ("mech in indication"); the edge
-                        # is partial double-counting of upstream curated
-                        # mechanism evidence — half the n_eff of a real
-                        # curated source.
+                        # DATABASE_FALLBACK record either way: the populate-stage
+                        # prior is intentionally weak. For description-identity
+                        # biology the EVIDENCE comes from the Phase-2 geometric
+                        # merge pooling many trials' records onto one node — not
+                        # from a higher per-record n_eff (Phase-B keeps the
+                        # belief seeding identical to isolate the identity change).
                         fallback_record = make_curated_record(
-                            source_id=f"trial_biology_fallback:{mech_id}__{slug_id}",
+                            source_id=f"{edge_source}:{mech_id}__{bio_node_id}",
                             bucket=SupportBucket.WEAK_SUPPORT,
                             source_type=EvidenceType.DATABASE_FALLBACK,
                             notes=(
-                                f"synthesized biology slug fallback "
+                                f"description-defined biology ({mech_id})"
+                                if use_description_identity
+                                else f"synthesized biology slug fallback "
                                 f"({mech_id} in {ind_id})"
                             ),
                         )
                         self.graph.add_edge(GraphEdge(
                             source_id=mech_id,
-                            target_id=slug_id,
+                            target_id=bio_node_id,
                             edge_type=EdgeType.MECHANISM_AFFECTS,
                             belief=belief_from_curated_record(fallback_record),
-                            metadata={"source": "trial_biology_fallback"},
+                            metadata={"source": edge_source},
                         ))
 
                     if not self.graph._graph.has_edge(  # noqa: SLF001
-                        slug_id, ind_id,
+                        bio_node_id, ind_id,
                         key=EdgeType.BIOLOGY_DRIVES.value,
                     ):
                         # Round-25: same borrow-with-evidence pattern as
@@ -2816,7 +3036,7 @@ class PopulationPipeline:
                             except KeyError:
                                 pass
                         self.graph.add_edge(GraphEdge(
-                            source_id=slug_id,
+                            source_id=bio_node_id,
                             target_id=ind_id,
                             edge_type=EdgeType.BIOLOGY_DRIVES,
                             belief=EdgeBeliefState(
@@ -2825,7 +3045,7 @@ class PopulationPipeline:
                                 evidence=list(borrowed.evidence),
                             ),
                             metadata={
-                                "source": "trial_biology_fallback",
+                                "source": edge_source,
                                 "borrowed_from": (
                                     f"{target_id}->{ind_id}"
                                     if target_id != _UNKNOWN else None
@@ -2834,16 +3054,24 @@ class PopulationPipeline:
                         ))
 
                     md = dict(chain.metadata)
-                    md["unresolved_biology"] = True
+                    if use_description_identity:
+                        md.pop("unresolved_biology", None)
+                    else:
+                        md["unresolved_biology"] = True
                     new_chains.append(chain.model_copy(update={
-                        "biology_id": slug_id,
+                        "biology_id": bio_node_id,
                         "metadata": md,
                     }))
                     continue
 
-                # One Reactome pathway → set biology_id. Multiple → fan
-                # out one chain per pathway (different biological
-                # hypotheses tested by the same trial cell).
+                # No extracted description (the no-annotations / legacy path) and
+                # Reactome DID resolve → fall back to the target-gene pathway as
+                # the biology id. One pathway → set biology_id; multiple → fan out
+                # one chain per pathway (distinct biological hypotheses tested by
+                # the same trial cell). Reached only when ``use_description_identity``
+                # is False (the abstraction-ladder redesign routes any chain WITH
+                # a description to the content-address path above), so there is no
+                # description to stamp here.
                 if len(biology_ids) == 1:
                     bio_id = biology_ids[0]
                     if chain.biology_id == bio_id:
@@ -3824,6 +4052,51 @@ def ensure_parent_population(
     return pop_id
 
 
+def _lookup_chain_intervention_desc(
+    graph: GraphStore,
+    desc_by_arm_iv: dict,
+    nct_id: str,
+    chain: "CausalChain",
+) -> dict | None:
+    """Find the per-(arm, intervention) descriptions for THIS chain's compound.
+
+    Combo-arm biology fix: each fanned-out chain in a combination arm has its
+    own ``compound_id`` (the constituent), and the extractor now emits a
+    distinct biology/mechanism description per drug, tagged with an
+    ``intervention`` name. This matches the chain to its drug's entry by
+    normalizing both the chain's ``compound_id`` and the compound node's
+    ``name`` (the LLM names the drug, which canonicalizes to either) against the
+    keyed intervention slugs in ``desc_by_arm_iv``. Returns the
+    ``{mechanism, biology, population}`` dict, or ``None`` when no per-drug
+    description exists (caller falls back to per-arm / trial-level)."""
+    from src.graph.box_embeddings import _intervention_key
+
+    if not desc_by_arm_iv:
+        return None
+    keys = {_intervention_key(chain.compound_id)}
+    try:
+        name = graph.get_node(chain.compound_id).get("name") or ""
+    except KeyError:
+        name = ""
+    if name:
+        keys.add(_intervention_key(name))
+    keys.discard("")
+    for k in keys:
+        entry = desc_by_arm_iv.get((nct_id, chain.arm_id, k))
+        if entry:
+            return entry
+    # Arm-INDEPENDENT fallback: a drug's biology does not depend on which arm it
+    # is in. When a combination arm = another arm + one extra drug and the
+    # extractor only detailed one arm (e.g. part_a described, part_b not), match
+    # this intervention's entry from ANY arm of the same trial — so part_b chains
+    # inherit their own drug's biology instead of a generic fallback.
+    for k in keys:
+        for (_n, _arm, _iv), entry in desc_by_arm_iv.items():
+            if _n == nct_id and _iv == k:
+                return entry
+    return None
+
+
 def _set_node_description(
     graph: GraphStore, node_id: str, description: str
 ) -> bool:
@@ -3861,15 +4134,22 @@ def attach_node_descriptions_from_extractions(
     (A.1). Reads cached extraction JSON only — no new LLM call, so a
     ``--keep-annotations`` rebuild backfills for free.
 
-    Per node, first non-empty contributor wins:
-      - Mechanism node ← the trial's ``proposed_mechanism``
-      - Biology node   ← the trial's ``intended_biology``
+    Per node, first non-empty contributor wins. Resolution order, most→least
+    specific (combo-arm biology fix — so a chemo's and a checkpoint inhibitor's
+    nodes in one arm don't all get the same arm/trial description):
+      - Mechanism node ← per-(arm, intervention) mechanism_description, else the
+        trial's ``proposed_mechanism``
+      - Biology node   ← per-(arm, intervention) biology_description, else the
+        trial's ``intended_biology``
       - Parent population ← the trial's ``target_population``
       - Subgroup population ← its own node name (already encodes the
         descriptor; richer trial-contextualized text is the deferred A.0b)
 
     Returns the number of node descriptions set.
     """
+    from src.graph.box_embeddings import chain_descriptions_by_arm_intervention
+
+    desc_by_arm_iv = chain_descriptions_by_arm_intervention(annotations_dir)
     set_count = 0
     for path in sorted(annotations_dir.glob("*_extraction.json")):
         try:
@@ -3884,10 +4164,19 @@ def attach_node_descriptions_from_extractions(
         except KeyError:
             continue
         hyp = data.get("therapeutic_hypothesis") or {}
-        mech_desc = (hyp.get("proposed_mechanism") or "").strip()
-        bio_desc = (hyp.get("intended_biology") or "").strip()
+        trial_mech_desc = (hyp.get("proposed_mechanism") or "").strip()
+        trial_bio_desc = (hyp.get("intended_biology") or "").strip()
         parent_pop_desc = (hyp.get("target_population") or "").strip()
         for chain in ts.chains:
+            iv_entry = _lookup_chain_intervention_desc(
+                graph, desc_by_arm_iv, nct_id, chain,
+            )
+            mech_desc = (
+                (iv_entry.get("mechanism") if iv_entry else "") or trial_mech_desc
+            )
+            bio_desc = (
+                (iv_entry.get("biology") if iv_entry else "") or trial_bio_desc
+            )
             set_count += _set_node_description(graph, chain.mechanism_id, mech_desc)
             set_count += _set_node_description(graph, chain.biology_id, bio_desc)
             pop_id = chain.subgroup_population_id

@@ -2,9 +2,9 @@
   "nct_id": "NCT04577807",
   "therapeutic_hypothesis": {
     "compound": "lerapolturev",
-    "claimed_target": "tumor microenvironment",
-    "proposed_mechanism": "direct intratumoral injection to activate local immune response",
-    "intended_biology": "immune activation and tumor infiltration enhancement",
+    "claimed_target": "TLR9",
+    "proposed_mechanism": "TLR9 agonism",
+    "intended_biology": "innate immune activation",
     "target_population": "advanced PD-1 refractory melanoma",
     "primary_endpoint": "overall response rate",
     "rationale_strength": "moderate"
@@ -13,16 +13,16 @@
     "primary_endpoint_met": false,
     "effect_size": "2/27 overall responses (7.4%)",
     "p_value": null,
-    "target_engagement_evidence": "changes in CD8+ TILs and PD-L1 expression measured",
+    "target_engagement_evidence": "Changes in CD8+ TILs and PD-L1 expression measured",
     "biomarker_changes": [
-      "changes in CD8+ tumor infiltrating lymphocytes",
-      "changes in PD-L1 expression"
+      "Changes from baseline in CD8+ tumor infiltrating lymphocytes",
+      "Changes from baseline in PD-L1 expression"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "treatment-emergent adverse events in 24/27 patients",
-      "immune-related adverse events in combination arms",
-      "discontinuations due to AEs in 3 patients"
+      "Treatment-emergent adverse events in majority of patients",
+      "Immune-related adverse events in combination arm",
+      "Treatment discontinuations due to adverse events"
     ],
     "dose_info": {
       "dose": "",
@@ -109,47 +109,81 @@
   "results_by_chain": [
     {
       "arm_id": "arm_1_lerapolturev",
+      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
       "effect_size": 7.7,
       "p_value": null,
       "outcome": "failure",
-      "mechanism_description": "direct intratumoral injection for local immune activation",
-      "biology_description": "immune activation and tumor microenvironment modulation in advanced melanoma",
-      "population_description": "PD-1 refractory advanced melanoma patients"
+      "mechanism_description": "TLR9 agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "immune_costimulation"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
       "endpoint": "ORR",
-      "effect_size": 7.7,
+      "effect_size": 7.1,
       "p_value": null,
       "outcome": "failure",
-      "mechanism_description": "intratumoral immune activation combined with PD-1 checkpoint blockade",
-      "biology_description": "enhanced immune activation and checkpoint inhibition in advanced melanoma",
-      "population_description": "PD-1 refractory advanced melanoma patients"
+      "mechanism_description": "TLR9 agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "intervention": "anti-PD-1",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 7.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "PD-1 checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "checkpoint_blockade"
     },
     {
       "arm_id": "arm_1_lerapolturev",
+      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.05,
       "p_value": null,
       "outcome": "failure",
-      "mechanism_description": "direct intratumoral injection for local immune activation",
-      "biology_description": "immune activation and tumor microenvironment modulation in advanced melanoma",
-      "population_description": "PD-1 refractory advanced melanoma patients"
+      "mechanism_description": "TLR9 agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "immune_costimulation"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.65,
       "p_value": null,
       "outcome": "failure",
-      "mechanism_description": "intratumoral immune activation combined with PD-1 checkpoint blockade",
-      "biology_description": "enhanced immune activation and checkpoint inhibition in advanced melanoma",
-      "population_description": "PD-1 refractory advanced melanoma patients"
+      "mechanism_description": "TLR9 agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "intervention": "anti-PD-1",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.65,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "PD-1 checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "advanced PD-1 refractory melanoma",
+      "mechanism_category": "checkpoint_blockade"
     }
   ],
   "modulation_entries": [
@@ -159,8 +193,8 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "intratumoral lerapolturev enhances anti-PD-1 efficacy through local immune activation",
-      "citation": "Overall response rates were similar between monotherapy (1/13) and combination (1/13) arms"
+      "hypothesis": "TLR9 agonism enhances anti-tumor immunity by activating innate immune cells to support checkpoint blockade",
+      "citation": "Overall response rates were similar between monotherapy (7.7%) and combination (7.1%) arms"
     }
   ]
 }

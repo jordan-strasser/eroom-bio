@@ -498,11 +498,19 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
             effect_size=es_value,
             p_value=cr.get("p_value"),
             outcome=(cr.get("outcome") or "unknown").lower(),
+            # Combo-arm biology fix: which single drug in the arm this entry
+            # describes (absent in pre-fix cached extractions → default "",
+            # keyed per-arm as before).
+            intervention=(cr.get("intervention") or "").strip(),
             # A.0b per-chain contextualized descriptions (absent in pre-A.0b
             # cached extractions → default "").
             mechanism_description=(cr.get("mechanism_description") or "").strip(),
             biology_description=(cr.get("biology_description") or "").strip(),
             population_description=(cr.get("population_description") or "").strip(),
+            # Abstraction-ladder redesign: drug-class functional ontology
+            # bucket for this entry's intervention (absent in pre-redesign
+            # cached extractions → default "").
+            mechanism_category=(cr.get("mechanism_category") or "").strip(),
         ))
 
     # Structured dose_info supersedes the legacy results.dose_information

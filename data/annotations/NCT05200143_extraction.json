@@ -3,21 +3,21 @@
   "therapeutic_hypothesis": {
     "compound": "ipilimumab + nivolumab + cabozantinib",
     "claimed_target": "CTLA-4, PD-1, VEGFR2/MET/KIT",
-    "proposed_mechanism": "dual checkpoint blockade with multi-kinase inhibition",
-    "intended_biology": "T cell activation and anti-angiogenic/anti-tumor signaling",
+    "proposed_mechanism": "CTLA-4 checkpoint blockade + PD-1 checkpoint blockade + multi-kinase inhibition",
+    "intended_biology": "T-cell mediated anti-tumor immunity + angiogenesis inhibition",
     "target_population": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
     "primary_endpoint": "progression free survival",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": null,
-    "effect_size": "6.24 months median PFS (95% CI: 4.60\u20136.37)",
+    "effect_size": "6.24 months median PFS (95% CI: 4.60-6.37)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "50% of patients experienced grade \u22653 treatment related adverse events",
+      "2/4 patients experienced grade \u22653 treatment related adverse events",
       "Multiple serious immune-related adverse events including hypophysitis, hepatitis, adrenal insufficiency"
     ],
     "dose_info": {
@@ -68,8 +68,8 @@
     "indication": "refractory cutaneous melanoma",
     "comparator": "none",
     "sample_size": 4,
-    "duration": "7 months",
-    "duration_weeks": 30.4,
+    "duration": "13 months",
+    "duration_weeks": 56.5,
     "investigator_commentary": "Withdrawn support from BMS."
   },
   "arms": [
@@ -86,14 +86,42 @@
   "results_by_chain": [
     {
       "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "intervention": "ipilimumab",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 6.24,
       "p_value": null,
       "outcome": "unknown",
-      "mechanism_description": "CTLA-4 and PD-1 checkpoint blockade with VEGFR2/MET/KIT multi-kinase inhibition",
-      "biology_description": "T cell activation and anti-angiogenic signaling in refractory metastatic melanoma",
-      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma"
+      "mechanism_description": "CTLA-4 checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "intervention": "nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.24,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "PD-1 checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cabozantinib_ipilimumab_nivolumab",
+      "intervention": "cabozantinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.24,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "VEGFR2/MET/KIT kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
+      "mechanism_category": "kinase_inhibition"
     }
   ],
   "modulation_entries": [
@@ -102,9 +130,9 @@
       "primary_compound_id": "nivolumab",
       "affects_layer": "biology",
       "direction": "neutral",
-      "confidence": 0.6,
-      "hypothesis": "multi-kinase inhibition enhances immune checkpoint blockade through anti-angiogenic and tumor microenvironment modulation",
-      "citation": "Cabozantinib is a potent small molecule inhibitor of multiple receptor tyrosine kinases. Cabozantinib inhibits VEGFR2, MER, KIT, and MET at single digit nanomolar IC50 concentrations."
+      "confidence": 0.85,
+      "hypothesis": "Multi-kinase inhibition may enhance checkpoint blockade through angiogenesis inhibition and immune microenvironment modulation",
+      "citation": "Withdrawn support from BMS."
     }
   ]
 }

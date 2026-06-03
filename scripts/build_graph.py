@@ -359,6 +359,7 @@ async def main(
     concurrency: int,
     area: str,
     keep_annotations: bool = False,
+    reannotate: list[str] | None = None,
     corpus: str | None = None,
     include_ncts: list[str] | None = None,
     min_classify_success_rate: float = 0.80,
@@ -374,6 +375,14 @@ async def main(
     bottom_up: bool = False,
 ) -> None:
     incremental = bool(base_snapshot)
+    reannotate = reannotate or []
+    if reannotate:                       # surgical re-annotation: pin + preserve others
+        keep_annotations = True
+        include_ncts = sorted(set((include_ncts or []) + reannotate))
+        console.print(
+            f"[bold]Surgical re-annotation:[/bold] re-running extract+classify for "
+            f"{len(reannotate)} trial(s); all other annotations preserved"
+        )
     if incremental:
         console.rule(
             f"[bold]Incremental build: base={base_snapshot}[/bold]"
@@ -461,6 +470,12 @@ async def main(
     else:
         console.print("[bold]Step 0:[/bold] wiping prior outputs")
         wipe_outputs(area, keep_annotations=keep_annotations)
+        for _nct in reannotate:          # surgical: drop only these trials' caches
+            for _suffix in ("extraction", "classification"):
+                _p = ANNOTATIONS_DIR / f"{_nct}_{_suffix}.json"
+                if _p.exists():
+                    _p.unlink()
+                    console.print(f"  re-annotate: cleared {_p.name} (will re-run)")
 
     console.rule("[bold]Step 1: fetch trials[/bold]")
     if incremental:
@@ -521,19 +536,50 @@ async def main(
             )
             return
     client = anthropic.AsyncAnthropic(timeout=60.0)
+
+    # Step 3a: extract — RUNS BEFORE POPULATE (semantic-layers redesign).
+    # Extraction has no graph dependency (extract_all needs only the trial +
+    # extractor); only classify needs the seeded graph, and it still runs after
+    # populate. Doing extract first lets populate define the Mechanism / Biology
+    # nodes FROM each trial's extracted descriptions (the description is the
+    # node's semantic identity + BioLORD merge substrate) instead of a per-trial
+    # Reactome lookup that resolves inconsistently in the isolated bottom-up
+    # build and falls back to a low-evidence slug. The extractor + classifier
+    # built here stay in scope for the classify step (3c) below.
+    console.rule("[bold]Step 3a: extract (before populate)[/bold]")
+    extractor = Extractor(client, enrich_pubmed=enrich_pubmed)
+    classifier = Classifier(client)
+    extracted = await extract_all(trials, extractor, concurrency=concurrency)
+    console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
+
     if bottom_up:
         # Chains-first build: resolve each trial in ISOLATION, then reassemble via
         # the re-runnable node_merge projection (vs top-down's overlap-first shared
         # store). Faithful to top-down on n=10 — chains 61==61 (0 missing, 0
         # splits), belief coverage 205/258 vs 203/257. See populate_bottomup.
+        # annotations_dir lets per-trial populate read the just-written
+        # extractions so Biology nodes get their identity from the description.
         from src.graph.populate_bottomup import build_bottomup
-        graph = await build_bottomup(trials, client, condition=condition)
+        graph = await build_bottomup(
+            trials, client, condition=condition,
+            annotations_dir=str(ANNOTATIONS_DIR),
+            # Dump the Phase-1 union (pre-assemble) so the visualizer's
+            # before-block is FAITHFUL: each chain still references its own
+            # per-trial biology/target instance (the merge destroys that
+            # mapping, so it can't be reconstructed post-hoc). Additive only.
+            premerge_dump_path=str(EXPORTS_DIR / f"{area}_premerge.json"),
+        )
         console.print(
             f"  [bold]bottom-up (chains-first) build[/bold]: "
             f"{graph.stats()['node_count']} nodes, "
             f"{len(graph.trial_subgraphs)} trial subgraphs"
         )
     else:
+        # Top-down (overlap-first) stays on LEGACY ontology biology: it writes
+        # straight into a shared store with no Phase-2 geometric merge, so
+        # description-identity biology would fragment by paraphrasing here with
+        # nothing to consolidate it. Description-identity is bottom-up-only
+        # (it needs the merge). So we do NOT thread annotations_dir here.
         pipeline = PopulationPipeline(graph, anthropic_client=client)
         await pipeline.populate_trials(
             max_trials=max_trials,
@@ -619,12 +665,6 @@ async def main(
 
     graph.export_snapshot(str(initial_path))
     console.print(f"  wrote {initial_path}")
-
-    console.rule("[bold]Step 3a: extract[/bold]")
-    extractor = Extractor(client, enrich_pubmed=enrich_pubmed)
-    classifier = Classifier(client)
-    extracted = await extract_all(trials, extractor, concurrency=concurrency)
-    console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
 
     # Step 3b: seed subgroup populations + responds_differently edges and
     # fork chains. Has to run BEFORE classification so the LLM sees the
@@ -781,6 +821,18 @@ if __name__ == "__main__":
              "attribute step.",
     )
     parser.add_argument(
+        "--reannotate", default="",
+        help="Surgical re-annotation (append-only; NO global wipe): comma-"
+             "separated NCT ids to RE-EXTRACT + RE-CLASSIFY under the current "
+             "prompts. Deletes ONLY those trials' cached "
+             "<nct>_{extraction,classification}.json and rebuilds them, leaving "
+             "every other trial's annotations untouched. Implies "
+             "--keep-annotations and pins the ids via --include (so requires "
+             "--corpus). Replaces the destructive 'drop --keep-annotations → "
+             "wipe 120 files to rebuild 10' pattern — the chains-first append-"
+             "only way to iterate on prompts.",
+    )
+    parser.add_argument(
         "--corpus", default=None,
         help="Frozen corpus name. Reads/writes data/corpora/<name>.txt—"
              "if the file exists, fetches the listed NCT ids by id "
@@ -902,6 +954,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
+    reannotate = [n.strip() for n in args.reannotate.split(",") if n.strip()]
     add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
     exclude_from_attribution = [
         n.strip() for n in args.exclude_from_attribution.split(",") if n.strip()
@@ -913,6 +966,7 @@ if __name__ == "__main__":
         max_trials=args.max_trials,
         include_terminated=args.include_terminated,
         keep_annotations=args.keep_annotations,
+        reannotate=reannotate or None,
         concurrency=args.concurrency,
         area=args.area,
         corpus=args.corpus,

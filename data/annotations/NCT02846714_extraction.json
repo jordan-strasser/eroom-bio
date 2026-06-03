@@ -2,25 +2,27 @@
   "nct_id": "NCT02846714",
   "therapeutic_hypothesis": {
     "compound": "FLARE behavioral intervention",
-    "claimed_target": "family sun protection behaviors",
-    "proposed_mechanism": "behavioral education and lifestyle modification",
-    "intended_biology": "melanoma risk reduction through improved photoprotective behaviors",
+    "claimed_target": "behavioral patterns",
+    "proposed_mechanism": "behavioral modification through education and lifestyle coaching",
+    "intended_biology": "photoprotective behavior adoption and skin cancer risk reduction",
     "target_population": "families with children at risk for melanoma",
-    "primary_endpoint": "percent of participants retained throughout intervention",
+    "primary_endpoint": "Percent of Participants Retained Throughout Intervention",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "85.7% retention rate (36/42 participants)",
+    "effect_size": "85.7% retention (36/42 participants)",
     "p_value": null,
-    "target_engagement_evidence": "Improved photoprotective behaviors including increased sunscreen use, protective clothing, and shade-seeking",
+    "target_engagement_evidence": "Demonstrated improvements in multiple photoprotective behaviors including increased use of long sleeves, long pants, and shade-seeking",
     "biomarker_changes": [
-      "Reduced melanin index values in children from baseline to follow-up",
-      "Decreased UV exposure measured by dosimeter from week 1 to week 9"
+      "Reduced UV exposure measured by dosimeter (-1.38 J/m\u00b2)",
+      "Decreased melanin index in children indicating less tanning",
+      "Reduced unprotected sun exposure time in parents"
     ],
     "subgroup_findings": [
-      "Parents showed greater improvement in long-sleeve shirt wearing and long pants/skirt wearing",
-      "Children showed sustained improvements in protective clothing behaviors"
+      "Parents showed greater improvement in protective clothing use than sunscreen application",
+      "Children maintained sunscreen use but improved protective clothing behaviors",
+      "Both parents and children increased skin self-examination thoroughness"
     ],
     "safety_signals": [],
     "dose_info": {
@@ -32,10 +34,10 @@
     "adverse_events": []
   },
   "context": {
-    "indication": "melanoma prevention in children",
+    "indication": "melanoma prevention in high-risk families",
     "comparator": "none (single-arm study)",
     "sample_size": 42,
-    "duration": "13 weeks with 9-week intervention and 4-week follow-up",
+    "duration": "13 weeks with 4-week follow-up",
     "duration_weeks": 13.0,
     "investigator_commentary": null
   },
@@ -43,22 +45,68 @@
     {
       "arm_id": "flare_intervention",
       "compounds": [
-        "FLARE behavioral intervention"
+        "FLARE"
       ]
     }
   ],
-  "subgroups": [],
+  "subgroups": [
+    {
+      "raw_descriptor": "Parent",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "parent"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Child",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "child"
+        }
+      ]
+    }
+  ],
   "results_by_chain": [
     {
       "arm_id": "flare_intervention",
+      "intervention": "FLARE",
       "subgroup_descriptor": null,
-      "endpoint": "retention rate",
+      "endpoint": "retention",
       "effect_size": 85.7,
       "p_value": null,
       "outcome": "success",
-      "mechanism_description": "behavioral education targeting family sun protection practices through structured intervention sessions",
-      "biology_description": "melanoma risk reduction through improved photoprotective behaviors in high-risk families",
-      "population_description": "families with children at elevated melanoma risk"
+      "mechanism_description": "behavioral modification through structured education and lifestyle coaching sessions",
+      "biology_description": "adoption of photoprotective behaviors and skin cancer prevention practices",
+      "population_description": "families with children at risk for melanoma"
+    },
+    {
+      "arm_id": "flare_intervention",
+      "intervention": "FLARE",
+      "subgroup_descriptor": "Parent",
+      "endpoint": "photoprotective behavior change",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "behavioral modification through structured education and lifestyle coaching sessions",
+      "biology_description": "adoption of photoprotective behaviors and skin cancer prevention practices",
+      "population_description": "parents of children at risk for melanoma"
+    },
+    {
+      "arm_id": "flare_intervention",
+      "intervention": "FLARE",
+      "subgroup_descriptor": "Child",
+      "endpoint": "photoprotective behavior change",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "behavioral modification through structured education and lifestyle coaching sessions",
+      "biology_description": "adoption of photoprotective behaviors and skin cancer prevention practices",
+      "population_description": "children at risk for melanoma"
     }
   ],
   "modulation_entries": []

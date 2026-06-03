@@ -136,6 +136,22 @@ class TestMechanismNode:
         node = MechanismNode(id="M1", name="Test", mechanism_type=MechanismType.OTHER)
         assert node.selectivity is None
 
+    def test_category_defaults_none(self):
+        # Abstraction-ladder redesign: category (the coarse drug-class bucket)
+        # is optional + defaults None so existing snapshots / cached graphs load
+        # unchanged. The node identity/scale is the specific action; category is
+        # the bucket it rolls up into.
+        node = MechanismNode(id="M1", name="Test", mechanism_type=MechanismType.OTHER)
+        assert node.category is None
+
+    def test_category_set(self):
+        node = MechanismNode(
+            id="checkpoint_blockade", name="checkpoint blockade",
+            mechanism_type=MechanismType.ANTAGONISM,
+            category="checkpoint_blockade",
+        )
+        assert node.category == "checkpoint_blockade"
+
 
 class TestBiologyNode:
     def test_create(self):

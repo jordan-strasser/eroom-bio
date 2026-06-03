@@ -2,35 +2,39 @@
   "nct_id": "NCT04394845",
   "therapeutic_hypothesis": {
     "compound": "[18F]GTP1",
-    "claimed_target": "tau protein",
-    "proposed_mechanism": "radiotracer binding to tau aggregates for PET imaging",
-    "intended_biology": "tau pathology visualization in Alzheimer's disease",
+    "claimed_target": "tau protein aggregates",
+    "proposed_mechanism": "tau protein binding and detection",
+    "intended_biology": "neuroimaging of tau pathology",
     "target_population": "healthy Japanese participants",
-    "primary_endpoint": "biodistribution and radiation dosimetry",
+    "primary_endpoint": "biodistribution and safety assessment",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
-    "effect_size": "effective dose 0.0303 mSv/MBq (female), 0.0245 mSv/MBq (male)",
+    "effect_size": "biodistribution characterized across organs",
     "p_value": null,
     "target_engagement_evidence": "brain uptake demonstrated with residence time 0.0375 MBq\u00d7hour/MBq (female), 0.0315 MBq\u00d7hour/MBq (male)",
-    "biomarker_changes": [],
+    "biomarker_changes": [
+      "Progressive accumulation in urinary bladder contents over time",
+      "Hepatic uptake with residence time 0.591 MBq\u00d7hour/MBq (female), 0.532 MBq\u00d7hour/MBq (male)",
+      "Small intestine uptake with residence time 0.415 MBq\u00d7hour/MBq (female), 0.395 MBq\u00d7hour/MBq (male)"
+    ],
     "subgroup_findings": [
-      "higher liver uptake in females (0.591 vs 0.532 MBq\u00d7hour/MBq)",
-      "higher urinary bladder uptake in males (0.237 vs 0.135 MBq\u00d7hour/MBq)"
+      "Higher effective dose in females (0.0303 mSv/MBq) vs males (0.0245 mSv/MBq)",
+      "Higher liver radiation dose in females (0.101 mSv/MBq) vs males (0.0702 mSv/MBq)"
     ],
     "safety_signals": [
-      "1 participant (16.7%) experienced adverse events"
+      "Well tolerated with only 1 participant experiencing adverse events"
     ],
     "dose_info": {
-      "dose": "370 MBq (10 mCi)",
+      "dose": "up to 370 MBq (10 mCi)",
       "schedule": "single IV bolus injection",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
     "adverse_events": [
       {
-        "term": "adverse events",
+        "term": "any adverse event",
         "grade": "",
         "incidence_treatment_pct": 16.7,
         "incidence_control_pct": null,
@@ -39,7 +43,7 @@
     ]
   },
   "context": {
-    "indication": "Alzheimer disease (imaging biomarker development)",
+    "indication": "Alzheimer Disease (imaging agent development)",
     "comparator": "none",
     "sample_size": 6,
     "duration": "5 days",
@@ -58,13 +62,14 @@
   "results_by_chain": [
     {
       "arm_id": "18f_gtp1",
+      "intervention": "[18F]GTP1",
       "subgroup_descriptor": null,
       "endpoint": "biodistribution",
       "effect_size": null,
       "p_value": null,
       "outcome": "success",
-      "mechanism_description": "tau protein binding for PET imaging visualization",
-      "biology_description": "tau pathology detection in Alzheimer's disease",
+      "mechanism_description": "tau protein binding and detection",
+      "biology_description": "neuroimaging of tau pathology",
       "population_description": "healthy Japanese participants"
     }
   ],

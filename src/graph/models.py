@@ -446,6 +446,17 @@ class MechanismNode(BaseModel):
     # being read as benefit-direction even though the underlying
     # mechanism is inhibitory.
     direction: str | None = None
+    # Abstraction-ladder redesign: the coarse drug-class functional ontology
+    # (a ``MechanismCategory`` value — checkpoint_blockade, kinase_inhibition,
+    # …) carried as METADATA rather than as the node's only identity signal.
+    # The node's identity / scale is the SPECIFIC molecular action (its
+    # ``description``, sourced from the extracted ``mechanism_description``);
+    # ``category`` is the bucket it rolls up into, used by audits and by the
+    # round-28 direction/type derivation. Populated from the classified /
+    # extracted ``mechanism_category`` (see populate._populate_trial_mechanisms);
+    # ``None`` when no category was supplied. Backward-compatible default so
+    # existing snapshots / cached graphs load unchanged.
+    category: str | None = None
     # A.0: rich free-text description preserved from the trial's therapeutic
     # hypothesis (proposed_mechanism). The id is a routing tag; this is the
     # semantic substrate the BioLORD embedding work (A.1) consumes. First

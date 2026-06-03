@@ -1,51 +1,30 @@
 {
   "nct_id": "NCT02970981",
-  "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 or CTLA-4 engagement. Cannot assess if targets were hit. 2. PATHWAY MODULATION: No pathway biomarkers or downstream immune activation markers reported. Cannot determine if checkpoint blockade mechanisms were activated. 3. CLINICAL TRANSLATION: Primary endpoint was relapse-free survival at 48 months. Only 12/18 participants (66.7%) were relapse-free, which appears suboptimal for an adjuvant melanoma setting where higher RFS rates would be expected. No p-value reported and outcome marked as 'unknown' suggests the endpoint was not met. OS effect size of 0.889 also suggests no survival benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. Single-arm design limits population assessment. 5. CONFOUNDERS: This appears to be a small single-arm study (N=18) which is severely underpowered for definitive efficacy assessment. The lack of a control arm and small sample size make it impossible to determine if the observed RFS rate represents efficacy or natural disease course.",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 or CTLA-4 engagement. However, the observed immune-related adverse events (enterocolitis, diarrhea, fatigue) are consistent with checkpoint blockade activity and suggest target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers measured, but the immune-related toxicity profile is characteristic of checkpoint blockade mechanism activation. 3. CLINICAL TRANSLATION: This is a single-arm trial with no control group or p-values reported. RFS at 48 months was 66.7% (12/18 patients) and OS was 88.9%. Without historical controls or statistical testing, it's impossible to determine if these rates represent efficacy. The effect sizes appear promising but lack statistical validation. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a small single-arm study (n=18) without adequate power for definitive efficacy conclusions. The lack of control arm and statistical testing makes efficacy assessment impossible.",
   "failure_modes": [
-    {
-      "mode": "underpowered",
-      "confidence": 0.9,
-      "evidence": "Single-arm study with only 18 participants is severely underpowered to demonstrate efficacy for adjuvant melanoma treatment. No control arm for comparison and no statistical testing reported."
-    },
     {
       "mode": "insufficient_information",
       "confidence": 0.8,
-      "evidence": "No biomarker data, no target engagement evidence, no p-values reported, and outcomes marked as 'unknown'. Cannot assess where in the causal chain the failure occurred."
+      "evidence": "Single-arm trial with no control group, no p-values, no statistical testing reported. Effect sizes of 66.7% RFS and 88.9% OS cannot be interpreted without historical benchmarks or statistical validation."
     }
   ],
   "edges_to_update": [
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389948",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "weak_support",
       "affecting_arm_id": "nivolumab_and_ipilimumab",
-      "reasoning": "RFS of 66.7% at 48 months appears suboptimal for adjuvant melanoma, suggesting the biology did not drive sufficient clinical benefit"
+      "reasoning": "Immune-related adverse events (enterocolitis, diarrhea, fatigue) are consistent with PD-1 checkpoint blockade activity, suggesting target engagement occurred despite lack of direct biomarker confirmation"
     },
     {
-      "edge_type": "biology_drives",
-      "source_entity": "R-HSA-389513",
-      "target_entity": "melanoma",
-      "support": "weak_contradict",
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "weak_support",
       "affecting_arm_id": "nivolumab_and_ipilimumab",
-      "reasoning": "Same rationale as PD-1 pathway - suboptimal RFS suggests CTLA-4 biology did not drive sufficient benefit"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389948",
-      "support": "weak_contradict",
-      "affecting_arm_id": "nivolumab_and_ipilimumab",
-      "reasoning": "Suboptimal clinical outcomes suggest the checkpoint blockade mechanism did not effectively modulate the intended biology"
-    },
-    {
-      "edge_type": "mechanism_affects",
-      "source_entity": "checkpoint_blockade",
-      "target_entity": "R-HSA-389513",
-      "support": "weak_contradict",
-      "affecting_arm_id": "nivolumab_and_ipilimumab",
-      "reasoning": "Same rationale - checkpoint blockade mechanism appears ineffective at driving the CTLA-4 biology"
+      "reasoning": "Immune-related adverse events pattern is consistent with CTLA-4 checkpoint blockade activity, suggesting target engagement occurred despite lack of direct biomarker confirmation"
     },
     {
       "edge_type": "endpoint_captures",
@@ -53,7 +32,7 @@
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Single-arm design with no control makes it impossible to assess whether the observed RFS rate represents clinical benefit or natural disease course"
+      "reasoning": "RFS was measured and reported (66.7% at 48 months) but without control arm or statistical testing, cannot determine if this represents clinical benefit translation"
     },
     {
       "edge_type": "responds_differently",
@@ -61,10 +40,10 @@
       "target_entity": "melanoma",
       "support": "ambiguous",
       "affecting_arm_id": null,
-      "reasoning": "Single-arm design with small sample size provides no comparative data to assess population response"
+      "reasoning": "Single-arm design with no comparator makes it impossible to assess population-specific response - effect sizes appear promising but lack statistical validation"
     }
   ],
   "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design with very small sample size (N=18) and no reported statistical testing makes it difficult to definitively classify this as a mechanistic failure versus a trial design limitation. The lack of biomarker data compounds the uncertainty about where in the causal chain any failure occurred."
+  "review_reason": "Single-arm trial with no control group, statistical testing, or historical benchmarks provided. Cannot definitively classify efficacy outcome without comparator data."
 }

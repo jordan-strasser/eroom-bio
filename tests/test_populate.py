@@ -2120,6 +2120,72 @@ class TestBuildTrialSubgraphFromExtraction:
         # subgroup pop falls back to its own (descriptor-bearing) name
         assert graph.get_node("nsclc__egfr_mutant")["description"] == "EGFR mutant (nsclc)"
 
+    def test_attach_descriptions_prefers_per_intervention_for_combo(self, graph, tmp_path):
+        """Combo-arm biology fix: two constituents of one arm get DISTINCT
+        mechanism/biology descriptions from the per-(arm, intervention) entries
+        — not one shared trial-level hypothesis on both."""
+        import json as _json
+        from src.graph.models import (
+            BiologyNode, CompoundNode, MechanismNode, MechanismType,
+            PopulationNode, CausalChain, TrialSubgraph,
+        )
+        from src.graph.populate import attach_node_descriptions_from_extractions
+
+        graph.add_node(CompoundNode(id="cyclophosphamide", name="Cyclophosphamide"))
+        graph.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
+        graph.add_node(MechanismNode(id="dna_crosslinking", name="dna crosslinking",
+                                     mechanism_type=MechanismType.INHIBITION))
+        graph.add_node(MechanismNode(id="checkpoint_blockade", name="checkpoint blockade",
+                                     mechanism_type=MechanismType.INHIBITION))
+        graph.add_node(BiologyNode(id="GO:0006289", name="ner"))
+        graph.add_node(BiologyNode(id="R-HSA-389948", name="pd-1 signaling"))
+        graph.add_node(PopulationNode(id="sarcoma__unselected", name="sarcoma all"))
+
+        def _chain(compound_id, mech_id, bio_id):
+            return CausalChain(
+                arm_id="part_b", compound_id=compound_id,
+                subgroup_population_id="sarcoma__unselected", target_id="t",
+                mechanism_id=mech_id, biology_id=bio_id, indication_id="sarcoma",
+                endpoint_id="e",
+            )
+        graph.set_trial_subgraph(TrialSubgraph(
+            trial_id="NCT_COMBO2", parent_population_id="sarcoma__unselected",
+            chains=[
+                _chain("cyclophosphamide", "dna_crosslinking", "GO:0006289"),
+                _chain("pembrolizumab", "checkpoint_blockade", "R-HSA-389948"),
+            ],
+        ))
+
+        (tmp_path / "NCT_COMBO2_extraction.json").write_text(_json.dumps({
+            "nct_id": "NCT_COMBO2",
+            "therapeutic_hypothesis": {
+                "intended_biology": "T-cell mediated anti-tumor immunity",
+            },
+            "results_by_chain": [
+                {"arm_id": "part_b", "intervention": "cyclophosphamide",
+                 "mechanism_description": "DNA cross-linking / alkylation",
+                 "biology_description": "DNA-damage-induced apoptosis"},
+                {"arm_id": "part_b", "intervention": "pembrolizumab",
+                 "mechanism_description": "PD-1 checkpoint blockade",
+                 "biology_description": "T-cell mediated anti-tumor immunity"},
+            ],
+        }))
+
+        attach_node_descriptions_from_extractions(graph, tmp_path)
+        # Each drug's nodes carry ITS OWN per-(arm, intervention) description.
+        assert graph.get_node("dna_crosslinking")["description"] == (
+            "DNA cross-linking / alkylation"
+        )
+        assert graph.get_node("GO:0006289")["description"] == (
+            "DNA-damage-induced apoptosis"
+        )
+        assert graph.get_node("checkpoint_blockade")["description"] == (
+            "PD-1 checkpoint blockade"
+        )
+        assert graph.get_node("R-HSA-389948")["description"] == (
+            "T-cell mediated anti-tumor immunity"
+        )
+
     def test_skips_subgroup_when_all_features_canonicalize_to_other(self, graph):
         """Continuous PD readouts and analysis-timepoint markers aren't
         real subgroups. When canonicalization can't place any feature on
@@ -2619,3 +2685,343 @@ class TestPopulatorCodenameToINN:
 
         # 'cisplatin' isn't in CODENAME_TO_INN → no remap
         assert "cisplatin" in pipeline.graph._graph  # noqa: SLF001
+
+
+def test_biology_id_from_description_is_content_address():
+    """A description-defined BiologyNode id is a content-address over the
+    normalized description (semantic-layers redesign) — NOT a {mech}__{ind}
+    slug. Case/whitespace-normalized so phrasing-identical descriptions collapse
+    to one id (exact Tier-1 merge); distinct biology gets a distinct id."""
+    from src.graph.populate import _biology_id_from_description
+
+    a = _biology_id_from_description("Formation of new blood vessels")
+    b = _biology_id_from_description("formation of new   blood vessels")
+    c = _biology_id_from_description("T-cell mediated cytotoxicity")
+
+    assert a.startswith("bio:") and len(a) == len("bio:") + 12
+    assert a == b          # normalized (case + collapsed whitespace) → same id
+    assert a != c          # distinct biology → distinct content-address
+    assert "__" not in a   # not a {mechanism}__{indication} slug
+
+
+# ── Combo-arm biology fix: per-(arm, intervention) descriptions ───────────────
+
+
+@pytest.mark.asyncio
+async def test_combo_arm_constituents_get_distinct_biology_descriptions(tmp_path):
+    """Abstraction-ladder redesign: when a per-(arm, intervention) biology
+    DESCRIPTION exists, the Biology node IDENTITY is the content-address of that
+    description (``bio:<sha1>``), NOT the target-gene → Reactome pathway —
+    Reactome is bypassed entirely. A combination arm fans into one chain PER
+    drug; each drug's distinct description yields a distinct ``bio:`` id, so the
+    chemo's biology and the checkpoint inhibitor's biology stay separate (and
+    the general processes are SHARED across drugs/diseases that drive them).
+    """
+    import json
+
+    from src.graph.models import (
+        BiologyNode,
+        CausalChain,
+        CompoundNode,
+        IndicationNode,
+        MechanismNode,
+        TargetNode,
+        TrialOutcome,
+        TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    # Two constituents of one combo arm, each with its own target+mechanism.
+    g.add_node(CompoundNode(id="cyclophosphamide", name="Cyclophosphamide"))
+    g.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
+    g.add_node(TargetNode(id="CHEBI:16991", name="DNA", gene_symbol="DNA"))
+    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(MechanismNode(id="dna_crosslinking", name="dna crosslinking", mechanism_type="inhibition"))
+    g.add_node(MechanismNode(id="checkpoint_blockade", name="checkpoint blockade", mechanism_type="inhibition"))
+    g.add_node(IndicationNode(id="sarcoma", name="sarcoma"))
+    # Two distinct RESOLVED ontology biology nodes (no description yet).
+    g.add_node(BiologyNode(id="GO:0006289", name="nucleotide-excision repair"))
+    g.add_node(BiologyNode(id="R-HSA-389948", name="PD-1 signaling"))
+
+    parent_pop = "sarcoma__unselected"
+    g.add_node(IndicationNode(id="sarcoma", name="sarcoma"))  # idempotent
+    from src.graph.models import PopulationNode
+
+    g.add_node(PopulationNode(id=parent_pop, name="sarcoma (all)"))
+
+    def _chain(compound_id, target_id, mech_id):
+        return CausalChain(
+            arm_id="part_b",
+            compound_id=compound_id,
+            subgroup_population_id=parent_pop,
+            target_id=target_id,
+            mechanism_id=mech_id,
+            biology_id="UNKNOWN",
+            indication_id="sarcoma",
+            endpoint_id="ORR_sarcoma",
+            outcome=TrialOutcome.PARTIAL,
+        )
+
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_COMBO",
+        arms=[],
+        parent_population_id=parent_pop,
+        chains=[
+            _chain("cyclophosphamide", "CHEBI:16991", "dna_crosslinking"),
+            _chain("pembrolizumab", "ENSG00000188389", "checkpoint_blockade"),
+        ],
+    ))
+
+    # Extraction: ONE combo arm, two per-drug entries with DISTINCT biology.
+    (tmp_path / "NCT_COMBO_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_COMBO",
+        "therapeutic_hypothesis": {
+            "intended_biology": "T-cell mediated anti-tumor immunity",  # arm-level fallback
+        },
+        "results_by_chain": [
+            {
+                "arm_id": "part_b", "intervention": "cyclophosphamide",
+                "endpoint": "ORR", "outcome": "partial",
+                "biology_description": "DNA-damage-induced apoptosis",
+            },
+            {
+                "arm_id": "part_b", "intervention": "pembrolizumab",
+                "endpoint": "ORR", "outcome": "partial",
+                "biology_description": "T-cell mediated anti-tumor immunity",
+            },
+        ],
+    }))
+
+    # Stub biology resolution to a Reactome id per (target, mechanism). The
+    # redesign must NOT use these when a description is present (Reactome is the
+    # no-description fallback only) — asserting these ids are absent proves
+    # description-identity wins over the target-gene → Reactome pathway.
+    bio_by_mech = {
+        "dna_crosslinking": ["GO:0006289"],
+        "checkpoint_blockade": ["R-HSA-389948"],
+    }
+
+    async def fake_resolve(self, target_id, mechanism_id, indication_id,
+                           lincs_client, quickgo_client=None):
+        return (bio_by_mech.get(mechanism_id, []), False)
+
+    trial = TrialRecord(nct_id="NCT_COMBO", title="t", conditions=["sarcoma"])
+
+    from src.graph.populate import _biology_id_from_description
+
+    with patch.object(PopulationPipeline, "_resolve_real_biology", fake_resolve):
+        pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+        await pipe._populate_trial_biology([trial], annotations_dir=tmp_path)
+
+    # Biology identity is the content-address of EACH drug's description —
+    # NOT the Reactome pathway.
+    chemo_bio = _biology_id_from_description("DNA-damage-induced apoptosis")
+    checkpoint_bio = _biology_id_from_description("T-cell mediated anti-tumor immunity")
+    assert chemo_bio.startswith("bio:") and checkpoint_bio.startswith("bio:")
+    assert chemo_bio != checkpoint_bio
+
+    # Each content-address node carries its own description as the substrate.
+    assert g.get_node(chemo_bio)["description"] == "DNA-damage-induced apoptosis"
+    assert g.get_node(checkpoint_bio)["description"] == (
+        "T-cell mediated anti-tumor immunity"
+    )
+
+    # Chains were rewritten to the description content-address ids; the
+    # pre-existing Reactome fixture nodes are NOT referenced by any chain
+    # (description-identity wins over the target-gene → Reactome pathway).
+    ts = g.get_trial_subgraph_by_id("NCT_COMBO")
+    bio_ids = sorted(c.biology_id for c in ts.chains)
+    assert bio_ids == sorted([chemo_bio, checkpoint_bio])
+    assert "GO:0006289" not in bio_ids
+    assert "R-HSA-389948" not in bio_ids
+    # The Reactome nodes never received the descriptions (they weren't touched).
+    assert not g.get_node("GO:0006289").get("description")
+    assert not g.get_node("R-HSA-389948").get("description")
+
+
+@pytest.mark.asyncio
+async def test_arm_level_description_is_biology_identity_not_reactome(tmp_path):
+    """Abstraction-ladder redesign, legacy/no-per-drug case: a combo arm whose
+    entries carry only an ARM-LEVEL ``biology_description`` (no per-drug
+    ``intervention``) routes BOTH constituents to the content-address of that
+    shared description — NOT to their distinct target-gene → Reactome pathways.
+
+    Consequence to be aware of: with only an arm-level description, the two
+    constituents collapse onto ONE biology node (same description string → same
+    ``bio:`` id). The fix for keeping distinct-mechanism drugs apart is per-DRUG
+    extraction (each drug emits its own ``biology_description`` — enforced by the
+    prompt's per-drug rule); when that's present, see
+    ``test_combo_arm_constituents_get_distinct_biology_descriptions``.
+    """
+    import json
+
+    from src.graph.models import (
+        BiologyNode,
+        CausalChain,
+        CompoundNode,
+        IndicationNode,
+        MechanismNode,
+        PopulationNode,
+        TargetNode,
+        TrialOutcome,
+        TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="cyclophosphamide", name="Cyclophosphamide"))
+    g.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
+    g.add_node(TargetNode(id="CHEBI:16991", name="DNA", gene_symbol="DNA"))
+    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(MechanismNode(id="dna_crosslinking", name="dna crosslinking", mechanism_type="inhibition"))
+    g.add_node(MechanismNode(id="checkpoint_blockade", name="checkpoint blockade", mechanism_type="inhibition"))
+    g.add_node(IndicationNode(id="sarcoma", name="sarcoma"))
+    g.add_node(BiologyNode(id="GO:0006289", name="nucleotide-excision repair"))
+    g.add_node(BiologyNode(id="R-HSA-389948", name="PD-1 signaling"))
+    parent_pop = "sarcoma__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="sarcoma (all)"))
+
+    def _chain(compound_id, target_id, mech_id):
+        return CausalChain(
+            arm_id="part_b", compound_id=compound_id,
+            subgroup_population_id=parent_pop, target_id=target_id,
+            mechanism_id=mech_id, biology_id="UNKNOWN", indication_id="sarcoma",
+            endpoint_id="ORR_sarcoma", outcome=TrialOutcome.PARTIAL,
+        )
+
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_LEGACY", arms=[], parent_population_id=parent_pop,
+        chains=[
+            _chain("cyclophosphamide", "CHEBI:16991", "dna_crosslinking"),
+            _chain("pembrolizumab", "ENSG00000188389", "checkpoint_blockade"),
+        ],
+    ))
+
+    # No `intervention`, no per-chain biology — only a single arm-level
+    # description per entry + a trial-level fallback (the bug scenario).
+    (tmp_path / "NCT_LEGACY_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_LEGACY",
+        "therapeutic_hypothesis": {
+            "intended_biology": "T-cell mediated anti-tumor immunity",
+        },
+        "results_by_chain": [
+            {"arm_id": "part_b", "endpoint": "ORR", "outcome": "partial",
+             "biology_description": "T-cell mediated anti-tumor immunity"},
+        ],
+    }))
+
+    bio_by_mech = {
+        "dna_crosslinking": ["GO:0006289"],
+        "checkpoint_blockade": ["R-HSA-389948"],
+    }
+
+    async def fake_resolve(self, target_id, mechanism_id, indication_id,
+                           lincs_client, quickgo_client=None):
+        return (bio_by_mech.get(mechanism_id, []), False)
+
+    trial = TrialRecord(nct_id="NCT_LEGACY", title="t", conditions=["sarcoma"])
+    from src.graph.populate import _biology_id_from_description
+    with patch.object(PopulationPipeline, "_resolve_real_biology", fake_resolve):
+        pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+        await pipe._populate_trial_biology([trial], annotations_dir=tmp_path)
+
+    # Both constituents route to the content-address of the shared arm-level
+    # description — Reactome is bypassed.
+    shared_bio = _biology_id_from_description("T-cell mediated anti-tumor immunity")
+    assert shared_bio.startswith("bio:")
+    assert g.get_node(shared_bio)["description"] == "T-cell mediated anti-tumor immunity"
+    ts = g.get_trial_subgraph_by_id("NCT_LEGACY")
+    assert {c.biology_id for c in ts.chains} == {shared_bio}
+    # The Reactome fixture nodes were never used as the biology identity.
+    assert not g.get_node("GO:0006289").get("description")
+    assert not g.get_node("R-HSA-389948").get("description")
+
+
+# ── Abstraction-ladder: mechanism_category → MechanismNode.category ───────────
+
+
+@pytest.mark.asyncio
+async def test_mechanism_category_lands_as_node_metadata(tmp_path):
+    """The extractor's per-(arm, intervention) ``mechanism_category`` is stamped
+    onto ``MechanismNode.category`` by ``_populate_trial_mechanisms``. The node
+    identity stays the resolved MechanismCategory id (round-28 direction/type
+    derivation keeps working); category is the coarse bucket carried as metadata.
+    When a drug has no extracted category, it falls back to the resolved id."""
+    import json
+
+    from src.graph.models import (
+        CausalChain, CompoundNode, EdgeBeliefState, EdgeType, GraphEdge,
+        IndicationNode, PopulationNode, TargetNode, TrialArm, TrialOutcome,
+        TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+    from src.ingestion.clinicaltrials import TrialRecord
+
+    g = GraphStore()
+    g.add_node(CompoundNode(id="cyclophosphamide", name="Cyclophosphamide"))
+    g.add_node(CompoundNode(id="pembrolizumab", name="Pembrolizumab"))
+    g.add_node(TargetNode(id="CHEBI:16991", name="DNA", gene_symbol="DNA"))
+    g.add_node(TargetNode(id="ENSG00000188389", name="PDCD1", gene_symbol="PDCD1"))
+    g.add_node(IndicationNode(id="sarcoma", name="sarcoma"))
+    parent_pop = "sarcoma__unselected"
+    g.add_node(PopulationNode(id=parent_pop, name="sarcoma (all)"))
+
+    # AFFECTS edges carry `implied_mechanism` so _populate_trial_mechanisms uses
+    # the structured value and never calls the LLM. Each drug → its category id.
+    for cid, tid, mech in (
+        ("cyclophosphamide", "CHEBI:16991", "dna_crosslinking"),
+        ("pembrolizumab", "ENSG00000188389", "checkpoint_blockade"),
+    ):
+        g.add_edge(GraphEdge(
+            source_id=cid, target_id=tid, edge_type=EdgeType.AFFECTS,
+            belief=EdgeBeliefState(),
+            metadata={"implied_mechanism": mech},
+        ))
+
+    arm = TrialArm(
+        arm_id="part_b", regimen_compound_id="cyclophosphamide__pembrolizumab",
+        compound_ids=["cyclophosphamide", "pembrolizumab"], is_combination=True,
+    )
+    g.set_trial_subgraph(TrialSubgraph(
+        trial_id="NCT_CAT", arms=[arm], parent_population_id=parent_pop,
+        chains=[CausalChain(
+            arm_id="part_b", compound_id="cyclophosphamide",
+            subgroup_population_id=parent_pop, target_id="CHEBI:16991",
+            mechanism_id="UNKNOWN", biology_id="UNKNOWN", indication_id="sarcoma",
+            endpoint_id="ORR_sarcoma", outcome=TrialOutcome.PARTIAL,
+        )],
+    ))
+
+    # Extraction: cyclophosphamide entry carries an explicit category; the
+    # pembrolizumab entry omits it (→ falls back to the resolved id).
+    (tmp_path / "NCT_CAT_extraction.json").write_text(json.dumps({
+        "nct_id": "NCT_CAT",
+        "results_by_chain": [
+            {"arm_id": "part_b", "intervention": "cyclophosphamide",
+             "outcome": "partial", "mechanism_category": "dna_crosslinking"},
+            {"arm_id": "part_b", "intervention": "pembrolizumab",
+             "outcome": "partial"},  # no mechanism_category
+        ],
+    }))
+
+    compound_targets = {
+        "cyclophosphamide": ["CHEBI:16991"],
+        "pembrolizumab": ["ENSG00000188389"],
+    }
+    trial = TrialRecord(nct_id="NCT_CAT", title="t", conditions=["sarcoma"])
+    pipe = PopulationPipeline(g, anthropic_client=AsyncMock())
+    await pipe._populate_trial_mechanisms(
+        [trial], compound_targets, annotations_dir=tmp_path,
+    )
+
+    # Both mechanism nodes exist (ids = resolved MechanismCategory values) and
+    # carry the category metadata.
+    assert g.get_node("dna_crosslinking")["category"] == "dna_crosslinking"
+    # Pembrolizumab had no extracted category → falls back to the resolved id.
+    assert g.get_node("checkpoint_blockade")["category"] == "checkpoint_blockade"
+    # Round-28 derivation still works: direction populated off MechanismCategory.
+    assert g.get_node("dna_crosslinking")["direction"] == "inhibiting"
+    assert g.get_node("checkpoint_blockade")["direction"] == "inhibiting"
