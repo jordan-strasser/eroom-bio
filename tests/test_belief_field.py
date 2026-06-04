@@ -101,6 +101,89 @@ def test_invalid_inputs_raise(bad):
         apply_virtual_evidence_local(BeliefField(), s=[1.0], t=[1.0], **bad)
 
 
+def test_index_anchor_vectors_dedups_repeated_vectors():
+    """Repeated (s, t) across anchors/edges collapse to one table row; anchors
+    keep an int index; the live nested objects are never mutated."""
+    from src.inference.belief_field import (
+        index_anchor_vectors,
+        rehydrate_anchor_vectors,
+    )
+
+    shared_s = [0.1, 0.2, 0.3]
+    a1 = {"s": shared_s, "t": [0.9, 0.0, 0.0], "alpha": 5.0, "beta": 1.0}
+    a2 = {"s": list(shared_s), "t": [0.9, 0.0, 0.0], "alpha": 2.0, "beta": 4.0}
+    links = [
+        {"source": "A", "target": "B", "key": "mechanism_affects",
+         "belief": {"alpha": 7.0, "beta": 5.0, "belief_field": {"anchors": [a1, a2]}}},
+        {"source": "C", "target": "D", "key": "biology_drives",
+         "belief": {"alpha": 1.0, "beta": 1.0, "belief_field": {"anchors": [dict(a1)]}}},
+    ]
+    table = index_anchor_vectors(links)
+    # 2 unique vectors total: shared_s (used 3×) and [0.9,0,0] (used 3×).
+    assert len(table) == 2
+    # original anchor dicts untouched (fresh copies were written into links)
+    assert a1["s"] == shared_s and isinstance(a1["s"], list)
+    # links now carry int indices, and the shared vector resolves to one index
+    new_anchors = links[0]["belief"]["belief_field"]["anchors"]
+    assert isinstance(new_anchors[0]["s"], int)
+    assert new_anchors[0]["s"] == new_anchors[1]["s"]  # both point to shared_s row
+
+    # rehydrate → shared list object across every anchor with that index
+    rehydrate_anchor_vectors(links, table)
+    r0 = links[0]["belief"]["belief_field"]["anchors"]
+    r1 = links[1]["belief"]["belief_field"]["anchors"]
+    assert r0[0]["s"] is r0[1]["s"] is r1[0]["s"]  # one object in memory
+
+
+def test_private_snapshot_vector_dedup_roundtrip(tmp_path, monkeypatch):
+    """Full export_private_snapshot → load_edge_fields path: vectors land in the
+    shared table, fields round-trip numerically, and equal vectors share one
+    list object after load (the in-memory dedup)."""
+    import json
+
+    from src.boundary import private_root
+    from src.graph.models import EdgeBeliefState, EdgeType, GraphEdge
+    from src.graph.store import GraphStore
+    from src.prediction.field_prediction import load_edge_fields
+
+    monkeypatch.setenv("EROOM_PRIVATE_ROOT", str(tmp_path / "private"))
+
+    # Two edges; both localize at the SAME source vector → must dedup.
+    shared = [1.0, 0.0, 0.0]
+    f1 = BeliefField(marginal_alpha=4.0, marginal_beta=2.0)
+    apply_virtual_evidence_local(f1, s=shared, t=[0.0, 1.0, 0.0], n_eff=20.0, p_obs=0.9)
+    f2 = BeliefField()
+    apply_virtual_evidence_local(f2, s=shared, t=[0.0, 0.0, 1.0], n_eff=10.0, p_obs=0.3)
+
+    store = GraphStore()
+    store.add_edge(GraphEdge(
+        source_id="A", target_id="B", edge_type=EdgeType.MECHANISM_AFFECTS,
+        belief=EdgeBeliefState(alpha=4.0, beta=2.0, belief_field=f1.to_dict()),
+    ))
+    store.add_edge(GraphEdge(
+        source_id="C", target_id="D", edge_type=EdgeType.BIOLOGY_DRIVES,
+        belief=EdgeBeliefState(belief_field=f2.to_dict()),
+    ))
+    p_before = expected_p(f1, shared, [0.0, 1.0, 0.0])
+
+    out = private_root(create=True) / "field.json"
+    store.export_private_snapshot(str(out))
+
+    raw = json.loads(out.read_text())
+    assert "_belief_field_vectors" in raw
+    # the shared source vector is stored once
+    assert sum(v == shared for v in raw["_belief_field_vectors"]) == 1
+
+    fields = load_edge_fields(str(out))
+    key1 = ("A", "B", "mechanism_affects")
+    key2 = ("C", "D", "biology_drives")
+    assert key1 in fields and key2 in fields
+    # numeric identity preserved through the dedup
+    assert expected_p(fields[key1], shared, [0.0, 1.0, 0.0]) == pytest.approx(p_before)
+    # in-memory dedup: the shared source vector is ONE object across both edges
+    assert fields[key1].anchors[0].s is fields[key2].anchors[0].s
+
+
 def test_belief_field_is_stripped_from_public_snapshot(tmp_path):
     """A.3 moat: a populated per-region field never reaches a public snapshot."""
     from src.graph.models import EdgeBeliefState, EdgeType, GraphEdge

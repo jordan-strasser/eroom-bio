@@ -34,6 +34,8 @@ from src.inference.belief_field import (
     BeliefField,
     apply_virtual_evidence_local,
     field_enabled,
+    index_anchor_vectors,
+    rehydrate_anchor_vectors,
 )
 
 
@@ -374,16 +376,37 @@ class GraphStore:
         # vectors — with ``indent=2`` every float got its own indented line
         # (~330 MB of pure whitespace at n=252). json.loads reads this fine via
         # both load paths (store.import_snapshot + field_prediction.load_edge_fields).
-        # The larger win — a shared dedup vector table — is the tracked follow-up.
+        #
+        # Then dedup those vectors into a shared ``_belief_field_vectors`` table:
+        # anchor (s, t) are BioLORD embeddings of node/arm DESCRIPTIONS, which
+        # recur across thousands of anchors, so the unique-vector table is far
+        # smaller than the raw anchor count. ``index_anchor_vectors`` rewrites
+        # only fresh copies of the touched link beliefs, so the live in-memory
+        # graph (whose nested objects node_link_data shares) is untouched.
+        payload = self._build_snapshot_payload()
+        graph_data = payload.get("graph", {})
+        links = graph_data.get("links") or graph_data.get("edges") or []
+        table = index_anchor_vectors(links)
+        if table:
+            payload["_belief_field_vectors"] = table
         target.write_text(
-            json.dumps(self._build_snapshot_payload(), default=str,
-                       separators=(",", ":"))
+            json.dumps(payload, default=str, separators=(",", ":"))
         )
 
     def import_snapshot(self, filepath: str) -> None:
         raw = json.loads(Path(filepath).read_text())
         # New format has the wrapper; old format is bare node_link_data.
         if isinstance(raw, dict) and "graph" in raw and "trial_subgraphs" in raw:
+            # Private snapshots index anchor (s, t) into a shared dedup table
+            # (export_private_snapshot). Resolve indices back to shared list
+            # refs in the just-parsed payload — so the in-memory graph carries
+            # real vectors (and repeated vectors are one object, not N copies).
+            # No-op for public/old snapshots (no table → inline vectors stay).
+            table = raw.get("_belief_field_vectors")
+            graph_blob = raw["graph"]
+            rehydrate_anchor_vectors(
+                graph_blob.get("links") or graph_blob.get("edges") or [], table
+            )
             self._graph = nx.node_link_graph(
                 raw["graph"], directed=True, multigraph=True
             )

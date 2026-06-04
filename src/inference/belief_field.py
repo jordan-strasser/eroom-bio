@@ -43,6 +43,103 @@ PRIOR_BETA = 1.0
 DEFAULT_BANDWIDTH = 0.25  # cosine-kernel bandwidth; smaller = sharper locality
 FALLBACK_STRENGTH = 2.0   # pseudo-count mass of the marginal fallback (see query)
 
+VECTOR_NDIGITS = 6  # anchor-vector rounding; cosine-lossless for unit-norm BioLORD
+
+
+def _resolve_vec(v: Any, vectors: list[list[float]] | None) -> list[float]:
+    """Resolve one anchor axis to its vector.
+
+    An ``int`` is an index into the shared ``vectors`` dedup table — returned
+    **by reference**, so every anchor with the same index shares one list object
+    (the in-memory half of the dedup). A ``list`` is an inline vector (old
+    snapshot format) and is copied to floats. See :func:`index_anchor_vectors`.
+    """
+    if isinstance(v, int):
+        if vectors is None:
+            raise ValueError("anchor vector index requires a vector table")
+        return vectors[v]
+    return [float(x) for x in v]
+
+
+def index_anchor_vectors(
+    links: list[dict], *, ndigits: int = VECTOR_NDIGITS
+) -> list[list[float]]:
+    """Dedup anchor ``(s, t)`` vectors across all edges into one shared table.
+
+    For every edge's ``belief.belief_field.anchors``, replace each ``s``/``t``
+    float list with an int index into the returned table (rounded to ``ndigits``;
+    cosine-lossless at 6dp for unit-norm BioLORD vectors). The same description
+    embedding recurs across thousands of anchors, so the table is far smaller
+    than the raw anchor count — this is the dominant size win for the private
+    field snapshot.
+
+    Rewrites each touched link's ``belief`` to **fresh** dicts; the nested
+    objects shared with a live graph (``node_link_data`` shallow-copies link
+    dicts but shares their values) are never mutated. Returns the table, empty
+    if no anchor carries an inline vector.
+    """
+    table: list[list[float]] = []
+    index: dict[tuple[float, ...], int] = {}
+
+    def intern(v: Any) -> Any:
+        if not isinstance(v, list):
+            return v  # already an index (idempotent) or absent
+        key = tuple(round(float(x), ndigits) for x in v)
+        idx = index.get(key)
+        if idx is None:
+            idx = len(table)
+            index[key] = idx
+            table.append(list(key))
+        return idx
+
+    for e in links:
+        belief = e.get("belief")
+        if not isinstance(belief, dict):
+            continue
+        bf = belief.get("belief_field")
+        if not isinstance(bf, dict) or not bf.get("anchors"):
+            continue
+        new_anchors, changed = [], False
+        for a in bf["anchors"]:
+            if not isinstance(a, dict):
+                new_anchors.append(a)  # malformed/stub anchor — pass through
+                continue
+            new_anchors.append({
+                "s": intern(a.get("s")), "t": intern(a.get("t")),
+                "alpha": a.get("alpha"), "beta": a.get("beta"),
+            })
+            changed = True
+        if changed:
+            e["belief"] = {**belief, "belief_field": {**bf, "anchors": new_anchors}}
+    return table
+
+
+def rehydrate_anchor_vectors(
+    links: list[dict], table: list[list[float]] | None
+) -> None:
+    """Inverse of :func:`index_anchor_vectors`: replace each anchor's int ``s``/
+    ``t`` index with the **shared** list object from ``table`` (repeated vectors
+    become one object in memory, not N copies). Mutates the anchor dicts in
+    place — call only on a freshly-parsed payload, never on a live graph. No-op
+    if ``table`` is falsy (old inline-format snapshot)."""
+    if not table:
+        return
+    for e in links:
+        belief = e.get("belief")
+        if not isinstance(belief, dict):
+            continue
+        bf = belief.get("belief_field")
+        if not isinstance(bf, dict):
+            continue
+        for a in bf.get("anchors") or []:
+            if not isinstance(a, dict):
+                continue
+            s, t = a.get("s"), a.get("t")
+            if isinstance(s, int):
+                a["s"] = table[s]
+            if isinstance(t, int):
+                a["t"] = table[t]
+
 
 @dataclass
 class FieldAnchor:
@@ -57,10 +154,12 @@ class FieldAnchor:
         return {"s": self.s, "t": self.t, "alpha": self.alpha, "beta": self.beta}
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "FieldAnchor":
+    def from_dict(
+        cls, d: dict[str, Any], vectors: list[list[float]] | None = None
+    ) -> "FieldAnchor":
         return cls(
-            s=[float(x) for x in d["s"]],
-            t=[float(x) for x in d["t"]],
+            s=_resolve_vec(d["s"], vectors),
+            t=_resolve_vec(d["t"], vectors),
             alpha=float(d["alpha"]),
             beta=float(d["beta"]),
         )
@@ -93,9 +192,11 @@ class BeliefField:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "BeliefField":
+    def from_dict(
+        cls, d: dict[str, Any], vectors: list[list[float]] | None = None
+    ) -> "BeliefField":
         return cls(
-            anchors=[FieldAnchor.from_dict(a) for a in d.get("anchors", [])],
+            anchors=[FieldAnchor.from_dict(a, vectors) for a in d.get("anchors", [])],
             bandwidth=float(d.get("bandwidth", DEFAULT_BANDWIDTH)),
             marginal_alpha=float(d.get("marginal_alpha", PRIOR_ALPHA)),
             marginal_beta=float(d.get("marginal_beta", PRIOR_BETA)),

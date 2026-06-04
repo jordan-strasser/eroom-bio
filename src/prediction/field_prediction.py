@@ -34,12 +34,18 @@ def load_edge_fields(field_snapshot: str | Path) -> dict[tuple[str, str, str], B
     """``(source, target, edge_type) -> BeliefField`` from a private belief-field
     snapshot."""
     fd = json.loads(Path(field_snapshot).read_text())
+    # Anchor (s, t) may be int indices into a shared dedup table (see
+    # store.export_private_snapshot); from_dict resolves them BY REFERENCE so
+    # every anchor with the same vector shares one list object in memory.
+    vectors = fd.get("_belief_field_vectors")
     links = fd["graph"].get("links") or fd["graph"].get("edges") or []
     out: dict[tuple[str, str, str], BeliefField] = {}
     for e in links:
         bf = (e.get("belief") or {}).get("belief_field")
         if bf and bf.get("anchors"):
-            out[(e.get("source"), e.get("target"), e.get("key"))] = BeliefField.from_dict(bf)
+            out[(e.get("source"), e.get("target"), e.get("key"))] = (
+                BeliefField.from_dict(bf, vectors)
+            )
     return out
 
 
