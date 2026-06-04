@@ -369,8 +369,15 @@ class GraphStore:
         """
         target = require_under_private_root(filepath)
         target.parent.mkdir(parents=True, exist_ok=True)
+        # Compact (no indent, tight separators): the belief-field snapshot is
+        # machine-read only, and at scale it's dominated by 768-dim anchor
+        # vectors — with ``indent=2`` every float got its own indented line
+        # (~330 MB of pure whitespace at n=252). json.loads reads this fine via
+        # both load paths (store.import_snapshot + field_prediction.load_edge_fields).
+        # The larger win — a shared dedup vector table — is the tracked follow-up.
         target.write_text(
-            json.dumps(self._build_snapshot_payload(), indent=2, default=str)
+            json.dumps(self._build_snapshot_payload(), default=str,
+                       separators=(",", ":"))
         )
 
     def import_snapshot(self, filepath: str) -> None:

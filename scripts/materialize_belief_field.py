@@ -136,16 +136,41 @@ def materialize_field(
     Reused by ``build_graph --assemble`` so the field is regenerated with every
     build (the field is post-hoc by construction — boundary strips it from the
     public snapshot — so without this it drifts stale relative to the graph)."""
-    from src.graph.biolord_embeddings import embed_text
+    from src.graph.biolord_embeddings import embed_text, embed_texts
 
     g = GraphStore()
     g.import_snapshot(graph_path)
     by_arm = chain_descriptions_by_arm(annotations_dir)  # per-(nct,arm) A.0b descs
     emb_cache: dict[str, list[float]] = {}
 
+    # Pre-embed every (s,t) description the localization below will request, in
+    # ONE batch (one model.encode + one 45 MB cache round-trip) instead of one
+    # embed_text per text — each of which re-read the whole cache, the ~3 h
+    # field-materialization blocker. After this warm-up, embed() is pure local-
+    # cache hits. The walk mirrors the apply loop's pair discovery exactly.
+    wanted: set[str] = set()
+    for et in EDGE_SPECS:
+        for e in g.get_edges_by_type(et):
+            belief = EdgeBeliefState.model_validate(e["belief"])
+            if not belief.evidence:
+                continue
+            pairs_by_nct = _chain_st_pairs(g, by_arm, et, e["source_id"], e["target_id"])
+            sd, td_ = _node_desc(g, e["source_id"]), _node_desc(g, e["target_id"])
+            node_pair = (sd, td_) if sd and td_ else None
+            for ev in belief.evidence:
+                pairs = pairs_by_nct.get(ev.source_id) or ([node_pair] if node_pair else None)
+                if not pairs:
+                    continue
+                for s_desc, t_desc in pairs:
+                    wanted.add(s_desc)
+                    wanted.add(t_desc)
+    if wanted:
+        ordered = sorted(wanted)
+        emb_cache.update(zip(ordered, embed_texts(ordered)))
+
     def embed(text: str) -> list[float]:
         if text not in emb_cache:
-            emb_cache[text] = embed_text(text)
+            emb_cache[text] = embed_text(text)  # belt-and-suspenders (warm-up missed it)
         return emb_cache[text]
 
     edges_localized = 0

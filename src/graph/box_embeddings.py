@@ -436,6 +436,7 @@ def fit_graph_boxes(
     *,
     node_types: tuple[str, ...] = ("PopulationNode", "BiologyNode", "MechanismNode"),
     embed_fn=None,
+    batch_embed_fn=None,
     ancestors_fn=None,
     annotations_dir=None,
     leaf_half_width: float = 0.05,
@@ -450,15 +451,23 @@ def fit_graph_boxes(
     categorical node like ``kinase_inhibition`` is a region over EGFR/MEK/BRAF
     inhibition, not a point at the first contributor. Without it (unit tests),
     each node falls back to a single ``description``/``name`` leaf cube.
-    ``embed_fn`` defaults to ``biolord_embeddings.embed_text`` (lazy import).
+    ``embed_fn`` (per-text) defaults — when no batch encoder is supplied — to the
+    **batch** ``biolord_embeddings.embed_texts``, so every node's descriptions
+    embed in ONE ``model.encode`` over the whole corpus (vs the per-text
+    ``Batches: 1/1`` loop that re-read the 45 MB cache once per text — the n=252
+    box-fit blocker). A test/caller injecting a per-text ``embed_fn`` keeps the
+    per-text path.
     """
-    if embed_fn is None:
-        from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
+    if embed_fn is None and batch_embed_fn is None:
+        from src.graph.biolord_embeddings import embed_texts as batch_embed_fn  # noqa
 
     selected = set(node_types)
     text_sets = node_text_sets(graph, node_types, annotations_dir) if annotations_dir else {}
 
-    initial: dict[str, Box] = {}
+    # Gather every node's texts first so the whole corpus embeds in one batch
+    # (vs one model.encode per text). The bounding box is identical either way —
+    # model.encode([a, b]) equals per-item — so this is a pure speedup.
+    node_texts: list[tuple[str, list[str]]] = []
     for nid, data in graph._graph.nodes(data=True):  # noqa: SLF001
         if data.get("node_type") not in selected:
             continue
@@ -467,10 +476,21 @@ def fit_graph_boxes(
             t = (data.get("description") or "").strip() or (data.get("name") or "").strip()
             if t:
                 texts = [t]
-        if not texts:
-            continue
+        if texts:
+            node_texts.append((nid, texts))
+
+    if batch_embed_fn is not None:
+        flat = [t for _, texts in node_texts for t in texts]
+        vec_by_text = dict(zip(flat, batch_embed_fn(flat))) if flat else {}
+        def _emb(t: str) -> list[float]:
+            return vec_by_text[t]
+    else:
+        _emb = embed_fn
+
+    initial: dict[str, Box] = {}
+    for nid, texts in node_texts:
         initial[nid] = box_from_points(
-            [embed_fn(t) for t in texts], leaf_half_width=leaf_half_width
+            [_emb(t) for t in texts], leaf_half_width=leaf_half_width
         )
 
     pairs = population_parent_child_pairs(graph)
