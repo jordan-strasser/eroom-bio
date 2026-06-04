@@ -438,6 +438,7 @@ def resolve_hierarchy(
     hi: float | None = None,
     lo: float | None = None,
     source: str = "box_geometry",
+    nearest_only: bool = True,
 ) -> dict[str, int]:
     """Emit ``SUBTYPE_OF`` (is-a) edges from box containment — the *hierarchy*
     half of "merge by geometry + hierarchy" that `assemble` (the *merge* half)
@@ -450,6 +451,13 @@ def resolve_hierarchy(
     `assemble`; ``sibling``/``unrelated`` add nothing. Idempotent: existing or
     reverse-direction SUBTYPE_OF edges are skipped (no 2-cycles). Returns the
     count of edges added per node type.
+
+    ``nearest_only`` (default) caps each child to its **single tightest** parent
+    (smallest box). A child inside K nested ancestors otherwise gets K edges —
+    all the transitive ancestors — which is the is-a over-creation at scale
+    (10,467 of 11,570 at n=252 were Mechanism, almost all transitive). The direct
+    parent implies the rest, so one edge per child gives a clean DAG and caps the
+    count at ≤ |nodes| per type. Set ``False`` for the legacy all-ancestors emit.
 
     Run **after** `assemble` and box-fitting (boxes must reflect the merged
     nodes). This makes the box relation load-bearing instead of diagnostic.
@@ -467,16 +475,23 @@ def resolve_hierarchy(
     key = EdgeType.SUBTYPE_OF.value
     for nt in node_types:
         ids = [n["id"] for n in graph.get_nodes_by_type(nt) if n["id"] in boxes]
+        # Gather every container (candidate parent) per child first; then keep the
+        # tightest (nearest_only) so transitive ancestors don't each get an edge.
+        parents_of: dict[str, list[str]] = {}
         for i in range(len(ids)):
             for j in range(i + 1, len(ids)):
                 a, b = ids[i], ids[j]
                 rel = relation(boxes[a], boxes[b], **kw)
                 if rel == "parent_of":      # a ⊇ b  →  b is-a a
-                    child, parent = b, a
+                    parents_of.setdefault(b, []).append(a)
                 elif rel == "child_of":     # b ⊇ a  →  a is-a b
-                    child, parent = a, b
-                else:
-                    continue
+                    parents_of.setdefault(a, []).append(b)
+        for child, cands in parents_of.items():
+            chosen = (
+                [min(cands, key=lambda p: float(boxes[p].widths.sum()))]  # nearest ancestor
+                if nearest_only else cands
+            )
+            for parent in chosen:
                 if g.has_edge(child, parent, key=key) or g.has_edge(parent, child, key=key):
                     continue
                 graph.add_edge(GraphEdge(

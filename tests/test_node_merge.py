@@ -391,6 +391,39 @@ def test_resolve_hierarchy_emits_subtype_edges_from_containment():
     assert resolve_hierarchy(g, boxes, node_types=("BiologyNode",)) == {}
 
 
+def test_resolve_hierarchy_nearest_ancestor_drops_transitive_edges():
+    """Nested A⊇B⊇C: nearest-ancestor (default) emits only the DIRECT parent
+    edges (C→B, B→A) — not the transitive C→A — so a deep chain stays O(nodes),
+    not O(depth²). This is the is-a over-creation fix. Legacy all-ancestors mode
+    (nearest_only=False) emits C→A too."""
+    import numpy as np
+
+    from src.graph.box_embeddings import Box
+    from src.graph.models import EdgeType
+
+    def build():
+        g = GraphStore()
+        for nid in ("A", "B", "C"):
+            g.add_node(_bio(nid))
+        return g
+
+    boxes = {  # C ⊂ B ⊂ A (nested)
+        "A": Box(np.array([0.0, 0.0]), np.array([10.0, 10.0])),
+        "B": Box(np.array([2.0, 2.0]), np.array([6.0, 6.0])),
+        "C": Box(np.array([3.0, 3.0]), np.array([4.0, 4.0])),
+    }
+    k = EdgeType.SUBTYPE_OF.value
+
+    g = build()
+    resolve_hierarchy(g, boxes, node_types=("BiologyNode",))   # nearest_only default
+    assert g._graph.has_edge("C", "B", key=k) and g._graph.has_edge("B", "A", key=k)  # noqa: SLF001
+    assert not g._graph.has_edge("C", "A", key=k)             # transitive edge dropped  # noqa: SLF001
+
+    g2 = build()
+    resolve_hierarchy(g2, boxes, node_types=("BiologyNode",), nearest_only=False)
+    assert g2._graph.has_edge("C", "A", key=k)               # legacy keeps the skip-level  # noqa: SLF001
+
+
 def test_provenance_and_idempotency():
     g = GraphStore()
     g.add_node(_bio("b1", ontology_id="GO:1"))
