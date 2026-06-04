@@ -883,3 +883,96 @@ class TestSafetyPenalty:
         assert _max_grade_from_severity_range("garbage,abc") is None
 
 
+# ============================================================
+# Combo-level compositional prediction (NEXT_SESSION #2)
+# ============================================================
+
+
+def _build_two_chain_combo() -> GraphStore:
+    """Combo ``c1+c2`` where EACH constituent has its OWN full chain to the
+    shared indication i1, plus a weak ``combo_inherit`` AFFECTS edge on the
+    combo node (to t1 only) — the pre-fix path would have walked that and
+    predicted c1's chain alone."""
+    strong = (20.0, 1.0)
+    g = _make_graph(
+        binds_to=strong, modulates_via=strong, mechanism_affects=strong,
+        biology_drives=strong, reflects_biology=strong, endpoint_captures=strong,
+    )
+    # second constituent's own chain into the same indication / endpoint
+    g.add_node(CompoundNode(id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE))
+    g.add_node(TargetNode(id="t2", name="TargetB", gene_symbol="TGTB"))
+    g.add_node(MechanismNode(id="m2", name="MechB", mechanism_type=MechanismType.INHIBITION))
+    g.add_node(BiologyNode(id="b2", name="BioB"))
+    for s, t, et in [
+        ("c2", "t2", EdgeType.AFFECTS),
+        ("t2", "m2", EdgeType.MODULATES_VIA),
+        ("m2", "b2", EdgeType.MECHANISM_AFFECTS),
+        ("b2", "i1", EdgeType.BIOLOGY_DRIVES),
+        ("b2", "e1", EdgeType.REFLECTS_BIOLOGY),
+    ]:
+        g.add_edge(GraphEdge(source_id=s, target_id=t, edge_type=et,
+                             belief=EdgeBeliefState(alpha=20.0, beta=1.0)))
+    # combo node + composed_of + a WEAK combo_inherit AFFECTS (to c1's target only)
+    g.add_node(CompoundNode(
+        id="c1+c2", name="DrugA + DrugB", modality=Modality.OTHER,
+        metadata={"synthesized": "combo", "constituents": ["c1", "c2"]},
+    ))
+    for cid in ("c1", "c2"):
+        g.add_edge(GraphEdge(source_id="c1+c2", target_id=cid,
+                             edge_type=EdgeType.COMPOSED_OF, belief=EdgeBeliefState()))
+    g.add_edge(GraphEdge(
+        source_id="c1+c2", target_id="t1", edge_type=EdgeType.AFFECTS,
+        belief=EdgeBeliefState(alpha=3.0, beta=1.5),
+        metadata={"source": "combo_inherit"},
+    ))
+    return g
+
+
+class TestComboComposition:
+    def test_combo_query_composes_both_constituent_chains(self):
+        g = _build_two_chain_combo()
+        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
+        aff = {c.target_id for c in res.edge_contributions
+               if c.edge_type == EdgeType.AFFECTS}
+        mech = {c.target_id for c in res.edge_contributions
+                if c.edge_type == EdgeType.MODULATES_VIA}
+        assert {"t1", "t2"} <= aff   # BOTH constituents' targets, not one
+        assert {"m1", "m2"} <= mech  # BOTH mechanisms (modulates_via target)
+
+    def test_combo_uses_constituents_real_affects_not_combo_inherit(self):
+        g = _build_two_chain_combo()
+        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
+        srcs = {c.source_id for c in res.edge_contributions
+                if c.edge_type == EdgeType.AFFECTS}
+        assert srcs == {"c1", "c2"}     # constituents
+        assert "c1+c2" not in srcs      # NOT the weak combo_inherit edge
+
+    def test_single_constituent_query_has_only_its_own_chain(self):
+        g = _build_two_chain_combo()
+        res = predict_clinical_hypothesis(g, "c1", "i1", n_samples=3000)
+        aff = {c.target_id for c in res.edge_contributions
+               if c.edge_type == EdgeType.AFFECTS}
+        assert aff == {"t1"}
+
+    def test_explicit_target_pins_one_path_skips_composition(self):
+        """Passing target_id means 'predict this path' — composition is skipped."""
+        g = _build_two_chain_combo()
+        res = predict_clinical_hypothesis(g, "c1+c2", "i1", target_id="t1",
+                                          n_samples=3000)
+        aff = {c.target_id for c in res.edge_contributions
+               if c.edge_type == EdgeType.AFFECTS}
+        assert "t2" not in aff
+
+    def test_combo_modulation_edge_joins_the_aggregate(self):
+        g = _build_two_chain_combo()
+        g.add_edge(GraphEdge(
+            source_id="c1", target_id="c2",
+            edge_type=EdgeType.MODULATES_EFFICACY_OF,
+            belief=EdgeBeliefState(alpha=8.0, beta=2.0),
+        ))
+        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
+        mods = [c for c in res.edge_contributions
+                if c.edge_type == EdgeType.MODULATES_EFFICACY_OF]
+        assert len(mods) == 1
+
+

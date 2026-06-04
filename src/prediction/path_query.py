@@ -435,7 +435,34 @@ class PredictionEngine:
         """
         # 1. Collect edges and their beliefs
         edges = self._collect_edges(chain)
+        hypothesis = (
+            f"{chain.compound_id} -> {chain.target_id} -> "
+            f"{chain.mechanism_id} -> {chain.biology_id} -> "
+            f"{chain.indication_id}"
+        )
+        return self._result_from_edges(
+            edges,
+            n_samples=n_samples,
+            hypothesis=hypothesis,
+            safety_penalty=self._compute_safety_penalty(chain),
+            safety_risks=self._collect_safety_risks(chain),
+        )
 
+    def _result_from_edges(
+        self,
+        edges: list[tuple[str, str, EdgeType, EdgeBeliefState]],
+        *,
+        n_samples: int,
+        hypothesis: str,
+        safety_penalty: float,
+        safety_risks: list[SafetyRisk],
+    ) -> PredictionResult:
+        """Core: a collected edge set → PredictionResult. Shared by single-chain
+        ``predict`` and the combo composer ``predict_combo`` — the only thing
+        that differs is which edges + safety the caller pools. Aggregation and
+        the weakest-link bottleneck are identical, so a combo's prediction is
+        the same weakest-link softmin over the UNION of its constituents' chain
+        edges (not a single constituent picked via a weak combo_inherit edge)."""
         # 2. Sample from each edge's Beta and compute per-edge trust weights
         rng = np.random.default_rng()
         edge_samples: list[np.ndarray] = []
@@ -490,19 +517,10 @@ class PredictionEngine:
             else None
         )
 
-        hypothesis = (
-            f"{chain.compound_id} -> {chain.target_id} -> "
-            f"{chain.mechanism_id} -> {chain.biology_id} -> "
-            f"{chain.indication_id}"
-        )
-
-        safety_risks = self._collect_safety_risks(chain)
-
-        # Round-20: integrate safety into the headline number. Penalty
-        # uses stricter thresholds than the display list, so a chain
-        # with a single Beta(1.4, 1) display-grade AE won't move
-        # overall_probability — only well-evidenced risks do.
-        safety_penalty = self._compute_safety_penalty(chain)
+        # Round-20: integrate safety into the headline number. The caller
+        # supplies safety_penalty (stricter thresholds than the display list,
+        # so a single Beta(1.4, 1) display-grade AE won't move overall_prob)
+        # and the display risk list.
         safety_factor = 1.0 - safety_penalty
         overall_prob = efficacy_prob * safety_factor
         ci_lower = ci_lower * safety_factor
@@ -519,6 +537,83 @@ class PredictionEngine:
             weakest_link=weakest,
             n_samples=n_samples,
             safety_risks=safety_risks,
+        )
+
+    def predict_combo(
+        self,
+        constituent_chains: list[CausalChain],
+        combo_id: str,
+        *,
+        n_samples: int = 10_000,
+    ) -> PredictionResult:
+        """Compose a regimen's prediction from its CONSTITUENTS' chains.
+
+        A direct query on a synthesized combo InterventionNode would otherwise
+        walk one weak ``combo_inherit`` AFFECTS edge and predict a single
+        constituent's chain. Instead, pool every constituent chain's edges
+        (each constituent reached via its OWN curated AFFECTS edge), add the
+        inter-constituent ``MODULATES_EFFICACY_OF`` edges that live on the combo
+        node, and run the same weakest-link softmin over the union — so the
+        regimen's probability is set by the weakest edge across ALL its
+        mechanisms, and any synergy/antagonism modulation joins the aggregate.
+        Safety is the soft-or of the constituents' AE risks (deduped by AE).
+        """
+        seen: set[tuple[str, str, str]] = set()
+        edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
+        for ch in constituent_chains:
+            for e in self._collect_edges(ch):
+                key = (e[0], e[1], e[2].value)
+                if key not in seen:
+                    seen.add(key)
+                    edges.append(e)
+        # Inter-constituent modulation edges hang off the combo node, not the
+        # mono constituents — add them explicitly (each constituent's own
+        # _collect_edges sees no modulation pairs, being a single compound).
+        for me in _collect_modulation_edges(self.graph, combo_id):
+            key = (me[0], me[1], me[2].value)
+            if me[3].evidence_strength > 0.0 and key not in seen:
+                seen.add(key)
+                edges.append(me)
+
+        # Safety: union the constituents' AE risks (dedup by AE), then one
+        # soft-or — a combo inherits each constituent's toxicity.
+        def _union_risks(max_risks: int, mb: float, mev: float) -> list[SafetyRisk]:
+            out: list[SafetyRisk] = []
+            seen_ae: set[str] = set()
+            for ch in constituent_chains:
+                for r in self._collect_safety_risks(
+                    ch, min_belief=mb, min_evidence=mev, max_risks=max_risks,
+                ):
+                    if r.ae_id not in seen_ae:
+                        seen_ae.add(r.ae_id)
+                        out.append(r)
+            return out
+
+        penalty = self._penalty_from_risks(_union_risks(
+            10_000,
+            self._SAFETY_PENALTY_MIN_BELIEF,
+            self._SAFETY_PENALTY_MIN_EVIDENCE,
+        ))
+        display_risks = sorted(
+            _union_risks(10, 0.4, 1.0),
+            key=lambda r: r.belief_probability * r.evidence_strength,
+            reverse=True,
+        )[:10]
+
+        names = ", ".join(ch.compound_id for ch in constituent_chains)
+        indication = (
+            constituent_chains[0].indication_id if constituent_chains else "UNKNOWN"
+        )
+        hypothesis = (
+            f"{combo_id} [{len(constituent_chains)} constituents: {names}] "
+            f"-> {indication}"
+        )
+        return self._result_from_edges(
+            edges,
+            n_samples=n_samples,
+            hypothesis=hypothesis,
+            safety_penalty=penalty,
+            safety_risks=display_risks,
         )
 
     # Round-20: safety penalty thresholds. Stricter than the display
@@ -589,6 +684,12 @@ class PredictionEngine:
         risks = self._collect_safety_risks(
             chain, min_belief=mb, min_evidence=me, max_risks=10_000,
         )
+        return self._penalty_from_risks(risks)
+
+    def _penalty_from_risks(self, risks: list[SafetyRisk]) -> float:
+        """Soft-or, severity-weighted safety drag over a precomputed risk list
+        — the shared core of the single-chain penalty (one compound's risks)
+        and the combo penalty (constituents' risks unioned by AE)."""
         if not risks:
             return 0.0
         contributions: list[float] = []
@@ -1078,6 +1179,36 @@ def predict_clinical_hypothesis(
     compound_in_graph = (
         compound_id is not None and compound_id in graph._graph
     )
+
+    # Combo regimens: compose the CONSTITUENTS' chains rather than walk the
+    # combo's weak combo_inherit AFFECTS edge to a single target. Skipped when
+    # the caller pinned an explicit target/mechanism (which means "predict this
+    # one path") — then fall through to the single-chain logic below.
+    constituents = (
+        _regimen_constituents(graph, compound_id) if compound_in_graph else []
+    )
+    if len(constituents) >= 2 and target_id is None and mechanism_id is None:
+        constituent_chains: list[CausalChain] = []
+        for cid in constituents:
+            c_tgt = _resolve_target_for_compound(graph, cid)
+            c_mech, c_bio = _resolve_chain_via_topology(graph, c_tgt, indication_id)
+            c_end = endpoint_id or _resolve_endpoint_for_indication(
+                graph, indication_id, c_bio,
+            )
+            constituent_chains.append(CausalChain(
+                arm_id="hypothesis",
+                compound_id=cid,
+                subgroup_population_id=population_id or "UNKNOWN",
+                target_id=c_tgt,
+                mechanism_id=c_mech,
+                biology_id=c_bio,
+                indication_id=indication_id,
+                endpoint_id=c_end,
+                outcome=TrialOutcome.UNKNOWN,
+            ))
+        return PredictionEngine(graph).predict_combo(
+            constituent_chains, compound_id, n_samples=n_samples,
+        )
 
     if target_id:
         resolved_target = target_id
