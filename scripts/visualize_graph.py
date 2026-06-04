@@ -99,6 +99,12 @@ def load_snapshot(path: Path) -> dict:
         return json.load(fh)
 
 
+def _display_fields(node: dict) -> dict:
+    """Every node attribute for the click-panel sanity check — except the 768-d
+    ``embedding`` (useless to eyeball, and it bloats the inlined details blob)."""
+    return {k: v for k, v in (node or {}).items() if k != "embedding"}
+
+
 def _belief_summary(belief: dict | None) -> dict:
     b = belief or {}
     a, be = float(b.get("alpha", 1.0) or 1.0), float(b.get("beta", 1.0) or 1.0)
@@ -175,7 +181,8 @@ def extract_chains(snapshot: dict, *, before_snap: dict | None = None,
                 merge_hits += 1 if fl["cross_trial"] else 0
                 node = node_index.get(cid, {})
                 after = {"id": cid, "name": _name_for(cid, node_index),
-                         "desc": node.get("description"), "flags": fl}
+                         "desc": node.get("description"), "flags": fl,
+                         "fields": _display_fields(node)}
                 bid = (bmap or {}).get(r)
                 if bid:                      # faithful pre-merge instance for this role
                     bnode = before_nodes.get(bid, {})
@@ -195,7 +202,8 @@ def extract_chains(snapshot: dict, *, before_snap: dict | None = None,
                     for et, tgt, ep in out_edges.get(roles[role]["after"]["id"], []):
                         if et == ae_type and len(aes) < 6:
                             aes.append({"role": role, "type": ae_type, "ep": ep,
-                                        "name": _name_for(tgt, node_index)})
+                                        "name": _name_for(tgt, node_index),
+                                        "fields": _display_fields(node_index.get(tgt, {}))})
             built.append({"trial": tid, "arm": ch.get("arm_id"), "outcome": ch.get("outcome"),
                           "roles": roles, "edges": edges, "aes": aes, "merge_hits": merge_hits})
 
@@ -275,7 +283,8 @@ def _rows_svg(chains, which, y0, show_ep):
             key = f'{which}:{ridx}:{role}'
             details[key] = {"col": next(h for _r, _f, _t, h, _c in ROLES if _r == role),
                             "type": ROLE_TYPE[role], "id": side["id"], "name": side["name"],
-                            "desc": rd["after"].get("desc"), "flags": fl}
+                            "desc": rd["after"].get("desc"), "flags": fl,
+                            "fields": rd["after"].get("fields")}
             mark = " ~" if (which == "before" and side.get("changed")) else ""
             parts.append(_box(cx, cy, PALETTE.get(ROLE_TYPE[role], "#777"), stroke, sw,
                               (side["name"] or side["id"]) + mark, role.upper(), key,
@@ -303,7 +312,8 @@ def _rows_svg(chains, which, y0, show_ep):
             key = f'{which}:{ridx}:ae:{ae["role"]}:{slot}'
             details[key] = {"col": "ADVERSE EVENT", "type": "AdverseEventNode",
                             "id": ae["name"], "name": ae["name"], "desc": None,
-                            "flags": {"merged_from": [], "used_by": []}}
+                            "flags": {"merged_from": [], "used_by": []},
+                            "fields": ae.get("fields")}
             sx, sy = pos(ae["role"])
             parts.append(_edge(sx + 40, sy + _BOXH, aex + 45, aey, ae["type"], ae["ep"] if show_ep else None, dashed=True))
             parts.append(_box(aex, aey, PALETTE["AdverseEventNode"], "#20242e", 1.2,
@@ -324,7 +334,8 @@ def _shared_svg(chains, which, y0, show_ep):
         for r, rd in roles.items():
             col_nodes[ROLE_COL[r]].setdefault(rd[which]["id"], {
                 "name": rd[which]["name"], "role": r,
-                "desc": rd["after"].get("desc"), "flags": rd["after"]["flags"]})
+                "desc": rd["after"].get("desc"), "flags": rd["after"]["flags"],
+                "fields": rd["after"].get("fields")})
         for e in ch["edges"]:
             if e["frm"] in roles and e["to"] in roles:
                 fid, tid = roles[e["frm"]][which]["id"], roles[e["to"]][which]["id"]
@@ -351,7 +362,7 @@ def _shared_svg(chains, which, y0, show_ep):
             key = f'{which}:{nid}'
             details[key] = {"col": next(h for _r, _f, _t, h, _c in ROLES if _r == entry["role"]),
                             "type": ROLE_TYPE[entry["role"]], "id": nid, "name": entry["name"],
-                            "desc": entry["desc"], "flags": fl}
+                            "desc": entry["desc"], "flags": fl, "fields": entry.get("fields")}
             parts.append(_box(cx, cy, PALETTE.get(ROLE_TYPE[entry["role"]], "#777"), stroke, sw,
                               entry["name"] or nid, entry["role"].upper(), key))
     return "\n".join(parts), details, y0 + (maxslot + 1) * _ROWSP + 8
@@ -417,6 +428,7 @@ document.getElementById('svg').addEventListener('click',ev=>{
   if(d.desc)h+=`<details open><summary>description</summary><pre>${esc(d.desc)}</pre></details>`;
   if(f.used_by&&f.used_by.length)h+=`<p class="kv">used by ${f.used_by.length} trial(s): ${f.used_by.map(esc).join(', ')}</p>`;
   if(f.merged_from&&f.merged_from.length)h+=`<details open><summary>⊕ merged from ${f.merged_from.length}${f.cross_id?' — DISTINCT processes':''}</summary><pre>`+f.merged_from.map(m=>esc(m.id)+(m.name&&m.name!=m.id?`   ${esc(m.name)}`:'')).join('\n')+`</pre></details>`;
+  if(d.fields&&Object.keys(d.fields).length)h+=`<details open><summary>all fields — sanity check</summary><pre>${esc(JSON.stringify(d.fields,null,1))}</pre></details>`;
   panel.innerHTML=h;
 });
 </script></body></html>"""
@@ -541,6 +553,8 @@ def main() -> None:
     ap.add_argument("--area")
     ap.add_argument("--suffix", default="annotated")
     ap.add_argument("--snapshot")
+    ap.add_argument("--graph", help="path to ANY graph snapshot json to display "
+                                    "(alias for --snapshot; click any box for all fields)")
     ap.add_argument("--mode", choices=["chain", "explorer"], default="chain")
     ap.add_argument("--limit", type=int, default=5)
     ap.add_argument("--trials")
@@ -549,9 +563,10 @@ def main() -> None:
                     help="render only; don't auto-open the HTML in a browser")
     args = ap.parse_args()
 
-    target = args.snapshot or args.area
+    snapshot = args.snapshot or args.graph   # --graph is an intuitive alias for any path
+    target = snapshot or args.area
     if not target:
-        ap.error("pass --area or --snapshot")
+        ap.error("pass --graph/--snapshot <path> or --area <name>")
 
     if args.mode == "explorer":
         path = _resolve(target, args.suffix)
@@ -567,7 +582,7 @@ def main() -> None:
 
     trials = [t.strip() for t in args.trials.split(",")] if args.trials else None
     out, data = write_chain_html(
-        area=args.area, snapshot=args.snapshot, suffix=args.suffix,
+        area=args.area, snapshot=snapshot, suffix=args.suffix,
         limit=args.limit, trials=trials, out=args.out,
     )
     print(f"  chains shown: {len(data['chains'])} of {data['n_total']}")
