@@ -745,6 +745,25 @@ async def main(
             f"with the partial classifications."
         )
 
+    # Step 3d: prune invalid mechanisms — Reactome/GO entries that aren't a
+    # cellular ACTION/process (therapeutic collections, disease modules,
+    # pathogen-lifecycle pathways, receptor-family groupings, the 'other'
+    # placeholder). Post-classify / pre-attribute, so a trial's outcome is never
+    # credited through a non-mechanism. Deterministic name-gate, no LLM (see
+    # src/graph/mechanism_validity.py). Off-target hits + sub-mechanisms — real
+    # biology — are deliberately untouched.
+    console.rule("[bold]Step 3d: prune invalid mechanisms[/bold]")
+    from src.graph.mechanism_validity import prune_invalid_mechanisms
+    prune_graph = GraphStore()
+    prune_graph.import_snapshot(str(initial_path))
+    pstats = prune_invalid_mechanisms(prune_graph)
+    prune_graph.export_snapshot(str(initial_path))
+    console.print(
+        f"  dropped {pstats['nodes_dropped']} non-mechanism nodes "
+        f"{pstats['by_tier']}, {pstats['chains_dropped']} chain variants; "
+        f"{len(pstats['trials_emptied'])} trials left chain-less"
+    )
+
     console.rule("[bold]Step 4: attribute[/bold]")
     await attributor_main(
         str(ANNOTATIONS_DIR), str(initial_path), str(annotated_path),
