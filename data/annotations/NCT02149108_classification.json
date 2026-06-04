@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT02149108",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm nintedanib engaged VEGFR2/PDGFRB. The trial assumed target engagement based on known binding but did not measure it directly. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm angiogenesis inhibition occurred. The mechanism was assumed but not demonstrated. 3. CLINICAL TRANSLATION: Mixed clinical results - PFS showed significant improvement (HR 0.58, p=0.0001) but OS failed completely (HR 1.01, p=0.8659). This suggests the biology may have moved enough to delay progression but not enough to improve survival. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues - adequate sample size (768 patients), appropriate comparator (placebo + BSC). The mixed endpoint results suggest partial biological activity.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.7,
+      "evidence": "PFS improved significantly (HR 0.58, p=0.0001) suggesting some biological activity, but OS completely flat (HR 1.01, p=0.8659) indicating the biology didn't translate to meaningful clinical benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-186797",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_support",
+      "affecting_arm_id": "nintedanib_bibf_1120_bsc",
+      "reasoning": "PFS improvement suggests some angiogenesis inhibition occurred, but OS failure indicates incomplete biological effect"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "colorectal_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nintedanib_bibf_1120_bsc",
+      "reasoning": "OS failure despite PFS improvement suggests angiogenesis inhibition doesn't drive meaningful survival benefit in this indication"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_colorectal_cancer",
+      "target_entity": "colorectal_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PFS improved but OS did not, suggesting PFS may not capture clinically meaningful benefit in this setting"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "colorectal_cancer__extent_metastatic__line_third_plus",
+      "target_entity": "colorectal_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Mixed results with PFS benefit but no OS benefit in this refractory population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Mixed endpoint results (PFS positive, OS negative) with no biomarker data make it difficult to determine where in the causal chain the failure occurred"
+}

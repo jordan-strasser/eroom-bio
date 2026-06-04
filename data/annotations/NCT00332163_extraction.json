@@ -1,0 +1,187 @@
+{
+  "nct_id": "NCT00332163",
+  "therapeutic_hypothesis": {
+    "compound": "panitumumab + irinotecan-based chemotherapy",
+    "claimed_target": "EGFR",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "EGFR-mediated growth inhibition",
+    "target_population": "metastatic colorectal cancer patients",
+    "primary_endpoint": "percentage of participants with specific grade 2 or higher skin toxicities during 6-week treatment period",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "29% vs 62% (difference -33%, 95% CI: -51 to -14)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Grade 2 skin toxicity: 23% vs 40%",
+      "Grade 3 skin toxicity: 6% vs 21%",
+      "No Grade 4 skin toxicities in either arm"
+    ],
+    "safety_signals": [
+      "Pre-emptive skin treatment reduced severe skin toxicities compared to reactive treatment",
+      "Median time to first skin toxicity: not reached vs 2.1 weeks",
+      "Panitumumab dose reductions: 6% vs 11%"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": "6% vs 11% required panitumumab dose reductions due to skin toxicities"
+    },
+    "adverse_events": [
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 6.4,
+        "serious": true
+      },
+      {
+        "term": "leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.1,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 6.4,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.1,
+        "serious": true
+      },
+      {
+        "term": "cardio-respiratory arrest",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 4.2,
+        "incidence_control_pct": 6.4,
+        "serious": true
+      },
+      {
+        "term": "diarrhoea",
+        "grade": "",
+        "incidence_treatment_pct": 4.2,
+        "incidence_control_pct": 17.0,
+        "serious": true
+      },
+      {
+        "term": "gastrointestinal perforation",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic colorectal cancer",
+    "comparator": "reactive skin treatment",
+    "sample_size": 95,
+    "duration": "6 weeks skin treatment period",
+    "duration_weeks": 6.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pre_emptive_skin_treatment",
+      "compounds": [
+        "panitumumab",
+        "irinotecan",
+        "FOLFIRI",
+        "pre-emptive skin treatment"
+      ]
+    },
+    {
+      "arm_id": "reactive_skin_treatment",
+      "compounds": [
+        "panitumumab",
+        "irinotecan",
+        "FOLFIRI",
+        "reactive skin treatment"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "pre_emptive_skin_treatment",
+      "intervention": "panitumumab",
+      "subgroup_descriptor": null,
+      "endpoint": "skin toxicity reduction",
+      "effect_size": 29.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "EGFR-mediated growth inhibition",
+      "population_description": "metastatic colorectal cancer patients receiving pre-emptive skin treatment",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "reactive_skin_treatment",
+      "intervention": "panitumumab",
+      "subgroup_descriptor": null,
+      "endpoint": "skin toxicity reduction",
+      "effect_size": 62.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "EGFR-mediated growth inhibition",
+      "population_description": "metastatic colorectal cancer patients receiving reactive skin treatment",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "pre_emptive_skin_treatment",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response rate",
+      "effect_size": 15.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "topoisomerase inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic colorectal cancer patients receiving pre-emptive skin treatment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "reactive_skin_treatment",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "overall response rate",
+      "effect_size": 11.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "topoisomerase inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic colorectal cancer patients receiving reactive skin treatment",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "pre-emptive skin treatment",
+      "primary_compound_id": "panitumumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "Pre-emptive skin treatment reduces EGFR inhibitor-associated skin toxicities, allowing better treatment tolerability",
+      "citation": "Pre-emptive skin treatment reduced specific grade 2+ skin toxicities from 62% to 29% compared to reactive treatment"
+    }
+  ]
+}

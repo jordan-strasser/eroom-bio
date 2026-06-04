@@ -1,0 +1,316 @@
+{
+  "nct_id": "NCT01004172",
+  "therapeutic_hypothesis": {
+    "compound": "carboplatin + bevacizumab + trastuzumab",
+    "claimed_target": "DNA, VEGFR2, HER2",
+    "proposed_mechanism": "DNA cross-linking, VEGF pathway inhibition, HER2 receptor blockade",
+    "intended_biology": "DNA-damage-induced apoptosis, angiogenesis inhibition, HER2-mediated growth inhibition",
+    "target_population": "progressive breast cancer brain metastases",
+    "primary_endpoint": "CNS objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "63% CNS objective response rate (95% CI: 47-77%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "24/38 patients achieved partial response",
+      "0/38 patients achieved complete response",
+      "7/38 patients had stable disease \u226524 weeks"
+    ],
+    "safety_signals": [
+      "Fatigue was most common serious AE (6/38 patients)",
+      "Hematologic toxicities including neutropenia (3/38), thrombocytopenia (4/38)",
+      "Hepatic transaminase elevations (ALT 1/38, AST 2/38)"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "4-week cycles",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Hemoglobin",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Ocular-other",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 15.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Leukocytes",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutrophils",
+        "grade": "",
+        "incidence_treatment_pct": 7.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Platelets",
+        "grade": "",
+        "incidence_treatment_pct": 10.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "ALT, SGPT",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "AST, SGOT",
+        "grade": "",
+        "incidence_treatment_pct": 5.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypercalcemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyponatremia",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "progressive breast cancer brain metastases",
+    "comparator": "none",
+    "sample_size": 38,
+    "duration": "median 8 cycles (range 1-20), 4-week cycles",
+    "duration_weeks": 32.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "compounds": [
+        "carboplatin",
+        "bevacizumab",
+        "trastuzumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease >/=24 weeks",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease < 24 weeks",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS ORR",
+      "effect_size": 63.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS ORR",
+      "effect_size": 63.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "VEGF pathway inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS ORR",
+      "effect_size": 63.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "VEGF pathway inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 14.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 14.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "VEGF pathway inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "carboplatin_bevacizumab_trastuzumab_if_her2",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 14.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "progressive breast cancer brain metastases",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "carboplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "bevacizumab enhances carboplatin efficacy by normalizing tumor vasculature and improving drug delivery to brain metastases",
+      "citation": "CNS objective response rate of 63% achieved with combination therapy in progressive breast cancer brain metastases"
+    },
+    {
+      "modulator_compound_id": "trastuzumab",
+      "primary_compound_id": "carboplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "trastuzumab enhances carboplatin efficacy by targeting HER2-positive breast cancer cells with dual mechanism approach",
+      "citation": "CNS objective response rate of 63% achieved with combination therapy including trastuzumab for HER2+ patients"
+    }
+  ]
+}

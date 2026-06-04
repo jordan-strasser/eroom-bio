@@ -1,0 +1,129 @@
+{
+  "nct_id": "NCT00353301",
+  "therapeutic_hypothesis": {
+    "compound": "erlotinib + sirolimus",
+    "claimed_target": "EGFR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "proliferation inhibition",
+    "target_population": "metastatic renal cell carcinoma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "12 weeks median PFS (95% CI: 5.9-18.1)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "chest pain",
+      "hospitalization"
+    ],
+    "dose_info": {
+      "dose": "erlotinib 150 mg/day, sirolimus 2 mg/day",
+      "schedule": "daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "chest pain",
+        "grade": "",
+        "incidence_treatment_pct": 4.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "hospitalization",
+        "grade": "",
+        "incidence_treatment_pct": 4.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic renal cell carcinoma",
+    "comparator": "none",
+    "sample_size": 25,
+    "duration": "up to 275 weeks",
+    "duration_weeks": 275.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "erlotinib_and_sirolimus",
+      "compounds": [
+        "erlotinib",
+        "sirolimus"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "erlotinib_and_sirolimus",
+      "intervention": "erlotinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 12.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "proliferation inhibition",
+      "population_description": "metastatic renal cell carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "erlotinib_and_sirolimus",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 12.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "proliferation inhibition",
+      "population_description": "metastatic renal cell carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "erlotinib_and_sirolimus",
+      "intervention": "erlotinib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 40.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "proliferation inhibition",
+      "population_description": "metastatic renal cell carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "erlotinib_and_sirolimus",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 40.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "proliferation inhibition",
+      "population_description": "metastatic renal cell carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sirolimus",
+      "primary_compound_id": "erlotinib",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "mTOR inhibition may enhance EGFR inhibition by blocking downstream proliferation pathways",
+      "citation": "combination therapy with erlotinib and sirolimus for metastatic renal cell carcinoma"
+    }
+  ]
+}

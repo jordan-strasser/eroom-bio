@@ -1,0 +1,169 @@
+{
+  "nct_id": "NCT00262730",
+  "therapeutic_hypothesis": {
+    "compound": "poly ICLC + temozolomide + radiation therapy",
+    "claimed_target": "TLR3",
+    "proposed_mechanism": "toll-like receptor agonism",
+    "intended_biology": "innate immune activation",
+    "target_population": "newly diagnosed glioblastoma multiforme",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "17.2 months median survival",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "diarrhea",
+      "fatigue",
+      "muscle weakness",
+      "nausea",
+      "vomiting",
+      "rash",
+      "elevated AST",
+      "febrile neutropenia",
+      "hemoglobin increased",
+      "lung infection"
+    ],
+    "dose_info": {
+      "dose": "poly ICLC 20 mcg/kg, temozolomide 75 mg/m2 concurrent then 150-200 mg/m2 maintenance",
+      "schedule": "poly ICLC 3x weekly during maintenance, temozolomide daily concurrent then days 1-5 maintenance cycles",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "muscle weakness, generalized",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "nausea",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "rash",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "aspartate aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "hemoglobin increased",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "lung infection",
+        "grade": "",
+        "incidence_treatment_pct": 1.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ],
+    "primary_endpoint_met_source": "reask"
+  },
+  "context": {
+    "indication": "newly diagnosed glioblastoma multiforme",
+    "comparator": "none",
+    "sample_size": 97,
+    "duration": "30 months",
+    "duration_weeks": 130.35,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "treatment_arm",
+      "compounds": [
+        "poly ICLC",
+        "temozolomide",
+        "radiation therapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "treatment_arm",
+      "intervention": "poly ICLC",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 17.2,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "toll-like receptor agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "newly diagnosed glioblastoma multiforme",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "treatment_arm",
+      "intervention": "temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 17.2,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "newly diagnosed glioblastoma multiforme",
+      "mechanism_category": "dna_crosslinking"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "poly ICLC",
+      "primary_compound_id": "temozolomide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "TLR3 agonism enhances immune recognition of DNA-damage-induced tumor antigens",
+      "citation": "Hazard Ratio (HR) = 0.8 (95% CI: 0.8\u20130.85), p = >.1"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT02783300",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PRMT5 engagement by GSK3326595. Cannot assess if the drug reached its intended target. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess if PRMT5 inhibition led to disruption of protein arginine methylation or snRNP assembly. 3. CLINICAL TRANSLATION: All arms failed on ORR - Part 1 achieved 5.3% ORR, Part 2 achieved 2.9% ORR, and Part 3 combination achieved 0% ORR. These are well below typical response thresholds for oncology trials. 4. POPULATION EFFECTS: Some subgroup signals noted - ACC cohort showed longest PFS (7.1-7.2 months) and NHL P53 mutant cohort showed 12.5% ORR, but overall response rates remained low across all populations. 5. CONFOUNDERS: Significant dose-limiting toxicity observed with frequent dose interruptions (up to 84%) and reductions (up to 84%) at higher doses, including anemia (26.3% at 400mg), dyspnea (15.8%), and respiratory events. DLTs occurred at 300mg QD and above, potentially preventing adequate target engagement.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "DLTs at 300mg QD and above with frequent dose interruptions (up to 84%) and reductions (up to 84%). Grade 3-4 anemia in 26.3% at 400mg dose, dyspnea in 15.8%, and other serious AEs that required protocol-mandated dose modifications."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No biomarker or target engagement data reported to assess whether GSK3326595 engaged PRMT5 or modulated downstream protein arginine methylation pathways."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:36983e2e1e23",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_1_dose_escalation_food_effect_and_relative_bioavailability_of_capsule_formulation_to_tablet",
+      "reasoning": "ORR 5.3% represents failure to demonstrate clinical benefit from protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-191859",
+      "target_entity": "bio:36983e2e1e23",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_1_dose_escalation_food_effect_and_relative_bioavailability_of_capsule_formulation_to_tablet",
+      "reasoning": "Failed clinical outcome suggests snRNP assembly disruption did not effectively translate to protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:36983e2e1e23",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2_disease_specific_expansion_cohort",
+      "reasoning": "ORR 2.9% represents failure to demonstrate clinical benefit from protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-191859",
+      "target_entity": "bio:36983e2e1e23",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2_disease_specific_expansion_cohort",
+      "reasoning": "Failed clinical outcome suggests snRNP assembly disruption did not effectively translate to protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:36983e2e1e23",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_gsk3326595_in_combination_with_pembrolizumab",
+      "reasoning": "ORR 0% for GSK3326595 component represents failure to demonstrate clinical benefit from protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-191859",
+      "target_entity": "bio:36983e2e1e23",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_gsk3326595_in_combination_with_pembrolizumab",
+      "reasoning": "Failed clinical outcome suggests snRNP assembly disruption did not effectively translate to protein arginine methylation disruption"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_gsk3326595_in_combination_with_pembrolizumab",
+      "reasoning": "ORR 0% for pembrolizumab component represents failure to demonstrate clinical benefit from T-cell mediated anti-tumor immunity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:b7810065331b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_gsk3326595_in_combination_with_pembrolizumab",
+      "reasoning": "Failed clinical outcome suggests PD-1 co-inhibition did not effectively translate to T-cell mediated anti-tumor immunity"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_neoplasms",
+      "target_entity": "neoplasms",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was measured and provided clear readout of tolerability profile with dose-limiting toxicities identified"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "neoplasms__extent_metastatic",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Overall population showed poor response rates across all arms, with only modest subgroup signals in ACC and NHL P53 mutant cohorts"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Dose-limiting toxicity may have prevented adequate target engagement, but no PD/biomarker data available to confirm whether therapeutic doses were achieved. The interplay between toxicity and efficacy assessment requires expert interpretation."
+}

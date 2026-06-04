@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00980343",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - plasma concentration 7638 ng/ml and intra-tumoral level 3270 ng/ml demonstrate adequate drug exposure and tissue penetration. 2. PATHWAY MODULATION: Clear evidence of pathway modulation - CD133+ neurospheres reduced from 11% to 3%, and Sonic Hedgehog pathway activation was measured by RT-PCR and IHC, confirming the target was engaged and the intended mechanism was activated. 3. CLINICAL TRANSLATION: Despite confirmed target engagement and pathway modulation, the primary endpoint failed - 6-month PFS was 0% in the vismodegib arm vs 5% in control. Both PFS and OS endpoints showed failure outcomes. 4. POPULATION EFFECTS: No meaningful subgroup response - progressive disease occurred in 13/17 vismodegib patients vs 11/16 controls, showing no benefit. Stable disease was achieved in 4/17 vs 5/16, again showing no advantage. 5. CONFOUNDERS: No major trial design issues - adequate sample size for a Phase 2 trial, appropriate duration, no manufacturing issues reported. This represents a clear case where the mechanism was engaged but did not translate to clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.9,
+      "evidence": "Target engagement confirmed by drug levels, pathway modulation confirmed by CD133+ neurosphere reduction and Hedgehog pathway measurements, but primary endpoint (6-month PFS) failed with 0% vs 5% in control"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "vismodegib",
+      "target_entity": "ENSG00000128602",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_pre_surgery_vismodegib",
+      "reasoning": "Plasma and intra-tumoral drug concentrations confirm target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000128602",
+      "target_entity": "GO:0007166",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_pre_surgery_vismodegib",
+      "reasoning": "CD133+ neurosphere reduction and Sonic Hedgehog pathway measurements confirm mechanism engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007166",
+      "target_entity": "bio:10b3b212ca84",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_pre_surgery_vismodegib",
+      "reasoning": "Hedgehog pathway inhibition was demonstrated by biomarker changes"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:10b3b212ca84",
+      "target_entity": "giant_cell_glioblastoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "arm_i_pre_surgery_vismodegib",
+      "reasoning": "Despite confirmed pathway inhibition, clinical endpoints failed - 6-month PFS 0% vs 5% control, indicating this biology does not drive clinical benefit in this indication"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_adult_brain_tumor",
+      "target_entity": "giant_cell_glioblastoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "6-month PFS is an appropriate and well-established endpoint for glioblastoma trials"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "giant_cell_glioblastoma__extent_resectable__line_second",
+      "target_entity": "giant_cell_glioblastoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint clearly missed with adequate power - 0% vs 5% 6-month PFS indicates this population does not respond to this intervention"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

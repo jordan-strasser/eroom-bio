@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT01142336",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported. The trial used 40mg simvastatin daily for 52 weeks, which is a standard cholesterol-lowering dose, suggesting likely HMG-CoA reductase engagement, but this wasn't measured in the context of Alzheimer's disease. 2. PATHWAY MODULATION: No cholesterol synthesis biomarkers reported to confirm pathway modulation in the CNS. The mechanism assumes peripheral cholesterol lowering translates to CNS effects. 3. CLINICAL TRANSLATION: The primary CSF biomarker endpoints all failed. CSF A\u03b242 showed minimal change (0.5 vs 5.3 pg/ml placebo, p=0.53), total tau increased slightly (1.6 vs -0.1 pg/ml placebo, p=0.36), and ptau181 increased (1.7 vs -2.9 pg/ml placebo, p=0.25). All changes were non-significant and some trended in the wrong direction. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Small sample size (N=49) may have contributed to lack of power, but the effect sizes were minimal suggesting this wasn't just a power issue.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "While target engagement wasn't directly measured, simvastatin at 40mg daily likely engaged HMG-CoA reductase systemically. However, the intended downstream biology (cholesterol synthesis inhibition affecting Alzheimer's pathology) did not translate to meaningful CSF biomarker changes, with all three primary biomarkers showing non-significant and sometimes wrong-direction changes."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0015936",
+      "target_entity": "bio:14cc35b87e3a",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Coenzyme A metabolic process modulation did not translate to meaningful cholesterol synthesis inhibition effects on Alzheimer's pathology biomarkers"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:14cc35b87e3a",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Cholesterol synthesis inhibition did not drive meaningful changes in Alzheimer's disease CSF biomarkers, with all three primary endpoints failing"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimers_disease",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "CSF A\u03b242, total tau, and ptau181 are well-established biomarkers for Alzheimer's disease pathology and are appropriate endpoints for measuring disease-relevant changes"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "alzheimers_disease__unselected",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The unselected Alzheimer's disease population showed no meaningful response to simvastatin treatment across all three CSF biomarker endpoints"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial assumes peripheral HMG-CoA reductase inhibition translates to CNS effects relevant for Alzheimer's disease, but target engagement in the CNS was not measured. The failure could be due to inadequate CNS penetration, wrong mechanism, or wrong population, making the mechanistic interpretation uncertain."
+}

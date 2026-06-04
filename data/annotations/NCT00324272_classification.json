@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00324272",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether tisseel fibrin sealant engaged fibrinogen. The mechanism involves fibrin polymerization for hemostasis, but no direct target engagement measurements were reported. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers were measured to confirm that fibrinogen engagement led to enhanced fibrin polymerization and hemostasis. 3. CLINICAL TRANSLATION: The primary endpoint (post-operative wound drainage volume) clearly failed in both anatomical sites. Groin dissection showed 892.5 ml vs 762.5 ml (p=0.704) and axillary dissection showed 565 ml vs 590 ml (p=0.217). Neither reached statistical significance. 4. POPULATION EFFECTS: The trial tested two different anatomical sites (groin vs axillary lymph node dissection) but both failed, suggesting no subgroup benefit. 5. CONFOUNDERS: The trial appears adequately powered with 74 patients and appropriate controls. No obvious confounders identified.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "While no biomarkers were measured, the fibrin sealant mechanism is well-established and likely engaged (fibrin polymerization for hemostasis), but this did not translate to reduced wound drainage volume in either anatomical site tested"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:90bdd1929845",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "groin_dissection_sealant_used",
+      "reasoning": "Enhanced hemostasis and tissue sealing did not translate to reduced wound drainage in groin dissection (p=0.704)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:90bdd1929845",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "axillary_dissection_sealant_used",
+      "reasoning": "Enhanced hemostasis and tissue sealing did not translate to reduced wound drainage in axillary dissection (p=0.217)"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:90bdd1929845",
+      "support": "weak_contradict",
+      "affecting_arm_id": "groin_dissection_sealant_used",
+      "reasoning": "Fibrin polymerization mechanism failed to produce clinically meaningful hemostasis in groin dissection"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:90bdd1929845",
+      "support": "weak_contradict",
+      "affecting_arm_id": "axillary_dissection_sealant_used",
+      "reasoning": "Fibrin polymerization mechanism failed to produce clinically meaningful hemostasis in axillary dissection"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_squamous_cell_carcinoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Post-operative wound drainage volume is a relevant and measurable endpoint for assessing hemostatic efficacy in surgical procedures"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__unselected",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with adequate power in both anatomical sites tested (p=0.704 and p=0.217)"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

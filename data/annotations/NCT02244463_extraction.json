@@ -1,0 +1,242 @@
+{
+  "nct_id": "NCT02244463",
+  "therapeutic_hypothesis": {
+    "compound": "MLN0128",
+    "claimed_target": "mTOR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "protein synthesis inhibition",
+    "target_population": "metastatic anaplastic thyroid cancer and incurably poorly differentiated or radioiodine refractory differentiated thyroid cancer",
+    "primary_endpoint": "Maximum Tolerated Dose (Phase I), 4-month Progression Free Survival Rate (Phase II ATC)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "11.1% PFS4 rate (ATC cohort)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "BRAF V600E present ATC: 25% clinical benefit rate",
+      "BRAF V600E absent ATC: 28.6% clinical benefit rate",
+      "BRAF V600E present DTC: 87.5% clinical benefit rate",
+      "BRAF V600E absent DTC: 75.0% clinical benefit rate"
+    ],
+    "safety_signals": [
+      "Grade 3-5 treatment-related toxicity observed across dose levels",
+      "Serious adverse events included hyperglycemia, hypophosphatemia, diarrhea, anorexia, nausea, dehydration, fatigue"
+    ],
+    "dose_info": {
+      "dose": "5 mg",
+      "schedule": "daily",
+      "max_tolerated_dose": "5 mg",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Acute kidney injury",
+        "grade": "3-5",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anorexia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "3-5",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyperglycemia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypophosphatemia",
+        "grade": "3-5",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "3-5",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic anaplastic thyroid cancer and incurably poorly differentiated or radioiodine refractory differentiated thyroid cancer",
+    "comparator": "none",
+    "sample_size": 46,
+    "duration": "median 2.1 months",
+    "duration_weeks": 9.1,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "phase_i_dose_level_1_pi_dl1",
+      "compounds": [
+        "MLN0128"
+      ]
+    },
+    {
+      "arm_id": "phase_i_dose_level_2_pi_dl2",
+      "compounds": [
+        "MLN0128"
+      ]
+    },
+    {
+      "arm_id": "phase_i_dose_level_3_pi_dl3",
+      "compounds": [
+        "MLN0128"
+      ]
+    },
+    {
+      "arm_id": "phase_i_dose_level_3_pi_dl3_expansion",
+      "compounds": [
+        "MLN0128"
+      ]
+    },
+    {
+      "arm_id": "phase_ii_atc_cohort",
+      "compounds": [
+        "MLN0128"
+      ]
+    },
+    {
+      "arm_id": "phase_ii_dtc_cohort",
+      "compounds": [
+        "MLN0128"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF V600E Present",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600E"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "BRAF V600E Absent",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "wildtype"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "phase_ii_atc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS4",
+      "effect_size": 11.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "metastatic anaplastic thyroid cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_ii_dtc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS6",
+      "effect_size": 45.5,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "incurably poorly differentiated or radioiodine refractory differentiated thyroid cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_ii_atc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": "BRAF V600E Present",
+      "endpoint": "CBR",
+      "effect_size": 25.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "metastatic anaplastic thyroid cancer with BRAF V600E mutation",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_ii_atc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": "BRAF V600E Absent",
+      "endpoint": "CBR",
+      "effect_size": 28.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "metastatic anaplastic thyroid cancer without BRAF V600E mutation",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_ii_dtc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": "BRAF V600E Present",
+      "endpoint": "CBR",
+      "effect_size": 87.5,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "incurably poorly differentiated or radioiodine refractory differentiated thyroid cancer with BRAF V600E mutation",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_ii_dtc_cohort",
+      "intervention": "MLN0128",
+      "subgroup_descriptor": "BRAF V600E Absent",
+      "endpoint": "CBR",
+      "effect_size": 75.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "incurably poorly differentiated or radioiodine refractory differentiated thyroid cancer without BRAF V600E mutation",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

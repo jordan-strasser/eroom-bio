@@ -1,0 +1,146 @@
+{
+  "nct_id": "NCT00867321",
+  "therapeutic_hypothesis": {
+    "compound": "bevacizumab + sorafenib",
+    "claimed_target": "VEGFR2",
+    "proposed_mechanism": "angiogenesis inhibition",
+    "intended_biology": "tumor vascularization suppression",
+    "target_population": "locally advanced or metastatic liver cancer",
+    "primary_endpoint": "Maximum Tolerated Dose (Phase I), Time to Progression (Phase II)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD established at dose level -2a; median TTP 8.6 months (combo) vs 13.3 months (sorafenib alone)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Sudden death",
+      "Creatinine increased",
+      "Acidosis",
+      "Serum glucose decreased",
+      "Syncope"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "dose level -2a",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Sudden death",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Creatinine increased",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acidosis",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Serum glucose decreased",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Syncope",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "locally advanced or metastatic liver cancer",
+    "comparator": "sorafenib tosylate alone",
+    "sample_size": 24,
+    "duration": "up to 3 years post treatment",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_phase_ii",
+      "compounds": [
+        "bevacizumab",
+        "sorafenib tosylate"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_phase_ii",
+      "compounds": [
+        "sorafenib tosylate"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_phase_ii",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 8.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "angiogenesis inhibition",
+      "biology_description": "tumor vascularization suppression",
+      "population_description": "locally advanced or metastatic liver cancer",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "arm_i_phase_ii",
+      "intervention": "sorafenib tosylate",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 8.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "locally advanced or metastatic liver cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_ii_phase_ii",
+      "intervention": "sorafenib tosylate",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 13.3,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "locally advanced or metastatic liver cancer",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "sorafenib tosylate",
+      "affects_layer": "biology",
+      "direction": "suppresses",
+      "confidence": 0.85,
+      "hypothesis": "bevacizumab enhances sorafenib's anti-angiogenic effects through dual VEGF pathway blockade",
+      "citation": "median TTP 8.6 months (combo) vs 13.3 months (sorafenib alone)"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "nct_id": "NCT02713386",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported for JAK1/JAK2, but biomarker assessments (CSC and CRP changes) were performed. The successful clinical outcome suggests target engagement occurred. 2. PATHWAY MODULATION: Limited pathway data available, but the clinical benefit in the combination arm (14.55 vs 11.63 months PFS) suggests JAK-STAT pathway modulation contributed to enhanced efficacy. 3. CLINICAL TRANSLATION: Primary endpoint was met with meaningful improvement in PFS (14.55 vs 11.63 months), representing a 25% improvement in median PFS. 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population showed benefit. 5. CONFOUNDERS: Higher toxicity in combination arm but did not prevent efficacy demonstration. Trial was adequately powered and conducted.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.3,
+      "evidence": "Higher grade 3+ adverse events in combination arm (81/95 vs 32/42) with increased anemia and febrile neutropenia, but toxicity did not prevent efficacy demonstration"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ruxolitinib_phosphate",
+      "target_entity": "ENSG00000162434",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Clinical benefit in combination arm suggests target engagement, though direct PD data not reported"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "paclitaxel",
+      "target_entity": "ENSG00000188229",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_paclitaxel_and_carboplatin",
+      "reasoning": "Established mechanism with clinical efficacy demonstrated in control arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "paclitaxel",
+      "target_entity": "ENSG00000188229",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Established mechanism with enhanced clinical efficacy in combination arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carboplatin",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_paclitaxel_and_carboplatin",
+      "reasoning": "Established mechanism with clinical efficacy demonstrated in control arm"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carboplatin",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Established mechanism with enhanced clinical efficacy in combination arm"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000162434",
+      "target_entity": "R-HSA-5673001",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Clinical benefit suggests pathway modulation occurred, though direct PD evidence limited"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "bio:6238bf9e8c44",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Enhanced PFS in combination arm suggests JAK-STAT pathway inhibition contributed to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6238bf9e8c44",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "JAK-STAT pathway inhibition contributed to improved PFS in ovarian cancer"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_paclitaxel_and_carboplatin",
+      "reasoning": "Mitotic arrest from paclitaxel demonstrated clinical benefit in control arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "Mitotic arrest from paclitaxel contributed to enhanced clinical benefit in combination arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_i_paclitaxel_and_carboplatin",
+      "reasoning": "DNA-damage-induced apoptosis from carboplatin demonstrated clinical benefit in control arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": "arm_ii_ruxolitinib_paclitaxel_and_carboplatin",
+      "reasoning": "DNA-damage-induced apoptosis from carboplatin contributed to enhanced clinical benefit in combination arm"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_primary_peritoneal_cancer",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS endpoint captured clinical benefit with meaningful improvement, though safety endpoint listed may not be the primary efficacy endpoint"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "fallopian_tube_clear_cell_adenocarcinoma__extent_locally_advanced__line_neoadjuvant",
+      "target_entity": "fallopian_tube_clear_cell_adenocarcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with clinically meaningful effect size in this population"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

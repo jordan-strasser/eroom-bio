@@ -1,0 +1,120 @@
+{
+  "nct_id": "NCT02273206",
+  "therapeutic_hypothesis": {
+    "compound": "collaborative care management",
+    "claimed_target": "healthcare delivery system",
+    "proposed_mechanism": "care coordination and integration",
+    "intended_biology": "improved preventive care utilization and mental health outcomes",
+    "target_population": "low-income urban women with depression",
+    "primary_endpoint": "cancer screening uptake and depression score improvement",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "OR 1.346 (95% CI: 0.979\u20131.851) for colorectal screening",
+    "p_value": 0.0677,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "PHQ9 score reduction from 12.90 to 8.24 (CCI) vs 12.96 to 7.84 (PCM)"
+    ],
+    "subgroup_findings": [
+      "No significant differences between arms for any cancer screening type",
+      "Both arms showed improvement in depression scores"
+    ],
+    "safety_signals": [
+      "One stroke event in collaborative care arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "stroke",
+        "grade": "",
+        "incidence_treatment_pct": 0.26,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ],
+    "primary_endpoint_met_source": "reask"
+  },
+  "context": {
+    "indication": "depression with cancer screening gaps",
+    "comparator": "prevention care management alone",
+    "sample_size": 802,
+    "duration": "12 months",
+    "duration_weeks": 52.1,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "compounds": [
+        "prevention_care_management"
+      ]
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "compounds": [
+        "collaborative_care_management",
+        "prevention_care_management"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "prevention_care_management_for_cancer_screening",
+      "intervention": "prevention_care_management",
+      "subgroup_descriptor": null,
+      "endpoint": "colorectal cancer screening uptake",
+      "effect_size": 52.8,
+      "p_value": 0.0677,
+      "outcome": "partial",
+      "mechanism_description": "care coordination and patient navigation",
+      "biology_description": "improved preventive care utilization",
+      "population_description": "low-income urban women with depression",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "intervention": "collaborative_care_management",
+      "subgroup_descriptor": null,
+      "endpoint": "colorectal cancer screening uptake",
+      "effect_size": 56.9,
+      "p_value": 0.0677,
+      "outcome": "partial",
+      "mechanism_description": "integrated mental health and preventive care coordination",
+      "biology_description": "improved preventive care utilization and mental health outcomes",
+      "population_description": "low-income urban women with depression",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "prevention_care_management_for_depression_and_cancer_screening",
+      "intervention": "collaborative_care_management",
+      "subgroup_descriptor": null,
+      "endpoint": "PHQ9 depression score change",
+      "effect_size": 4.6,
+      "p_value": 0.39,
+      "outcome": "success",
+      "mechanism_description": "integrated mental health care coordination",
+      "biology_description": "improved mental health outcomes",
+      "population_description": "low-income urban women with depression",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "collaborative_care_management",
+      "primary_compound_id": "prevention_care_management",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Adding depression care management to cancer screening navigation should improve overall preventive care outcomes",
+      "citation": "OR 1.346 (95% CI: 0.979\u20131.851), p = 0.0677 for colorectal screening; no significant differences for breast or cervical screening"
+    }
+  ]
+}

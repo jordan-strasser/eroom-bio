@@ -1,0 +1,120 @@
+{
+  "nct_id": "NCT01758731",
+  "therapeutic_hypothesis": {
+    "compound": "olaparib + cetuximab + radiation therapy",
+    "claimed_target": "PARP",
+    "proposed_mechanism": "DNA repair inhibition",
+    "intended_biology": "DNA-damage-induced apoptosis",
+    "target_population": "advanced head and neck squamous cell carcinoma with heavy smoking history",
+    "primary_endpoint": "maximum tolerated dose",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD 50 mg twice daily",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Feed tube placement pain",
+      "Confusion, somnolence, disorientation, hypoxia",
+      "Grade 3 mucositis",
+      "Dehydration"
+    ],
+    "dose_info": {
+      "dose": "50 mg",
+      "schedule": "twice daily",
+      "max_tolerated_dose": "50 mg twice daily",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Feed tube placement pain",
+        "grade": "",
+        "incidence_treatment_pct": 6.25,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Confusion, somnolence, disorientation, hypoxia",
+        "grade": "",
+        "incidence_treatment_pct": 6.25,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 3 mucositis",
+        "grade": "3",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 6.25,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "squamous cell carcinoma of the head and neck",
+    "comparator": "none",
+    "sample_size": 17,
+    "duration": "10 weeks",
+    "duration_weeks": 10.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "olaparib_with_c225_and_radiation_therapy",
+      "compounds": [
+        "olaparib",
+        "cetuximab",
+        "radiation therapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "olaparib_with_c225_and_radiation_therapy",
+      "intervention": "olaparib",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 50.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA repair inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced head and neck squamous cell carcinoma with heavy smoking history",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "olaparib_with_c225_and_radiation_therapy",
+      "intervention": "cetuximab",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 50.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "advanced head and neck squamous cell carcinoma with heavy smoking history",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "olaparib",
+      "primary_compound_id": "cetuximab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.7,
+      "hypothesis": "PARP inhibition enhances radiation-induced DNA damage while cetuximab blocks DNA repair signaling",
+      "citation": "Olaparib PO in combination with RT and C225"
+    }
+  ]
+}

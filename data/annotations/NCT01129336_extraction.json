@@ -1,0 +1,134 @@
+{
+  "nct_id": "NCT01129336",
+  "therapeutic_hypothesis": {
+    "compound": "zoledronic acid",
+    "claimed_target": "farnesyl pyrophosphate synthase",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "bone resorption inhibition",
+    "target_population": "HER2-negative metastatic breast cancer patients without bone metastasis",
+    "primary_endpoint": "progression free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "median TTP 190 days vs 297 days",
+    "p_value": null,
+    "target_engagement_evidence": "reduction in urine NTX levels",
+    "biomarker_changes": [
+      "decreased circulating tumor cells \u22655/7.5mL from 26.7% to 0% by month 4",
+      "reduction in urine NTX by 5.25 nmol bce/mmol at month 2"
+    ],
+    "subgroup_findings": [
+      "patients with bone metastases had longer TTP (297 vs 190 days)",
+      "higher baseline CTC levels in bone metastases group (57.1% vs 26.7%)"
+    ],
+    "safety_signals": [
+      "anemia",
+      "rectal hemorrhage in zoledronic acid arm",
+      "multiple infections in control arm"
+    ],
+    "dose_info": {
+      "dose": "4 mg",
+      "schedule": "monthly",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "rectal haemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "chest discomfort",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.4,
+        "serious": true
+      },
+      {
+        "term": "hepatic failure",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.4,
+        "serious": true
+      },
+      {
+        "term": "pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.4,
+        "serious": true
+      },
+      {
+        "term": "sepsis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.4,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "HER2-negative metastatic breast cancer",
+    "comparator": "standard therapy",
+    "sample_size": 44,
+    "duration": "18 months",
+    "duration_weeks": 78.2,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "patients_without_bone_metastases",
+      "compounds": [
+        "zoledronic acid",
+        "standard therapy"
+      ]
+    },
+    {
+      "arm_id": "patients_with_bone_metastases",
+      "compounds": [
+        "standard therapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "patients_without_bone_metastases",
+      "intervention": "zoledronic acid",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 190.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "bone resorption inhibition",
+      "population_description": "HER2-negative metastatic breast cancer patients without bone metastasis",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "patients_with_bone_metastases",
+      "intervention": "standard therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "TTP",
+      "effect_size": 297.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "cytotoxic chemotherapy",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "HER2-negative metastatic breast cancer patients with bone metastasis",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": []
+}

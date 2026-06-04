@@ -1,0 +1,130 @@
+{
+  "nct_id": "NCT00379639",
+  "therapeutic_hypothesis": {
+    "compound": "romidepsin + gemcitabine",
+    "claimed_target": "HDAC",
+    "proposed_mechanism": "histone deacetylase inhibition",
+    "intended_biology": "chromatin remodeling and transcriptional activation",
+    "target_population": "patients with pancreatic and other advanced solid tumors",
+    "primary_endpoint": "dose-limiting toxicity and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "2 partial responses out of 36 patients (5.6%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "2 partial responses observed at dose levels 2 and 8",
+      "14 patients achieved stable disease across dose levels"
+    ],
+    "safety_signals": [
+      "Grade 4 neutropenia",
+      "Thrombocytopenia",
+      "Gastrointestinal toxicities including nausea, vomiting, abdominal pain",
+      "Upper GI hemorrhage",
+      "Myocardial infarction"
+    ],
+    "dose_info": {
+      "dose": "romidepsin 7-12 mg/m2, gemcitabine 800-1000 mg/m2",
+      "schedule": "days 1, 8, 15 or days 1, 15 of 28-day cycles",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 4 neutropenia",
+        "grade": "4",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "3",
+        "incidence_treatment_pct": 38.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "3",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "3",
+        "incidence_treatment_pct": 28.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "pancreatic and other advanced solid tumors",
+    "comparator": "none",
+    "sample_size": 36,
+    "duration": "up to 236 days",
+    "duration_weeks": 33.7,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "romidepsin_gemcitabine",
+      "compounds": [
+        "romidepsin",
+        "gemcitabine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "romidepsin_gemcitabine",
+      "intervention": "romidepsin",
+      "subgroup_descriptor": null,
+      "endpoint": "best overall response",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "histone deacetylase inhibition",
+      "biology_description": "chromatin remodeling and transcriptional activation",
+      "population_description": "patients with pancreatic and other advanced solid tumors",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "romidepsin_gemcitabine",
+      "intervention": "gemcitabine",
+      "subgroup_descriptor": null,
+      "endpoint": "best overall response",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA synthesis inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with pancreatic and other advanced solid tumors",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "romidepsin",
+      "primary_compound_id": "gemcitabine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "HDAC inhibition may enhance chemotherapy sensitivity through chromatin remodeling",
+      "citation": "Phase 1 dose escalation study showed 2 partial responses with combination therapy"
+    }
+  ]
+}

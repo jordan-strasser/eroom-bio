@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT01232296",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged FGFR/VEGFR/PDGFR targets. The trial assumed target engagement based on known binding profiles but did not measure it directly. 2. PATHWAY MODULATION: No pathway biomarkers or downstream readouts reported to confirm multi-kinase inhibition modulated angiogenesis pathways. 3. CLINICAL TRANSLATION: Primary endpoint (OS) clearly failed - dovitinib arm achieved 33 weeks median OS vs 39.4 weeks for sorafenib control, showing dovitinib was inferior to the active comparator. Secondary endpoints (TTP, DCR) also showed dovitinib performing worse than sorafenib across most measures. 4. POPULATION EFFECTS: No subgroup analyses reported that identified responding populations. 5. CONFOUNDERS: This was an adequately powered head-to-head comparison against an established active control (sorafenib). Safety profile was manageable with no dose-limiting toxicity preventing adequate exposure. The failure appears to be genuine inferiority of dovitinib vs sorafenib in first-line HCC, not a trial design issue.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Dovitinib failed to demonstrate clinical benefit vs active control sorafenib despite both drugs targeting similar multi-kinase pathways. The mechanism may have engaged but failed to translate to meaningful clinical outcomes in this indication."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "Dovitinib arm failed primary OS endpoint with inferior survival vs sorafenib control, suggesting angiogenesis inhibition biology did not drive clinical benefit in HCC"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-2033515",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "FGFR3-mediated mechanism failed to produce clinical benefit vs active control, suggesting the mechanism did not effectively modulate angiogenesis biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "sorafenib",
+      "reasoning": "Sorafenib arm achieved superior OS (39.4 vs 33 weeks), confirming angiogenesis inhibition biology can drive clinical benefit in HCC when properly executed"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6802946",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "moderate_support",
+      "affecting_arm_id": "sorafenib",
+      "reasoning": "Sorafenib's superior clinical performance validates that RAF1-mediated kinase inhibition effectively modulates angiogenesis biology in HCC"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_hepatocellular_carcinoma",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Overall survival clearly differentiated between treatments and is the gold standard endpoint for HCC, demonstrating excellent capture of clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hepatocellular_carcinoma__extent_locally_advanced__line_first",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "tki258",
+      "reasoning": "First-line locally advanced HCC population showed poor response to dovitinib vs established active control, suggesting this population does not respond well to this specific multi-kinase inhibitor approach"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hepatocellular_carcinoma__extent_locally_advanced__line_first",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "sorafenib",
+      "reasoning": "First-line locally advanced HCC population showed good response to sorafenib, confirming this population responds appropriately to effective multi-kinase inhibition"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

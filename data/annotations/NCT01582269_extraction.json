@@ -1,0 +1,210 @@
+{
+  "nct_id": "NCT01582269",
+  "therapeutic_hypothesis": {
+    "compound": "galunisertib",
+    "claimed_target": "TGF-beta receptor",
+    "proposed_mechanism": "receptor kinase inhibition",
+    "intended_biology": "TGF-beta signaling inhibition",
+    "target_population": "recurrent glioblastoma",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "OS: galunisertib 8.0 months vs lomustine+placebo 7.5 months (HR 0.93)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Galunisertib monotherapy showed 5.1% partial response rate vs 0% in other arms"
+    ],
+    "safety_signals": [
+      "Combination arm showed increased serious adverse events including neutropenia, pancytopenia, GI toxicity"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.6,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pancytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "recurrent glioblastoma",
+    "comparator": "lomustine plus placebo",
+    "sample_size": 158,
+    "duration": "up to 20.5 months",
+    "duration_weeks": 89.1,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_galunisertib",
+      "compounds": [
+        "galunisertib"
+      ]
+    },
+    {
+      "arm_id": "arm_b_galunisertib_lomustine",
+      "compounds": [
+        "galunisertib",
+        "lomustine"
+      ]
+    },
+    {
+      "arm_id": "arm_c_lomustine_placebo",
+      "compounds": [
+        "lomustine"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "CR",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PR",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "SD",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_galunisertib",
+      "intervention": "galunisertib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 8.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor kinase inhibition",
+      "biology_description": "TGF-beta signaling inhibition",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_b_galunisertib_lomustine",
+      "intervention": "galunisertib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor kinase inhibition",
+      "biology_description": "TGF-beta signaling inhibition",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_b_galunisertib_lomustine",
+      "intervention": "lomustine",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_c_lomustine_placebo",
+      "intervention": "lomustine",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 7.5,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_a_galunisertib",
+      "intervention": "galunisertib",
+      "subgroup_descriptor": "PR",
+      "endpoint": "response_rate",
+      "effect_size": 5.1,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor kinase inhibition",
+      "biology_description": "TGF-beta signaling inhibition",
+      "population_description": "recurrent glioblastoma patients achieving partial response",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "galunisertib",
+      "primary_compound_id": "lomustine",
+      "affects_layer": "biology",
+      "direction": "suppresses",
+      "confidence": 0.85,
+      "hypothesis": "TGF-beta inhibition may enhance chemotherapy efficacy by reducing immunosuppressive tumor microenvironment",
+      "citation": "Arm B: Galunisertib + Lomustine: 6.7 months OS vs Arm C: Lomustine + Placebo: 7.5 months OS"
+    }
+  ]
+}

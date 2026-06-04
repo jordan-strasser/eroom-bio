@@ -1,0 +1,200 @@
+{
+  "nct_id": "NCT00085566",
+  "therapeutic_hypothesis": {
+    "compound": "everolimus + gefitinib",
+    "claimed_target": "mTOR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "cell growth inhibition",
+    "target_population": "patients with progressive glioblastoma multiforme or progressive metastatic prostate cancer",
+    "primary_endpoint": "overall objective response",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "2/43 partial response (4.7%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Only 2 partial responses observed, both in RAD 001 70 mg group",
+      "15/43 patients achieved stable disease in 70 mg group"
+    ],
+    "safety_signals": [
+      "Confusion",
+      "Hemoglobin decrease",
+      "Hydrocephalus",
+      "Vision-blurred vision",
+      "ALT elevation",
+      "Cardiac events",
+      "Creatinine elevation",
+      "Dehydration",
+      "Dyspnea"
+    ],
+    "dose_info": {
+      "dose": "30 mg, 50 mg, 70 mg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Confusion",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hemoglobin",
+        "grade": "",
+        "incidence_treatment_pct": 1.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hydrocephalus",
+        "grade": "",
+        "incidence_treatment_pct": 1.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vision-blurred vision",
+        "grade": "",
+        "incidence_treatment_pct": 1.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "ALT, SGPT",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac General, other",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Creatinine",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Death not associated w CTCAE term-Disease progression NOS",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnea (shortness of breath)",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "progressive glioblastoma multiforme or progressive metastatic prostate cancer",
+    "comparator": "none",
+    "sample_size": 61,
+    "duration": "2 years",
+    "duration_weeks": 104.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "everolimus_rad_001_and_gefitinib",
+      "compounds": [
+        "everolimus",
+        "gefitinib"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Partial Response (PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease (SD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progression of Disease (POD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "everolimus_rad_001_and_gefitinib",
+      "intervention": "everolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "overall objective response",
+      "effect_size": 4.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "cell growth inhibition",
+      "population_description": "patients with progressive glioblastoma multiforme or progressive metastatic prostate cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "everolimus_rad_001_and_gefitinib",
+      "intervention": "gefitinib",
+      "subgroup_descriptor": null,
+      "endpoint": "overall objective response",
+      "effect_size": 4.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "cell growth inhibition",
+      "population_description": "patients with progressive glioblastoma multiforme or progressive metastatic prostate cancer",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "gefitinib",
+      "primary_compound_id": "everolimus",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "EGFR inhibition combined with mTOR inhibition to enhance anti-tumor activity",
+      "citation": "Overall objective response rate was 4.7% with combination therapy"
+    }
+  ]
+}

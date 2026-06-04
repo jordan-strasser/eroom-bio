@@ -1,0 +1,200 @@
+{
+  "nct_id": "NCT02343406",
+  "therapeutic_hypothesis": {
+    "compound": "depatuxizumab mafodotin",
+    "claimed_target": "EGFR",
+    "proposed_mechanism": "antibody-drug conjugate cytotoxicity",
+    "intended_biology": "targeted cytotoxic payload delivery",
+    "target_population": "recurrent glioblastoma",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "OS HR 0.71 (95% CI: 0.5-1.02) for combination vs control",
+    "p_value": 0.062,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "EGFRvIII mutation subgroup showed similar survival patterns to overall population"
+    ],
+    "safety_signals": [
+      "Corneal epithelial microcysts observed in depatuxizumab mafodotin arms",
+      "100% adverse event rate in pediatric population"
+    ],
+    "dose_info": {
+      "dose": "1.0-1.25 mg/kg",
+      "schedule": "every 2 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose reduced from 1.25 mg/kg to 1.0 mg/kg in protocol amendment"
+    },
+    "adverse_events": [
+      {
+        "term": "corneal epithelial microcysts",
+        "grade": "",
+        "incidence_treatment_pct": 1.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.8,
+        "serious": true
+      },
+      {
+        "term": "thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.8,
+        "serious": true
+      },
+      {
+        "term": "nausea",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": 1.8,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "recurrent glioblastoma",
+    "comparator": "lomustine or temozolomide",
+    "sample_size": 266,
+    "duration": "up to 28 months",
+    "duration_weeks": 121.7,
+    "investigator_commentary": "Pediatric data collection stopped early based on INTELLANCE-1 results showing no survival benefit"
+  },
+  "arms": [
+    {
+      "arm_id": "abt_414_temozolomide",
+      "compounds": [
+        "depatuxizumab mafodotin",
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "abt_414_adult",
+      "compounds": [
+        "depatuxizumab mafodotin"
+      ]
+    },
+    {
+      "arm_id": "control_lomustine",
+      "compounds": [
+        "lomustine"
+      ]
+    },
+    {
+      "arm_id": "control_temozolomide",
+      "compounds": [
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "abt_414_pediatric",
+      "compounds": [
+        "depatuxizumab mafodotin"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "EGFRvIII mutation",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "EGFR",
+          "level": "mutant"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "abt_414_temozolomide",
+      "intervention": "depatuxizumab mafodotin",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.71,
+      "p_value": 0.062,
+      "outcome": "partial",
+      "mechanism_description": "antibody-drug conjugate cytotoxicity",
+      "biology_description": "targeted cytotoxic payload delivery",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "abt_414_temozolomide",
+      "intervention": "temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.71,
+      "p_value": 0.062,
+      "outcome": "partial",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "abt_414_adult",
+      "intervention": "depatuxizumab mafodotin",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 1.04,
+      "p_value": 0.835,
+      "outcome": "failure",
+      "mechanism_description": "antibody-drug conjugate cytotoxicity",
+      "biology_description": "targeted cytotoxic payload delivery",
+      "population_description": "recurrent glioblastoma",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "abt_414_temozolomide",
+      "intervention": "depatuxizumab mafodotin",
+      "subgroup_descriptor": "EGFRvIII mutation",
+      "endpoint": "OS",
+      "effect_size": 0.67,
+      "p_value": 0.127,
+      "outcome": "partial",
+      "mechanism_description": "antibody-drug conjugate cytotoxicity",
+      "biology_description": "targeted cytotoxic payload delivery",
+      "population_description": "recurrent glioblastoma with EGFRvIII mutation",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "abt_414_adult",
+      "intervention": "depatuxizumab mafodotin",
+      "subgroup_descriptor": "EGFRvIII mutation",
+      "endpoint": "OS",
+      "effect_size": 0.88,
+      "p_value": 0.64,
+      "outcome": "failure",
+      "mechanism_description": "antibody-drug conjugate cytotoxicity",
+      "biology_description": "targeted cytotoxic payload delivery",
+      "population_description": "recurrent glioblastoma with EGFRvIII mutation",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "temozolomide",
+      "primary_compound_id": "depatuxizumab mafodotin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Temozolomide-induced DNA damage may sensitize EGFR-expressing glioblastoma cells to antibody-drug conjugate cytotoxicity",
+      "citation": "OS HR 0.71 (95% CI: 0.5-1.02), p = 0.062 for combination vs control"
+    }
+  ]
+}

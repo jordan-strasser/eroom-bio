@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT03397121",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement with 60.68% reduction in PCSK9 levels, confirming inclisiran successfully engaged its intended target (PCSK9 mRNA). 2. PATHWAY MODULATION: Clear downstream biology changes with significant reductions in cholesterol-related biomarkers (total cholesterol -25.11%, ApoB -33.14%, non-HDL cholesterol -34.93%), demonstrating the RNA interference mechanism successfully modulated cholesterol synthesis pathways. 3. CLINICAL TRANSLATION: Primary endpoint met with -41.15% LDL-C reduction vs placebo (p=0.0001), showing strong clinical translation of the biological effect. 4. POPULATION EFFECTS: No subgroup analysis reported, but the overall population (heterozygous familial hypercholesterolemia) responded well. 5. CONFOUNDERS: No significant trial design issues. Safety events were cardiovascular but occurred at similar or lower rates than placebo for most events.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "inclisiran",
+      "target_entity": "ENSG00000169174",
+      "support": "strong_support",
+      "affecting_arm_id": "inclisiran",
+      "reasoning": "60.68% reduction in PCSK9 levels demonstrates strong target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169174",
+      "target_entity": "R-HSA-381426",
+      "support": "strong_support",
+      "affecting_arm_id": "inclisiran",
+      "reasoning": "Target engagement led to clear downstream pathway modulation with significant cholesterol biomarker changes"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-381426",
+      "target_entity": "bio:14cc35b87e3a",
+      "support": "strong_support",
+      "affecting_arm_id": "inclisiran",
+      "reasoning": "Mechanism successfully affected cholesterol synthesis as evidenced by multiple cholesterol biomarker reductions"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:14cc35b87e3a",
+      "target_entity": "familial_hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": "inclisiran",
+      "reasoning": "Cholesterol synthesis inhibition successfully drove clinical improvement in familial hypercholesterolemia with -41.15% LDL-C reduction"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hypercholesterolemia",
+      "target_entity": "familial_hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "LDL-C reduction endpoint clearly captured clinical benefit in hypercholesterolemia with highly significant result"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "familial_hypercholesterolemia__line_second",
+      "target_entity": "familial_hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful effect size in this population"
+    }
+  ],
+  "confidence_overall": 0.9,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

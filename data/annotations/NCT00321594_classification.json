@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT00321594",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm HDAC inhibition. The trial achieved MTD at 1400 mg/m\u00b2 with only 1 DLT, suggesting adequate dosing was possible, but target engagement cannot be confirmed. 2. PATHWAY MODULATION: No data on chromatin remodeling or transcriptional changes to confirm downstream pathway activation. 3. CLINICAL TRANSLATION: Primary endpoint clearly missed - only 1 partial response out of 42 evaluable patients (2.4% response rate), which is well below any meaningful efficacy threshold for hepatocellular carcinoma. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This was a single-arm Phase I/II study with no control group, but the response rate is so low that it's clearly below historical benchmarks for HCC. The trial appears adequately conducted with appropriate dose escalation reaching MTD.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data to assess target engagement or pathway modulation. Cannot determine where in the causal chain the failure occurred - whether HDAC was engaged, chromatin remodeling occurred, or the biology simply didn't translate to clinical benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0b54ad281036",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_enzyme_inhibitor_therapy",
+      "reasoning": "Primary endpoint clearly missed with only 2.4% response rate, indicating the biology did not drive clinical benefit in this indication"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-3214815",
+      "target_entity": "bio:0b54ad281036",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_enzyme_inhibitor_therapy",
+      "reasoning": "Failed trial with no biomarker data - mechanism to biology link failed as part of the overall chain failure"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_hepatocellular_carcinoma",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Tumor response endpoint was measured but showed minimal activity (2.4%), suggesting this endpoint failed to capture any meaningful clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hepatocellular_carcinoma__extent_unresectable",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This population showed very poor response (2.4%) to HDAC inhibition, well below any clinically meaningful threshold"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to determine where in the causal chain the failure occurred. Cannot distinguish between target engagement failure, pathway modulation failure, or biology-to-endpoint translation failure."
+}

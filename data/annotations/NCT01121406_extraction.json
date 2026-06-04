@@ -1,0 +1,254 @@
+{
+  "nct_id": "NCT01121406",
+  "therapeutic_hypothesis": {
+    "compound": "volasertib",
+    "claimed_target": "PLK1",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "mitotic arrest",
+    "target_population": "ovarian cancer patients",
+    "primary_endpoint": "disease control rate at week 24",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "DCR 30.6% vs 43.1% (difference -12.5%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "CA-125 response rate 10/54 volasertib vs 12/55 cytotoxic"
+    ],
+    "subgroup_findings": [
+      "Measurable disease: PR 7/45 volasertib vs 8/44 cytotoxic",
+      "Non-measurable disease: CR 0/9 volasertib vs 1/11 cytotoxic"
+    ],
+    "safety_signals": [
+      "Higher grade 4 toxicity in volasertib arm (25/54 vs 5/55)",
+      "Thrombocytopenia more common with volasertib",
+      "Febrile neutropenia observed with volasertib"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "every 3 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 7.4,
+        "incidence_control_pct": 1.8,
+        "serious": true
+      },
+      {
+        "term": "Platelet count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 9.3,
+        "incidence_control_pct": 0.0,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "ovarian cancer",
+    "comparator": "cytotoxic chemotherapy (paclitaxel, gemcitabine, topotecan, or pegylated liposomal doxorubicin)",
+    "sample_size": 110,
+    "duration": "up to 213 weeks",
+    "duration_weeks": 213.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "bi_6727",
+      "compounds": [
+        "volasertib"
+      ]
+    },
+    {
+      "arm_id": "cytotoxic",
+      "compounds": [
+        "paclitaxel",
+        "gemcitabine",
+        "topotecan",
+        "pegylated_liposomal_doxorubicin"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "CR- Measurable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PR- Measurable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "SD- Measurable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD- Measurable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Yes",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ca125_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "No",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "no_ca125_response"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "bi_6727",
+      "intervention": "volasertib",
+      "subgroup_descriptor": null,
+      "endpoint": "DCR",
+      "effect_size": 30.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "mitotic arrest",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "bi_6727",
+      "intervention": "volasertib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 13.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "mitotic arrest",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "bi_6727",
+      "intervention": "volasertib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 60.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "mitotic arrest",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "cytotoxic",
+      "intervention": "paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "DCR",
+      "effect_size": 43.1,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "cytotoxic",
+      "intervention": "gemcitabine",
+      "subgroup_descriptor": null,
+      "endpoint": "DCR",
+      "effect_size": 43.1,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA synthesis inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "cytotoxic",
+      "intervention": "topotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "DCR",
+      "effect_size": 43.1,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "topoisomerase inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "cytotoxic",
+      "intervention": "pegylated_liposomal_doxorubicin",
+      "subgroup_descriptor": null,
+      "endpoint": "DCR",
+      "effect_size": 43.1,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA intercalation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": []
+}

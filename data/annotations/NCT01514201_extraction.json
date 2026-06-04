@@ -1,0 +1,147 @@
+{
+  "nct_id": "NCT01514201",
+  "therapeutic_hypothesis": {
+    "compound": "veliparib + temozolomide + radiation therapy",
+    "claimed_target": "PARP",
+    "proposed_mechanism": "PARP inhibition",
+    "intended_biology": "DNA-damage-induced apoptosis",
+    "target_population": "younger patients with newly diagnosed diffuse pontine gliomas",
+    "primary_endpoint": "maximum-tolerated dose and overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "3-year OS: 5.3% (95% CI: 0.0-12.4%)",
+    "p_value": null,
+    "target_engagement_evidence": "100% of patients at lower doses showed >50% change in PBMC PARP levels",
+    "biomarker_changes": [
+      "PARP levels decreased >50% in PBMCs at weeks 6-11",
+      "MMP3 levels varied by dose and timepoint",
+      "Netrin-1 levels remained low across timepoints",
+      "TIMP1 levels increased over time",
+      "bFGF levels varied by dose and timepoint"
+    ],
+    "subgroup_findings": [
+      "Pseudo progression occurred in 33.3% at 50mg, 16.7% at 65mg, 0% at 85mg, 12.8% at MTD"
+    ],
+    "safety_signals": [
+      "MTD established at 65 mg/m2 BID",
+      "Dose escalation during maintenance therapy was halted early due to poor tolerability",
+      "40% of patients experienced unacceptable toxicity at 175 mg/m2 temozolomide"
+    ],
+    "dose_info": {
+      "dose": "65 mg/m2 BID (MTD)",
+      "schedule": "twice daily during radiation, then with temozolomide maintenance",
+      "max_tolerated_dose": "65 mg/m2 BID",
+      "dose_modifications": "Temozolomide dose escalation halted early due to toxicity"
+    },
+    "adverse_events": [
+      {
+        "term": "Hydrocephalus",
+        "grade": "",
+        "incidence_treatment_pct": 17.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Headache",
+        "grade": "",
+        "incidence_treatment_pct": 6.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Platelet count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutrophil count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Intracranial hemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "newly diagnosed diffuse pontine gliomas",
+    "comparator": "none (single-arm dose escalation)",
+    "sample_size": 66,
+    "duration": "up to 3 years follow-up",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "compounds": [
+        "veliparib",
+        "temozolomide",
+        "radiation_therapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "intervention": "veliparib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 5.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "PARP inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "younger patients with newly diagnosed diffuse pontine gliomas",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "intervention": "temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 5.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "younger patients with newly diagnosed diffuse pontine gliomas",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "intervention": "radiation_therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 5.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA strand breaks",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "younger patients with newly diagnosed diffuse pontine gliomas",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "veliparib",
+      "primary_compound_id": "temozolomide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "PARP inhibition prevents repair of temozolomide-induced DNA damage, enhancing cytotoxicity",
+      "citation": "The 3-year estimate with a 95% confidence interval is reported. Phase II Patients + Phase I MTD Patients: 5.3 (95% CI: 0.0\u201312.4)"
+    }
+  ]
+}

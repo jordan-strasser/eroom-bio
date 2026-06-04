@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00095836",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to confirm EGFR engagement. However, the presence of characteristic EGFR inhibitor toxicities (rash 52%, diarrhea 41%) suggests target engagement occurred at the expected dose of 250mg daily. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether EGFR inhibition led to downstream signaling changes. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) completely failed with 0% response rate (0 CR, 0 PR). PFS also failed at 3.7 months. OS showed partial benefit at 17.5 months but this was not the primary endpoint. 4. POPULATION EFFECTS: No subgroup analyses reported showing differential responses. Disease control rate declined over time (48% at 3 months to 12% at 12 months). 5. CONFOUNDERS: Small sample size (N=27) may have contributed to lack of power, but the complete absence of any objective responses suggests this is not just a power issue. The trial appears to have been conducted appropriately with adequate dosing.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Characteristic EGFR inhibitor toxicities (rash 52%, diarrhea 41%) suggest target engagement, but complete absence of objective responses (0% ORR) indicates the biology did not translate to clinical benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "gefitinib",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "gefitinib_250mg",
+      "reasoning": "Characteristic EGFR inhibitor toxicities (rash 52%, diarrhea 41%) at standard dose strongly suggest target engagement occurred"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-177929",
+      "target_entity": "bio:f36176244781",
+      "support": "weak_contradict",
+      "affecting_arm_id": "gefitinib_250mg",
+      "reasoning": "Despite apparent target engagement, complete absence of objective responses suggests EGFR signaling inhibition did not effectively translate to proliferation inhibition in this thyroid cancer population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f36176244781",
+      "target_entity": "head_and_neck_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "gefitinib_250mg",
+      "reasoning": "Zero objective response rate indicates proliferation inhibition biology did not drive clinical benefit in this thyroid cancer indication"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_head_and_neck_cancer",
+      "target_entity": "head_and_neck_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR was clearly measured and provided definitive readout (0% response rate), demonstrating the endpoint captured the lack of clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "head_and_neck_cancer__extent_locally_advanced__line_second",
+      "target_entity": "head_and_neck_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Complete absence of responses in this iodine-refractory thyroid cancer population suggests this specific population does not respond to EGFR inhibition"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

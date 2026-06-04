@@ -1,0 +1,235 @@
+{
+  "nct_id": "NCT02336165",
+  "therapeutic_hypothesis": {
+    "compound": "durvalumab",
+    "claimed_target": "PD-L1",
+    "proposed_mechanism": "checkpoint blockade",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "patients with glioblastoma",
+    "primary_endpoint": "overall survival rate at 12 months (Cohort A), progression-free survival rate at 6 months (Cohorts B, B2, B3), overall survival rate at 6 months (Cohort C)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "OS-12: 60.0% (Cohort A), PFS-6: 19.4% (Cohort B), 15.2% (Cohort B2), 17.2% (Cohort B3), OS-6: 36.4% (Cohort C)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Treatment-emergent adverse events occurred in majority of patients across all cohorts",
+      "Serious adverse events included malignant neoplasm progression, hemiparesis, intracranial hemorrhage, headache"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "Q2W",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Headache",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Haemorrhage intracranial",
+        "grade": "",
+        "incidence_treatment_pct": 6.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Malignant Neoplasm progression",
+        "grade": "",
+        "incidence_treatment_pct": 25.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cognitive disorder",
+        "grade": "",
+        "incidence_treatment_pct": 2.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hemiparesis",
+        "grade": "",
+        "incidence_treatment_pct": 9.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Craniotomy",
+        "grade": "",
+        "incidence_treatment_pct": 5.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "glioblastoma",
+    "comparator": "none",
+    "sample_size": 159,
+    "duration": "up to 36 months",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_a",
+      "compounds": [
+        "durvalumab"
+      ]
+    },
+    {
+      "arm_id": "cohort_b",
+      "compounds": [
+        "durvalumab"
+      ]
+    },
+    {
+      "arm_id": "cohort_b2",
+      "compounds": [
+        "durvalumab",
+        "bevacizumab"
+      ]
+    },
+    {
+      "arm_id": "cohort_b3",
+      "compounds": [
+        "durvalumab",
+        "bevacizumab"
+      ]
+    },
+    {
+      "arm_id": "cohort_c",
+      "compounds": [
+        "durvalumab",
+        "bevacizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cohort_a",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS-12",
+      "effect_size": 60.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "glioblastoma patients receiving durvalumab with standard radiotherapy",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_b",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS-6",
+      "effect_size": 19.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab monotherapy",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_b2",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS-6",
+      "effect_size": 15.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_b2",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS-6",
+      "effect_size": 15.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "cohort_b3",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS-6",
+      "effect_size": 17.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_b3",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS-6",
+      "effect_size": 17.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "cohort_c",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS-6",
+      "effect_size": 36.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_c",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS-6",
+      "effect_size": 36.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "recurrent glioblastoma patients receiving durvalumab plus bevacizumab",
+      "mechanism_category": "angiogenesis_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "durvalumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "bevacizumab-mediated angiogenesis inhibition was hypothesized to enhance immune infiltration and durvalumab efficacy",
+      "citation": "combination arms (B2, B3, C) with bevacizumab did not show improved outcomes compared to durvalumab monotherapy"
+    }
+  ]
+}

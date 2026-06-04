@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT01054079",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported. The trial measured PSA and testosterone levels but no calcium-sensing receptor-specific biomarkers or calcium homeostasis markers were reported to confirm target engagement. 2. PATHWAY MODULATION: No evidence of calcium homeostasis modulation reported. While testosterone was measured longitudinally, no calcium-related pathway biomarkers were assessed to confirm the intended mechanism was activated. 3. CLINICAL TRANSLATION: The primary endpoint (rate of rise of serum PSA) was not met. PSA showed a median increase of 0.0825 ng/mL, indicating disease progression rather than control. No p-value was reported, but the positive PSA change suggests treatment failure. 4. POPULATION EFFECTS: No subgroup analyses were reported in this small single-arm study of 20 patients. 5. CONFOUNDERS: This was a small single-arm Phase 2 study (N=20) with no control group, making it difficult to assess true treatment effect. However, the positive PSA change indicates progression, which is interpretable even without a control. The study also had significant safety concerns with multiple serious adverse events (cardiac events, hypocalcemia, hypoxia, pulmonary hypertension) affecting 5% of patients each, though this didn't appear to limit dosing duration (24 weeks completed).",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "PSA increased (0.0825 ng/mL) indicating disease progression despite treatment, but no biomarker data to confirm whether calcium homeostasis was actually modulated"
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Single-arm study with only 20 patients and no control group makes it difficult to assess true treatment effect"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:750f55186e2d",
+      "target_entity": "prostate_adenocarcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_cinacalcet_hydrochloride",
+      "reasoning": "PSA increased indicating disease progression, suggesting calcium homeostasis modulation did not drive clinical benefit in prostate cancer"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051592",
+      "target_entity": "bio:750f55186e2d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_cinacalcet_hydrochloride",
+      "reasoning": "No evidence that calcium ion response mechanism translated to calcium homeostasis modulation that could control prostate cancer"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_prostate_cancer",
+      "target_entity": "prostate_adenocarcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PSA is a well-established biomarker for prostate cancer progression and was measured appropriately"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prostate_adenocarcinoma__line_second",
+      "target_entity": "prostate_adenocarcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Men with recurrent prostate cancer showed disease progression (PSA increase) on calcium-sensing receptor activation"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study with no control group and no target engagement biomarkers makes mechanistic assessment difficult. Multiple serious adverse events raise safety concerns that may have affected treatment delivery."
+}

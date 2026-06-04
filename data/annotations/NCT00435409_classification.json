@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00435409",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to assess whether sunitinib engaged VEGFR2 or whether capecitabine engaged TYMS. Target engagement cannot be confirmed from the available data. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether angiogenesis inhibition or DNA synthesis inhibition occurred. Cannot determine if targets drove their intended mechanisms. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) clearly failed. HR 1.22 (95% CI: 0.95-1.58) with p=0.9409 shows no benefit from the combination vs capecitabine monotherapy. The combination arm actually performed slightly worse numerically. 4. POPULATION EFFECTS: No subgroup analyses reported. The enrolled population was locally advanced/third-line+ breast cancer patients. 5. CONFOUNDERS: No major trial design issues. Adequate sample size (442 patients), appropriate duration (156 weeks), and clear primary endpoint measurement. The failure appears to be mechanistic rather than operational.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Without biomarker data, cannot definitively rule out that the mechanisms engaged but failed to translate to PFS benefit. The clear endpoint miss with adequate power suggests the biology-to-endpoint translation failed."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "a",
+      "reasoning": "Combination arm with sunitinib (angiogenesis inhibition) failed to improve PFS vs control, suggesting angiogenesis inhibition did not drive clinical benefit in this breast cancer population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9680350",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_contradict",
+      "affecting_arm_id": "a",
+      "reasoning": "CSF1 signaling pathway failed to translate to angiogenesis inhibition benefit in the combination arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:9b37e6f08f95",
+      "target_entity": "breast_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "b",
+      "reasoning": "Capecitabine monotherapy arm showed partial outcome (effect size 5.9), suggesting DNA synthesis inhibition has some activity in breast cancer"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_breast_cancer",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS is a well-established endpoint for breast cancer trials and was clearly measured with adequate power"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "breast_cancer__extent_locally_advanced__line_third_plus",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This locally advanced, third-line+ breast cancer population did not respond to the sunitinib combination, with HR 1.22 showing no benefit"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to determine where in the causal chain the failure occurred. The mechanism of failure is unclear without PD data."
+}

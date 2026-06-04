@@ -1,0 +1,108 @@
+{
+  "nct_id": "NCT02337491",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers reported, but clinical response in combination arm suggests target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but differential clinical outcomes between combination and monotherapy arms suggest pathway modulation. 3. CLINICAL TRANSLATION: Primary endpoint (6-month PFS) was met with combination showing 26% vs 6.7% for monotherapy. Secondary endpoints also favored combination (median PFS 4.1 vs 1.4 months, ORR 20% vs 0%). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues identified. The combination demonstrated clear superiority over monotherapy across multiple endpoints.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pembrolizumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Clinical response in combination arm implies target engagement per round-28 AFFECTS rule"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bevacizumab",
+      "target_entity": "ENSG00000112715",
+      "support": "strong_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Clinical response in combination arm implies target engagement per round-28 AFFECTS rule"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "R-HSA-389948",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Clinical response suggests PD-1 engagement drove checkpoint blockade mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112715",
+      "target_entity": "GO:0038084",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Clinical response suggests VEGFA engagement drove angiogenesis inhibition"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:b7810065331b",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Successful combination outcome suggests checkpoint blockade affected T-cell immunity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038084",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Successful combination outcome suggests VEGF pathway affected angiogenesis inhibition"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "glioblastoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Combination arm success suggests T-cell immunity drives glioblastoma control"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "glioblastoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a_pembrolizumab_bevacizumab",
+      "reasoning": "Combination arm success suggests angiogenesis inhibition drives glioblastoma control"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:b7810065331b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b_pembrolizumab",
+      "reasoning": "Monotherapy failure suggests checkpoint blockade alone insufficient for T-cell immunity in this context"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "glioblastoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b_pembrolizumab",
+      "reasoning": "Monotherapy failure suggests T-cell immunity alone insufficient for glioblastoma control"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_glioblastoma",
+      "target_entity": "glioblastoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was measured and no dose-limiting toxicities reported, indicating endpoint captured tolerability"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "glioblastoma__line_second",
+      "target_entity": "glioblastoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Combination therapy showed clear benefit in recurrent glioblastoma population with 26% 6-month PFS"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

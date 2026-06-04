@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT02173158",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Lomitapide inhibits microsomal triglyceride transfer protein (MTTP), and the comprehensive lipid profile changes confirm this mechanism is working - VLDL-C decreased 44.8%, triglycerides decreased 44.4%, and Apo B decreased 41.4%, all consistent with MTTP inhibition blocking VLDL assembly and secretion. 2. PATHWAY MODULATION: Clear pathway modulation demonstrated. The biomarker pattern shows the expected downstream effects of MTTP inhibition - reduced VLDL assembly leads to decreased triglycerides, VLDL-C, and subsequently LDL-C. The 37.5% LDL-C reduction at week 56 confirms sustained pathway engagement. 3. CLINICAL TRANSLATION: Primary endpoint clearly met with 42.2% reduction in LDL-C, which is clinically meaningful for homozygous familial hypercholesterolemia patients who typically have severely elevated cholesterol despite standard therapy. 4. POPULATION EFFECTS: No subgroup analysis reported, but the Japanese population with homozygous FH responded as expected. 5. CONFOUNDERS: Single-arm design limits interpretation, but the magnitude of effect (-42.2% LDL-C reduction) is well above what would be expected from placebo or natural variation in this severe genetic condition.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Very small sample size (N=9) limits generalizability, though effect size was large enough to demonstrate efficacy in this rare genetic condition"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "lomitapide",
+      "target_entity": "ENSG00000138823",
+      "support": "strong_support",
+      "affecting_arm_id": "lomitapide",
+      "reasoning": "Comprehensive biomarker changes (VLDL-C -44.8%, triglycerides -44.4%, Apo B -41.4%) demonstrate clear MTTP target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000138823",
+      "target_entity": "R-HSA-8866423",
+      "support": "strong_support",
+      "affecting_arm_id": "lomitapide",
+      "reasoning": "MTTP inhibition clearly modulated VLDL assembly pathway as evidenced by 44.8% reduction in VLDL-C and coordinated changes in lipid profile"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8866423",
+      "target_entity": "bio:14cc35b87e3a",
+      "support": "strong_support",
+      "affecting_arm_id": "lomitapide",
+      "reasoning": "VLDL assembly inhibition successfully reduced cholesterol synthesis/metabolism as shown by 42.2% LDL-C reduction and comprehensive lipid profile improvements"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:14cc35b87e3a",
+      "target_entity": "familial_hypercholesterolemia_homozygous",
+      "support": "strong_support",
+      "affecting_arm_id": "lomitapide",
+      "reasoning": "Cholesterol synthesis inhibition directly addressed the core pathophysiology of homozygous FH, achieving clinically meaningful 42.2% LDL-C reduction"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_familial_hypercholesterolemia_homozygous",
+      "target_entity": "familial_hypercholesterolemia_homozygous",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "LDL-C reduction is the established regulatory endpoint for familial hypercholesterolemia and directly captures clinical benefit in this genetic condition"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "familial_hypercholesterolemia_homozygous__unselected",
+      "target_entity": "familial_hypercholesterolemia_homozygous",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Japanese patients with homozygous FH showed strong response with 42.2% LDL-C reduction, demonstrating this population responds well to MTTP inhibition"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

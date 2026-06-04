@@ -1,0 +1,235 @@
+{
+  "nct_id": "NCT01982955",
+  "therapeutic_hypothesis": {
+    "compound": "tepotinib + gefitinib",
+    "claimed_target": "MET",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "growth factor signaling inhibition",
+    "target_population": "locally advanced or metastatic NSCLC",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS 4.86 months vs 4.37 months (HR not reported)",
+    "p_value": null,
+    "target_engagement_evidence": "Dose-dependent tepotinib exposure observed with higher plasma concentrations at 500mg vs 300mg",
+    "biomarker_changes": [
+      "Tepotinib AUC increased from 6280 to 15600 ng*h/mL (300mg) and 9210 to 22200 ng*h/mL (500mg) from Day 1 to Day 15"
+    ],
+    "subgroup_findings": [
+      "MET+ T790M positive cohort showed poor response (0% ORR, 1.41 month median PFS)",
+      "MET+ T790 negative patients showed 45.2% ORR with combination vs 33.3% with chemotherapy"
+    ],
+    "safety_signals": [
+      "Elevated amylase and lipase",
+      "Grade 3/4 TEAEs in 83% (500mg) vs 67% (300mg)",
+      "No DLTs observed in Phase 1b"
+    ],
+    "dose_info": {
+      "dose": "tepotinib 500 mg, gefitinib 250 mg",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": "2 participants discontinued tepotinib due to TEAEs in 500mg group"
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3+ amylase increased",
+        "grade": "3+",
+        "incidence_treatment_pct": 22.6,
+        "incidence_control_pct": 8.7,
+        "serious": false
+      },
+      {
+        "term": "Grade 3+ lipase increased",
+        "grade": "3+",
+        "incidence_treatment_pct": 16.1,
+        "incidence_control_pct": 8.7,
+        "serious": false
+      },
+      {
+        "term": "Grade 3+ anemia",
+        "grade": "3+",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 30.4,
+        "serious": false
+      },
+      {
+        "term": "Disease progression",
+        "grade": "",
+        "incidence_treatment_pct": 6.5,
+        "incidence_control_pct": 4.3,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "locally advanced or metastatic NSCLC",
+    "comparator": "pemetrexed and cisplatin/carboplatin",
+    "sample_size": 88,
+    "duration": "up to 328 weeks",
+    "duration_weeks": 328.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "phase_1b_tepotinib_300_mg_gefitinib_250_mg",
+      "compounds": [
+        "tepotinib",
+        "gefitinib"
+      ]
+    },
+    {
+      "arm_id": "phase_1b_tepotinib_500_mg_gefitinib_250_mg",
+      "compounds": [
+        "tepotinib",
+        "gefitinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "compounds": [
+        "tepotinib",
+        "gefitinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_pemetrexed_and_cisplatin_carboplatin_met_t790_negative",
+      "compounds": [
+        "pemetrexed",
+        "cisplatin",
+        "carboplatin"
+      ]
+    },
+    {
+      "arm_id": "phase_2_single_arm_cohort_met_t790m_positive",
+      "compounds": [
+        "tepotinib",
+        "gefitinib"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "MET+ T790 negative",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "MET",
+          "level": "positive"
+        },
+        {
+          "axis": "gene",
+          "key": "EGFR",
+          "level": "wildtype"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "MET+ T790M positive",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "MET",
+          "level": "positive"
+        },
+        {
+          "axis": "gene",
+          "key": "EGFR",
+          "level": "T790M"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "intervention": "tepotinib",
+      "subgroup_descriptor": "MET+ T790 negative",
+      "endpoint": "PFS",
+      "effect_size": 4.86,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "MET+ T790 negative locally advanced or metastatic NSCLC",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "intervention": "gefitinib",
+      "subgroup_descriptor": "MET+ T790 negative",
+      "endpoint": "PFS",
+      "effect_size": 4.86,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "MET+ T790 negative locally advanced or metastatic NSCLC",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_2_pemetrexed_and_cisplatin_carboplatin_met_t790_negative",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": "MET+ T790 negative",
+      "endpoint": "PFS",
+      "effect_size": 4.37,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "folate metabolism inhibition",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "MET+ T790 negative locally advanced or metastatic NSCLC",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "phase_2_pemetrexed_and_cisplatin_carboplatin_met_t790_negative",
+      "intervention": "cisplatin",
+      "subgroup_descriptor": "MET+ T790 negative",
+      "endpoint": "PFS",
+      "effect_size": 4.37,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "MET+ T790 negative locally advanced or metastatic NSCLC",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "phase_2_single_arm_cohort_met_t790m_positive",
+      "intervention": "tepotinib",
+      "subgroup_descriptor": "MET+ T790M positive",
+      "endpoint": "PFS",
+      "effect_size": 1.41,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "MET+ T790M positive locally advanced or metastatic NSCLC",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_2_single_arm_cohort_met_t790m_positive",
+      "intervention": "gefitinib",
+      "subgroup_descriptor": "MET+ T790M positive",
+      "endpoint": "PFS",
+      "effect_size": 1.41,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "MET+ T790M positive locally advanced or metastatic NSCLC",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "tepotinib",
+      "primary_compound_id": "gefitinib",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "MET inhibition by tepotinib was hypothesized to overcome EGFR resistance and enhance gefitinib efficacy",
+      "citation": "The combination showed modest improvement in PFS (4.86 vs 4.37 months) but failed to demonstrate clear superiority over chemotherapy in the primary endpoint"
+    }
+  ]
+}

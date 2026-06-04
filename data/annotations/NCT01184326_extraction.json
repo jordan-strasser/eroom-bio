@@ -1,0 +1,179 @@
+{
+  "nct_id": "NCT01184326",
+  "therapeutic_hypothesis": {
+    "compound": "pazopanib + everolimus",
+    "claimed_target": "VEGFR2, mTOR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "angiogenesis inhibition, protein synthesis inhibition",
+    "target_population": "advanced solid tumors and previously treated advanced urothelial cancer",
+    "primary_endpoint": "Maximum Tolerated Dose (MTD)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD: 400 mg pazopanib with everolimus 5 mg daily",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 4 treatment-related toxicity rate 33.3% at dose level 0",
+      "Grade 4 treatment-related toxicity rate 0% at dose level -1",
+      "Multiple serious adverse events including hepatotoxicity, diarrhea, fatigue"
+    ],
+    "dose_info": {
+      "dose": "pazopanib 400 mg, everolimus 5 mg",
+      "schedule": "daily",
+      "max_tolerated_dose": "pazopanib 400 mg with everolimus 5 mg daily",
+      "dose_modifications": "dose reduction from 600 mg to 400 mg pazopanib due to toxicity"
+    },
+    "adverse_events": [
+      {
+        "term": "Alanine aminotransferase increased",
+        "grade": "serious",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Aspartate aminotransferase increased",
+        "grade": "serious",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "serious",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "serious",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypophosphatemia",
+        "grade": "serious",
+        "incidence_treatment_pct": 21.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Intracranial hemorrhage",
+        "grade": "serious",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced solid tumors and previously treated advanced urothelial cancer",
+    "comparator": "none",
+    "sample_size": 23,
+    "duration": "up to 14 cycles (28 days per cycle)",
+    "duration_weeks": 56.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "dose_level_0_everolimus_5mg_pazopanib_600_mg",
+      "compounds": [
+        "pazopanib",
+        "everolimus"
+      ]
+    },
+    {
+      "arm_id": "dose_level_1_everolimus_5mg_pazopanib_400_mg",
+      "compounds": [
+        "pazopanib",
+        "everolimus"
+      ]
+    },
+    {
+      "arm_id": "all_phase_i_dose_expansion_participants",
+      "compounds": [
+        "pazopanib",
+        "everolimus"
+      ]
+    },
+    {
+      "arm_id": "all_phase_i_participants",
+      "compounds": [
+        "pazopanib",
+        "everolimus"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "all_phase_i_dose_expansion_participants",
+      "intervention": "pazopanib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 21.4,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "advanced solid tumors and previously treated advanced urothelial cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "all_phase_i_dose_expansion_participants",
+      "intervention": "everolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 21.4,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "advanced solid tumors and previously treated advanced urothelial cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "all_phase_i_dose_expansion_participants",
+      "intervention": "pazopanib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.9,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "advanced solid tumors and previously treated advanced urothelial cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "all_phase_i_dose_expansion_participants",
+      "intervention": "everolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.9,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "advanced solid tumors and previously treated advanced urothelial cancer",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "everolimus",
+      "primary_compound_id": "pazopanib",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "mTOR inhibition may enhance anti-angiogenic effects by reducing tumor cell survival and proliferation",
+      "citation": "combination therapy design testing pazopanib with everolimus in advanced solid tumors"
+    }
+  ]
+}

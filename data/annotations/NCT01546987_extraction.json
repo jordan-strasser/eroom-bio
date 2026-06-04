@@ -1,0 +1,171 @@
+{
+  "nct_id": "NCT01546987",
+  "therapeutic_hypothesis": {
+    "compound": "TAK-700",
+    "claimed_target": "CYP17A1",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "androgen synthesis inhibition",
+    "target_population": "high-risk prostate cancer patients",
+    "primary_endpoint": "biochemical failure",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.83 (95% CI: 0.47-1.48)",
+    "p_value": 0.55,
+    "target_engagement_evidence": "Testosterone suppression: 17.36 ng/dL at 24 months vs 86.47 ng/dL in control",
+    "biomarker_changes": [
+      "Testosterone suppression maintained at 24 months (17.36 vs 86.47 ng/dL)",
+      "Delayed testosterone recovery (HR 0.51, p=0.0104)"
+    ],
+    "subgroup_findings": [
+      "Similar efficacy across racial groups",
+      "No significant difference in Hispanic vs non-Hispanic populations"
+    ],
+    "safety_signals": [
+      "Significantly higher grade 3+ adverse events (58.9% vs 34.9%, HR 2.29, p<0.001)",
+      "Increased cardiac events including atrial fibrillation, heart failure",
+      "More grade 3-4 toxicity overall"
+    ],
+    "dose_info": {
+      "dose": "300 mg twice daily",
+      "schedule": "continuously for 2 years",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3+ adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 58.9,
+        "incidence_control_pct": 34.9,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Heart failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "high-risk prostate cancer",
+    "comparator": "ADT + radiation therapy",
+    "sample_size": 239,
+    "duration": "2 years treatment, up to 9.1 years follow-up",
+    "duration_weeks": 104.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "adt_rt",
+      "compounds": [
+        "GnRH agonist",
+        "anti-androgen"
+      ]
+    },
+    {
+      "arm_id": "tak_700_adt_rt",
+      "compounds": [
+        "TAK-700",
+        "GnRH agonist",
+        "anti-androgen"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "adt_rt",
+      "intervention": "GnRH agonist",
+      "subgroup_descriptor": null,
+      "endpoint": "biochemical failure",
+      "effect_size": 17.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "hormone receptor agonism",
+      "biology_description": "androgen suppression",
+      "population_description": "high-risk prostate cancer patients",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "tak_700_adt_rt",
+      "intervention": "TAK-700",
+      "subgroup_descriptor": null,
+      "endpoint": "biochemical failure",
+      "effect_size": 12.8,
+      "p_value": 0.55,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "androgen synthesis inhibition",
+      "population_description": "high-risk prostate cancer patients",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "tak_700_adt_rt",
+      "intervention": "GnRH agonist",
+      "subgroup_descriptor": null,
+      "endpoint": "biochemical failure",
+      "effect_size": 12.8,
+      "p_value": 0.55,
+      "outcome": "failure",
+      "mechanism_description": "hormone receptor agonism",
+      "biology_description": "androgen suppression",
+      "population_description": "high-risk prostate cancer patients",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "adt_rt",
+      "intervention": "GnRH agonist",
+      "subgroup_descriptor": null,
+      "endpoint": "overall survival",
+      "effect_size": 89.4,
+      "p_value": 0.27,
+      "outcome": "partial",
+      "mechanism_description": "hormone receptor agonism",
+      "biology_description": "androgen suppression",
+      "population_description": "high-risk prostate cancer patients",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "tak_700_adt_rt",
+      "intervention": "TAK-700",
+      "subgroup_descriptor": null,
+      "endpoint": "overall survival",
+      "effect_size": 88.1,
+      "p_value": 0.27,
+      "outcome": "partial",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "androgen synthesis inhibition",
+      "population_description": "high-risk prostate cancer patients",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "TAK-700",
+      "primary_compound_id": "GnRH agonist",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "TAK-700 enhances androgen suppression by blocking residual androgen synthesis via CYP17A1 inhibition",
+      "citation": "HR 0.83 (95% CI: 0.47-1.48), p = 0.55 for biochemical failure"
+    }
+  ]
+}

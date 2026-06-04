@@ -1,0 +1,209 @@
+{
+  "nct_id": "NCT01245062",
+  "therapeutic_hypothesis": {
+    "compound": "trametinib",
+    "claimed_target": "MEK",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "MAPK pathway inhibition",
+    "target_population": "advanced or metastatic BRAF V600E/K mutation-positive melanoma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.44 (95% CI: 0.31-0.64) investigator-assessed; HR 0.41 (95% CI: 0.29-0.60) independent review",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "BRAF V600E patients without brain metastases: PFS 4.8 vs 1.4 months",
+      "Prior chemotherapy subgroup: PFS 4.8 vs 2.7 months",
+      "Chemotherapy-naive subgroup: PFS 4.8 vs 1.4 months"
+    ],
+    "safety_signals": [
+      "Cellulitis and erysipelas were notable serious adverse events",
+      "Various infections reported including pneumonia and eye infections"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Cellulitis",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Erysipelas",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Bronchitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 0.5,
+        "incidence_control_pct": 1.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced or metastatic BRAF V600E/K mutation-positive melanoma",
+    "comparator": "investigator choice chemotherapy (DTIC or paclitaxel)",
+    "sample_size": 322,
+    "duration": "average of 20.3 months",
+    "duration_weeks": 88.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "gsk1120212",
+      "compounds": [
+        "trametinib"
+      ]
+    },
+    {
+      "arm_id": "chemotherapy",
+      "compounds": [
+        "chemotherapy"
+      ]
+    },
+    {
+      "arm_id": "crossover",
+      "compounds": [
+        "trametinib"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BRAF V600E mutation-positive without brain metastases",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600E"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "BRAF V600K mutation-positive",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "BRAF",
+          "level": "V600K"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Without prior chemotherapy",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "With prior chemotherapy",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "gsk1120212",
+      "intervention": "trametinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.9,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "MAPK pathway inhibition",
+      "population_description": "advanced or metastatic BRAF V600E/K mutation-positive melanoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "gsk1120212",
+      "intervention": "trametinib",
+      "subgroup_descriptor": "BRAF V600E mutation-positive without brain metastases",
+      "endpoint": "PFS",
+      "effect_size": 4.8,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "MAPK pathway inhibition",
+      "population_description": "BRAF V600E mutation-positive melanoma without brain metastases",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "gsk1120212",
+      "intervention": "trametinib",
+      "subgroup_descriptor": "Without prior chemotherapy",
+      "endpoint": "PFS",
+      "effect_size": 4.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "MAPK pathway inhibition",
+      "population_description": "chemotherapy-naive BRAF V600E mutation-positive melanoma without brain metastases",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "gsk1120212",
+      "intervention": "trametinib",
+      "subgroup_descriptor": "With prior chemotherapy",
+      "endpoint": "PFS",
+      "effect_size": 4.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "MAPK pathway inhibition",
+      "population_description": "previously treated BRAF V600E mutation-positive melanoma without brain metastases",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "chemotherapy",
+      "intervention": "chemotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.5,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA damage",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced or metastatic BRAF V600E/K mutation-positive melanoma",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT01982955",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows dose-dependent tepotinib exposure with higher plasma concentrations at 500mg vs 300mg, and tepotinib AUC increased appropriately from Day 1 to Day 15, confirming target engagement for tepotinib. Gefitinib target engagement is implied by the clinical activity observed. 2. PATHWAY MODULATION: While direct pathway biomarkers aren't reported, the dose-dependent exposure and clinical activity in the MET+ T790 negative subgroup (45.2% ORR) suggests pathway modulation occurred. 3. CLINICAL TRANSLATION: Mixed results - the primary endpoint (PFS) showed modest improvement (4.86 vs 4.37 months) but failed to reach statistical significance. However, ORR was notably higher in the combination arm (45.2% vs 33.3%). 4. POPULATION EFFECTS: Clear subgroup differences - MET+ T790 negative patients showed partial benefit while MET+ T790M positive patients showed poor response (0% ORR, 1.41 month PFS), indicating the mechanism works in a specific biomarker-defined subset. 5. CONFOUNDERS: No major trial design issues - adequate sample size, appropriate comparator, reasonable duration.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.8,
+      "evidence": "Clear differential response between MET+ T790 negative patients (45.2% ORR, 4.86 month PFS) and MET+ T790M positive patients (0% ORR, 1.41 month PFS), indicating the combination works in the T790 negative subset but not in T790M positive patients"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "tepotinib",
+      "target_entity": "ENSG00000105976",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Dose-dependent tepotinib exposure and clinical activity in MET+ T790 negative patients confirms target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "gefitinib",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Clinical activity (45.2% ORR) in combination suggests EGFR engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000105976",
+      "target_entity": "R-HSA-5673001",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Dose-dependent exposure and clinical activity suggest MET pathway modulation"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000146648",
+      "target_entity": "GO:0038127",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Clinical response in combination suggests EGFR pathway modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "bio:4d7c8dd78446",
+      "support": "weak_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Modest PFS improvement and ORR response suggest partial biological effect"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4d7c8dd78446",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "phase_2_tepotinib_500_mg_gefitinib_250_mg_met_t790_negative",
+      "reasoning": "Primary endpoint missed but ORR improvement suggests partial clinical translation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4d7c8dd78446",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "phase_2_single_arm_cohort_met_t790m_positive",
+      "reasoning": "Poor response in T790M positive patients (0% ORR, 1.41 month PFS) indicates biology doesn't drive benefit in this subgroup"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__egfr_wildtype__met_positive",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "MET+ T790 negative patients showed better response (45.2% ORR) compared to T790M positive patients"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__egfr_t790m__met_positive",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "T790M positive patients showed poor response (0% ORR, 1.41 month PFS) indicating this population responds poorly"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_non_small_cell_lung_cancer",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS endpoint captured disease progression appropriately, though primary endpoint was not met"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

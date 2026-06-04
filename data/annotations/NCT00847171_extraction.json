@@ -1,0 +1,173 @@
+{
+  "nct_id": "NCT00847171",
+  "therapeutic_hypothesis": {
+    "compound": "allogeneic GM-CSF-secreting breast cancer vaccine + trastuzumab + cyclophosphamide",
+    "claimed_target": "HER2",
+    "proposed_mechanism": "receptor antagonism + immune priming + lymphodepletion",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "high-risk or metastatic breast cancer",
+    "primary_endpoint": "safety and immunologic response",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "20/20 patients with drug-related toxicity, 0/20 with grade 3+ toxicity, 11/20 with increased DTH response",
+    "p_value": null,
+    "target_engagement_evidence": "DTH response to HER2/neu-derived peptides",
+    "biomarker_changes": [
+      "DTH response increased in 11/20 patients",
+      "5/8 DTH-negative patients converted to DTH-positive"
+    ],
+    "subgroup_findings": [
+      "12/12 early stage patients progression-free",
+      "6/8 metastatic patients progression-free"
+    ],
+    "safety_signals": [
+      "All patients experienced drug-related toxicity",
+      "No grade 3+ drug-related toxicity",
+      "No serious drug-related toxicity"
+    ],
+    "dose_info": {
+      "dose": "5x10^8 cells vaccine, 2-4 mg/kg trastuzumab, 200 mg/m2 cyclophosphamide",
+      "schedule": "vaccine day 0, trastuzumab weekly, cyclophosphamide day -1 only",
+      "max_tolerated_dose": "",
+      "dose_modifications": "no dose modifications for cyclophosphamide"
+    },
+    "adverse_events": [
+      {
+        "term": "drug-related toxicity",
+        "grade": "1-2",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "high-risk or metastatic breast cancer",
+    "comparator": "none",
+    "sample_size": 20,
+    "duration": "4 years",
+    "duration_weeks": 208.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "compounds": [
+        "allogeneic GM-CSF-secreting breast cancer vaccine",
+        "trastuzumab",
+        "cyclophosphamide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Patients with early stage disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "early_stage"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Patients with metastatic disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "metastatic"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "intervention": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "subgroup_descriptor": null,
+      "endpoint": "DTH response",
+      "effect_size": 11.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "immune priming",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "high-risk or metastatic breast cancer",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 18.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "high-risk or metastatic breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "intervention": "cyclophosphamide",
+      "subgroup_descriptor": null,
+      "endpoint": "immune response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "lymphodepletion",
+      "population_description": "high-risk or metastatic breast cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": "Patients with early stage disease",
+      "endpoint": "PFS",
+      "effect_size": 12.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "early stage breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "trastuzumab_cyclophosphamide_and_a_breast_tumor_vaccine",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": "Patients with metastatic disease",
+      "endpoint": "PFS",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cyclophosphamide",
+      "primary_compound_id": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "cyclophosphamide-induced lymphodepletion enhances vaccine-induced immune priming",
+      "citation": "CY-modulated immunization with a novel breast cancer vaccine"
+    },
+    {
+      "modulator_compound_id": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "primary_compound_id": "trastuzumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.7,
+      "hypothesis": "vaccine-induced immune activation enhances trastuzumab-mediated anti-tumor immunity",
+      "citation": "immunization with a novel breast cancer vaccine in the setting of weekly Trastuzumab therapy"
+    }
+  ]
+}

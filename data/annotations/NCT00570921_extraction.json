@@ -1,0 +1,127 @@
+{
+  "nct_id": "NCT00570921",
+  "therapeutic_hypothesis": {
+    "compound": "fulvestrant + everolimus",
+    "claimed_target": "estrogen receptor alpha, mTOR",
+    "proposed_mechanism": "receptor antagonism, kinase inhibition",
+    "intended_biology": "hormone signaling disruption, protein synthesis inhibition",
+    "target_population": "advanced/metastatic breast cancer after aromatase inhibitor failure",
+    "primary_endpoint": "time to progression",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "7.4 months median time to progression (95% CI: 1.9-12.1)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Left ventricular thrombus",
+      "Acute cholecystitis",
+      "Pneumonia",
+      "Nausea",
+      "Renal failure"
+    ],
+    "dose_info": {
+      "dose": "everolimus 10 mg daily, fulvestrant 500 mg then 250 mg",
+      "schedule": "everolimus daily, fulvestrant day 1, 14, 28 then every 4 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Left Ventricular Thrombus",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute Cholecystitis",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Renal Failure",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced/metastatic breast cancer after aromatase inhibitor failure",
+    "comparator": "none",
+    "sample_size": 33,
+    "duration": "7.4 months median",
+    "duration_weeks": 32.2,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "fulvestrant_everolimus",
+      "compounds": [
+        "fulvestrant",
+        "everolimus"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "fulvestrant_everolimus",
+      "intervention": "fulvestrant",
+      "subgroup_descriptor": null,
+      "endpoint": "time to progression",
+      "effect_size": 7.4,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "hormone signaling disruption",
+      "population_description": "advanced/metastatic breast cancer after aromatase inhibitor failure",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "fulvestrant_everolimus",
+      "intervention": "everolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "time to progression",
+      "effect_size": 7.4,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "protein synthesis inhibition",
+      "population_description": "advanced/metastatic breast cancer after aromatase inhibitor failure",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "everolimus",
+      "primary_compound_id": "fulvestrant",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "mTOR inhibition may enhance hormone receptor blockade by reducing compensatory growth signaling",
+      "citation": "Study of Combined Fulvestrant and Everolimus in Advanced/Metastatic Breast Cancer After Aromatase Inhibitor Failure"
+    }
+  ]
+}

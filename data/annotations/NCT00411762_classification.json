@@ -1,0 +1,26 @@
+{
+  "nct_id": "NCT00411762",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for either capecitabine (TYMS) or PHY906. Cannot assess if drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether DNA synthesis inhibition or chemotherapy enhancement occurred. 3. CLINICAL TRANSLATION: Single-arm trial with 10.1 weeks median PFS and no comparator or p-value. Without historical benchmark or control arm, cannot determine if this represents efficacy or failure. Sample size of 25 is small for definitive conclusions. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm Phase I/II study with no control group, making efficacy assessment impossible. The lack of comparator and small sample size (n=25) represent major design limitations that prevent meaningful efficacy evaluation.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Single-arm trial with no comparator, no p-value, no historical benchmark provided for 10.1 weeks median PFS in advanced pancreatic cancer. Cannot determine if this represents treatment benefit or natural disease progression."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_pancreatic_cancer",
+      "target_entity": "pancreatic_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was measured (10.1 weeks) but without comparator or historical benchmark, cannot assess whether this endpoint captures clinical benefit in pancreatic cancer"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial design prevents assessment of treatment efficacy. The 10.1 weeks median PFS could represent either treatment benefit or natural disease progression without a control group or historical benchmark for comparison."
+}

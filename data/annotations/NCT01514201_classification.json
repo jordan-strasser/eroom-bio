@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT01514201",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - 100% of patients showed >50% change in PBMC PARP levels, and PARP levels decreased >50% in PBMCs at weeks 6-11. This confirms veliparib engaged its PARP target. 2. PATHWAY MODULATION: Target engagement was demonstrated but the intended DNA damage repair pathway modulation is less clear from the biomarker data. The combination rationale was that PARP inhibition would prevent repair of temozolomide-induced DNA damage. 3. CLINICAL TRANSLATION: The trial failed dramatically - 3-year OS was only 5.3% (95% CI: 0.0-12.4%), which is extremely poor for any cancer indication. The primary endpoint was not met. 4. POPULATION EFFECTS: This was a single-arm trial in newly diagnosed diffuse pontine gliomas in younger patients, so no population comparisons were possible. 5. CONFOUNDERS: The trial established MTD at 65 mg/m2 BID, and dose escalation during maintenance was halted due to poor tolerability. However, target engagement was achieved at the MTD, so this appears to be a case where the target was engaged but the clinical hypothesis failed.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "PARP target engagement was clearly demonstrated (100% patients showed >50% PARP level changes), but the clinical outcome was extremely poor with 3-year OS of only 5.3%. The mechanism engaged but did not translate to clinical benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "veliparib",
+      "target_entity": "ENSG00000143799",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "reasoning": "100% of patients showed >50% change in PBMC PARP levels, demonstrating clear target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "temozolomide",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "reasoning": "Temozolomide is a well-established DNA alkylating agent with known mechanism of action"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000143799",
+      "target_entity": "R-HSA-110362",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "reasoning": "PARP level decrease >50% in PBMCs demonstrates that target engagement modulated the DNA repair pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-110362",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "reasoning": "Despite PARP pathway engagement, the extremely poor clinical outcome (5.3% 3-year OS) suggests the mechanism did not effectively drive the intended DNA-damage-induced apoptosis biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "anaplastic_astrocytoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "treatment_veliparib_temozolomide_3d_crt_imrt",
+      "reasoning": "The 3-year OS of 5.3% is extremely poor, indicating that even if DNA-damage-induced apoptosis occurred, it did not translate to clinical benefit in this indication"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_gliosarcoma",
+      "target_entity": "anaplastic_astrocytoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Overall survival is a well-established endpoint for brain tumors and was clearly measured, though the result was negative"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "anaplastic_astrocytoma__line_first",
+      "target_entity": "anaplastic_astrocytoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The 3-year OS of 5.3% in newly diagnosed diffuse pontine gliomas represents a poor response in this first-line population"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

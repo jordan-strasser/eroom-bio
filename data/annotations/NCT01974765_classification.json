@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT01974765",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial reports median AR expression of 60 ng/dL (95% CI: 5-99), which appears to be a baseline measurement rather than evidence of target engagement by enzalutamide. No pharmacodynamic data showing actual AR antagonism or downstream pathway modulation is provided. 2. PATHWAY MODULATION: No evidence of downstream androgen signaling pathway changes is reported. The AR expression data appears to be baseline characterization rather than demonstration of pathway modulation by enzalutamide. 3. CLINICAL TRANSLATION: The primary endpoint (overall response rate) clearly failed with only 1.7% ORR (95% CI: 0.2-100), which is extremely low for any cancer therapy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm Phase 2 trial with 59 patients. The extremely low response rate (1.7%) suggests the mechanism did not translate to clinical benefit in this population. The safety profile shows multiple serious adverse events but these don't appear to be dose-limiting. The failure appears to be at the level of clinical translation - either the target was not adequately engaged or the androgen receptor pathway is not relevant for this ovarian cancer population.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Primary endpoint (ORR) clearly missed with only 1.7% response rate, but insufficient biomarker data to determine where in the causal chain the failure occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1c16781c0847",
+      "target_entity": "epithelial_ovarian_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "enzalutamide",
+      "reasoning": "Extremely low ORR (1.7%) suggests androgen synthesis inhibition does not drive clinical benefit in this ovarian cancer population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:1c16781c0847",
+      "support": "weak_contradict",
+      "affecting_arm_id": "enzalutamide",
+      "reasoning": "Failed primary endpoint with no evidence of pathway modulation suggests the mechanism did not effectively translate to the intended biology"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_primary_peritoneal_carcinoma",
+      "target_entity": "epithelial_ovarian_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR is a standard and well-accepted endpoint for ovarian cancer efficacy assessment"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "epithelial_ovarian_cancer__extent_advanced__line_second",
+      "target_entity": "epithelial_ovarian_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Extremely low response rate (1.7%) in this AR-positive, previously treated ovarian cancer population suggests poor response in this specific subgroup"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Limited biomarker data makes it difficult to determine whether failure was due to inadequate target engagement, lack of pathway modulation, or irrelevance of androgen signaling in this ovarian cancer population"
+}

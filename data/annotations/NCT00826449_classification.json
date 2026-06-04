@@ -1,0 +1,84 @@
+{
+  "nct_id": "NCT00826449",
+  "trial_outcome": "success",
+  "reasoning": "This is a Phase I dose-escalation trial that successfully established the MTD for the dasatinib + erlotinib combination (70 mg/day dasatinib, 150 mg/day erlotinib). The primary endpoint was safety/tolerability focused (MTD determination), which was achieved. While there were serious adverse events including 1 death (2.1% incidence), this appears to be within acceptable limits for a Phase I oncology trial. The trial also showed preliminary efficacy signals with 5/33 patients achieving partial response (15% ORR) and 15/33 achieving stable disease (45% disease control rate), plus a reported PFS of 53 weeks. No target engagement biomarkers were measured, but the clinical activity suggests the combination was biologically active.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dasatinib",
+      "target_entity": "ENSG00000097007",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Clinical activity (15% ORR, 45% disease control) in combination suggests target engagement occurred"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "erlotinib",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Clinical activity in combination suggests EGFR target engagement occurred"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000097007",
+      "target_entity": "GO:0141214",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Clinical activity suggests ABL1 engagement modulated downstream signaling, though no direct PD biomarkers measured"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000146648",
+      "target_entity": "GO:0038127",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Clinical activity suggests EGFR engagement modulated ERBB signaling pathway, though no direct PD biomarkers measured"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0141214",
+      "target_entity": "bio:8ec158d4b67f",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Observed tumor responses (15% ORR) suggest the mechanism translated to growth inhibition biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038127",
+      "target_entity": "bio:8ec158d4b67f",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Observed tumor responses suggest ERBB pathway inhibition translated to growth inhibition biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8ec158d4b67f",
+      "target_entity": "lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "phase_i",
+      "reasoning": "Growth inhibition biology translated to clinical benefit (15% ORR, 45% disease control, 53-week PFS)"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_non_small_cell_lung_cancer",
+      "target_entity": "lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "MTD was successfully established as primary endpoint, and safety profile was manageable for Phase I oncology trial"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lung_cancer__line_second__stage_iv",
+      "target_entity": "lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "This population showed meaningful clinical activity (15% ORR, 45% disease control) with the combination therapy"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

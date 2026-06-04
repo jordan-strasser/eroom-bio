@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT01129336",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows target engagement - reduction in urine NTX levels and decreased circulating tumor cells from 26.7% to 0% by month 4, indicating zoledronic acid engaged farnesyl pyrophosphate synthase and affected bone metabolism. 2. PATHWAY MODULATION: The biomarker changes (NTX reduction, CTC decrease) suggest the intended bone resorption inhibition pathway was modulated. 3. CLINICAL TRANSLATION: The primary endpoint was not met - patients without bone metastases had shorter TTP (190 days) compared to patients with bone metastases (297 days), suggesting the intervention did not improve clinical outcomes. 4. POPULATION EFFECTS: Subgroup analysis revealed patients with bone metastases had better outcomes, suggesting the mechanism may work better in populations with existing bone involvement. 5. CONFOUNDERS: Small sample size (N=44) may have contributed to lack of statistical power, but the directional effect was negative.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Target engagement confirmed by NTX reduction and CTC decrease, but primary endpoint (TTP) was worse in treatment group (190 vs 297 days)"
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.7,
+      "evidence": "Patients without bone metastases had worse outcomes than those with bone metastases, suggesting the mechanism requires existing bone involvement to be effective"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "zoledronic_acid",
+      "target_entity": "ENSG00000160752",
+      "support": "strong_support",
+      "affecting_arm_id": "patients_without_bone_metastases",
+      "reasoning": "Target engagement demonstrated by reduction in urine NTX levels and decreased circulating tumor cells"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000160752",
+      "target_entity": "R-HSA-2426168#NCT00335504",
+      "support": "strong_support",
+      "affecting_arm_id": "patients_without_bone_metastases",
+      "reasoning": "Biomarker changes confirm target engagement led to intended pathway modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-2426168#NCT00335504",
+      "target_entity": "bio:8da43cabee8e",
+      "support": "strong_support",
+      "affecting_arm_id": "patients_without_bone_metastases",
+      "reasoning": "NTX reduction and CTC changes confirm bone resorption inhibition was achieved"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8da43cabee8e",
+      "target_entity": "her2_negative_breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "patients_without_bone_metastases",
+      "reasoning": "Despite achieving bone resorption inhibition, clinical outcomes were worse in the treatment group"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_i_cannot_determine_the_canonical_disease_from_this_condition_string_alone_metastatic_disease_without_bone_metastasis_is_a_descriptor_of",
+      "target_entity": "her2_negative_breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "TTP/PFS is an appropriate endpoint for metastatic breast cancer and was measured"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "her2_negative_breast_cancer__extent_metastatic__line_second",
+      "target_entity": "her2_negative_breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "patients_without_bone_metastases",
+      "reasoning": "This population (without bone metastases) had worse outcomes, suggesting they respond differently than populations with bone involvement"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

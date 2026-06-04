@@ -1,0 +1,87 @@
+{
+  "nct_id": "NCT02318329",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm FPA144 engaged FGFR2b. The trial was primarily a dose-escalation safety study with MTD established at 15 mg/kg, suggesting adequate exposure was achieved. 2. PATHWAY MODULATION: No pathway biomarkers measured to confirm growth factor signaling inhibition occurred downstream of target engagement. 3. CLINICAL TRANSLATION: Mixed efficacy signals across arms - Part 1a (solid tumors) showed 0% ORR (failure), while Parts 1b and 2 (gastric cancer enriched) showed modest activity with 2-4% ORR (partial outcomes). The primary endpoint was safety/DLT which was met successfully. 4. POPULATION EFFECTS: Gastric cancer patients appeared to respond better than general solid tumor population, suggesting potential population-specific activity. 5. CONFOUNDERS: This was primarily a Phase 1 dose-escalation study powered for safety, not efficacy. The modest ORR signals in gastric cancer arms suggest some biological activity but limited by small sample size and study design.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Phase 1 dose-escalation study with N=79 primarily designed for safety/MTD determination, not powered for efficacy endpoints"
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.6,
+      "evidence": "Solid tumor arm showed 0% ORR while gastric cancer enriched arms showed 2-4% ORR, suggesting population-specific activity"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4d7c8dd78446",
+      "target_entity": "solid_tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_1a_fpa144_dose_escalation_solid_tumors",
+      "reasoning": "0% ORR in general solid tumor population suggests growth factor signaling inhibition did not drive clinical benefit in this broad population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:4d7c8dd78446",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_1a_fpa144_dose_escalation_solid_tumors",
+      "reasoning": "No efficacy signal in solid tumor arm suggests receptor antagonism did not effectively modulate growth factor signaling to produce clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4d7c8dd78446",
+      "target_entity": "solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": "part_1b_fpa144_dose_escalation_gastric_cancer",
+      "reasoning": "2% ORR in gastric cancer population suggests modest activity of growth factor signaling inhibition in this subset"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:4d7c8dd78446",
+      "support": "weak_support",
+      "affecting_arm_id": "part_1b_fpa144_dose_escalation_gastric_cancer",
+      "reasoning": "Modest ORR signal suggests receptor antagonism may modulate growth factor signaling in gastric cancer population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4d7c8dd78446",
+      "target_entity": "solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": "part_2_fpa144_dose_expansion_gastric_or_other_solid_tumors",
+      "reasoning": "4% ORR in expansion cohort suggests growth factor signaling inhibition may drive benefit in selected solid tumor populations"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:4d7c8dd78446",
+      "support": "weak_support",
+      "affecting_arm_id": "part_2_fpa144_dose_expansion_gastric_or_other_solid_tumors",
+      "reasoning": "Modest ORR in expansion cohort suggests receptor antagonism can modulate growth factor signaling in selected populations"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_bladder_cancer",
+      "target_entity": "solid_tumor",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint was successfully measured and met across all dose levels, establishing MTD at 15 mg/kg"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "solid_tumor__extent_advanced__extent_metastatic__line_second",
+      "target_entity": "solid_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Mixed signals across arms with gastric cancer patients showing better response than general solid tumor population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Phase 1 study with mixed efficacy signals across different tumor types and no biomarker data to assess target engagement or pathway modulation"
+}

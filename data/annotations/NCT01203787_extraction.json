@@ -1,0 +1,120 @@
+{
+  "nct_id": "NCT01203787",
+  "therapeutic_hypothesis": {
+    "compound": "sorafenib",
+    "claimed_target": "VEGFR2",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "angiogenesis inhibition",
+    "target_population": "hepatocellular carcinoma patients",
+    "primary_endpoint": "cumulative dose delivery",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "median cumulative dose: 49800 mg (standard) vs 38000 mg (ramp-up)",
+    "p_value": 0.0262,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 3 AEs: 92 (standard) vs 101 (ramp-up)",
+      "Grade 4 AEs: 19 (standard) vs 15 (ramp-up)",
+      "Grade 5 AEs: 9 (standard) vs 8 (ramp-up)"
+    ],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "twice daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose interruptions: 29 (standard) vs 20 (ramp-up); Dose reductions: 40 (standard) vs 34 (ramp-up)"
+    },
+    "adverse_events": [
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute renal failure",
+        "grade": "",
+        "incidence_treatment_pct": 4.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Ascites",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 1.8,
+        "serious": true
+      },
+      {
+        "term": "Cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "hepatocellular carcinoma",
+    "comparator": "sorafenib ramp-up regimen",
+    "sample_size": 120,
+    "duration": "24 weeks",
+    "duration_weeks": 24.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "sorafenib_standard_dosing_regimen",
+      "compounds": [
+        "sorafenib"
+      ]
+    },
+    {
+      "arm_id": "sorafenib_ramp_up_regimen",
+      "compounds": [
+        "sorafenib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "sorafenib_standard_dosing_regimen",
+      "intervention": "sorafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "cumulative dose delivery",
+      "effect_size": 49800.0,
+      "p_value": 0.0262,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "hepatocellular carcinoma patients",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sorafenib_ramp_up_regimen",
+      "intervention": "sorafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "cumulative dose delivery",
+      "effect_size": 38000.0,
+      "p_value": 0.0262,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "hepatocellular carcinoma patients",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

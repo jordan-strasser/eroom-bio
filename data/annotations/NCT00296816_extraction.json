@@ -1,0 +1,243 @@
+{
+  "nct_id": "NCT00296816",
+  "therapeutic_hypothesis": {
+    "compound": "oxaliplatin_docetaxel_bevacizumab",
+    "claimed_target": "VEGF",
+    "proposed_mechanism": "angiogenesis inhibition",
+    "intended_biology": "tumor vascularization suppression",
+    "target_population": "ovarian cancer patients",
+    "primary_endpoint": "twelve-month progression-free survival rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "65.7% (95% CI: 53.4\u201376.7)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "CA-125 response rate 81.5% in non-measurable disease",
+      "CA-125 response rate 83.0% in measurable disease"
+    ],
+    "subgroup_findings": [
+      "Confirmed response rate 41/80 patients",
+      "Unconfirmed response rate 51/80 patients",
+      "24-month PFS rate 34.3%"
+    ],
+    "safety_signals": [
+      "Febrile neutropenia",
+      "Gastrointestinal toxicity including nausea and vomiting",
+      "Small intestinal obstruction"
+    ],
+    "dose_info": {
+      "dose": "bevacizumab 15 mg/kg, docetaxel 75 mg/m\u00b2, oxaliplatin 85 mg/m\u00b2",
+      "schedule": "every 3 weeks, bevacizumab for 12 months, chemotherapy for 6 cycles",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 3.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 5.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 5.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Small intestinal obstruction",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 2.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "ovarian cancer",
+    "comparator": "none",
+    "sample_size": 132,
+    "duration": "12 months treatment with bevacizumab, 6 cycles chemotherapy",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "oxaliplatin_docetaxel_bevacizumab",
+      "compounds": [
+        "oxaliplatin",
+        "docetaxel",
+        "bevacizumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Unconfirmed response (CR+PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Unconfirmed complete response (CR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Unconfirmed partial response (PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Confirmed response (CR+PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Confirmed complete response (CR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Confirmed partial response (PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "With non-measurable disease at baseline (N=27)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "non_measurable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "With measurable disease at baseline (N=53)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "measurable_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "oxaliplatin_docetaxel_bevacizumab",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 65.7,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "angiogenesis inhibition",
+      "biology_description": "tumor vascularization suppression",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "oxaliplatin_docetaxel_bevacizumab",
+      "intervention": "docetaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 65.7,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "oxaliplatin_docetaxel_bevacizumab",
+      "intervention": "oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 65.7,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "ovarian cancer patients",
+      "mechanism_category": "dna_crosslinking"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "docetaxel",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "anti-angiogenic therapy enhances chemotherapy efficacy by normalizing tumor vasculature and improving drug delivery",
+      "citation": "combination of bevacizumab with docetaxel and oxaliplatin achieved 65.7% twelve-month PFS rate"
+    },
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "oxaliplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "anti-angiogenic therapy enhances chemotherapy efficacy by normalizing tumor vasculature and improving drug delivery",
+      "citation": "combination of bevacizumab with docetaxel and oxaliplatin achieved 65.7% twelve-month PFS rate"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "nct_id": "NCT00948675",
+  "therapeutic_hypothesis": {
+    "compound": "pemetrexed + carboplatin vs paclitaxel + carboplatin + bevacizumab",
+    "claimed_target": "thymidylate synthase, dihydrofolate reductase, glycinamide ribonucleotide formyltransferase, DNA, microtubules, VEGF",
+    "proposed_mechanism": "antifolate enzyme inhibition, DNA cross-linking, microtubule stabilization, angiogenesis inhibition",
+    "intended_biology": "DNA synthesis disruption, mitotic arrest, angiogenesis inhibition",
+    "target_population": "advanced non-small cell lung cancer",
+    "primary_endpoint": "progression free survival without grade 4 toxicity",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "3.91 vs 2.86 months median G4PFS",
+    "p_value": 0.176,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Higher rates of anemia in pemetrexed arm",
+      "Febrile neutropenia observed in bevacizumab arm",
+      "Cardiac events including atrial fibrillation and flutter"
+    ],
+    "dose_info": {
+      "dose": "pemetrexed 500 mg/m\u00b2, carboplatin AUC 6, paclitaxel 200 mg/m\u00b2, bevacizumab 15 mg/kg",
+      "schedule": "every 21 days for 4 cycles induction, then maintenance",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 7.0,
+        "incidence_control_pct": 1.2,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.4,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.9,
+        "incidence_control_pct": 3.0,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.3,
+        "incidence_control_pct": 1.2,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Atrial flutter",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced non-small cell lung cancer",
+    "comparator": "paclitaxel + carboplatin + bevacizumab",
+    "sample_size": 361,
+    "duration": "up to 39.49 months",
+    "duration_weeks": 171.6,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pemetrexed_carboplatin_pemetrexed",
+      "compounds": [
+        "pemetrexed",
+        "carboplatin"
+      ]
+    },
+    {
+      "arm_id": "paclitaxel_carboplatin_bevacizumab",
+      "compounds": [
+        "paclitaxel",
+        "carboplatin",
+        "bevacizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "pemetrexed_carboplatin_pemetrexed",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "G4PFS",
+      "effect_size": 3.91,
+      "p_value": 0.176,
+      "outcome": "failure",
+      "mechanism_description": "antifolate enzyme inhibition",
+      "biology_description": "DNA synthesis disruption",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "pemetrexed_carboplatin_pemetrexed",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "G4PFS",
+      "effect_size": 3.91,
+      "p_value": 0.176,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "paclitaxel_carboplatin_bevacizumab",
+      "intervention": "paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "G4PFS",
+      "effect_size": 2.86,
+      "p_value": 0.176,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "paclitaxel_carboplatin_bevacizumab",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "G4PFS",
+      "effect_size": 2.86,
+      "p_value": 0.176,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "paclitaxel_carboplatin_bevacizumab",
+      "intervention": "bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "G4PFS",
+      "effect_size": 2.86,
+      "p_value": 0.176,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "angiogenesis_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

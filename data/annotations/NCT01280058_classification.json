@@ -1,0 +1,82 @@
+{
+  "nct_id": "NCT01280058",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported for wild-type reovirus. The biomarker data shows 71% vs 75% Ras pathway activation at baseline, which is a baseline characteristic rather than evidence of viral replication machinery engagement. For carboplatin and paclitaxel, target engagement is assumed based on established mechanisms but not directly measured. 2. PATHWAY MODULATION: No evidence that reovirus successfully replicated in tumor cells or activated immune responses. The similar baseline Ras activation suggests no differential pathway modulation. Carboplatin and paclitaxel likely engaged their targets based on known pharmacology, but downstream pathway effects weren't measured. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) failed - reovirus combination arm showed 4.9 months vs 5.2 months for control (numerically worse). OS also failed with 7.3 vs 8.8 months (numerically worse). No clinical benefit from adding reovirus to chemotherapy backbone. 4. POPULATION EFFECTS: No subgroup analyses reported. The population was recurrent/metastatic pancreatic cancer, appropriate for the mechanism. 5. CONFOUNDERS: Adequate sample size (73 patients), appropriate duration (208 weeks), similar toxicity profiles between arms. No major trial design issues. The failure appears to be mechanistic - reovirus did not add benefit to standard chemotherapy.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.7,
+      "evidence": "While carboplatin and paclitaxel likely engaged their known targets, there's no evidence that reovirus successfully replicated in tumor cells or activated the intended oncolytic and immune pathways. The similar baseline Ras activation (71% vs 75%) suggests no differential pathway modulation occurred."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:ec3deb7cf520",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "Oncolytic viral replication mechanism failed to produce tumor cell lysis and immune activation, as evidenced by lack of clinical benefit when reovirus was added to chemotherapy"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:ec3deb7cf520",
+      "target_entity": "pancreatic_acinar_cell_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "Tumor cell lysis and immune activation biology did not translate to clinical benefit in pancreatic cancer, with PFS 4.9 vs 5.2 months and OS 7.3 vs 8.8 months"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "DNA damage mechanism failed to produce adequate clinical benefit in combination with reovirus, suggesting reduced efficacy in this context"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "pancreatic_acinar_cell_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "DNA-damage-induced apoptosis did not drive clinical benefit in this pancreatic cancer population when combined with reovirus"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0000278",
+      "target_entity": "bio:30676876920c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "Mitotic cell cycle disruption failed to produce adequate clinical benefit in combination with reovirus"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "pancreatic_acinar_cell_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_i_wild_type_reovirus_carboplatin_paclitaxel",
+      "reasoning": "Mitotic arrest did not drive clinical benefit in this pancreatic cancer population when combined with reovirus"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_pancreatic_cancer",
+      "target_entity": "pancreatic_acinar_cell_carcinoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was measured and is an appropriate endpoint for pancreatic cancer, though the trial failed to show benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "pancreatic_acinar_cell_carcinoma__extent_metastatic__line_second",
+      "target_entity": "pancreatic_acinar_cell_carcinoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This metastatic, second-line pancreatic cancer population did not respond to reovirus addition, with numerically worse outcomes (PFS 4.9 vs 5.2 months, OS 7.3 vs 8.8 months)"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}
