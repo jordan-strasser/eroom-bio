@@ -19,6 +19,7 @@ from src.graph.models import (
 )
 from src.graph.populate import (
     PopulationPipeline,
+    _is_noncanonical_compound_name,
     _normalize,
     _normalize_drug_lookup_name,
     _split_combo_regimen,
@@ -3301,6 +3302,30 @@ def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
     assert "enable_sapbert=True" in src
     assert 'sapbert_node_types=("MechanismNode",)' in src
     assert 'biolord_node_types=("BiologyNode",)' in src
+
+
+def test_noncanonical_compound_name_guards_chembl_tier():
+    """Withhold a ChEMBL stable_id from any name that isn't a single molecule, so
+    the node_merge chembl tier can't false-merge it onto a real drug. Single
+    molecules / brand+INN / salt / codename keep it; generics, placebos, dosing
+    strings, and true multi-drug combos don't. Brand+INN vs combo is told apart by
+    whether the drug-tokens map to ONE chembl id or several."""
+    kc = {  # norm-name → chembl (brand+INN share an id; distinct drugs differ)
+        "bevacizumab": "CHEMBL1201583", "avastin": "CHEMBL1201583",
+        "capecitabine": "CHEMBL1773", "oxaliplatin": "CHEMBL414804",
+        "cetuximab": "CHEMBL1201577", "fluorouracil": "CHEMBL185",
+    }
+    keep = ["bevacizumab", "avastin", "bevacizumab_avastin", "5_fu",
+            "5_fluorouracil", "sorafenib_tosylate", "lee011", "trastuzumab_herceptin"]
+    withhold = ["mesenchymal_stem_cell", "immune_checkpoint_inhibitor",
+                "placebo_oral_tablet", "oral_contraceptive_pills",
+                "capecitabine_oxaliplatin_cetuximab",  # 3 distinct ids ⇒ combo
+                "dose_escalation_doublet_combination_of_nktr_214_nivolumab",
+                "bibf_1120_pld_cbdca_auc5_mg_ml_min", "combination_carboplatin"]
+    for n in keep:
+        assert not _is_noncanonical_compound_name(n, kc), f"should keep id: {n}"
+    for n in withhold:
+        assert _is_noncanonical_compound_name(n, kc), f"should withhold id: {n}"
 
 
 # ── Semantic-layers redesign: mechanism = target-gene Reactome pathway ────────

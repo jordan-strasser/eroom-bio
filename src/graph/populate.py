@@ -729,6 +729,55 @@ def _norm_for_pattern_match(s: str) -> str:
     return re.sub(r"[\s\-_.]+", " ", s.lower()).strip()
 
 
+# Markers that an intervention name is NOT a single canonical molecule, so it
+# must not inherit a constituent drug's ChEMBL ``stable_id`` (which would then
+# false-merge it onto that drug under the node_merge chembl tier). Withholding the
+# id only ever causes safe UNDER-merge (the name keeps its own node), never a
+# wrong-merge. Generic class / non-drug tokens:
+_NONCANONICAL_COMPOUND_TERMS = frozenset({
+    "mesenchymal", "stem", "checkpoint", "placebo", "vehicle", "saline",
+    "contraceptive", "observation", "antigens", "sham",
+})
+# Combination / regimen / dose-schedule descriptors (substring match on the
+# normalized, space-separated name):
+_NONCANONICAL_COMPOUND_MARKERS = (
+    "combination", "schedule", "doublet", "triplet", "quadruplet", "regimen",
+    "dose escalation", "dose finding", "dose ramp", "dose expansion", "cohort",
+    "standard dosing", "supportive care", "standard of care",
+)
+# Standalone dosing-unit tokens (a single molecule's name doesn't carry these):
+_NONCANONICAL_DOSING_UNITS = frozenset({"mg", "ml", "mcg", "kg", "iu", "auc", "min"})
+
+
+def _is_noncanonical_compound_name(
+    name: str, known_chembl: dict[str, str] | None = None,
+) -> bool:
+    """True when an intervention name isn't a single canonical molecule — used to
+    withhold a ChEMBL ``stable_id`` from it so the merge chembl tier can't collapse
+    it onto a real drug.
+
+    Catches generic drug-class / non-drug terms, combination/regimen/dose-schedule
+    descriptors, and dosing-unit strings. With ``known_chembl`` (norm-name → ChEMBL
+    id) it also catches true multi-drug combos by the precise signal that
+    distinguishes them from a brand+INN pair: a brand+INN ("bevacizumab avastin")
+    has all drug-tokens mapping to ONE ChEMBL id (→ keep, it's one drug), whereas a
+    combo ("capecitabine oxaliplatin cetuximab") spans ≥2 distinct ids (→ withhold).
+    """
+    norm = _norm_for_pattern_match(name)
+    tokset = set(norm.split())
+    if tokset & _NONCANONICAL_COMPOUND_TERMS:
+        return True
+    if any(m in norm for m in _NONCANONICAL_COMPOUND_MARKERS):
+        return True
+    if tokset & _NONCANONICAL_DOSING_UNITS:
+        return True
+    if known_chembl:
+        ids = {known_chembl[t] for t in tokset if t in known_chembl}
+        if len(ids) >= 2:  # ≥2 distinct drugs by id ⇒ true combination, not brand+INN
+            return True
+    return False
+
+
 _CELL_THERAPY_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
     # Patterns are matched via `_norm_for_pattern_match`: hyphens,
     # underscores, and runs of whitespace all collapse to single space,
@@ -1321,7 +1370,21 @@ class PopulationPipeline:
                 # create a new one.
                 norm_name = _norm_for_pattern_match(comp.name)
                 if comp.stable_id is None:
-                    comp.stable_id = self._compound_chembl_ids.get(norm_name)
+                    cand = self._compound_chembl_ids.get(norm_name)
+                    # Guard the node_merge chembl tier: only a plausibly-single
+                    # molecule may carry a stable_id. Vague class terms
+                    # (mesenchymal_stem_cell), placebos, and combo/regimen/dosing
+                    # strings otherwise inherit a constituent's ChEMBL id and
+                    # false-merge onto that drug. Withholding = safe under-merge.
+                    if cand and _is_noncanonical_compound_name(
+                        comp.name, self._compound_chembl_ids
+                    ):
+                        logger.debug(
+                            "chembl-id %s withheld from non-canonical name %r",
+                            cand, comp.name,
+                        )
+                    else:
+                        comp.stable_id = cand
                 if comp.embedding is None:
                     try:
                         from src.graph.sapbert_embeddings import (

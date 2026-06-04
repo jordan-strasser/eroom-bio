@@ -87,6 +87,9 @@ class TestClassifySuccessRateAbort:
                     # Bypass the round-20.5 subgraph-success check so
                     # this test exercises ONLY the classify-rate path.
                     allow_partial_subgraphs=True,
+                    # Orchestration (classify-abort) is mode-independent; mock the
+                    # top-down PopulationPipeline path (bottom-up is now default).
+                    bottom_up=False,
                 )
 
     @pytest.mark.asyncio
@@ -142,6 +145,7 @@ class TestClassifySuccessRateAbort:
                 # graph.trial_subgraphs. Bypass since this test is
                 # about the classify-rate path only.
                 allow_partial_subgraphs=True,
+                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # If we got here without SystemExit, the abort didn't fire.
             attributor_mock.assert_awaited_once()
@@ -191,6 +195,7 @@ class TestClassifySuccessRateAbort:
                 min_classify_success_rate=0.80,
                 allow_partial_classify=True,
                 allow_partial_subgraphs=True,
+                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # Attribution should have been called despite the low rate.
             attributor_mock.assert_awaited_once()
@@ -510,6 +515,9 @@ class TestIncrementalBuildOrchestration:
                 # populate is mocked so trial_subgraphs stays empty —
                 # bypass the round-20.5 subgraph-rate guard.
                 allow_partial_subgraphs=True,
+                # Top-down incremental: asserts the shared already-present filter
+                # via the populate_trials mock (bottom-up append is covered e2e).
+                bottom_up=False,
             )
 
         # The populator should have been called with ONLY the new trial.
@@ -658,6 +666,7 @@ class TestIncrementalBuildOrchestration:
                 include_terminated=False, concurrency=2,
                 area="oncology",
                 min_subgraph_success_rate=0.75,
+                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
         # Build proceeded past the subgraph guard → attribution ran.
         attributor_mock.assert_awaited_once()

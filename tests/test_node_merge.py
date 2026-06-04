@@ -194,6 +194,100 @@ def test_biolord_tier_gated_per_node_type():
     assert g_out._graph.number_of_nodes() == 2  # noqa: SLF001  (both survive)
 
 
+# ── Batch encoder: same merge as per-node, one model.encode (perf) ───────────
+
+
+def test_batch_embed_fn_matches_per_node_and_is_called_once():
+    """The batch encoder is a pure speedup: identical merge result to the
+    per-node path, but ONE encode call over the whole node set (not one per
+    node — the n=252 build blocker). ``model.encode([a, b])`` == per-item, so
+    the union-find sees the same cosines."""
+    vecs = {
+        "vegf signaling": [1.0, 0.0],
+        "vegf angiogenesis": [0.97, 0.24],
+        "pd-1 checkpoint": [0.0, 1.0],
+    }
+
+    def build():
+        g = GraphStore()
+        g.add_node(_bio("a", desc="vegf signaling"))
+        g.add_node(_bio("b", desc="vegf angiogenesis"))
+        g.add_node(_bio("c", desc="pd-1 checkpoint"))
+        return g
+
+    cfg = lambda: MergeConfig(node_types=("BiologyNode",), enable_id=False,  # noqa: E731
+                              enable_name_id=False, enable_biolord=True,
+                              biolord_threshold=0.85)
+
+    g_single = build()
+    assemble(g_single, cfg(), embed_fn=lambda t: vecs[t])
+
+    calls: list[list[str]] = []
+
+    def batch(texts: list[str]) -> list[list[float]]:
+        calls.append(list(texts))
+        return [vecs[t] for t in texts]
+
+    g_batch = build()
+    assemble(g_batch, cfg(), batch_embed_fn=batch)
+
+    # identical merge (a+b pool, c stays) regardless of encoder shape
+    assert g_single._graph.number_of_nodes() == g_batch._graph.number_of_nodes() == 2  # noqa: SLF001
+    # encoded ONCE over all three descriptions, not three single calls
+    assert len(calls) == 1 and len(calls[0]) == 3
+
+
+# ── Tier 1b: ChEMBL stable_id (compound canonicalization) ────────────────────
+
+
+def test_chembl_tier_merges_compounds_by_stable_id():
+    """Same ChEMBL ``stable_id`` = same drug — codename/brand/salt forms collapse,
+    distinct drugs stay apart. Authoritative exact-key tier (no embeddings)."""
+    from src.graph.models import InterventionNode
+
+    g = GraphStore()
+    g.add_node(InterventionNode(id="avastin", name="avastin", stable_id="CHEMBL1201583"))
+    g.add_node(InterventionNode(id="bevacizumab", name="bevacizumab", stable_id="CHEMBL1201583"))
+    g.add_node(InterventionNode(id="olaparib", name="olaparib", stable_id="CHEMBL521686"))  # distinct
+    cfg = MergeConfig(node_types=("InterventionNode",), enable_id=False, enable_chembl=True,
+                      enable_name_id=False, enable_biolord=False)
+    report = assemble(g, cfg)
+    assert report.by_type.get("InterventionNode") == 1          # avastin+bevacizumab merged
+    assert "olaparib" in g._graph and g._graph.number_of_nodes() == 2  # noqa: SLF001
+
+
+# ── Incremental append: only score pairs touching a new node ─────────────────
+
+
+def test_new_ids_restricts_geometric_merge_to_appended_nodes():
+    """On append, existing↔existing nodes were already merged — re-scoring them is
+    wasted work AND would re-collapse the base. ``new_ids`` scopes the geometric
+    tier to pairs touching a just-added node: an existing close pair stays split,
+    while a new node still merges into its existing match."""
+    vecs = {"a": [1.0, 0.0], "b": [0.99, 0.141], "c": [0.0, 1.0], "d": [0.0, 1.0]}
+
+    def build():
+        g = GraphStore()
+        for k in ("a", "b", "c", "d"):
+            g.add_node(_bio(k, desc=k))
+        return g
+
+    cfg = lambda: MergeConfig(node_types=("BiologyNode",), enable_id=False,  # noqa: E731
+                              enable_chembl=False, enable_name_id=False,
+                              enable_biolord=True, biolord_threshold=0.85)
+
+    # Fresh (new_ids=None): a~b merge AND c~d merge → 2 nodes.
+    g_fresh = build()
+    assemble(g_fresh, cfg(), embed_fn=lambda t: vecs[t])
+    assert g_fresh._graph.number_of_nodes() == 2  # noqa: SLF001
+
+    # Append d only: a~b is existing↔existing → NOT re-merged; d merges into c.
+    g_inc = build()
+    assemble(g_inc, cfg(), embed_fn=lambda t: vecs[t], new_ids={"d"})
+    assert g_inc._graph.number_of_nodes() == 3  # noqa: SLF001  (a, b separate; c+d merged)
+    assert "a" in g_inc._graph and "b" in g_inc._graph  # noqa: SLF001
+
+
 # ── Lossless belief union + replay + belief_field anchors ────────────────────
 
 

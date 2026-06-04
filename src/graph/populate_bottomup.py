@@ -157,6 +157,7 @@ async def build_bottomup(
     merge_config: MergeConfig | None = None,
     embed_fn: Callable[[str], list[float]] | None = None,
     premerge_dump_path: str | None = None,
+    base_graph: GraphStore | None = None,
 ) -> GraphStore:
     """Phase 1 (per-trial isolated resolve+build) -> Phase 2 (union + assemble).
 
@@ -165,11 +166,19 @@ async def build_bottomup(
     then namespaces each trial's chains to ``{id}#{nct}`` and merges. Returns the
     assembled chains-first graph.
 
-    SCAFFOLD: structural only (no belief carry-through yet — see module TODO).
+    **Incremental append** (``base_graph`` given — the 200K seam): start from the
+    already-merged base graph instead of an empty store, build Phase 1 ONLY for the
+    passed ``trials`` (the new ones), union them in, and re-run the Phase-2 merge
+    **restricted to new-involving pairs** (``new_ids``) — so existing↔existing nodes
+    aren't re-scored and the base isn't reprocessed. The new trials' structural
+    nodes merge into the base by exact id/chembl; their biology/mechanism merge by
+    the geometric tier against the base.
     """
     from src.graph.populate import PopulationPipeline
 
-    merged = GraphStore()
+    incremental = base_graph is not None
+    merged = base_graph if incremental else GraphStore()
+    new_ids: set[str] = set()
     for trial in trials:
         # Phase 1: resolve + build THIS trial alone into its own store.
         g_t = GraphStore()
@@ -180,6 +189,7 @@ async def build_bottomup(
         # union can't collide across trials and the merge has beliefs to fold.
         scoped = _namespace_graph(g_t, getattr(trial, "nct_id", ""))
         _union_into(merged, scoped)
+        new_ids |= set(scoped._graph.nodes)  # noqa: SLF001 — the just-added trial-scoped ids
         logger.info("bottom-up Phase 1: built %s (%d scoped nodes)",
                     getattr(trial, "nct_id", "?"), scoped._graph.number_of_nodes())  # noqa: SLF001
 
@@ -218,10 +228,14 @@ async def build_bottomup(
         enable_sapbert=True, sapbert_node_types=("MechanismNode",),
         enable_biolord=True, biolord_node_types=("BiologyNode",),
     )
-    report = assemble(merged, cfg, embed_fn=embed_fn)
+    # Incremental: restrict the O(n²) geometric tiers to pairs touching a just-added
+    # node (existing↔existing are already merged) — O(new × total), not O(total²).
+    report = assemble(merged, cfg, embed_fn=embed_fn,
+                      new_ids=new_ids if incremental else None)
     renamed = _canonicalize_ids(merged)
     pruned_bio = _prune_orphan_biology(merged)
     logger.info("bottom-up Phase 2: assembled -> %d nodes (by_type=%s, canonicalized %d ids, "
-                "pruned %d orphan biology)",
-                merged._graph.number_of_nodes(), report.by_type, renamed, pruned_bio)  # noqa: SLF001
+                "pruned %d orphan biology%s)",
+                merged._graph.number_of_nodes(), report.by_type, renamed, pruned_bio,  # noqa: SLF001
+                f", incremental +{len(new_ids)} new scoped ids" if incremental else "")
     return merged

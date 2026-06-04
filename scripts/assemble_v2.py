@@ -63,14 +63,14 @@ def assemble_geometry(
     }
 
     if merge:
-        embed_fn = None
+        batch_embed_fn = None
         cfg = MergeConfig(node_types=ALL_CHAIN_TYPES, enable_id=True,
                           enable_name_id=True, enable_sapbert=False, enable_biolord=False)
         if merge.startswith("biolord:"):
-            from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
+            from src.graph.biolord_embeddings import embed_texts as batch_embed_fn  # noqa
             cfg.enable_biolord = True
             cfg.biolord_threshold = float(merge.split(":", 1)[1])
-        rep = assemble(g, cfg, embed_fn=embed_fn)
+        rep = assemble(g, cfg, batch_embed_fn=batch_embed_fn)
         result["merged"] = {
             "before": rep.nodes_before, "after": rep.nodes_after, "by_type": rep.by_type,
         }

@@ -72,6 +72,7 @@ class MergeConfig:
 
     node_types: tuple[str, ...] = DEFAULT_NODE_TYPES
     enable_id: bool = True            # Tier 1: ontology id / crosswalk
+    enable_chembl: bool = True        # Tier 1b: equal compound ``stable_id`` (ChEMBL id)
     enable_name_id: bool = True       # Tier 2a: exact SapBERT-canonical name_id (if populated)
     enable_sapbert: bool = False      # Tier 2b: SapBERT cosine on node NAME (entity-linking)
     enable_biolord: bool = True       # Tier 3: BioLORD cosine on DESCRIPTION (semantic)
@@ -119,8 +120,66 @@ def _name_key(node: dict) -> str | None:
     return node.get("name_id") or meta.get("name_id")
 
 
+def _chembl_key(node: dict) -> str | None:
+    """Tier-1b identity for compounds: the ChEMBL ``stable_id``. Authoritative —
+    one ChEMBL id is one drug — so codenames/brand/salt forms (``avastin`` ↔
+    ``bevacizumab``, ``5_fu`` ↔ ``fluorouracil``) collapse. Only meaningful on
+    InterventionNodes; the populate-side vague/combo-name filter must keep a real
+    drug's id off generic names (``mesenchymal_stem_cell``) so this never
+    false-merges distinct entities onto one drug."""
+    meta = node.get("metadata") or {}
+    return node.get("stable_id") or meta.get("stable_id")
+
+
 def _node_text(node: dict) -> str:
     return (node.get("description") or node.get("name") or "").strip()
+
+
+def _encode_pairs(
+    items: list[tuple[str, str]],
+    single_fn: Callable[[str], list[float]] | None,
+    batch_fn: Callable[[list[str]], list[list[float]]] | None,
+) -> dict[str, list[float]]:
+    """Map ``(node_id, text)`` pairs to ``{node_id: vector}``.
+
+    Prefer the **batch** encoder — one ``model.encode(list)`` plus one cache
+    round-trip, so the assemble step costs O(1) model calls + cache loads
+    instead of O(nodes) (the n=252 build's #1 perf blocker: a 45 MB embedding
+    cache re-read/written per node). Fall back to the per-item encoder when only
+    it is supplied (unit-test stubs). Math-identical: ``model.encode([a, b])``
+    equals encoding ``a`` and ``b`` separately."""
+    if not items:
+        return {}
+    if batch_fn is not None:
+        vecs = batch_fn([t for _, t in items])
+        return {i: v for (i, _), v in zip(items, vecs)}
+    return {i: single_fn(t) for i, t in items}
+
+
+def _pair_indices(keys: list[str], new_ids: set[str] | None):
+    """Yield the index pairs to compare in an O(n²) geometric tier.
+
+    Fresh build (``new_ids is None``): every (a<b) pair. Incremental append
+    (``new_ids`` = the just-added node ids): only pairs that involve at least one
+    NEW node — existing↔existing nodes were already merged in the base, so re-
+    scoring them is wasted work. This makes append **O(new × total)** instead of
+    O(total²): we iterate only new nodes in the outer loop and compare each
+    against the whole set, de-duplicating new↔new pairs. (The sub-quadratic
+    ANN/LSH index that true 200K scale will need is a separate, deferred step;
+    this just stops re-merging the whole corpus on every append.)"""
+    n = len(keys)
+    if new_ids is None:
+        for a in range(n):
+            for b in range(a + 1, n):
+                yield a, b
+        return
+    new_pos = [a for a in range(n) if keys[a] in new_ids]
+    is_new = set(new_pos)
+    for a in new_pos:
+        for b in range(n):
+            if b == a or (b in is_new and b < a):  # skip self + double-counted new↔new
+                continue
+            yield a, b
 
 
 # ── union-find ───────────────────────────────────────────────────────────────
@@ -155,14 +214,18 @@ def _classes_for_type(
     node_type: str,
     embed_fn: Callable[[str], list[float]] | None,
     sapbert_embed_fn: Callable[[str], list[float]] | None,
+    batch_embed_fn: Callable[[list[str]], list[list[float]]] | None = None,
+    batch_sapbert_embed_fn: Callable[[list[str]], list[list[float]]] | None = None,
     boxes: dict[str, "Box"] | None,
     crosswalk: dict[str, str] | None,
+    new_ids: set[str] | None = None,
 ) -> list[set[str]]:
     """Build merge classes for one node type by unioning all enabled tiers.
 
     ``node_type`` gates the per-type geometric tiers (``biolord_node_types`` /
     ``sapbert_node_types``) so a semantic vs entity-linking signal can be chosen
-    per layer rather than globally."""
+    per layer rather than globally. ``new_ids`` (incremental append) restricts the
+    O(n²) geometric tiers to pairs involving a just-added node."""
     ids = list(nodes)
     uf = _UF(ids)
 
@@ -185,6 +248,16 @@ def _classes_for_type(
                 for other in group[1:]:
                     uf.union(group[0], other)
 
+    if config.enable_chembl:  # Tier 1b: equal compound stable_id (ChEMBL) = same drug
+        by_chembl: dict[str, list[str]] = {}
+        for nid in ids:
+            key = _chembl_key(nodes[nid])
+            if key:
+                by_chembl.setdefault(key, []).append(nid)
+        for group in by_chembl.values():
+            for other in group[1:]:
+                uf.union(group[0], other)
+
     if config.enable_name_id:
         by_name: dict[str, list[str]] = {}
         for nid in ids:
@@ -196,42 +269,41 @@ def _classes_for_type(
                 uf.union(group[0], other)
 
     if (
-        config.enable_sapbert and sapbert_embed_fn is not None
+        config.enable_sapbert
+        and (sapbert_embed_fn is not None or batch_sapbert_embed_fn is not None)
         and (config.sapbert_node_types is None
              or node_type in config.sapbert_node_types)
     ):
         from src.graph.biolord_embeddings import cosine_similarity
         named = [(nid, (nodes[nid].get("name") or "").strip()) for nid in ids]
         named = [(i, n) for i, n in named if n]
-        svecs = {i: sapbert_embed_fn(n) for i, n in named}
+        svecs = _encode_pairs(named, sapbert_embed_fn, batch_sapbert_embed_fn)
         skeys = [i for i, _ in named]
-        for a in range(len(skeys)):
-            for b in range(a + 1, len(skeys)):
-                if cosine_similarity(svecs[skeys[a]], svecs[skeys[b]]) >= config.sapbert_threshold:
-                    uf.union(skeys[a], skeys[b])
+        for a, b in _pair_indices(skeys, new_ids):
+            if cosine_similarity(svecs[skeys[a]], svecs[skeys[b]]) >= config.sapbert_threshold:
+                uf.union(skeys[a], skeys[b])
 
     if (
-        config.enable_biolord and embed_fn is not None
+        config.enable_biolord
+        and (embed_fn is not None or batch_embed_fn is not None)
         and (config.biolord_node_types is None
              or node_type in config.biolord_node_types)
     ):
         from src.graph.biolord_embeddings import cosine_similarity
         texts = [(nid, _node_text(nodes[nid])) for nid in ids]
         texts = [(i, t) for i, t in texts if t]
-        vecs = {i: embed_fn(t) for i, t in texts}
+        vecs = _encode_pairs(texts, embed_fn, batch_embed_fn)
         keys = [i for i, _ in texts]
-        for a in range(len(keys)):
-            for b in range(a + 1, len(keys)):
-                if cosine_similarity(vecs[keys[a]], vecs[keys[b]]) >= config.biolord_threshold:
-                    uf.union(keys[a], keys[b])
+        for a, b in _pair_indices(keys, new_ids):
+            if cosine_similarity(vecs[keys[a]], vecs[keys[b]]) >= config.biolord_threshold:
+                uf.union(keys[a], keys[b])
 
     if config.enable_box and boxes:
         from src.graph.box_embeddings import relation
         boxed = [i for i in ids if i in boxes]
-        for a in range(len(boxed)):
-            for b in range(a + 1, len(boxed)):
-                if relation(boxes[boxed[a]], boxes[boxed[b]]) == "merge":
-                    uf.union(boxed[a], boxed[b])
+        for a, b in _pair_indices(boxed, new_ids):
+            if relation(boxes[boxed[a]], boxes[boxed[b]]) == "merge":
+                uf.union(boxed[a], boxed[b])
 
     return uf.classes()
 
@@ -421,21 +493,33 @@ def assemble(
     *,
     embed_fn: Callable[[str], list[float]] | None = None,
     sapbert_embed_fn: Callable[[str], list[float]] | None = None,
+    batch_embed_fn: Callable[[list[str]], list[list[float]]] | None = None,
+    batch_sapbert_embed_fn: Callable[[list[str]], list[list[float]]] | None = None,
     boxes: dict[str, "Box"] | None = None,
     crosswalk: dict[str, str] | None = None,
+    new_ids: set[str] | None = None,
 ) -> NodeMergeReport:
     """Merge equivalent nodes per ``config`` across all configured types.
 
     Idempotent and re-runnable. ``embed_fn`` (BioLORD, description) and
-    ``sapbert_embed_fn`` (SapBERT, name) default to their lazy loaders when the
-    matching tier is enabled; inject stubs in tests. ``crosswalk`` is the
-    Reactome↔GO map for biology (optional).
+    ``sapbert_embed_fn`` (SapBERT, name) are the per-node encoders; their
+    ``batch_*`` counterparts encode a whole node set in one ``model.encode``
+    call (the scale path). When the matching tier is enabled and NEITHER a
+    per-node nor a batch encoder is supplied, the **batch** loader is lazy-loaded
+    by default — so the real build batches without any caller change, while a
+    test/caller that injects a per-node stub keeps the per-node path.
+    ``crosswalk`` is the Reactome↔GO map for biology (optional).
+
+    ``new_ids`` (incremental append): the just-added node ids. When given, the
+    O(n²) geometric tiers only score pairs touching a new node (existing nodes
+    are already merged) — O(new × total), not O(total²). The exact-key tiers
+    (id/chembl/name_id) are O(n) regardless and run unrestricted.
     """
     config = config or MergeConfig()
-    if config.enable_biolord and embed_fn is None:
-        from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
-    if config.enable_sapbert and sapbert_embed_fn is None:
-        from src.graph.sapbert_embeddings import embed_compound_name as sapbert_embed_fn  # noqa
+    if config.enable_biolord and embed_fn is None and batch_embed_fn is None:
+        from src.graph.biolord_embeddings import embed_texts as batch_embed_fn  # noqa
+    if config.enable_sapbert and sapbert_embed_fn is None and batch_sapbert_embed_fn is None:
+        from src.graph.sapbert_embeddings import embed_compound_names as batch_sapbert_embed_fn  # noqa
 
     before = graph._graph.number_of_nodes()  # noqa: SLF001
     nodes_removed: list[str] = []
@@ -451,7 +535,8 @@ def assemble(
         classes = _classes_for_type(
             nodes, config, node_type=node_type,
             embed_fn=embed_fn, sapbert_embed_fn=sapbert_embed_fn,
-            boxes=boxes, crosswalk=crosswalk,
+            batch_embed_fn=batch_embed_fn, batch_sapbert_embed_fn=batch_sapbert_embed_fn,
+            boxes=boxes, crosswalk=crosswalk, new_ids=new_ids,
         )
         for class_ in classes:
             classes_merged += 1

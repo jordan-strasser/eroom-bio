@@ -372,7 +372,7 @@ async def main(
     exclude_from_attribution: list[str] | None = None,
     assemble: bool = False,
     enrich_pubmed: bool = False,
-    bottom_up: bool = False,
+    bottom_up: bool = True,
 ) -> None:
     incremental = bool(base_snapshot)
     reannotate = reannotate or []
@@ -433,11 +433,11 @@ async def main(
                 "--add-trials / --add-corpus require --base-snapshot."
             )
 
-    if bottom_up and incremental:
-        raise SystemExit(
-            "--bottom-up is a fresh chains-first build; not yet compatible with "
-            "--base-snapshot incremental mode."
-        )
+    # Bottom-up incremental append (the 200K seam): build_bottomup starts from the
+    # loaded base graph, builds Phase 1 ONLY for the new trials, unions them in, and
+    # re-runs the Phase-2 merge restricted to new-involving pairs. No raise here —
+    # this is the production append path. (Top-down incremental still works as the
+    # escape hatch.)
 
     # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
     # combo nukes data/annotations/ on its way to the SystemExit.
@@ -563,6 +563,12 @@ async def main(
         graph = await build_bottomup(
             trials, client, condition=condition,
             annotations_dir=str(ANNOTATIONS_DIR),
+            # Incremental append: start from the loaded base graph and merge ONLY
+            # the new trials' chains into it (Phase 1 just for `trials`, which the
+            # round-19 filter already trimmed to the not-yet-present ones). Fresh
+            # build: base_graph=None → empty start. Either way the same Phase-2
+            # merge runs (restricted to new-involving pairs on append).
+            base_graph=graph if incremental else None,
             # Dump the Phase-1 union (pre-assemble) so the visualizer's
             # before-block is FAITHFUL: each chain still references its own
             # per-trial biology/target instance (the merge destroys that
@@ -573,6 +579,7 @@ async def main(
             f"  [bold]bottom-up (chains-first) build[/bold]: "
             f"{graph.stats()['node_count']} nodes, "
             f"{len(graph.trial_subgraphs)} trial subgraphs"
+            + ("  (incremental append)" if incremental else "")
         )
     else:
         # Top-down (overlap-first) stays on LEGACY ontology biology: it writes
@@ -932,12 +939,18 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--bottom-up", action="store_true",
-        help="Build chains-first (Stage 3, WIP): resolve each trial in isolation "
-             "into trial-scoped nodes, then reassemble via the re-runnable "
-             "node_merge projection — vs the default top-down overlap-first build. "
-             "Faithful to top-down on n=10 (chains 61==61, belief coverage matches). "
-             "Fresh builds only (not --base-snapshot). The point at scale: "
-             "append-only ingestion + retune any merge without a rebuild.",
+        help="(DEFAULT now; flag kept for back-compat, no-op) chains-first build: "
+             "resolve each trial in isolation into trial-scoped nodes, then "
+             "reassemble via the re-runnable node_merge projection. This is the "
+             "only supported mode — append-only ingestion + retune any merge "
+             "without a rebuild, and incremental --add-trials/--add-corpus appends "
+             "new chains onto a base snapshot and re-runs the merge.",
+    )
+    parser.add_argument(
+        "--top-down", action="store_true",
+        help="Escape hatch (NOT recommended): the legacy overlap-first shared-store "
+             "build. Kept only for the faithfulness comparison + tests. Bottom-up "
+             "is the default and the production path.",
     )
     parser.add_argument(
         "--assemble", action="store_true",
@@ -981,5 +994,5 @@ if __name__ == "__main__":
         exclude_from_attribution=exclude_from_attribution or None,
         assemble=args.assemble,
         enrich_pubmed=args.enrich_pubmed,
-        bottom_up=args.bottom_up,
+        bottom_up=not args.top_down,  # bottom-up is the default; --top-down opts out
     ))
