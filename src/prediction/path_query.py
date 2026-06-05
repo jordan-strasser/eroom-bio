@@ -130,10 +130,23 @@ def _ae_severity_weight(
 # measures AE *occurrence* (incidence) — but an effective drug with tolerated
 # toxicity (e.g. nivolumab irAEs in trials that SUCCEEDED) should not be
 # penalized like one whose toxicity was dose-limiting. Each AE's contribution
-# scales toward a floor when its evidence came from tolerated/successful
+# scales toward this floor when its evidence came from tolerated/successful
 # trials and toward full weight when it came from dose-limiting-toxicity
-# failures. Flag-gated (default off -> round-29 behavior unchanged).
-_SAFETY_DLT_FLOOR = 0.15
+# failures.
+#
+# Round-31 (benchmark, 2026-06-05): floor 0.15 -> 0.0. The 0.15 floor made
+# every *tolerated* AE still contribute 15% of its severity weight, and the
+# soft-or over ~10 AEs/trial compounded that into a ~0.40 penalty on drugs
+# whose toxicity was entirely manageable — the dominant source of the
+# prediction's systematic pessimism (mean P 0.49 vs 0.71 base rate; accuracy
+# BELOW base rate). The benchmark (scripts/tune_composition.py, n=129 holdout)
+# isolated it: floor 0.15->0.0 lifts holdout Brier 0.266->0.232, accuracy
+# 0.550->0.674, ECE 0.223->0.160, with NO loss of the safety thesis — a
+# failure-causing tox (e.g. torcetrapib, failure_causing_fraction~1) still
+# contributes fully; only tolerated AEs (fraction 0) now contribute nothing.
+# contribution = floor + (1-floor)*fraction = fraction, the clean DLT gate the
+# round-30 design intended. See memory project_benchmark_verdict / tuning-log.
+_SAFETY_DLT_FLOOR = 0.0
 
 
 def _safety_dlt_gate_enabled() -> bool:
