@@ -111,6 +111,17 @@ class TestFeaturesFromLLMResponse:
         assert _features_from_llm_response(raw_extent)[0].axis == "extent"
         assert _features_from_llm_response(raw_stage)[0].axis == "stage"
 
+    def test_demographics_axes(self):
+        """Round-31: age/sex/race extracted as subgroup stratifiers."""
+        raw = {"age_group": "elderly", "sex": "female", "race_ethnicity": "asian"}
+        got = {(f.axis, f.level) for f in _features_from_llm_response(raw)}
+        assert got == {("age", "elderly"), ("sex", "female"), ("race", "asian")}
+
+    def test_invalid_demographics_dropped(self):
+        """Out-of-vocabulary demographic values don't create junk features."""
+        raw = {"age_group": "middle_aged", "sex": "other", "race_ethnicity": "martian"}
+        assert _features_from_llm_response(raw) == []
+
 
 # ── JSON parser ─────────────────────────────────────────────────────────
 

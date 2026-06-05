@@ -70,6 +70,9 @@ Return ONLY a JSON object with these keys (use null or empty list when not speci
   "required_mutations": list of objects {{"gene": "<UPPER_HUGO>", "variant": "<lowercase_variant>"}}; e.g. {{"gene": "BRAF", "variant": "v600e"}}, {{"gene": "KRAS", "variant": "mutant"}}; empty list if unspecified
   "biomarker_selection": list of objects {{"gene": "<UPPER_HUGO>", "level": "<lowercase_level>"}}; e.g. {{"gene": "CD274", "level": "high"}}, {{"gene": "MSI", "level": "high"}}; empty list if unspecified
   "disease_stage": one of "iii", "iv", "metastatic", "resectable", "unresectable", "locally_advanced", or null
+  "age_group": one of "pediatric", "adult", "elderly", or null
+  "sex": one of "male", "female", or null
+  "race_ethnicity": one of "asian", "black", "white", "hispanic", or null
 
 Rules:
 - Be conservative. Only extract features that are EXPLICIT inclusion or exclusion criteria, not features mentioned in passing in the title or description.
@@ -78,6 +81,7 @@ Rules:
 - "required_mutations" is set when eligibility EXPLICITLY requires a mutation as inclusion criterion (e.g. "BRAF V600E mutation required").
 - "biomarker_selection" is set when eligibility EXPLICITLY requires a biomarker status (e.g. "PD-L1 expression ≥1%" → {{"gene": "CD274", "level": "high"}}).
 - "disease_stage" is set when eligibility or condition explicitly limits stage; default to null when the condition just says "Melanoma" without staging.
+- DEMOGRAPHICS ("age_group"/"sex"/"race_ethnicity") are set ONLY when eligibility EXPLICITLY restricts the cohort: "age >= 65" -> elderly, "children/pediatric only" -> pediatric; single-sex enrollment -> that sex (do NOT infer sex from a sex-specific cancer like prostate/ovarian — that's the disease, not an eligibility restriction); an ethnicity restriction (rare) -> that group. Null otherwise.
 - When unsure, prefer null / empty over guessing.
 
 Reply with ONLY the JSON object. No prose, no markdown fences.
@@ -166,6 +170,18 @@ def _features_from_llm_response(raw: dict[str, Any]) -> list[SubgroupFeature]:
             features.append(SubgroupFeature(
                 axis="prior_tx", level=f"{tx_clean}_treated",
             ))
+
+    # Demographics (round-31): age/sex/race, only when the LLM found an explicit
+    # eligibility restriction. Subgroup stratifiers (not in the coarse parent-pop
+    # axes), so they fork subgroup PopulationNodes off the enrollment cohort.
+    for json_key, axis, levels in (
+        ("age_group", "age", _AGE_LEVELS),
+        ("sex", "sex", _SEX_LEVELS),
+        ("race_ethnicity", "race", _RACE_LEVELS),
+    ):
+        for val in _as_str_list(raw.get(json_key)):
+            if val in levels:
+                features.append(SubgroupFeature(axis=axis, level=val))
 
     for mut in (raw.get("required_mutations") or []):
         if not isinstance(mut, dict):
