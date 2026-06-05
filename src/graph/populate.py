@@ -333,6 +333,38 @@ ENDPOINT_CLASS_BUCKETS: dict[str, str] = {
 }
 ENDPOINT_CLASSES = list(ENDPOINT_CLASS_BUCKETS.keys())
 
+# Catch-all endpoint classes that DON'T name a standardized measure: every
+# distinct biomarker (LDL-C, amyloid-PET SUVr, ...), PRO instrument, safety
+# rate, and "other" outcome would otherwise fuse into ONE `{class}_{indication}`
+# node and the chain would lose which endpoint it measured. These are sub-keyed
+# by the specific measure (`{class}_{measure}_{indication}`); the standardized
+# clinical classes (OS/PFS/ORR/DFS/...) stay collapsed by class so a single
+# `PFS_melanoma` still serves every melanoma subtype. The endpoint_captures
+# Beta prior is still keyed off the CLASS, so the belief is unchanged — only
+# node identity gets finer (round-31 endpoint de-collapse).
+_GENERIC_ENDPOINT_CLASSES = {
+    EndpointClass.BIOMARKER,
+    EndpointClass.PRO,
+    EndpointClass.SAFETY,
+    EndpointClass.OTHER,
+}
+
+
+def _endpoint_node_id(cls: EndpointClass, measure: str, root_ind_id: str) -> tuple[str, str]:
+    """``(node_id, display_name)`` for a (class, measure, indication). Catch-all
+    classes are sub-keyed by a normalized measure slug; standardized classes
+    collapse by class. Slug capped at 48 chars to bound the id."""
+    if cls in _GENERIC_ENDPOINT_CLASSES:
+        measure_slug = re.sub(r"[^a-z0-9]+", "_", (measure or "").lower()).strip("_")[:48]
+        if not measure_slug:
+            measure_slug = "unspecified"
+        node_id = normalize_entity(
+            f"{cls.value}_{measure_slug}_{root_ind_id}", "EndpointNode"
+        )
+        return node_id, f"{measure} [{cls.value}]"
+    node_id = normalize_entity(f"{cls.value}_{root_ind_id}", "EndpointNode")
+    return node_id, cls.value
+
 
 class JSONCache:
     """Tiny dict-style cache that flushes to a JSON file on every write.
@@ -3382,21 +3414,23 @@ class PopulationPipeline:
                     # `PFS_melanoma` node serves every melanoma subtype.
                     # Subtype-specific endpoints would fragment evidence
                     # accumulation across nodes that mean the same thing.
+                    # Catch-all classes (biomarker/safety/PRO/other) are
+                    # additionally sub-keyed by measure so distinct measures
+                    # don't all fuse into one node (round-31 de-collapse).
                     root_ind_id = _root_indication(ind_id)
-                    ep_id = normalize_entity(
-                        f"{cls.value}_{root_ind_id}", "EndpointNode"
-                    )
+                    ep_id, ep_label = _endpoint_node_id(cls, om.measure, root_ind_id)
                     try:
                         self.graph.get_node(ep_id)
                     except KeyError:
                         self.graph.add_node(EndpointNode(
                             id=ep_id,
-                            name=f"{cls.value} ({ind_name})",
+                            name=f"{ep_label} ({ind_name})",
                             endpoint_type=EndpointType.PRIMARY,
                             regulatory_status=RegulatoryStatus.EXPLORATORY,
                             measurement_properties={
                                 "endpoint_class": cls.value,
                                 "indication_id": root_ind_id,
+                                "raw_measure": om.measure,
                             },
                         ))
                         added += 1

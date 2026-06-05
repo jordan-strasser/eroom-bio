@@ -106,6 +106,14 @@ _PRIOR_TX_ALLOWED = {
     "targeted_therapy", "radiation", "surgery", "ifn_alpha",
     "il2", "vaccine", "cell_therapy",
 }
+# Demographic axes (round-31). Extracted ONLY when eligibility explicitly
+# restricts the cohort (single-sex trial, pediatric/elderly-only, an
+# ethnicity-restricted study) — never inferred from a mixed population. These
+# are subgroup stratifiers (not in _DEFAULT_POPULATION_AXES), so they fork
+# subgroup PopulationNodes off the parent enrollment cohort.
+_AGE_LEVELS = {"pediatric", "adult", "elderly"}
+_SEX_LEVELS = {"male", "female"}
+_RACE_LEVELS = {"asian", "black", "white", "hispanic"}
 
 
 def _as_str_list(v: Any) -> list[str]:
