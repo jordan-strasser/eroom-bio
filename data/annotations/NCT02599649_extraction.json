@@ -1,0 +1,182 @@
+{
+  "nct_id": "NCT02599649",
+  "therapeutic_hypothesis": {
+    "compound": "lirilumab + nivolumab + azacitidine",
+    "claimed_target": "KIR2DL1/2/3",
+    "proposed_mechanism": "NK cell receptor antagonism",
+    "intended_biology": "NK cell mediated anti-tumor immunity",
+    "target_population": "patients with myelodysplastic syndromes",
+    "primary_endpoint": "overall response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "7/10 participants with response",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High incidence of serious adverse events including febrile neutropenia, infections, and immune-related toxicities"
+    ],
+    "dose_info": {
+      "dose": "lirilumab 3 mg/kg, nivolumab 3 mg/kg, azacitidine 75 mg/m\u00b2",
+      "schedule": "lirilumab every 4 weeks, nivolumab days 7 and 21 of 28-day cycle, azacitidine 7 days of 28-day cycle",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Colitis",
+        "grade": "",
+        "incidence_treatment_pct": 20.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fever",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyponatremia",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hypotension",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Infections",
+        "grade": "",
+        "incidence_treatment_pct": 30.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Intracranial Hemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lung Infection",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myocarditis",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "myelodysplastic syndromes",
+    "comparator": "none",
+    "sample_size": 10,
+    "duration": "116 days",
+    "duration_weeks": 16.6,
+    "investigator_commentary": "Enrollment was stopped after the sponsor's decision not to pursue the development of lirilumab for myeloid malignancies."
+  },
+  "arms": [
+    {
+      "arm_id": "low_or_intermediate_1_mds_group_lirilumab",
+      "compounds": [
+        "lirilumab"
+      ]
+    },
+    {
+      "arm_id": "low_or_intermediate_1_mds_group_nivolumab_lirilumab",
+      "compounds": [
+        "lirilumab",
+        "nivolumab"
+      ]
+    },
+    {
+      "arm_id": "high_risk_mds_group_azacitidine_lirilumab",
+      "compounds": [
+        "lirilumab",
+        "azacitidine"
+      ]
+    },
+    {
+      "arm_id": "high_risk_mds_group_azacitidine_lirilumab_nivolumab",
+      "compounds": [
+        "lirilumab",
+        "nivolumab",
+        "azacitidine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "low_or_intermediate_1_mds_group_lirilumab",
+      "intervention": "lirilumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "NK cell receptor antagonism",
+      "biology_description": "NK cell mediated anti-tumor immunity",
+      "population_description": "low or intermediate-1 risk myelodysplastic syndromes",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "high_risk_mds_group_azacitidine_lirilumab",
+      "intervention": "lirilumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "NK cell receptor antagonism",
+      "biology_description": "NK cell mediated anti-tumor immunity",
+      "population_description": "high risk myelodysplastic syndromes",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "high_risk_mds_group_azacitidine_lirilumab",
+      "intervention": "azacitidine",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 6.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA methyltransferase inhibition",
+      "biology_description": "epigenetic reprogramming",
+      "population_description": "high risk myelodysplastic syndromes",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

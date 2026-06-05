@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT00075816",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement - hematopoietic stem cells were successfully engrafted with both approaches. Neutrophil engraftment was 97% vs 87% (PBSC vs BM) and platelet engraftment was superior with PBSC (91.6% vs 85.8% for >20K threshold). This demonstrates the stem cell transplantation interventions successfully engaged their intended target. 2. PATHWAY MODULATION: The intended mechanism of stem cell engraftment and reconstitution was clearly activated. Both arms showed high rates of neutrophil and platelet engraftment, confirming the transplanted stem cells successfully reconstituted hematopoiesis. PBSC showed superior engraftment metrics across multiple thresholds. 3. CLINICAL TRANSLATION: Despite successful target engagement and pathway modulation, the primary endpoint of two-year overall survival failed. PBSC achieved 51% vs BM 46% survival, which was not statistically significant and did not meet the trial's success criteria. The biological activity (superior engraftment) did not translate to improved survival. 4. POPULATION EFFECTS: The trial enrolled the appropriate population (hematologic cancer patients requiring allogeneic transplantation). While PBSC showed benefits in engraftment and reduced graft failure (3% vs 9%), it also caused higher rates of chronic GVHD (53% vs 41%), which may have offset survival benefits. 5. CONFOUNDERS: No major trial design issues. Adequate sample size (551 patients), appropriate 2-year follow-up duration, and head-to-head comparison design. The failure appears to be genuine biological - the superior engraftment was counterbalanced by increased GVHD toxicity.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Clear evidence of superior biological activity (97% vs 87% neutrophil engraftment, 91.6% vs 85.8% platelet engraftment with PBSC) but primary endpoint of two-year overall survival failed to improve significantly (51% vs 46%)"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "allogeneic_bone_marrow_transplantation",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "bone_marrow_transplant",
+      "reasoning": "Strong evidence of target engagement with 87% neutrophil engraftment and 85.8% platelet engraftment demonstrating successful stem cell transplantation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:40a8ebca0deb",
+      "support": "strong_support",
+      "affecting_arm_id": "bone_marrow_transplant",
+      "reasoning": "Clear evidence of hematopoietic reconstitution with high engraftment rates confirming the mechanism successfully affected the intended biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:40a8ebca0deb",
+      "target_entity": "leukemia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bone_marrow_transplant",
+      "reasoning": "Despite successful bone marrow recovery and immune reconstitution, overall survival was only 46% indicating the biology did not effectively drive clinical benefit in this indication"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:40a8ebca0deb",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "blood_stem_cell_transplant",
+      "reasoning": "While PBSC showed superior engraftment metrics, the increased chronic GVHD (53% vs 41%) suggests the enhanced mechanism activity may have negative consequences that offset benefits"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:40a8ebca0deb",
+      "target_entity": "leukemia",
+      "support": "ambiguous",
+      "affecting_arm_id": "blood_stem_cell_transplant",
+      "reasoning": "PBSC arm showed superior biological activity but only marginal survival improvement (51% vs 46%), with increased GVHD complications creating mixed signals about whether the biology drives clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_myelodysplastic_myeloproliferative_diseases",
+      "target_entity": "leukemia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Two-year overall survival is an appropriate and well-established endpoint for evaluating transplantation outcomes in hematologic malignancies"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "leukemia__unselected",
+      "target_entity": "leukemia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The unselected hematologic cancer population showed minimal survival benefit despite superior engraftment with PBSC, suggesting this broad population may not be optimal for demonstrating transplant superiority"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

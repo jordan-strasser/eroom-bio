@@ -1,0 +1,188 @@
+{
+  "nct_id": "NCT00833248",
+  "therapeutic_hypothesis": {
+    "compound": "degarelix",
+    "claimed_target": "GnRH receptor",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "androgen suppression",
+    "target_population": "prostate cancer patients requiring neoadjuvant androgen deprivation therapy",
+    "primary_endpoint": "change from baseline in prostate size at week 12",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "-0.3 mL difference (95% CI: -4.74 to 4.14)",
+    "p_value": 0.8942,
+    "target_engagement_evidence": "testosterone suppression achieved in both arms",
+    "biomarker_changes": [
+      "testosterone decreased by median -3.8 ng/mL (degarelix) vs -4.22 ng/mL (goserelin+bicalutamide) at week 4",
+      "PSA decreased by median -6.3 ng/mL (degarelix) vs -5.9 ng/mL (goserelin+bicalutamide) at week 4",
+      "estradiol decreased by median -1.55 ng/dL (degarelix) vs -1.65 ng/dL (goserelin+bicalutamide) at week 4"
+    ],
+    "subgroup_findings": [
+      "IPSS scores improved more with degarelix (-1.71) vs goserelin+bicalutamide (0.11) at week 12",
+      "Quality of life scores improved with degarelix (-0.33) vs worsened with goserelin+bicalutamide (0.16) at week 12"
+    ],
+    "safety_signals": [
+      "higher incidence of hematocrit abnormalities with degarelix (31 vs 8 participants)",
+      "more body weight increases \u22657% with degarelix (5 vs 0 participants)"
+    ],
+    "dose_info": {
+      "dose": "240 mg loading, 80 mg maintenance",
+      "schedule": "subcutaneous every 28 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "retinal detachment",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "alanine aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "gastric cancer",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "lung neoplasm malignant",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "urinary retention",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "prostate cancer",
+    "comparator": "goserelin plus bicalutamide",
+    "sample_size": 246,
+    "duration": "12 weeks",
+    "duration_weeks": 12.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "degarelix_240_mg_80_mg",
+      "compounds": [
+        "degarelix"
+      ]
+    },
+    {
+      "arm_id": "goserelin_3_6_mg_bicalutamide_50_mg",
+      "compounds": [
+        "goserelin",
+        "bicalutamide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Week 4",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_4"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 8",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_8"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 12",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_12"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "degarelix_240_mg_80_mg",
+      "intervention": "degarelix",
+      "subgroup_descriptor": null,
+      "endpoint": "prostate size reduction",
+      "effect_size": -36.0,
+      "p_value": 0.8942,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "androgen suppression",
+      "population_description": "prostate cancer patients requiring neoadjuvant androgen deprivation therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "goserelin_3_6_mg_bicalutamide_50_mg",
+      "intervention": "goserelin",
+      "subgroup_descriptor": null,
+      "endpoint": "prostate size reduction",
+      "effect_size": -35.3,
+      "p_value": 0.8942,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "androgen suppression",
+      "population_description": "prostate cancer patients requiring neoadjuvant androgen deprivation therapy",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "goserelin_3_6_mg_bicalutamide_50_mg",
+      "intervention": "bicalutamide",
+      "subgroup_descriptor": null,
+      "endpoint": "prostate size reduction",
+      "effect_size": -35.3,
+      "p_value": 0.8942,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "androgen receptor blockade",
+      "population_description": "prostate cancer patients requiring neoadjuvant androgen deprivation therapy",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bicalutamide",
+      "primary_compound_id": "goserelin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "bicalutamide provides anti-androgen flare protection during goserelin initiation",
+      "citation": "On Day 0, participants began once-daily per-oral (p.o.) treatment with bicalutamide (50 mg) as anti-androgen flare protection"
+    }
+  ]
+}

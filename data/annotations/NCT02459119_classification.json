@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT02459119",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm regorafenib engaged VEGFR2. The trial provides no evidence of target engagement. 2. PATHWAY MODULATION: No pathway biomarkers or downstream readouts reported to assess whether kinase inhibition or angiogenesis inhibition occurred. 3. CLINICAL TRANSLATION: Primary endpoint was PFS at 6 months. Only 3/17 participants (17.6%) achieved PFS at 6 months, which appears to be a poor response rate for this endpoint in urothelial cancer. No p-value reported but the low response rate suggests clinical failure. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a single-arm Phase 2 trial with only 17 participants, which is quite small. However, the very low PFS rate (3/17) suggests the drug likely failed rather than the trial being underpowered. The high rate of serious adverse events (13/17 participants with AEs, multiple SAEs) indicates significant toxicity but doesn't appear to have prevented dosing completion.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm trial with no control group, no historical benchmark provided, no p-value reported, and very small sample size (n=17). The 3/17 PFS rate provides some signal but without a comparator or historical context, the clinical significance is unclear."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "urothelial_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "regorafenib",
+      "reasoning": "Only 3/17 participants achieved PFS at 6 months (17.6%), suggesting angiogenesis inhibition did not effectively drive clinical benefit in urothelial cancer"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0045860",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_contradict",
+      "affecting_arm_id": "regorafenib",
+      "reasoning": "No biomarker evidence that kinase inhibition led to effective angiogenesis inhibition, and poor clinical outcome suggests the mechanism-to-biology translation failed"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_urothelial_cancer",
+      "target_entity": "urothelial_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "PFS at 6 months was measured but without a control arm or historical benchmark, cannot assess whether this endpoint appropriately captures clinical benefit in this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "urothelial_cancer__extent_metastatic__line_second",
+      "target_entity": "urothelial_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Low PFS rate (3/17, 17.6%) suggests this population (metastatic urothelial cancer, second-line) did not respond well to regorafenib"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial with very small sample size and no historical benchmark makes it difficult to definitively classify the failure mechanism. The low PFS rate suggests failure but the lack of comparator limits confidence in the assessment."
+}

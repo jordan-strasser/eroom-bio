@@ -1,0 +1,161 @@
+{
+  "nct_id": "NCT01433991",
+  "therapeutic_hypothesis": {
+    "compound": "golvatinib + lenvatinib",
+    "claimed_target": "c-Met, VEGFR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "angiogenesis inhibition",
+    "target_population": "advanced solid tumors",
+    "primary_endpoint": "dose limiting toxicity and maximum tolerated dose",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "MTD: Golvatinib 300 mg + Lenvatinib 20 mg daily",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "ORR 28.6% in Cohort 3 (Lenvatinib 20 mg + Golvatinib 300 mg)",
+      "ORR 12.5% in Cohort 4 (Lenvatinib 20 mg + Golvatinib 400 mg)"
+    ],
+    "safety_signals": [
+      "DLTs observed in 4/14 participants in Cohort 3 and 2/8 participants in Cohort 4",
+      "Serious adverse events included abdominal pain, intestinal perforation, large intestinal obstruction"
+    ],
+    "dose_info": {
+      "dose": "Golvatinib 200-400 mg, Lenvatinib 12-20 mg",
+      "schedule": "once daily, 28-day cycles",
+      "max_tolerated_dose": "Golvatinib 300 mg + Lenvatinib 20 mg",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "intestinal perforation",
+        "grade": "",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "large intestinal obstruction",
+        "grade": "",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "diarrhoea",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pyrexia",
+        "grade": "",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced solid tumors",
+    "comparator": "",
+    "sample_size": 30,
+    "duration": "approximately 5 years 5 months",
+    "duration_weeks": 282.6,
+    "investigator_commentary": "Study was terminated by the sponsor early at the end of Phase 1b due to a change in corporate strategy."
+  },
+  "arms": [
+    {
+      "arm_id": "phase_1b",
+      "compounds": [
+        "golvatinib",
+        "lenvatinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_cohort_1_arm_a",
+      "compounds": [
+        "golvatinib",
+        "lenvatinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_cohort_1_arm_b",
+      "compounds": [
+        "golvatinib",
+        "lenvatinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_cohort_2_arm_c",
+      "compounds": [
+        "golvatinib",
+        "lenvatinib"
+      ]
+    },
+    {
+      "arm_id": "phase_2_cohort_2_arm_d",
+      "compounds": [
+        "golvatinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "phase_1b",
+      "intervention": "golvatinib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 28.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "advanced solid tumors",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "phase_1b",
+      "intervention": "lenvatinib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 28.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "advanced solid tumors",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "golvatinib",
+      "primary_compound_id": "lenvatinib",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "c-Met inhibition may enhance anti-angiogenic effects of VEGFR inhibition",
+      "citation": "Study was terminated by the sponsor early at the end of Phase 1b due to a change in corporate strategy."
+    }
+  ]
+}

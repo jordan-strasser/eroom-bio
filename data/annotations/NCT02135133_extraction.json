@@ -1,0 +1,110 @@
+{
+  "nct_id": "NCT02135133",
+  "therapeutic_hypothesis": {
+    "compound": "idelalisib + ofatumumab",
+    "claimed_target": "PI3K delta",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "B-cell apoptosis and antibody-dependent cytotoxicity",
+    "target_population": "previously untreated chronic lymphocytic leukemia/small lymphocytic lymphoma",
+    "primary_endpoint": "overall response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "89% ORR (95% CI: 77-100%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "elevated transaminases",
+      "neutropenia"
+    ],
+    "dose_info": {
+      "dose": "150 mg BID idelalisib, 1000 mg ofatumumab",
+      "schedule": "idelalisib daily, ofatumumab weekly x8 then monthly x4",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Alanine aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 14.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Aspartate aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 14.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutrophil count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 7.4,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "previously untreated chronic lymphocytic leukemia/small lymphocytic lymphoma",
+    "comparator": "none",
+    "sample_size": 27,
+    "duration": "median 243 days (range 9-620 days)",
+    "duration_weeks": 34.7,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "idelalisib_ofatumumab",
+      "compounds": [
+        "idelalisib",
+        "ofatumumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "idelalisib_ofatumumab",
+      "intervention": "idelalisib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.89,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "B-cell apoptosis",
+      "population_description": "previously untreated chronic lymphocytic leukemia/small lymphocytic lymphoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "idelalisib_ofatumumab",
+      "intervention": "ofatumumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.89,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "CD20 binding",
+      "biology_description": "antibody-dependent cytotoxicity",
+      "population_description": "previously untreated chronic lymphocytic leukemia/small lymphocytic lymphoma",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ofatumumab",
+      "primary_compound_id": "idelalisib",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "CD20-targeted antibody enhances PI3K delta inhibition-induced B-cell death through complementary cytotoxic mechanisms",
+      "citation": "89% ORR achieved with combination therapy in previously untreated CLL/SLL patients"
+    }
+  ]
+}

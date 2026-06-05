@@ -1,0 +1,222 @@
+{
+  "nct_id": "NCT01941316",
+  "therapeutic_hypothesis": {
+    "compound": "carfilzomib + irinotecan",
+    "claimed_target": "proteasome",
+    "proposed_mechanism": "proteasome inhibition",
+    "intended_biology": "protein degradation-induced apoptosis",
+    "target_population": "patients with relapsed small cell lung cancer, non-small cell lung cancer, or other irinotecan-sensitive cancers",
+    "primary_endpoint": "maximum tolerated dose (Phase Ib) and overall survival rate at 6 months (Phase II)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD: 20 mg/m\u00b2 (cycle 1 days 1-2), 36 mg/m\u00b2 (subsequent doses); 6-month OS: 59% (platinum sensitive), 54% (platinum refractory)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Platinum sensitive disease: 6-month OS 59% vs platinum refractory 54%",
+      "Platinum sensitive disease: 6-month PFS 32% vs platinum refractory 12%",
+      "Overall response rate varied by dose cohort: 25% (20/27 mg/m\u00b2), 11.1% (20/36 mg/m\u00b2), 33.3% (20/45 mg/m\u00b2)"
+    ],
+    "safety_signals": [
+      "Dose limiting toxicities included dehydration and diarrhea at higher doses",
+      "Common serious adverse events: diarrhea (13/62 in Phase II), dehydration (10/62 in Phase II)"
+    ],
+    "dose_info": {
+      "dose": "carfilzomib 20/36 mg/m\u00b2, irinotecan 125 mg/m\u00b2",
+      "schedule": "carfilzomib days 1,2,8,9,15,16; irinotecan days 1,8,15 of 28-day cycles",
+      "max_tolerated_dose": "20 mg/m\u00b2 (cycle 1 days 1-2), 36 mg/m\u00b2 (subsequent doses)",
+      "dose_modifications": "treatment until progression, unacceptable toxicity, or delay >3 weeks"
+    },
+    "adverse_events": [
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 21.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 16.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Generalized muscle weakness",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "relapsed small cell lung cancer, non-small cell lung cancer, and other irinotecan-sensitive cancers",
+    "comparator": "none",
+    "sample_size": 78,
+    "duration": "6 cycles or until progression",
+    "duration_weeks": 24.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "phase_ii",
+      "compounds": [
+        "carfilzomib",
+        "irinotecan"
+      ]
+    },
+    {
+      "arm_id": "phase_ib_cohort_1_20_27_mg_m_2_carfilzomib_125_mg_m_2_irinotecan",
+      "compounds": [
+        "carfilzomib",
+        "irinotecan"
+      ]
+    },
+    {
+      "arm_id": "phase_ib_cohort_2_20_36_mg_m_2_carfilzomib_125_mg_m_2_irinotecan",
+      "compounds": [
+        "carfilzomib",
+        "irinotecan"
+      ]
+    },
+    {
+      "arm_id": "phase_ib_cohort_1_20_45_mg_m_2_carfilzomib_125_mg_m_2_irinotecan",
+      "compounds": [
+        "carfilzomib",
+        "irinotecan"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Platinum Sensitive Disease",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Platinum Refractory Disease",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "phase_ii",
+      "intervention": "carfilzomib",
+      "subgroup_descriptor": "Platinum Sensitive Disease",
+      "endpoint": "OS",
+      "effect_size": 0.59,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "proteasome inhibition",
+      "biology_description": "protein degradation-induced apoptosis",
+      "population_description": "relapsed small cell lung cancer patients with platinum sensitive disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "phase_ii",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": "Platinum Sensitive Disease",
+      "endpoint": "OS",
+      "effect_size": 0.59,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "topoisomerase I inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "relapsed small cell lung cancer patients with platinum sensitive disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "phase_ii",
+      "intervention": "carfilzomib",
+      "subgroup_descriptor": "Platinum Refractory Disease",
+      "endpoint": "OS",
+      "effect_size": 0.54,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "proteasome inhibition",
+      "biology_description": "protein degradation-induced apoptosis",
+      "population_description": "relapsed small cell lung cancer patients with platinum refractory disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "phase_ii",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": "Platinum Refractory Disease",
+      "endpoint": "OS",
+      "effect_size": 0.54,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "topoisomerase I inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "relapsed small cell lung cancer patients with platinum refractory disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "phase_ib_cohort_1_20_27_mg_m_2_carfilzomib_125_mg_m_2_irinotecan",
+      "intervention": "carfilzomib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.25,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "proteasome inhibition",
+      "biology_description": "protein degradation-induced apoptosis",
+      "population_description": "patients with relapsed small cell lung cancer, non-small cell lung cancer, or other irinotecan-sensitive cancers",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "phase_ib_cohort_1_20_27_mg_m_2_carfilzomib_125_mg_m_2_irinotecan",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.25,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "topoisomerase I inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with relapsed small cell lung cancer, non-small cell lung cancer, or other irinotecan-sensitive cancers",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "carfilzomib",
+      "primary_compound_id": "irinotecan",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "proteasome inhibition may enhance DNA damage-induced apoptosis by preventing repair protein synthesis",
+      "citation": "Study of Carfilzomib With Irinotecan in Irinotecan-Sensitive Malignancies"
+    }
+  ]
+}

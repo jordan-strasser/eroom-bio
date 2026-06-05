@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT01434472",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether yttrium Y-90 ibritumomab tiuxetan engaged CD20 or whether rituximab engaged its target. No PD/PK data reported. 2. PATHWAY MODULATION: No evidence of downstream pathway changes or B-cell depletion biomarkers reported. 3. CLINICAL TRANSLATION: Primary endpoint (1-year PFS) was not met - only 11 participants achieved 1-year PFS out of 20 enrolled. No p-value reported but effect size suggests poor efficacy. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Trial was terminated due to insufficient funding, which may have affected enrollment and follow-up. However, the trial did complete with 20 patients and 104 weeks duration, providing an efficacy readout. The high rate of serious adverse events (multiple SAEs affecting 50%+ of patients) and treatment-related mortality (1/20 = 5%) suggest significant toxicity that may have limited effective dosing.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Treatment-related mortality in 1/20 patients (5%), multiple serious adverse events including thromboembolic events, infections, organ toxicity, and neutropenic fever affecting majority of patients. High SAE burden likely prevented optimal dosing of the radiolabeled antibody component."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No biomarker data, no target engagement measurements, no PD readouts to assess where in the causal chain the failure occurred. Trial terminated for funding reasons which may have limited data collection."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:164b99bb6778",
+      "target_entity": "post_transplant_lymphoproliferative_disorder",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_radiolabeled_antibody_tbi_allogeneic_pbsct",
+      "reasoning": "Primary endpoint missed with only 11/20 patients achieving 1-year PFS, suggesting B-cell depletion biology did not drive clinical benefit in this indication"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:164b99bb6778",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_radiolabeled_antibody_tbi_allogeneic_pbsct",
+      "reasoning": "No evidence that antibody-dependent cytotoxicity mechanism effectively produced B-cell depletion, given poor clinical outcomes"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_diffuse_large_b_cell_lymphoma",
+      "target_entity": "post_transplant_lymphoproliferative_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS is an appropriate endpoint for lymphoproliferative disorders and was measured, though the trial failed to demonstrate benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "post_transplant_lymphoproliferative_disorder__line_third_plus",
+      "target_entity": "post_transplant_lymphoproliferative_disorder",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This heavily pretreated population showed poor response with only 55% achieving 1-year PFS, suggesting limited benefit in this patient subset"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated for funding reasons with limited biomarker data makes it difficult to determine precise failure mechanism. High toxicity burden and treatment-related mortality suggest dose-limiting toxicity, but lack of PD data prevents confident assessment of target engagement vs downstream pathway failure."
+}

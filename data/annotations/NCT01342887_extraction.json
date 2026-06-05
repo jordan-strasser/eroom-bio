@@ -1,0 +1,155 @@
+{
+  "nct_id": "NCT01342887",
+  "therapeutic_hypothesis": {
+    "compound": "cyclosporine + pravastatin + mitoxantrone + etoposide",
+    "claimed_target": "P-glycoprotein",
+    "proposed_mechanism": "efflux pump inhibition",
+    "intended_biology": "chemotherapy resistance reversal",
+    "target_population": "relapsed or refractory acute myeloid leukemia",
+    "primary_endpoint": "maximum tolerated dose",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0 doses tolerated",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High rate of serious adverse events including sepsis (67%), febrile neutropenia (17%), and acute kidney injury (17%)"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "0 doses tolerated",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Sepsis",
+        "grade": "",
+        "incidence_treatment_pct": 66.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute Kidney Injury",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "relapsed or refractory acute myeloid leukemia",
+    "comparator": "none",
+    "sample_size": 6,
+    "duration": "up to 22 weeks",
+    "duration_weeks": 22.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "treatment_immunosuppression_enzyme_inhibitor_and_chemo",
+      "compounds": [
+        "cyclosporine",
+        "pravastatin",
+        "mitoxantrone",
+        "etoposide"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "treatment_immunosuppression_enzyme_inhibitor_and_chemo",
+      "intervention": "cyclosporine",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "efflux pump inhibition",
+      "biology_description": "chemotherapy resistance reversal",
+      "population_description": "relapsed or refractory acute myeloid leukemia",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "treatment_immunosuppression_enzyme_inhibitor_and_chemo",
+      "intervention": "pravastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholesterol synthesis inhibition",
+      "population_description": "relapsed or refractory acute myeloid leukemia",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "treatment_immunosuppression_enzyme_inhibitor_and_chemo",
+      "intervention": "mitoxantrone",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA intercalation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "relapsed or refractory acute myeloid leukemia",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "treatment_immunosuppression_enzyme_inhibitor_and_chemo",
+      "intervention": "etoposide",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "topoisomerase inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "relapsed or refractory acute myeloid leukemia",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cyclosporine",
+      "primary_compound_id": "mitoxantrone",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "cyclosporine inhibits P-glycoprotein efflux to enhance mitoxantrone intracellular accumulation",
+      "citation": "0 doses tolerated"
+    },
+    {
+      "modulator_compound_id": "cyclosporine",
+      "primary_compound_id": "etoposide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "cyclosporine inhibits P-glycoprotein efflux to enhance etoposide intracellular accumulation",
+      "citation": "0 doses tolerated"
+    },
+    {
+      "modulator_compound_id": "pravastatin",
+      "primary_compound_id": "mitoxantrone",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.7,
+      "hypothesis": "pravastatin modulates membrane composition to enhance chemotherapy efficacy",
+      "citation": "0 doses tolerated"
+    }
+  ]
+}

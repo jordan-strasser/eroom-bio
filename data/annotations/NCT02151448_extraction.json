@@ -1,0 +1,253 @@
+{
+  "nct_id": "NCT02151448",
+  "therapeutic_hypothesis": {
+    "compound": "\u03b1DC1 vaccine + chemokine modulatory regimen (celecoxib + interferon alfa-2b + rintatolimod)",
+    "claimed_target": "dendritic cells",
+    "proposed_mechanism": "antigen presentation enhancement",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "peritoneal surface malignancies",
+    "primary_endpoint": "recommended phase 2 dose and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "RP2D established; median OS 52 months",
+    "p_value": null,
+    "target_engagement_evidence": "CXCL10 increased from 1221.5 to 16335.0 pg/mL at week 4",
+    "biomarker_changes": [
+      "CXCL10 increased 13-fold at week 4 (1221.5 to 16335.0 pg/mL)",
+      "CXCL11 increased 36-fold at week 4 (359.4 to 12893.2 pg/mL)",
+      "IL-10 increased 6.6-fold at week 4 (1.2 to 7.9 pg/mL)",
+      "IL-6 increased 2.2-fold at week 4 (15.2 to 32.8 pg/mL)",
+      "TNF\u03b1 increased 2.9-fold at week 4 (10.8 to 31.0 pg/mL)",
+      "SDF-1A/CXCL-12 increased 1.7-fold at week 4 (1267.3 to 2160.3 pg/mL)"
+    ],
+    "subgroup_findings": [
+      "Mesothelioma patients had median PFS not reached",
+      "Colon cancer patients had median PFS 19 months",
+      "Appendiceal cancer patients had median PFS 16 months"
+    ],
+    "safety_signals": [
+      "Most common AEs were chills (53%), fatigue (23%), nausea (20%), headache (16%)",
+      "Grade 3-4 AEs were rare: anemia (1.6%), diarrhea (1.6%), heart failure (1.6%)",
+      "Treatment was generally well tolerated"
+    ],
+    "dose_info": {
+      "dose": "DC vaccine 3x10e6 cells; interferon 5-20 MU/m2; rintatolimod 200 mg; celecoxib 200-400 mg",
+      "schedule": "DC vaccine weekly x4 cycles; interferon Tuesday; rintatolimod Wednesday/Friday; celecoxib daily",
+      "max_tolerated_dose": "20 MU/m2 interferon alfa-2b",
+      "dose_modifications": "rintatolimod de-escalation to 100 mg allowed for AEs"
+    },
+    "adverse_events": [
+      {
+        "term": "Chills",
+        "grade": "1-2",
+        "incidence_treatment_pct": 53.1,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Fatigue",
+        "grade": "1-2",
+        "incidence_treatment_pct": 23.4,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Nausea",
+        "grade": "1-2",
+        "incidence_treatment_pct": 20.3,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Headache",
+        "grade": "1-2",
+        "incidence_treatment_pct": 15.6,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Anemia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Heart failure",
+        "grade": "3-4",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "3-4",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "peritoneal surface malignancies (pancreatic, mesothelioma, carcinomatosis)",
+    "comparator": "none (single-arm)",
+    "sample_size": 64,
+    "duration": "24 weeks treatment, up to 5 years follow-up",
+    "duration_weeks": 24.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "compounds": [
+        "\u03b1DC1_vaccine",
+        "celecoxib",
+        "interferon_alfa_2b",
+        "rintatolimod"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "colon cancer",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "colon_cancer"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "appendiceal cancer",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "appendiceal_cancer"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Mesothelioma",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "mesothelioma"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "\u03b1DC1_vaccine",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 52.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "antigen presentation enhancement",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "peritoneal surface malignancies after cytoreductive surgery",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "celecoxib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 52.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "inflammation suppression",
+      "population_description": "peritoneal surface malignancies after cytoreductive surgery",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "interferon_alfa_2b",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 52.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "immune costimulation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "peritoneal surface malignancies after cytoreductive surgery",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "rintatolimod",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 52.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "immune costimulation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "peritoneal surface malignancies after cytoreductive surgery",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "\u03b1DC1_vaccine",
+      "subgroup_descriptor": "colon cancer",
+      "endpoint": "PFS",
+      "effect_size": 19.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "antigen presentation enhancement",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "colon cancer with peritoneal carcinomatosis after cytoreductive surgery",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "vaccine_chemokine_modulatory_regimen",
+      "intervention": "\u03b1DC1_vaccine",
+      "subgroup_descriptor": "appendiceal cancer",
+      "endpoint": "PFS",
+      "effect_size": 16.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "antigen presentation enhancement",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "appendiceal cancer with peritoneal carcinomatosis after cytoreductive surgery",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "celecoxib",
+      "primary_compound_id": "\u03b1DC1_vaccine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "COX-2 inhibition reduces immunosuppressive prostaglandins to enhance vaccine-induced T-cell responses",
+      "citation": "celecoxib administered as part of chemokine modulatory regimen to enhance DC vaccine efficacy"
+    },
+    {
+      "modulator_compound_id": "interferon_alfa_2b",
+      "primary_compound_id": "\u03b1DC1_vaccine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.8,
+      "hypothesis": "Type I interferon enhances T-cell activation and proliferation downstream of DC antigen presentation",
+      "citation": "interferon administered as part of chemokine modulatory regimen with demonstrated CXCL10/CXCL11 upregulation"
+    },
+    {
+      "modulator_compound_id": "rintatolimod",
+      "primary_compound_id": "\u03b1DC1_vaccine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "TLR3 agonism provides adjuvant effect to enhance vaccine-induced immune responses",
+      "citation": "rintatolimod administered as part of chemokine modulatory regimen to enhance DC vaccine efficacy"
+    }
+  ]
+}

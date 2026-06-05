@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT03515837",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers reported, but clinical success with pembrolizumab (PD-1 inhibitor) implies target engagement given the established mechanism. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the clinical efficacy suggests downstream immune activation occurred. 3. CLINICAL TRANSLATION: Both primary endpoints (PFS and OS) were met with statistically significant improvements (PFS HR 0.80, p=0.0122; OS HR 0.84, p=0.0362). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: No major trial design issues - adequate sample size (492 patients), appropriate duration (~51 months), balanced safety profile between arms.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "bemcentinib_pembrolizumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success with pembrolizumab implies target engagement - PD-1 blockade is required for the observed clinical benefit"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pemetrexed",
+      "target_entity": "ENSG00000228716",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success with pemetrexed implies target engagement - DHFR inhibition is required for the observed clinical benefit"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carboplatin",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success with carboplatin implies target engagement - DNA binding is required for the observed clinical benefit"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cisplatin",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success with cisplatin implies target engagement - DNA binding is required for the observed clinical benefit"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "GO:0050868",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies PD-1 engagement led to negative regulation of T cell activation (checkpoint release)"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000228716",
+      "target_entity": "GO:0035999",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies DHFR inhibition led to tetrahydrofolate metabolism disruption"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "CHEBI:16991",
+      "target_entity": "dna_damage",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies DNA binding led to DNA damage for both platinum agents"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0050868",
+      "target_entity": "bio:b7810065331b",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies checkpoint blockade mechanism led to enhanced T-cell mediated anti-tumor immunity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0035999",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies folate metabolism disruption led to DNA-damage-induced apoptosis"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success implies DNA damage mechanism led to DNA-damage-induced apoptosis"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success demonstrates T-cell mediated anti-tumor immunity drives benefit in NSCLC"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "pembro_pemetrexed_chemo",
+      "reasoning": "Clinical success demonstrates DNA-damage-induced apoptosis drives benefit in NSCLC"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_non_small_cell_lung_cancer",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS met primary endpoint with significant improvement (HR 0.80, p=0.0122) and is a validated surrogate for clinical benefit in NSCLC"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__line_second__stage_iv",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Both primary endpoints met with significant improvements in this TKI-resistant EGFR-mutated population"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

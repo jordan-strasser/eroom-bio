@@ -1,0 +1,123 @@
+{
+  "nct_id": "NCT01535053",
+  "therapeutic_hypothesis": {
+    "compound": "dactinomycin vs methotrexate",
+    "claimed_target": "DNA",
+    "proposed_mechanism": "DNA intercalation and antimetabolite interference",
+    "intended_biology": "DNA-damage-induced apoptosis",
+    "target_population": "patients with low-risk gestational trophoblastic neoplasia",
+    "primary_endpoint": "percentage of participants with complete response",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Dactinomycin: 78.6% (95% CI: 59.0-91.7), Methotrexate: 88.5% (95% CI: 69.8-97.6)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "hCG levels monitored for complete response assessment"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 3 adverse events occurred in both arms",
+      "One serious psychiatric disorder in dactinomycin arm",
+      "One serious appendicitis in methotrexate arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 1 adverse events",
+        "grade": "1",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": 15.4,
+        "serious": false
+      },
+      {
+        "term": "Grade 2 adverse events",
+        "grade": "2",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": 38.5,
+        "serious": false
+      },
+      {
+        "term": "Grade 3 adverse events",
+        "grade": "3",
+        "incidence_treatment_pct": 21.4,
+        "incidence_control_pct": 38.5,
+        "serious": false
+      },
+      {
+        "term": "Appendicitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.8,
+        "serious": true
+      },
+      {
+        "term": "Psychiatric Disorders - Other",
+        "grade": "",
+        "incidence_treatment_pct": 3.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "low-risk gestational trophoblastic neoplasia",
+    "comparator": "methotrexate with leucovorin",
+    "sample_size": 57,
+    "duration": "up to 10 months treatment with 1 year follow-up",
+    "duration_weeks": 43.5,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_dactinomcin",
+      "compounds": [
+        "dactinomycin"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_leucovorin_calcium_and_methotrexate",
+      "compounds": [
+        "methotrexate",
+        "leucovorin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_dactinomcin",
+      "intervention": "dactinomycin",
+      "subgroup_descriptor": null,
+      "endpoint": "complete response rate",
+      "effect_size": 78.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA intercalation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with low-risk gestational trophoblastic neoplasia",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "arm_ii_leucovorin_calcium_and_methotrexate",
+      "intervention": "methotrexate",
+      "subgroup_descriptor": null,
+      "endpoint": "complete response rate",
+      "effect_size": 88.5,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "folate antimetabolite interference",
+      "biology_description": "DNA synthesis inhibition and apoptosis",
+      "population_description": "patients with low-risk gestational trophoblastic neoplasia",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": []
+}

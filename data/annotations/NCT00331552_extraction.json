@@ -1,0 +1,232 @@
+{
+  "nct_id": "NCT00331552",
+  "therapeutic_hypothesis": {
+    "compound": "pegylated liposomal doxorubicin + cyclophosphamide + trastuzumab",
+    "claimed_target": "HER2",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "HER2-mediated growth inhibition",
+    "target_population": "HER2-positive stage IV breast cancer",
+    "primary_endpoint": "overall clinical benefit rate",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "21/28 patients achieved clinical benefit (75%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Heavily pre-treated patients: 9/16 clinical benefit",
+      "Less heavily pre-treated patients: 7/12 clinical benefit"
+    ],
+    "safety_signals": [
+      "14/28 patients experienced grade 3 adverse events",
+      "3/28 patients experienced grade 4 adverse events",
+      "18/28 patients required dose reduction or interruption",
+      "8/28 patients discontinued due to toxicity"
+    ],
+    "dose_info": {
+      "dose": "30 mg/m\u00b2",
+      "schedule": "",
+      "max_tolerated_dose": "30 mg/m\u00b2",
+      "dose_modifications": "18/28 patients had at least one dose held or reduced"
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3 adverse events",
+        "grade": "3",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 adverse events",
+        "grade": "4",
+        "incidence_treatment_pct": 10.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 2 Neutropenia",
+        "grade": "2",
+        "incidence_treatment_pct": 3.6,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 3 Neutropenia",
+        "grade": "3",
+        "incidence_treatment_pct": 3.6,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "HER2-positive stage IV breast cancer",
+    "comparator": "none",
+    "sample_size": 30,
+    "duration": "18 months",
+    "duration_weeks": 78.2,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i",
+      "compounds": [
+        "pegylated liposomal doxorubicin",
+        "cyclophosphamide",
+        "trastuzumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Heavily Pre-treated",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Less Heavily Pre-treated",
+      "features": [
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i",
+      "intervention": "pegylated liposomal doxorubicin",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical benefit rate",
+      "effect_size": 75.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA intercalation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "HER2-positive stage IV breast cancer",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "cyclophosphamide",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical benefit rate",
+      "effect_size": 75.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "HER2-positive stage IV breast cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "clinical benefit rate",
+      "effect_size": 75.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "HER2-positive stage IV breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": "Heavily Pre-treated",
+      "endpoint": "clinical benefit rate",
+      "effect_size": 56.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "heavily pre-treated HER2-positive stage IV breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": "Less Heavily Pre-treated",
+      "endpoint": "clinical benefit rate",
+      "effect_size": 58.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "HER2-mediated growth inhibition",
+      "population_description": "treatment-naive HER2-positive stage IV breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "pegylated liposomal doxorubicin",
+      "primary_compound_id": "trastuzumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "DNA damage from doxorubicin enhances HER2-targeted therapy efficacy",
+      "citation": "combination of pegylated liposomal doxorubicin hydrochloride, cyclophosphamide, and trastuzumab achieved 75% clinical benefit rate"
+    },
+    {
+      "modulator_compound_id": "cyclophosphamide",
+      "primary_compound_id": "trastuzumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "DNA cross-linking from cyclophosphamide enhances HER2-targeted therapy efficacy",
+      "citation": "combination of pegylated liposomal doxorubicin hydrochloride, cyclophosphamide, and trastuzumab achieved 75% clinical benefit rate"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "nct_id": "NCT03144687",
+  "therapeutic_hypothesis": {
+    "compound": "itacitinib",
+    "claimed_target": "JAK1",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "JAK-STAT pathway suppression",
+    "target_population": "participants with myelofibrosis",
+    "primary_endpoint": "change in spleen volume at week 24",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Cohort A: 88.7 cm\u00b3 increase; Cohort B: -207 cm\u00b3 decrease",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "TEAEs occurred in 13/13 Cohort A and 10/10 Cohort B participants",
+      "SAEs occurred in 3/13 Cohort A and 5/10 Cohort B participants"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "back pain",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "blood creatinine increased",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "bronchitis",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "campylobacter gastroenteritis",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cardiac failure congestive",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cellulitis",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "clostridium difficile infection",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cough",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "diarrhoea",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "myelofibrosis",
+    "comparator": "none",
+    "sample_size": 23,
+    "duration": "up to approximately 40 months",
+    "duration_weeks": 173.8,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_a",
+      "compounds": [
+        "itacitinib",
+        "ruxolitinib"
+      ]
+    },
+    {
+      "arm_id": "cohort_b",
+      "compounds": [
+        "itacitinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cohort_a",
+      "intervention": "itacitinib",
+      "subgroup_descriptor": null,
+      "endpoint": "spleen volume change",
+      "effect_size": 88.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "JAK-STAT pathway suppression",
+      "population_description": "participants with myelofibrosis",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "cohort_a",
+      "intervention": "ruxolitinib",
+      "subgroup_descriptor": null,
+      "endpoint": "spleen volume change",
+      "effect_size": 88.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "JAK-STAT pathway suppression",
+      "population_description": "participants with myelofibrosis",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "cohort_b",
+      "intervention": "itacitinib",
+      "subgroup_descriptor": null,
+      "endpoint": "spleen volume change",
+      "effect_size": -207.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "JAK-STAT pathway suppression",
+      "population_description": "participants with myelofibrosis",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ruxolitinib",
+      "primary_compound_id": "itacitinib",
+      "affects_layer": "biology",
+      "direction": "suppresses",
+      "confidence": 0.85,
+      "hypothesis": "combination with low-dose ruxolitinib may interfere with itacitinib monotherapy efficacy",
+      "citation": "Cohort A (combination): 88.7 cm\u00b3 increase vs Cohort B (monotherapy): -207 cm\u00b3 decrease in spleen volume"
+    }
+  ]
+}

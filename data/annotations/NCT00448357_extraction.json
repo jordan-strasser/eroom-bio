@@ -1,0 +1,233 @@
+{
+  "nct_id": "NCT00448357",
+  "therapeutic_hypothesis": {
+    "compound": "busulfan-based conditioning regimen",
+    "claimed_target": "DNA",
+    "proposed_mechanism": "DNA cross-linking / alkylation",
+    "intended_biology": "myeloablation for donor engraftment",
+    "target_population": "patients with hematologic malignancies requiring allogeneic hematopoietic cell transplantation",
+    "primary_endpoint": "three-year relapse-free survival rate",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "43% RFS at high busulfan AUC tertile",
+    "p_value": null,
+    "target_engagement_evidence": "PK-targeted busulfan dosing achieved target AUC levels",
+    "biomarker_changes": [
+      "Whole blood chimerism achieved in 49/54 patients",
+      ">=95% donor chimerism in 47/54 patients",
+      "T cell chimerism >=95% donor in 30/54 patients"
+    ],
+    "subgroup_findings": [
+      "Higher busulfan AUC associated with improved survival",
+      "Acute GVHD grade >=II occurred in 28/54 patients",
+      "Chronic GVHD intermediate/severe in 12/54 patients"
+    ],
+    "safety_signals": [
+      "Grade 4 mucositis in 5/54 patients",
+      "Veno-occlusive disease in 3/54 patients",
+      "Sepsis in 4/54 patients",
+      "Aspergillus pneumonia in 2/54 patients"
+    ],
+    "dose_info": {
+      "dose": "PK-targeted AUC 6912",
+      "schedule": "continuous IV infusion over 90 hours on Days -7 to -4",
+      "max_tolerated_dose": "dose level with DLT probability 0.25",
+      "dose_modifications": "dose escalation based on DLT assessment across 5 dose levels"
+    },
+    "adverse_events": [
+      {
+        "term": "BK cystitis",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Liver Failure",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Sepsis",
+        "grade": "",
+        "incidence_treatment_pct": 7.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 GVHD",
+        "grade": "4",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 mucositis",
+        "grade": "4",
+        "incidence_treatment_pct": 9.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Veno-occlusive disease",
+        "grade": "",
+        "incidence_treatment_pct": 5.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Aspergillus pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "CMV pneumonitis",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Graft Failure",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diffuse alveolar hemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "chronic myeloproliferative disorders, leukemia, lymphoma, multiple myeloma, myelodysplastic syndromes",
+    "comparator": "none",
+    "sample_size": 54,
+    "duration": "three years post-transplant",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "gvhd_prophylaxis",
+      "compounds": [
+        "busulfan",
+        "fludarabine",
+        "rabbit_anti_thymocyte_globulin",
+        "tacrolimus",
+        "methotrexate"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Acute GVHD grade >=II",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "acute_gvhd_grade_2_plus"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Acute GVHD grades III and IV",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "acute_gvhd_grade_3_4"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Chronic GVHD; intermediate/severe",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "chronic_gvhd_intermediate_severe"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Whole blood chimerism-Any",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "whole_blood_chimerism_any"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Whole blood chimerism->=95% donor",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "whole_blood_chimerism_95_plus"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "T Cell chimerism-Any",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "t_cell_chimerism_any"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "T Cell chimerism>=95% donor",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "t_cell_chimerism_95_plus"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "gvhd_prophylaxis",
+      "intervention": "busulfan",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": 43.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "myeloablation for donor engraftment",
+      "population_description": "patients with hematologic malignancies requiring allogeneic hematopoietic cell transplantation",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "gvhd_prophylaxis",
+      "intervention": "fludarabine",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": 43.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "antimetabolite activity",
+      "biology_description": "lymphodepletion for donor engraftment",
+      "population_description": "patients with hematologic malignancies requiring allogeneic hematopoietic cell transplantation",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": []
+}

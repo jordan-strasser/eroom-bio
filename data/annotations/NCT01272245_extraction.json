@@ -1,0 +1,139 @@
+{
+  "nct_id": "NCT01272245",
+  "therapeutic_hypothesis": {
+    "compound": "omacetaxine + cytarabine",
+    "claimed_target": "ribosome",
+    "proposed_mechanism": "protein synthesis inhibition",
+    "intended_biology": "cell-cycle arrest and apoptosis",
+    "target_population": "older patients with acute myelogenous leukemia and high-risk myelodysplastic syndrome",
+    "primary_endpoint": "complete remission rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "44% complete remission rate",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "4 induction deaths within 8 weeks",
+      "cardiac events including acute coronary syndrome, atrial fibrillation, cardiac arrest, heart failure",
+      "gastrointestinal toxicity including diarrhea and rectal bleeding"
+    ],
+    "dose_info": {
+      "dose": "omacetaxine 1.25 mg/m2, cytarabine 20 mg",
+      "schedule": "omacetaxine every 12 hours for 3 days, cytarabine every 12 hours for 7 days, cycles every 4-7 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Acute Coronary Syndrome",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Atrial Fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac Arrest",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Heart Failure",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Rectal Bleeding",
+        "grade": "",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Death",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "acute myelogenous leukemia and high-risk myelodysplastic syndrome",
+    "comparator": "none",
+    "sample_size": 36,
+    "duration": "up to 24 courses, 4-7 weeks per cycle",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "omacetaxine_and_cytarabine",
+      "compounds": [
+        "omacetaxine",
+        "cytarabine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "omacetaxine_and_cytarabine",
+      "intervention": "omacetaxine",
+      "subgroup_descriptor": null,
+      "endpoint": "CR",
+      "effect_size": 44.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "protein synthesis inhibition",
+      "biology_description": "cell-cycle arrest and apoptosis",
+      "population_description": "older patients with acute myelogenous leukemia and high-risk myelodysplastic syndrome",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "omacetaxine_and_cytarabine",
+      "intervention": "cytarabine",
+      "subgroup_descriptor": null,
+      "endpoint": "CR",
+      "effect_size": 44.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA synthesis inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "older patients with acute myelogenous leukemia and high-risk myelodysplastic syndrome",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "omacetaxine",
+      "primary_compound_id": "cytarabine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "protein synthesis inhibition by omacetaxine may enhance cytarabine-induced apoptosis by preventing repair protein synthesis",
+      "citation": "combination therapy achieved 44% complete remission rate in older AML/MDS patients"
+    }
+  ]
+}

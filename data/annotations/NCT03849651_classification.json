@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT03849651",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial shows evidence of target engagement through memory T cell count >300/uL in >50% of patients at week 4 post-DLI, indicating successful T-cell activation and expansion consistent with blinatumomab's CD19-targeting mechanism. 2. PATHWAY MODULATION: The biomarker data confirms downstream biology was modulated - T-cell expansion and activation occurred as expected from CD19 engagement and T-cell engager activity. 3. CLINICAL TRANSLATION: The primary endpoint was met with 73.9% one-year event-free survival, demonstrating successful translation of the biological activity to clinical benefit. The Phase 2 cohort achieved 80.0% EFS, further supporting efficacy. 4. POPULATION EFFECTS: The trial enrolled patients with various hematologic malignancies undergoing haploidentical transplant, and the treatment showed consistent benefit across this population. 5. CONFOUNDERS: This was a single-arm trial without a control group, but the EFS rate of 73.9% appears favorable compared to historical controls for this high-risk population. The complex multi-agent regimen makes it difficult to attribute benefit to individual components, but the overall approach was successful.",
+  "failure_modes": [
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.3,
+      "evidence": "Single-arm design without concurrent control limits ability to definitively attribute benefit to specific components of the complex multi-agent regimen"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "blinatumomab",
+      "target_entity": "ENSG00000177455",
+      "support": "strong_support",
+      "affecting_arm_id": "transplant_participants",
+      "reasoning": "Memory T cell expansion >300/uL in >50% of patients demonstrates successful CD19 target engagement by blinatumomab"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000177455",
+      "target_entity": "GO:0002322",
+      "support": "strong_support",
+      "affecting_arm_id": "transplant_participants",
+      "reasoning": "T-cell expansion biomarker confirms CD19 engagement drove B cell proliferation pathway modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002322",
+      "target_entity": "bio:dc7ea714eaa9",
+      "support": "strong_support",
+      "affecting_arm_id": "transplant_participants",
+      "reasoning": "B cell proliferation pathway successfully translated to adoptive T-cell cytotoxicity as evidenced by clinical response"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:dc7ea714eaa9",
+      "target_entity": "acute_lymphoblastic_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": "transplant_participants",
+      "reasoning": "Adoptive T-cell cytotoxicity successfully drove clinical benefit with 73.9% EFS in hematologic malignancies"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_chronic_myeloid_leukemia",
+      "target_entity": "acute_lymphoblastic_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Event-free survival is a well-established endpoint that captures clinical benefit in hematologic malignancies"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "acute_lymphoblastic_leukemia__unselected",
+      "target_entity": "acute_lymphoblastic_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "High-risk hematologic malignancy patients undergoing haploidentical transplant showed strong response with 73.9% EFS"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

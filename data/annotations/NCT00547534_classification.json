@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00547534",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for any of the three compounds (bortezomib, bendamustine, rituximab). Cannot assess whether the drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or downstream biology measurements reported. Cannot determine if proteasome inhibition, DNA cross-linking, or antibody-dependent cytotoxicity pathways were activated. 3. CLINICAL TRANSLATION: The trial reports only '13 participants with PFS at 2 years' without a clear denominator, p-value, or comparison to historical controls. The outcome is listed as 'unknown' for all three constituent chains, suggesting the primary endpoint was not clearly met. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a single-arm Phase 2 trial (n=31) with no control arm, making efficacy assessment difficult. However, the high rate of serious adverse events (multiple SAEs affecting 3.3-6.7% of patients including sepsis, liver failure, renal failure) suggests significant toxicity that may have limited treatment delivery.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint result is unclear - only reports '13 participants with PFS at 2 years' without denominator, statistical analysis, or comparison to historical controls. All three constituent chains show 'outcome=unknown' in results_by_chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_non_hodgkin_lymphoma",
+      "target_entity": "non_hodgkin_lymphoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "PFS endpoint was measured but result interpretation requires historical benchmark that isn't provided - single-arm trial with unclear efficacy signal"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_hodgkin_lymphoma__unselected",
+      "target_entity": "non_hodgkin_lymphoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Single-arm trial with unclear efficacy readout - cannot assess population response without comparator or clear historical benchmark"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Primary endpoint result is ambiguously reported - unclear whether 13/31 patients achieved 2-year PFS represents success or failure without historical benchmark or statistical analysis"
+}

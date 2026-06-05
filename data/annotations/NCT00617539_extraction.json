@@ -1,0 +1,162 @@
+{
+  "nct_id": "NCT00617539",
+  "therapeutic_hypothesis": {
+    "compound": "irinotecan and temozolomide",
+    "claimed_target": "DNA topoisomerase I and DNA",
+    "proposed_mechanism": "topoisomerase I inhibition and DNA alkylation",
+    "intended_biology": "DNA damage-induced apoptosis",
+    "target_population": "breast cancer patients with brain metastases who have received previous treatment",
+    "primary_endpoint": "objective treatment response in the CNS",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "2/30 patients (6.7%) achieved objective CNS response",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "1/14 patients had CTC decrease from >5 to <5 per 7.5 mL"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High incidence of lymphopenia (53%)",
+      "Frequent infections (13%)",
+      "Hyponatremia in 13% of patients"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Infection",
+        "grade": "",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyponatremia",
+        "grade": "",
+        "incidence_treatment_pct": 13.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 3.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 3.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Transaminitis",
+        "grade": "",
+        "incidence_treatment_pct": 3.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neuropathy",
+        "grade": "",
+        "incidence_treatment_pct": 3.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphopenia",
+        "grade": "",
+        "incidence_treatment_pct": 53.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "breast cancer with brain metastases",
+    "comparator": "none",
+    "sample_size": 30,
+    "duration": "up to 2 years",
+    "duration_weeks": 104.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "irinotecan_and_temozolomide",
+      "compounds": [
+        "irinotecan",
+        "temozolomide"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "irinotecan_and_temozolomide",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS objective response",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "topoisomerase I inhibition",
+      "biology_description": "DNA damage-induced apoptosis",
+      "population_description": "breast cancer patients with brain metastases who have received previous treatment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "irinotecan_and_temozolomide",
+      "intervention": "temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS objective response",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA alkylation",
+      "biology_description": "DNA damage-induced apoptosis",
+      "population_description": "breast cancer patients with brain metastases who have received previous treatment",
+      "mechanism_category": "dna_crosslinking"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "temozolomide",
+      "primary_compound_id": "irinotecan",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "temozolomide-induced DNA alkylation may enhance irinotecan-mediated topoisomerase I inhibition through complementary DNA damage mechanisms",
+      "citation": "The combination failed to achieve meaningful CNS response rates with only 2/30 patients achieving objective response"
+    }
+  ]
+}

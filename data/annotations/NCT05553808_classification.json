@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT05553808",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm ICOS engagement by feladilimab or TUBB4B engagement by docetaxel. Target engagement cannot be assessed from the available data. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether ICOS costimulation activated T-cell immunity or whether microtubule stabilization occurred. Downstream biology changes cannot be evaluated. 3. CLINICAL TRANSLATION: Primary endpoint (OS) clearly failed - combination arm achieved 7.8 months median OS vs 8.2 months for docetaxel monotherapy, showing no benefit and actually trending worse. Both arms failed to meet efficacy expectations. 4. POPULATION EFFECTS: No subgroup analyses reported to identify potential responder populations. 5. CONFOUNDERS: Trial appears adequately powered (n=105) and duration (104 weeks) was sufficient for OS assessment. Higher toxicity in combination arm (100% AE incidence vs 100% in control, more SAEs 34/70 vs 16/34) with increased dose modifications, but this did not prevent efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Primary OS endpoint clearly missed with combination showing no improvement over monotherapy (7.8 vs 8.2 months), but no biomarker data available to confirm whether target engagement or pathway modulation occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9927354",
+      "target_entity": "bio:b7810065331b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "feladilimab_plus_docetaxel",
+      "reasoning": "ICOS costimulation mechanism failed to translate to T-cell mediated anti-tumor immunity as evidenced by lack of OS benefit in combination arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "feladilimab_plus_docetaxel",
+      "reasoning": "T-cell mediated anti-tumor immunity did not drive clinical benefit in NSCLC as shown by failed OS endpoint"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007017",
+      "target_entity": "bio:30676876920c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "docetaxel",
+      "reasoning": "Microtubule-based process failed to produce adequate mitotic arrest for clinical benefit as evidenced by poor OS in monotherapy arm"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "neoplasms",
+      "support": "weak_contradict",
+      "affecting_arm_id": "docetaxel",
+      "reasoning": "Mitotic arrest did not drive sufficient anti-tumor effect in this NSCLC population as shown by failed OS"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_neoplasms",
+      "target_entity": "neoplasms",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Overall survival is a well-established endpoint that captures clinical benefit in cancer - the endpoint was measured and provided clear readout of treatment failure"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "neoplasms__extent_locally_advanced__line_second",
+      "target_entity": "neoplasms",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This second-line locally advanced NSCLC population showed poor response to both treatments with median OS under 9 months, indicating limited treatment responsiveness"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

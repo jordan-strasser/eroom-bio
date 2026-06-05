@@ -1,0 +1,135 @@
+{
+  "nct_id": "NCT01023308",
+  "therapeutic_hypothesis": {
+    "compound": "panobinostat + bortezomib + dexamethasone",
+    "claimed_target": "histone deacetylases",
+    "proposed_mechanism": "histone deacetylase inhibition",
+    "intended_biology": "chromatin remodeling and transcriptional regulation",
+    "target_population": "patients with relapsed multiple myeloma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "median PFS 11.99 vs 8.80 months",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "increased fatigue",
+      "increased diarrhea",
+      "increased appetite loss",
+      "increased dyspnea",
+      "thrombocytopenia",
+      "anemia"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "3x week (2 weeks on 1 week off)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 7.3,
+        "incidence_control_pct": 2.1,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "relapsed multiple myeloma",
+    "comparator": "placebo + bortezomib + dexamethasone",
+    "sample_size": 767,
+    "duration": "45 months",
+    "duration_weeks": 195.5,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "panobinostat_bortezomib_dexamethasone",
+      "compounds": [
+        "panobinostat",
+        "bortezomib",
+        "dexamethasone"
+      ]
+    },
+    {
+      "arm_id": "placebo_bortezomib_dexamethasone",
+      "compounds": [
+        "bortezomib",
+        "dexamethasone"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "panobinostat_bortezomib_dexamethasone",
+      "intervention": "panobinostat",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.99,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "histone deacetylase inhibition",
+      "biology_description": "chromatin remodeling and transcriptional regulation",
+      "population_description": "patients with relapsed multiple myeloma",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "panobinostat_bortezomib_dexamethasone",
+      "intervention": "bortezomib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.99,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "proteasome inhibition",
+      "biology_description": "protein degradation and cell cycle arrest",
+      "population_description": "patients with relapsed multiple myeloma",
+      "mechanism_category": "protein_degradation"
+    },
+    {
+      "arm_id": "placebo_bortezomib_dexamethasone",
+      "intervention": "bortezomib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 8.8,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "proteasome inhibition",
+      "biology_description": "protein degradation and cell cycle arrest",
+      "population_description": "patients with relapsed multiple myeloma",
+      "mechanism_category": "protein_degradation"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "panobinostat",
+      "primary_compound_id": "bortezomib",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "HDAC inhibition enhances proteasome inhibitor efficacy through complementary effects on protein homeostasis",
+      "citation": "median PFS 11.99 vs 8.80 months favoring combination"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "nct_id": "NCT04117945",
+  "therapeutic_hypothesis": {
+    "compound": "regorafenib vs cetuximab/panitumumab + irinotecan",
+    "claimed_target": "VEGFR2",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "angiogenesis inhibition",
+    "target_population": "RAS/BRAF wild-type metastatic colorectal cancer",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "OS: 3.6 vs 13.3 months (HR favoring combination arm)",
+    "p_value": 0.8874,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 3+ adverse events: 4/12 regorafenib vs 2/10 combination",
+      "Serious AEs included GI toxicities, hemorrhage, fistula formation"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3+ adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 33.3,
+        "incidence_control_pct": 20.0,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      },
+      {
+        "term": "Colonic hemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      },
+      {
+        "term": "Enterovesical fistula",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 8.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "RAS/BRAF wild-type metastatic colorectal cancer",
+    "comparator": "cetuximab/panitumumab + irinotecan",
+    "sample_size": 22,
+    "duration": "20 months",
+    "duration_weeks": 86.9,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_regorafenib",
+      "compounds": [
+        "regorafenib"
+      ]
+    },
+    {
+      "arm_id": "arm_b_cetuximab_panitumumab_irinotecan",
+      "compounds": [
+        "cetuximab",
+        "panitumumab",
+        "irinotecan"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_regorafenib",
+      "intervention": "regorafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 3.6,
+      "p_value": 0.8874,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "RAS/BRAF wild-type metastatic colorectal cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_b_cetuximab_panitumumab_irinotecan",
+      "intervention": "cetuximab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 13.3,
+      "p_value": 0.8874,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "RAS/BRAF wild-type metastatic colorectal cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "arm_b_cetuximab_panitumumab_irinotecan",
+      "intervention": "panitumumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 13.3,
+      "p_value": 0.8874,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "growth factor signaling inhibition",
+      "population_description": "RAS/BRAF wild-type metastatic colorectal cancer",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "arm_b_cetuximab_panitumumab_irinotecan",
+      "intervention": "irinotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 13.3,
+      "p_value": 0.8874,
+      "outcome": "success",
+      "mechanism_description": "topoisomerase inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "RAS/BRAF wild-type metastatic colorectal cancer",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": []
+}

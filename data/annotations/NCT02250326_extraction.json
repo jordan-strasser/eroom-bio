@@ -1,0 +1,192 @@
+{
+  "nct_id": "NCT02250326",
+  "therapeutic_hypothesis": {
+    "compound": "nab-paclitaxel with CC-486 or durvalumab",
+    "claimed_target": "microtubules",
+    "proposed_mechanism": "microtubule stabilization",
+    "intended_biology": "mitotic arrest",
+    "target_population": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS: nab-paclitaxel + CC-486: 3.2 months; nab-paclitaxel + durvalumab: 4.5 months; nab-paclitaxel alone: 4.2 months",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High rates of treatment-related serious adverse events in combination arms",
+      "Treatment-related fatal outcomes higher with durvalumab combination"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose reductions: nab-paclitaxel 10.1-14.1%, CC-486 20.3%"
+    },
+    "adverse_events": [
+      {
+        "term": "Treatment Related Serious TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 13.9,
+        "incidence_control_pct": 6.3,
+        "serious": true
+      },
+      {
+        "term": "Treatment Related GR 3 or Higher TEAE",
+        "grade": "3-4",
+        "incidence_treatment_pct": 40.5,
+        "incidence_control_pct": 31.6,
+        "serious": false
+      },
+      {
+        "term": "Treatment Related TEAE with Fatal Outcome",
+        "grade": "5",
+        "incidence_treatment_pct": 2.5,
+        "incidence_control_pct": 1.3,
+        "serious": true
+      },
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Adrenal insufficiency",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced non-small cell lung cancer",
+    "comparator": "nab-paclitaxel monotherapy",
+    "sample_size": 240,
+    "duration": "up to 18 months follow-up",
+    "duration_weeks": 78.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "combination_arm_nab_paclitaxel_and_cc_486",
+      "compounds": [
+        "nab-paclitaxel",
+        "CC-486"
+      ]
+    },
+    {
+      "arm_id": "monotherapy_arm_nab_paclitaxel_iv_infusion",
+      "compounds": [
+        "nab-paclitaxel"
+      ]
+    },
+    {
+      "arm_id": "nab_paclitaxel_and_durvalumab_combination",
+      "compounds": [
+        "nab-paclitaxel",
+        "durvalumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "combination_arm_nab_paclitaxel_and_cc_486",
+      "intervention": "nab-paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "combination_arm_nab_paclitaxel_and_cc_486",
+      "intervention": "CC-486",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA methyltransferase inhibition",
+      "biology_description": "epigenetic reactivation of tumor suppressor genes",
+      "population_description": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "monotherapy_arm_nab_paclitaxel_iv_infusion",
+      "intervention": "nab-paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.2,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "nab_paclitaxel_and_durvalumab_combination",
+      "intervention": "nab-paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.5,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "nab_paclitaxel_and_durvalumab_combination",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.5,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "advanced non-small cell lung cancer patients receiving second/third-line treatment",
+      "mechanism_category": "checkpoint_blockade"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "CC-486",
+      "primary_compound_id": "nab-paclitaxel",
+      "affects_layer": "biology",
+      "direction": "suppresses",
+      "confidence": 0.85,
+      "hypothesis": "DNA methyltransferase inhibition was hypothesized to enhance chemotherapy sensitivity",
+      "citation": "PFS: nab-paclitaxel + CC-486: 3.2 months vs nab-paclitaxel alone: 4.2 months"
+    },
+    {
+      "modulator_compound_id": "durvalumab",
+      "primary_compound_id": "nab-paclitaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "PD-L1 checkpoint blockade was hypothesized to enhance chemotherapy-induced anti-tumor immunity",
+      "citation": "PFS: nab-paclitaxel + durvalumab: 4.5 months vs nab-paclitaxel alone: 4.2 months"
+    }
+  ]
+}

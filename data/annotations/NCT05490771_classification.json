@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT05490771",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers were measured, but the clinical response (16% ORR, p=0.0341) in a PIK3CA-mutated population suggests the drug reached and engaged its target. 2. PATHWAY MODULATION: No pathway biomarkers were reported to confirm PI3K pathway inhibition downstream of target engagement. 3. CLINICAL TRANSLATION: The primary endpoint (ORR) was met with statistical significance (p=0.0341) and clinically meaningful effect size (16%). Secondary endpoints also showed positive signals (38% 6-month PFS rate, 3.4 month median PFS). 4. POPULATION EFFECTS: No subgroup analyses were reported, but the trial enrolled a biomarker-selected population (PIK3CA mutations) which may have contributed to the positive response. 5. CONFOUNDERS: This was a single-arm trial with modest sample size (n=35), but the ORR result was statistically significant and supported by PFS endpoints. Safety was manageable with expected PI3K inhibitor toxicities (hyperglycemia, hypertension).",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "copanlisib_hydrochloride",
+      "target_entity": "ENSG00000121879",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_copanlisib",
+      "reasoning": "Clinical response in PIK3CA-mutated population strongly implies target engagement - the drug achieved meaningful ORR with statistical significance"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000121879",
+      "target_entity": "R-HSA-109704",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_copanlisib",
+      "reasoning": "No direct pathway biomarkers measured, but clinical response in biomarker-selected population suggests PI3K pathway modulation occurred"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-109704",
+      "target_entity": "bio:27bd27089af5",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_copanlisib",
+      "reasoning": "PI3K inhibition leading to cell proliferation inhibition is supported by the clinical response, though no direct proliferation biomarkers were measured"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:27bd27089af5",
+      "target_entity": "lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_copanlisib",
+      "reasoning": "Cell proliferation inhibition driving clinical benefit in lymphoma is supported by the significant ORR and PFS results"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_multiple_myeloma",
+      "target_entity": "lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR was achieved and supported by concordant PFS signals, indicating the endpoint captured clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lymphoma__extent_advanced__extent_metastatic",
+      "target_entity": "lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with p<0.05 in this biomarker-selected advanced/metastatic population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

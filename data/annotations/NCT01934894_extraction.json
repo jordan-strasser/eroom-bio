@@ -1,0 +1,139 @@
+{
+  "nct_id": "NCT01934894",
+  "therapeutic_hypothesis": {
+    "compound": "cabazitaxel plus lapatinib",
+    "claimed_target": "microtubules and EGFR/HER2",
+    "proposed_mechanism": "microtubule stabilization and dual kinase inhibition",
+    "intended_biology": "mitotic arrest and growth factor signaling disruption",
+    "target_population": "HER2-positive metastatic breast cancer patients with intracranial metastases",
+    "primary_endpoint": "CNS objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0% CNS objective response rate",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Study terminated due to lack of significant signal of efficacy",
+      "Multiple dose-limiting toxicities observed",
+      "Death occurred in dose level 1"
+    ],
+    "dose_info": {
+      "dose": "20-25 mg/m\u00b2 cabazitaxel + lapatinib",
+      "schedule": "weekly for 3 weeks",
+      "max_tolerated_dose": "not reached",
+      "dose_modifications": "Study closed early due to DLTs and other observed toxicities"
+    },
+    "adverse_events": [
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "death",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "septic shock",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pulmonary embolism",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "respiratory distress",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 18.2,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "HER2-positive metastatic breast cancer with intracranial metastases",
+    "comparator": "none",
+    "sample_size": 11,
+    "duration": "projected 1 year",
+    "duration_weeks": 52.0,
+    "investigator_commentary": "Study was terminated due to lack of significant signal of efficacy"
+  },
+  "arms": [
+    {
+      "arm_id": "cabazitaxel_and_lapatinib_combination",
+      "compounds": [
+        "cabazitaxel",
+        "lapatinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cabazitaxel_and_lapatinib_combination",
+      "intervention": "cabazitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS objective response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "HER2-positive metastatic breast cancer patients with intracranial metastases",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "cabazitaxel_and_lapatinib_combination",
+      "intervention": "lapatinib",
+      "subgroup_descriptor": null,
+      "endpoint": "CNS objective response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "dual kinase inhibition",
+      "biology_description": "growth factor signaling disruption",
+      "population_description": "HER2-positive metastatic breast cancer patients with intracranial metastases",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "lapatinib",
+      "primary_compound_id": "cabazitaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "HER2 inhibition may enhance cytotoxic effects of microtubule stabilization in HER2-positive tumors",
+      "citation": "Study was terminated due to lack of significant signal of efficacy"
+    }
+  ]
+}

@@ -1,0 +1,248 @@
+{
+  "nct_id": "NCT03315871",
+  "therapeutic_hypothesis": {
+    "compound": "PROSTVAC-V/PROSTVAC-F/CV301 + M7824",
+    "claimed_target": "PSA antigen + PD-L1 + TGF-beta",
+    "proposed_mechanism": "antigen presentation + checkpoint blockade + TGF-beta neutralization",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "biochemically recurrent prostate cancer",
+    "primary_endpoint": "PSA response (\u226530% decline)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0% PSA response rate across all arms",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "PSA doubling time increased >20% in 11/23 evaluable patients in vaccine-only arm"
+    ],
+    "subgroup_findings": [
+      "PSA doubling time improvement seen only in vaccine-only arm (11/23 vs 1/2 in combination arm)"
+    ],
+    "safety_signals": [
+      "Grade 4 myocarditis in combination arm",
+      "Grade 4 myositis in combination arm",
+      "Multiple serious adverse events in combination arms"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "7 months treatment",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3 related adverse events",
+        "grade": "3",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 4 related adverse events",
+        "grade": "4",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myocarditis",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myositis",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "CPK increased",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "biochemically recurrent prostate cancer",
+    "comparator": "vaccine therapy alone",
+    "sample_size": 40,
+    "duration": "7 months treatment",
+    "duration_weeks": 30.4,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1_safety_lead_in_combination_therapy_closed_december_2018",
+      "compounds": [
+        "PROSTVAC-V",
+        "PROSTVAC-F",
+        "CV301",
+        "M7824"
+      ]
+    },
+    {
+      "arm_id": "2_biochemical_recurrence_combination_therapy_surveillance_closed",
+      "compounds": [
+        "PROSTVAC-V",
+        "PROSTVAC-F",
+        "CV301",
+        "M7824"
+      ]
+    },
+    {
+      "arm_id": "3_biochemical_recurrence_combination_antigen_direct_immunotherapy_surveillance",
+      "compounds": [
+        "PROSTVAC-V",
+        "PROSTVAC-F",
+        "CV301"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Grade 3 Related",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "grade_3_related"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Grade 4 Related",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "grade_4_related"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Participants evaluable for change in PSA Doubling Time",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "psa_dt_evaluable"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Participants with greater than 20% increase in PSA Doubling Time",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "psa_dt_improved"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1_safety_lead_in_combination_therapy_closed_december_2018",
+      "intervention": "PROSTVAC-V",
+      "subgroup_descriptor": null,
+      "endpoint": "PSA response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer safety lead-in cohort",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "1_safety_lead_in_combination_therapy_closed_december_2018",
+      "intervention": "M7824",
+      "subgroup_descriptor": null,
+      "endpoint": "PSA response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer safety lead-in cohort",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "2_biochemical_recurrence_combination_therapy_surveillance_closed",
+      "intervention": "PROSTVAC-V",
+      "subgroup_descriptor": null,
+      "endpoint": "PSA response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "2_biochemical_recurrence_combination_therapy_surveillance_closed",
+      "intervention": "M7824",
+      "subgroup_descriptor": null,
+      "endpoint": "PSA response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "3_biochemical_recurrence_combination_antigen_direct_immunotherapy_surveillance",
+      "intervention": "PROSTVAC-V",
+      "subgroup_descriptor": null,
+      "endpoint": "PSA response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    },
+    {
+      "arm_id": "3_biochemical_recurrence_combination_antigen_direct_immunotherapy_surveillance",
+      "intervention": "PROSTVAC-V",
+      "subgroup_descriptor": "Participants with greater than 20% increase in PSA Doubling Time",
+      "endpoint": "PSA doubling time",
+      "effect_size": 11.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "biochemically recurrent prostate cancer with PSA doubling time improvement",
+      "mechanism_category": "antigen_directed_cytotoxicity"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "M7824",
+      "primary_compound_id": "PROSTVAC-V",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "PD-L1/TGF-beta blockade should enhance vaccine-induced T-cell responses",
+      "citation": "PSA response rate 0% in combination arms vs vaccine-only arm; PSA doubling time improvement seen in vaccine-only arm (11/23) but not combination arm (1/2)"
+    }
+  ]
+}

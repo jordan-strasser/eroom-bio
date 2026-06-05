@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT02250326",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm target engagement for any of the compounds (nab-paclitaxel, CC-486, durvalumab). Cannot assess whether drugs reached their intended targets. 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (PFS) was not met. The CC-486 combination arm actually performed worse than monotherapy (3.2 vs 4.2 months), while durvalumab combination showed minimal improvement (4.5 vs 4.2 months). No p-values reported but effect sizes suggest limited clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Trial appears adequately powered (N=240) and duration was appropriate (78 weeks). However, safety signals were concerning with higher rates of serious adverse events in combination arms, particularly treatment-related fatal outcomes with durvalumab combination (2.5% vs 1.3%). The failure appears to be primarily due to lack of efficacy rather than safety limitations preventing adequate dosing.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Primary endpoint (PFS) failed to meet efficacy threshold despite adequate trial design and duration. CC-486 combination actually worsened outcomes (3.2 vs 4.2 months), while durvalumab combination showed minimal benefit (4.5 vs 4.2 months). No biomarker data to confirm target engagement or pathway modulation."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nab_paclitaxel_and_durvalumab_combination",
+      "reasoning": "Durvalumab combination arm showed only minimal PFS improvement (4.5 vs 4.2 months) suggesting the biology did not effectively drive clinical benefit in this indication"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "bio:30676876920c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nab_paclitaxel_and_durvalumab_combination",
+      "reasoning": "Minimal clinical benefit from durvalumab combination suggests the checkpoint blockade mechanism did not effectively modulate the intended biology"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_non_small_cell_lung_cancer",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS is a well-established endpoint for NSCLC that was measured and reported, though the trial failed to show meaningful improvement"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__extent_metastatic__line_second",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This second-line metastatic NSCLC population showed poor response to the combination approaches tested, with CC-486 combination actually worsening outcomes"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Limited biomarker and target engagement data makes it difficult to determine where in the causal chain the failure occurred. The trial tested the mechanistic hypothesis but lack of PD data prevents precise failure mode classification."
+}

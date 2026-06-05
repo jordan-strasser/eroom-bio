@@ -1,0 +1,138 @@
+{
+  "nct_id": "NCT00899847",
+  "therapeutic_hypothesis": {
+    "compound": "tandem autologous-allogeneic stem cell transplant",
+    "claimed_target": "hematopoietic system",
+    "proposed_mechanism": "immune reconstitution and graft-versus-tumor effect",
+    "intended_biology": "adoptive immune-mediated anti-tumor activity",
+    "target_population": "multiple myeloma patients",
+    "primary_endpoint": "incidence of graft versus host disease",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "1 participant with GvHD out of 9 enrolled",
+    "p_value": null,
+    "target_engagement_evidence": "neutrophil engraftment at median 11 days (auto) and 24 days (allo); platelet engraftment at median 15 days (auto) and 10 days (allo)",
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "neutrophil engraftment faster after auto-PBSC (11 days) vs allo-PBSC (24 days)",
+      "platelet engraftment faster after allo-PBSC (10 days) vs auto-PBSC (15 days)"
+    ],
+    "safety_signals": [
+      "pulmonary embolism in 1/9 patients",
+      "deep vein thrombosis in 1/9 patients"
+    ],
+    "dose_info": {
+      "dose": "auto-PBSC \u22652-3\u00d710e6 CD34+ cells/kg; allo-PBSC \u22655\u00d710e6 CD34+ cells/kg",
+      "schedule": "sequential autologous followed by allogeneic transplant",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Pulmonary Embolism",
+        "grade": "",
+        "incidence_treatment_pct": 11.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Deep Vein Thrombosis",
+        "grade": "",
+        "incidence_treatment_pct": 11.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "multiple myeloma",
+    "comparator": "none",
+    "sample_size": 9,
+    "duration": "2 years follow-up",
+    "duration_weeks": 104.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "autologous_allogeneic_peripheral_blood_stem_cell_transplant",
+      "compounds": [
+        "autologous_pbsc",
+        "allogeneic_pbsc",
+        "filgrastim",
+        "cyclophosphamide",
+        "melphalan",
+        "cyclosporine",
+        "total_lymphoid_irradiation",
+        "anti_thymocyte_globulin",
+        "mycophenolate_mofetil",
+        "solumedrol",
+        "diphenhydramine",
+        "acetaminophen",
+        "hydrocortisone"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Neutrophil Engraftment",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "neutrophil_engraftment"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Platelet Engraftment",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "platelet_engraftment"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "autologous_allogeneic_peripheral_blood_stem_cell_transplant",
+      "intervention": "autologous_pbsc",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 77.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "hematopoietic reconstitution",
+      "biology_description": "bone marrow recovery and immune reconstitution",
+      "population_description": "multiple myeloma patients receiving tandem transplant",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autologous_allogeneic_peripheral_blood_stem_cell_transplant",
+      "intervention": "allogeneic_pbsc",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 77.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "allogeneic immune reconstitution",
+      "biology_description": "adoptive immune-mediated anti-tumor activity",
+      "population_description": "multiple myeloma patients receiving tandem transplant",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "allogeneic_pbsc",
+      "primary_compound_id": "autologous_pbsc",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "allogeneic stem cells provide graft-versus-myeloma effect to enhance anti-tumor activity beyond autologous transplant alone",
+      "citation": "To evaluate the graft versus myeloma effect by monitoring rate of event-free survival (EFS)"
+    }
+  ]
+}

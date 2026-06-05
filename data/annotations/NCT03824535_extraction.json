@@ -1,0 +1,155 @@
+{
+  "nct_id": "NCT03824535",
+  "therapeutic_hypothesis": {
+    "compound": "18F-FSPG",
+    "claimed_target": "system xc- transporter",
+    "proposed_mechanism": "amino acid transport imaging",
+    "intended_biology": "metabolic tumor detection",
+    "target_population": "patients with lung nodules",
+    "primary_endpoint": "diagnostic performance metrics for malignant lung nodules",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "18F-FSPG sensitivity 100% vs 18F-FDG 70%",
+    "p_value": 0.02,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "18F-FSPG showed 100% sensitivity vs 70% for 18F-FDG",
+      "18F-FSPG showed 100% accuracy vs 79% for 18F-FDG"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "lung nodules",
+    "comparator": "18F-FDG PET/CT",
+    "sample_size": 15,
+    "duration": "2 years and 6 months",
+    "duration_weeks": 130.35,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "diagnostic_18f_fspg_pet_ct_18f_fdg_pet_ct",
+      "compounds": [
+        "18F-FSPG",
+        "18F-FDG"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Sensitivity",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sensitivity"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Specificity",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "specificity"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Positive Predictive Value (PPV)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ppv"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Negative Predictive Value (NPV)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "npv"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Accuracy",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "accuracy"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "diagnostic_18f_fspg_pet_ct_18f_fdg_pet_ct",
+      "intervention": "18F-FSPG",
+      "subgroup_descriptor": "Sensitivity",
+      "endpoint": "sensitivity",
+      "effect_size": 100.0,
+      "p_value": 0.02,
+      "outcome": "success",
+      "mechanism_description": "amino acid transport imaging",
+      "biology_description": "metabolic tumor detection",
+      "population_description": "patients with lung nodules",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "diagnostic_18f_fspg_pet_ct_18f_fdg_pet_ct",
+      "intervention": "18F-FDG",
+      "subgroup_descriptor": "Sensitivity",
+      "endpoint": "sensitivity",
+      "effect_size": 70.0,
+      "p_value": 0.02,
+      "outcome": "partial",
+      "mechanism_description": "glucose transport imaging",
+      "biology_description": "metabolic tumor detection",
+      "population_description": "patients with lung nodules",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "diagnostic_18f_fspg_pet_ct_18f_fdg_pet_ct",
+      "intervention": "18F-FSPG",
+      "subgroup_descriptor": "Accuracy",
+      "endpoint": "accuracy",
+      "effect_size": 100.0,
+      "p_value": 0.02,
+      "outcome": "success",
+      "mechanism_description": "amino acid transport imaging",
+      "biology_description": "metabolic tumor detection",
+      "population_description": "patients with lung nodules",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "diagnostic_18f_fspg_pet_ct_18f_fdg_pet_ct",
+      "intervention": "18F-FDG",
+      "subgroup_descriptor": "Accuracy",
+      "endpoint": "accuracy",
+      "effect_size": 79.0,
+      "p_value": 0.02,
+      "outcome": "partial",
+      "mechanism_description": "glucose transport imaging",
+      "biology_description": "metabolic tumor detection",
+      "population_description": "patients with lung nodules",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

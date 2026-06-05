@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00617539",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported. The trial tested irinotecan (topoisomerase I inhibitor) and temozolomide (DNA alkylating agent) but provided no PK/PD data or biomarkers confirming target engagement. The minimal CTC decrease in 1/14 patients is not a target engagement marker. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm DNA damage or apoptosis induction. Without target engagement confirmation, cannot assess if the intended mechanisms were activated. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - only 2/30 patients (6.7%) achieved objective CNS response, which is well below any meaningful efficacy threshold for brain metastases treatment. 4. POPULATION EFFECTS: No subgroup analyses reported. The population was breast cancer patients with brain metastases who had received previous treatment - a challenging population but appropriate for the mechanism. 5. CONFOUNDERS: Single-arm trial with small sample size (N=30) makes interpretation challenging, but the response rate is so low that even accounting for the difficult population, this represents a clear efficacy failure. High toxicity rates (53% lymphopenia, 13% infections) suggest adequate drug exposure.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Primary endpoint clearly missed with only 6.7% objective response rate. No biomarker data to confirm target engagement or pathway modulation, but the combination mechanism is well-established and toxicity profile suggests adequate exposure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4615885",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "irinotecan_and_temozolomide",
+      "reasoning": "Topoisomerase I inhibition mechanism failed to produce meaningful DNA damage-induced apoptosis leading to clinical benefit"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "irinotecan_and_temozolomide",
+      "reasoning": "DNA alkylation mechanism failed to produce meaningful DNA damage-induced apoptosis leading to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "irinotecan_and_temozolomide",
+      "reasoning": "DNA damage-induced apoptosis biology failed to drive clinical benefit in breast cancer brain metastases with only 6.7% response rate"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_cancer",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Objective response rate is an appropriate and well-validated endpoint for measuring clinical benefit in brain metastases"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "breast_cancer__extent_metastatic",
+      "target_entity": "breast_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Breast cancer patients with brain metastases showed poor response to this combination with only 6.7% objective response rate"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

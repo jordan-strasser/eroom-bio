@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT02772965",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported for DHFR. The trial used standard methotrexate dosing (10-15 mg weekly) which is known to engage DHFR, but no PD biomarkers confirming target engagement were measured. 2. PATHWAY MODULATION: No direct pathway biomarkers for folate metabolism or tetrahydrofolate interconversion were reported. However, the biomarker data shows reduced anti-TNF antibody formation (28.5% vs 40%, p=0.08), which suggests downstream immunosuppressive effects consistent with the proposed anti-inflammatory mechanism. 3. CLINICAL TRANSLATION: The primary endpoint (treatment failure) showed a positive trend with HR 0.69 (95% CI: 0.45-1.05, p=0.08), indicating reduced treatment failure risk but missing statistical significance. This suggests the mechanism may be working but with insufficient power or effect size. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial appears adequately powered (n=306) and conducted over sufficient duration (156 weeks). The p=0.08 result suggests this may be underpowered to detect the true effect size.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Primary endpoint showed consistent directional benefit (HR 0.69) but missed significance at p=0.08, suggesting insufficient power to detect the true effect size. The biomarker signal (reduced anti-TNF antibody formation) supports biological activity."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "methotrexate",
+      "target_entity": "ENSG00000228716",
+      "support": "strong_support",
+      "affecting_arm_id": "methotrexate",
+      "reasoning": "Standard methotrexate dosing at 10-15 mg weekly is well-established to engage DHFR, and the downstream immunosuppressive biomarker signal (reduced anti-TNF antibody formation) implies target engagement occurred"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000228716",
+      "target_entity": "GO:0035999",
+      "support": "moderate_support",
+      "affecting_arm_id": "methotrexate",
+      "reasoning": "The downstream immunosuppressive biomarker signal suggests the folate antagonism mechanism was engaged, though direct pathway biomarkers were not measured"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0035999",
+      "target_entity": "bio:618e8b92f466",
+      "support": "moderate_support",
+      "affecting_arm_id": "methotrexate",
+      "reasoning": "Reduced anti-TNF antibody formation (28.5% vs 40%, p=0.08) provides evidence that the folate antagonism mechanism produced anti-inflammatory immunosuppressive effects"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:618e8b92f466",
+      "target_entity": "crohns_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "methotrexate",
+      "reasoning": "Clinical endpoint showed positive trend (HR 0.69, p=0.08) suggesting anti-inflammatory biology may drive benefit in Crohn's disease, but statistical significance was not achieved"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_crohns_disease",
+      "target_entity": "crohns_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Treatment failure is a clinically meaningful endpoint for Crohn's disease that showed directional consistency with biomarker evidence"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "crohns_disease__line_first",
+      "target_entity": "crohns_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Pediatric first-line Crohn's patients showed positive trend (HR 0.69, p=0.08) suggesting this population may respond to methotrexate as adjunct to anti-TNF therapy"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

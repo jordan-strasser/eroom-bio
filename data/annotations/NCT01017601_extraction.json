@@ -1,0 +1,172 @@
+{
+  "nct_id": "NCT01017601",
+  "therapeutic_hypothesis": {
+    "compound": "Seneca Valley virus-001",
+    "claimed_target": "tumor cells",
+    "proposed_mechanism": "oncolytic viral replication",
+    "intended_biology": "tumor cell lysis",
+    "target_population": "extensive-stage small cell lung cancer after chemotherapy",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "1.7 months (both arms)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Lower response rate in NTX-010 arm (3.9% vs 16.6%)"
+    ],
+    "safety_signals": [
+      "Grade 3+ adverse events in 9/26 NTX-010 patients vs 5/24 placebo patients",
+      "Platelet count decreased",
+      "Thromboembolic event"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3+ adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 34.6,
+        "incidence_control_pct": 20.8,
+        "serious": true
+      },
+      {
+        "term": "Platelet count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thromboembolic event",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "extensive-stage small cell lung cancer",
+    "comparator": "placebo",
+    "sample_size": 59,
+    "duration": "up to 5 years",
+    "duration_weeks": 260.0,
+    "investigator_commentary": "Interim analysis declared futility."
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i",
+      "compounds": [
+        "Seneca Valley virus-001"
+      ]
+    },
+    {
+      "arm_id": "arm_ii",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Confirmed Response (CR/PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease (SD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progression Disease (PD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Non-CR/non-PD",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "non_cr_non_pd"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Not evaluable",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "not_evaluable"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i",
+      "intervention": "Seneca Valley virus-001",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "oncolytic viral replication",
+      "biology_description": "tumor cell lysis",
+      "population_description": "extensive-stage small cell lung cancer after chemotherapy",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "Seneca Valley virus-001",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 6.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "oncolytic viral replication",
+      "biology_description": "tumor cell lysis",
+      "population_description": "extensive-stage small cell lung cancer after chemotherapy",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "Seneca Valley virus-001",
+      "subgroup_descriptor": "Confirmed Response (CR/PR)",
+      "endpoint": "Response Rate",
+      "effect_size": 3.9,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "oncolytic viral replication",
+      "biology_description": "tumor cell lysis",
+      "population_description": "extensive-stage small cell lung cancer patients with confirmed response",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

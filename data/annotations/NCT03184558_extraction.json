@@ -1,0 +1,187 @@
+{
+  "nct_id": "NCT03184558",
+  "therapeutic_hypothesis": {
+    "compound": "bemcentinib + pembrolizumab",
+    "claimed_target": "AXL",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "patients with triple negative breast cancer",
+    "primary_endpoint": "objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0% ORR",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "pyrexia",
+      "transaminase elevation",
+      "rash",
+      "peripheral edema"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "pyrexia",
+        "grade": "",
+        "incidence_treatment_pct": 17.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "alanine aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 13.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "aspartate aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 13.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "rash maculo-papular",
+        "grade": "",
+        "incidence_treatment_pct": 10.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "rash generalised",
+        "grade": "",
+        "incidence_treatment_pct": 6.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "transaminases increased",
+        "grade": "",
+        "incidence_treatment_pct": 6.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "adverse drug reaction",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "face oedema",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "oedema peripheral",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pruritus generalised",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "triple negative breast cancer",
+    "comparator": "none",
+    "sample_size": 29,
+    "duration": "up to 1 year",
+    "duration_weeks": 52.0,
+    "investigator_commentary": "Based on planned futility assessment"
+  },
+  "arms": [
+    {
+      "arm_id": "bemcentinib_bgb324_pembrolizumab",
+      "compounds": [
+        "bemcentinib",
+        "pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "bemcentinib_bgb324_pembrolizumab",
+      "intervention": "bemcentinib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immune microenvironment modulation",
+      "population_description": "patients with triple negative breast cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "bemcentinib_bgb324_pembrolizumab",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "patients with triple negative breast cancer",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "bemcentinib_bgb324_pembrolizumab",
+      "intervention": "bemcentinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 13.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immune microenvironment modulation",
+      "population_description": "patients with triple negative breast cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "bemcentinib_bgb324_pembrolizumab",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 13.1,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "patients with triple negative breast cancer",
+      "mechanism_category": "checkpoint_blockade"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bemcentinib",
+      "primary_compound_id": "pembrolizumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "AXL inhibition enhances immune infiltration and checkpoint blockade efficacy",
+      "citation": "Based on planned futility assessment"
+    }
+  ]
+}

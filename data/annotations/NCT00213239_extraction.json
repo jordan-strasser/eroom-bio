@@ -1,0 +1,140 @@
+{
+  "nct_id": "NCT00213239",
+  "therapeutic_hypothesis": {
+    "compound": "remifentanil + propofol",
+    "claimed_target": "mu-opioid receptor",
+    "proposed_mechanism": "opioid receptor agonism",
+    "intended_biology": "analgesia and sedation",
+    "target_population": "children undergoing lumbar punctures for hematologic diseases and neoplasms",
+    "primary_endpoint": "dose of remifentanil required to prevent movement in response to lumbar puncture needle insertion",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "ED50: 0.28-0.96 mcg/kg remifentanil depending on propofol dose",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Higher propofol dose (4 mg/kg) reduced remifentanil requirement compared to lower dose (2 mg/kg)",
+      "ED50: 0.28 mcg/kg with 4 mg/kg propofol vs 0.96 mcg/kg with 2 mg/kg propofol",
+      "ED98: 0.52 mcg/kg with 4 mg/kg propofol vs 1.50 mcg/kg with 2 mg/kg propofol"
+    ],
+    "safety_signals": [
+      "No bradycardia events in either dose group",
+      "No hypotension events in either dose group"
+    ],
+    "dose_info": {
+      "dose": "0.5-1.0 mcg/kg remifentanil starting doses",
+      "schedule": "single dose for procedure",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dixon up-and-down method for dose adjustment"
+    },
+    "adverse_events": [
+      {
+        "term": "bradycardia",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "hypotension",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "procedural anesthesia for lumbar punctures in children with hematologic diseases and neoplasms",
+    "comparator": "different propofol dose levels",
+    "sample_size": 64,
+    "duration": "single procedure",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "propofol_4_mg_kg_group",
+      "compounds": [
+        "remifentanil",
+        "propofol"
+      ]
+    },
+    {
+      "arm_id": "propofol_2_mg_kg_group",
+      "compounds": [
+        "remifentanil",
+        "propofol"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "propofol_4_mg_kg_group",
+      "intervention": "remifentanil",
+      "subgroup_descriptor": null,
+      "endpoint": "ED50",
+      "effect_size": 0.28,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "opioid receptor agonism",
+      "biology_description": "analgesia and sedation",
+      "population_description": "children undergoing lumbar punctures for hematologic diseases and neoplasms",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "propofol_2_mg_kg_group",
+      "intervention": "remifentanil",
+      "subgroup_descriptor": null,
+      "endpoint": "ED50",
+      "effect_size": 0.96,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "opioid receptor agonism",
+      "biology_description": "analgesia and sedation",
+      "population_description": "children undergoing lumbar punctures for hematologic diseases and neoplasms",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "propofol_4_mg_kg_group",
+      "intervention": "propofol",
+      "subgroup_descriptor": null,
+      "endpoint": "ED50",
+      "effect_size": 0.28,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "GABA receptor modulation",
+      "biology_description": "sedation and hypnosis",
+      "population_description": "children undergoing lumbar punctures for hematologic diseases and neoplasms",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "propofol_2_mg_kg_group",
+      "intervention": "propofol",
+      "subgroup_descriptor": null,
+      "endpoint": "ED50",
+      "effect_size": 0.96,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "GABA receptor modulation",
+      "biology_description": "sedation and hypnosis",
+      "population_description": "children undergoing lumbar punctures for hematologic diseases and neoplasms",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "propofol",
+      "primary_compound_id": "remifentanil",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "propofol enhances remifentanil's analgesic effect through synergistic sedation, reducing required opioid dose",
+      "citation": "Higher propofol dose (4 mg/kg) reduced remifentanil requirement: ED50 0.28 vs 0.96 mcg/kg with 2 mg/kg propofol"
+    }
+  ]
+}

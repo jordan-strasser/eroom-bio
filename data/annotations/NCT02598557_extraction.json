@@ -1,0 +1,217 @@
+{
+  "nct_id": "NCT02598557",
+  "therapeutic_hypothesis": {
+    "compound": "exemestane",
+    "claimed_target": "aromatase",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "estrogen synthesis inhibition",
+    "target_population": "postmenopausal patients with stage 0-II estrogen positive breast cancer",
+    "primary_endpoint": "percent change in circulating estradiol SPE",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "QD: -89% (95% CI: -95 to -83), TIW: -85% (95% CI: -98 to -73), QW: -60% (95% CI: -78 to -42)",
+    "p_value": null,
+    "target_engagement_evidence": "Dose-dependent estradiol suppression with exemestane blood concentrations: QD 3217 pmol/L, TIW 513 pmol/L, QW 24 pmol/L",
+    "biomarker_changes": [
+      "Estradiol reduction: QD -89%, TIW -85%, QW -60%",
+      "Estrone reduction: QD -93%, TIW -89%, QW -73%",
+      "Ki67 reduction in cancer tissue: QD -7.5%, TIW -5%, QW -4%",
+      "PgR reduction in cancer tissue: QD -17%, TIW -9%, QW -7%"
+    ],
+    "subgroup_findings": [
+      "Cancer tissue estradiol concentrations lower with daily dosing",
+      "Adjacent normal tissue showed similar estrogen suppression patterns"
+    ],
+    "safety_signals": [
+      "One bone infection in daily dosing arm"
+    ],
+    "dose_info": {
+      "dose": "25 mg",
+      "schedule": "QD vs TIW vs QW",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Bone Infection",
+        "grade": "",
+        "incidence_treatment_pct": 1.8,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "stage 0-II estrogen positive breast cancer",
+    "comparator": "alternative dosing schedules",
+    "sample_size": 180,
+    "duration": "4-6 weeks",
+    "duration_weeks": 5.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_exemestane_25_mg_qd",
+      "compounds": [
+        "exemestane"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_exemestane_25_tiw_exemestane_placebo",
+      "compounds": [
+        "exemestane"
+      ]
+    },
+    {
+      "arm_id": "arm_iii_exemestane_25_mg_qw_exemestane_placebo",
+      "compounds": [
+        "exemestane"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "cancer tissue",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "cancer_tissue"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "non cancer adjacent tissue",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "adjacent_normal_tissue"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Vasomotor domain",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "vasomotor_symptoms"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Psychosocial domain",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "psychosocial_symptoms"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Physical domain",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "physical_symptoms"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Sexual domain",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sexual_symptoms"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_exemestane_25_mg_qd",
+      "intervention": "exemestane",
+      "subgroup_descriptor": null,
+      "endpoint": "estradiol suppression",
+      "effect_size": -89.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_ii_exemestane_25_tiw_exemestane_placebo",
+      "intervention": "exemestane",
+      "subgroup_descriptor": null,
+      "endpoint": "estradiol suppression",
+      "effect_size": -85.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_iii_exemestane_25_mg_qw_exemestane_placebo",
+      "intervention": "exemestane",
+      "subgroup_descriptor": null,
+      "endpoint": "estradiol suppression",
+      "effect_size": -60.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_i_exemestane_25_mg_qd",
+      "intervention": "exemestane",
+      "subgroup_descriptor": "cancer tissue",
+      "endpoint": "tissue estradiol concentration",
+      "effect_size": 15.5,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "cancer tissue from postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_ii_exemestane_25_tiw_exemestane_placebo",
+      "intervention": "exemestane",
+      "subgroup_descriptor": "cancer tissue",
+      "endpoint": "tissue estradiol concentration",
+      "effect_size": 17.1,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "cancer tissue from postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_iii_exemestane_25_mg_qw_exemestane_placebo",
+      "intervention": "exemestane",
+      "subgroup_descriptor": "cancer tissue",
+      "endpoint": "tissue estradiol concentration",
+      "effect_size": 128.8,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "estrogen synthesis inhibition",
+      "population_description": "cancer tissue from postmenopausal patients with stage 0-II estrogen positive breast cancer",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

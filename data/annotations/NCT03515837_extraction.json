@@ -1,0 +1,248 @@
+{
+  "nct_id": "NCT03515837",
+  "therapeutic_hypothesis": {
+    "compound": "pembrolizumab + pemetrexed + platinum chemotherapy",
+    "claimed_target": "PD-1",
+    "proposed_mechanism": "checkpoint blockade",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+    "primary_endpoint": "progression-free survival and overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "PFS HR 0.80 (95% CI: 0.65-0.97), OS HR 0.84 (95% CI: 0.69-1.02)",
+    "p_value": 0.0122,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "97.6% experienced AEs in pembrolizumab arm vs 98.0% in placebo arm",
+      "19.2% discontinued due to AEs in pembrolizumab arm vs 17.1% in placebo arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": 3.3,
+        "serious": true
+      },
+      {
+        "term": "bone marrow failure",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      },
+      {
+        "term": "atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "atrial flutter",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "cardiac tamponade",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "myocarditis",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pericardial effusion",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "supraventricular tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+    "comparator": "pemetrexed + platinum chemotherapy + placebo",
+    "sample_size": 492,
+    "duration": "up to ~51 months",
+    "duration_weeks": 221.5,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "compounds": [
+        "pembrolizumab",
+        "pemetrexed",
+        "carboplatin",
+        "cisplatin"
+      ]
+    },
+    {
+      "arm_id": "placebo_pemetrexed_chemo",
+      "compounds": [
+        "pemetrexed",
+        "carboplatin",
+        "cisplatin",
+        "saline solution"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.8,
+      "p_value": 0.0122,
+      "outcome": "success",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.8,
+      "p_value": 0.0122,
+      "outcome": "success",
+      "mechanism_description": "folate metabolism inhibition",
+      "biology_description": "DNA synthesis disruption",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.8,
+      "p_value": 0.0122,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "cisplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.8,
+      "p_value": 0.0122,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.84,
+      "p_value": 0.0362,
+      "outcome": "success",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.84,
+      "p_value": 0.0362,
+      "outcome": "success",
+      "mechanism_description": "folate metabolism inhibition",
+      "biology_description": "DNA synthesis disruption",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.84,
+      "p_value": 0.0362,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "pembro_pemetrexed_chemo",
+      "intervention": "cisplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.84,
+      "p_value": 0.0362,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "TKI-resistant EGFR-mutated metastatic non-squamous NSCLC",
+      "mechanism_category": "dna_crosslinking"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "pembrolizumab",
+      "primary_compound_id": "pemetrexed",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "checkpoint blockade enhances chemotherapy-induced anti-tumor immunity",
+      "citation": "PFS HR 0.80 (95% CI: 0.65-0.97), p = 0.0122"
+    }
+  ]
+}

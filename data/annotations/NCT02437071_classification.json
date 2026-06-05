@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT02437071",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 engagement by pembrolizumab. The trial assumes target engagement based on known pembrolizumab mechanism but provides no direct evidence. 2. PATHWAY MODULATION: No data on downstream T-cell activation, immune infiltration, or other checkpoint blockade pathway markers. Cannot assess whether PD-1 engagement led to intended immune activation. 3. CLINICAL TRANSLATION: Primary endpoint clearly failed - 0/24 responses in radiotherapy arm and 0/9 responses in ablation arm (0% ORR in both arms). This is a complete absence of clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses reported. The population was metastatic colorectal cancer patients, which is known to be less responsive to checkpoint blockade compared to other tumor types. 5. CONFOUNDERS: Small sample size (n=34 total) may contribute to lack of power, but the complete absence of responses (0%) suggests this is not simply an underpowered study. The combination with radiotherapy/ablation was hypothesized to enhance immune activation but showed no benefit.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.8,
+      "evidence": "Metastatic colorectal cancer is known to be poorly responsive to checkpoint blockade monotherapy, with microsatellite stable (MSS) tumors showing minimal benefit. The complete absence of responses (0% ORR) in both arms suggests the population lacks the immune-inflamed phenotype required for checkpoint blockade efficacy."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "While no biomarker data is available to confirm, the combination with radiotherapy/ablation was designed to enhance immune activation. The complete failure suggests either the biology didn't move or the endpoint didn't capture any biological activity that may have occurred."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "colorectal_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pembrolizumab_plus_radiotherapy",
+      "reasoning": "Complete absence of responses (0/24) in radiotherapy arm suggests T-cell mediated anti-tumor immunity does not drive clinical benefit in this colorectal cancer population"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "colorectal_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pembrolizumab_plus_ablation",
+      "reasoning": "Complete absence of responses (0/9) in ablation arm confirms T-cell mediated anti-tumor immunity does not drive clinical benefit in this colorectal cancer population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:b7810065331b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_plus_radiotherapy",
+      "reasoning": "Without biomarker data, the complete clinical failure suggests the checkpoint blockade mechanism did not effectively generate T-cell mediated anti-tumor immunity in this population"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:b7810065331b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_plus_ablation",
+      "reasoning": "Without biomarker data, the complete clinical failure suggests the checkpoint blockade mechanism did not effectively generate T-cell mediated anti-tumor immunity in this population"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_colorectal_cancer",
+      "target_entity": "colorectal_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Objective response rate is a well-established endpoint for measuring clinical benefit in colorectal cancer and was clearly measured in this trial"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "colorectal_cancer__extent_metastatic__line_third_plus",
+      "target_entity": "colorectal_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This heavily pretreated metastatic colorectal cancer population showed complete lack of response (0% ORR), confirming poor responsiveness to checkpoint blockade in this population subset"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

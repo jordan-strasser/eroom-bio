@@ -1,0 +1,125 @@
+{
+  "nct_id": "NCT03093272",
+  "therapeutic_hypothesis": {
+    "compound": "docetaxel + apalutamide",
+    "claimed_target": "androgen receptor",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "androgen signaling inhibition",
+    "target_population": "castration-resistant prostate cancer",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "median PFS 5.6 months",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "median PSA change 13.0% increase (95% CI: -36.3\u201328.8)"
+    ],
+    "subgroup_findings": [
+      "individual patient PFS ranged from 1.8 to 9.4 months"
+    ],
+    "safety_signals": [
+      "infusion related reaction",
+      "neutropenia",
+      "pneumonitis",
+      "respiratory failure"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "infusion related reaction",
+        "grade": "",
+        "incidence_treatment_pct": 11.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "neutrophil count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 22.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pneumonitis",
+        "grade": "",
+        "incidence_treatment_pct": 11.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "respiratory failure",
+        "grade": "",
+        "incidence_treatment_pct": 11.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "castration-resistant prostate cancer",
+    "comparator": "none",
+    "sample_size": 9,
+    "duration": "up to 9.4 months",
+    "duration_weeks": 40.9,
+    "investigator_commentary": "Safety concerns"
+  },
+  "arms": [
+    {
+      "arm_id": "arn_509_combined_with_docetaxel",
+      "compounds": [
+        "leuprolide",
+        "prednisone",
+        "docetaxel",
+        "apalutamide"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arn_509_combined_with_docetaxel",
+      "intervention": "docetaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "castration-resistant prostate cancer",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "arn_509_combined_with_docetaxel",
+      "intervention": "apalutamide",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "androgen signaling inhibition",
+      "population_description": "castration-resistant prostate cancer",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "apalutamide",
+      "primary_compound_id": "docetaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "androgen receptor antagonism may enhance chemotherapy sensitivity in castration-resistant prostate cancer",
+      "citation": "Safety concerns"
+    }
+  ]
+}

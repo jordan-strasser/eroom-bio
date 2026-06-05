@@ -1,0 +1,181 @@
+{
+  "nct_id": "NCT00851084",
+  "therapeutic_hypothesis": {
+    "compound": "aflibercept + mFOLFOX6",
+    "claimed_target": "VEGF",
+    "proposed_mechanism": "growth factor sequestration",
+    "intended_biology": "angiogenesis inhibition",
+    "target_population": "metastatic colorectal cancer patients",
+    "primary_endpoint": "progression-free survival rate at 12 months",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "25.8% vs 21.2% PFS rate at 12 months",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Higher grade 3-4 adverse events in combination arm",
+      "More serious adverse events with aflibercept",
+      "More treatment-emergent deaths in combination arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3-4 TEAE",
+        "grade": "3-4",
+        "incidence_treatment_pct": 90.8,
+        "incidence_control_pct": 75.0,
+        "serious": true
+      },
+      {
+        "term": "Treatment emergent Serious Adverse Event",
+        "grade": "",
+        "incidence_treatment_pct": 46.2,
+        "incidence_control_pct": 27.6,
+        "serious": true
+      },
+      {
+        "term": "TEAE leading to death",
+        "grade": "",
+        "incidence_treatment_pct": 6.7,
+        "incidence_control_pct": 1.7,
+        "serious": true
+      },
+      {
+        "term": "Urinary tract infection",
+        "grade": "",
+        "incidence_treatment_pct": 1.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Catheter site infection",
+        "grade": "",
+        "incidence_treatment_pct": 2.5,
+        "incidence_control_pct": 2.6,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": 0.9,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic colorectal cancer",
+    "comparator": "mFOLFOX6 only",
+    "sample_size": 268,
+    "duration": "approximately 26 months",
+    "duration_weeks": 113.0,
+    "investigator_commentary": "The study was not powered for comparison between the two arms (non-comparative, open-label study)"
+  },
+  "arms": [
+    {
+      "arm_id": "mfolfox6_only",
+      "compounds": [
+        "oxaliplatin",
+        "5-FU",
+        "folinic_acid"
+      ]
+    },
+    {
+      "arm_id": "mfolfox6_aflibercept",
+      "compounds": [
+        "aflibercept",
+        "oxaliplatin",
+        "5-FU",
+        "folinic_acid"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "mfolfox6_only",
+      "intervention": "oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS rate at 12 months",
+      "effect_size": 21.2,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic colorectal cancer patients",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "mfolfox6_only",
+      "intervention": "5-FU",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS rate at 12 months",
+      "effect_size": 21.2,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "thymidylate synthase inhibition",
+      "biology_description": "DNA synthesis disruption",
+      "population_description": "metastatic colorectal cancer patients",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "mfolfox6_aflibercept",
+      "intervention": "aflibercept",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS rate at 12 months",
+      "effect_size": 25.8,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "growth factor sequestration",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "metastatic colorectal cancer patients",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "mfolfox6_aflibercept",
+      "intervention": "oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS rate at 12 months",
+      "effect_size": 25.8,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic colorectal cancer patients",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "mfolfox6_aflibercept",
+      "intervention": "5-FU",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS rate at 12 months",
+      "effect_size": 25.8,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "thymidylate synthase inhibition",
+      "biology_description": "DNA synthesis disruption",
+      "population_description": "metastatic colorectal cancer patients",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "aflibercept",
+      "primary_compound_id": "oxaliplatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Anti-angiogenic therapy may enhance chemotherapy efficacy by normalizing tumor vasculature",
+      "citation": "The study was not powered for comparison between the two arms (non-comparative, open-label study)"
+    }
+  ]
+}

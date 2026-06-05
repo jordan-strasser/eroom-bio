@@ -1,0 +1,114 @@
+{
+  "nct_id": "NCT00636792",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data reported, but clinical response suggests adequate exposure and target engagement for all three compounds in the combination. 2. PATHWAY MODULATION: No biomarker data available to assess pathway modulation, but the clinical response suggests the intended mechanisms (proteasome inhibition, DNA cross-linking, antibody-dependent cytotoxicity) were activated. 3. CLINICAL TRANSLATION: Primary endpoint was met with 43.8% complete response rate, demonstrating clear clinical benefit. 4. POPULATION EFFECTS: No subgroup analysis reported, but the overall population (relapsed/refractory follicular lymphoma) responded well. 5. CONFOUNDERS: Single-arm design limits interpretation, but the 43.8% CR rate is clinically meaningful for this refractory population. Safety profile shows expected toxicities without dose-limiting issues.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.3,
+      "evidence": "Single-arm design with no control group and no biomarker data to assess mechanism engagement, though clinical response suggests efficacy"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "bortezomib",
+      "target_entity": "ENSG00000173692",
+      "support": "strong_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response achieved suggests target engagement occurred"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "rituximab",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response achieved suggests target engagement occurred"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000173692",
+      "target_entity": "R-HSA-9907900",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response suggests proteasome inhibition mechanism was activated"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response suggests antibody-dependent cytotoxicity mechanism was activated"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9907900",
+      "target_entity": "bio:55526752a445",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response suggests proteasome assembly modulation led to apoptosis"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_crosslinking",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response suggests DNA crosslinking led to DNA damage-induced apoptosis"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:164b99bb6778",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Clinical response suggests antibody-dependent cytotoxicity led to B-cell depletion"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:55526752a445",
+      "target_entity": "follicular_lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "43.8% complete response rate demonstrates protein degradation-induced apoptosis drives clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "follicular_lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "43.8% complete response rate demonstrates DNA damage-induced apoptosis drives clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:164b99bb6778",
+      "target_entity": "follicular_lymphoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "43.8% complete response rate demonstrates B-cell depletion drives clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR_follicular_lymphoma",
+      "target_entity": "follicular_lymphoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Complete response rate is a well-established endpoint for lymphoma that directly captures clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "follicular_lymphoma__line_third_plus",
+      "target_entity": "follicular_lymphoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "43.8% complete response rate in relapsed/refractory population demonstrates this population responds to treatment"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no biomarker data limits mechanistic interpretation, though clinical response is clear"
+}

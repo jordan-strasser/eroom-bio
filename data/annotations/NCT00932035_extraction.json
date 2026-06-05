@@ -1,0 +1,144 @@
+{
+  "nct_id": "NCT00932035",
+  "therapeutic_hypothesis": {
+    "compound": "reverse mapping-guided axillary lymph node dissection",
+    "claimed_target": "arm lymphatic vessels",
+    "proposed_mechanism": "lymphatic vessel preservation",
+    "intended_biology": "lymphatic drainage preservation",
+    "target_population": "patients with breast cancer undergoing axillary lymph node dissection",
+    "primary_endpoint": "percentage of patients with lymphedema",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "lymphedema rate: 4/18 (22%) vs 6/21 (29%)",
+    "p_value": 0.59,
+    "target_engagement_evidence": "blue lymph nodes identified in 4/11 experimental vs 4/14 control patients",
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Blue lymph nodes seen: 4/11 experimental vs 4/14 control",
+      "Blue lymph nodes not seen: 7/11 experimental vs 10/14 control"
+    ],
+    "safety_signals": [
+      "anemia in experimental arm",
+      "wound infection in control arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anemia",
+        "grade": "",
+        "incidence_treatment_pct": 5.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "wound infection",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 4.8,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "breast cancer",
+    "comparator": "standard axillary lymph node dissection",
+    "sample_size": 39,
+    "duration": "up to 4 years",
+    "duration_weeks": 208.0,
+    "investigator_commentary": "Loss of principal investigator"
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_reverse_mapping_guided_axillary_lymph_node_dissection",
+      "compounds": [
+        "reverse mapping-guided axillary lymph node dissection",
+        "isosulfan blue"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_control",
+      "compounds": [
+        "standard axillary lymph node dissection",
+        "isosulfan blue"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Blue Lymph Nodes Seen",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "blue_nodes_seen"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Blue Lymph Nodes Not Seen",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "blue_nodes_not_seen"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Lymphedema Present",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "lymphedema_present"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Lymphedema Not Present",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "lymphedema_absent"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_reverse_mapping_guided_axillary_lymph_node_dissection",
+      "intervention": "reverse mapping-guided axillary lymph node dissection",
+      "subgroup_descriptor": null,
+      "endpoint": "lymphedema rate",
+      "effect_size": 22.2,
+      "p_value": 0.59,
+      "outcome": "failure",
+      "mechanism_description": "lymphatic vessel preservation",
+      "biology_description": "lymphatic drainage preservation",
+      "population_description": "patients with breast cancer undergoing axillary lymph node dissection",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "arm_ii_control",
+      "intervention": "standard axillary lymph node dissection",
+      "subgroup_descriptor": null,
+      "endpoint": "lymphedema rate",
+      "effect_size": 28.6,
+      "p_value": 0.59,
+      "outcome": "unknown",
+      "mechanism_description": "lymphatic vessel disruption",
+      "biology_description": "lymphatic drainage impairment",
+      "population_description": "patients with breast cancer undergoing axillary lymph node dissection",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

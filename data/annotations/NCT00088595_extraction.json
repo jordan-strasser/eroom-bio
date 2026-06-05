@@ -1,0 +1,199 @@
+{
+  "nct_id": "NCT00088595",
+  "therapeutic_hypothesis": {
+    "compound": "pasireotide",
+    "claimed_target": "somatostatin receptors",
+    "proposed_mechanism": "receptor agonism",
+    "intended_biology": "hormone secretion inhibition",
+    "target_population": "patients with metastatic carcinoid tumors",
+    "primary_endpoint": "symptom control (diarrhea/flushing)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "12/44 patients achieved symptom control (3 complete, 9 partial)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Complete symptom control: 3/44 patients",
+      "Partial symptom control: 9/44 patients",
+      "Higher doses (>1500 \u03bcg) showed longer duration of complete control (47 days vs 42 days)"
+    ],
+    "safety_signals": [
+      "23/45 patients had serious or significant events",
+      "14/45 patients had serious adverse events",
+      "12/45 patients discontinued due to adverse events",
+      "1 death reported",
+      "Gastrointestinal toxicities were common"
+    ],
+    "dose_info": {
+      "dose": "300-2400 \u03bcg daily",
+      "schedule": "twice daily subcutaneous",
+      "max_tolerated_dose": "",
+      "dose_modifications": "150 \u03bcg increments up to 900 \u03bcg twice daily; 300 \u03bcg/day reductions allowed for toxicity"
+    },
+    "adverse_events": [
+      {
+        "term": "Tricuspid valve incompetence",
+        "grade": "",
+        "incidence_treatment_pct": 2.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Duodenal stenosis",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Erosive duodenitis",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Gastritis",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Gastrointestinal haemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Rectal haemorrhage",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 3.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Oedema peripheral",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hepatic artery embolism",
+        "grade": "",
+        "incidence_treatment_pct": 6.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic carcinoid tumors",
+    "comparator": "none",
+    "sample_size": 45,
+    "duration": "at least 15 days",
+    "duration_weeks": 2.1,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pasireotide",
+      "compounds": [
+        "pasireotide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete symptom control",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial symptom control",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "No control",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "pasireotide",
+      "intervention": "pasireotide",
+      "subgroup_descriptor": null,
+      "endpoint": "symptom control",
+      "effect_size": 0.27,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "hormone secretion inhibition",
+      "population_description": "patients with metastatic carcinoid tumors",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pasireotide",
+      "intervention": "pasireotide",
+      "subgroup_descriptor": "Complete symptom control",
+      "endpoint": "symptom control",
+      "effect_size": 0.07,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "hormone secretion inhibition",
+      "population_description": "patients with metastatic carcinoid tumors achieving complete symptom control",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pasireotide",
+      "intervention": "pasireotide",
+      "subgroup_descriptor": "Partial symptom control",
+      "endpoint": "symptom control",
+      "effect_size": 0.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "hormone secretion inhibition",
+      "population_description": "patients with metastatic carcinoid tumors achieving partial symptom control",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": []
+}

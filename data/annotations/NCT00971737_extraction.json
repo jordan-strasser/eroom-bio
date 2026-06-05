@@ -1,0 +1,148 @@
+{
+  "nct_id": "NCT00971737",
+  "therapeutic_hypothesis": {
+    "compound": "allogeneic GM-CSF-secreting breast cancer vaccine + cyclophosphamide +/- trastuzumab",
+    "claimed_target": "HER2",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "antibody-dependent cytotoxicity",
+    "target_population": "metastatic breast cancer",
+    "primary_endpoint": "progression-free survival at 6 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "33% vs 37% PFS at 6 months",
+    "p_value": null,
+    "target_engagement_evidence": "HER-2/neu-specific DTH responses observed in 14/30 vaccine-only and 16/33 combination patients",
+    "biomarker_changes": [
+      "HER-2/neu-specific delayed-type hypersensitivity responses",
+      "CD4+CD25+ regulatory T cell dynamics",
+      "CD8+ T cells specific for hTERT",
+      "T-cell memory pool characterization"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "2 grade 3-4 adverse events in combination arm",
+      "0 grade 3-4 adverse events in vaccine-only arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3-4 adverse events",
+        "grade": "3-4",
+        "incidence_treatment_pct": 6.1,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic breast cancer",
+    "comparator": "vaccine + cyclophosphamide alone",
+    "sample_size": 63,
+    "duration": "3 years",
+    "duration_weeks": 156.15,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cyclophosphamide_and_vaccine_only",
+      "compounds": [
+        "allogeneic GM-CSF-secreting breast cancer vaccine",
+        "cyclophosphamide"
+      ]
+    },
+    {
+      "arm_id": "cyclophosphamide_vaccine_and_trastuzumab",
+      "compounds": [
+        "allogeneic GM-CSF-secreting breast cancer vaccine",
+        "cyclophosphamide",
+        "trastuzumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cyclophosphamide_and_vaccine_only",
+      "intervention": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS at 6 months",
+      "effect_size": 33.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "adaptive immune activation",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "cyclophosphamide_and_vaccine_only",
+      "intervention": "cyclophosphamide",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS at 6 months",
+      "effect_size": 33.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "cyclophosphamide_vaccine_and_trastuzumab",
+      "intervention": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS at 6 months",
+      "effect_size": 37.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "adaptive immune activation",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "immune_costimulation"
+    },
+    {
+      "arm_id": "cyclophosphamide_vaccine_and_trastuzumab",
+      "intervention": "cyclophosphamide",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS at 6 months",
+      "effect_size": 37.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "cyclophosphamide_vaccine_and_trastuzumab",
+      "intervention": "trastuzumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS at 6 months",
+      "effect_size": 37.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "antibody-dependent cytotoxicity",
+      "population_description": "metastatic breast cancer",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "trastuzumab",
+      "primary_compound_id": "allogeneic GM-CSF-secreting breast cancer vaccine",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "trastuzumab may enhance vaccine-induced immune responses through antibody-dependent cellular cytotoxicity",
+      "citation": "33% vs 37% PFS at 6 months with minimal difference between arms"
+    }
+  ]
+}

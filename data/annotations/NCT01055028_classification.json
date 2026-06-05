@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT01055028",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either VEGFA or TUBB4B. The trial used standard doses (bevacizumab 15 mg/kg, paclitaxel 200/90 mg/m\u00b2) that are typically effective, but without PD markers we cannot confirm target modulation. 2. PATHWAY MODULATION: No pathway biomarkers reported for angiogenesis inhibition or microtubule stabilization pathways. 3. CLINICAL TRANSLATION: Primary endpoint was PFS at 4 months. Regimen A achieved 4/8 (50%) progression-free at 4 months, Regimen B achieved 5/8 (62.5%) progression-free. Both arms showed partial efficacy with modest effect sizes (0.5 and 0.625 respectively). ORR data shows initial responses (50% and 40% after 3 cycles) but durability concerns (Regimen B dropped to 0% ORR by 6 cycles). 4. POPULATION EFFECTS: No subgroup analyses reported beyond overall response rates. 5. CONFOUNDERS: Small sample size (n=18 total), single-arm design with no control group, and noted poor accrual. High rate of serious adverse events (multiple SAEs at 12.5% incidence each) may have limited dosing or duration.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Sample size of only 18 patients total across both arms, with investigator commentary noting 'poor accrual'. This is substantially underpowered for detecting meaningful PFS differences."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Single-arm design with no control group limits interpretation of the partial efficacy signals."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b55de6a34863",
+      "target_entity": "angiosarcoma",
+      "support": "weak_support",
+      "affecting_arm_id": "regimen_a_treatment_1",
+      "reasoning": "Regimen A showed 50% progression-free at 4 months with some durable responses, suggesting tumor vascularization suppression may contribute to disease control in angiosarcoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b55de6a34863",
+      "target_entity": "angiosarcoma",
+      "support": "weak_support",
+      "affecting_arm_id": "regimen_b_treatment_2",
+      "reasoning": "Regimen B showed 62.5% progression-free at 4 months, suggesting tumor vascularization suppression may contribute to disease control"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "angiosarcoma",
+      "support": "weak_support",
+      "affecting_arm_id": "regimen_a_treatment_1",
+      "reasoning": "Mitotic arrest from paclitaxel component likely contributed to the partial efficacy observed in Regimen A"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "angiosarcoma",
+      "support": "weak_support",
+      "affecting_arm_id": "regimen_b_treatment_2",
+      "reasoning": "Mitotic arrest from paclitaxel component likely contributed to the partial efficacy observed in Regimen B"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_soft_tissue_sarcoma",
+      "target_entity": "angiosarcoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS at 4 months is a clinically relevant endpoint for angiosarcoma and was successfully measured in this trial, showing meaningful disease control rates"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "angiosarcoma__extent_metastatic__line_second",
+      "target_entity": "angiosarcoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Both regimens showed partial efficacy in metastatic angiosarcoma patients, with 50-62.5% achieving progression-free status at 4 months"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Small single-arm trial with no biomarker data and poor accrual makes mechanistic interpretation difficult. The partial efficacy signals need expert evaluation to determine clinical significance in the context of historical angiosarcoma outcomes."
+}

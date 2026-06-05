@@ -1,0 +1,180 @@
+{
+  "nct_id": "NCT01933932",
+  "therapeutic_hypothesis": {
+    "compound": "selumetinib + docetaxel",
+    "claimed_target": "MEK1/2",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "MAPK pathway inhibition",
+    "target_population": "KRAS-positive locally advanced or metastatic NSCLC patients receiving second-line treatment",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.93 (95% CI: 0.77-1.12)",
+    "p_value": 0.4355,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Increased cardiac events in selumetinib arm including acute myocardial infarction",
+      "Higher rates of neutropenia and febrile neutropenia with selumetinib"
+    ],
+    "dose_info": {
+      "dose": "75 mg twice daily",
+      "schedule": "continuous oral dosing with docetaxel 75 mg/m2 IV day 1 every 21 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.2,
+        "incidence_control_pct": 1.6,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 2.0,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 1.2,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Cardiac failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Cardiac failure congestive",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Cardiovascular insufficiency",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Coronary artery dissection",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Pericardial effusion",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "KRAS-positive locally advanced or metastatic NSCLC",
+    "comparator": "placebo + docetaxel",
+    "sample_size": 510,
+    "duration": "approximately 3 years",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "selumetinib_docetaxel",
+      "compounds": [
+        "selumetinib",
+        "docetaxel",
+        "pegylated_g_csf"
+      ]
+    },
+    {
+      "arm_id": "placebo_docetaxel",
+      "compounds": [
+        "docetaxel",
+        "pegylated_g_csf"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "selumetinib_docetaxel",
+      "intervention": "selumetinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.93,
+      "p_value": 0.4355,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "MAPK pathway inhibition",
+      "population_description": "KRAS-positive locally advanced or metastatic NSCLC patients receiving second-line treatment",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "selumetinib_docetaxel",
+      "intervention": "docetaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.93,
+      "p_value": 0.4355,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "KRAS-positive locally advanced or metastatic NSCLC patients receiving second-line treatment",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "placebo_docetaxel",
+      "intervention": "docetaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "KRAS-positive locally advanced or metastatic NSCLC patients receiving second-line treatment",
+      "mechanism_category": "microtubule_binding"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "selumetinib",
+      "primary_compound_id": "docetaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "MEK inhibition may enhance chemotherapy efficacy by blocking survival signaling in KRAS-mutant tumors",
+      "citation": "Primary endpoint PFS showed HR 0.93 (95% CI: 0.77-1.12), p = 0.4355, indicating no significant benefit from adding selumetinib to docetaxel"
+    }
+  ]
+}

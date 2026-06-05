@@ -1,0 +1,187 @@
+{
+  "nct_id": "NCT01041781",
+  "therapeutic_hypothesis": {
+    "compound": "celecoxib + carboplatin + gemcitabine + pemetrexed",
+    "claimed_target": "COX-2",
+    "proposed_mechanism": "cyclooxygenase inhibition",
+    "intended_biology": "inflammation suppression",
+    "target_population": "advanced non-small cell lung cancer",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 1.076 (95% CI: 0.853-1.367)",
+    "p_value": 0.5346,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "PGE-M levels prognostic for PFS"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Higher grade 3+ toxicity rate with celecoxib (61.04% vs 55.06%)"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "anemia",
+        "grade": "3+",
+        "incidence_treatment_pct": 15.1,
+        "incidence_control_pct": 11.5,
+        "serious": true
+      },
+      {
+        "term": "febrile neutropenia",
+        "grade": "3+",
+        "incidence_treatment_pct": 2.1,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      },
+      {
+        "term": "cardiac arrest",
+        "grade": "3+",
+        "incidence_treatment_pct": 1.4,
+        "incidence_control_pct": 0.7,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced non-small cell lung cancer",
+    "comparator": "carboplatin + gemcitabine + pemetrexed + placebo",
+    "sample_size": 313,
+    "duration": "up to 5 years",
+    "duration_weeks": 260.0,
+    "investigator_commentary": "DSMB recommendation"
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i",
+      "compounds": [
+        "carboplatin",
+        "celecoxib",
+        "gemcitabine",
+        "pemetrexed"
+      ]
+    },
+    {
+      "arm_id": "arm_ii",
+      "compounds": [
+        "carboplatin",
+        "gemcitabine",
+        "pemetrexed",
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i",
+      "intervention": "celecoxib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.16,
+      "p_value": 0.5346,
+      "outcome": "failure",
+      "mechanism_description": "cyclooxygenase inhibition",
+      "biology_description": "inflammation suppression",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.16,
+      "p_value": 0.5346,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "gemcitabine",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.16,
+      "p_value": 0.5346,
+      "outcome": "failure",
+      "mechanism_description": "nucleoside analog incorporation",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "arm_i",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.16,
+      "p_value": 0.5346,
+      "outcome": "failure",
+      "mechanism_description": "folate antimetabolite activity",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "arm_ii",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.26,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_ii",
+      "intervention": "gemcitabine",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.26,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "nucleoside analog incorporation",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "arm_ii",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.26,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "folate antimetabolite activity",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "advanced non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "celecoxib",
+      "primary_compound_id": "carboplatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "COX-2 inhibition reduces inflammation to enhance chemotherapy efficacy",
+      "citation": "Primary endpoint failed with HR 1.076, p=0.5346"
+    }
+  ]
+}

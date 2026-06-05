@@ -1,0 +1,120 @@
+{
+  "nct_id": "NCT03938337",
+  "therapeutic_hypothesis": {
+    "compound": "abemaciclib + pembrolizumab",
+    "claimed_target": "CDK4/6 and PD-1",
+    "proposed_mechanism": "cell cycle inhibition and checkpoint blockade",
+    "intended_biology": "mitotic arrest and T-cell mediated anti-tumor immunity",
+    "target_population": "metastatic or recurrent head and neck cancer",
+    "primary_endpoint": "objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": null,
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "higher incidence of pulmonary toxicity than expected, including death"
+    ],
+    "dose_info": {
+      "dose": "abemaciclib 150mg, pembrolizumab 200mg",
+      "schedule": "abemaciclib twice daily, pembrolizumab every 3 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "metastatic or recurrent head and neck cancer",
+    "comparator": "none",
+    "sample_size": 1,
+    "duration": "6 months",
+    "duration_weeks": 26.0,
+    "investigator_commentary": "Sponsor terminated study due to higher incidence of pulmonary toxicity than expected, including death"
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_1_not_previously_treated",
+      "compounds": [
+        "abemaciclib",
+        "pembrolizumab"
+      ]
+    },
+    {
+      "arm_id": "cohort_2_treated_previously",
+      "compounds": [
+        "abemaciclib",
+        "pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "cohort_1_not_previously_treated",
+      "intervention": "abemaciclib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "cell cycle inhibition",
+      "biology_description": "mitotic arrest",
+      "population_description": "treatment-naive metastatic or recurrent head and neck cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "cohort_1_not_previously_treated",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "treatment-naive metastatic or recurrent head and neck cancer",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "cohort_2_treated_previously",
+      "intervention": "abemaciclib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "cell cycle inhibition",
+      "biology_description": "mitotic arrest",
+      "population_description": "previously treated metastatic or recurrent head and neck cancer",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "cohort_2_treated_previously",
+      "intervention": "pembrolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "previously treated metastatic or recurrent head and neck cancer",
+      "mechanism_category": "checkpoint_blockade"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "abemaciclib",
+      "primary_compound_id": "pembrolizumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "CDK4/6 inhibition may enhance immune response by promoting tumor antigen presentation and reducing immunosuppressive factors",
+      "citation": "Sponsor terminated study due to higher incidence of pulmonary toxicity than expected, including death"
+    }
+  ]
+}

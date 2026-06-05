@@ -1,0 +1,182 @@
+{
+  "nct_id": "NCT03322384",
+  "therapeutic_hypothesis": {
+    "compound": "epacadostat + SD-101 + radiotherapy",
+    "claimed_target": "IDO1",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "patients with advanced solid tumors and lymphoma",
+    "primary_endpoint": "maximum tolerated dose and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD established at 300 mg epacadostat",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "17 patients experienced related adverse events",
+      "Multiple serious adverse events including GI bleeding, sepsis, respiratory infection, transaminitis, hyponatremia, muscle weakness, acute kidney injury"
+    ],
+    "dose_info": {
+      "dose": "300 mg",
+      "schedule": "twice daily",
+      "max_tolerated_dose": "300 mg",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "lower GI bleed",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "sepsis",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "upper respiratory infection",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "transaminitis",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "hyponatremia",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "electrolyte and fluid disorder",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "generalized muscle weakness",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "muscle weakness lower limb",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "disease progression",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "acute kidney injury",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "advanced solid tumors and lymphoma",
+    "comparator": "none",
+    "sample_size": 20,
+    "duration": "one year",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "experimental",
+      "compounds": [
+        "epacadostat",
+        "SD-101",
+        "radiotherapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "experimental",
+      "intervention": "epacadostat",
+      "subgroup_descriptor": null,
+      "endpoint": "MTD",
+      "effect_size": 300.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "patients with advanced solid tumors and lymphoma",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "experimental",
+      "intervention": "SD-101",
+      "subgroup_descriptor": null,
+      "endpoint": "abscopal response",
+      "effect_size": 4.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "immune receptor agonism",
+      "biology_description": "innate immune activation",
+      "population_description": "patients with advanced solid tumors and lymphoma",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "experimental",
+      "intervention": "radiotherapy",
+      "subgroup_descriptor": null,
+      "endpoint": "abscopal response",
+      "effect_size": 4.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA damage",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with advanced solid tumors and lymphoma",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "SD-101",
+      "primary_compound_id": "epacadostat",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "TLR9 agonist SD-101 enhances immune activation to amplify IDO1 inhibition-mediated T-cell immunity",
+      "citation": "Four milligrams of SD-101 will be delivered into the treatment lesion by intralesional injection"
+    },
+    {
+      "modulator_compound_id": "radiotherapy",
+      "primary_compound_id": "epacadostat",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "Radiotherapy induces immunogenic cell death to enhance T-cell mediated anti-tumor immunity from IDO1 inhibition",
+      "citation": "Radiotherapy will be delivered to the treatment lesion during the first week of ERS therapy"
+    }
+  ]
+}

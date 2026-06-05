@@ -1,0 +1,274 @@
+{
+  "nct_id": "NCT04739800",
+  "therapeutic_hypothesis": {
+    "compound": "durvalumab + cediranib + olaparib",
+    "claimed_target": "PD-L1",
+    "proposed_mechanism": "checkpoint blockade",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS 2.6 months (triplet) vs 4.2 months (standard of care)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Higher grade 3+ adverse events in combination arms",
+      "Cardiac toxicity observed with cediranib-containing regimens"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3+ adverse events",
+        "grade": "3+",
+        "incidence_treatment_pct": 65.5,
+        "incidence_control_pct": 50.0,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 10.3,
+        "incidence_control_pct": 7.1,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 17.2,
+        "incidence_control_pct": 7.1,
+        "serious": true
+      },
+      {
+        "term": "Ascites",
+        "grade": "",
+        "incidence_treatment_pct": 10.3,
+        "incidence_control_pct": 14.3,
+        "serious": true
+      },
+      {
+        "term": "Diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": 17.2,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Heart failure",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+    "comparator": "standard of care chemotherapy (paclitaxel + pegylated liposomal doxorubicin + topotecan)",
+    "sample_size": 120,
+    "duration": "median follow-up 4.8 months",
+    "duration_weeks": 20.9,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_paclitaxel_doxorubicin_topotecan_hydrochloride",
+      "compounds": [
+        "paclitaxel",
+        "pegylated_liposomal_doxorubicin",
+        "topotecan"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_durvalumab_cediranib_maleate_olaparib",
+      "compounds": [
+        "durvalumab",
+        "cediranib",
+        "olaparib"
+      ]
+    },
+    {
+      "arm_id": "arm_iii_durvalumab_cediranib_maleate",
+      "compounds": [
+        "durvalumab",
+        "cediranib"
+      ]
+    },
+    {
+      "arm_id": "arm_iv_cediranib_maleate_olaparib",
+      "compounds": [
+        "cediranib",
+        "olaparib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_paclitaxel_doxorubicin_topotecan_hydrochloride",
+      "intervention": "paclitaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "arm_i_paclitaxel_doxorubicin_topotecan_hydrochloride",
+      "intervention": "pegylated_liposomal_doxorubicin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA intercalation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "arm_i_paclitaxel_doxorubicin_topotecan_hydrochloride",
+      "intervention": "topotecan",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "topoisomerase I inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_ii_durvalumab_cediranib_maleate_olaparib",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "arm_ii_durvalumab_cediranib_maleate_olaparib",
+      "intervention": "cediranib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_ii_durvalumab_cediranib_maleate_olaparib",
+      "intervention": "olaparib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.6,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "PARP inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "arm_iii_durvalumab_cediranib_maleate",
+      "intervention": "durvalumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "arm_iii_durvalumab_cediranib_maleate",
+      "intervention": "cediranib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_iv_cediranib_maleate_olaparib",
+      "intervention": "cediranib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "arm_iv_cediranib_maleate_olaparib",
+      "intervention": "olaparib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.3,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "PARP inhibition",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "platinum-refractory/resistant recurrent ovarian, fallopian tube, and primary peritoneal carcinoma",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "cediranib",
+      "primary_compound_id": "durvalumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "anti-angiogenic therapy enhances immune infiltration and checkpoint blockade efficacy",
+      "citation": "Comparison of triplet combination with standard of care in platinum-refractory ovarian cancer"
+    },
+    {
+      "modulator_compound_id": "olaparib",
+      "primary_compound_id": "durvalumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "PARP inhibition increases neoantigen presentation and enhances immunotherapy response",
+      "citation": "Comparison of triplet combination with standard of care in platinum-refractory ovarian cancer"
+    }
+  ]
+}

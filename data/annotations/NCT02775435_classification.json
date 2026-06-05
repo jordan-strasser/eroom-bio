@@ -1,0 +1,108 @@
+{
+  "nct_id": "NCT02775435",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker data reported, but pembrolizumab is a well-established PD-1 inhibitor with known target engagement. The clinical success strongly implies target engagement occurred. 2. PATHWAY MODULATION: No pathway biomarkers reported, but the clinical efficacy suggests checkpoint blockade pathway was activated. 3. CLINICAL TRANSLATION: Both primary endpoints (PFS and OS) were met with strong statistical significance (p=0.0001 and p=0.0008) and clinically meaningful effect sizes (HR 0.56 and 0.64). 4. POPULATION EFFECTS: No subgroup analyses reported, but the overall population responded well. 5. CONFOUNDERS: This was a well-powered randomized controlled trial with adequate duration (82.6 weeks). Higher discontinuation due to AEs in treatment arm but did not prevent efficacy demonstration.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "bemcentinib_pembrolizumab",
+      "target_entity": "ENSG00000188389",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical success with pembrolizumab strongly implies PD-1 target engagement occurred"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "GO:0050868",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical efficacy demonstrates that PD-1 engagement successfully modulated negative regulation of T cell activation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0050868",
+      "target_entity": "bio:b7810065331b",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Strong clinical efficacy indicates checkpoint blockade mechanism successfully drove T-cell mediated anti-tumor immunity"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b7810065331b",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Significant improvement in both PFS and OS demonstrates T-cell mediated immunity effectively drives clinical benefit in NSCLC"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carboplatin",
+      "target_entity": "CHEBI:16991",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical success implies carboplatin engaged its DNA target as expected"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical efficacy demonstrates DNA damage mechanism successfully induced apoptosis"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Strong clinical outcomes demonstrate DNA-damage-induced apoptosis drives benefit in NSCLC"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "nab_paclitaxel",
+      "target_entity": "ENSG00000188229",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical success implies paclitaxel engaged tubulin target as expected"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0000278",
+      "target_entity": "bio:30676876920c",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Clinical efficacy demonstrates mitotic cell cycle disruption successfully induced mitotic arrest"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "pembrolizumab_chemotherapy_combo",
+      "reasoning": "Strong clinical outcomes demonstrate mitotic arrest drives benefit in NSCLC"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_non_small_cell_lung_cancer",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS met primary endpoint with strong statistical significance (p=0.0001) and clinically meaningful effect size (HR 0.56)"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "non_small_cell_lung_cancer__extent_metastatic__line_first",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "First-line metastatic squamous NSCLC population showed strong response with both PFS and OS endpoints met at p<0.01"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT01347034",
+  "therapeutic_hypothesis": {
+    "compound": "autologous dendritic cells",
+    "claimed_target": "antigen presenting cells",
+    "proposed_mechanism": "antigen presentation",
+    "intended_biology": "T-cell mediated anti-tumor immunity",
+    "target_population": "soft tissue sarcoma patients",
+    "primary_endpoint": "enhanced T lymphocyte immune response specific for soft tissue sarcoma tumor associated antigens",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "5/14 vs 2/10 responders",
+    "p_value": null,
+    "target_engagement_evidence": "IFN-\u03b3 ELISPOT assay and proliferation assay responses to tumor cell lysates",
+    "biomarker_changes": [
+      "Enhanced T lymphocyte immune response measured by IFN-\u03b3 ELISPOT",
+      "Proliferation assay responses to tumor associated antigens"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Treatment emergent adverse events in 14/14 combination arm patients vs 6/10 radiation alone"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "intratumoral injection with radiation therapy",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dehydration",
+        "grade": "",
+        "incidence_treatment_pct": 7.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "soft tissue sarcoma",
+    "comparator": "external beam radiation therapy alone",
+    "sample_size": 20,
+    "duration": "11 weeks per participant",
+    "duration_weeks": 11.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "external_beam_radiation_therapy_rt",
+      "compounds": [
+        "radiation_therapy"
+      ]
+    },
+    {
+      "arm_id": "external_beam_rt_dc_injection",
+      "compounds": [
+        "radiation_therapy",
+        "autologous_dendritic_cells"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "external_beam_radiation_therapy_rt",
+      "intervention": "radiation_therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "enhanced T lymphocyte immune response",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA damage",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "soft tissue sarcoma patients",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "external_beam_rt_dc_injection",
+      "intervention": "radiation_therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "enhanced T lymphocyte immune response",
+      "effect_size": 5.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "DNA damage",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "soft tissue sarcoma patients",
+      "mechanism_category": "dna_damage"
+    },
+    {
+      "arm_id": "external_beam_rt_dc_injection",
+      "intervention": "autologous_dendritic_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "enhanced T lymphocyte immune response",
+      "effect_size": 5.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "antigen presentation",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "soft tissue sarcoma patients",
+      "mechanism_category": "immune_costimulation"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "autologous_dendritic_cells",
+      "primary_compound_id": "radiation_therapy",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "Dendritic cells enhance radiation-induced immune response by presenting tumor antigens released by radiation damage",
+      "citation": "combination arm showed 5/14 responders vs 2/10 in radiation alone arm for enhanced T lymphocyte immune response"
+    }
+  ]
+}

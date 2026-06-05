@@ -1,0 +1,106 @@
+{
+  "nct_id": "NCT02135874",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers were measured, but the combination achieved a 56.3% complete response rate in mixed phenotype acute leukemia, which strongly suggests the DNA-damaging agents (clofarabine, cytarabine, idarubicin) engaged their targets given the mechanism-dependent nature of complete responses in leukemia. 2. PATHWAY MODULATION: While no pathway biomarkers were directly measured, complete responses in acute leukemia require successful DNA damage and apoptosis induction, indicating the intended pathways were modulated. 3. CLINICAL TRANSLATION: The primary endpoint was met with a 56.3% complete response rate, which is clinically meaningful for this indication. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: This was a single-arm Phase 2 trial with small sample size (n=16), but the response rate is well above historical benchmarks for this rare indication.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Small sample size of 16 patients limits statistical power and generalizability, though the response rate achieved was clinically meaningful"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "clofarabine",
+      "target_entity": "ENSG00000101868",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies DNA polymerase engagement by clofarabine"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ara_c",
+      "target_entity": "ENSG00000101868",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies DNA polymerase engagement by cytarabine"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "idarubicin",
+      "target_entity": "ENSG00000131747",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies topoisomerase II engagement by idarubicin"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "rituximab",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies CD20 engagement by rituximab"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bay_43_9006",
+      "target_entity": "ENSG00000132155",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies RAF1 engagement by sorafenib"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vincristine_sulfate",
+      "target_entity": "ENSG00000188229",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Complete response achieved implies tubulin engagement by vincristine"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "acute_bilineal_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "DNA-damage-induced apoptosis drove complete responses in mixed phenotype acute leukemia"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4834e55ee9c5",
+      "target_entity": "acute_bilineal_leukemia",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Antibody-dependent cytotoxicity contributed to complete responses as part of combination therapy"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30676876920c",
+      "target_entity": "acute_bilineal_leukemia",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_combination_chemotherapy",
+      "reasoning": "Mitotic arrest contributed to complete responses as part of combination therapy"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR_mixed_phenotype_acute_leukemia",
+      "target_entity": "acute_bilineal_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Complete response rate is a well-established endpoint that captures clinical benefit in acute leukemia"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "acute_bilineal_leukemia__line_first",
+      "target_entity": "acute_bilineal_leukemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "56.3% complete response rate demonstrates this population responds well to the combination therapy"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

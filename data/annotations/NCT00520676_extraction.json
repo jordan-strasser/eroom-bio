@@ -1,0 +1,150 @@
+{
+  "nct_id": "NCT00520676",
+  "therapeutic_hypothesis": {
+    "compound": "pemetrexed plus carboplatin vs docetaxel plus carboplatin",
+    "claimed_target": "thymidylate synthase and DNA",
+    "proposed_mechanism": "antimetabolite action and DNA cross-linking",
+    "intended_biology": "DNA synthesis inhibition and DNA-damage-induced apoptosis",
+    "target_population": "patients with non-small cell lung cancer",
+    "primary_endpoint": "survival without grade 3 or 4 toxicity",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.45 (95% CI: 0.34-0.60)",
+    "p_value": 0.001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Pemetrexed plus carboplatin showed higher response rate (34.0% vs 23.1%)",
+      "Disease control rate favored pemetrexed arm (74.5% vs 64.4%)"
+    ],
+    "safety_signals": [
+      "Pemetrexed arm had lower rates of febrile neutropenia",
+      "Docetaxel arm showed more hematologic toxicities"
+    ],
+    "dose_info": {
+      "dose": "pemetrexed 500 mg/m\u00b2, carboplatin AUC 5, docetaxel 75 mg/m\u00b2",
+      "schedule": "q 21 days x 6 cycles maximum",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "serious",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "serious",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 8.6,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "serious",
+        "incidence_treatment_pct": 1.9,
+        "incidence_control_pct": 7.6,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "serious",
+        "incidence_treatment_pct": 2.8,
+        "incidence_control_pct": 1.9,
+        "serious": true
+      },
+      {
+        "term": "Leukopenia",
+        "grade": "serious",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": 2.9,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "non-small cell lung cancer",
+    "comparator": "docetaxel plus carboplatin",
+    "sample_size": 260,
+    "duration": "up to 33.3 months",
+    "duration_weeks": 144.8,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pemetrexed_plus_carboplatin",
+      "compounds": [
+        "pemetrexed",
+        "carboplatin"
+      ]
+    },
+    {
+      "arm_id": "docetaxel_plus_carboplatin",
+      "compounds": [
+        "docetaxel",
+        "carboplatin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "pemetrexed_plus_carboplatin",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "survival without grade 3/4 toxicity",
+      "effect_size": 3.2,
+      "p_value": 0.001,
+      "outcome": "success",
+      "mechanism_description": "antimetabolite action",
+      "biology_description": "DNA synthesis inhibition",
+      "population_description": "patients with non-small cell lung cancer",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "pemetrexed_plus_carboplatin",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "survival without grade 3/4 toxicity",
+      "effect_size": 3.2,
+      "p_value": 0.001,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "docetaxel_plus_carboplatin",
+      "intervention": "docetaxel",
+      "subgroup_descriptor": null,
+      "endpoint": "survival without grade 3/4 toxicity",
+      "effect_size": 0.7,
+      "p_value": 0.001,
+      "outcome": "failure",
+      "mechanism_description": "microtubule stabilization",
+      "biology_description": "mitotic arrest",
+      "population_description": "patients with non-small cell lung cancer",
+      "mechanism_category": "microtubule_binding"
+    },
+    {
+      "arm_id": "docetaxel_plus_carboplatin",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "survival without grade 3/4 toxicity",
+      "effect_size": 0.7,
+      "p_value": 0.001,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "patients with non-small cell lung cancer",
+      "mechanism_category": "dna_crosslinking"
+    }
+  ],
+  "modulation_entries": []
+}
