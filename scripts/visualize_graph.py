@@ -368,25 +368,42 @@ def _shared_svg(chains, which, y0, show_ep):
     return "\n".join(parts), details, y0 + (maxslot + 1) * _ROWSP + 8
 
 
-def render_chain_html(title: str, data: dict) -> str:
+def render_chain_html(title: str, data: dict, *, after_only: bool = False) -> str:
+    """Render the chain view. ``after_only`` drops the BEFORE-MERGE block and
+    shows only the assembled (after-merge) graph — the clean product view; the
+    before/after debug stacking is the default (set by the ``--after-only``
+    toggle)."""
     chains = data["chains"]
     width = int(_colx(N_COLS - 1) + _BOXW + 80)
-    y_before = 96
-    svg_b, det_b, bot_b = _rows_svg(chains, "before", y_before, show_ep=False)
-    y_after = bot_b + 86
-    svg_a, det_a, bot_a = _shared_svg(chains, "after", y_after, show_ep=True)
-    height = int(bot_a + 30)
     markers = "".join(
         f'<marker id="ah-{et}" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">'
         f'<path d="M0,0 L7,3 L0,6 Z" fill="{c}"/></marker>' for et, c in EDGE_COLOR.items())
-    svg = (f'<svg id="svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}"><defs>{markers}</defs>'
-           f'<text x="20" y="{y_before-44:.0f}" class="blk">▼ BEFORE MERGE — per-trial instances</text>{svg_b}'
-           f'<line x1="0" y1="{bot_b+40:.0f}" x2="{width}" y2="{bot_b+40:.0f}" class="div"/>'
-           f'<text x="20" y="{y_after-44:.0f}" class="blk">▼ AFTER MERGE — assembled graph</text>{svg_a}</svg>')
-    blob = json.dumps({**det_b, **det_a}, default=str).replace("</", "<\\/")
+    if after_only:
+        y_after = 96
+        svg_a, det_a, bot_a = _shared_svg(chains, "after", y_after, show_ep=True)
+        height = int(bot_a + 30)
+        body = (f'<text x="20" y="{y_after-44:.0f}" class="blk">'
+                f'▼ ASSEMBLED GRAPH (after merge)</text>{svg_a}')
+        details = det_a
+        meta_extra = "assembled (after-merge) view"
+    else:
+        y_before = 96
+        svg_b, det_b, bot_b = _rows_svg(chains, "before", y_before, show_ep=False)
+        y_after = bot_b + 86
+        svg_a, det_a, bot_a = _shared_svg(chains, "after", y_after, show_ep=True)
+        height = int(bot_a + 30)
+        body = (f'<text x="20" y="{y_before-44:.0f}" class="blk">▼ BEFORE MERGE — per-trial instances</text>{svg_b}'
+                f'<line x1="0" y1="{bot_b+40:.0f}" x2="{width}" y2="{bot_b+40:.0f}" class="div"/>'
+                f'<text x="20" y="{y_after-44:.0f}" class="blk">▼ AFTER MERGE — assembled graph</text>{svg_a}')
+        details = {**det_b, **det_a}
+        meta_extra = ("red=cross-id fusion · gold=cross-trial merge · "
+                      "orange=island · ~=changed by merge")
+    svg = (f'<svg id="svg" width="{width}" height="{height}" '
+           f'viewBox="0 0 {width} {height}"><defs>{markers}</defs>{body}</svg>')
+    blob = json.dumps(details, default=str).replace("</", "<\\/")
     return (_CHAIN_TEMPLATE.replace("__TITLE__", html.escape(title))
-            .replace("__META__", html.escape(f'{len(chains)} of {data["n_total"]} chains · '
-                     'red=cross-id fusion · gold=cross-trial merge · orange=island · ~=changed by merge'))
+            .replace("__META__", html.escape(
+                f'{len(chains)} of {data["n_total"]} chains · {meta_extra}'))
             .replace("__SVG__", svg).replace("__DETAILS__", blob))
 
 
@@ -524,12 +541,14 @@ def write_chain_html(
     limit: int = 5,
     trials: list[str] | None = None,
     out: str | None = None,
+    after_only: bool = False,
 ) -> tuple[Path, dict]:
     """Render the chain (debug) view to an HTML file; return ``(path, data)``.
 
     Importable so a build can render + auto-open the viz at the end of a run
     (``build_graph --viz``). ``area`` resolves ``data/exports/<area>_<suffix>.json``
     and uses ``<area>_premerge.json`` for a faithful before-merge block when present.
+    ``after_only`` renders just the assembled graph (no before-merge block).
     """
     target = snapshot or area
     if not target:
@@ -538,13 +557,14 @@ def write_chain_html(
     snap = load_snapshot(path)
     VIZ_DIR.mkdir(parents=True, exist_ok=True)
     before_snap = None
-    if area:
+    if area and not after_only:
         pm = EXPORTS / f"{area}_premerge.json"
         if pm.exists():
             before_snap = load_snapshot(pm)
     data = extract_chains(snap, before_snap=before_snap, limit=limit, trials=trials)
     out_path = Path(out) if out else VIZ_DIR / f"{path.stem}_chains.html"
-    out_path.write_text(render_chain_html(f"{path.stem} — causal hypothesis chains", data))
+    out_path.write_text(render_chain_html(
+        f"{path.stem} — causal hypothesis chains", data, after_only=after_only))
     return out_path, data
 
 
@@ -561,6 +581,9 @@ def main() -> None:
     ap.add_argument("--out")
     ap.add_argument("--no-open", action="store_true",
                     help="render only; don't auto-open the HTML in a browser")
+    ap.add_argument("--after-only", action="store_true",
+                    help="chain mode: show only the assembled (after-merge) graph, "
+                         "dropping the before-merge debug block (toggle).")
     args = ap.parse_args()
 
     snapshot = args.snapshot or args.graph   # --graph is an intuitive alias for any path
@@ -583,7 +606,7 @@ def main() -> None:
     trials = [t.strip() for t in args.trials.split(",")] if args.trials else None
     out, data = write_chain_html(
         area=args.area, snapshot=snapshot, suffix=args.suffix,
-        limit=args.limit, trials=trials, out=args.out,
+        limit=args.limit, trials=trials, out=args.out, after_only=args.after_only,
     )
     print(f"  chains shown: {len(data['chains'])} of {data['n_total']}")
     for c in data["chains"]:
