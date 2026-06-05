@@ -275,3 +275,7 @@ Batch/timeout/retry/concurrency. Tune for speed/cost, never reported as a model 
 6. **Inconsistencies to fix while here:** OT min_score 0.1 vs 0.3 (§3); box `margin` 0.05 vs 0.10 (§3); precision-multiplier flag bypassed in attributor (§4). Each is a latent un-tuned divergence.
 
 7. **Record every change** via the `/tuning-log` skill → persistent memory, so a future session can audit whether a value was principled or overfit.
+
+## §8 — Deferred calibration ideas
+
+- **Evidence concentration-capping (owner idea, 2026-06-05; deferred until after edge-weight tuning).** Edges grow unbounded (observed Beta(1228, 447), 238 records) ⇒ near-zero variance ⇒ overconfident MC samples ⇒ the softmin can lock onto an overconfident *low* edge. Fix = when `α+β > C`, scale both by `C/(α+β)` — **preserves the mean `α/(α+β)` exactly, caps confidence**. (NOT a per-value sigmoid: squashing α,β individually distorts the mean and `(<1,<1)` is bimodal.) Targets *overconfidence*, complementary to the *mean-pessimism* fix (p_obs/prior). Same disease as `_REDUNDANCY_RHO` (OFF) cures at the source. A new predict-time or post-attribution knob `EROOM_EVIDENCE_CAP` (C ∈ ~20–200). Measure: does capping lift holdout Brier/ECE beyond the p_obs fix?

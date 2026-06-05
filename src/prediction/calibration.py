@@ -295,3 +295,39 @@ def platt_apply(probs: np.ndarray, a: float, b: float) -> np.ndarray:
     p = np.clip(np.asarray(probs, float), 1e-6, 1 - 1e-6)
     logit = np.log(p / (1 - p))
     return 1.0 / (1.0 + np.exp(-(a * logit + b)))
+
+
+def recalibrate_kfold(
+    probs: list[float] | np.ndarray,
+    labels: list[int] | np.ndarray,
+    k: int = 5,
+    method: str = "platt",
+    seed: int = 0,
+) -> np.ndarray:
+    """Honest estimate of what recalibration buys: a SECOND-level K-fold over the
+    (out-of-sample) predictions — fit the calibrator on k-1 folds, apply to the
+    held-out fold, pool. Never fits and scores on the same data, so the resulting
+    Brier/ECE/accuracy is a fair "post-recalibration" number, not an optimistic
+    in-fit one. ``method`` ∈ {"platt" (2-param sigmoid, safe at small n),
+    "isotonic" (non-parametric monotone, more flexible/over-fit-prone)}."""
+    p = np.asarray(probs, dtype=float)
+    y = np.asarray(labels, dtype=int)
+    n = p.size
+    out = np.empty(n, dtype=float)
+    idx = np.random.default_rng(seed).permutation(n)
+    folds = np.array_split(idx, k)
+    for i in range(k):
+        te = folds[i]
+        tr = np.concatenate([folds[j] for j in range(k) if j != i])
+        if len(set(y[tr].tolist())) < 2:
+            out[te] = float(y[tr].mean())
+            continue
+        if method == "isotonic":
+            from sklearn.isotonic import IsotonicRegression
+            ir = IsotonicRegression(out_of_bounds="clip")
+            ir.fit(p[tr], y[tr])
+            out[te] = ir.predict(p[te])
+        else:
+            a, b = platt_fit(p[tr], y[tr])
+            out[te] = platt_apply(p[te], a, b)
+    return out

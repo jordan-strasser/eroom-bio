@@ -66,6 +66,7 @@ from src.prediction.calibration import (
     expected_calibration_error,
     mcnemar_paired,
     pr_auc,
+    recalibrate_kfold,
     reliability_table,
 )
 from src.prediction.calibration import auroc as _auroc_np
@@ -337,6 +338,44 @@ def _print_reliability(name: str, pmap: dict[str, float],
               f"{b.mean_pred:>11.3f}{b.frac_pos:>10.3f}")
 
 
+def _print_recalibration(g_ho: dict[str, float], trials_by_nct: dict[str, Trial],
+                         k: int, seed: int) -> None:
+    """Show what RECALIBRATION buys on the graph holdout — the bedrock fix for the
+    documented pessimism. Honest: a second-level K-fold (recalibrate_kfold) fits
+    the calibrator on held-out-from-test predictions, so 'after' isn't an in-fit
+    number. Brier/ECE/accuracy before vs after Platt + isotonic."""
+    ncts = [n for n in g_ho if n in trials_by_nct]
+    p = np.array([g_ho[n] for n in ncts])
+    y = np.array([trials_by_nct[n].y for n in ncts])
+    if len(set(y.tolist())) < 2:
+        return
+    print("\n── Recalibration of the graph holdout (2nd-level CV — the bedrock fix) ──")
+    print(f"  {'variant':<18}{'AUROC':>8}{'Brier':>8}{'ECE':>7}{'Acc':>7}")
+
+    def row(label, pp):
+        a = _auroc_np(pp, y)
+        br = brier_score(pp, y)
+        ec = expected_calibration_error(pp, y)
+        ac = _binary_accuracy(list(pp), list(y), 0.5)[0]
+        print(f"  {label:<18}{a:>8.3f}{br:>8.3f}{ec:>7.3f}{ac:>7.3f}")
+
+    row("raw", p)
+    platt = recalibrate_kfold(p, y, k=k, method="platt", seed=seed)
+    row("+ Platt", platt)
+    iso = recalibrate_kfold(p, y, k=k, method="isotonic", seed=seed)
+    row("+ isotonic", iso)
+    print("  (AUROC is rank-invariant ⇒ unchanged by monotone recalibration; the win "
+          "is Brier/ECE/Acc — fixing the pessimism lifts accuracy off the FN floor)")
+    # reliability of the Platt-recalibrated predictions
+    print("\n  reliability — graph:holdout + Platt:")
+    print(f"    {'bin':<13}{'count':>7}{'mean_pred':>11}{'obs_freq':>10}")
+    for b in reliability_table(list(platt), list(y), n_bins=10):
+        if b.count == 0:
+            continue
+        print(f"    [{b.lo:.1f},{b.hi:.1f}){'':<4}{b.count:>7}"
+              f"{b.mean_pred:>11.3f}{b.frac_pos:>10.3f}")
+
+
 def _print_paired(graph_pmap, model_preds, trials_by_nct, thr=0.5) -> None:
     """Paired DeLong (AUROC) + McNemar (acc) of the graph vs each baseline on the
     SAME held-out trials — the only valid comparison at small n."""
@@ -379,6 +418,12 @@ async def main() -> int:
                          "per fold; needs --initial) for the paired comparison.")
     ap.add_argument("--initial", default=None, help="pre-attribution initial.json (--with-graph)")
     ap.add_argument("--n-samples", type=int, default=2000)
+    ap.add_argument("--dump-graph-preds", default=None,
+                    help="write the graph in-sample+holdout preds to JSON (so "
+                         "recalibration can be iterated without re-attributing).")
+    ap.add_argument("--graph-preds", default=None,
+                    help="load graph preds from a prior --dump-graph-preds JSON "
+                         "instead of re-attributing (instant recalibration iteration).")
     args = ap.parse_args()
     if args.with_graph and not args.initial:
         ap.error("--with-graph requires --initial")
@@ -415,7 +460,14 @@ async def main() -> int:
     _print_table("Leave-one-INDICATION-out (structured generalization)",
                  loio, trials_by_nct, base_rate)
 
-    if args.with_graph:
+    g_in = g_ho = None
+    if args.graph_preds:
+        blob = json.loads(Path(args.graph_preds).read_text())
+        g_in = {n: p for n, p in blob.get("insample", {}).items() if p is not None}
+        g_ho = {n: p for n, p in blob.get("holdout", {}).items() if p is not None}
+        print(f"\nloaded graph preds from {args.graph_preds} "
+              f"({len(g_ho)} holdout, {len(g_in)} in-sample)")
+    elif args.with_graph:
         from scripts.eval_holdout_kfold import graph_holdout_predictions
         scorable = [(t.nct, t.label, t.chain, t.kwargs) for t in eval_trials]
         print("\ncomputing graph in-sample + K-fold holdout (re-attribution)...", flush=True)
@@ -423,9 +475,16 @@ async def main() -> int:
             graph, scorable, args.initial, args.k, args.n_samples)
         g_in = {n: p for n, p in g_in.items() if p is not None}
         g_ho = {n: p for n, p in g_ho.items() if p is not None}
+        if args.dump_graph_preds:
+            Path(args.dump_graph_preds).write_text(
+                json.dumps({"insample": g_in, "holdout": g_ho}, indent=2))
+            print(f"dumped graph preds → {args.dump_graph_preds}")
+
+    if g_ho:
         graph_preds = {"graph:in-sample": g_in, "graph:holdout": g_ho}
         _print_table("Graph (scalar) — same scored slice", graph_preds, eval_by_nct, base_rate)
         _print_reliability("graph:holdout", g_ho, eval_by_nct)
+        _print_recalibration(g_ho, eval_by_nct, args.k, args.seed)
         _print_paired(g_ho, iid, eval_by_nct)
 
     print("\nNOTE: all methods use fixed untuned defaults — the nested-CV pass tunes "

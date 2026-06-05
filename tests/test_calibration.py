@@ -16,6 +16,7 @@ from src.prediction.calibration import (
     auc_ci,
     auroc,
     brier_score,
+    recalibrate_kfold,
     delong_paired,
     expected_calibration_error,
     maximum_calibration_error,
@@ -196,3 +197,19 @@ def test_platt_is_monotonic_and_improves_calibration():
     order = np.argsort(raw)
     assert np.all(np.diff(cal[order]) >= -1e-9)
     assert cal.min() >= 0.0 and cal.max() <= 1.0
+
+
+def test_recalibrate_kfold_fixes_pessimism():
+    # systematically pessimistic predictions (mean far below the 0.7 base rate),
+    # like the graph holdout — 2nd-level CV recalibration should cut Brier and ECE
+    rng = np.random.default_rng(5)
+    n = 500
+    y = (rng.random(n) < 0.7).astype(int)
+    raw = np.where(y == 1, 0.45, 0.20) + rng.normal(0, 0.03, n)
+    raw = np.clip(raw, 0.01, 0.99)
+    for method in ("platt", "isotonic"):
+        cal = recalibrate_kfold(raw, y, k=5, method=method, seed=0)
+        assert brier_score(cal, y) < brier_score(raw, y)
+        assert expected_calibration_error(cal, y) < expected_calibration_error(raw, y)
+        # AUROC (rank) preserved by monotone recalibration
+        assert auroc(cal, y) == pytest.approx(auroc(raw, y), abs=0.02)
