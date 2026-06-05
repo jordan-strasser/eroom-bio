@@ -39,6 +39,29 @@ class TestFeaturesFromLLMResponse:
         axes = {f.axis for f in feats}
         assert axes == {"line", "extent", "prior_tx", "gene"}
 
+    def test_list_valued_scalar_fields_are_tolerated(self):
+        """The LLM sometimes returns disease_stage / line_of_therapy as a LIST
+        (surfaced at n=500). Each valid value adds a feature; no crash."""
+        raw = {
+            "disease_stage": ["iii", "metastatic"],  # was: AttributeError on .strip()
+            "line_of_therapy": ["first"],
+        }
+        feats = _features_from_llm_response(raw)
+        axes = {(f.axis, f.level) for f in feats}
+        assert ("stage", "iii") in axes
+        assert ("extent", "metastatic") in axes
+        assert ("line", "first") in axes
+
+    def test_non_dict_items_in_object_lists_are_skipped(self):
+        """required_mutations / biomarker_selection items that come back as bare
+        strings (not objects) are skipped rather than crashing on .get()."""
+        raw = {
+            "required_mutations": ["BRAF V600E", {"gene": "KRAS", "variant": "G12C"}],
+            "biomarker_selection": ["nonsense"],
+        }
+        feats = _features_from_llm_response(raw)
+        assert [(f.key, f.level) for f in feats] == [("KRAS", "g12c")]
+
     def test_empty_response_produces_nothing(self):
         raw = {
             "line_of_therapy": None,

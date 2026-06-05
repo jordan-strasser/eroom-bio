@@ -108,30 +108,49 @@ _PRIOR_TX_ALLOWED = {
 }
 
 
+def _as_str_list(v: Any) -> list[str]:
+    """Normalize an LLM field that *should* be a scalar string but is
+    occasionally returned as a list (e.g. ``disease_stage: ["stage III",
+    "metastatic"]``) into a list of lowercased candidate strings. A scalar
+    yields one candidate; ``None``/empty yields none. Hardens the parser
+    against LLM shape variance that only surfaces at corpus scale."""
+    if v is None:
+        return []
+    items = v if isinstance(v, list) else [v]
+    out: list[str] = []
+    for x in items:
+        s = str(x).strip().lower()
+        if s and s not in out:
+            out.append(s)
+    return out
+
+
 def _features_from_llm_response(raw: dict[str, Any]) -> list[SubgroupFeature]:
     """Convert the LLM's structured JSON into a list of SubgroupFeatures.
 
     Empty/unknown axes produce no entries. Invalid level strings are
-    silently dropped (the slug shouldn't accept arbitrary LLM text).
+    silently dropped (the slug shouldn't accept arbitrary LLM text). Scalar
+    fields tolerate a list-valued LLM response (each valid value adds a
+    feature); object-list fields skip non-dict items.
     """
     features: list[SubgroupFeature] = []
 
-    line = (raw.get("line_of_therapy") or "").strip().lower()
-    if line in _LINE_LEVELS:
-        features.append(SubgroupFeature(
-            axis="line", level=_LINE_LEVELS[line],
-        ))
+    for line in _as_str_list(raw.get("line_of_therapy")):
+        if line in _LINE_LEVELS:
+            features.append(SubgroupFeature(
+                axis="line", level=_LINE_LEVELS[line],
+            ))
 
-    stage = (raw.get("disease_stage") or "").strip().lower()
-    if stage in _STAGE_LEVELS:
-        # Use "extent" axis for metastatic/resectable/unresectable to
-        # match extract_indication_qualifiers' existing axis vocab; use
-        # "stage" axis for Roman-numeral stages. Keeps the two
-        # extractors composable without duplicate axes.
-        if stage in ("metastatic", "resectable", "unresectable", "locally_advanced"):
-            features.append(SubgroupFeature(axis="extent", level=stage))
-        else:
-            features.append(SubgroupFeature(axis="stage", level=stage))
+    for stage in _as_str_list(raw.get("disease_stage")):
+        if stage in _STAGE_LEVELS:
+            # Use "extent" axis for metastatic/resectable/unresectable to
+            # match extract_indication_qualifiers' existing axis vocab; use
+            # "stage" axis for Roman-numeral stages. Keeps the two
+            # extractors composable without duplicate axes.
+            if stage in ("metastatic", "resectable", "unresectable", "locally_advanced"):
+                features.append(SubgroupFeature(axis="extent", level=stage))
+            else:
+                features.append(SubgroupFeature(axis="stage", level=stage))
 
     for tx in (raw.get("prior_treatments") or []):
         tx_clean = re.sub(r"[^a-z0-9_]+", "_", str(tx).lower()).strip("_")
@@ -141,6 +160,8 @@ def _features_from_llm_response(raw: dict[str, Any]) -> list[SubgroupFeature]:
             ))
 
     for mut in (raw.get("required_mutations") or []):
+        if not isinstance(mut, dict):
+            continue
         gene = (mut.get("gene") or "").strip().upper()
         variant = re.sub(
             r"[^a-z0-9]+", "", str(mut.get("variant") or "").lower(),
@@ -151,6 +172,8 @@ def _features_from_llm_response(raw: dict[str, Any]) -> list[SubgroupFeature]:
             ))
 
     for bio in (raw.get("biomarker_selection") or []):
+        if not isinstance(bio, dict):
+            continue
         gene = (bio.get("gene") or "").strip().upper()
         level = re.sub(
             r"[^a-z0-9]+", "", str(bio.get("level") or "").lower(),
