@@ -135,6 +135,45 @@ def test_index_anchor_vectors_dedups_repeated_vectors():
     assert r0[0]["s"] is r0[1]["s"] is r1[0]["s"]  # one object in memory
 
 
+def test_anchor_nct_provenance_and_field_loo():
+    """Anchors carry their contributing trial; without_trial drops exactly that
+    trial's anchors (the additive-kernel field LOO)."""
+    f = BeliefField(marginal_alpha=4.0, marginal_beta=2.0)
+    apply_virtual_evidence_local(f, s=[1.0, 0.0], t=[1.0, 0.0], n_eff=20.0, p_obs=0.9, nct="NCT_A")
+    apply_virtual_evidence_local(f, s=[1.0, 0.0], t=[1.0, 0.0], n_eff=20.0, p_obs=0.1, nct="NCT_B")
+    assert [a.nct for a in f.anchors] == ["NCT_A", "NCT_B"]
+    # round-trip preserves nct
+    assert BeliefField.from_dict(f.to_dict()).anchors[0].nct == "NCT_A"
+    # drop NCT_A → only NCT_B's (failure) anchor remains → query drops
+    p_full = expected_p(f, [1.0, 0.0], [1.0, 0.0])
+    p_loo = expected_p(f.without_trial("NCT_A"), [1.0, 0.0], [1.0, 0.0])
+    assert len(f.without_trial("NCT_A").anchors) == 1
+    assert p_loo < p_full           # NCT_A was the success evidence; removing it lowers P
+    # unknown trial → unchanged
+    assert len(f.without_trial("NCT_Z").anchors) == 2
+
+
+def test_dedup_preserves_anchor_nct(tmp_path, monkeypatch):
+    """The #1 vector-dedup table must carry anchor nct through export/reload."""
+    import json
+
+    from src.boundary import private_root
+    from src.graph.models import EdgeBeliefState, EdgeType, GraphEdge
+    from src.graph.store import GraphStore
+    from src.prediction.field_prediction import load_edge_fields
+
+    monkeypatch.setenv("EROOM_PRIVATE_ROOT", str(tmp_path / "private"))
+    f = BeliefField()
+    apply_virtual_evidence_local(f, s=[1.0, 0.0, 0.0], t=[0.0, 1.0, 0.0], n_eff=10.0, p_obs=0.8, nct="NCT_X")
+    store = GraphStore()
+    store.add_edge(GraphEdge(source_id="A", target_id="B", edge_type=EdgeType.MECHANISM_AFFECTS,
+                             belief=EdgeBeliefState(belief_field=f.to_dict())))
+    out = private_root(create=True) / "field.json"
+    store.export_private_snapshot(str(out))
+    fm = load_edge_fields(str(out))
+    assert fm[("A", "B", "mechanism_affects")].anchors[0].nct == "NCT_X"
+
+
 def test_private_snapshot_vector_dedup_roundtrip(tmp_path, monkeypatch):
     """Full export_private_snapshot → load_edge_fields path: vectors land in the
     shared table, fields round-trip numerically, and equal vectors share one

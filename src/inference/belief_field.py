@@ -104,10 +104,13 @@ def index_anchor_vectors(
             if not isinstance(a, dict):
                 new_anchors.append(a)  # malformed/stub anchor — pass through
                 continue
-            new_anchors.append({
+            na = {
                 "s": intern(a.get("s")), "t": intern(a.get("t")),
                 "alpha": a.get("alpha"), "beta": a.get("beta"),
-            })
+            }
+            if a.get("nct"):  # preserve trial provenance through the dedup
+                na["nct"] = a["nct"]
+            new_anchors.append(na)
             changed = True
         if changed:
             e["belief"] = {**belief, "belief_field": {**bf, "anchors": new_anchors}}
@@ -143,15 +146,26 @@ def rehydrate_anchor_vectors(
 
 @dataclass
 class FieldAnchor:
-    """One evidence record's localized contribution: ``(s, t) → Beta(α, β)``."""
+    """One evidence record's localized contribution: ``(s, t) → Beta(α, β)``.
+
+    ``nct`` is the contributing trial (the record's ``source_id``) — provenance
+    that makes a true leave-one-out trivial on the field: the kernel query is an
+    additive sum over anchors, so dropping a trial's anchors removes exactly its
+    contribution (no replay, unlike the order/redundancy-dependent scalar). None
+    for non-trial / legacy anchors.
+    """
 
     s: list[float]
     t: list[float]
     alpha: float  # n_eff * p_obs       (success pseudo-count increment)
     beta: float   # n_eff * (1 - p_obs) (failure pseudo-count increment)
+    nct: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {"s": self.s, "t": self.t, "alpha": self.alpha, "beta": self.beta}
+        d = {"s": self.s, "t": self.t, "alpha": self.alpha, "beta": self.beta}
+        if self.nct:
+            d["nct"] = self.nct
+        return d
 
     @classmethod
     def from_dict(
@@ -162,6 +176,7 @@ class FieldAnchor:
             t=_resolve_vec(d["t"], vectors),
             alpha=float(d["alpha"]),
             beta=float(d["beta"]),
+            nct=d.get("nct"),
         )
 
 
@@ -203,6 +218,22 @@ class BeliefField:
             fallback_strength=float(d.get("fallback_strength", FALLBACK_STRENGTH)),
         )
 
+    def without_trial(self, nct: str) -> "BeliefField":
+        """Field leave-one-out: a copy with ``nct``'s anchors removed. Exact
+        because the kernel query is additive over anchors — no replay, unlike
+        the scalar. The marginal fallback is unchanged (still carries the scalar
+        incl. nct), so this is clean in the dense cross-trial regions where the
+        field adds signal and degrades to the (leaky) marginal far from anchors;
+        pair with a scalar-LOO marginal for fully clean. Anchors are shared by
+        reference (queries are read-only)."""
+        return BeliefField(
+            anchors=[a for a in self.anchors if a.nct != nct],
+            bandwidth=self.bandwidth,
+            marginal_alpha=self.marginal_alpha,
+            marginal_beta=self.marginal_beta,
+            fallback_strength=self.fallback_strength,
+        )
+
     def fallback_prior(self) -> tuple[float, float]:
         """The marginal-centered prior pseudo-counts: ``fallback_strength``
         units of mass placed at the edge's scalar mean. Far-from-evidence
@@ -230,17 +261,20 @@ def apply_virtual_evidence_local(
     t: list[float],
     n_eff: float,
     p_obs: float,
+    nct: str | None = None,
 ) -> BeliefField:
     """Localized counterpart of ``apply_virtual_evidence``: add one anchor at
     ``(s, t)`` rather than updating the whole-edge scalar. Mutates and returns
-    ``field_``. Same ``(n_eff, p_obs)`` semantics as the scalar path.
+    ``field_``. Same ``(n_eff, p_obs)`` semantics as the scalar path. ``nct``
+    tags the anchor with its contributing trial (provenance for field-LOO).
     """
     if n_eff < 0:
         raise ValueError(f"n_eff must be non-negative, got {n_eff!r}")
     if not 0.0 <= p_obs <= 1.0:
         raise ValueError(f"p_obs must be in [0, 1], got {p_obs!r}")
     field_.anchors.append(
-        FieldAnchor(s=list(s), t=list(t), alpha=n_eff * p_obs, beta=n_eff * (1.0 - p_obs))
+        FieldAnchor(s=list(s), t=list(t), alpha=n_eff * p_obs,
+                    beta=n_eff * (1.0 - p_obs), nct=nct)
     )
     return field_
 

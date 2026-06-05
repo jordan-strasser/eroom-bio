@@ -198,7 +198,8 @@ def materialize_field(
                 share = n_eff / len(pairs)  # split keeps the field marginal == scalar
                 for s_desc, t_desc in pairs:
                     apply_virtual_evidence_local(
-                        field, s=embed(s_desc), t=embed(t_desc), n_eff=share, p_obs=p_obs,
+                        field, s=embed(s_desc), t=embed(t_desc), n_eff=share,
+                        p_obs=p_obs, nct=ev.source_id,  # provenance for field-LOO
                     )
             if field.anchors:
                 # carry the scalar marginal so far-from-anchor queries fall back
