@@ -137,6 +137,25 @@ def main() -> int:
     print("\n  torce_P<0.5 = correctly predicts failure (the safety thesis). If a SIMPLE")
     print("  form ties 'full' on the holdout AND keeps torce_P<0.5, the complexity is")
     print("  unjustified and should be deleted.")
+
+    # Where do the pessimistic (0.2-0.4) trials go under soft-or vs max?
+    from src.prediction.calibration import reliability_table
+    so = holdout(g, edges, eval_trials, "full", "softor", args.k, args.n_samples)
+    mx = holdout(g, edges, eval_trials, "full", "max", args.k, args.n_samples)
+    for label, preds in (("soft-or", so), ("max", mx)):
+        items = [(p, by_nct[n].y) for n, p in preds.items() if p is not None]
+        print(f"\n  reliability — full / {label}:")
+        for b in reliability_table([p for p, _ in items], [y for _, y in items], 10):
+            if b.count:
+                print(f"    [{b.lo:.1f},{b.hi:.1f})  n={b.count:>3}  pred={b.mean_pred:.3f}  obs={b.frac_pos:.3f}")
+    # Migration of the trials soft-or scored in [0.2,0.4): where do they land + were they successes?
+    low = [(n, so[n]) for n in so if so[n] is not None and 0.2 <= so[n] < 0.4 and n in mx and mx[n] is not None]
+    n_succ = sum(by_nct[n].y for n, _ in low)
+    print(f"\n  MIGRATION — {len(low)} trials soft-or rated [0.2,0.4) "
+          f"(actual success rate {n_succ}/{len(low)} = {n_succ/max(1,len(low)):.2f}):")
+    print(f"    {'nct':<13}{'soft-or':>9}{'max':>8}{'label':>9}")
+    for n, sp in sorted(low, key=lambda x: x[1]):
+        print(f"    {n:<13}{sp:>9.3f}{mx[n]:>8.3f}{'success' if by_nct[n].y else 'FAILURE':>9}")
     return 0
 
 

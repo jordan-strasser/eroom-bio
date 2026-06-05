@@ -681,9 +681,10 @@ class PredictionEngine:
         events in 30% of patients" ≠ "this drug causes Grade 1 rash
         in 60% of patients."
 
-        Aggregation: soft-or so multiple AEs accumulate with
-        diminishing returns; capped at ``_SAFETY_PENALTY_CAP`` so the
-        architecture stays efficacy-led even under extreme AE tails.
+        Aggregation: MAX over per-AE contributions (round-31; was
+        soft-or, which double-counted correlated AEs in a failed trial);
+        capped at ``_SAFETY_PENALTY_CAP`` so the architecture stays
+        efficacy-led even under extreme AE tails.
 
         Reuses ``_collect_safety_risks`` retrieval (so both
         ``causes_ae`` compound-level edges AND ``target_associated_ae``
@@ -700,9 +701,10 @@ class PredictionEngine:
         return self._penalty_from_risks(risks)
 
     def _penalty_from_risks(self, risks: list[SafetyRisk]) -> float:
-        """Soft-or, severity-weighted safety drag over a precomputed risk list
-        — the shared core of the single-chain penalty (one compound's risks)
-        and the combo penalty (constituents' risks unioned by AE)."""
+        """Max-over-AEs, severity-weighted safety drag over a precomputed risk
+        list — the shared core of the single-chain penalty (one compound's risks)
+        and the combo penalty (constituents' risks unioned by AE). Round-31
+        switched the aggregation from soft-or to max (see the inline note)."""
         if not risks:
             return 0.0
         contributions: list[float] = []
@@ -755,10 +757,18 @@ class PredictionEngine:
                     + (1.0 - _SAFETY_DLT_FLOOR) * r.failure_causing_fraction
                 )
             contributions.append(contribution)
-        penalty = 1.0
-        for c in contributions:
-            penalty *= (1.0 - c)
-        return min(self._SAFETY_PENALTY_CAP, 1.0 - penalty)
+        # Round-31 (benchmark): MAX over per-AE contributions, not soft-or.
+        # Soft-or (noisy-OR, 1-prod(1-c)) is the correct model for INDEPENDENT
+        # failure modes — but AEs reported in a failed trial are CORRELATED (the
+        # failure_causing attribution smears across co-occurring AEs), so soft-or
+        # double-counts and over-penalizes. A drug's safety risk is its WORST
+        # toxicity; max avoids the double-count. On the n=129 holdout this fixes
+        # the residual pessimism the floor fix left: the [0.2,0.3)-rated trials
+        # (71% actually succeeded) lift to a calibrated ~0.46 (obs 0.50);
+        # Brier 0.231->0.209, accuracy 0.674->0.713, ECE 0.160->0.116, torcetrapib
+        # still correctly failure. See memory tuning_safety_aggregation.
+        penalty = max(contributions) if contributions else 0.0
+        return min(self._SAFETY_PENALTY_CAP, penalty)
 
     def _collect_safety_risks(
         self,

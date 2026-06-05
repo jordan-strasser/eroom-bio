@@ -812,9 +812,12 @@ class TestSafetyPenalty:
         # contribution ≈ 0.50 × 0.12 × 0.613 ≈ 0.037
         assert 0.01 < result.safety_penalty < 0.08
 
-    def test_safety_penalty_caps_at_0_6(self):
-        """Pile on multiple grade-5 AEs — the penalty must not exceed
-        the 0.6 cap so the chain still contributes the final 40%."""
+    def test_safety_penalty_is_max_not_accumulated(self):
+        """Round-31: MAX aggregation. Piling on identical grade-5 AEs must NOT
+        accumulate — the penalty equals a SINGLE worst-AE contribution (soft-or
+        would have summed them toward the 0.6 cap). A drug's safety risk is its
+        worst toxicity, not the count of correlated AEs. Stays under the cap so
+        the chain still contributes."""
         graph, chain = _make_chain_only_graph()
         for i in range(8):
             graph.add_node(AdverseEventNode(
@@ -827,7 +830,11 @@ class TestSafetyPenalty:
                 belief=EdgeBeliefState(alpha=50.0, beta=1.0),
             ))
         result = PredictionEngine(graph).predict(chain, n_samples=5_000)
-        assert result.safety_penalty == pytest.approx(0.60, abs=1e-9)
+        # one grade-5 AE: severity 0.50 × belief_factor ~0.96 × trust ~1.0 ×
+        # failure_causing_fraction 1.0 ≈ 0.48 — and max over 8 identical AEs is
+        # the SAME ~0.48 (soft-or would have piled to the 0.60 cap).
+        assert result.safety_penalty == pytest.approx(0.48, abs=0.02)
+        assert result.safety_penalty <= 0.60 + 1e-9
         assert result.overall_probability >= 0.4 * result.efficacy_probability - 1e-9
 
     def test_below_threshold_ae_does_not_move_penalty(self):
