@@ -173,7 +173,15 @@ python -m scripts.eval_holdout_compose --graph G --field <field.json>           
 python -m scripts.eval_holdout_compose --graph G --auroc --corpus <name> [--field <f>]       # AUROC + accuracy over a corpus
 ```
 
-For leave-one-out calibration (AUROC / Brier / calibration bins), use `scripts/eval_predictions_loo.py`.
+For a TRUE out-of-sample AUROC (the corpus `--auroc` above is in-sample — each
+trial's evidence is baked into the edges scoring it), use the K-fold holdout,
+which re-attributes the graph with each fold excluded (exact; replay-based
+masking is unfaithful under node-merge + AE-propagation):
+
+```bash
+python -m scripts.eval_holdout_kfold --initial data/exports/<area>_initial.json \
+  --annotated data/exports/<area>_annotated.json --corpus <name> --k 5
+```
 
 **Inspect causal chains** (columns by node type, per-row before-merge vs converged after-merge) — also wired as the `/graph-inspect` skill:
 
