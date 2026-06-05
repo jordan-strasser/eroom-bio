@@ -13,6 +13,7 @@ import pytest
 
 from scripts.eval_holdout_compose import _auroc as _auroc_list
 from src.prediction.calibration import (
+    auc_ci,
     auroc,
     brier_score,
     delong_paired,
@@ -138,6 +139,24 @@ def test_delong_detects_clear_difference():
     res = delong_paired(strong, noise, y)
     assert res.auc_a > res.auc_b
     assert res.p_value < 0.05
+
+
+def test_auc_ci_brackets_point_and_narrows_with_n():
+    rng = np.random.default_rng(7)
+    # weak-signal predictor: at small n the CI should include 0.5; at large n it
+    # should exclude it (the whole point — distinguish real signal from chance)
+    def make(n):
+        y = rng.integers(0, 2, n)
+        while not (0 < y.sum() < len(y)):
+            y = rng.integers(0, 2, n)
+        # modest, OVERLAPPING signal (AUROC ~0.72) so CIs are non-degenerate
+        p = 0.25 * y + rng.random(n)
+        return p, y
+    a_s, lo_s, hi_s = auc_ci(*make(40))
+    a_l, lo_l, hi_l = auc_ci(*make(2000))
+    assert lo_s <= a_s <= hi_s and lo_l <= a_l <= hi_l
+    assert (hi_l - lo_l) < (hi_s - lo_s)      # CI narrows with n
+    assert lo_l > 0.5                          # large-n: signal clears chance
 
 
 # ── McNemar ─────────────────────────────────────────────────────────────

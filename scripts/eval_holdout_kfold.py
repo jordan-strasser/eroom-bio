@@ -72,6 +72,46 @@ def _predict(g: GraphStore, chain: dict, kwargs: dict, n_samples: int):
     return r.overall_probability if r.edge_contributions else None
 
 
+async def graph_holdout_predictions(
+    full: GraphStore,
+    scorable: list[tuple[str, str, dict, dict]],
+    initial: str,
+    k: int,
+    n_samples: int,
+    annotations_dir: str | None = None,
+):
+    """Per-trial graph predictions, in-sample and TRUE K-fold holdout.
+
+    Returns ``(insample, holdout)`` dicts ``nct -> prob | None``. The holdout
+    re-attributes the pre-attribution ``initial`` once per fold, excluding that
+    fold's trials, then predicts them — real generalization through the real
+    pipeline. Factored out of ``main`` so the baselines harness can score the
+    graph on the IDENTICAL folds it scores the ML/base-rate models on (paired
+    DeLong needs same trials, same fold assignment)."""
+    ann = annotations_dir or str(ANN_DIR)
+    insample = {nct: _predict(full, ch, kw, n_samples) for nct, _, ch, kw in scorable}
+    folds: dict[int, list] = {}
+    for row in scorable:
+        folds.setdefault(_fold(row[0], k), []).append(row)
+    holdout: dict[str, float | None] = {}
+    for f in sorted(folds):
+        fold_rows = folds[f]
+        fold_ncts = [r[0] for r in fold_rows]
+        print(f"  fold {f + 1}/{k}: re-attribute initial excluding "
+              f"{len(fold_ncts)} held-out trials...", flush=True)
+        with tempfile.NamedTemporaryFile(suffix=f"_kfold{f}.json", delete=False) as fh:
+            tmp = fh.name
+        try:
+            await attributor_main(ann, initial, tmp, exclude_from_attribution=fold_ncts)
+            gf = GraphStore()
+            gf.import_snapshot(tmp)
+        finally:
+            Path(tmp).unlink(missing_ok=True)
+        for nct, _label, ch, kw in fold_rows:
+            holdout[nct] = _predict(gf, ch, kw, n_samples)
+    return insample, holdout
+
+
 def _field_loo(scorable, full: GraphStore, field_path: str, n_samples: int):
     """Field leave-one-out via anchor-drop (no re-attribution needed — the
     kernel query is additive, so removing a trial's (s,t) anchors removes
@@ -185,34 +225,10 @@ async def main() -> int:
         print("not enough labeled held-out trials for AUROC")
         return 1
 
-    # In-sample predictions (full trained graph) — for the gap.
-    insample = {nct: _predict(full, ch, kw, args.n_samples)
-                for nct, _, ch, kw in scorable}
-
-    # K folds; per fold re-attribute initial EXCLUDING the fold, predict the fold.
-    folds: dict[int, list] = {}
-    for row in scorable:
-        folds.setdefault(_fold(row[0], args.k), []).append(row)
-
-    holdout: dict[str, float | None] = {}
-    for f in sorted(folds):
-        fold_rows = folds[f]
-        fold_ncts = [r[0] for r in fold_rows]
-        print(f"  fold {f + 1}/{args.k}: re-attribute initial excluding "
-              f"{len(fold_ncts)} held-out trials...", flush=True)
-        with tempfile.NamedTemporaryFile(suffix=f"_kfold{f}.json", delete=False) as fh:
-            tmp = fh.name
-        try:
-            await attributor_main(
-                str(ANN_DIR), args.initial, tmp,
-                exclude_from_attribution=fold_ncts,
-            )
-            gf = GraphStore()
-            gf.import_snapshot(tmp)
-        finally:
-            Path(tmp).unlink(missing_ok=True)
-        for nct, _label, ch, kw in fold_rows:
-            holdout[nct] = _predict(gf, ch, kw, args.n_samples)
+    # In-sample + TRUE K-fold holdout (re-attribute per fold excluding it).
+    insample, holdout = await graph_holdout_predictions(
+        full, scorable, args.initial, args.k, args.n_samples
+    )
 
     # Report over trials scored BOTH ways.
     pairs = [

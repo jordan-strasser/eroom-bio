@@ -231,6 +231,25 @@ def delong_paired(
     return DelongResult(float(aucs[0]), float(aucs[1]), float(z), p, (diff - half, diff + half))
 
 
+def auc_ci(probs: list[float] | np.ndarray, labels: list[int] | np.ndarray,
+           alpha: float = 0.05) -> tuple[float, float, float]:
+    """Single-model AUROC with a DeLong 95% CI. The rigorous way to ask "is this
+    above the 0.5 chance line?" — a constant base-rate predictor has AUROC 0.5 by
+    definition, so comparing to its noisy CV estimate is misleading; use this CI
+    instead. Returns (auc, lo, hi)."""
+    y = np.asarray(labels)
+    if not (0 < (y == 1).sum() < len(y)):
+        return float("nan"), float("nan"), float("nan")
+    order = np.argsort(-y, kind="mergesort")
+    m = int((y == 1).sum())
+    preds = np.asarray(probs, float)[order].reshape(1, -1)
+    aucs, cov = _fast_delong(preds, m)
+    se = float(np.sqrt(max(cov[0, 0], 0.0)))
+    z = float(stats.norm.ppf(1 - alpha / 2))
+    a = float(aucs[0])
+    return a, max(0.0, a - z * se), min(1.0, a + z * se)
+
+
 @dataclass
 class McNemarResult:
     only_a_correct: int   # a right, b wrong
