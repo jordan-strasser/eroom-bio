@@ -360,17 +360,18 @@ _GENERIC_ENDPOINT_CLASSES = {
 }
 
 
-def _endpoint_node_id(cls: EndpointClass, measure: str, root_ind_id: str) -> tuple[str, str]:
-    """``(node_id, display_name)`` for a (class, measure, indication). Catch-all
-    classes are sub-keyed by a normalized measure slug; standardized classes
-    collapse by class. Slug capped at 48 chars to bound the id."""
+def _endpoint_node_id(cls: EndpointClass, measure: str) -> tuple[str, str]:
+    """``(node_id, display_name)`` for a (class, measure). Endpoints are
+    DISEASE-AGNOSTIC (node-orthogonality redesign): standardized classes
+    collapse to a single shared node ``{class}`` (the per-disease binding lives
+    on the endpoint_captures edge); catch-all classes (biomarker/safety/PRO/
+    other) are sub-keyed by a normalized measure slug so distinct measures don't
+    fuse. No indication in the id."""
     if cls in _GENERIC_ENDPOINT_CLASSES:
         measure_slug = slugify_measure_name(measure, max_len=48)
-        node_id = normalize_entity(
-            f"{cls.value}_{measure_slug}_{root_ind_id}", "EndpointNode"
-        )
+        node_id = normalize_entity(f"{cls.value}_{measure_slug}", "EndpointNode")
         return node_id, f"{measure} [{cls.value}]"
-    node_id = normalize_entity(f"{cls.value}_{root_ind_id}", "EndpointNode")
+    node_id = normalize_entity(cls.value, "EndpointNode")
     return node_id, cls.value
 
 
@@ -3645,26 +3646,23 @@ class PopulationPipeline:
                     cls = EndpointClass.OTHER
 
                 for ind_id, ind_name in indication_ids:
-                    # Anchor endpoints on the parent indication so a single
-                    # `PFS_melanoma` node serves every melanoma subtype.
-                    # Subtype-specific endpoints would fragment evidence
-                    # accumulation across nodes that mean the same thing.
-                    # Catch-all classes (biomarker/safety/PRO/other) are
-                    # additionally sub-keyed by measure so distinct measures
-                    # don't all fuse into one node (round-31 de-collapse).
-                    root_ind_id = _root_indication(ind_id)
-                    ep_id, ep_label = _endpoint_node_id(cls, om.measure, root_ind_id)
+                    # Endpoints are DISEASE-AGNOSTIC (node-orthogonality
+                    # redesign): a single shared PFS / OS / ORR node per
+                    # measurement, with the per-disease binding on the
+                    # endpoint_captures edge seeded below. Catch-all classes
+                    # (biomarker/safety/PRO/other) are sub-keyed by measure so
+                    # distinct measures don't fuse.
+                    ep_id, ep_label = _endpoint_node_id(cls, om.measure)
                     try:
                         self.graph.get_node(ep_id)
                     except KeyError:
                         self.graph.add_node(EndpointNode(
                             id=ep_id,
-                            name=f"{ep_label} ({ind_name})",
+                            name=ep_label,
                             endpoint_type=EndpointType.PRIMARY,
                             regulatory_status=RegulatoryStatus.EXPLORATORY,
                             measurement_properties={
                                 "endpoint_class": cls.value,
-                                "indication_id": root_ind_id,
                                 "raw_measure": om.measure,
                             },
                         ))
@@ -4093,12 +4091,14 @@ class PopulationPipeline:
         a measure-keyed node so the trial still gets a chain instead of
         being silently dropped.
 
-        Id follows ``other_{measure_slug}_{indication}`` so it doesn't
-        collide with the curated ``{class}_{indication}`` namespace.
+        Id follows ``other_{measure_slug}`` — disease-agnostic (node-
+        orthogonality redesign); the per-disease binding is on the
+        endpoint_captures edge. ``indication_id`` is accepted for call-site
+        compatibility but no longer part of the id.
         """
+        del indication_id  # endpoints are disease-agnostic now
         measure_slug = slugify_measure_name(measure, max_len=60)
-        root_ind = _root_indication(indication_id)
-        ep_id = f"other_{measure_slug}_{root_ind}"
+        ep_id = f"other_{measure_slug}"
         try:
             self.graph.get_node(ep_id)
         except KeyError:
@@ -4110,7 +4110,6 @@ class PopulationPipeline:
                 measurement_properties={
                     "source": "slug_fallback_no_canonicalization",
                     "raw_measure": measure,
-                    "indication_id": root_ind,
                 },
             ))
         self._index_node(ep_id, measure, "endpoint")

@@ -3737,3 +3737,30 @@ class TestEndpointSlugQuality:
         # histology-distinct organs are NOT merged
         assert slugify_disease_name("Lung Adenocarcinoma") == "lung_adenocarcinoma"
         assert slugify_disease_name("Esophageal Squamous Cell Carcinoma") == "esophageal_squamous_cell_carcinoma"
+
+
+class TestEndpointCollapse:
+    """Endpoints are disease-agnostic: standardized classes collapse to {class};
+    generic classes sub-key by measure. No indication in the id."""
+
+    def test_standardized_endpoint_collapses_to_class(self):
+        from src.graph.populate import _endpoint_node_id
+        from src.graph.models import EndpointClass
+        assert _endpoint_node_id(EndpointClass.PFS, "progression-free survival") == ("PFS", "PFS")
+        assert _endpoint_node_id(EndpointClass.OS, "overall survival") == ("OS", "OS")
+
+    def test_generic_endpoint_keeps_measure_no_indication(self):
+        from src.graph.populate import _endpoint_node_id
+        from src.graph.models import EndpointClass
+        eid, label = _endpoint_node_id(EndpointClass.BIOMARKER, "LDL Cholesterol Change from Baseline")
+        assert eid == "biomarker_ldl_cholesterol"   # measure kept, no indication
+        assert label == "LDL Cholesterol Change from Baseline [biomarker]"
+
+    def test_endpoint_validator_accepts_bare_class_and_measure(self):
+        from src.graph.models import normalize_entity
+        assert normalize_entity("PFS", "EndpointNode") == "PFS"
+        assert normalize_entity("composite_response", "EndpointNode") == "composite_response"
+        assert normalize_entity("safety_grade_3_ae", "EndpointNode") == "safety_grade_3_ae"
+        import pytest as _pt
+        with _pt.raises(ValueError):
+            normalize_entity("notaclass_foo", "EndpointNode")

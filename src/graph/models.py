@@ -973,26 +973,22 @@ def normalize_entity(name: str, node_type: str) -> str:
         return candidate
 
     if node_type == "EndpointNode":
-        # Expect {EndpointClass}_{indication_id}. Multi-word class values
-        # like 'composite_response' contain underscores, so split on the
-        # *first* '_' is wrong—match against EndpointClass values
-        # longest-first instead.
-        if "_" not in raw:
-            raise ValueError(
-                f"EndpointNode id '{name}' must be '{{class}}_{{indication}}'"
-            )
+        # Disease-AGNOSTIC (node-orthogonality redesign): a standardized class
+        # collapses to one shared node ``{class}`` (OS/PFS/ORR/...); catch-all
+        # classes are sub-keyed by measure as ``{class}_{measure}``. The
+        # per-disease binding lives on the endpoint_captures edge, NOT the id —
+        # so there is no indication suffix. Match EndpointClass values
+        # longest-first since some (composite_response) contain underscores.
         for cls in sorted(EndpointClass, key=lambda c: -len(c.value)):
+            if raw == cls.value:
+                return cls.value
             prefix = f"{cls.value}_"
             if raw.startswith(prefix):
-                ind = _slugify_lower(raw[len(prefix):])
-                if not ind:
-                    raise ValueError(
-                        f"EndpointNode '{name}': missing indication suffix"
-                    )
-                return f"{cls.value}_{ind}"
-        cls_part = raw.split("_", 1)[0]
+                measure = _slugify_lower(raw[len(prefix):])
+                return f"{cls.value}_{measure}" if measure else cls.value
         raise ValueError(
-            f"EndpointNode '{name}': '{cls_part}' is not an EndpointClass"
+            f"EndpointNode id '{name}': must start with an EndpointClass "
+            f"(got {raw!r})"
         )
 
     if node_type == "IndicationNode":
