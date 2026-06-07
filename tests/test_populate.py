@@ -3723,3 +3723,47 @@ class TestEndpointCollapse:
         import pytest as _pt
         with _pt.raises(ValueError):
             normalize_entity("notaclass_foo", "EndpointNode")
+
+
+class TestEfoIndicationHierarchy:
+    """Phase-4 EFO SUBTYPE_OF linking: connect graph indications via ontology
+    ancestry (ALL is_a leukemia), only between co-occurring IndicationNodes."""
+
+    @pytest.mark.asyncio
+    async def test_links_subtype_to_co_occurring_ancestor(self, tmp_path):
+        from unittest.mock import AsyncMock
+        from src.graph.store import GraphStore
+        from src.graph.models import IndicationNode, EdgeType
+        from src.graph.populate import link_indication_subtypes_via_efo
+        g = GraphStore()
+        for s in ("acute_lymphoblastic_leukemia", "leukemia", "melanoma"):
+            g.add_node(IndicationNode(id=s, name=s.replace("_", " ")))
+        efo = {"acute lymphoblastic leukemia": "EFO_ALL",
+               "leukemia": "EFO_LEUK", "melanoma": "EFO_MEL"}
+        anc = {"EFO_ALL": ["EFO_LEUK", "EFO_NEOPLASM"],
+               "EFO_LEUK": ["EFO_NEOPLASM"], "EFO_MEL": ["EFO_NEOPLASM"]}
+        ot = AsyncMock()
+        ot.search_disease = AsyncMock(side_effect=lambda name: efo.get(name))
+        ot.get_disease_ancestors = AsyncMock(side_effect=lambda e: anc.get(e, []))
+        n = await link_indication_subtypes_via_efo(g, ot, cache_dir=tmp_path)
+        # ALL -> leukemia (its EFO ancestor that's also a graph indication)
+        assert n == 1
+        assert g._graph.has_edge(
+            "acute_lymphoblastic_leukemia", "leukemia", key=EdgeType.SUBTYPE_OF.value)
+        # EFO_NEOPLASM is an ancestor but not a graph indication → no edge
+        assert not g._graph.has_edge(
+            "melanoma", "leukemia", key=EdgeType.SUBTYPE_OF.value)
+
+    @pytest.mark.asyncio
+    async def test_best_effort_on_efo_failure(self, tmp_path):
+        from unittest.mock import AsyncMock
+        from src.graph.store import GraphStore
+        from src.graph.models import IndicationNode
+        from src.graph.populate import link_indication_subtypes_via_efo
+        g = GraphStore()
+        for s in ("a_disease", "b_disease"):
+            g.add_node(IndicationNode(id=s, name=s))
+        ot = AsyncMock()
+        ot.search_disease = AsyncMock(side_effect=RuntimeError("OT down"))
+        n = await link_indication_subtypes_via_efo(g, ot, cache_dir=tmp_path)
+        assert n == 0  # degrades gracefully, no crash

@@ -595,6 +595,18 @@ async def main(
             trials=trials,
         )
 
+    # Phase-4 EFO indication tree: connect ALL→leukemia, uveal→melanoma, … on
+    # the assembled graph so the prediction's indication backoff can pool a
+    # leaf-anchored chain onto its parent disease. Additive + best-effort
+    # (a failed EFO lookup just skips that disease).
+    try:
+        from src.graph.populate import link_indication_subtypes_via_efo
+        from src.ingestion.opentargets import OpenTargetsClient
+        n_sub = await link_indication_subtypes_via_efo(graph, OpenTargetsClient())
+        console.print(f"  EFO indication hierarchy: +{n_sub} SUBTYPE_OF edges")
+    except Exception:  # noqa: BLE001
+        logger.debug("EFO indication linking skipped", exc_info=True)
+
     # Round-20.5 / round-21 followup: silent-drop guard.
     # build_trial_subgraphs skips a trial when its indication / endpoint
     # / arm structure can't be resolved. Without this check, 14 of 50

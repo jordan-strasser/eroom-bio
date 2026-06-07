@@ -4518,6 +4518,68 @@ def ensure_parent_population(
     return _UNKNOWN
 
 
+async def link_indication_subtypes_via_efo(
+    graph: GraphStore, ot_client: Any, *, cache_dir: Path | None = None,
+) -> int:
+    """Add SUBTYPE_OF edges between the graph's IndicationNodes from EFO/MONDO
+    ancestry (ALL is_a leukemia, uveal_melanoma is_a melanoma, …) — Phase 4.
+
+    Runs on the ASSEMBLED graph. For each IndicationNode, resolve its EFO id +
+    ancestor EFO ids (OT, cached); then link a leaf to any OTHER graph
+    indication that is one of its EFO ancestors. The prediction-time indication
+    backoff (``path_query``) walks these edges so a leaf-anchored chain borrows
+    its parent's evidence. Biomarker / clinical-state are population axes (not
+    IndicationNodes), so this is purely the biological disease tree. Idempotent,
+    cycle-guarded, best-effort (a failed EFO lookup just skips that disease).
+    Returns the number of SUBTYPE_OF edges added."""
+    inds = [n["id"] for n in graph.get_nodes_by_type("IndicationNode")]
+    if len(inds) < 2:
+        return 0
+    cache = JSONCache((cache_dir or Path("data/cache")) / "efo_ancestors.json")
+    efo_of: dict[str, str] = {}
+    ancestors_of: dict[str, list[str]] = {}
+    for slug in inds:
+        cached = cache.get(slug)
+        if cached is not None:
+            efo, _, anc = cached.partition("|")
+            efo_of[slug] = efo
+            ancestors_of[slug] = [a for a in anc.split(",") if a]
+            continue
+        name = graph.get_node(slug).get("name") or slug.replace("_", " ")
+        try:
+            efo = await ot_client.search_disease(name)
+            anc = await ot_client.get_disease_ancestors(efo) if efo else []
+        except Exception:  # noqa: BLE001 — EFO is best-effort enrichment
+            logger.debug("EFO ancestry lookup failed for %r", slug, exc_info=True)
+            efo, anc = None, []
+        efo_of[slug] = efo or ""
+        ancestors_of[slug] = anc
+        cache.set(slug, f"{efo or ''}|{','.join(anc)}")
+
+    slug_of_efo = {e: s for s, e in efo_of.items() if e}
+    g = graph._graph  # noqa: SLF001
+    added = 0
+    for leaf in inds:
+        for anc_efo in ancestors_of.get(leaf, []):
+            parent = slug_of_efo.get(anc_efo)
+            if not parent or parent == leaf:
+                continue
+            if g.has_edge(leaf, parent, key=EdgeType.SUBTYPE_OF.value):
+                continue
+            if g.has_edge(parent, leaf, key=EdgeType.SUBTYPE_OF.value):
+                continue  # cycle guard (parent already a subtype of leaf)
+            graph.add_edge(GraphEdge(
+                source_id=leaf,
+                target_id=parent,
+                edge_type=EdgeType.SUBTYPE_OF,
+                metadata={"source": "efo_ancestry"},
+            ))
+            added += 1
+    if added:
+        logger.info("EFO indication hierarchy: added %d SUBTYPE_OF edges", added)
+    return added
+
+
 def _lookup_chain_intervention_desc(
     graph: GraphStore,
     desc_by_arm_iv: dict,
