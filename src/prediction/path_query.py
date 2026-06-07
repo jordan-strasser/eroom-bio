@@ -381,6 +381,51 @@ def _resolve_responds_differently(
     return None
 
 
+def _indication_ancestors(
+    graph: GraphStore, indication_id: str, *, max_depth: int = 5
+) -> list[str]:
+    """A leaf indication and its SUBTYPE_OF ancestors, most-specific-first
+    (uveal_melanoma → melanoma → …). Walks SUBTYPE_OF out-edges (specific →
+    parent), bounded depth, cycle-guarded. The hierarchy is sourced from the
+    hand-curated map + EFO/MONDO (Phase 4)."""
+    out = [indication_id]
+    seen = {indication_id}
+    cur = indication_id
+    for _ in range(max_depth):
+        parents = [
+            v
+            for _u, v, key in graph._graph.out_edges(cur, keys=True)  # noqa: SLF001
+            if key == EdgeType.SUBTYPE_OF.value and v not in seen
+        ]
+        if not parents:
+            break
+        cur = parents[0]
+        seen.add(cur)
+        out.append(cur)
+    return out
+
+
+def _resolve_indication_edge(
+    graph: GraphStore, src_id: str, indication_id: str, edge_type: EdgeType
+) -> tuple[str, "EdgeBeliefState"] | None:
+    """Most-specific *evidenced* belief for an indication-targeted edge
+    (biology_drives / endpoint_captures), walking the SUBTYPE_OF hierarchy.
+
+    Phase-4 indication backoff (symmetric with the population backoff): with
+    chains leaf-anchored, a sparse leaf (uveal_melanoma) borrows its parent's
+    (melanoma) cross-trial evidence — e.g. biology→melanoma when
+    biology→uveal_melanoma is unobserved. Returns (resolved_indication, belief)
+    or None."""
+    for ancestor in _indication_ancestors(graph, indication_id):
+        try:
+            belief = graph.get_edge_belief(src_id, ancestor, edge_type)
+        except KeyError:
+            continue
+        if belief.evidence_strength > 0.0:
+            return ancestor, belief
+    return None
+
+
 class EdgeContribution(BaseModel):
     """One edge's contribution to the prediction."""
 
@@ -1030,6 +1075,21 @@ class PredictionEngine:
                 if resolved is not None:
                     anc_id, belief = resolved
                     edges.append((anc_id, tgt_id, edge_type, belief))
+                continue
+
+            if edge_type in (
+                EdgeType.BIOLOGY_DRIVES, EdgeType.ENDPOINT_CAPTURES
+            ):
+                # Phase-4 indication backoff: chains are leaf-anchored, so a
+                # sparse leaf indication (uveal_melanoma) borrows its SUBTYPE_OF
+                # parent's (melanoma) evidence for biology→indication /
+                # endpoint→indication.
+                resolved = _resolve_indication_edge(
+                    self.graph, src_id, tgt_id, edge_type
+                )
+                if resolved is not None:
+                    anc_ind, belief = resolved
+                    edges.append((src_id, anc_ind, edge_type, belief))
                 continue
 
             try:

@@ -97,15 +97,19 @@ def _normalize_drug_lookup_name(name: str) -> str:
 
 
 def _root_indication(indication_id: str) -> str:
-    """Return the parent IndicationNode id for a subtype slug, or the id
-    itself when there is no parent. Used at chain-construction time so
-    every chain's ``indication_id`` anchors on the top-level disease
-    (e.g. `melanoma`, not `intraocular_melanoma`). Subtype IndicationNodes
-    still exist and are linked by SUBTYPE_OF edges for cross-rollup
-    queries; the chain backbone just anchors on the parent so evidence
-    accumulates at one place per disease.
+    """Chains anchor on the LEAF (specific) disease (node-orthogonality
+    redesign, Phase 4).
+
+    Previously this collapsed subtypes to a hand-curated parent (uveal_melanoma
+    → melanoma) so evidence pooled at one node. The redesign instead keeps the
+    specific disease and pools via the SUBTYPE_OF hierarchy + a prediction-time
+    indication backoff (mirroring the population hierarchy): a sparse leaf
+    (uveal_melanoma) borrows its parent's (melanoma) cross-trial evidence. This
+    preserves leaf-level granularity AND cross-subtype pooling, and scales to
+    any disease via the EFO/MONDO SUBTYPE_OF edges. Identity now; the SUBTYPE_OF
+    edges (hand-curated + EFO) carry the hierarchy.
     """
-    return parent_indication_for(indication_id) or indication_id
+    return indication_id
 from src.ingestion.lincs import (
     LINCSClient,
     _category_to_direction,

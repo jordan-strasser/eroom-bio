@@ -889,23 +889,23 @@ class TestParentIndicationHierarchy:
 
 
 class TestChainIndicationAnchoring:
-    """A trial whose canonical indication is a subtype still produces
-    chains anchored on the parent disease. The subtype IndicationNode
-    and SUBTYPE_OF edge are created upstream; the chain backbone uses
-    the parent so per-disease evidence accumulates at one place."""
+    """Redesign Phase 4: chains anchor on the LEAF (specific) disease. The
+    subtype IndicationNode + SUBTYPE_OF edge carry the hierarchy, and the
+    prediction-time indication backoff re-pools a sparse leaf onto its parent
+    — so granularity is preserved AND evidence still pools cross-subtype."""
 
-    def test_root_indication_helper(self):
+    def test_root_indication_helper_is_leaf_identity(self):
         from src.graph.populate import _root_indication
-        assert _root_indication("intraocular_melanoma") == "melanoma"
-        assert _root_indication("uveal_melanoma") == "melanoma"
+        # Leaf-anchoring: no collapse to parent — identity.
+        assert _root_indication("intraocular_melanoma") == "intraocular_melanoma"
+        assert _root_indication("uveal_melanoma") == "uveal_melanoma"
         assert _root_indication("melanoma") == "melanoma"
-        # Diseases with no parent passthrough unchanged.
         assert _root_indication("crohns_disease") == "crohns_disease"
 
-    def test_subgroup_fork_chains_anchor_on_parent(self):
-        """``add_subgroup_chains`` — the seam ``seed_responds_differently``
-        relies on — must produce chains whose ``indication_id`` is the
-        parent even when called with a subtype id."""
+    def test_subgroup_fork_chains_anchor_on_leaf(self):
+        """``add_subgroup_chains`` must produce chains whose ``indication_id``
+        is the LEAF (specific) disease — the SUBTYPE_OF hierarchy + prediction
+        backoff handle cross-subtype pooling."""
         from src.graph.models import (
             EdgeBeliefState, IndicationNode, PopulationNode, TrialArm,
             TrialSubgraph,
@@ -944,8 +944,8 @@ class TestChainIndicationAnchoring:
         )
         assert n == 1
         forked = graph.get_trial_subgraph_by_id("NCT_test").chains
-        assert all(c.indication_id == "melanoma" for c in forked), (
-            f"expected chains anchored on `melanoma`, got "
+        assert all(c.indication_id == "intraocular_melanoma" for c in forked), (
+            f"expected chains anchored on the leaf `intraocular_melanoma`, got "
             f"{[c.indication_id for c in forked]}"
         )
 

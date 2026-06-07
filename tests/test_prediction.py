@@ -1041,3 +1041,43 @@ class TestPopulationBackoff:
                              belief=EdgeBeliefState(alpha=3, beta=3)))
         anc_id, _belief = _resolve_responds_differently(g, "line_first__stage_iii", "melanoma")
         assert anc_id == "line_first__stage_iii"  # specific wins when evidenced
+
+
+class TestIndicationBackoff:
+    """Phase-4: leaf-anchored chains borrow a SUBTYPE_OF parent's evidence for
+    indication-targeted edges (biology_drives / endpoint_captures)."""
+
+    def test_indication_ancestors_walks_subtype_of(self):
+        from src.graph.store import GraphStore
+        from src.graph.models import IndicationNode, GraphEdge, EdgeType
+        from src.prediction.path_query import _indication_ancestors
+        g = GraphStore()
+        for i in ("uveal_melanoma", "melanoma"):
+            g.add_node(IndicationNode(id=i, name=i))
+        g.add_edge(GraphEdge(source_id="uveal_melanoma", target_id="melanoma",
+                             edge_type=EdgeType.SUBTYPE_OF))
+        assert _indication_ancestors(g, "uveal_melanoma") == ["uveal_melanoma", "melanoma"]
+        assert _indication_ancestors(g, "melanoma") == ["melanoma"]
+
+    def test_sparse_leaf_backs_off_to_parent(self):
+        from src.graph.store import GraphStore
+        from src.graph.models import (
+            IndicationNode, BiologyNode, GraphEdge, EdgeType, EdgeBeliefState,
+        )
+        from src.prediction.path_query import _resolve_indication_edge
+        g = GraphStore()
+        for i in ("uveal_melanoma", "melanoma"):
+            g.add_node(IndicationNode(id=i, name=i))
+        g.add_node(BiologyNode(id="GO:0001525", name="angiogenesis"))
+        g.add_edge(GraphEdge(source_id="uveal_melanoma", target_id="melanoma",
+                             edge_type=EdgeType.SUBTYPE_OF))
+        # leaf biology->uveal edge unobserved; parent biology->melanoma evidenced
+        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="uveal_melanoma",
+                             edge_type=EdgeType.BIOLOGY_DRIVES, belief=EdgeBeliefState()))
+        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="melanoma",
+                             edge_type=EdgeType.BIOLOGY_DRIVES,
+                             belief=EdgeBeliefState(alpha=6, beta=2)))
+        resolved = _resolve_indication_edge(g, "GO:0001525", "uveal_melanoma", EdgeType.BIOLOGY_DRIVES)
+        assert resolved is not None
+        anc, belief = resolved
+        assert anc == "melanoma" and belief.evidence_strength > 0
