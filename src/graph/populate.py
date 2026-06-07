@@ -52,7 +52,10 @@ from src.graph.curated_evidence import (
     ot_association_score_to_bucket,
     ot_score_quality,
 )
-from src.graph.indication_taxonomy import parent_indication_for
+from src.graph.indication_taxonomy import (
+    parent_indication_for,
+    slugify_measure_name,
+)
 from src.graph.store import GraphStore
 from src.inference.beliefs import SupportBucket
 from src.ingestion.clinicaltrials import (
@@ -196,6 +199,13 @@ def _log_dropped_trial_subgraph(
 # Haiku is fast + cheap for short categorical labels. The structural inferences
 # (endpoint type, mechanism, population) are short—Haiku is more than enough.
 INFERENCE_MODEL = "claude-haiku-4-5-20251001"
+
+# Drug→target inference is a KNOWLEDGE task, not a categorical label: a
+# plausible-but-wrong gene (Haiku gave axitinib→PLK1, bactrim→DHPS) injects a
+# false chain, and OT only validates the gene EXISTS, not that the drug hits it.
+# So this one inference uses Sonnet for accuracy. Cost is trivial (~100 misses
+# across the corpus, ~$0.15) — well under the target-inference budget.
+TARGET_INFERENCE_MODEL = "claude-sonnet-4-20250514"
 
 
 # ── Endpoint classification ──────────────────────────────────────────────
@@ -355,9 +365,7 @@ def _endpoint_node_id(cls: EndpointClass, measure: str, root_ind_id: str) -> tup
     classes are sub-keyed by a normalized measure slug; standardized classes
     collapse by class. Slug capped at 48 chars to bound the id."""
     if cls in _GENERIC_ENDPOINT_CLASSES:
-        measure_slug = re.sub(r"[^a-z0-9]+", "_", (measure or "").lower()).strip("_")[:48]
-        if not measure_slug:
-            measure_slug = "unspecified"
+        measure_slug = slugify_measure_name(measure, max_len=48)
         node_id = normalize_entity(
             f"{cls.value}_{measure_slug}_{root_ind_id}", "EndpointNode"
         )
@@ -1528,6 +1536,21 @@ class PopulationPipeline:
                     existing.append(tid)
         console.print(f"  Added {cell_added} AFFECTS edges (cell-therapy heuristic)")
 
+        # LLM target-inference: resolve compounds the curated + heuristic
+        # resolvers all missed, so their chains ground on a real gene + Reactome
+        # mechanism instead of a coarse drug-class slug. Validated against OT
+        # before use; runs before the name-match fallback.
+        console.print("[bold]Inferring missing compound targets (LLM)...[/bold]")
+        llm_added, llm_targets = await self._infer_missing_compound_targets(
+            trials, compound_targets,
+        )
+        for cid, tids in llm_targets.items():
+            existing = compound_targets.setdefault(cid, [])
+            for tid in tids:
+                if tid not in existing:
+                    existing.append(tid)
+        console.print(f"  Added {llm_added} AFFECTS edges (LLM target-inference)")
+
         # Name-matching fallback: catches binds_to relationships for
         # compounds OT couldn't resolve from trial text.
         console.print("[bold]Cross-referencing compound-target edges...[/bold]")
@@ -1844,7 +1867,10 @@ class PopulationPipeline:
         Falls back to a slugified copy of the raw text when no Anthropic
         client is configured (tests + offline mode).
         """
-        from src.graph.indication_taxonomy import slugify_disease_name
+        from src.graph.indication_taxonomy import (
+            is_nondisease_condition,
+            slugify_disease_name,
+        )
 
         if self._indication_canon is None:
             self._indication_canon = JSONCache(
@@ -1853,15 +1879,21 @@ class PopulationPipeline:
         cache = self._indication_canon
 
         cached = cache.get(cond)
-        if cached:
+        if cached is not None:
             slug, _, name = cached.partition("|")
-            if slug:
-                return slug, name or slug.replace("_", " ")
+            # Empty cached slug = a prior non-disease drop; also re-gate any
+            # legacy cached slug so pre-gate caches are cleaned up on read.
+            if not slug or is_nondisease_condition(slug):
+                return "", ""
+            return slug, name or slug.replace("_", " ")
 
         if self._anthropic is None:
             slug = slugify_disease_name(cond) or normalize_entity(
                 cond, "IndicationNode",
             )
+            if is_nondisease_condition(slug):
+                cache.set(cond, "|")  # sentinel: non-disease condition, dropped
+                return "", ""
             name = cond
             cache.set(cond, f"{slug}|{name}")
             return slug, name
@@ -1933,6 +1965,14 @@ class PopulationPipeline:
             name = cond
         else:
             name = slug.replace("_", " ")
+
+        # Condition-validity gate: drop age-group / non-disease conditions
+        # (e.g. "Child") so they never become IndicationNodes. The caller
+        # skips on an empty id; if a trial's only conditions are non-diseases
+        # it gets no indication (and is dropped by the no-indication path).
+        if is_nondisease_condition(slug):
+            cache.set(cond, "|")  # sentinel: non-disease condition, dropped
+            return "", ""
 
         cache.set(cond, f"{slug}|{name}")
         return slug, name
@@ -2764,6 +2804,149 @@ class PopulationPipeline:
 
         return added
 
+    async def _infer_missing_compound_targets(
+        self,
+        trials: list,
+        compound_targets: dict[str, list[str]],
+    ) -> tuple[int, dict[str, list[str]]]:
+        """LLM-infer gene targets for compounds the curated + heuristic
+        resolvers missed (OT / ChEMBL / mAb / vaccine / cell-therapy all
+        failed), at the compound→target seam BEFORE the name-match fallback.
+
+        For each unresolved, non-diagnostic constituent compound, ask an LLM for
+        ``(gene_symbol, intervention_class)``. Keep only THERAPEUTIC
+        interventions whose gene VALIDATES to a real Ensembl id via OT
+        ``search_target`` (hallucinated / non-gene answers are dropped), then add
+        a TargetNode + AFFECTS edge at the modest ``DATABASE_LLM_INFERENCE``
+        n_eff. Cost-bounded to the misses (~100 compounds ≪ $10 at Haiku rates)
+        and cached on disk. Returns ``(edges_added, {compound_id: [ensembl]})``.
+        """
+        del trials  # reserved for a future indication hint; misses come from
+        #             the POST-COLLAPSE graph so resurrected codenames can't
+        #             appear (map_trial_to_graph_nodes yields raw pre-collapse
+        #             ids; the codename→INN remap happens earlier in populate).
+        if self._anthropic is None or self._ot_client is None:
+            return 0, {}
+
+        # Unresolved compounds (id → display name): the compound nodes already
+        # in the graph (canonical, post-collapse) that have no resolved target.
+        misses: dict[str, str] = {}
+        for ntype in ("CompoundNode", "InterventionNode"):
+            for node in self.graph.get_nodes_by_type(ntype):
+                cid = node["id"]
+                if cid in misses or compound_targets.get(cid):
+                    continue
+                if cid in self._diagnostic_compound_ids:
+                    continue
+                misses[cid] = node.get("name") or cid
+
+        if not misses:
+            return 0, {}
+
+        cache = JSONCache(self._cache_dir / "llm_inferred_targets.json")
+        added = 0
+        new_targets: dict[str, list[str]] = {}
+        _MAX_CALLS = 400  # backstop; real miss count is ~100
+        n_calls = 0
+        for cid, name in misses.items():
+            cached = cache.get(cid)
+            if cached is None:
+                if n_calls >= _MAX_CALLS:
+                    logger.warning("LLM target-inference hit the %d-call cap", _MAX_CALLS)
+                    break
+                cached = await self._llm_infer_compound_target(name, "")
+                n_calls += 1
+                cache.set(cid, cached)
+            gene, _, iclass = cached.partition("|")
+            gene, iclass = gene.strip(), iclass.strip().lower()
+            if not gene or gene.upper() == "UNKNOWN":
+                continue
+            if iclass and iclass != "therapeutic":
+                continue  # intervention-class gate
+            try:
+                ot_target = await self._ot_client.search_target(gene)
+            except Exception:  # noqa: BLE001
+                ot_target = None
+            if not ot_target or not ot_target.get("target_id"):
+                continue  # gene didn't validate to a real Ensembl target
+            ensembl = ot_target["target_id"]
+            symbol = ot_target.get("approved_symbol") or gene
+            try:
+                self.graph.get_node(ensembl)
+            except KeyError:
+                self.graph.add_node(TargetNode(
+                    id=ensembl,
+                    name=ot_target.get("name") or symbol,
+                    gene_symbol=symbol,
+                    target_type=TargetType.PROTEIN,
+                    metadata={"source": "llm_inference"},
+                ))
+                self._index_node(ensembl, symbol, "target")
+            if not self.graph._graph.has_edge(  # noqa: SLF001
+                cid, ensembl, key=EdgeType.AFFECTS.value
+            ):
+                record = make_curated_record(
+                    source_id=f"llm_inference:{cid}",
+                    bucket=SupportBucket.MODERATE_SUPPORT,
+                    source_type=EvidenceType.DATABASE_LLM_INFERENCE,
+                    notes=f"LLM-inferred drug→target: {cid} → {symbol}",
+                )
+                self.graph.add_edge(GraphEdge(
+                    source_id=cid,
+                    target_id=ensembl,
+                    edge_type=EdgeType.AFFECTS,
+                    belief=belief_from_curated_record(record),
+                    metadata={"source": "llm_inference"},
+                ))
+                added += 1
+            new_targets.setdefault(cid, []).append(ensembl)
+        logger.info(
+            "LLM target-inference: resolved %d/%d unresolved compounds "
+            "(%d LLM calls)", len(new_targets), len(misses), n_calls,
+        )
+        return added, new_targets
+
+    async def _llm_infer_compound_target(self, name: str, indication: str) -> str:
+        """One Haiku call: drug name (+ indication hint) → ``"GENE | class"``.
+        Returns ``"UNKNOWN|..."`` when there is no single protein-coding-gene
+        target or the model isn't confident (abstention preferred to a guess)."""
+        ctx = f"\nIndication context: {indication}" if indication else ""
+        user_msg = (
+            f"Therapeutic intervention: {name!r}{ctx}\n\n"
+            "What is the PRIMARY molecular target — the gene whose protein "
+            "product this intervention binds or directly modulates?\n\n"
+            "Reply EXACTLY as: GENE_SYMBOL | intervention_class\n"
+            "  GENE_SYMBOL: official HUGO gene symbol (EGFR, PDCD1, HMGCR, ...). "
+            "Reply UNKNOWN if there is no single protein-coding-gene target "
+            "(cytotoxic chemo hitting DNA/microtubules, radiation, a device, a "
+            "supplement, an imaging / diagnostic agent) or you are not confident.\n"
+            "  intervention_class: one of therapeutic, diagnostic, "
+            "supportive_care, non_therapeutic. Antibiotics, antiemetics, "
+            "colony-stimulating factors, and other agents present for SUPPORTIVE "
+            "care in a cancer trial are supportive_care, not therapeutic.\n\n"
+            "Examples:\n"
+            "  'Osimertinib' -> EGFR | therapeutic\n"
+            "  'Pembrolizumab' -> PDCD1 | therapeutic\n"
+            "  'Atorvastatin' -> HMGCR | therapeutic\n"
+            "  'Axitinib' -> KDR | therapeutic\n"
+            "  'Paclitaxel' -> UNKNOWN | therapeutic\n"
+            "  'Trimethoprim-Sulfamethoxazole' -> DHFR | supportive_care\n"
+            "  'Technetium Tc-99m Sestamibi' -> UNKNOWN | diagnostic\n\n"
+            "Reply with only 'GENE | class'. No other text."
+        )
+        try:
+            response = await _call_messages_with_backoff(
+                self._anthropic,
+                model=TARGET_INFERENCE_MODEL,
+                max_tokens=20,
+                temperature=0,
+                messages=[{"role": "user", "content": user_msg}],
+            )
+            return response.content[0].text.strip()
+        except Exception:  # noqa: BLE001
+            logger.debug("LLM target inference failed for %r", name, exc_info=True)
+            return "UNKNOWN|"
+
     async def _resolve_gene_pathways(
         self,
         target_id: str,
@@ -2881,7 +3064,17 @@ class PopulationPipeline:
                         gene_symbol=gene_symbol,
                     )
                     if top_go_score > top_reactome_score:
-                        pathways = go_terms
+                        # Prune the GO set to its on-mechanism terms. A gene's
+                        # full GO biological-process set includes real-but-off-
+                        # context leaves (TUBB4B → "flagellated sperm motility",
+                        # CRBN → "limb development") and the MECHANISM cap would
+                        # otherwise keep all of them. Primary prune is BioLORD
+                        # semantic similarity (scales, no hand vocab); token-
+                        # overlap is the offline fallback. Top-1 fallback never
+                        # drops the chain. Reactome names are left untouched.
+                        pathways = self._floor_go_terms(
+                            go_terms, context_name, indication_id, gene_symbol
+                        )
                         chosen_source = "quickgo_target_lookup"
 
         primary_score = score_candidate(
@@ -2891,6 +3084,48 @@ class PopulationPipeline:
             gene_symbol=gene_symbol,
         )
         return (pathways, chosen_source, primary_score)
+
+    def _floor_go_terms(
+        self,
+        go_terms: list[Any],
+        context_name: str,
+        indication_id: str,
+        gene_symbol: str,
+    ) -> list[Any]:
+        """Prune a gene's GO biological-process terms to the on-mechanism ones.
+
+        Primary path is BioLORD semantic similarity to the chain context
+        (scales to any gene, no hand-maintained vocabulary); falls back to
+        token-overlap when BioLORD isn't installed. Either way the top-1
+        fallback guarantees the chain keeps a mechanism.
+        """
+        from src.graph.pathway_ranker import (
+            relevance_floor,
+            semantic_relevance_floor,
+        )
+
+        context_text = (context_name or "").replace("_", " ").strip()
+        if context_text:
+            try:
+                from src.graph.biolord_embeddings import embed_texts
+
+                cache_path = self._cache_dir / "biolord_embeddings.json"
+                return semantic_relevance_floor(
+                    go_terms,
+                    context_text,
+                    lambda texts: embed_texts(texts, cache_path=cache_path),
+                )
+            except Exception:  # noqa: BLE001 — BioLORD optional; degrade gracefully
+                logger.debug(
+                    "BioLORD GO floor unavailable; using token-overlap fallback",
+                    exc_info=True,
+                )
+        return relevance_floor(
+            go_terms,
+            mechanism_name=context_name,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
 
     # Number of Reactome pathways materialized as distinct BiologyNodes
     # per (target, mechanism) pair. Set to 1 in round 3.4: at single-
@@ -3861,9 +4096,7 @@ class PopulationPipeline:
         Id follows ``other_{measure_slug}_{indication}`` so it doesn't
         collide with the curated ``{class}_{indication}`` namespace.
         """
-        measure_slug = re.sub(r"[^a-z0-9]+", "_", measure.lower()).strip("_")[:60]
-        if not measure_slug:
-            measure_slug = "unspecified"
+        measure_slug = slugify_measure_name(measure, max_len=60)
         root_ind = _root_indication(indication_id)
         ep_id = f"other_{measure_slug}_{root_ind}"
         try:

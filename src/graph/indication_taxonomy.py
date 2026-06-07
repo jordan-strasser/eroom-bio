@@ -158,6 +158,22 @@ _DISEASE_SLUG_ALIASES: dict[str, str] = {
     # "Head and Neck Squamous Cell Carcinoma" — same disease, different
     # CT.gov condition phrasings.
     "squamous_cell_carcinoma_head_and_neck": "head_and_neck_squamous_cell_carcinoma",
+    # Dominant-histology variants → the organ-cancer slug. Only organs where
+    # one histology IS the disease clinically (adenocarcinoma is >90% of these),
+    # so reconciling them removes endpoint/chain fragmentation without merging
+    # biologically distinct subtypes. DELIBERATELY EXCLUDES histology-split
+    # organs (lung adeno vs squamous vs small-cell; esophageal adeno vs
+    # squamous) — those stay separate per the canonicalization prompt.
+    "prostate_adenocarcinoma": "prostate_cancer",
+    "prostate_carcinoma": "prostate_cancer",
+    "pancreatic_adenocarcinoma": "pancreatic_cancer",
+    "pancreatic_carcinoma": "pancreatic_cancer",
+    "colorectal_adenocarcinoma": "colorectal_cancer",
+    "colorectal_carcinoma": "colorectal_cancer",
+    "gastric_adenocarcinoma": "gastric_cancer",
+    "endometrial_adenocarcinoma": "endometrial_cancer",
+    "ovarian_adenocarcinoma": "ovarian_cancer",
+    "renal_cell_adenocarcinoma": "renal_cell_carcinoma",
 }
 
 
@@ -219,6 +235,38 @@ def parent_indication_for(slug: str) -> str | None:
     return None
 
 
+# Condition strings CT.gov lists that are NOT diseases — age-group, enrollment-
+# status, or demographic descriptors (e.g. NCT02846714 lists "Child"). Matched
+# on the canonicalized slug AFTER demographic-stripping, and by EXACT membership,
+# so a real disease that merely contains one of these words (e.g.
+# "childhood_leukemia") is unaffected — only a BARE non-disease slug is rejected.
+_NON_DISEASE_CONDITIONS: frozenset[str] = frozenset({
+    "child", "children", "childhood", "adult", "adults", "elderly", "geriatric",
+    "pediatric", "paediatric", "infant", "infants", "neonate", "neonates",
+    "adolescent", "adolescents", "aged", "young_adult",
+    "healthy", "healthy_volunteer", "healthy_volunteers", "healthy_subject",
+    "healthy_subjects", "healthy_adult", "healthy_adults", "healthy_individuals",
+    "volunteer", "volunteers", "normal", "normal_volunteers",
+    "control", "controls", "control_group", "healthy_control", "healthy_controls",
+    "patient", "patients", "human", "humans", "subject", "subjects",
+    "male", "female", "males", "females", "men", "women",
+    "unaffected", "general_population", "none", "other",
+})
+
+
+def is_nondisease_condition(slug: str) -> bool:
+    """True if a canonicalized condition slug names an age-group / enrollment /
+    status descriptor (or an LLM non-answer) rather than a disease, so it must
+    not become an IndicationNode. Exact-match against ``_NON_DISEASE_CONDITIONS``
+    plus the long-sentence / "i_cannot_determine" non-answer heuristics shared
+    with the prediction-side ``provenance.is_non_disease``."""
+    if not slug:
+        return True
+    if slug in _NON_DISEASE_CONDITIONS:
+        return True
+    return slug.startswith("i_cannot_determine") or len(slug) > 80
+
+
 def slugify_disease_name(raw: str) -> str:
     """Coerce an LLM-emitted disease label into a stable snake_case slug.
 
@@ -264,3 +312,38 @@ def slugify_disease_name(raw: str) -> str:
             cleaned = cleaned[: -len(suffix)] + replacement
             break
     return _DISEASE_SLUG_ALIASES.get(cleaned, cleaned)
+
+
+# Structural filler that bloats endpoint MEASURE slugs without distinguishing
+# the measure ("change from baseline in average follow-up ..."). Dropping these
+# surfaces the actual measured quantity (the biomarker / instrument name).
+_MEASURE_FILLER_TOKENS: frozenset[str] = frozenset({
+    "the", "of", "in", "on", "to", "for", "by", "with", "from", "and", "or",
+    "a", "an", "as", "at", "is", "are", "be",
+    "change", "changes", "baseline", "absolute", "relative", "average", "mean",
+    "median", "total", "follow", "up", "followup", "all", "number", "percentage",
+    "percent", "proportion", "over", "per", "study", "assessed", "measured",
+    "using", "value", "values", "level", "levels",
+})
+
+
+def slugify_measure_name(raw: str, *, max_len: int = 48) -> str:
+    """Compact, stable slug for an endpoint MEASURE.
+
+    Tokenizes, drops structural filler (``_MEASURE_FILLER_TOKENS``) that bloats
+    the slug without distinguishing the measure, and truncates at a WORD
+    BOUNDARY within ``max_len`` — never mid-token (the old char-slice produced
+    ``..._from_all_bi``). Falls back to the raw tokens when everything is filler,
+    and to ``"unspecified"`` when empty. Replaces the naive
+    ``re.sub(...)[:N]`` slug in the endpoint-id builders."""
+    tokens = [t for t in re.split(r"[^a-z0-9]+", (raw or "").lower()) if t]
+    kept = [t for t in tokens if t not in _MEASURE_FILLER_TOKENS] or tokens
+    out: list[str] = []
+    length = 0
+    for tok in kept:
+        add = len(tok) + (1 if out else 0)
+        if length + add > max_len:
+            break
+        out.append(tok)
+        length += add
+    return "_".join(out) or "unspecified"

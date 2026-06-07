@@ -3675,3 +3675,65 @@ async def test_biology_unresolved_when_no_description(tmp_path):
     out = g.get_trial_subgraph_by_id("NCT_NOBIO")
     assert out.chains[0].biology_id == "UNKNOWN"
     assert out.chains[0].metadata.get("unresolved_biology") is True
+
+
+class TestConditionValidityGate:
+    """Reject non-disease conditions (age-group / status) before they become
+    IndicationNodes — e.g. NCT02846714's "Child"."""
+
+    def test_is_nondisease_condition(self):
+        from src.graph.indication_taxonomy import is_nondisease_condition
+        assert is_nondisease_condition("child")
+        assert is_nondisease_condition("adult")
+        assert is_nondisease_condition("healthy_volunteers")
+        assert is_nondisease_condition("")
+        assert is_nondisease_condition("i_cannot_determine_the_disease_here")
+        # real diseases pass — exact-match only, so words-as-substring are safe
+        assert not is_nondisease_condition("melanoma")
+        assert not is_nondisease_condition("childhood_leukemia")
+        assert not is_nondisease_condition("acute_lymphoblastic_leukemia")
+
+    @pytest.mark.asyncio
+    async def test_canonicalize_drops_nondisease_condition(self, tmp_path):
+        from src.graph.store import GraphStore
+        pipe = PopulationPipeline(
+            GraphStore(), anthropic_client=None, cache_dir=tmp_path
+        )
+        # offline path (no LLM): slugify then gate
+        assert await pipe._canonicalize_indication("Child") == ("", "")
+        assert await pipe._canonicalize_indication("Healthy Volunteers") == ("", "")
+        # a real disease still resolves
+        slug, _name = await pipe._canonicalize_indication("Melanoma")
+        assert slug == "melanoma"
+
+
+class TestEndpointSlugQuality:
+    """Endpoint measure slugs should be compact + word-boundary-truncated, and
+    dominant-histology indication variants should reconcile."""
+
+    def test_measure_slug_drops_filler_surfaces_quantity(self):
+        from src.graph.indication_taxonomy import slugify_measure_name
+        # the cited verbose case: filler dropped, real quantity surfaced
+        s = slugify_measure_name("Change in Average Follow-up Baseline from All Bilirubin")
+        assert s == "bilirubin"
+        assert slugify_measure_name("LDL Cholesterol Change from Baseline") == "ldl_cholesterol"
+        # measures with no filler are preserved intact
+        assert slugify_measure_name("Progression Free Survival") == "progression_free_survival"
+        assert slugify_measure_name("") == "unspecified"
+
+    def test_measure_slug_truncates_at_word_boundary(self):
+        from src.graph.indication_taxonomy import slugify_measure_name
+        raw = "tumor proliferation marker expression quantification immunohistochemistry panel"
+        s = slugify_measure_name(raw, max_len=48)
+        assert len(s) <= 48
+        # every piece is a COMPLETE token from the input — no mid-word cut
+        input_tokens = set(raw.lower().split())
+        assert all(piece in input_tokens for piece in s.split("_"))
+
+    def test_dominant_histology_indication_reconciles(self):
+        from src.graph.indication_taxonomy import slugify_disease_name
+        assert slugify_disease_name("Prostate Adenocarcinoma") == "prostate_cancer"
+        assert slugify_disease_name("Pancreatic Adenocarcinoma") == "pancreatic_cancer"
+        # histology-distinct organs are NOT merged
+        assert slugify_disease_name("Lung Adenocarcinoma") == "lung_adenocarcinoma"
+        assert slugify_disease_name("Esophageal Squamous Cell Carcinoma") == "esophageal_squamous_cell_carcinoma"

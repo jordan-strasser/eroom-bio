@@ -321,6 +321,11 @@ class EvidenceType(str, Enum):
     # biology slug, combo_inherit AFFECTS). Derived from existing
     # curated facts but one inferential step removed.
     DATABASE_FALLBACK = "database_fallback"
+    # LLM-inferred compound→target gene, for compounds OT/ChEMBL/mAb couldn't
+    # resolve. The inferred gene is VALIDATED against a real Ensembl gene (OT
+    # search_target) before use, but the BINDING claim itself is inferred, not
+    # curated — so it sits well below the curated DB binding tiers.
+    DATABASE_LLM_INFERENCE = "database_llm_inference"
 
     COMPUTATIONAL = "computational"
     LITERATURE = "literature"
