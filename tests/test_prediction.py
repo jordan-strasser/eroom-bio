@@ -983,3 +983,61 @@ class TestComboComposition:
         assert len(mods) == 1
 
 
+
+
+class TestPopulationBackoff:
+    """Phase-3 hierarchical backoff: a sparse specific population borrows its
+    coarser ancestor's (cross-disease-pooled) responds_differently evidence."""
+
+    def test_ancestors_most_specific_first(self):
+        from src.prediction.path_query import _population_ancestors
+        anc = _population_ancestors("extent_metastatic__line_first__stage_iii")
+        assert anc[0] == "extent_metastatic__line_first__stage_iii"
+        # all coarser subsets present; single-axis ancestors at the end
+        assert "line_first" in anc and "stage_iii" in anc and "extent_metastatic" in anc
+        assert "extent_metastatic__line_first" in anc
+
+    def test_single_axis_has_no_ancestors(self):
+        from src.prediction.path_query import _population_ancestors
+        assert _population_ancestors("line_first") == ["line_first"]
+
+    def test_sparse_specific_backs_off_to_coarse(self):
+        from src.graph.store import GraphStore
+        from src.graph.models import (
+            IndicationNode, PopulationNode, GraphEdge, EdgeType, EdgeBeliefState,
+        )
+        from src.prediction.path_query import _resolve_responds_differently
+        g = GraphStore()
+        g.add_node(IndicationNode(id="melanoma", name="melanoma"))
+        g.add_node(PopulationNode(id="line_first__stage_iii", name="x"))
+        g.add_node(PopulationNode(id="line_first", name="first"))
+        # specific edge unobserved (Beta(1,1)); coarse edge has evidence
+        g.add_edge(GraphEdge(source_id="line_first__stage_iii", target_id="melanoma",
+                             edge_type=EdgeType.RESPONDS_DIFFERENTLY, belief=EdgeBeliefState()))
+        g.add_edge(GraphEdge(source_id="line_first", target_id="melanoma",
+                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                             belief=EdgeBeliefState(alpha=5, beta=2)))
+        resolved = _resolve_responds_differently(g, "line_first__stage_iii", "melanoma")
+        assert resolved is not None
+        anc_id, belief = resolved
+        assert anc_id == "line_first"  # backed off to the coarse ancestor
+        assert belief.evidence_strength > 0
+
+    def test_specific_evidence_preferred(self):
+        from src.graph.store import GraphStore
+        from src.graph.models import (
+            IndicationNode, PopulationNode, GraphEdge, EdgeType, EdgeBeliefState,
+        )
+        from src.prediction.path_query import _resolve_responds_differently
+        g = GraphStore()
+        g.add_node(IndicationNode(id="melanoma", name="melanoma"))
+        g.add_node(PopulationNode(id="line_first__stage_iii", name="x"))
+        g.add_node(PopulationNode(id="line_first", name="first"))
+        g.add_edge(GraphEdge(source_id="line_first__stage_iii", target_id="melanoma",
+                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                             belief=EdgeBeliefState(alpha=8, beta=2)))
+        g.add_edge(GraphEdge(source_id="line_first", target_id="melanoma",
+                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                             belief=EdgeBeliefState(alpha=3, beta=3)))
+        anc_id, _belief = _resolve_responds_differently(g, "line_first__stage_iii", "melanoma")
+        assert anc_id == "line_first__stage_iii"  # specific wins when evidenced

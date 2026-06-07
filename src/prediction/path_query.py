@@ -337,6 +337,50 @@ def _aggregate_samples(
 # ── Models ──────────────────────────────────────────────────────────────
 
 
+def _population_ancestors(pop_id: str) -> list[str]:
+    """Disease-agnostic population ids, most-specific-first: the id itself then
+    every coarser axis-subset down to single axes.
+
+    The hierarchy is implicit in the ``__``-joined slug (``compose_id`` sorts
+    axes), so a 3-axis population's ancestors are its 2-axis and 1-axis subsets
+    (e.g. ``line_first__stage_iii`` → ``line_first``, ``stage_iii``). Used for
+    the prediction backoff so a sparse specific population borrows its coarser
+    parent's (cross-disease-pooled) evidence."""
+    from itertools import combinations
+
+    axes = pop_id.split("__")
+    if len(axes) <= 1:
+        return [pop_id]
+    out = [pop_id]
+    for k in range(len(axes) - 1, 0, -1):
+        for combo in combinations(axes, k):
+            out.append("__".join(combo))
+    return out
+
+
+def _resolve_responds_differently(
+    graph: GraphStore, pop_id: str, indication_id: str
+) -> tuple[str, "EdgeBeliefState"] | None:
+    """Most-specific *evidenced* ``responds_differently`` belief for a chain's
+    population, walking the population hierarchy (specific → coarser ancestors).
+
+    Borrow-strength backoff: if the specific population's edge to this
+    indication carries no evidence, fall back to its coarser ancestor (e.g.
+    ``line_first__stage_iii`` → ``line_first``), which pools first-line evidence
+    across diseases. Returns ``(resolved_population_id, belief)`` or ``None``
+    when no level in the hierarchy has evidence."""
+    for ancestor in _population_ancestors(pop_id):
+        try:
+            belief = graph.get_edge_belief(
+                ancestor, indication_id, EdgeType.RESPONDS_DIFFERENTLY
+            )
+        except KeyError:
+            continue
+        if belief.evidence_strength > 0.0:
+            return ancestor, belief
+    return None
+
+
 class EdgeContribution(BaseModel):
     """One edge's contribution to the prediction."""
 
@@ -975,6 +1019,17 @@ class PredictionEngine:
             tgt_id = getattr(chain, tgt_field)
 
             if src_id == "UNKNOWN" or tgt_id == "UNKNOWN":
+                continue
+
+            if edge_type == EdgeType.RESPONDS_DIFFERENTLY:
+                # Phase-3 hierarchical backoff: a sparse specific population
+                # (line_first__stage_iii) borrows its coarser ancestor's
+                # (line_first) cross-disease-pooled evidence. The resolved
+                # ancestor's belief stands in for the population edge.
+                resolved = _resolve_responds_differently(self.graph, src_id, tgt_id)
+                if resolved is not None:
+                    anc_id, belief = resolved
+                    edges.append((anc_id, tgt_id, edge_type, belief))
                 continue
 
             try:
