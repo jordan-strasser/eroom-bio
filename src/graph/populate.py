@@ -1274,71 +1274,48 @@ class PopulationPipeline:
                 # add_subgroup_chains path.
                 parent_features = _coarse_population_features(combined_features)
 
-                # Compose the trial's default PopulationNode id from the
-                # canonical disease + coarsened features. With no
-                # features this falls back to ``{indication}__unselected``.
-                default_pop_id = PopulationNode.compose_id(
-                    canonical_id, parent_features,
-                )
-                try:
-                    self.graph.get_node(default_pop_id)
-                except KeyError:
-                    self.graph.add_node(PopulationNode(
-                        id=default_pop_id,
-                        name=(
-                            cond if parent_features
-                            else f"All patients ({canonical_name})"
-                        ),
-                        defining_features=list(parent_features),
-                    ))
-                # responds_differently: default_population → indication.
-                # The trial's enrollment is itself a stratification of the
-                # disease (stage III cutaneous melanoma is not the same as
-                # melanoma overall), and downstream prediction walks this
-                # edge to score population fit.
-                #
-                # Round-16 fix: drop the `qualifiers` guard. Without it,
-                # trials whose condition canonicalizes to plain
-                # "melanoma" (no stage/biomarker qualifiers — the
-                # majority) had NO responds_differently edge created
-                # for their parent_population_id = "melanoma__unselected".
-                # The round-16 always-emit classifier rule then sent
-                # responds_differently evidence to an edge that didn't
-                # exist, which the attributor silently dropped as
-                # "entity_not_in_trial". Now every (default_pop,
-                # indication) pair gets a structural edge so classifier
-                # emissions land somewhere.
-                if not self.graph._graph.has_edge(  # noqa: SLF001
-                    default_pop_id, canonical_id,
-                    key=EdgeType.RESPONDS_DIFFERENTLY.value,
-                ):
-                    # Round-17: source tag also notes when LLM features
-                    # contributed, so downstream introspection can tell
-                    # the regex-only populations from the eligibility-
-                    # enriched ones.
-                    if llm_features and qualifiers:
-                        source_tag = "regex_plus_llm_eligibility"
-                    elif llm_features:
-                        source_tag = "llm_eligibility"
-                    elif qualifiers:
-                        source_tag = "indication_qualifiers"
-                    else:
-                        source_tag = "default_unselected"
-                    # Round-25: heuristic seed prior dropped. The edge
-                    # exists so classifier emissions can land on it, but
-                    # starts at uninformative Beta(1, 1) — it'll be
-                    # dropped from predictions until a trial provides
-                    # real subgroup-vs-parent contrast evidence.
-                    self.graph.add_edge(GraphEdge(
-                        source_id=default_pop_id,
-                        target_id=canonical_id,
-                        edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                        belief=EdgeBeliefState(),
-                        metadata={
-                            "source": source_tag,
-                            "raw_descriptor": cond,
-                        },
-                    ))
+                # The trial's enrollment-cohort population = its disease-
+                # agnostic eligibility axes (line/stage/biomarker). With NO
+                # coarse axes it's an all-comers cohort → NO population node
+                # (it would only reiterate the indication); default_pop_id is
+                # None and the chain gets no population dimension.
+                default_pop_id = PopulationNode.compose_id(parent_features)
+                if default_pop_id is not None:
+                    try:
+                        self.graph.get_node(default_pop_id)
+                    except KeyError:
+                        self.graph.add_node(PopulationNode(
+                            id=default_pop_id,
+                            name=PopulationNode.display_name(parent_features),
+                            defining_features=list(parent_features),
+                        ))
+                    # responds_differently: enrollment-cohort population →
+                    # indication. The trial's eligibility axes are a real
+                    # stratification of the disease; the prediction walks this
+                    # edge to score population fit. Only created when a real
+                    # axis exists (default_pop_id is not None) — all-comers
+                    # cohorts get no node and no edge. Starts at Beta(1, 1);
+                    # classifier subgroup-vs-overall evidence lands here.
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        default_pop_id, canonical_id,
+                        key=EdgeType.RESPONDS_DIFFERENTLY.value,
+                    ):
+                        if llm_features and qualifiers:
+                            source_tag = "regex_plus_llm_eligibility"
+                        elif llm_features:
+                            source_tag = "llm_eligibility"
+                        else:
+                            source_tag = "indication_qualifiers"
+                        self.graph.add_edge(GraphEdge(
+                            source_id=default_pop_id,
+                            target_id=canonical_id,
+                            edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                            belief=EdgeBeliefState(),
+                            metadata={
+                                "source": source_tag,
+                                "raw_descriptor": cond,
+                            },
+                        ))
 
                 if chosen_canonical is None:
                     chosen_canonical = canonical_id
@@ -4522,22 +4499,19 @@ def ensure_parent_population(
     *,
     indication_name: str | None = None,
 ) -> str:
-    """Create (if missing) the trial's parent enrollment PopulationNode.
+    """Return the sentinel for "no parent population node".
 
-    The parent represents "all patients meeting trial enrollment criteria"
-   —used as the default subgroup_population_id when no biomarker
-    stratifier was reported.
+    Node-orthogonality redesign: an all-comers enrollment cohort carries no
+    information beyond the indication, so it gets NO PopulationNode. Chains
+    with no reported subgroup use this sentinel as their
+    ``subgroup_population_id`` (and the trial's ``parent_population_id``), which
+    makes the prediction walk skip ``responds_differently`` — the right
+    semantics for "no patient-selection signal". Real subgroups get their own
+    disease-agnostic ``{axes}`` nodes instead. Kept as a function (not inlined)
+    so both chain builders stay in sync; ``indication_name`` is now unused.
     """
-    pop_id = PopulationNode.compose_id(indication_id, [])
-    try:
-        graph.get_node(pop_id)
-    except KeyError:
-        graph.add_node(PopulationNode(
-            id=pop_id,
-            name=f"All patients ({indication_name or indication_id})",
-            defining_features=[],
-        ))
-    return pop_id
+    del graph, indication_id, indication_name
+    return _UNKNOWN
 
 
 def _lookup_chain_intervention_desc(
@@ -4790,13 +4764,15 @@ def build_trial_subgraph_from_extraction(
         ):
             continue
         subgroup_features_by_descriptor[sg.raw_descriptor] = feats
-        pop_id = PopulationNode.compose_id(indication_id, feats)
+        pop_id = PopulationNode.compose_id(feats)  # disease-agnostic {axes}
+        if pop_id is None:
+            continue  # no real axis → not a population (shouldn't happen here)
         try:
             graph.get_node(pop_id)
         except KeyError:
             graph.add_node(PopulationNode(
                 id=pop_id,
-                name=f"{sg.raw_descriptor} ({indication_name or indication_id})",
+                name=PopulationNode.display_name(feats),
                 defining_features=list(feats),
             ))
         subgroup_pop_ids[sg.raw_descriptor] = pop_id
@@ -4813,11 +4789,15 @@ def build_trial_subgraph_from_extraction(
     _set_node_description(
         graph, biology_id, getattr(extraction, "biology_description", "")
     )
-    _set_node_description(
-        graph,
-        parent_pop_id,
-        getattr(extraction, "target_population_description", ""),
-    )
+    # All-comers trials have no parent population NODE (parent_pop_id is the
+    # UNKNOWN sentinel), so there's nothing to attach the enrollment-cohort
+    # description to — skip it. Subgroup descriptions still attach below.
+    if parent_pop_id != _UNKNOWN:
+        _set_node_description(
+            graph,
+            parent_pop_id,
+            getattr(extraction, "target_population_description", ""),
+        )
     for _raw_desc, _pop_id in subgroup_pop_ids.items():
         _set_node_description(graph, _pop_id, _raw_desc)
 
@@ -5085,13 +5065,15 @@ async def seed_responds_differently_from_extractions(
                 for f in features
             ):
                 continue
-            pop_id = PopulationNode.compose_id(indication_id, features)
+            pop_id = PopulationNode.compose_id(features)  # disease-agnostic {axes}
+            if pop_id is None:
+                continue  # no real axis → not a population
             try:
                 graph.get_node(pop_id)
             except KeyError:
                 graph.add_node(PopulationNode(
                     id=pop_id,
-                    name=f"{descriptor or pop_id}",
+                    name=PopulationNode.display_name(features),
                     defining_features=list(features),
                 ))
             if not graph._graph.has_edge(  # noqa: SLF001
@@ -5176,14 +5158,15 @@ def add_subgroup_chains(
     chain_indication_id = _root_indication(indication_id)
     new_chains: list[CausalChain] = []
     for features in subgroup_features:
-        pop_id = PopulationNode.compose_id(indication_id, features)
+        pop_id = PopulationNode.compose_id(features)  # disease-agnostic {axes}
+        if pop_id is None:
+            continue  # no real axis → not a population
         try:
             graph.get_node(pop_id)
         except KeyError:
-            descriptor = ", ".join(f.raw_descriptor or f.slug() for f in features)
             graph.add_node(PopulationNode(
                 id=pop_id,
-                name=f"{descriptor} ({indication_name or indication_id})",
+                name=PopulationNode.display_name(features),
                 defining_features=list(features),
             ))
         for arm in trial_subgraph.arms:

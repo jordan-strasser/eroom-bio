@@ -552,17 +552,33 @@ class PopulationNode(BaseModel):
     description: str = ""
 
     @staticmethod
-    def compose_id(indication_id: str, features: list[SubgroupFeature]) -> str:
-        """Build a deterministic id from indication + sorted feature slugs.
+    def compose_id(features: list[SubgroupFeature]) -> str | None:
+        """Disease-AGNOSTIC population id from sorted axis slugs, or ``None``
+        when there are no subgroup-defining features.
 
-        With no features → ``{indication}__unselected`` (the parent
-        enrollment population). The sorted-slug rule means the same set of
-        features always produces the same id regardless of input order.
+        Population nodes carry patient-SELECTION axes (line/stage/extent/
+        biomarker), not the disease — so the id is just the sorted feature
+        slugs (e.g. ``line_first__stage_iii``), shared across indications; the
+        per-disease binding lives on the ``responds_differently`` edge. An
+        all-comers cohort (no features) gets NO node (returns ``None``): it
+        carries no information beyond the indication, so the chain has no
+        population dimension and ``responds_differently`` is skipped.
         """
         if not features:
-            return f"{indication_id}__unselected"
-        slugs = sorted(f.slug() for f in features)
-        return f"{indication_id}__" + "__".join(slugs)
+            return None
+        return "__".join(sorted(f.slug() for f in features))
+
+    @staticmethod
+    def display_name(features: list[SubgroupFeature]) -> str:
+        """Readable, disease-agnostic name from the axes (e.g.
+        'line: first · stage: iii'). Falls back to the slug when empty."""
+        if not features:
+            return "all comers"
+        parts = []
+        for f in sorted(features, key=lambda f: f.slug()):
+            label = f.key or f.axis
+            parts.append(f"{label}: {f.level}" if f.level else label)
+        return " · ".join(parts)
 
 
 class EndpointNode(BaseModel):
@@ -843,7 +859,11 @@ _CL_PATTERN = re.compile(r"^CL:\d{7}$")
 # {indication}__{feature_slug}[__{feature_slug}...]
 # Feature slugs may contain single underscores (e.g. "pdcd1_high",
 # "line_first"); the trivial parent population is "{indication}__unselected".
-_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)+$")
+# Disease-agnostic population ids are '__'-joined axis slugs (each slug is
+# itself 'axis_level', e.g. 'line_first'). A single axis has no '__'
+# ('line_first'); multiple axes do ('line_first__stage_iii'). So zero-or-more
+# '__' groups, not one-or-more.
+_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)*$")
 
 
 def _slugify_lower(text: str) -> str:

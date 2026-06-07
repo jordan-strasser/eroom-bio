@@ -264,7 +264,7 @@ class TestComposeWithExistingQualifiers:
                 merged.append(f)
                 seen.add(f.slug())
 
-        pop_id = PopulationNode.compose_id("melanoma", merged)
+        pop_id = PopulationNode.compose_id(merged)
         # The slug should include both regex- and LLM-derived axes.
         assert "extent_metastatic" in pop_id
         assert "stage_iv" in pop_id

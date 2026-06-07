@@ -159,7 +159,8 @@ class TestBuildTrialSubgraphs:
         assert chain.compound_id == "imatinib"
         assert chain.indication_id == "IND_001"
         assert chain.endpoint_id == "EP_001"
-        assert sg.parent_population_id == "IND_001__unselected"
+        # All-comers trial → no parent population node (disease-agnostic redesign)
+        assert sg.parent_population_id == "UNKNOWN"
 
     def test_unresolvable_trial_still_built_via_slug_fallback(self, pipeline):
         """Round-22: a trial whose conditions + outcomes don't match any
@@ -205,7 +206,8 @@ class TestBuildTrialSubgraphs:
         assert chain.target_id == "UNKNOWN"
         assert chain.mechanism_id == "UNKNOWN"
         assert chain.biology_id == "UNKNOWN"
-        assert chain.subgroup_population_id == "I1__unselected"
+        # All-comers trial → no population node; chain has no population dim
+        assert chain.subgroup_population_id == "UNKNOWN"
 
     def test_combo_arm_synthesizes_combo_compound(self, pipeline, graph):
         # A combo arm (two intervention names) gets a synthesized
@@ -1989,13 +1991,13 @@ class TestBuildTrialSubgraphFromExtraction:
         nivo_pfs_high = [
             c for c in ts.chains
             if c.arm_id == "nivo" and c.endpoint_id == "PFS_melanoma"
-            and c.subgroup_population_id == "melanoma__cd274_positive"
+            and c.subgroup_population_id == "cd274_positive"
         ]
         assert len(nivo_pfs_high) == 1 and nivo_pfs_high[0].effect_size == 0.42
         combo_os_high = [
             c for c in ts.chains
             if c.arm_id == "combo" and c.endpoint_id == "OS_melanoma"
-            and c.subgroup_population_id == "melanoma__cd274_positive"
+            and c.subgroup_population_id == "cd274_positive"
         ]
         assert len(combo_os_high) == 1 and combo_os_high[0].effect_size == 0.55
         # Cells with no reported result default to UNKNOWN outcome
@@ -2068,11 +2070,13 @@ class TestBuildTrialSubgraphFromExtraction:
         assert graph.get_node("R-HSA-389948")["description"] == (
             "T-cell exhaustion reversal in the tumor microenvironment"
         )
-        assert graph.get_node("melanoma__unselected")["description"] == (
-            "treatment-naive metastatic melanoma patients"
-        )
-        # Subgroup population carries its raw descriptor as the substrate.
-        assert graph.get_node("melanoma__cd274_positive")["description"] == "PD-L1 ≥1%"
+        # Disease-agnostic redesign: an all-comers enrollment cohort has NO
+        # parent population node, so the target_population_description has
+        # nowhere to attach (and `melanoma__unselected` does not exist).
+        with pytest.raises(KeyError):
+            graph.get_node("melanoma__unselected")
+        # Subgroup population (disease-agnostic id) carries its raw descriptor.
+        assert graph.get_node("cd274_positive")["description"] == "PD-L1 ≥1%"
 
     def test_attach_descriptions_from_extractions_production_path(self, graph, tmp_path):
         """A.0 production path: the real build creates nodes before extractions
@@ -2248,9 +2252,9 @@ class TestBuildTrialSubgraphFromExtraction:
             endpoint_ids={"OS": "OS_mel"},
         )
 
-        # No subgroup PopulationNodes created.
+        # No subgroup PopulationNodes created → all-comers → no population dim.
         pop_ids = [c.subgroup_population_id for c in ts.chains]
-        assert all(pid == "melanoma__unselected" for pid in pop_ids)
+        assert all(pid == "UNKNOWN" for pid in pop_ids)
         # No "other_*" PopulationNode leaked into the graph.
         other_pops = [
             n for n in graph._graph.nodes
@@ -2325,9 +2329,9 @@ class TestBuildTrialSubgraphFromExtraction:
             endpoint_ids={"OS": "OS_mel"},
         )
 
-        # Only the parent-population chain — no response-strata forks.
+        # Only the all-comers chain — no response-strata forks, no population dim.
         assert len(ts.chains) == 1
-        assert ts.chains[0].subgroup_population_id == "melanoma__unselected"
+        assert ts.chains[0].subgroup_population_id == "UNKNOWN"
         # And no melanoma__response_* PopulationNode created.
         response_pops = [
             n for n in graph._graph.nodes
@@ -2399,10 +2403,10 @@ class TestPopulationCoarsening:
         ]
 
         avant_parent = PopulationNode.compose_id(
-            "colorectal_cancer", _coarse_population_features(avant),
+            _coarse_population_features(avant),
         )
         c08_parent = PopulationNode.compose_id(
-            "colorectal_cancer", _coarse_population_features(c08),
+            _coarse_population_features(c08),
         )
         assert avant_parent == c08_parent
         assert "histology" not in avant_parent
@@ -2548,72 +2552,27 @@ class TestAnnotateCompoundFromOT:
         assert pipeline.graph._graph.nodes["nivolumab"]["chembl_id"] == "CHEMBL_PRESET"
 
 
-# ── Round-16: structural responds_differently for parent populations ────
+# ── Node-orthogonality redesign: all-comers cohorts get NO population ───
 
 
-class TestRespondsDifferentlyForUnselected:
-    """Round-16 architectural fix: the populator MUST create a
-    `responds_differently: {indication}__unselected → {indication}` edge
-    for every trial whose condition canonicalizes to a plain disease
-    name (no stage/biomarker qualifiers). Without this edge, the
-    round-16 always-emit classifier rule sends responds_differently
-    evidence to a non-existent edge that the attributor silently
-    drops as 'entity_not_in_trial'. Per-trial discrimination becomes
-    impossible because the contradict signal goes nowhere."""
+class TestAllComersHasNoPopulationNode:
+    """Redesign (reverses the round-16 unselected-edge behavior): an all-comers
+    cohort carries no information beyond the indication, so it gets NO
+    PopulationNode and NO responds_differently edge. ``compose_id`` returns
+    ``None``; the build sets the chain's population to the ``UNKNOWN`` sentinel
+    (asserted in TestBuildTrialSubgraphs / the subgroup-skip tests), and the
+    prediction walk skips ``responds_differently`` for ``UNKNOWN``."""
 
-    def test_source_no_longer_guards_on_qualifiers(self):
-        """Static check: the populator source must NOT contain the
-        pre-round-16 `qualifiers and ...has_edge` guard. If it does,
-        the fix has been reverted and trials with plain disease names
-        (no stage/biomarker qualifiers) will get no responds_differently
-        edge for their unselected population — classifier emissions
-        will land nowhere."""
+    def test_compose_id_none_for_all_comers(self):
+        from src.graph.models import PopulationNode
+        assert PopulationNode.compose_id([]) is None
+
+    def test_populator_no_longer_seeds_unselected_node_or_edge(self):
         from pathlib import Path
         src = Path("src/graph/populate.py").read_text()
-        assert "if qualifiers and not self.graph._graph.has_edge(" not in src, (
-            "Round-16 fix reverted: populator still guards "
-            "responds_differently creation on `qualifiers` non-empty"
-        )
-        assert "default_unselected" in src, (
-            "Round-16 metadata tag `default_unselected` missing"
-        )
-
-    def test_unselected_edge_created_in_isolation(self, pipeline):
-        """Directly exercise the populator's round-16 edge-creation
-        block on synthesized state (canonical_id + default_pop_id +
-        empty qualifiers). Bypasses the full populate_trials pipeline
-        which the test fixture can't run end-to-end (mocked LLM /
-        no OT / no CT.gov)."""
-        from src.graph.models import (
-            EdgeBeliefState as EBS, EdgeType as ET,
-            GraphEdge, IndicationNode, PopulationNode,
-        )
-        canonical_id = "melanoma"
-        default_pop_id = "melanoma__unselected"
-        qualifiers: list = []  # the plain-disease case
-
-        pipeline.graph.add_node(IndicationNode(id=canonical_id, name="melanoma"))
-        pipeline.graph.add_node(PopulationNode(
-            id=default_pop_id, name="All patients (melanoma)",
-            defining_features=list(qualifiers),
-        ))
-
-        # Mirror the populator's round-16 block (unconditional `if not`).
-        if not pipeline.graph._graph.has_edge(  # noqa: SLF001
-            default_pop_id, canonical_id,
-            key=ET.RESPONDS_DIFFERENTLY.value,
-        ):
-            pipeline.graph.add_edge(GraphEdge(
-                source_id=default_pop_id, target_id=canonical_id,
-                edge_type=ET.RESPONDS_DIFFERENTLY,
-                belief=EBS(alpha=1.5, beta=1.0),
-                metadata={"source": "default_unselected"},
-            ))
-
-        assert pipeline.graph._graph.has_edge(  # noqa: SLF001
-            "melanoma__unselected", "melanoma",
-            key=ET.RESPONDS_DIFFERENTLY.value,
-        )
+        # The pre-redesign all-comers metadata tag is gone — all-comers
+        # cohorts no longer get a node or a responds_differently edge.
+        assert "default_unselected" not in src
 
 
 # ── Round-18 followup: codename → INN canonicalization at populate ─────
