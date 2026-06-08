@@ -55,6 +55,22 @@ NON_GENE_AXES: dict[str, list[str]] = {
     # the dev-log audit surfaced HAHA-positive / HAHA-negative / ADA
     # entries that were dropping to axis="other".
     "antibody_status": ["positive", "negative", "unknown"],
+    # Multi-indication (non-onco) cohort definers. disease activity/severity
+    # (RA active, UC moderate-severe, "in remission") and functional class
+    # (ACR / NYHA I–IV) are the primary patient-selection axes outside
+    # oncology, where line/stage rarely apply.
+    "severity": ["mild", "moderate", "severe", "active", "remission", "unknown"],
+    "functional_class": ["i", "ii", "iii", "iv", "unknown"],
+}
+
+# Canonical levels for the open-vocab non-gene ``biomarker`` axis (RF,
+# anti-CCP, LVEF, HbA1c, CRP, …). Key is the free marker slug; level is a
+# direction, mirroring the gene axis's positive/negative collapse.
+BIOMARKER_LEVELS: set[str] = {"positive", "negative", "high", "low", "unknown"}
+_BIOMARKER_LEVEL_SYNONYMS: dict[str, str] = {
+    "elevated": "high", "raised": "high", "reduced": "low", "decreased": "low",
+    "present": "positive", "absent": "negative", "seropositive": "positive",
+    "seronegative": "negative",
 }
 
 
@@ -258,6 +274,18 @@ def canonicalize_feature(
             axis="gene", key=key, level=level_out, raw_descriptor=descriptor,
         )
 
+    if axis == "biomarker":
+        # Open-vocab NON-gene marker (RF, anti-CCP, LVEF, HbA1c, CRP, …). Free
+        # key slug + a direction level (positive/negative/high/low). Unlike the
+        # gene axis there's no HUGO gate — these aren't genes.
+        key = re.sub(r"[^a-z0-9]+", "_", key_raw.lower()).strip("_")
+        lvl = _BIOMARKER_LEVEL_SYNONYMS.get(level, level)
+        if key and lvl in BIOMARKER_LEVELS:
+            return SubgroupFeature(
+                axis="biomarker", key=key, level=lvl, raw_descriptor=descriptor,
+            )
+        return _other(axis_raw, level_raw, descriptor)
+
     if axis in NON_GENE_AXES:
         # Resolve common short-forms before membership check so "CR" /
         # "PR" / "SD" / "PD" land on the canonical level.
@@ -332,6 +360,10 @@ def vocabulary_for_prompt() -> str:
     lines.append(
         "  " + ", ".join(sorted(GENE_LEVELS))
         + ", or a specific variant like G12C / V600E / T790M"
+    )
+    lines.append(
+        "axis='biomarker'—key=NON-gene marker name (RF, anti_ccp, lvef, hba1c, "
+        "crp, esr); level one of: " + ", ".join(sorted(BIOMARKER_LEVELS))
     )
     lines.append("")
     for axis, levels in NON_GENE_AXES.items():

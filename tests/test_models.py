@@ -257,6 +257,44 @@ class TestPopulationNode:
             == PopulationNode.compose_id(feats_b)
         )
 
+    def test_describe_is_disease_agnostic_natural_language(self):
+        from src.graph.models import SubgroupFeature
+        # The axes render to a clinical-state sentence — never a disease (the
+        # BioLORD substrate for a node shared across indications).
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="line", level="first"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]) == "Patients with first-line therapy, stage III disease."
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="extent", level="locally_advanced"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+        ]) == "Patients with locally advanced disease, adjuvant treatment."
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="gene", key="CD274", level="positive"),
+        ]) == "Patients with CD274 positive."
+
+    def test_describe_order_independent_and_empty(self):
+        from src.graph.models import SubgroupFeature
+        a = [SubgroupFeature(axis="stage", level="iv"),
+             SubgroupFeature(axis="line", level="second")]
+        b = [SubgroupFeature(axis="line", level="second"),
+             SubgroupFeature(axis="stage", level="iv")]
+        assert PopulationNode.describe(a) == PopulationNode.describe(b)
+        assert PopulationNode.describe([]) == ""  # all-comers ⇒ no node, no text
+
+    def test_describe_never_contains_a_disease_name(self):
+        # Regression guard for the stuck-description bug: a population built from
+        # axes alone must not embed a disease (it's shared across indications).
+        from src.graph.models import SubgroupFeature
+        feats = [
+            SubgroupFeature(axis="extent", level="metastatic",
+                            raw_descriptor="metastatic breast cancer"),
+            SubgroupFeature(axis="line", level="first"),
+        ]
+        desc = PopulationNode.describe(feats).lower()
+        for disease_word in ("breast", "cancer", "melanoma", "nsclc", "carcinoma"):
+            assert disease_word not in desc
+
 
 class TestEndpointNode:
     def test_create(self):

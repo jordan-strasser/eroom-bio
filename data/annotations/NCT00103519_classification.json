@@ -1,0 +1,26 @@
+{
+  "nct_id": "NCT00103519",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to assess whether DITPA engaged thyroid hormone receptor. 2. PATHWAY MODULATION: No pathway biomarkers measured to determine if receptor engagement led to downstream signaling changes. 3. CLINICAL TRANSLATION: Primary endpoint was safety/tolerability, not efficacy. Study was terminated for reasons unrelated to safety or efficacy before completion. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Study was terminated early for administrative/commercial reasons unrelated to the scientific hypothesis, preventing any meaningful assessment of the mechanistic chain.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Study terminated for reasons unrelated to safety or efficacy according to investigator commentary"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_safety_tolerability_ditpa",
+      "target_entity": "congestive_heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Safety/tolerability endpoint was measured but provides no information about clinical benefit translation for heart failure"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

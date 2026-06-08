@@ -40,6 +40,16 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
     ("subgroup_population_id", "indication_id", EdgeType.RESPONDS_DIFFERENTLY),
 ]
 
+# Every edge type the prediction CONSUMES along/around the chain. The populator
+# must PRODUCE each of these — a type consumed here but instantiated by no
+# producer is a phantom edge (the reflects_biology gap: defined + walked by the
+# attributor + in the field EDGE_SPECS, but created by no populate method, so it
+# never carried a belief). ``build_graph`` checks this set is non-empty per type
+# on every build so the gap can't silently reopen.
+CONSUMED_BACKBONE_EDGE_TYPES: frozenset[EdgeType] = frozenset(
+    {et for *_, et in _CAUSAL_CHAIN} | {et for *_, et in _AUXILIARY_EDGES}
+)
+
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
 

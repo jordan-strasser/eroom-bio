@@ -174,6 +174,13 @@ _DISEASE_SLUG_ALIASES: dict[str, str] = {
     "endometrial_adenocarcinoma": "endometrial_cancer",
     "ovarian_adenocarcinoma": "ovarian_cancer",
     "renal_cell_adenocarcinoma": "renal_cell_carcinoma",
+    # "Crohns Disease" (apostrophe already dropped, 's' attached) → the canonical
+    # crohn_disease. The apostrophe form "Crohn's" is handled upstream by the
+    # generic possessive-'s strip in slugify_disease_name; this catches only the
+    # attached-'s' phrasing that strip can't see.
+    "crohns_disease": "crohn_disease",
+    # Classic clinical synonym: congestive heart failure IS heart failure.
+    "congestive_heart_failure": "heart_failure",
 }
 
 
@@ -285,6 +292,14 @@ def slugify_disease_name(raw: str) -> str:
     The result is used as the canonical IndicationNode id.
     """
     cleaned = re.sub(r"[^a-zA-Z0-9]+", "_", raw.strip().lower()).strip("_")
+    # Strip the possessive 's that "Crohn's" / "Alzheimer's" / "Parkinson's"
+    # leave as a standalone "_s_" (or trailing "_s") token, so possessive and
+    # non-possessive CT.gov phrasings of the SAME disease canonicalize together
+    # ("Alzheimer's Disease" + "Alzheimer Disease" → alzheimer_disease) instead
+    # of fragmenting into two IndicationNodes. Only a lone 's' token between
+    # separators matches — words ending in 's' ("multiple_sclerosis",
+    # "diabetes") are untouched.
+    cleaned = re.sub(r"_s(?=_|$)", "", cleaned)
     # Plural → singular for uncountable disease nouns. Order matters:
     # 'metastases' must be caught before the generic '_s' strip.
     plural_rewrites = [

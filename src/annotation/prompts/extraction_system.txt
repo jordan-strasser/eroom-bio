@@ -143,6 +143,9 @@ axis="performance"—ECOG/Karnofsky performance status. level ∈ {good, poor, u
 axis="age"—age band. level ∈ {pediatric, adult, elderly, unknown}.
 axis="signature"—non-gene molecular signatures. level ∈ {msi_high, mss, tmb_high, tmb_low, hrd, unknown}.
 axis="response"—RECIST best-response strata, when the trial reports per-response-category subgroup outcomes (e.g. "subjects who achieved CR vs PD"). level ∈ {complete_response, partial_response, stable_disease, progressive_disease, responder, non_responder, unknown}. Use the long form (e.g. "complete_response") not the short form (e.g. "CR").
+axis="biomarker"—NON-gene stratifying markers (use this, NOT axis="gene", when the marker isn't a HUGO gene/protein): serological (rheumatoid factor/RF, anti-CCP, ANA), functional/physiologic (LVEF, ejection fraction, eGFR), metabolic (HbA1c, LDL), inflammatory (CRP, ESR). key = short marker name (rf, anti_ccp, lvef, hba1c, crp); level ∈ {positive, negative, high, low, unknown}. e.g. "RF Positive" → key=rf, level=positive; "LVEF < 40%" → key=lvef, level=low.
+axis="severity"—disease activity / severity (the primary non-onco stratifier — RA "active disease", UC "moderately-to-severely active", "in remission"). level ∈ {mild, moderate, severe, active, remission, unknown}.
+axis="functional_class"—ACR or NYHA functional class. level ∈ {i, ii, iii, iv, unknown}.
 axis="other"—anything that doesn't fit. Preserve the raw descriptor in `raw_descriptor` and use `level` for a brief slug.
 
 A subgroup may have multiple features (e.g. PD-L1 high AND first-line)—list each as a separate object in `features`.

@@ -962,12 +962,16 @@ class TestNonOncologyCanonicalization:
         ("Rheumatoid Arthritis",            "rheumatoid_arthritis"),
         ("Systemic Lupus Erythematosus",    "systemic_lupus_erythematosus"),
         ("Ulcerative Colitis",              "ulcerative_colitis"),
-        ("Crohn's Disease",                 "crohn_s_disease"),
+        # Possessive 's is stripped so "Crohn's"/"Crohn"/"Crohns" all canonicalize
+        # to one node (prevents IndicationNode fragmentation).
+        ("Crohn's Disease",                 "crohn_disease"),
         ("Psoriasis",                       "psoriasis"),
-        # Neurology — plurals collapse via the singular rule.
+        # Neurology — plurals collapse via the singular rule; possessive 's is
+        # stripped so Alzheimer's/Parkinson's don't fragment from their MeSH
+        # (non-possessive) forms.
         ("Multiple Sclerosis",              "multiple_sclerosis"),
-        ("Parkinson's Disease",             "parkinson_s_disease"),
-        ("Alzheimer's Disease",             "alzheimer_s_disease"),
+        ("Parkinson's Disease",             "parkinson_disease"),
+        ("Alzheimer's Disease",             "alzheimer_disease"),
         # Infectious — chronic / acute qualifiers handled by LLM step,
         # but slug normalization on the disease name itself works.
         ("Hepatitis B",                     "hepatitis_b"),
@@ -2075,8 +2079,12 @@ class TestBuildTrialSubgraphFromExtraction:
         # nowhere to attach (and `melanoma__unselected` does not exist).
         with pytest.raises(KeyError):
             graph.get_node("melanoma__unselected")
-        # Subgroup population (disease-agnostic id) carries its raw descriptor.
-        assert graph.get_node("cd274_positive")["description"] == "PD-L1 ≥1%"
+        # Subgroup population (disease-agnostic id) carries a deterministic,
+        # disease-agnostic description from its axes — NOT the trial's raw
+        # descriptor (which is preserved as responds_differently edge
+        # provenance instead). The node embeds in clinical-state space, shared
+        # across indications.
+        assert graph.get_node("cd274_positive")["description"] == "Patients with CD274 positive."
 
     def test_attach_descriptions_from_extractions_production_path(self, graph, tmp_path):
         """A.0 production path: the real build creates nodes before extractions
@@ -2116,14 +2124,16 @@ class TestBuildTrialSubgraphFromExtraction:
         }))
 
         n = attach_node_descriptions_from_extractions(graph, tmp_path)
-        # mechanism + biology + parent pop (chain 1) + subgroup pop (chain 2);
-        # mech/bio dedup across the two chains (first-non-empty-wins).
-        assert n == 4
+        # mechanism + biology ONLY (deduped across the two chains). Populations
+        # are disease-agnostic and shared across indications, so attach no longer
+        # smears a trial's disease-naming target_population onto them — they get a
+        # deterministic PopulationNode.describe(features) at creation instead.
+        assert n == 2
         assert graph.get_node("kinase_inhibition")["description"] == "EGFR tyrosine kinase inhibition"
         assert graph.get_node("R-HSA-1")["description"] == "blocking proliferative signaling"
-        assert graph.get_node("nsclc__unselected")["description"] == "EGFR-mutant NSCLC patients"
-        # subgroup pop falls back to its own (descriptor-bearing) name
-        assert graph.get_node("nsclc__egfr_mutant")["description"] == "EGFR mutant (nsclc)"
+        # attach leaves population nodes untouched (no disease text smeared on)
+        assert not graph.get_node("nsclc__unselected").get("description")
+        assert not graph.get_node("nsclc__egfr_mutant").get("description")
 
     def test_attach_descriptions_prefers_per_intervention_for_combo(self, graph, tmp_path):
         """Combo-arm biology fix: two constituents of one arm get DISTINCT
@@ -2573,6 +2583,66 @@ class TestAllComersHasNoPopulationNode:
         # The pre-redesign all-comers metadata tag is gone — all-comers
         # cohorts no longer get a node or a responds_differently edge.
         assert "default_unselected" not in src
+
+
+class TestReflectsBiologyEdges:
+    """The biology→endpoint REFLECTS_BIOLOGY backbone edge must be instantiated
+    (it was a phantom: referenced by the predictor's auxiliary edges, the
+    attributor's conditioning walk, and the (s,t) field EDGE_SPECS, but created by
+    no populate method, so it never materialized)."""
+
+    def _graph_with_chain(self, endpoint_id):
+        from src.graph.models import (
+            BiologyNode, EndpointNode, EndpointType, RegulatoryStatus,
+            CausalChain, TrialSubgraph,
+        )
+        from src.graph.populate import _UNKNOWN
+        g = GraphStore()
+        g.add_node(BiologyNode(id="bio:1", name="angiogenesis"))
+        if endpoint_id != _UNKNOWN:
+            g.add_node(EndpointNode(
+                id=endpoint_id, name=endpoint_id,
+                endpoint_type=EndpointType.PRIMARY,
+                regulatory_status=RegulatoryStatus.ACCEPTED,
+            ))
+        g.set_trial_subgraph(TrialSubgraph(
+            trial_id="NCT1", parent_population_id=_UNKNOWN,
+            chains=[CausalChain(
+                arm_id="a", compound_id="c", subgroup_population_id=_UNKNOWN,
+                target_id="t", mechanism_id="m", biology_id="bio:1",
+                indication_id="ind", endpoint_id=endpoint_id,
+            )],
+        ))
+        return g
+
+    def test_creates_edge_and_is_idempotent(self):
+        from src.graph.models import EdgeType
+        from src.graph.populate import ensure_reflects_biology_edges
+        g = self._graph_with_chain("PFS")
+        assert ensure_reflects_biology_edges(g) == 1
+        assert g._graph.has_edge("bio:1", "PFS", key=EdgeType.REFLECTS_BIOLOGY.value)
+        assert ensure_reflects_biology_edges(g) == 0  # idempotent
+
+    def test_skips_unknown_endpoint(self):
+        from src.graph.populate import ensure_reflects_biology_edges, _UNKNOWN
+        g = self._graph_with_chain(_UNKNOWN)
+        assert ensure_reflects_biology_edges(g) == 0  # no edge for placeholder
+
+    def test_consumed_backbone_matches_field_edge_specs(self):
+        """Phantom-edge drift guard: the edge types the prediction CONSUMES must
+        be exactly the ones the (s,t) field materializes. If they diverge, an
+        edge type can be consumed but never produced/materialized (the
+        reflects_biology gap). Pair with the build-time presence warning in
+        build_graph (which catches a missing PRODUCER) — this catches consumer
+        drift statically."""
+        from src.prediction.path_query import CONSUMED_BACKBONE_EDGE_TYPES
+        from scripts.materialize_belief_field import EDGE_SPECS
+        consumed = {et.value for et in CONSUMED_BACKBONE_EDGE_TYPES}
+        field = {et.value for et in EDGE_SPECS}
+        assert consumed == field, (
+            f"prediction/field backbone mismatch: only-consumed={consumed - field}, "
+            f"only-field={field - consumed} — a phantom-edge risk."
+        )
 
 
 # ── Round-18 followup: codename → INN canonicalization at populate ─────

@@ -235,9 +235,12 @@ class TestExtractPopulationFeaturesWithLLM:
             client=client, cache_path=cache_path,
         )
         assert feats == []
-        # Cache stores empty list so we don't retry the same broken response.
+        # Cache stores the {features, eligibility_labs} entry so we don't retry the
+        # same broken response. Key is version-namespaced (prompt-version prefix) so
+        # a prompt bump regenerates instead of returning stale features.
+        from src.graph.population_features import _PROMPT_VERSION
         cached = json.loads(cache_path.read_text())
-        assert cached["NCT_TEST"] == []
+        assert cached[f"{_PROMPT_VERSION}:NCT_TEST"] == {"features": [], "eligibility_labs": []}
 
 
 # ── Integration: composing into PopulationNode.compose_id ───────────────

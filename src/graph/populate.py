@@ -67,6 +67,7 @@ from src.ingestion.clinicaltrials import (
     map_trial_to_graph_nodes,
     split_combo_regimen as _split_combo_regimen,
     strip_parenthetical_brand as _strip_parenthetical_brand,
+    strip_placebo_constituents,
 )
 
 
@@ -151,6 +152,16 @@ _DEFAULT_POPULATION_AXES: frozenset[str] = frozenset({
     "stage",    # cancer staging — i / ii / iii / iv
     "extent",   # disease spread — metastatic / unresectable / advanced / …
     "setting",  # treatment context — adjuvant / neoadjuvant / maintenance
+    # Non-onco load-bearing axes (multi-indication). These ARE the parent-
+    # cohort definers outside oncology (where line/stage/extent rarely apply):
+    # disease activity/severity (RA active, UC moderate-severe), non-gene
+    # biomarker status (RF, anti-CCP, LVEF, HbA1c), and functional class
+    # (ACR/NYHA I–IV). Safe for onco — onco emits gene-biomarker (axis="gene",
+    # stays demoted) and never severity/functional_class, so onco parents are
+    # unchanged; this only un-demotes the axes that define non-onco cohorts.
+    "severity",
+    "biomarker",
+    "functional_class",
 })
 
 
@@ -823,6 +834,36 @@ def _is_noncanonical_compound_name(
     return False
 
 
+# Biology descriptions the extractor emits for CONTROL / comparator arms. These
+# are NOT physiological processes — a placebo has no biology the drug drives — so
+# they must never content-address into a Biology node (that's how the spurious
+# "no active intervention" node, fed by a placebo arm whose label name-matched the
+# real drug, got in). build_arms now drops pure-placebo arms upstream; this is the
+# defense-in-depth guard for any control arm that reaches the biology step via a
+# non-placebo label.
+_CONTROL_BIOLOGY_SENTINELS: frozenset[str] = frozenset({
+    "no active intervention", "no active treatment", "no active comparator",
+    "no treatment", "no intervention", "placebo", "placebo control",
+    "placebo only", "control", "control arm", "usual care", "standard of care",
+    "best supportive care", "supportive care", "observation", "observation only",
+    "watchful waiting", "sham", "no therapy", "none", "not applicable", "n/a",
+})
+
+
+def _is_control_biology_sentinel(desc: str) -> bool:
+    """True when a biology description is a control/comparator sentinel rather
+    than a real physiological process (so it must not become a Biology node)."""
+    d = (desc or "").strip().lower()
+    if not d:
+        return False
+    if d in _CONTROL_BIOLOGY_SENTINELS:
+        return True
+    return any(
+        s in d
+        for s in ("no active intervention", "placebo control", "no active treatment")
+    )
+
+
 _CELL_THERAPY_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
     # Patterns are matched via `_norm_for_pattern_match`: hyphens,
     # underscores, and runs of whitespace all collapse to single space,
@@ -1292,6 +1333,7 @@ class PopulationPipeline:
                             id=default_pop_id,
                             name=PopulationNode.display_name(parent_features),
                             defining_features=list(parent_features),
+                            description=PopulationNode.describe(parent_features),
                         ))
                     # responds_differently: enrollment-cohort population →
                     # indication. The trial's eligibility axes are a real
@@ -1867,6 +1909,12 @@ class PopulationPipeline:
             # legacy cached slug so pre-gate caches are cleaned up on read.
             if not slug or is_nondisease_condition(slug):
                 return "", ""
+            # Re-apply slugify_disease_name to the cached slug so the alias table
+            # + plural normalization always take effect — even on slugs cached
+            # BEFORE an alias was added (e.g. legacy "prostate_adenocarcinoma"
+            # now folds to "prostate_cancer"). Without this, stale cache entries
+            # bypass the aliases and fragment a disease into two IndicationNodes.
+            slug = slugify_disease_name(slug)
             return slug, name or slug.replace("_", " ")
 
         if self._anthropic is None:
@@ -3461,6 +3509,14 @@ class PopulationPipeline:
                 # biology UNRESOLVED (``_UNKNOWN``, tagged for audit) rather than
                 # synthesizing a {mech}__{indication} slug. Cross-trial
                 # consolidation is the downstream BioLORD description merge.
+                # Defense-in-depth: a control/comparator arm's biology may be a
+                # sentinel ("no active intervention", "placebo control") rather
+                # than a physiological process. Never content-address such a
+                # sentinel into a Biology node — drop the description so biology
+                # falls through to UNRESOLVED below.
+                if _is_control_biology_sentinel(bio_desc):
+                    bio_desc = ""
+
                 if not bio_desc:
                     md = dict(chain.metadata)
                     md["unresolved_biology"] = True
@@ -4362,13 +4418,25 @@ def build_arms(
             # Same helper is used by `map_trial_to_graph_nodes` so both
             # populator code paths agree on the canonical name.
             for canonical in canonical_compound_names(iv_name):
+                # Drop pure placebo/sham/vehicle constituents — the patient
+                # receives no active molecule, so this is a CONTROL arm with no
+                # mechanistic chain. Without this, a placebo arm whose label
+                # carries the drug name ("Double-blind adalimumab placebo")
+                # name-matches the real drug and builds a spurious chain whose
+                # biology is the sentinel "no active intervention". A double-
+                # dummy/add-on arm keeps its real drug, since the helper only
+                # strips the placebo constituent ("infliximab; AZA placebo" →
+                # "infliximab"). An arm left with no real drug is skipped below.
+                real = strip_placebo_constituents(canonical)
+                if real is None:
+                    continue
                 cid = (
-                    resolve_compound(canonical, "compound")
+                    resolve_compound(real, "compound")
                     if resolve_compound is not None
                     else None
                 )
                 if not cid:
-                    cid = normalize_entity(canonical, "InterventionNode")
+                    cid = normalize_entity(real, "InterventionNode")
                 compound_ids.append(cid)
 
         # Drop duplicates while preserving order—some trials list the same
@@ -4516,6 +4584,94 @@ def ensure_parent_population(
     """
     del graph, indication_id, indication_name
     return _UNKNOWN
+
+
+def ensure_reflects_biology_edges(graph: GraphStore) -> int:
+    """Create the biology→endpoint REFLECTS_BIOLOGY backbone edge for every chain
+    with both a real biology and endpoint node.
+
+    REFLECTS_BIOLOGY ("the endpoint MEASURES this biology") is a claim distinct
+    from BIOLOGY_DRIVES ("the biology helps the disease") and ENDPOINT_CAPTURES
+    ("the endpoint predicts the disease") — it is measurement validity. Every
+    consumer already references it: the predictor's auxiliary edges
+    (``path_query._AUXILIARY_EDGES``), the attributor's conditioning walk
+    (``_chain_backbone_edges``), and the (s,t) field's ``EDGE_SPECS``. But the
+    populator builds the backbone across many per-role methods and none
+    instantiated THIS edge, so it was a phantom — defined everywhere, created
+    nowhere, hence never materialized into a field belief.
+
+    Path-independent post-pass over the ASSEMBLED graph's chains (run AFTER merge,
+    so it uses final node ids) and BEFORE attribution (the attributor only updates
+    edges that already exist). Seeded Beta(1,1) (uninformative) like
+    RESPONDS_DIFFERENTLY; attribution then conditions it on each arm's outcome.
+    Idempotent; UNKNOWN endpoints get no edge. Returns the number of edges added.
+    """
+    created = 0
+    for ts in graph.trial_subgraphs.values():
+        for ch in ts.chains:
+            bio_id, ep_id = ch.biology_id, ch.endpoint_id
+            if not bio_id or not ep_id or bio_id == _UNKNOWN or ep_id == _UNKNOWN:
+                continue
+            if graph._graph.has_edge(  # noqa: SLF001
+                bio_id, ep_id, key=EdgeType.REFLECTS_BIOLOGY.value,
+            ):
+                continue
+            graph.add_edge(GraphEdge(
+                source_id=bio_id,
+                target_id=ep_id,
+                edge_type=EdgeType.REFLECTS_BIOLOGY,
+                belief=EdgeBeliefState(),
+                metadata={"source": "chain_backbone", "trial_id": ts.trial_id},
+            ))
+            created += 1
+    return created
+
+
+def populate_chain_descriptions(graph: GraphStore, annotations_dir: Path) -> int:
+    """Stamp each chain's OWN per-drug descriptions onto the chain in the graph,
+    so the edge-view / debug UI can show per-contributor (s,t) provenance by
+    READING the graph (no annotation re-derivation at view time).
+
+    Per chain: the per-(arm, intervention) description for THIS chain's compound
+    (combo-arm correct — a paclitaxel chain keeps "mitotic arrest", not its
+    neighbor's "angiogenesis inhibition") via :func:`_lookup_chain_intervention_desc`,
+    falling back to the per-arm first-non-empty desc. Run at build AFTER merge
+    (final ids). This is PROVENANCE; the (s,t) FIELD localizes by node concept
+    (``field_prediction.build_st_desc_map``), independent of these. Idempotent
+    (skips a chain field that's already set). Returns the number of chains updated.
+    """
+    from src.graph.box_embeddings import (
+        chain_descriptions_by_arm,
+        chain_descriptions_by_arm_intervention,
+    )
+
+    by_arm = chain_descriptions_by_arm(str(annotations_dir))
+    by_arm_iv = chain_descriptions_by_arm_intervention(str(annotations_dir))
+    updated = 0
+    for tid, ts in list(graph.trial_subgraphs.items()):
+        new_chains = []
+        changed = False
+        for ch in ts.chains:
+            iv = _lookup_chain_intervention_desc(graph, by_arm_iv, tid, ch)
+            arm = by_arm.get((tid, ch.arm_id), {})
+            upd = {}
+            for fld, key in (
+                ("mechanism_description", "mechanism"),
+                ("biology_description", "biology"),
+                ("population_description", "population"),
+            ):
+                val = ((iv.get(key) if iv else "") or arm.get(key, "")).strip()
+                if val and not getattr(ch, fld, ""):
+                    upd[fld] = val
+            if upd:
+                new_chains.append(ch.model_copy(update=upd))
+                changed = True
+                updated += 1
+            else:
+                new_chains.append(ch)
+        if changed:
+            graph.trial_subgraphs[tid] = ts.model_copy(update={"chains": new_chains})
+    return updated
 
 
 # Over-generic "diseases" that must NOT become SUBTYPE_OF parents — they create
@@ -4712,9 +4868,13 @@ def attach_node_descriptions_from_extractions(
         trial's ``proposed_mechanism``
       - Biology node   ← per-(arm, intervention) biology_description, else the
         trial's ``intended_biology``
-      - Parent population ← the trial's ``target_population``
-      - Subgroup population ← its own node name (already encodes the
-        descriptor; richer trial-contextualized text is the deferred A.0b)
+
+    Population nodes are NOT described here: they are disease-agnostic and shared
+    across indications, so a trial's (disease-naming) ``target_population`` would
+    smear one disease's cohort text onto a shared node like ``line_first``. They
+    get a deterministic ``PopulationNode.describe(features)`` at creation instead;
+    the per-trial cohort phrasing survives as ``responds_differently`` edge
+    ``raw_descriptor`` provenance.
 
     Returns the number of node descriptions set.
     """
@@ -4737,7 +4897,6 @@ def attach_node_descriptions_from_extractions(
         hyp = data.get("therapeutic_hypothesis") or {}
         trial_mech_desc = (hyp.get("proposed_mechanism") or "").strip()
         trial_bio_desc = (hyp.get("intended_biology") or "").strip()
-        parent_pop_desc = (hyp.get("target_population") or "").strip()
         for chain in ts.chains:
             iv_entry = _lookup_chain_intervention_desc(
                 graph, desc_by_arm_iv, nct_id, chain,
@@ -4750,15 +4909,6 @@ def attach_node_descriptions_from_extractions(
             )
             set_count += _set_node_description(graph, chain.mechanism_id, mech_desc)
             set_count += _set_node_description(graph, chain.biology_id, bio_desc)
-            pop_id = chain.subgroup_population_id
-            if pop_id == ts.parent_population_id:
-                pop_desc = parent_pop_desc
-            else:
-                try:
-                    pop_desc = graph.get_node(pop_id).get("name", "") or ""
-                except KeyError:
-                    pop_desc = ""
-            set_count += _set_node_description(graph, pop_id, pop_desc)
     return set_count
 
 
@@ -4877,6 +5027,7 @@ def build_trial_subgraph_from_extraction(
                 id=pop_id,
                 name=PopulationNode.display_name(feats),
                 defining_features=list(feats),
+                description=PopulationNode.describe(feats),
             ))
         subgroup_pop_ids[sg.raw_descriptor] = pop_id
 
@@ -4892,17 +5043,14 @@ def build_trial_subgraph_from_extraction(
     _set_node_description(
         graph, biology_id, getattr(extraction, "biology_description", "")
     )
-    # All-comers trials have no parent population NODE (parent_pop_id is the
-    # UNKNOWN sentinel), so there's nothing to attach the enrollment-cohort
-    # description to — skip it. Subgroup descriptions still attach below.
-    if parent_pop_id != _UNKNOWN:
-        _set_node_description(
-            graph,
-            parent_pop_id,
-            getattr(extraction, "target_population_description", ""),
-        )
-    for _raw_desc, _pop_id in subgroup_pop_ids.items():
-        _set_node_description(graph, _pop_id, _raw_desc)
+    # Population nodes are DISEASE-AGNOSTIC and shared across indications, so
+    # their description must NOT come from a trial's raw cohort text (which names
+    # the disease — "stage II/III bladder cancer" — and would place a shared
+    # node like ``line_first`` in one disease's embedding space). They get a
+    # deterministic ``PopulationNode.describe(features)`` at node creation
+    # instead; the disease binding lives on the ``responds_differently`` edge's
+    # indication target, and the per-trial cohort phrasing is preserved as edge
+    # ``raw_descriptor`` provenance. So no population description attach here.
 
     # Index per-chain results by (arm_id, pop_id, endpoint_class).
     # Multiple raw descriptors may collapse onto the same canonical pop_id
@@ -5178,6 +5326,7 @@ async def seed_responds_differently_from_extractions(
                     id=pop_id,
                     name=PopulationNode.display_name(features),
                     defining_features=list(features),
+                    description=PopulationNode.describe(features),
                 ))
             if not graph._graph.has_edge(  # noqa: SLF001
                 pop_id, indication_id, key=EdgeType.RESPONDS_DIFFERENTLY.value,
@@ -5271,6 +5420,7 @@ def add_subgroup_chains(
                 id=pop_id,
                 name=PopulationNode.display_name(features),
                 defining_features=list(features),
+                description=PopulationNode.describe(features),
             ))
         for arm in trial_subgraph.arms:
             new_chains.append(CausalChain(

@@ -35,7 +35,6 @@ import json
 from pathlib import Path
 
 from src.boundary import private_root
-from src.graph.box_embeddings import chain_descriptions_by_arm
 from src.graph.models import EdgeBeliefState, EdgeType
 from src.graph.store import GraphStore
 from src.inference.belief_field import (
@@ -85,9 +84,6 @@ EDGE_SPECS = {
     EdgeType.ENDPOINT_CAPTURES: ("endpoint_id", "indication_id", "node", "node"),
     EdgeType.RESPONDS_DIFFERENTLY: ("subgroup_population_id", "indication_id", "population", "node"),
 }
-_PER_ARM = {"mechanism", "biology", "population"}
-
-
 def _node_desc(g, node_id: str) -> str:
     try:
         nd = g.get_node(node_id)
@@ -96,31 +92,24 @@ def _node_desc(g, node_id: str) -> str:
     return (nd.get("description") or nd.get("name") or "").strip()
 
 
-def _chain_st_pairs(
-    g, by_arm, et, src_id, tgt_id,
-) -> dict[str, list[tuple[str, str]]]:
-    """``nct -> [distinct (s_desc, t_desc) pairs]`` for the chains of each trial
-    that traverse this edge. Per-arm endpoints (mechanism/biology/population) use
-    the arm's A.0b description (so two trials' evidence on the same edge stays
-    separable); fixed endpoints use the node's own description."""
-    s_attr, t_attr, s_src, t_src = EDGE_SPECS[et]
-    s_node = _node_desc(g, src_id) if s_src not in _PER_ARM else None
-    t_node = _node_desc(g, tgt_id) if t_src not in _PER_ARM else None
+def _chain_st_pairs(g, et, src_id, tgt_id) -> dict[str, list[tuple[str, str]]]:
+    """``nct -> [(s_desc, t_desc)]`` for the trials whose chains traverse this
+    edge. The (s,t) coordinate is the edge's source/target NODE descriptions
+    (read from the graph) — so every trial on the edge localizes at the same
+    concept point, which is combo-SAFE: the chain points to its per-drug nodes
+    (paclitaxel → "mitotic arrest"), so a combo arm's neighbor can't lend its
+    description. Replaces the prior per-arm A.0b lookup, which stamped a combo
+    arm's first-listed drug onto every chain in the arm (28% mis-attributed)."""
+    s_attr, t_attr, _s_src, _t_src = EDGE_SPECS[et]
+    s_desc, t_desc = _node_desc(g, src_id), _node_desc(g, tgt_id)
+    if not s_desc or not t_desc:
+        return {}
     out: dict[str, list[tuple[str, str]]] = {}
     for nct, ts in g.trial_subgraphs.items():
-        seen: set[tuple[str, str]] = set()
         for ch in ts.chains:
-            if getattr(ch, s_attr) != src_id or getattr(ch, t_attr) != tgt_id:
-                continue
-            d = by_arm.get((nct, ch.arm_id), {})
-            s_desc = d.get(s_src, "") if s_src in _PER_ARM else s_node
-            t_desc = d.get(t_src, "") if t_src in _PER_ARM else t_node
-            if not s_desc or not t_desc:
-                continue
-            pair = (s_desc, t_desc)
-            if pair not in seen:
-                seen.add(pair)
-                out.setdefault(nct, []).append(pair)
+            if getattr(ch, s_attr) == src_id and getattr(ch, t_attr) == tgt_id:
+                out[nct] = [(s_desc, t_desc)]
+                break
     return out
 
 
@@ -140,7 +129,6 @@ def materialize_field(
 
     g = GraphStore()
     g.import_snapshot(graph_path)
-    by_arm = chain_descriptions_by_arm(annotations_dir)  # per-(nct,arm) A.0b descs
     emb_cache: dict[str, list[float]] = {}
 
     # Pre-embed every (s,t) description the localization below will request, in
@@ -154,7 +142,7 @@ def materialize_field(
             belief = EdgeBeliefState.model_validate(e["belief"])
             if not belief.evidence:
                 continue
-            pairs_by_nct = _chain_st_pairs(g, by_arm, et, e["source_id"], e["target_id"])
+            pairs_by_nct = _chain_st_pairs(g, et, e["source_id"], e["target_id"])
             sd, td_ = _node_desc(g, e["source_id"]), _node_desc(g, e["target_id"])
             node_pair = (sd, td_) if sd and td_ else None
             for ev in belief.evidence:
@@ -181,7 +169,7 @@ def materialize_field(
             belief = EdgeBeliefState.model_validate(e["belief"])
             if not belief.evidence:
                 continue
-            pairs_by_nct = _chain_st_pairs(g, by_arm, et, e["source_id"], e["target_id"])
+            pairs_by_nct = _chain_st_pairs(g, et, e["source_id"], e["target_id"])
             # node-level (s,t) fallback for records whose nct has no matching chain
             sd, td_ = _node_desc(g, e["source_id"]), _node_desc(g, e["target_id"])
             node_pair = (sd, td_) if sd and td_ else None

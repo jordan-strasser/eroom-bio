@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00094458",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers were measured, but the clinical response in both infliximab arms (44.4% and 56.8% remission rates) strongly implies TNF-alpha engagement, as this is infliximab's well-established mechanism. The dose (5 mg/kg) and schedule are standard for Crohn's disease. 2. PATHWAY MODULATION: While no pathway biomarkers were directly measured, the clinical efficacy demonstrates that TNF neutralization successfully modulated inflammatory pathways. The superior mucosal healing rates (43.9% combination vs 30.1% infliximab alone) provide indirect evidence of pathway engagement. 3. CLINICAL TRANSLATION: The primary endpoint was clearly met with strong statistical significance (p=0.001 for combination, p=0.006 for infliximab monotherapy). The combination arm achieved 56.8% corticosteroid-free remission vs 44.4% for infliximab alone vs 30% for azathioprine alone, demonstrating clear clinical benefit. 4. POPULATION EFFECTS: The trial enrolled immunomodulator/biologic-naive Crohn's patients, and the combination showed superior efficacy across all timepoints without evidence of differential subgroup responses. 5. CONFOUNDERS: No major confounders identified. The trial was adequately powered (N=508), had appropriate duration (50 weeks), and showed dose-dependent effects with combination > infliximab > azathioprine.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "infliximab_infusion_aza_placebo_caps",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Infliximab monotherapy achieved 44.4% remission (p=0.006), strongly implying TNF-alpha engagement given infliximab's established binding mechanism"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "infliximab_infusion_aza_placebo_caps",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "003",
+      "reasoning": "Combination arm achieved 56.8% remission (p=0.001), demonstrating robust TNF-alpha engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "R-HSA-381340",
+      "support": "strong_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Clinical efficacy in infliximab monotherapy arm demonstrates TNF neutralization successfully modulated downstream inflammatory pathways"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "R-HSA-381340",
+      "support": "strong_support",
+      "affecting_arm_id": "003",
+      "reasoning": "Superior clinical efficacy in combination arm confirms TNF neutralization drives intended mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-381340",
+      "target_entity": "bio:47dc233960ce",
+      "support": "strong_support",
+      "affecting_arm_id": "002",
+      "reasoning": "44.4% remission rate and 30.1% mucosal healing demonstrate mechanism successfully affected inflammatory biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-381340",
+      "target_entity": "bio:47dc233960ce",
+      "support": "strong_support",
+      "affecting_arm_id": "003",
+      "reasoning": "56.8% remission rate and 43.9% mucosal healing demonstrate enhanced mechanism-to-biology translation with combination"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:47dc233960ce",
+      "target_entity": "crohn_disease",
+      "support": "strong_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Inflammatory pathway suppression translated to significant clinical remission (44.4%, p=0.006) in Crohn's disease"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:47dc233960ce",
+      "target_entity": "crohn_disease",
+      "support": "strong_support",
+      "affecting_arm_id": "003",
+      "reasoning": "Enhanced inflammatory suppression with combination therapy achieved superior clinical benefit (56.8%, p=0.001)"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "crohn_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Corticosteroid-free clinical remission endpoint successfully captured clinical benefit with clear dose-response relationship and supporting mucosal healing data"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "crohn_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Immunomodulator/biologic-naive Crohn's patients showed excellent response to TNF neutralization with clear efficacy hierarchy"
+    }
+  ],
+  "confidence_overall": 0.8,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

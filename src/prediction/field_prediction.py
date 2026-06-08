@@ -77,20 +77,23 @@ _BACKBONE = [
     ("endpoint_id", "indication_id", "endpoint_captures", "node", "node"),
     ("subgroup_population_id", "indication_id", "responds_differently", "population", "node"),
 ]
-_PER_ARM = {"mechanism", "biology", "population"}
 
 
 def build_st_desc_map(
     graph, nct: str, *, annotations_dir: str = "data/annotations",
 ) -> dict[tuple[str, str, str], tuple[str, str]]:
     """Per-edge ``(source, target, edge_type) -> (s_desc, t_desc)`` for a trial,
-    from its OWN arms — so each edge is queried at the arm that traverses it (the
-    multi-arm fix). Per-arm endpoints (mechanism/biology/population) use the arm's
-    A.0b description; fixed endpoints use the node's own v2 description. Covers
-    every backbone edge."""
-    from src.graph.box_embeddings import chain_descriptions_by_arm
+    read from the graph's OWN node descriptions via each chain's node ids.
 
-    by_arm = chain_descriptions_by_arm(annotations_dir)
+    The (s,t) coordinate of an edge is its source/target NODE descriptions. The
+    chain already points to its per-drug nodes — the populator resolves a combo
+    arm's constituents to DISTINCT nodes (paclitaxel → "mitotic arrest", not its
+    neighbor's "angiogenesis inhibition") — so reading those nodes is combo-safe
+    AND graph-native. This replaces the prior per-arm annotation re-derivation
+    (``chain_descriptions_by_arm``), which stamped a combo arm's first-listed
+    drug's description onto every chain in the arm (28% mis-attributed at n=50).
+    ``annotations_dir`` is retained for signature compatibility but unused."""
+    del annotations_dir  # no longer re-derives from annotations — reads the graph
     ts = graph.trial_subgraphs.get(nct)
     out: dict[tuple[str, str, str], tuple[str, str]] = {}
     if not ts:
@@ -104,13 +107,11 @@ def build_st_desc_map(
         return (nd.get("description") or nd.get("name") or "").strip()
 
     for ch in ts.chains:
-        d = by_arm.get((nct, ch.arm_id), {})
-        for s_attr, t_attr, et, s_src, t_src in _BACKBONE:
+        for s_attr, t_attr, et, _s_src, _t_src in _BACKBONE:
             s_id, t_id = getattr(ch, s_attr, None), getattr(ch, t_attr, None)
             if not s_id or not t_id or s_id == "UNKNOWN" or t_id == "UNKNOWN":
                 continue
-            s_desc = d.get(s_src, "") if s_src in _PER_ARM else ndesc(s_id)
-            t_desc = d.get(t_src, "") if t_src in _PER_ARM else ndesc(t_id)
+            s_desc, t_desc = ndesc(s_id), ndesc(t_id)
             if s_desc and t_desc:
                 out[(s_id, t_id, et)] = (s_desc, t_desc)
     return out

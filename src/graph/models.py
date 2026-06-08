@@ -527,7 +527,10 @@ class SubgroupFeature(BaseModel):
         non-gene → "{axis}_{level}" (e.g. "line_first")
         other → "other_{slugified(raw_descriptor)}"
         """
-        if self.axis == "gene":
+        if self.axis in ("gene", "biomarker"):
+            # biomarker = non-gene markers (RF, anti-CCP, LVEF, HbA1c, amyloid):
+            # same key_level slug as gene so "rf_positive" / "lvef_low" are
+            # disease-agnostic shared nodes.
             key = re.sub(r"[^a-z0-9]+", "", self.key.lower())
             level = re.sub(r"[^a-z0-9]+", "", self.level.lower())
             return f"{key}_{level}"
@@ -537,6 +540,53 @@ class SubgroupFeature(BaseModel):
             ).strip("_")[:30]
             return f"other_{cleaned or 'unmapped'}"
         return f"{self.axis.lower()}_{self.level.lower()}"
+
+    def describe(self) -> str:
+        """DISEASE-AGNOSTIC natural-language phrase for this axis — the BioLORD
+        embedding substrate for population nodes. Mirrors :meth:`slug` but
+        human/embedding facing. NEVER names a disease: a population node is
+        shared across indications, so its description must carry the
+        clinical-state axis ONLY (the disease lives on the
+        ``responds_differently`` edge's indication target)."""
+        axis, level = self.axis.lower(), self.level.strip().lower()
+        lv = level.replace("_", " ")
+        if axis == "line":
+            if level in {"adjuvant", "neoadjuvant", "maintenance", "perioperative"}:
+                return f"{lv} treatment"
+            if level in {"first", "second", "third", "fourth", "later"}:
+                return f"{lv}-line therapy"
+            return f"{lv} line of therapy"
+        if axis == "stage":
+            return f"stage {level.replace('_', '-').upper()} disease"
+        if axis == "extent":
+            return {
+                "locally_advanced": "locally advanced disease",
+                "metastatic": "metastatic disease",
+                "unresectable": "unresectable disease",
+                "resectable": "resectable disease",
+                "advanced": "advanced disease",
+                "early": "early-stage disease",
+            }.get(level, f"{lv} disease")
+        if axis in ("gene", "biomarker"):
+            return f"{self.key or 'biomarker'} {lv}".strip()
+        if axis == "severity":
+            return f"{lv} disease activity"
+        if axis == "functional_class":
+            return f"functional class {self.level.strip().upper()}"
+        if axis == "performance":
+            return f"ECOG performance status {level.replace('_', '-')}"
+        if axis in {"prior_tx", "prior_therapy"}:
+            return {
+                "naive": "no prior systemic therapy",
+                "treated": "prior systemic therapy",
+            }.get(level, f"{lv} prior therapy")
+        if axis == "age":
+            return f"{lv} age group"
+        if axis == "histology":
+            return f"{lv} histology"
+        if axis == "other":
+            return (self.raw_descriptor or lv).strip()
+        return f"{axis.replace('_', ' ')} {lv}".strip()
 
 
 class PopulationNode(BaseModel):
@@ -579,6 +629,24 @@ class PopulationNode(BaseModel):
             label = f.key or f.axis
             parts.append(f"{label}: {f.level}" if f.level else label)
         return " · ".join(parts)
+
+    @staticmethod
+    def describe(features: list[SubgroupFeature]) -> str:
+        """Deterministic DISEASE-AGNOSTIC description from the selection axes —
+        the stable BioLORD substrate for a population node (and its (s,t) field
+        coordinate). Because population nodes are SHARED across indications
+        (``compose_id`` is the disease-agnostic ``{axes}``), this describes the
+        clinical-state axes ONLY; the disease binding lives on the
+        ``responds_differently`` edge's indication target. Empty for the
+        no-feature (all-comers) case, which gets no node at all."""
+        if not features:
+            return ""
+        phrases = [
+            p for p in (f.describe() for f in sorted(features, key=lambda f: f.slug())) if p
+        ]
+        if not phrases:
+            return ""
+        return "Patients with " + ", ".join(phrases) + "."
 
 
 class EndpointNode(BaseModel):
@@ -822,6 +890,16 @@ class CausalChain(BaseModel):
     outcome: TrialOutcome = TrialOutcome.UNKNOWN
     effect_size: float | None = None
     p_value: float | None = None
+    # PROVENANCE (not field math): this chain's OWN per-(arm, drug) free-text
+    # descriptions, stamped once at build by ``populate_chain_descriptions`` via
+    # the per-(arm, intervention) index — so a combo arm's paclitaxel chain keeps
+    # "mitotic arrest", not its neighbor's "angiogenesis inhibition". The
+    # edge-view / debug UI reads these from the graph to show per-contributor
+    # (s,t) without re-deriving from annotations. The (s,t) FIELD localizes by
+    # node concept (``field_prediction.build_st_desc_map``), independent of these.
+    mechanism_description: str = ""
+    biology_description: str = ""
+    population_description: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

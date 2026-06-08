@@ -1,0 +1,144 @@
+{
+  "nct_id": "NCT00094458",
+  "therapeutic_hypothesis": {
+    "compound": "infliximab + azathioprine combination",
+    "claimed_target": "TNF-alpha",
+    "proposed_mechanism": "cytokine neutralization",
+    "intended_biology": "inflammatory cascade suppression",
+    "target_population": "Crohn's disease patients naive to immunomodulators and biologic therapy",
+    "primary_endpoint": "corticosteroid-free clinical remission at week 26",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "56.8% vs 44.4% vs 30.0% (combination vs infliximab vs azathioprine)",
+    "p_value": 0.001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Combination therapy showed superior efficacy across all timepoints",
+      "Mucosal healing rates: 43.9% combination vs 30.1% infliximab vs 16.5% azathioprine"
+    ],
+    "safety_signals": [
+      "Serious adverse events included Crohn's disease flares",
+      "Abdominal pain events across all arms"
+    ],
+    "dose_info": {
+      "dose": "infliximab 5 mg/kg, azathioprine 2.5 mg/kg/day",
+      "schedule": "infliximab at weeks 0, 2, 6, 14, 22; azathioprine daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Crohn's Disease",
+        "grade": "",
+        "incidence_treatment_pct": 3.4,
+        "incidence_control_pct": 7.5,
+        "serious": true
+      },
+      {
+        "term": "Abdominal Pain",
+        "grade": "",
+        "incidence_treatment_pct": 2.2,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Crohn's disease",
+    "comparator": "azathioprine monotherapy and infliximab monotherapy",
+    "sample_size": 508,
+    "duration": "50 weeks",
+    "duration_weeks": 50.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "001",
+      "compounds": [
+        "azathioprine"
+      ]
+    },
+    {
+      "arm_id": "002",
+      "compounds": [
+        "infliximab"
+      ]
+    },
+    {
+      "arm_id": "003",
+      "compounds": [
+        "infliximab",
+        "azathioprine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "001",
+      "intervention": "azathioprine",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free clinical remission",
+      "effect_size": 30.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "purine antimetabolite activity",
+      "biology_description": "T-cell proliferation suppression",
+      "population_description": "Crohn's disease patients naive to immunomodulators and biologic therapy",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "002",
+      "intervention": "infliximab",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free clinical remission",
+      "effect_size": 44.4,
+      "p_value": 0.006,
+      "outcome": "success",
+      "mechanism_description": "cytokine neutralization",
+      "biology_description": "inflammatory cascade suppression",
+      "population_description": "Crohn's disease patients naive to immunomodulators and biologic therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "003",
+      "intervention": "infliximab",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free clinical remission",
+      "effect_size": 56.8,
+      "p_value": 0.001,
+      "outcome": "success",
+      "mechanism_description": "cytokine neutralization",
+      "biology_description": "inflammatory cascade suppression",
+      "population_description": "Crohn's disease patients naive to immunomodulators and biologic therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "003",
+      "intervention": "azathioprine",
+      "subgroup_descriptor": null,
+      "endpoint": "corticosteroid-free clinical remission",
+      "effect_size": 56.8,
+      "p_value": 0.001,
+      "outcome": "success",
+      "mechanism_description": "purine antimetabolite activity",
+      "biology_description": "T-cell proliferation suppression",
+      "population_description": "Crohn's disease patients naive to immunomodulators and biologic therapy",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "azathioprine",
+      "primary_compound_id": "infliximab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "azathioprine enhances infliximab efficacy through complementary immunosuppressive mechanisms",
+      "citation": "Infliximab + Azathioprine: 56.8% vs Infliximab + Placebo: 44.4%, p = 0.022"
+    }
+  ]
+}
