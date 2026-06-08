@@ -74,9 +74,14 @@ NEXT_SESSION.md
 # Internal strategy / methodology docs — kept private (the repo is public, but
 # the public/private boundary spec, the ML-vs-graph benchmark, the scaling plan,
 # the hyperparameter registry, and the trust ledger are operator-internal, not
-# published artifacts).
+# published artifacts). NOTE: CLAUDE.md is intentionally KEPT (a generic
+# contributor/agent orientation doc); detailed evolving state lives in private
+# Claude memory, not in-repo.
 BOUNDARY.md
 BENCHMARK.md
 SCALING.md
 HYPERPARAMETERS.md
 TRUST_LEDGER.md
+# Belt-and-suspenders: the operator's license/moat note is a Claude *memory* file
+# that lives OUTSIDE the repo; ignore the name in case a copy ever lands in-tree.
+project_license.md
