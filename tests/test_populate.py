@@ -3767,3 +3767,30 @@ class TestEfoIndicationHierarchy:
         ot.search_disease = AsyncMock(side_effect=RuntimeError("OT down"))
         n = await link_indication_subtypes_via_efo(g, ot, cache_dir=tmp_path)
         assert n == 0  # degrades gracefully, no crash
+
+
+@pytest.mark.asyncio
+async def test_efo_rejects_generic_and_mismatched_parents(tmp_path):
+    """EFO precision guards: drop over-generic hub parents (cancer) and
+    OT search-mismatches (CNS tumor → lymphoma, no shared disease token)."""
+    from unittest.mock import AsyncMock
+    from src.graph.store import GraphStore
+    from src.graph.models import IndicationNode, EdgeType
+    from src.graph.populate import link_indication_subtypes_via_efo
+    g = GraphStore()
+    for s in ("brain_and_central_nervous_system_tumor", "lymphoma",
+              "cancer", "ovarian_cancer"):
+        g.add_node(IndicationNode(id=s, name=s.replace("_", " ")))
+    efo = {"brain and central nervous system tumor": "EFO_CNS",
+           "lymphoma": "EFO_LYMPH", "cancer": "EFO_CANCER",
+           "ovarian cancer": "EFO_OV"}
+    anc = {"EFO_CNS": ["EFO_LYMPH", "EFO_CANCER"], "EFO_OV": ["EFO_CANCER"]}
+    ot = AsyncMock()
+    ot.search_disease = AsyncMock(side_effect=lambda n: efo.get(n))
+    ot.get_disease_ancestors = AsyncMock(side_effect=lambda e: anc.get(e, []))
+    n = await link_indication_subtypes_via_efo(g, ot, cache_dir=tmp_path)
+    # cancer = denylisted hub; CNS→lymphoma = no shared token → both rejected
+    assert n == 0
+    assert not g._graph.has_edge(
+        "brain_and_central_nervous_system_tumor", "lymphoma",
+        key=EdgeType.SUBTYPE_OF.value)

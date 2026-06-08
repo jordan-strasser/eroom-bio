@@ -4518,6 +4518,39 @@ def ensure_parent_population(
     return _UNKNOWN
 
 
+# Over-generic "diseases" that must NOT become SUBTYPE_OF parents — they create
+# over-pooling hubs (every cancer → "cancer") and several are junk catch-all
+# indications, not real diseases.
+_GENERIC_DISEASE_PARENTS: frozenset[str] = frozenset({
+    "cancer", "cancers", "neoplasm", "neoplasms", "carcinoma", "tumor",
+    "tumors", "tumour", "disease", "diseases", "disorder", "disorders",
+    "syndrome", "malignancy", "malignancies", "malignant_neoplasm",
+    "solid_tumor", "solid_tumors", "hematologic_diseases",
+    "hematologic_malignancies", "hematological_malignancies",
+})
+# Generic qualifier/category tokens that can't carry the leaf↔parent disease
+# match (so the shared token must be a specific disease root).
+_GENERIC_DISEASE_TOKENS: frozenset[str] = frozenset({
+    "cancer", "cancers", "disease", "diseases", "disorder", "neoplasm",
+    "neoplasms", "tumor", "tumors", "carcinoma", "malignant", "syndrome",
+    "advanced", "metastatic", "recurrent", "chronic", "acute", "primary",
+})
+
+
+def _shares_disease_token(leaf: str, parent: str) -> bool:
+    """True if leaf + parent share a SPECIFIC (non-generic, ≥4-char) disease
+    token. Precision guard so an OT name-search mismatch can't fabricate a
+    SUBTYPE_OF parent: acute_lymphoblastic_leukemia↔leukemia share 'leukemia'
+    (kept), but brain_and_central_nervous_system_tumor↔lymphoma share nothing
+    (rejected)."""
+    def _toks(s: str) -> set[str]:
+        return {
+            t for t in s.split("_")
+            if len(t) >= 4 and t not in _GENERIC_DISEASE_TOKENS
+        }
+    return bool(_toks(leaf) & _toks(parent))
+
+
 async def link_indication_subtypes_via_efo(
     graph: GraphStore, ot_client: Any, *, cache_dir: Path | None = None,
 ) -> int:
@@ -4564,6 +4597,10 @@ async def link_indication_subtypes_via_efo(
             parent = slug_of_efo.get(anc_efo)
             if not parent or parent == leaf:
                 continue
+            if parent in _GENERIC_DISEASE_PARENTS:
+                continue  # too coarse — would create an over-pooling hub
+            if not _shares_disease_token(leaf, parent):
+                continue  # OT search-mismatch guard (CNS tumor !-> lymphoma)
             if g.has_edge(leaf, parent, key=EdgeType.SUBTYPE_OF.value):
                 continue
             if g.has_edge(parent, leaf, key=EdgeType.SUBTYPE_OF.value):
