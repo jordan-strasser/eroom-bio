@@ -4627,6 +4627,245 @@ def ensure_reflects_biology_edges(graph: GraphStore) -> int:
     return created
 
 
+def deorphan_nonchain_endpoints(graph: GraphStore) -> int:
+    """Connect each trial's resolved biology(ies) → its NON-chain EndpointNodes
+    via REFLECTS_BIOLOGY.
+
+    The chain fan-out only references each chain's single efficacy endpoint
+    (``chain.endpoint_id``); a trial's CT.gov primary outcomes that are
+    safety/lab/biomarker/PRO measures become EndpointNodes (+ endpoint_captures)
+    but are referenced by no chain, so ``ensure_reflects_biology_edges`` (which
+    walks chains) never connects them — they sit orphaned, with no upstream
+    biology. This de-orphans them so the biology↔biomarker association + AE
+    co-location are queryable cross-trial.
+
+    MUST run on a PER-TRIAL graph (``g_t`` in ``build_bottomup`` Phase 1, before
+    ``_namespace_graph``): the trial's FULL endpoint membership is intact there;
+    the merge collapses it to chain-only (a canonical EndpointNode keeps just the
+    winner trial's provenance), so this cannot be reconstructed post-merge.
+
+    Seeded Beta(1,1) — these are association edges, not prediction edges:
+    P(success) walks ``chain.endpoint_id`` and never free-walks reflects_biology,
+    so this does not move any prediction. Idempotent. Returns # edges added.
+    """
+    bios: set[str] = set()
+    chain_eps: set[str] = set()
+    for ts in graph.trial_subgraphs.values():
+        for ch in ts.chains:
+            if ch.biology_id and ch.biology_id != _UNKNOWN:
+                bios.add(ch.biology_id)
+            if ch.endpoint_id and ch.endpoint_id != _UNKNOWN:
+                chain_eps.add(ch.endpoint_id)
+    if not bios:
+        return 0
+    non_chain = [n["id"] for n in graph.get_nodes_by_type("EndpointNode")
+                 if n["id"] not in chain_eps]
+    tid = next(iter(graph.trial_subgraphs), "")
+    created = 0
+    for bio in bios:
+        for ep in non_chain:
+            if graph._graph.has_edge(  # noqa: SLF001
+                bio, ep, key=EdgeType.REFLECTS_BIOLOGY.value,
+            ):
+                continue
+            graph.add_edge(GraphEdge(
+                source_id=bio, target_id=ep,
+                edge_type=EdgeType.REFLECTS_BIOLOGY,
+                belief=EdgeBeliefState(),
+                metadata={"source": "deorphan_non_chain_endpoint", "trial_id": tid},
+            ))
+            created += 1
+    return created
+
+
+def fan_biology_drives_to_coconditions(graph: GraphStore) -> int:
+    """Fan each trial's resolved biology(ies) → ALL the trial's co-enrolled
+    IndicationNodes via BIOLOGY_DRIVES (not just the chain's canonical one).
+
+    A multi-condition trial lists several diseases (``trial.conditions``); each
+    becomes an IndicationNode, but the chain attaches biology to only the
+    canonical indication, leaving the other co-enrolled diseases mechanistically
+    disconnected. ``biology_drives`` is the bridge edge ``find_biology_bridges``
+    enumerates for cross-indication transfer (the north star), so a disconnected
+    disease can never give or receive transferred knowledge. CT.gov conditions
+    are the diseases the drug is being tested in, so "this biology is relevant to
+    all of them" is a real, auditable claim (tagged ``co_condition`` + source NCT).
+
+    MUST run on a PER-TRIAL graph (``g_t``, pre-merge): the trial's full condition
+    set is in g_t (one IndicationNode per ``trial.conditions``), but post-merge
+    the TrialSubgraph keeps only chains (one indication each). Borrows the
+    biology's strongest existing biology_drives STRENGTH (α,β only — fresh
+    evidence list, provenance is the metadata) so the co-condition clears
+    ``find_biology_bridges``' evidence floor; a Beta(1,1) edge would not. Cannot
+    affect P(success) (predictor walks the chain's own indication). Idempotent.
+    Returns # edges added.
+    """
+    bios: set[str] = set()
+    for ts in graph.trial_subgraphs.values():
+        for ch in ts.chains:
+            if ch.biology_id and ch.biology_id != _UNKNOWN:
+                bios.add(ch.biology_id)
+    if not bios:
+        return 0
+    all_inds = [n["id"] for n in graph.get_nodes_by_type("IndicationNode")]
+    tid = next(iter(graph.trial_subgraphs), "")
+    created = 0
+    for bio in bios:
+        # Borrow this biology's strongest existing biology_drives strength.
+        borrow_a, borrow_b, best = 1.0, 1.0, -1.0
+        for _, _, k, d in graph._graph.out_edges(  # noqa: SLF001
+            bio, keys=True, data=True,
+        ):
+            if k != EdgeType.BIOLOGY_DRIVES.value:
+                continue
+            b = EdgeBeliefState.model_validate(d["belief"])
+            if b.alpha + b.beta > best:
+                best, borrow_a, borrow_b = b.alpha + b.beta, b.alpha, b.beta
+        for ind in all_inds:
+            if graph._graph.has_edge(  # noqa: SLF001
+                bio, ind, key=EdgeType.BIOLOGY_DRIVES.value,
+            ):
+                continue
+            graph.add_edge(GraphEdge(
+                source_id=bio, target_id=ind,
+                edge_type=EdgeType.BIOLOGY_DRIVES,
+                belief=EdgeBeliefState(alpha=borrow_a, beta=borrow_b),
+                metadata={"source": "co_condition_fan", "co_condition": True,
+                          "trial_id": tid},
+            ))
+            created += 1
+    return created
+
+
+def prune_orphan_targets(graph: GraphStore) -> int:
+    """Remove TargetNodes with AFFECTS-in but no MODULATES_VIA-out that no chain
+    references — gene-family over-resolution.
+
+    OpenTargets returns a whole gene family for some drugs (paclitaxel → 15
+    tubulin isoforms); the populator wires AFFECTS to all of them, but mechanism
+    resolution only connects the chain's target, leaving the rest dangling with
+    no downstream mechanism. The mechanism (microtubule stabilization) is what
+    transfers across trials, not the isoform — these add only clutter. Mirrors
+    ``_prune_orphan_biology``. Run POST-merge (final ids). Returns # removed.
+    """
+    referenced = {
+        ch.target_id for ts in graph.trial_subgraphs.values()
+        for ch in ts.chains if getattr(ch, "target_id", None)
+    }
+    orphans: list[str] = []
+    for n in graph.get_nodes_by_type("TargetNode"):
+        nid = n["id"]
+        if nid in referenced:
+            continue
+        out_types = {k for *_, k in graph._graph.out_edges(nid, keys=True)}  # noqa: SLF001
+        in_types = {k for *_, k in graph._graph.in_edges(nid, keys=True)}  # noqa: SLF001
+        if EdgeType.MODULATES_VIA.value in out_types:
+            continue
+        if EdgeType.AFFECTS.value not in in_types:
+            continue
+        orphans.append(nid)
+    for nid in orphans:
+        graph._graph.remove_node(nid)  # noqa: SLF001
+    return len(orphans)
+
+
+def prune_disconnected_noise(graph: GraphStore) -> int:
+    """Remove fully-disconnected (degree-0) non-Trial nodes — placebo/comparator
+    intervention artifacts and empty MedDRA SOC roll-up AE nodes that no edge
+    touches. TrialNodes are degree-0 BY DESIGN (containers) and are excluded.
+    Run LAST (post-merge, after all edge-creation passes). Returns # removed.
+    """
+    dead = [
+        nid for nid, a in list(graph._graph.nodes(data=True))  # noqa: SLF001
+        if a.get("node_type") != "TrialNode" and graph._graph.degree(nid) == 0  # noqa: SLF001
+    ]
+    for nid in dead:
+        graph._graph.remove_node(nid)  # noqa: SLF001
+    return len(dead)
+
+
+def prune_graph_topology(graph: GraphStore) -> dict[str, int]:
+    """Final topology-hygiene sweep to a fixpoint — run AFTER attribution.
+
+    The bottom-up hygiene passes (``prune_orphan_targets`` /
+    ``prune_disconnected_noise``) run inside ``build_bottomup``, but several
+    later steps create or invalidate nodes: ``prune_invalid_mechanisms``
+    (build_graph Step 3d) drops mechanisms, orphaning their biology and
+    collapsing the chains that referenced them; the AE SOC roll-up during
+    attribution (Step 4) creates empty MedDRA SOC AE nodes. So a biology left
+    ungrounded (its chain dropped) keeps dangling biology_drives/reflects_biology
+    out-edges, and empty SOC nodes sit disconnected — both flagged by
+    ``edge_completeness_audit``.
+
+    Iterates, enforcing each backbone node type's required upstream edge but ONLY
+    pruning nodes that are NOT chain-referenced (a chain's own nodes are always
+    kept — attribution/prediction rely on them):
+      - BiologyNode with no surviving chain reference (mechanism invalidated →
+        ungrounded);
+      - MechanismNode with no ``mechanism_affects``-out that no chain references
+        (an over-resolution alternate the chains never used → dead-ends with no
+        biology downstream; chain-used mechanisms missing only an upstream
+        target are KEPT — that's a target-resolution gap, not a vestige);
+      - EndpointNode with no ``reflects_biology``-in (its biology was pruned) —
+        the "other"-class endpoints keep theirs via the de-orphan pass, so only
+        the truly orphaned ones go;
+      - IndicationNode with no ``biology_drives``-in that is also not a
+        ``subtype_of`` hierarchy parent (co-conditions keep theirs via the fan);
+      - over-resolved orphan targets and any degree-0 non-Trial node.
+    Loops to a fixpoint because these are interlinked — a pruned biology drops
+    its endpoints' reflects_biology AND its indications' biology_drives (which can
+    hold each other up via endpoint_captures: a degree-1 island degree-0 pruning
+    can't break), and a pruned mechanism can orphan its upstream targets. Returns
+    removal totals.
+    """
+    totals = {"biology": 0, "mechanisms": 0, "endpoints": 0, "indications": 0,
+              "targets": 0, "disconnected": 0}
+    rb, bd, so, ma = (EdgeType.REFLECTS_BIOLOGY.value, EdgeType.BIOLOGY_DRIVES.value,
+                      EdgeType.SUBTYPE_OF.value, EdgeType.MECHANISM_AFFECTS.value)
+    while True:
+        ref_bio, ref_mech, ref_ep, ref_ind = set(), set(), set(), set()
+        for ts in graph.trial_subgraphs.values():
+            for ch in ts.chains:
+                if ch.biology_id:
+                    ref_bio.add(ch.biology_id)
+                if ch.mechanism_id:
+                    ref_mech.add(ch.mechanism_id)
+                if ch.endpoint_id:
+                    ref_ep.add(ch.endpoint_id)
+                if ch.indication_id:
+                    ref_ind.add(ch.indication_id)
+
+        def _in_types(nid: str) -> set[str]:
+            return {k for *_, k in graph._graph.in_edges(nid, keys=True)}  # noqa: SLF001
+
+        def _out_types(nid: str) -> set[str]:
+            return {k for *_, k in graph._graph.out_edges(nid, keys=True)}  # noqa: SLF001
+
+        bio = [n["id"] for n in graph.get_nodes_by_type("BiologyNode")
+               if n["id"] not in ref_bio]
+        mech = [n["id"] for n in graph.get_nodes_by_type("MechanismNode")
+                if n["id"] not in ref_mech and ma not in _out_types(n["id"])]
+        eps = [n["id"] for n in graph.get_nodes_by_type("EndpointNode")
+               if n["id"] not in ref_ep and rb not in _in_types(n["id"])]
+        inds = [n["id"] for n in graph.get_nodes_by_type("IndicationNode")
+                if n["id"] not in ref_ind
+                and bd not in (it := _in_types(n["id"])) and so not in it]
+        for nid in bio + mech + eps + inds:
+            if nid in graph._graph:
+                graph._graph.remove_node(nid)  # noqa: SLF001
+        t = prune_orphan_targets(graph)
+        d = prune_disconnected_noise(graph)
+        totals["biology"] += len(bio)
+        totals["mechanisms"] += len(mech)
+        totals["endpoints"] += len(eps)
+        totals["indications"] += len(inds)
+        totals["targets"] += t
+        totals["disconnected"] += d
+        if not (bio or mech or eps or inds or t or d):
+            break
+    return totals
+
+
 def populate_chain_descriptions(graph: GraphStore, annotations_dir: Path) -> int:
     """Stamp each chain's OWN per-drug descriptions onto the chain in the graph,
     so the edge-view / debug UI can show per-contributor (s,t) provenance by

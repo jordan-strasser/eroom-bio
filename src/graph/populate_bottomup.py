@@ -175,17 +175,28 @@ async def build_bottomup(
     nodes merge into the base by exact id/chembl; their biology/mechanism merge by
     the geometric tier against the base.
     """
-    from src.graph.populate import PopulationPipeline
+    from src.graph.populate import (
+        PopulationPipeline,
+        deorphan_nonchain_endpoints,
+        fan_biology_drives_to_coconditions,
+    )
 
     incremental = base_graph is not None
     merged = base_graph if incremental else GraphStore()
     new_ids: set[str] = set()
+    endpoint_deorphans = 0
+    coconditions = 0
     for trial in trials:
         # Phase 1: resolve + build THIS trial alone into its own store.
         g_t = GraphStore()
         await PopulationPipeline(g_t, anthropic_client=anthropic_client).populate_trials(
             condition=condition, trials=[trial], annotations_dir=annotations_dir,
         )
+        # Per-trial completeness passes — MUST run here (pre-merge), where the
+        # trial's FULL endpoint + condition membership is intact; the merge
+        # collapses it to chain-only and these can't be reconstructed after.
+        endpoint_deorphans += deorphan_nonchain_endpoints(g_t)
+        coconditions += fan_biology_drives_to_coconditions(g_t)
         # Namespace its full graph to {id}#{nct} (preserving edge beliefs) so the
         # union can't collide across trials and the merge has beliefs to fold.
         scoped = _namespace_graph(g_t, getattr(trial, "nct_id", ""))
@@ -247,10 +258,24 @@ async def build_bottomup(
     from src.graph.populate import (
         ensure_reflects_biology_edges,
         populate_chain_descriptions,
+        prune_disconnected_noise,
+        prune_orphan_targets,
     )
     rb_added = ensure_reflects_biology_edges(merged)
     if rb_added:
         logger.info("bottom-up Phase 2: seeded %d reflects_biology edges", rb_added)
+    if endpoint_deorphans or coconditions:
+        logger.info("bottom-up Phase 2: de-orphaned %d non-chain endpoints, "
+                    "fanned %d co-condition biology_drives (pre-merge)",
+                    endpoint_deorphans, coconditions)
+    # Topology hygiene: drop gene-family over-resolution (TargetNodes with
+    # affects-in but no mechanism, referenced by no chain) then any node left
+    # fully disconnected. Run AFTER all edge-creation passes.
+    pruned_t = prune_orphan_targets(merged)
+    pruned_n = prune_disconnected_noise(merged)
+    if pruned_t or pruned_n:
+        logger.info("bottom-up Phase 2: pruned %d orphan targets, %d disconnected nodes",
+                    pruned_t, pruned_n)
     # Stamp per-drug descriptions onto chains (graph-native edge-view provenance).
     if annotations_dir:
         cd = populate_chain_descriptions(merged, Path(annotations_dir))

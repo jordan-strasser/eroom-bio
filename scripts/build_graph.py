@@ -782,6 +782,26 @@ async def main(
         exclude_from_attribution=exclude_from_attribution,
     )
 
+    # Step 4.5: final topology-hygiene sweep. Step 3d (prune_invalid_mechanisms)
+    # and Step 4 (AE SOC roll-up in attribution) create/invalidate nodes AFTER
+    # the bottom-up hygiene passes ran — leaving ungrounded biology (chain's
+    # mechanism dropped) with dangling out-edges + empty SOC AE nodes. Re-sweep
+    # to a fixpoint so every node satisfies its edge contract (verify with
+    # scripts.edge_completeness_audit). Operates on annotated_path BEFORE Step 5
+    # so the (s,t) field + geometry are built on the clean graph.
+    console.rule("[bold]Step 4.5: topology hygiene[/bold]")
+    from src.graph.populate import prune_graph_topology
+    sweep_graph = GraphStore()
+    sweep_graph.import_snapshot(str(annotated_path))
+    swept = prune_graph_topology(sweep_graph)
+    sweep_graph.export_snapshot(str(annotated_path))
+    console.print(
+        f"  pruned {swept['biology']} ungrounded biology, "
+        f"{swept['mechanisms']} dead-end mechanisms, {swept['endpoints']} orphaned "
+        f"endpoints, {swept['indications']} orphaned indications, "
+        f"{swept['targets']} orphan targets, {swept['disconnected']} disconnected"
+    )
+
     # Step 5 (--assemble): the v2 post-build geometry. The per-(s,t) belief field
     # and the box / is-a geometry are PRIVATE artifacts the boundary strips from
     # the public snapshot, so they're materialized post-hoc — and therefore drift
