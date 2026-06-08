@@ -29,6 +29,10 @@ INVALID = [
     ("Class B/2 (Secretin family receptors)", "D_grouping_or_PK"),
     ("Aspirin ADME", "D_grouping_or_PK"),
     ("other", "E_placeholder"),
+    # F — Reactome residual "Other X" buckets (over-pooling hubs: distinct
+    # targets collapse in, then fan out to unrelated biology). Leading "Other".
+    ("Other interleukin signaling", "F_residual_bucket"),
+    ("Other semaphorin interactions", "F_residual_bucket"),
 ]
 
 # Real cellular actions/processes that MUST survive — including off-target,
@@ -47,6 +51,9 @@ VALID = [
     "kinase inhibition",
     "receptor antagonism",
     "ISG15 antiviral mechanism",  # host antiviral process (not pathogen-lifecycle) → keep
+    # "other" mid-name (NOT a leading residual bucket) — a real pathway, keep.
+    "APC/C:Cdh1 mediated degradation of Cdc20 and other APC/C:Cdh1 targeted "
+    "proteins in late mitosis/early G1",
 ]
 
 

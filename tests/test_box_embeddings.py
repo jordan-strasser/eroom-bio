@@ -84,20 +84,22 @@ def test_fit_ignores_unknown_ids_in_pairs():
 
 
 def test_population_parent_child_pairs_from_ids():
+    # Disease-agnostic redesign: population ids are ``__``-joined axis slugs with
+    # NO indication prefix. Parent⊇child is strict axis-subset, pooled across
+    # diseases (the shared node ``line_first`` is a parent regardless of disease).
     g = GraphStore()
     for pid in [
-        "melanoma__unselected",
-        "melanoma__cd274_positive",
-        "melanoma__cd274_positive__line_first",
-        "nsclc__unselected",
+        "line_first",
+        "cd274_positive",
+        "cd274_positive__line_first",
+        "stage_iii",
     ]:
         g.add_node(PopulationNode(id=pid, name=pid))
     pairs = set(population_parent_child_pairs(g))
     assert pairs == {
-        ("melanoma__unselected", "melanoma__cd274_positive"),
-        ("melanoma__unselected", "melanoma__cd274_positive__line_first"),
-        ("melanoma__cd274_positive", "melanoma__cd274_positive__line_first"),
-    }  # no cross-indication edges; subset ⇒ ancestor
+        ("line_first", "cd274_positive__line_first"),
+        ("cd274_positive", "cd274_positive__line_first"),
+    }  # strict axis-subset ⇒ ancestor; stage_iii subsets nothing here
 
 
 def test_biology_parent_child_pairs_from_ancestors():

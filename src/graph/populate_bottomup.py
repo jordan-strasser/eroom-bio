@@ -32,6 +32,7 @@ until then (the de-risking plan: new file now, rename later).
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any, Callable
 
 from src.graph.node_merge import DEFAULT_NODE_TYPES, MergeConfig, assemble
@@ -238,4 +239,21 @@ async def build_bottomup(
                 "pruned %d orphan biology%s)",
                 merged._graph.number_of_nodes(), report.by_type, renamed, pruned_bio,  # noqa: SLF001
                 f", incremental +{len(new_ids)} new scoped ids" if incremental else "")
+
+    # Complete the backbone: seed the biology→endpoint REFLECTS_BIOLOGY edge for
+    # every chain (post-merge, so it uses final node ids; pre-attribution, so the
+    # attributor can condition it). The per-role populate methods build every
+    # other backbone edge but never this one — see ensure_reflects_biology_edges.
+    from src.graph.populate import (
+        ensure_reflects_biology_edges,
+        populate_chain_descriptions,
+    )
+    rb_added = ensure_reflects_biology_edges(merged)
+    if rb_added:
+        logger.info("bottom-up Phase 2: seeded %d reflects_biology edges", rb_added)
+    # Stamp per-drug descriptions onto chains (graph-native edge-view provenance).
+    if annotations_dir:
+        cd = populate_chain_descriptions(merged, Path(annotations_dir))
+        if cd:
+            logger.info("bottom-up Phase 2: stamped descriptions on %d chains", cd)
     return merged

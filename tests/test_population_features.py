@@ -111,6 +111,17 @@ class TestFeaturesFromLLMResponse:
         assert _features_from_llm_response(raw_extent)[0].axis == "extent"
         assert _features_from_llm_response(raw_stage)[0].axis == "stage"
 
+    def test_demographics_axes(self):
+        """Round-31: age/sex/race extracted as subgroup stratifiers."""
+        raw = {"age_group": "elderly", "sex": "female", "race_ethnicity": "asian"}
+        got = {(f.axis, f.level) for f in _features_from_llm_response(raw)}
+        assert got == {("age", "elderly"), ("sex", "female"), ("race", "asian")}
+
+    def test_invalid_demographics_dropped(self):
+        """Out-of-vocabulary demographic values don't create junk features."""
+        raw = {"age_group": "middle_aged", "sex": "other", "race_ethnicity": "martian"}
+        assert _features_from_llm_response(raw) == []
+
 
 # ── JSON parser ─────────────────────────────────────────────────────────
 
@@ -224,9 +235,12 @@ class TestExtractPopulationFeaturesWithLLM:
             client=client, cache_path=cache_path,
         )
         assert feats == []
-        # Cache stores empty list so we don't retry the same broken response.
+        # Cache stores the {features, eligibility_labs} entry so we don't retry the
+        # same broken response. Key is version-namespaced (prompt-version prefix) so
+        # a prompt bump regenerates instead of returning stale features.
+        from src.graph.population_features import _PROMPT_VERSION
         cached = json.loads(cache_path.read_text())
-        assert cached["NCT_TEST"] == []
+        assert cached[f"{_PROMPT_VERSION}:NCT_TEST"] == {"features": [], "eligibility_labs": []}
 
 
 # ── Integration: composing into PopulationNode.compose_id ───────────────
@@ -253,7 +267,7 @@ class TestComposeWithExistingQualifiers:
                 merged.append(f)
                 seen.add(f.slug())
 
-        pop_id = PopulationNode.compose_id("melanoma", merged)
+        pop_id = PopulationNode.compose_id(merged)
         # The slug should include both regex- and LLM-derived axes.
         assert "extent_metastatic" in pop_id
         assert "stage_iv" in pop_id

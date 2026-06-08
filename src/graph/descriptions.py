@@ -28,15 +28,25 @@ if TYPE_CHECKING:
 
     from src.graph.store import GraphStore
 
-# All chain node types. Mechanism/Biology/Population get rich descriptions from
-# extractions first (attach_node_descriptions_from_extractions, skip-existing);
-# this fills every remaining gap — incl. Target/Compound/Indication/Endpoint
-# (0% before) and any DB-prior Mechanism/Biology/Population a chain never described.
+# Chain node types that get an LLM description. Mechanism/Biology get rich
+# descriptions from extractions first (attach_node_descriptions_from_extractions,
+# skip-existing); this fills every remaining gap — incl. Target/Compound/
+# Indication/Endpoint (0% before) and any DB-prior Mechanism/Biology a chain never
+# described. PopulationNode is DELIBERATELY excluded: a population is disease-
+# agnostic and shared across indications, so it gets a deterministic
+# ``PopulationNode.describe(features)`` at creation (an LLM here could hallucinate
+# a disease into a shared node's embedding).
 DEFAULT_DESC_TYPES = (
     "InterventionNode", "TargetNode", "IndicationNode", "EndpointNode",
-    "MechanismNode", "BiologyNode", "PopulationNode",
+    "MechanismNode", "BiologyNode",
 )
 DESC_CACHE = Path("data/cache/node_descriptions.json")
+
+# Per-type prompt version — bump to bust cached descriptions when a type's prompt
+# changes (the cache is keyed by ``{type}:{id}`` + this suffix, so only the bumped
+# type regenerates). IndicationNode v2: identity-only (drop epidemiology/risk
+# factors) for a cleaner disease embedding.
+_PROMPT_VERSION = {"IndicationNode": "v2"}
 
 # Per-type framing for the description prompt (keeps them on-layer + precise).
 _TYPE_FRAMING = {
@@ -60,7 +70,26 @@ def _node_context(node: dict) -> str:
     return "; ".join(b for b in bits if b)
 
 
+# Per-type prompt overrides (else the generic one-sentence template below).
+_TYPE_PROMPT = {
+    # Indication: disease IDENTITY only — anatomical site + cell/tissue lineage
+    # (histology). The embedding substrate should separate diseases, so drop the
+    # epidemiology/risk-factor tail ("risk factors include tobacco…") that
+    # dilutes identity and bloats the vector. Keep it short.
+    "IndicationNode": (
+        "Identify this disease in ONE short clause (≤20 words) by its anatomical "
+        "site and cell/tissue lineage or histology. State ONLY what the disease "
+        "IS — no epidemiology, risk factors, symptoms, staging, prognosis, or "
+        "treatment. No hedging, no 'this node represents'. Just the description."
+        "\n\n{context}"
+    ),
+}
+
+
 def _prompt(node_type: str, node: dict) -> str:
+    override = _TYPE_PROMPT.get(node_type)
+    if override:
+        return override.format(context=_node_context(node))
     framing = _TYPE_FRAMING.get(node_type, "a knowledge-graph node")
     return (
         f"Write ONE concise, precise sentence describing {framing} for a clinical "
@@ -125,7 +154,8 @@ async def generate_node_descriptions(
 
     async def _one(nid: str, nt: str, node: dict) -> None:
         nonlocal set_count
-        key = f"{nt}:{nid}"
+        ver = _PROMPT_VERSION.get(nt)
+        key = f"{nt}:{nid}:{ver}" if ver else f"{nt}:{nid}"
         desc = cache.get(key)
         if desc is None:
             async with sem:

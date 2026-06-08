@@ -52,7 +52,10 @@ from src.graph.curated_evidence import (
     ot_association_score_to_bucket,
     ot_score_quality,
 )
-from src.graph.indication_taxonomy import parent_indication_for
+from src.graph.indication_taxonomy import (
+    parent_indication_for,
+    slugify_measure_name,
+)
 from src.graph.store import GraphStore
 from src.inference.beliefs import SupportBucket
 from src.ingestion.clinicaltrials import (
@@ -64,6 +67,7 @@ from src.ingestion.clinicaltrials import (
     map_trial_to_graph_nodes,
     split_combo_regimen as _split_combo_regimen,
     strip_parenthetical_brand as _strip_parenthetical_brand,
+    strip_placebo_constituents,
 )
 
 
@@ -94,15 +98,19 @@ def _normalize_drug_lookup_name(name: str) -> str:
 
 
 def _root_indication(indication_id: str) -> str:
-    """Return the parent IndicationNode id for a subtype slug, or the id
-    itself when there is no parent. Used at chain-construction time so
-    every chain's ``indication_id`` anchors on the top-level disease
-    (e.g. `melanoma`, not `intraocular_melanoma`). Subtype IndicationNodes
-    still exist and are linked by SUBTYPE_OF edges for cross-rollup
-    queries; the chain backbone just anchors on the parent so evidence
-    accumulates at one place per disease.
+    """Chains anchor on the LEAF (specific) disease (node-orthogonality
+    redesign, Phase 4).
+
+    Previously this collapsed subtypes to a hand-curated parent (uveal_melanoma
+    → melanoma) so evidence pooled at one node. The redesign instead keeps the
+    specific disease and pools via the SUBTYPE_OF hierarchy + a prediction-time
+    indication backoff (mirroring the population hierarchy): a sparse leaf
+    (uveal_melanoma) borrows its parent's (melanoma) cross-trial evidence. This
+    preserves leaf-level granularity AND cross-subtype pooling, and scales to
+    any disease via the EFO/MONDO SUBTYPE_OF edges. Identity now; the SUBTYPE_OF
+    edges (hand-curated + EFO) carry the hierarchy.
     """
-    return parent_indication_for(indication_id) or indication_id
+    return indication_id
 from src.ingestion.lincs import (
     LINCSClient,
     _category_to_direction,
@@ -144,6 +152,16 @@ _DEFAULT_POPULATION_AXES: frozenset[str] = frozenset({
     "stage",    # cancer staging — i / ii / iii / iv
     "extent",   # disease spread — metastatic / unresectable / advanced / …
     "setting",  # treatment context — adjuvant / neoadjuvant / maintenance
+    # Non-onco load-bearing axes (multi-indication). These ARE the parent-
+    # cohort definers outside oncology (where line/stage/extent rarely apply):
+    # disease activity/severity (RA active, UC moderate-severe), non-gene
+    # biomarker status (RF, anti-CCP, LVEF, HbA1c), and functional class
+    # (ACR/NYHA I–IV). Safe for onco — onco emits gene-biomarker (axis="gene",
+    # stays demoted) and never severity/functional_class, so onco parents are
+    # unchanged; this only un-demotes the axes that define non-onco cohorts.
+    "severity",
+    "biomarker",
+    "functional_class",
 })
 
 
@@ -196,6 +214,13 @@ def _log_dropped_trial_subgraph(
 # Haiku is fast + cheap for short categorical labels. The structural inferences
 # (endpoint type, mechanism, population) are short—Haiku is more than enough.
 INFERENCE_MODEL = "claude-haiku-4-5-20251001"
+
+# Drug→target inference is a KNOWLEDGE task, not a categorical label: a
+# plausible-but-wrong gene (Haiku gave axitinib→PLK1, bactrim→DHPS) injects a
+# false chain, and OT only validates the gene EXISTS, not that the drug hits it.
+# So this one inference uses Sonnet for accuracy. Cost is trivial (~100 misses
+# across the corpus, ~$0.15) — well under the target-inference budget.
+TARGET_INFERENCE_MODEL = "claude-sonnet-4-20250514"
 
 
 # ── Endpoint classification ──────────────────────────────────────────────
@@ -332,6 +357,37 @@ ENDPOINT_CLASS_BUCKETS: dict[str, str] = {
     "other": "",
 }
 ENDPOINT_CLASSES = list(ENDPOINT_CLASS_BUCKETS.keys())
+
+# Catch-all endpoint classes that DON'T name a standardized measure: every
+# distinct biomarker (LDL-C, amyloid-PET SUVr, ...), PRO instrument, safety
+# rate, and "other" outcome would otherwise fuse into ONE `{class}_{indication}`
+# node and the chain would lose which endpoint it measured. These are sub-keyed
+# by the specific measure (`{class}_{measure}_{indication}`); the standardized
+# clinical classes (OS/PFS/ORR/DFS/...) stay collapsed by class so a single
+# `PFS_melanoma` still serves every melanoma subtype. The endpoint_captures
+# Beta prior is still keyed off the CLASS, so the belief is unchanged — only
+# node identity gets finer (round-31 endpoint de-collapse).
+_GENERIC_ENDPOINT_CLASSES = {
+    EndpointClass.BIOMARKER,
+    EndpointClass.PRO,
+    EndpointClass.SAFETY,
+    EndpointClass.OTHER,
+}
+
+
+def _endpoint_node_id(cls: EndpointClass, measure: str) -> tuple[str, str]:
+    """``(node_id, display_name)`` for a (class, measure). Endpoints are
+    DISEASE-AGNOSTIC (node-orthogonality redesign): standardized classes
+    collapse to a single shared node ``{class}`` (the per-disease binding lives
+    on the endpoint_captures edge); catch-all classes (biomarker/safety/PRO/
+    other) are sub-keyed by a normalized measure slug so distinct measures don't
+    fuse. No indication in the id."""
+    if cls in _GENERIC_ENDPOINT_CLASSES:
+        measure_slug = slugify_measure_name(measure, max_len=48)
+        node_id = normalize_entity(f"{cls.value}_{measure_slug}", "EndpointNode")
+        return node_id, f"{measure} [{cls.value}]"
+    node_id = normalize_entity(cls.value, "EndpointNode")
+    return node_id, cls.value
 
 
 class JSONCache:
@@ -776,6 +832,36 @@ def _is_noncanonical_compound_name(
         if len(ids) >= 2:  # ≥2 distinct drugs by id ⇒ true combination, not brand+INN
             return True
     return False
+
+
+# Biology descriptions the extractor emits for CONTROL / comparator arms. These
+# are NOT physiological processes — a placebo has no biology the drug drives — so
+# they must never content-address into a Biology node (that's how the spurious
+# "no active intervention" node, fed by a placebo arm whose label name-matched the
+# real drug, got in). build_arms now drops pure-placebo arms upstream; this is the
+# defense-in-depth guard for any control arm that reaches the biology step via a
+# non-placebo label.
+_CONTROL_BIOLOGY_SENTINELS: frozenset[str] = frozenset({
+    "no active intervention", "no active treatment", "no active comparator",
+    "no treatment", "no intervention", "placebo", "placebo control",
+    "placebo only", "control", "control arm", "usual care", "standard of care",
+    "best supportive care", "supportive care", "observation", "observation only",
+    "watchful waiting", "sham", "no therapy", "none", "not applicable", "n/a",
+})
+
+
+def _is_control_biology_sentinel(desc: str) -> bool:
+    """True when a biology description is a control/comparator sentinel rather
+    than a real physiological process (so it must not become a Biology node)."""
+    d = (desc or "").strip().lower()
+    if not d:
+        return False
+    if d in _CONTROL_BIOLOGY_SENTINELS:
+        return True
+    return any(
+        s in d
+        for s in ("no active intervention", "placebo control", "no active treatment")
+    )
 
 
 _CELL_THERAPY_COMPONENT_TARGETS: list[tuple[str, list[tuple[str, str, str]]]] = [
@@ -1233,71 +1319,49 @@ class PopulationPipeline:
                 # add_subgroup_chains path.
                 parent_features = _coarse_population_features(combined_features)
 
-                # Compose the trial's default PopulationNode id from the
-                # canonical disease + coarsened features. With no
-                # features this falls back to ``{indication}__unselected``.
-                default_pop_id = PopulationNode.compose_id(
-                    canonical_id, parent_features,
-                )
-                try:
-                    self.graph.get_node(default_pop_id)
-                except KeyError:
-                    self.graph.add_node(PopulationNode(
-                        id=default_pop_id,
-                        name=(
-                            cond if parent_features
-                            else f"All patients ({canonical_name})"
-                        ),
-                        defining_features=list(parent_features),
-                    ))
-                # responds_differently: default_population → indication.
-                # The trial's enrollment is itself a stratification of the
-                # disease (stage III cutaneous melanoma is not the same as
-                # melanoma overall), and downstream prediction walks this
-                # edge to score population fit.
-                #
-                # Round-16 fix: drop the `qualifiers` guard. Without it,
-                # trials whose condition canonicalizes to plain
-                # "melanoma" (no stage/biomarker qualifiers — the
-                # majority) had NO responds_differently edge created
-                # for their parent_population_id = "melanoma__unselected".
-                # The round-16 always-emit classifier rule then sent
-                # responds_differently evidence to an edge that didn't
-                # exist, which the attributor silently dropped as
-                # "entity_not_in_trial". Now every (default_pop,
-                # indication) pair gets a structural edge so classifier
-                # emissions land somewhere.
-                if not self.graph._graph.has_edge(  # noqa: SLF001
-                    default_pop_id, canonical_id,
-                    key=EdgeType.RESPONDS_DIFFERENTLY.value,
-                ):
-                    # Round-17: source tag also notes when LLM features
-                    # contributed, so downstream introspection can tell
-                    # the regex-only populations from the eligibility-
-                    # enriched ones.
-                    if llm_features and qualifiers:
-                        source_tag = "regex_plus_llm_eligibility"
-                    elif llm_features:
-                        source_tag = "llm_eligibility"
-                    elif qualifiers:
-                        source_tag = "indication_qualifiers"
-                    else:
-                        source_tag = "default_unselected"
-                    # Round-25: heuristic seed prior dropped. The edge
-                    # exists so classifier emissions can land on it, but
-                    # starts at uninformative Beta(1, 1) — it'll be
-                    # dropped from predictions until a trial provides
-                    # real subgroup-vs-parent contrast evidence.
-                    self.graph.add_edge(GraphEdge(
-                        source_id=default_pop_id,
-                        target_id=canonical_id,
-                        edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                        belief=EdgeBeliefState(),
-                        metadata={
-                            "source": source_tag,
-                            "raw_descriptor": cond,
-                        },
-                    ))
+                # The trial's enrollment-cohort population = its disease-
+                # agnostic eligibility axes (line/stage/biomarker). With NO
+                # coarse axes it's an all-comers cohort → NO population node
+                # (it would only reiterate the indication); default_pop_id is
+                # None and the chain gets no population dimension.
+                default_pop_id = PopulationNode.compose_id(parent_features)
+                if default_pop_id is not None:
+                    try:
+                        self.graph.get_node(default_pop_id)
+                    except KeyError:
+                        self.graph.add_node(PopulationNode(
+                            id=default_pop_id,
+                            name=PopulationNode.display_name(parent_features),
+                            defining_features=list(parent_features),
+                            description=PopulationNode.describe(parent_features),
+                        ))
+                    # responds_differently: enrollment-cohort population →
+                    # indication. The trial's eligibility axes are a real
+                    # stratification of the disease; the prediction walks this
+                    # edge to score population fit. Only created when a real
+                    # axis exists (default_pop_id is not None) — all-comers
+                    # cohorts get no node and no edge. Starts at Beta(1, 1);
+                    # classifier subgroup-vs-overall evidence lands here.
+                    if not self.graph._graph.has_edge(  # noqa: SLF001
+                        default_pop_id, canonical_id,
+                        key=EdgeType.RESPONDS_DIFFERENTLY.value,
+                    ):
+                        if llm_features and qualifiers:
+                            source_tag = "regex_plus_llm_eligibility"
+                        elif llm_features:
+                            source_tag = "llm_eligibility"
+                        else:
+                            source_tag = "indication_qualifiers"
+                        self.graph.add_edge(GraphEdge(
+                            source_id=default_pop_id,
+                            target_id=canonical_id,
+                            edge_type=EdgeType.RESPONDS_DIFFERENTLY,
+                            belief=EdgeBeliefState(),
+                            metadata={
+                                "source": source_tag,
+                                "raw_descriptor": cond,
+                            },
+                        ))
 
                 if chosen_canonical is None:
                     chosen_canonical = canonical_id
@@ -1495,6 +1559,21 @@ class PopulationPipeline:
                 if tid not in existing:
                     existing.append(tid)
         console.print(f"  Added {cell_added} AFFECTS edges (cell-therapy heuristic)")
+
+        # LLM target-inference: resolve compounds the curated + heuristic
+        # resolvers all missed, so their chains ground on a real gene + Reactome
+        # mechanism instead of a coarse drug-class slug. Validated against OT
+        # before use; runs before the name-match fallback.
+        console.print("[bold]Inferring missing compound targets (LLM)...[/bold]")
+        llm_added, llm_targets = await self._infer_missing_compound_targets(
+            trials, compound_targets,
+        )
+        for cid, tids in llm_targets.items():
+            existing = compound_targets.setdefault(cid, [])
+            for tid in tids:
+                if tid not in existing:
+                    existing.append(tid)
+        console.print(f"  Added {llm_added} AFFECTS edges (LLM target-inference)")
 
         # Name-matching fallback: catches binds_to relationships for
         # compounds OT couldn't resolve from trial text.
@@ -1812,7 +1891,10 @@ class PopulationPipeline:
         Falls back to a slugified copy of the raw text when no Anthropic
         client is configured (tests + offline mode).
         """
-        from src.graph.indication_taxonomy import slugify_disease_name
+        from src.graph.indication_taxonomy import (
+            is_nondisease_condition,
+            slugify_disease_name,
+        )
 
         if self._indication_canon is None:
             self._indication_canon = JSONCache(
@@ -1821,15 +1903,27 @@ class PopulationPipeline:
         cache = self._indication_canon
 
         cached = cache.get(cond)
-        if cached:
+        if cached is not None:
             slug, _, name = cached.partition("|")
-            if slug:
-                return slug, name or slug.replace("_", " ")
+            # Empty cached slug = a prior non-disease drop; also re-gate any
+            # legacy cached slug so pre-gate caches are cleaned up on read.
+            if not slug or is_nondisease_condition(slug):
+                return "", ""
+            # Re-apply slugify_disease_name to the cached slug so the alias table
+            # + plural normalization always take effect — even on slugs cached
+            # BEFORE an alias was added (e.g. legacy "prostate_adenocarcinoma"
+            # now folds to "prostate_cancer"). Without this, stale cache entries
+            # bypass the aliases and fragment a disease into two IndicationNodes.
+            slug = slugify_disease_name(slug)
+            return slug, name or slug.replace("_", " ")
 
         if self._anthropic is None:
             slug = slugify_disease_name(cond) or normalize_entity(
                 cond, "IndicationNode",
             )
+            if is_nondisease_condition(slug):
+                cache.set(cond, "|")  # sentinel: non-disease condition, dropped
+                return "", ""
             name = cond
             cache.set(cond, f"{slug}|{name}")
             return slug, name
@@ -1901,6 +1995,14 @@ class PopulationPipeline:
             name = cond
         else:
             name = slug.replace("_", " ")
+
+        # Condition-validity gate: drop age-group / non-disease conditions
+        # (e.g. "Child") so they never become IndicationNodes. The caller
+        # skips on an empty id; if a trial's only conditions are non-diseases
+        # it gets no indication (and is dropped by the no-indication path).
+        if is_nondisease_condition(slug):
+            cache.set(cond, "|")  # sentinel: non-disease condition, dropped
+            return "", ""
 
         cache.set(cond, f"{slug}|{name}")
         return slug, name
@@ -2732,6 +2834,149 @@ class PopulationPipeline:
 
         return added
 
+    async def _infer_missing_compound_targets(
+        self,
+        trials: list,
+        compound_targets: dict[str, list[str]],
+    ) -> tuple[int, dict[str, list[str]]]:
+        """LLM-infer gene targets for compounds the curated + heuristic
+        resolvers missed (OT / ChEMBL / mAb / vaccine / cell-therapy all
+        failed), at the compound→target seam BEFORE the name-match fallback.
+
+        For each unresolved, non-diagnostic constituent compound, ask an LLM for
+        ``(gene_symbol, intervention_class)``. Keep only THERAPEUTIC
+        interventions whose gene VALIDATES to a real Ensembl id via OT
+        ``search_target`` (hallucinated / non-gene answers are dropped), then add
+        a TargetNode + AFFECTS edge at the modest ``DATABASE_LLM_INFERENCE``
+        n_eff. Cost-bounded to the misses (~100 compounds ≪ $10 at Haiku rates)
+        and cached on disk. Returns ``(edges_added, {compound_id: [ensembl]})``.
+        """
+        del trials  # reserved for a future indication hint; misses come from
+        #             the POST-COLLAPSE graph so resurrected codenames can't
+        #             appear (map_trial_to_graph_nodes yields raw pre-collapse
+        #             ids; the codename→INN remap happens earlier in populate).
+        if self._anthropic is None or self._ot_client is None:
+            return 0, {}
+
+        # Unresolved compounds (id → display name): the compound nodes already
+        # in the graph (canonical, post-collapse) that have no resolved target.
+        misses: dict[str, str] = {}
+        for ntype in ("CompoundNode", "InterventionNode"):
+            for node in self.graph.get_nodes_by_type(ntype):
+                cid = node["id"]
+                if cid in misses or compound_targets.get(cid):
+                    continue
+                if cid in self._diagnostic_compound_ids:
+                    continue
+                misses[cid] = node.get("name") or cid
+
+        if not misses:
+            return 0, {}
+
+        cache = JSONCache(self._cache_dir / "llm_inferred_targets.json")
+        added = 0
+        new_targets: dict[str, list[str]] = {}
+        _MAX_CALLS = 400  # backstop; real miss count is ~100
+        n_calls = 0
+        for cid, name in misses.items():
+            cached = cache.get(cid)
+            if cached is None:
+                if n_calls >= _MAX_CALLS:
+                    logger.warning("LLM target-inference hit the %d-call cap", _MAX_CALLS)
+                    break
+                cached = await self._llm_infer_compound_target(name, "")
+                n_calls += 1
+                cache.set(cid, cached)
+            gene, _, iclass = cached.partition("|")
+            gene, iclass = gene.strip(), iclass.strip().lower()
+            if not gene or gene.upper() == "UNKNOWN":
+                continue
+            if iclass and iclass != "therapeutic":
+                continue  # intervention-class gate
+            try:
+                ot_target = await self._ot_client.search_target(gene)
+            except Exception:  # noqa: BLE001
+                ot_target = None
+            if not ot_target or not ot_target.get("target_id"):
+                continue  # gene didn't validate to a real Ensembl target
+            ensembl = ot_target["target_id"]
+            symbol = ot_target.get("approved_symbol") or gene
+            try:
+                self.graph.get_node(ensembl)
+            except KeyError:
+                self.graph.add_node(TargetNode(
+                    id=ensembl,
+                    name=ot_target.get("name") or symbol,
+                    gene_symbol=symbol,
+                    target_type=TargetType.PROTEIN,
+                    metadata={"source": "llm_inference"},
+                ))
+                self._index_node(ensembl, symbol, "target")
+            if not self.graph._graph.has_edge(  # noqa: SLF001
+                cid, ensembl, key=EdgeType.AFFECTS.value
+            ):
+                record = make_curated_record(
+                    source_id=f"llm_inference:{cid}",
+                    bucket=SupportBucket.MODERATE_SUPPORT,
+                    source_type=EvidenceType.DATABASE_LLM_INFERENCE,
+                    notes=f"LLM-inferred drug→target: {cid} → {symbol}",
+                )
+                self.graph.add_edge(GraphEdge(
+                    source_id=cid,
+                    target_id=ensembl,
+                    edge_type=EdgeType.AFFECTS,
+                    belief=belief_from_curated_record(record),
+                    metadata={"source": "llm_inference"},
+                ))
+                added += 1
+            new_targets.setdefault(cid, []).append(ensembl)
+        logger.info(
+            "LLM target-inference: resolved %d/%d unresolved compounds "
+            "(%d LLM calls)", len(new_targets), len(misses), n_calls,
+        )
+        return added, new_targets
+
+    async def _llm_infer_compound_target(self, name: str, indication: str) -> str:
+        """One Haiku call: drug name (+ indication hint) → ``"GENE | class"``.
+        Returns ``"UNKNOWN|..."`` when there is no single protein-coding-gene
+        target or the model isn't confident (abstention preferred to a guess)."""
+        ctx = f"\nIndication context: {indication}" if indication else ""
+        user_msg = (
+            f"Therapeutic intervention: {name!r}{ctx}\n\n"
+            "What is the PRIMARY molecular target — the gene whose protein "
+            "product this intervention binds or directly modulates?\n\n"
+            "Reply EXACTLY as: GENE_SYMBOL | intervention_class\n"
+            "  GENE_SYMBOL: official HUGO gene symbol (EGFR, PDCD1, HMGCR, ...). "
+            "Reply UNKNOWN if there is no single protein-coding-gene target "
+            "(cytotoxic chemo hitting DNA/microtubules, radiation, a device, a "
+            "supplement, an imaging / diagnostic agent) or you are not confident.\n"
+            "  intervention_class: one of therapeutic, diagnostic, "
+            "supportive_care, non_therapeutic. Antibiotics, antiemetics, "
+            "colony-stimulating factors, and other agents present for SUPPORTIVE "
+            "care in a cancer trial are supportive_care, not therapeutic.\n\n"
+            "Examples:\n"
+            "  'Osimertinib' -> EGFR | therapeutic\n"
+            "  'Pembrolizumab' -> PDCD1 | therapeutic\n"
+            "  'Atorvastatin' -> HMGCR | therapeutic\n"
+            "  'Axitinib' -> KDR | therapeutic\n"
+            "  'Paclitaxel' -> UNKNOWN | therapeutic\n"
+            "  'Trimethoprim-Sulfamethoxazole' -> DHFR | supportive_care\n"
+            "  'Technetium Tc-99m Sestamibi' -> UNKNOWN | diagnostic\n\n"
+            "Reply with only 'GENE | class'. No other text."
+        )
+        try:
+            response = await _call_messages_with_backoff(
+                self._anthropic,
+                model=TARGET_INFERENCE_MODEL,
+                max_tokens=20,
+                temperature=0,
+                messages=[{"role": "user", "content": user_msg}],
+            )
+            return response.content[0].text.strip()
+        except Exception:  # noqa: BLE001
+            logger.debug("LLM target inference failed for %r", name, exc_info=True)
+            return "UNKNOWN|"
+
     async def _resolve_gene_pathways(
         self,
         target_id: str,
@@ -2849,7 +3094,17 @@ class PopulationPipeline:
                         gene_symbol=gene_symbol,
                     )
                     if top_go_score > top_reactome_score:
-                        pathways = go_terms
+                        # Prune the GO set to its on-mechanism terms. A gene's
+                        # full GO biological-process set includes real-but-off-
+                        # context leaves (TUBB4B → "flagellated sperm motility",
+                        # CRBN → "limb development") and the MECHANISM cap would
+                        # otherwise keep all of them. Primary prune is BioLORD
+                        # semantic similarity (scales, no hand vocab); token-
+                        # overlap is the offline fallback. Top-1 fallback never
+                        # drops the chain. Reactome names are left untouched.
+                        pathways = self._floor_go_terms(
+                            go_terms, context_name, indication_id, gene_symbol
+                        )
                         chosen_source = "quickgo_target_lookup"
 
         primary_score = score_candidate(
@@ -2859,6 +3114,48 @@ class PopulationPipeline:
             gene_symbol=gene_symbol,
         )
         return (pathways, chosen_source, primary_score)
+
+    def _floor_go_terms(
+        self,
+        go_terms: list[Any],
+        context_name: str,
+        indication_id: str,
+        gene_symbol: str,
+    ) -> list[Any]:
+        """Prune a gene's GO biological-process terms to the on-mechanism ones.
+
+        Primary path is BioLORD semantic similarity to the chain context
+        (scales to any gene, no hand-maintained vocabulary); falls back to
+        token-overlap when BioLORD isn't installed. Either way the top-1
+        fallback guarantees the chain keeps a mechanism.
+        """
+        from src.graph.pathway_ranker import (
+            relevance_floor,
+            semantic_relevance_floor,
+        )
+
+        context_text = (context_name or "").replace("_", " ").strip()
+        if context_text:
+            try:
+                from src.graph.biolord_embeddings import embed_texts
+
+                cache_path = self._cache_dir / "biolord_embeddings.json"
+                return semantic_relevance_floor(
+                    go_terms,
+                    context_text,
+                    lambda texts: embed_texts(texts, cache_path=cache_path),
+                )
+            except Exception:  # noqa: BLE001 — BioLORD optional; degrade gracefully
+                logger.debug(
+                    "BioLORD GO floor unavailable; using token-overlap fallback",
+                    exc_info=True,
+                )
+        return relevance_floor(
+            go_terms,
+            mechanism_name=context_name,
+            indication_name=indication_id,
+            gene_symbol=gene_symbol,
+        )
 
     # Number of Reactome pathways materialized as distinct BiologyNodes
     # per (target, mechanism) pair. Set to 1 in round 3.4: at single-
@@ -3212,6 +3509,14 @@ class PopulationPipeline:
                 # biology UNRESOLVED (``_UNKNOWN``, tagged for audit) rather than
                 # synthesizing a {mech}__{indication} slug. Cross-trial
                 # consolidation is the downstream BioLORD description merge.
+                # Defense-in-depth: a control/comparator arm's biology may be a
+                # sentinel ("no active intervention", "placebo control") rather
+                # than a physiological process. Never content-address such a
+                # sentinel into a Biology node — drop the description so biology
+                # falls through to UNRESOLVED below.
+                if _is_control_biology_sentinel(bio_desc):
+                    bio_desc = ""
+
                 if not bio_desc:
                     md = dict(chain.metadata)
                     md["unresolved_biology"] = True
@@ -3378,25 +3683,24 @@ class PopulationPipeline:
                     cls = EndpointClass.OTHER
 
                 for ind_id, ind_name in indication_ids:
-                    # Anchor endpoints on the parent indication so a single
-                    # `PFS_melanoma` node serves every melanoma subtype.
-                    # Subtype-specific endpoints would fragment evidence
-                    # accumulation across nodes that mean the same thing.
-                    root_ind_id = _root_indication(ind_id)
-                    ep_id = normalize_entity(
-                        f"{cls.value}_{root_ind_id}", "EndpointNode"
-                    )
+                    # Endpoints are DISEASE-AGNOSTIC (node-orthogonality
+                    # redesign): a single shared PFS / OS / ORR node per
+                    # measurement, with the per-disease binding on the
+                    # endpoint_captures edge seeded below. Catch-all classes
+                    # (biomarker/safety/PRO/other) are sub-keyed by measure so
+                    # distinct measures don't fuse.
+                    ep_id, ep_label = _endpoint_node_id(cls, om.measure)
                     try:
                         self.graph.get_node(ep_id)
                     except KeyError:
                         self.graph.add_node(EndpointNode(
                             id=ep_id,
-                            name=f"{cls.value} ({ind_name})",
+                            name=ep_label,
                             endpoint_type=EndpointType.PRIMARY,
                             regulatory_status=RegulatoryStatus.EXPLORATORY,
                             measurement_properties={
                                 "endpoint_class": cls.value,
-                                "indication_id": root_ind_id,
+                                "raw_measure": om.measure,
                             },
                         ))
                         added += 1
@@ -3824,14 +4128,14 @@ class PopulationPipeline:
         a measure-keyed node so the trial still gets a chain instead of
         being silently dropped.
 
-        Id follows ``other_{measure_slug}_{indication}`` so it doesn't
-        collide with the curated ``{class}_{indication}`` namespace.
+        Id follows ``other_{measure_slug}`` — disease-agnostic (node-
+        orthogonality redesign); the per-disease binding is on the
+        endpoint_captures edge. ``indication_id`` is accepted for call-site
+        compatibility but no longer part of the id.
         """
-        measure_slug = re.sub(r"[^a-z0-9]+", "_", measure.lower()).strip("_")[:60]
-        if not measure_slug:
-            measure_slug = "unspecified"
-        root_ind = _root_indication(indication_id)
-        ep_id = f"other_{measure_slug}_{root_ind}"
+        del indication_id  # endpoints are disease-agnostic now
+        measure_slug = slugify_measure_name(measure, max_len=60)
+        ep_id = f"other_{measure_slug}"
         try:
             self.graph.get_node(ep_id)
         except KeyError:
@@ -3843,7 +4147,6 @@ class PopulationPipeline:
                 measurement_properties={
                     "source": "slug_fallback_no_canonicalization",
                     "raw_measure": measure,
-                    "indication_id": root_ind,
                 },
             ))
         self._index_node(ep_id, measure, "endpoint")
@@ -4115,13 +4418,25 @@ def build_arms(
             # Same helper is used by `map_trial_to_graph_nodes` so both
             # populator code paths agree on the canonical name.
             for canonical in canonical_compound_names(iv_name):
+                # Drop pure placebo/sham/vehicle constituents — the patient
+                # receives no active molecule, so this is a CONTROL arm with no
+                # mechanistic chain. Without this, a placebo arm whose label
+                # carries the drug name ("Double-blind adalimumab placebo")
+                # name-matches the real drug and builds a spurious chain whose
+                # biology is the sentinel "no active intervention". A double-
+                # dummy/add-on arm keeps its real drug, since the helper only
+                # strips the placebo constituent ("infliximab; AZA placebo" →
+                # "infliximab"). An arm left with no real drug is skipped below.
+                real = strip_placebo_constituents(canonical)
+                if real is None:
+                    continue
                 cid = (
-                    resolve_compound(canonical, "compound")
+                    resolve_compound(real, "compound")
                     if resolve_compound is not None
                     else None
                 )
                 if not cid:
-                    cid = normalize_entity(canonical, "InterventionNode")
+                    cid = normalize_entity(real, "InterventionNode")
                 compound_ids.append(cid)
 
         # Drop duplicates while preserving order—some trials list the same
@@ -4256,22 +4571,206 @@ def ensure_parent_population(
     *,
     indication_name: str | None = None,
 ) -> str:
-    """Create (if missing) the trial's parent enrollment PopulationNode.
+    """Return the sentinel for "no parent population node".
 
-    The parent represents "all patients meeting trial enrollment criteria"
-   —used as the default subgroup_population_id when no biomarker
-    stratifier was reported.
+    Node-orthogonality redesign: an all-comers enrollment cohort carries no
+    information beyond the indication, so it gets NO PopulationNode. Chains
+    with no reported subgroup use this sentinel as their
+    ``subgroup_population_id`` (and the trial's ``parent_population_id``), which
+    makes the prediction walk skip ``responds_differently`` — the right
+    semantics for "no patient-selection signal". Real subgroups get their own
+    disease-agnostic ``{axes}`` nodes instead. Kept as a function (not inlined)
+    so both chain builders stay in sync; ``indication_name`` is now unused.
     """
-    pop_id = PopulationNode.compose_id(indication_id, [])
-    try:
-        graph.get_node(pop_id)
-    except KeyError:
-        graph.add_node(PopulationNode(
-            id=pop_id,
-            name=f"All patients ({indication_name or indication_id})",
-            defining_features=[],
-        ))
-    return pop_id
+    del graph, indication_id, indication_name
+    return _UNKNOWN
+
+
+def ensure_reflects_biology_edges(graph: GraphStore) -> int:
+    """Create the biology→endpoint REFLECTS_BIOLOGY backbone edge for every chain
+    with both a real biology and endpoint node.
+
+    REFLECTS_BIOLOGY ("the endpoint MEASURES this biology") is a claim distinct
+    from BIOLOGY_DRIVES ("the biology helps the disease") and ENDPOINT_CAPTURES
+    ("the endpoint predicts the disease") — it is measurement validity. Every
+    consumer already references it: the predictor's auxiliary edges
+    (``path_query._AUXILIARY_EDGES``), the attributor's conditioning walk
+    (``_chain_backbone_edges``), and the (s,t) field's ``EDGE_SPECS``. But the
+    populator builds the backbone across many per-role methods and none
+    instantiated THIS edge, so it was a phantom — defined everywhere, created
+    nowhere, hence never materialized into a field belief.
+
+    Path-independent post-pass over the ASSEMBLED graph's chains (run AFTER merge,
+    so it uses final node ids) and BEFORE attribution (the attributor only updates
+    edges that already exist). Seeded Beta(1,1) (uninformative) like
+    RESPONDS_DIFFERENTLY; attribution then conditions it on each arm's outcome.
+    Idempotent; UNKNOWN endpoints get no edge. Returns the number of edges added.
+    """
+    created = 0
+    for ts in graph.trial_subgraphs.values():
+        for ch in ts.chains:
+            bio_id, ep_id = ch.biology_id, ch.endpoint_id
+            if not bio_id or not ep_id or bio_id == _UNKNOWN or ep_id == _UNKNOWN:
+                continue
+            if graph._graph.has_edge(  # noqa: SLF001
+                bio_id, ep_id, key=EdgeType.REFLECTS_BIOLOGY.value,
+            ):
+                continue
+            graph.add_edge(GraphEdge(
+                source_id=bio_id,
+                target_id=ep_id,
+                edge_type=EdgeType.REFLECTS_BIOLOGY,
+                belief=EdgeBeliefState(),
+                metadata={"source": "chain_backbone", "trial_id": ts.trial_id},
+            ))
+            created += 1
+    return created
+
+
+def populate_chain_descriptions(graph: GraphStore, annotations_dir: Path) -> int:
+    """Stamp each chain's OWN per-drug descriptions onto the chain in the graph,
+    so the edge-view / debug UI can show per-contributor (s,t) provenance by
+    READING the graph (no annotation re-derivation at view time).
+
+    Per chain: the per-(arm, intervention) description for THIS chain's compound
+    (combo-arm correct — a paclitaxel chain keeps "mitotic arrest", not its
+    neighbor's "angiogenesis inhibition") via :func:`_lookup_chain_intervention_desc`,
+    falling back to the per-arm first-non-empty desc. Run at build AFTER merge
+    (final ids). This is PROVENANCE; the (s,t) FIELD localizes by node concept
+    (``field_prediction.build_st_desc_map``), independent of these. Idempotent
+    (skips a chain field that's already set). Returns the number of chains updated.
+    """
+    from src.graph.box_embeddings import (
+        chain_descriptions_by_arm,
+        chain_descriptions_by_arm_intervention,
+    )
+
+    by_arm = chain_descriptions_by_arm(str(annotations_dir))
+    by_arm_iv = chain_descriptions_by_arm_intervention(str(annotations_dir))
+    updated = 0
+    for tid, ts in list(graph.trial_subgraphs.items()):
+        new_chains = []
+        changed = False
+        for ch in ts.chains:
+            iv = _lookup_chain_intervention_desc(graph, by_arm_iv, tid, ch)
+            arm = by_arm.get((tid, ch.arm_id), {})
+            upd = {}
+            for fld, key in (
+                ("mechanism_description", "mechanism"),
+                ("biology_description", "biology"),
+                ("population_description", "population"),
+            ):
+                val = ((iv.get(key) if iv else "") or arm.get(key, "")).strip()
+                if val and not getattr(ch, fld, ""):
+                    upd[fld] = val
+            if upd:
+                new_chains.append(ch.model_copy(update=upd))
+                changed = True
+                updated += 1
+            else:
+                new_chains.append(ch)
+        if changed:
+            graph.trial_subgraphs[tid] = ts.model_copy(update={"chains": new_chains})
+    return updated
+
+
+# Over-generic "diseases" that must NOT become SUBTYPE_OF parents — they create
+# over-pooling hubs (every cancer → "cancer") and several are junk catch-all
+# indications, not real diseases.
+_GENERIC_DISEASE_PARENTS: frozenset[str] = frozenset({
+    "cancer", "cancers", "neoplasm", "neoplasms", "carcinoma", "tumor",
+    "tumors", "tumour", "disease", "diseases", "disorder", "disorders",
+    "syndrome", "malignancy", "malignancies", "malignant_neoplasm",
+    "solid_tumor", "solid_tumors", "hematologic_diseases",
+    "hematologic_malignancies", "hematological_malignancies",
+})
+# Generic qualifier/category tokens that can't carry the leaf↔parent disease
+# match (so the shared token must be a specific disease root).
+_GENERIC_DISEASE_TOKENS: frozenset[str] = frozenset({
+    "cancer", "cancers", "disease", "diseases", "disorder", "neoplasm",
+    "neoplasms", "tumor", "tumors", "carcinoma", "malignant", "syndrome",
+    "advanced", "metastatic", "recurrent", "chronic", "acute", "primary",
+})
+
+
+def _shares_disease_token(leaf: str, parent: str) -> bool:
+    """True if leaf + parent share a SPECIFIC (non-generic, ≥4-char) disease
+    token. Precision guard so an OT name-search mismatch can't fabricate a
+    SUBTYPE_OF parent: acute_lymphoblastic_leukemia↔leukemia share 'leukemia'
+    (kept), but brain_and_central_nervous_system_tumor↔lymphoma share nothing
+    (rejected)."""
+    def _toks(s: str) -> set[str]:
+        return {
+            t for t in s.split("_")
+            if len(t) >= 4 and t not in _GENERIC_DISEASE_TOKENS
+        }
+    return bool(_toks(leaf) & _toks(parent))
+
+
+async def link_indication_subtypes_via_efo(
+    graph: GraphStore, ot_client: Any, *, cache_dir: Path | None = None,
+) -> int:
+    """Add SUBTYPE_OF edges between the graph's IndicationNodes from EFO/MONDO
+    ancestry (ALL is_a leukemia, uveal_melanoma is_a melanoma, …) — Phase 4.
+
+    Runs on the ASSEMBLED graph. For each IndicationNode, resolve its EFO id +
+    ancestor EFO ids (OT, cached); then link a leaf to any OTHER graph
+    indication that is one of its EFO ancestors. The prediction-time indication
+    backoff (``path_query``) walks these edges so a leaf-anchored chain borrows
+    its parent's evidence. Biomarker / clinical-state are population axes (not
+    IndicationNodes), so this is purely the biological disease tree. Idempotent,
+    cycle-guarded, best-effort (a failed EFO lookup just skips that disease).
+    Returns the number of SUBTYPE_OF edges added."""
+    inds = [n["id"] for n in graph.get_nodes_by_type("IndicationNode")]
+    if len(inds) < 2:
+        return 0
+    cache = JSONCache((cache_dir or Path("data/cache")) / "efo_ancestors.json")
+    efo_of: dict[str, str] = {}
+    ancestors_of: dict[str, list[str]] = {}
+    for slug in inds:
+        cached = cache.get(slug)
+        if cached is not None:
+            efo, _, anc = cached.partition("|")
+            efo_of[slug] = efo
+            ancestors_of[slug] = [a for a in anc.split(",") if a]
+            continue
+        name = graph.get_node(slug).get("name") or slug.replace("_", " ")
+        try:
+            efo = await ot_client.search_disease(name)
+            anc = await ot_client.get_disease_ancestors(efo) if efo else []
+        except Exception:  # noqa: BLE001 — EFO is best-effort enrichment
+            logger.debug("EFO ancestry lookup failed for %r", slug, exc_info=True)
+            efo, anc = None, []
+        efo_of[slug] = efo or ""
+        ancestors_of[slug] = anc
+        cache.set(slug, f"{efo or ''}|{','.join(anc)}")
+
+    slug_of_efo = {e: s for s, e in efo_of.items() if e}
+    g = graph._graph  # noqa: SLF001
+    added = 0
+    for leaf in inds:
+        for anc_efo in ancestors_of.get(leaf, []):
+            parent = slug_of_efo.get(anc_efo)
+            if not parent or parent == leaf:
+                continue
+            if parent in _GENERIC_DISEASE_PARENTS:
+                continue  # too coarse — would create an over-pooling hub
+            if not _shares_disease_token(leaf, parent):
+                continue  # OT search-mismatch guard (CNS tumor !-> lymphoma)
+            if g.has_edge(leaf, parent, key=EdgeType.SUBTYPE_OF.value):
+                continue
+            if g.has_edge(parent, leaf, key=EdgeType.SUBTYPE_OF.value):
+                continue  # cycle guard (parent already a subtype of leaf)
+            graph.add_edge(GraphEdge(
+                source_id=leaf,
+                target_id=parent,
+                edge_type=EdgeType.SUBTYPE_OF,
+                metadata={"source": "efo_ancestry"},
+            ))
+            added += 1
+    if added:
+        logger.info("EFO indication hierarchy: added %d SUBTYPE_OF edges", added)
+    return added
 
 
 def _lookup_chain_intervention_desc(
@@ -4369,9 +4868,13 @@ def attach_node_descriptions_from_extractions(
         trial's ``proposed_mechanism``
       - Biology node   ← per-(arm, intervention) biology_description, else the
         trial's ``intended_biology``
-      - Parent population ← the trial's ``target_population``
-      - Subgroup population ← its own node name (already encodes the
-        descriptor; richer trial-contextualized text is the deferred A.0b)
+
+    Population nodes are NOT described here: they are disease-agnostic and shared
+    across indications, so a trial's (disease-naming) ``target_population`` would
+    smear one disease's cohort text onto a shared node like ``line_first``. They
+    get a deterministic ``PopulationNode.describe(features)`` at creation instead;
+    the per-trial cohort phrasing survives as ``responds_differently`` edge
+    ``raw_descriptor`` provenance.
 
     Returns the number of node descriptions set.
     """
@@ -4394,7 +4897,6 @@ def attach_node_descriptions_from_extractions(
         hyp = data.get("therapeutic_hypothesis") or {}
         trial_mech_desc = (hyp.get("proposed_mechanism") or "").strip()
         trial_bio_desc = (hyp.get("intended_biology") or "").strip()
-        parent_pop_desc = (hyp.get("target_population") or "").strip()
         for chain in ts.chains:
             iv_entry = _lookup_chain_intervention_desc(
                 graph, desc_by_arm_iv, nct_id, chain,
@@ -4407,15 +4909,6 @@ def attach_node_descriptions_from_extractions(
             )
             set_count += _set_node_description(graph, chain.mechanism_id, mech_desc)
             set_count += _set_node_description(graph, chain.biology_id, bio_desc)
-            pop_id = chain.subgroup_population_id
-            if pop_id == ts.parent_population_id:
-                pop_desc = parent_pop_desc
-            else:
-                try:
-                    pop_desc = graph.get_node(pop_id).get("name", "") or ""
-                except KeyError:
-                    pop_desc = ""
-            set_count += _set_node_description(graph, pop_id, pop_desc)
     return set_count
 
 
@@ -4524,14 +5017,17 @@ def build_trial_subgraph_from_extraction(
         ):
             continue
         subgroup_features_by_descriptor[sg.raw_descriptor] = feats
-        pop_id = PopulationNode.compose_id(indication_id, feats)
+        pop_id = PopulationNode.compose_id(feats)  # disease-agnostic {axes}
+        if pop_id is None:
+            continue  # no real axis → not a population (shouldn't happen here)
         try:
             graph.get_node(pop_id)
         except KeyError:
             graph.add_node(PopulationNode(
                 id=pop_id,
-                name=f"{sg.raw_descriptor} ({indication_name or indication_id})",
+                name=PopulationNode.display_name(feats),
                 defining_features=list(feats),
+                description=PopulationNode.describe(feats),
             ))
         subgroup_pop_ids[sg.raw_descriptor] = pop_id
 
@@ -4547,13 +5043,14 @@ def build_trial_subgraph_from_extraction(
     _set_node_description(
         graph, biology_id, getattr(extraction, "biology_description", "")
     )
-    _set_node_description(
-        graph,
-        parent_pop_id,
-        getattr(extraction, "target_population_description", ""),
-    )
-    for _raw_desc, _pop_id in subgroup_pop_ids.items():
-        _set_node_description(graph, _pop_id, _raw_desc)
+    # Population nodes are DISEASE-AGNOSTIC and shared across indications, so
+    # their description must NOT come from a trial's raw cohort text (which names
+    # the disease — "stage II/III bladder cancer" — and would place a shared
+    # node like ``line_first`` in one disease's embedding space). They get a
+    # deterministic ``PopulationNode.describe(features)`` at node creation
+    # instead; the disease binding lives on the ``responds_differently`` edge's
+    # indication target, and the per-trial cohort phrasing is preserved as edge
+    # ``raw_descriptor`` provenance. So no population description attach here.
 
     # Index per-chain results by (arm_id, pop_id, endpoint_class).
     # Multiple raw descriptors may collapse onto the same canonical pop_id
@@ -4819,14 +5316,17 @@ async def seed_responds_differently_from_extractions(
                 for f in features
             ):
                 continue
-            pop_id = PopulationNode.compose_id(indication_id, features)
+            pop_id = PopulationNode.compose_id(features)  # disease-agnostic {axes}
+            if pop_id is None:
+                continue  # no real axis → not a population
             try:
                 graph.get_node(pop_id)
             except KeyError:
                 graph.add_node(PopulationNode(
                     id=pop_id,
-                    name=f"{descriptor or pop_id}",
+                    name=PopulationNode.display_name(features),
                     defining_features=list(features),
+                    description=PopulationNode.describe(features),
                 ))
             if not graph._graph.has_edge(  # noqa: SLF001
                 pop_id, indication_id, key=EdgeType.RESPONDS_DIFFERENTLY.value,
@@ -4910,15 +5410,17 @@ def add_subgroup_chains(
     chain_indication_id = _root_indication(indication_id)
     new_chains: list[CausalChain] = []
     for features in subgroup_features:
-        pop_id = PopulationNode.compose_id(indication_id, features)
+        pop_id = PopulationNode.compose_id(features)  # disease-agnostic {axes}
+        if pop_id is None:
+            continue  # no real axis → not a population
         try:
             graph.get_node(pop_id)
         except KeyError:
-            descriptor = ", ".join(f.raw_descriptor or f.slug() for f in features)
             graph.add_node(PopulationNode(
                 id=pop_id,
-                name=f"{descriptor} ({indication_name or indication_id})",
+                name=PopulationNode.display_name(features),
                 defining_features=list(features),
+                description=PopulationNode.describe(features),
             ))
         for arm in trial_subgraph.arms:
             new_chains.append(CausalChain(

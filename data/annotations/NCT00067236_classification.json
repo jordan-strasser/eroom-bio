@@ -1,0 +1,42 @@
+{
+  "nct_id": "NCT00067236",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data available. The compound PG-116800 has an unknown target, and no biomarker or PD data was reported to confirm target engagement. 2. PATHWAY MODULATION: No pathway biomarker data available to assess whether any downstream biology was modulated. 3. CLINICAL TRANSLATION: The primary endpoint (change in left ventricular end diastolic volume index at day 90) clearly missed with p=0.4239 and a small negative effect size of -0.39 mL/m2. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial appears adequately powered (n=253) and properly controlled (placebo comparator). Safety profile shows some cardiac events but no clear dose-limiting toxicity pattern that would prevent adequate dosing.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Unknown target and mechanism with no biomarker or target engagement data makes it impossible to determine where in the causal chain the failure occurred"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4c5484250c1f",
+      "target_entity": "myocardial_infarction",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pg_116800_tablet",
+      "reasoning": "Primary endpoint clearly missed (p=0.4239) indicating cardioprotection biology did not drive clinical benefit in myocardial infarction"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:4c5484250c1f",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pg_116800_tablet",
+      "reasoning": "Unknown mechanism failed to produce cardioprotective biology as evidenced by missed primary endpoint"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_left_ventricular_end_diastolic_volume_index",
+      "target_entity": "myocardial_infarction",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Left ventricular end diastolic volume index is a well-established cardiac remodeling endpoint that appropriately captures post-MI cardiac function"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Unknown target and mechanism make mechanistic failure classification challenging - expert review needed to determine if this represents a valid test of the causal chain"
+}

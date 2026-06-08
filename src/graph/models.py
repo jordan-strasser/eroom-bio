@@ -321,6 +321,11 @@ class EvidenceType(str, Enum):
     # biology slug, combo_inherit AFFECTS). Derived from existing
     # curated facts but one inferential step removed.
     DATABASE_FALLBACK = "database_fallback"
+    # LLM-inferred compound→target gene, for compounds OT/ChEMBL/mAb couldn't
+    # resolve. The inferred gene is VALIDATED against a real Ensembl gene (OT
+    # search_target) before use, but the BINDING claim itself is inferred, not
+    # curated — so it sits well below the curated DB binding tiers.
+    DATABASE_LLM_INFERENCE = "database_llm_inference"
 
     COMPUTATIONAL = "computational"
     LITERATURE = "literature"
@@ -522,7 +527,10 @@ class SubgroupFeature(BaseModel):
         non-gene → "{axis}_{level}" (e.g. "line_first")
         other → "other_{slugified(raw_descriptor)}"
         """
-        if self.axis == "gene":
+        if self.axis in ("gene", "biomarker"):
+            # biomarker = non-gene markers (RF, anti-CCP, LVEF, HbA1c, amyloid):
+            # same key_level slug as gene so "rf_positive" / "lvef_low" are
+            # disease-agnostic shared nodes.
             key = re.sub(r"[^a-z0-9]+", "", self.key.lower())
             level = re.sub(r"[^a-z0-9]+", "", self.level.lower())
             return f"{key}_{level}"
@@ -532,6 +540,53 @@ class SubgroupFeature(BaseModel):
             ).strip("_")[:30]
             return f"other_{cleaned or 'unmapped'}"
         return f"{self.axis.lower()}_{self.level.lower()}"
+
+    def describe(self) -> str:
+        """DISEASE-AGNOSTIC natural-language phrase for this axis — the BioLORD
+        embedding substrate for population nodes. Mirrors :meth:`slug` but
+        human/embedding facing. NEVER names a disease: a population node is
+        shared across indications, so its description must carry the
+        clinical-state axis ONLY (the disease lives on the
+        ``responds_differently`` edge's indication target)."""
+        axis, level = self.axis.lower(), self.level.strip().lower()
+        lv = level.replace("_", " ")
+        if axis == "line":
+            if level in {"adjuvant", "neoadjuvant", "maintenance", "perioperative"}:
+                return f"{lv} treatment"
+            if level in {"first", "second", "third", "fourth", "later"}:
+                return f"{lv}-line therapy"
+            return f"{lv} line of therapy"
+        if axis == "stage":
+            return f"stage {level.replace('_', '-').upper()} disease"
+        if axis == "extent":
+            return {
+                "locally_advanced": "locally advanced disease",
+                "metastatic": "metastatic disease",
+                "unresectable": "unresectable disease",
+                "resectable": "resectable disease",
+                "advanced": "advanced disease",
+                "early": "early-stage disease",
+            }.get(level, f"{lv} disease")
+        if axis in ("gene", "biomarker"):
+            return f"{self.key or 'biomarker'} {lv}".strip()
+        if axis == "severity":
+            return f"{lv} disease activity"
+        if axis == "functional_class":
+            return f"functional class {self.level.strip().upper()}"
+        if axis == "performance":
+            return f"ECOG performance status {level.replace('_', '-')}"
+        if axis in {"prior_tx", "prior_therapy"}:
+            return {
+                "naive": "no prior systemic therapy",
+                "treated": "prior systemic therapy",
+            }.get(level, f"{lv} prior therapy")
+        if axis == "age":
+            return f"{lv} age group"
+        if axis == "histology":
+            return f"{lv} histology"
+        if axis == "other":
+            return (self.raw_descriptor or lv).strip()
+        return f"{axis.replace('_', ' ')} {lv}".strip()
 
 
 class PopulationNode(BaseModel):
@@ -547,17 +602,51 @@ class PopulationNode(BaseModel):
     description: str = ""
 
     @staticmethod
-    def compose_id(indication_id: str, features: list[SubgroupFeature]) -> str:
-        """Build a deterministic id from indication + sorted feature slugs.
+    def compose_id(features: list[SubgroupFeature]) -> str | None:
+        """Disease-AGNOSTIC population id from sorted axis slugs, or ``None``
+        when there are no subgroup-defining features.
 
-        With no features → ``{indication}__unselected`` (the parent
-        enrollment population). The sorted-slug rule means the same set of
-        features always produces the same id regardless of input order.
+        Population nodes carry patient-SELECTION axes (line/stage/extent/
+        biomarker), not the disease — so the id is just the sorted feature
+        slugs (e.g. ``line_first__stage_iii``), shared across indications; the
+        per-disease binding lives on the ``responds_differently`` edge. An
+        all-comers cohort (no features) gets NO node (returns ``None``): it
+        carries no information beyond the indication, so the chain has no
+        population dimension and ``responds_differently`` is skipped.
         """
         if not features:
-            return f"{indication_id}__unselected"
-        slugs = sorted(f.slug() for f in features)
-        return f"{indication_id}__" + "__".join(slugs)
+            return None
+        return "__".join(sorted(f.slug() for f in features))
+
+    @staticmethod
+    def display_name(features: list[SubgroupFeature]) -> str:
+        """Readable, disease-agnostic name from the axes (e.g.
+        'line: first · stage: iii'). Falls back to the slug when empty."""
+        if not features:
+            return "all comers"
+        parts = []
+        for f in sorted(features, key=lambda f: f.slug()):
+            label = f.key or f.axis
+            parts.append(f"{label}: {f.level}" if f.level else label)
+        return " · ".join(parts)
+
+    @staticmethod
+    def describe(features: list[SubgroupFeature]) -> str:
+        """Deterministic DISEASE-AGNOSTIC description from the selection axes —
+        the stable BioLORD substrate for a population node (and its (s,t) field
+        coordinate). Because population nodes are SHARED across indications
+        (``compose_id`` is the disease-agnostic ``{axes}``), this describes the
+        clinical-state axes ONLY; the disease binding lives on the
+        ``responds_differently`` edge's indication target. Empty for the
+        no-feature (all-comers) case, which gets no node at all."""
+        if not features:
+            return ""
+        phrases = [
+            p for p in (f.describe() for f in sorted(features, key=lambda f: f.slug())) if p
+        ]
+        if not phrases:
+            return ""
+        return "Patients with " + ", ".join(phrases) + "."
 
 
 class EndpointNode(BaseModel):
@@ -801,6 +890,16 @@ class CausalChain(BaseModel):
     outcome: TrialOutcome = TrialOutcome.UNKNOWN
     effect_size: float | None = None
     p_value: float | None = None
+    # PROVENANCE (not field math): this chain's OWN per-(arm, drug) free-text
+    # descriptions, stamped once at build by ``populate_chain_descriptions`` via
+    # the per-(arm, intervention) index — so a combo arm's paclitaxel chain keeps
+    # "mitotic arrest", not its neighbor's "angiogenesis inhibition". The
+    # edge-view / debug UI reads these from the graph to show per-contributor
+    # (s,t) without re-deriving from annotations. The (s,t) FIELD localizes by
+    # node concept (``field_prediction.build_st_desc_map``), independent of these.
+    mechanism_description: str = ""
+    biology_description: str = ""
+    population_description: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -838,7 +937,11 @@ _CL_PATTERN = re.compile(r"^CL:\d{7}$")
 # {indication}__{feature_slug}[__{feature_slug}...]
 # Feature slugs may contain single underscores (e.g. "pdcd1_high",
 # "line_first"); the trivial parent population is "{indication}__unselected".
-_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)+$")
+# Disease-agnostic population ids are '__'-joined axis slugs (each slug is
+# itself 'axis_level', e.g. 'line_first'). A single axis has no '__'
+# ('line_first'); multiple axes do ('line_first__stage_iii'). So zero-or-more
+# '__' groups, not one-or-more.
+_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)*$")
 
 
 def _slugify_lower(text: str) -> str:
@@ -968,26 +1071,22 @@ def normalize_entity(name: str, node_type: str) -> str:
         return candidate
 
     if node_type == "EndpointNode":
-        # Expect {EndpointClass}_{indication_id}. Multi-word class values
-        # like 'composite_response' contain underscores, so split on the
-        # *first* '_' is wrong—match against EndpointClass values
-        # longest-first instead.
-        if "_" not in raw:
-            raise ValueError(
-                f"EndpointNode id '{name}' must be '{{class}}_{{indication}}'"
-            )
+        # Disease-AGNOSTIC (node-orthogonality redesign): a standardized class
+        # collapses to one shared node ``{class}`` (OS/PFS/ORR/...); catch-all
+        # classes are sub-keyed by measure as ``{class}_{measure}``. The
+        # per-disease binding lives on the endpoint_captures edge, NOT the id —
+        # so there is no indication suffix. Match EndpointClass values
+        # longest-first since some (composite_response) contain underscores.
         for cls in sorted(EndpointClass, key=lambda c: -len(c.value)):
+            if raw == cls.value:
+                return cls.value
             prefix = f"{cls.value}_"
             if raw.startswith(prefix):
-                ind = _slugify_lower(raw[len(prefix):])
-                if not ind:
-                    raise ValueError(
-                        f"EndpointNode '{name}': missing indication suffix"
-                    )
-                return f"{cls.value}_{ind}"
-        cls_part = raw.split("_", 1)[0]
+                measure = _slugify_lower(raw[len(prefix):])
+                return f"{cls.value}_{measure}" if measure else cls.value
         raise ValueError(
-            f"EndpointNode '{name}': '{cls_part}' is not an EndpointClass"
+            f"EndpointNode id '{name}': must start with an EndpointClass "
+            f"(got {raw!r})"
         )
 
     if node_type == "IndicationNode":

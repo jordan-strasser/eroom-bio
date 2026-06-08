@@ -1,0 +1,82 @@
+{
+  "nct_id": "NCT00071487",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm belimumab engaged BAFF. The trial assumed target engagement based on known binding but did not measure it directly. 2. PATHWAY MODULATION: No downstream pathway biomarkers measured to confirm B-cell suppression or cytokine neutralization occurred. 3. CLINICAL TRANSLATION: Primary endpoint (SELENA SLEDAI score change) clearly missed across all dose levels (1, 4, 10 mg/kg) with p-values >0.3 and modest effect sizes (-11.3% to -23.7%). No dose-response relationship observed. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Adequately powered study with 449 patients, 52-week duration appropriate for SLE, no obvious trial design issues. Safety profile was manageable with no dose-limiting toxicity preventing adequate exposure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker or target engagement data available to determine where in the causal chain the failure occurred. Cannot distinguish between target engagement failure, pathway modulation failure, or clinical translation failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:aba76c7d1ae6",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_1_mg_kg_plus_soc",
+      "reasoning": "Primary endpoint missed with p=0.3677 in 1 mg/kg arm, suggesting B-cell mediated autoimmune suppression did not drive clinical improvement in SLE"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:aba76c7d1ae6",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_4_mg_kg_plus_soc",
+      "reasoning": "Primary endpoint missed with p=0.4244 in 4 mg/kg arm, suggesting B-cell mediated autoimmune suppression did not drive clinical improvement in SLE"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:aba76c7d1ae6",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_10_mg_kg_plus_soc",
+      "reasoning": "Primary endpoint missed with p=0.3296 in 10 mg/kg arm, suggesting B-cell mediated autoimmune suppression did not drive clinical improvement in SLE"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5669034",
+      "target_entity": "bio:aba76c7d1ae6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_1_mg_kg_plus_soc",
+      "reasoning": "Failed trial outcome suggests TNF receptor binding mechanism did not effectively produce B-cell mediated autoimmune suppression in 1 mg/kg arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5669034",
+      "target_entity": "bio:aba76c7d1ae6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_4_mg_kg_plus_soc",
+      "reasoning": "Failed trial outcome suggests TNF receptor binding mechanism did not effectively produce B-cell mediated autoimmune suppression in 4 mg/kg arm"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5669034",
+      "target_entity": "bio:aba76c7d1ae6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "belimumab_10_mg_kg_plus_soc",
+      "reasoning": "Failed trial outcome suggests TNF receptor binding mechanism did not effectively produce B-cell mediated autoimmune suppression in 10 mg/kg arm"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_safety_estrogens_lupus_erythematosus_national",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "SELENA SLEDAI is a validated, regulatory-accepted endpoint for measuring SLE disease activity and was measured appropriately"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed across all dose levels with p>0.20 and adequate power, indicating this SLE population did not respond to belimumab"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to determine the specific step in the causal chain where failure occurred. Cannot distinguish between target engagement, pathway modulation, or clinical translation failure."
+}

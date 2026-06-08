@@ -250,43 +250,44 @@ def apply_boxes_to_graph(graph, boxes: dict[str, Box]) -> int:
 # ── Graph integration (supervision + fit driver) ─────────────────────────────
 
 
-def _parse_population_id(pop_id: str) -> tuple[str, frozenset[str]]:
-    """``melanoma__cd274_positive__line_first`` → ("melanoma", {slugs}).
+def _population_axis_set(pop_id: str) -> frozenset[str]:
+    """Disease-agnostic population id → its set of axis slugs.
 
-    ``unselected`` is the empty (root) feature set. Returns ("", frozenset())
-    for ids that don't match the ``{indication}__{slug}...`` shape.
+    Node-orthogonality redesign: a PopulationNode id is the ``__``-joined sorted
+    axis slugs (``line_first__stage_iii``) — there is NO indication prefix (the
+    disease binds on the ``responds_differently`` edge, not in the id). A
+    single-axis population (``line_first``, no ``__``) is a one-element set.
+    ``unselected`` (legacy all-comers marker) is dropped — the redesign emits no
+    all-comers node at all.
     """
-    parts = pop_id.split("__")
-    if len(parts) < 2:
-        return "", frozenset()
-    indication = parts[0]
-    slugs = frozenset(p for p in parts[1:] if p and p != "unselected")
-    return indication, slugs
+    return frozenset(p for p in pop_id.split("__") if p and p != "unselected")
 
 
 def population_parent_child_pairs(graph) -> list[tuple[str, str]]:
     """Derive parent→child supervision from PopulationNode ids — free, in-graph.
 
-    A population with feature set S1 is a parent of one with S2 (same
-    indication) iff S1 ⊊ S2 (fewer features ⇒ broader cohort). This is the
-    supervision that lets the box geometry localize ``responds_differently``
-    evidence by population sub-region — the named structural fix for the
-    bevacizumab AVANT holdout miss. (Biology/mechanism ontology supervision —
-    Reactome↔GO, GO is-a — is the next source to wire; see A.2.)
+    A population with axis set S1 is a PARENT of one with S2 iff S1 ⊊ S2 (fewer
+    axes ⇒ broader cohort): ``line_first`` ⊇ ``line_first__stage_iii``. Because
+    the redesign made populations DISEASE-AGNOSTIC and shared across indications,
+    the subset is over the full axis set with no per-disease grouping — so the
+    box geometry pools ``responds_differently`` evidence across diseases by
+    population sub-region (the structural fix for the bevacizumab AVANT holdout
+    miss). (Biology/mechanism ontology supervision — Reactome↔GO, GO is-a — is a
+    separate source; see A.2.)
     """
-    pops: list[tuple[str, str, frozenset[str]]] = []
+    pops: list[tuple[str, frozenset[str]]] = []
     for nid, data in graph._graph.nodes(data=True):  # noqa: SLF001
         if data.get("node_type") != "PopulationNode":
             continue
-        ind, slugs = _parse_population_id(nid)
-        if ind:
-            pops.append((nid, ind, slugs))
+        axes = _population_axis_set(nid)
+        if axes:
+            pops.append((nid, axes))
     pairs: list[tuple[str, str]] = []
-    for pid, p_ind, p_slugs in pops:
-        for cid, c_ind, c_slugs in pops:
-            if pid == cid or p_ind != c_ind:
+    for pid, p_axes in pops:
+        for cid, c_axes in pops:
+            if pid == cid:
                 continue
-            if p_slugs < c_slugs:  # strict subset ⇒ p is an ancestor of c
+            if p_axes < c_axes:  # strict subset ⇒ p is an ancestor of c
                 pairs.append((pid, cid))
     return pairs
 
@@ -412,23 +413,28 @@ def chain_descriptions_by_arm_intervention(annotations_dir) -> dict:
     return out
 
 
-def node_text_sets(graph, node_types, annotations_dir) -> dict[str, list[str]]:
-    """Per-node SET of the A.0b descriptions that route through it, mapped via
-    the graph chains' (nct, arm) → node ids. This is what makes a categorical
-    node's box span all its trials' specific descriptions (Finding-1 fix)."""
-    by_arm = chain_descriptions_by_arm(annotations_dir)
+def node_text_sets(graph, node_types, annotations_dir=None) -> dict[str, list[str]]:
+    """Per-node description text for box fitting, read from the GRAPH (each node's
+    own ``description``) — NOT re-derived from per-arm annotations.
+
+    A chain points to its per-drug nodes: the populator resolves a combo arm's
+    constituents to distinct, content-addressed nodes (paclitaxel → "mitotic
+    arrest", not its neighbor's "angiogenesis inhibition"), so the node's OWN
+    description is the correct per-chain text — combo-safe and graph-native. (This
+    previously re-read per-arm A.0b descriptions via ``chain_descriptions_by_arm``,
+    which stamped a combo arm's first-listed drug onto every chain in the arm —
+    28% mis-attributed at n=50.) ``node_types`` gates which types are returned;
+    ``annotations_dir`` is ignored, kept for signature compatibility."""
+    del annotations_dir  # boxes now read node descriptions from the graph
     sel = set(node_types)
-    sets: dict[str, set] = {}
-    for nct, ts in graph.trial_subgraphs.items():
-        for ch in ts.chains:
-            d = by_arm.get((nct, ch.arm_id), {})
-            if "MechanismNode" in sel and d.get("mechanism"):
-                sets.setdefault(ch.mechanism_id, set()).add(d["mechanism"])
-            if "BiologyNode" in sel and d.get("biology"):
-                sets.setdefault(ch.biology_id, set()).add(d["biology"])
-            if "PopulationNode" in sel and d.get("population"):
-                sets.setdefault(ch.subgroup_population_id, set()).add(d["population"])
-    return {k: sorted(v) for k, v in sets.items()}
+    out: dict[str, list[str]] = {}
+    for nid, data in graph._graph.nodes(data=True):  # noqa: SLF001
+        if data.get("node_type") not in sel:
+            continue
+        desc = (data.get("description") or "").strip()
+        if desc:
+            out[nid] = [desc]
+    return out
 
 
 def fit_graph_boxes(

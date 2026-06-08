@@ -349,12 +349,15 @@ def _resolve_population_for_trial(
     if cond_str:
         qualifiers.extend(extract_indication_qualifiers(cond_str))
 
-    derived = PopulationNode.compose_id(indication_id, qualifiers)
-    if derived in graph._graph:  # noqa: SLF001
+    # Disease-agnostic redesign: compose_id is axes-only and returns None for
+    # an all-comers cohort (no population node).
+    derived = PopulationNode.compose_id(qualifiers)
+    if derived and derived in graph._graph:  # noqa: SLF001
         return derived
 
-    # 3. Fallback: __unselected if present.
-    return _default_population(indication_id, graph)
+    # 3. No eligibility axes → all-comers → no population dimension (the
+    #    prediction walk skips responds_differently for UNKNOWN).
+    return "UNKNOWN"
 
 
 def _trial_conditions(extraction: dict) -> list[str]:

@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00078338",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available to assess whether interferon beta-1a engaged interferon receptors or glatiramer acetate engaged MHC class II. Both compounds are established therapies for MS, so target engagement is assumed based on prior knowledge but not demonstrated in this trial. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm whether cytokine signaling or antigen presentation modulation occurred. 3. CLINICAL TRANSLATION: Primary endpoint (time to first relapse) was not met. HR 0.943 (95% CI: 0.74-1.21), p=0.643 shows no significant difference between treatments. Both arms failed to show superiority over each other. 4. POPULATION EFFECTS: Subgroup analysis at 25th and 30th percentiles showed numerical differences (Rebif 332 vs 290 days at 25th percentile, 495 vs 432 days at 30th percentile) but no statistical significance reported. 5. CONFOUNDERS: This was an adequately powered head-to-head comparison (N=764) with appropriate duration (96 weeks). No safety issues that would limit dosing. This appears to be a clean efficacy comparison that showed equivalence rather than superiority of either treatment.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Both interferon beta-1a and glatiramer acetate are established MS therapies with known mechanisms, suggesting target engagement and pathway modulation likely occurred, but neither showed superiority in time to first relapse"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:a9c72236d906",
+      "target_entity": "multiple_sclerosis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rebif",
+      "reasoning": "Rebif arm failed to demonstrate superiority in time to first relapse despite assumed immune system modulation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:a9c72236d906",
+      "target_entity": "multiple_sclerosis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "copaxone",
+      "reasoning": "Copaxone arm failed to demonstrate superiority in time to first relapse despite assumed immune system modulation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-909733",
+      "target_entity": "bio:a9c72236d906",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rebif",
+      "reasoning": "Interferon signaling pathway failed to translate to superior clinical benefit in this head-to-head comparison"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:a9c72236d906",
+      "support": "weak_contradict",
+      "affecting_arm_id": "copaxone",
+      "reasoning": "Antigen presentation modulation failed to translate to superior clinical benefit in this head-to-head comparison"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "RFS",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Time to first relapse is a well-established and regulatory-accepted endpoint for multiple sclerosis trials"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "multiple_sclerosis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Head-to-head comparison showed no significant difference between treatments, suggesting equivalent response in this population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

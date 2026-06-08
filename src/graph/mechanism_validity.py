@@ -54,6 +54,16 @@ _GROUPING_OR_PK_NAMES = frozenset({
     "aspirin adme",
 })
 
+# F — Reactome residual "Other X" buckets ("Other interleukin signaling", "Other
+# semaphorin interactions", …): the catch-all for entities NOT in a named
+# pathway. They are over-pooling hubs — e.g. CSF3R, CSF1R and JAK1 all collapse
+# into "Other interleukin signaling", which then fans out to a dozen unrelated
+# biologies (apoptosis, MAPK, mitotic arrest, B-cell depletion), fabricating
+# spurious cross-links. Not a specific cellular action. The leading-"Other"
+# anchor (re.match) is precise: it spares a real pathway whose name merely
+# CONTAINS the word ("APC/C:Cdh1 … and other APC/C:Cdh1 targeted proteins …").
+_RESIDUAL_BUCKET = re.compile(r"other\b", re.I)
+
 
 def invalid_mechanism_tier(name: str) -> str | None:
     """Return the drop-tier label if ``name`` is NOT a cellular action/process,
@@ -63,6 +73,8 @@ def invalid_mechanism_tier(name: str) -> str | None:
     n = name.strip().lower()
     if n == "other":
         return "E_placeholder"
+    if _RESIDUAL_BUCKET.match(n):
+        return "F_residual_bucket"
     if _THERAPEUTIC_COLLECTION.search(n):
         return "A_therapeutic_collection"
     if _DISEASE_MODULE.search(n):

@@ -10,6 +10,7 @@ from src.ingestion.clinicaltrials import (
     TrialRecord,
     _guess_modality,
     _parse_study,
+    is_processable_drug_trial,
     map_trial_to_graph_nodes,
 )
 
@@ -207,6 +208,41 @@ class TestModalityGuess:
         assert _guess_modality(iv) == Modality.SMALL_MOLECULE
 
 
+class TestProcessableDrugTrial:
+    """Corpus-quality gate for multi-indication: keep drug/biologic trials with a
+    primary outcome; drop the structural mismatches the drug-centric pipeline
+    can't use (the non-onco n=10 smoke surfaced all four)."""
+
+    def _rec(self, itypes, n_primary):
+        return TrialRecord(
+            nct_id="NCT", title="t",
+            interventions=[Intervention(name=f"x{i}", type=t)
+                           for i, t in enumerate(itypes)],
+            primary_outcomes=[OutcomeMeasure(measure=f"m{i}", timeframe="")
+                              for i in range(n_primary)],
+        )
+
+    def test_keeps_drug_with_primary(self):
+        assert is_processable_drug_trial(self._rec(["DRUG"], 1))
+
+    def test_keeps_biologic_and_drug_plus_procedure_combo(self):
+        # a cancer drug+surgery combo still passes — it has ≥1 drug
+        assert is_processable_drug_trial(self._rec(["BIOLOGICAL", "DRUG", "PROCEDURE"], 2))
+
+    def test_drops_behavioral_only(self):
+        assert not is_processable_drug_trial(self._rec(["BEHAVIORAL"], 1))
+
+    def test_drops_procedure_only(self):
+        assert not is_processable_drug_trial(self._rec(["PROCEDURE"], 2))
+
+    def test_drops_observational_no_interventions(self):
+        assert not is_processable_drug_trial(self._rec([], 1))
+
+    def test_drops_drug_without_primary_outcome(self):
+        # sparse record (e.g. the AN-1792 Alzheimer's trial: BIOLOGICAL, 0 primary)
+        assert not is_processable_drug_trial(self._rec(["BIOLOGICAL"], 0))
+
+
 # ── Graph node mapping ───────────────────────────────────────────────────
 
 
@@ -243,6 +279,29 @@ class TestMapTrialToNodes:
 
 
 # ── Round-27 dose-suffix stripping ───────────────────────────────────────
+
+
+class TestCodenameINNParenthetical:
+    """Biologic-resolution fix: 'BMS 188667 (Abatacept)' must resolve to the INN
+    (abatacept, ChEMBL/OT-resolvable), not the codename bms_188667 (unresolvable
+    → diagnostic-filtered → empty arm → trial dropped). Surfaced by the n=10
+    multi-indication smoke (autoimmune trials are biologic-heavy)."""
+
+    def test_codename_paren_inn_prefers_inn(self):
+        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
+        assert s("BMS 188667 (Abatacept)") == "Abatacept"
+        assert s("AMG 510 (Sotorasib)") == "Sotorasib"
+        assert s("MK-3475 (Pembrolizumab)") == "Pembrolizumab"
+
+    def test_inn_main_with_brand_paren_unchanged(self):
+        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
+        # main token is already the INN → strip the brand paren as before
+        assert s("Sorafenib (Nexavar; BAY43-9006)") == "Sorafenib"
+        assert s("Imatinib (Gleevec)") == "Imatinib"
+
+    def test_combo_paren_still_none(self):
+        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
+        assert s("Drug X (with Y)") is None
 
 
 class TestStripDoseSuffix:

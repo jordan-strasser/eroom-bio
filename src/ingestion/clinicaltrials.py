@@ -77,8 +77,9 @@ def strip_parenthetical_brand(name: str) -> str | None:
     encodes a regimen rather than a brand.
     """
     paren_match = re.search(r"\(([^)]*)\)", name)
+    inside_raw = paren_match.group(1).strip() if paren_match else ""
     if paren_match:
-        inside = paren_match.group(1).lower()
+        inside = inside_raw.lower()
         if any(
             tok in inside
             for tok in ("with", "plus", "and", "+", "combo", "combination")
@@ -87,7 +88,25 @@ def strip_parenthetical_brand(name: str) -> str | None:
     stripped = re.sub(r"\s*\([^)]*\)\s*", " ", name).strip()
     if not stripped or stripped.lower() == name.lower():
         return None
+    # CODENAME (INN): if the main token is a development codename (alpha prefix
+    # + digits, e.g. "BMS 188667", "AMG 510", "MK-3475") and the parenthetical is
+    # a single INN-shaped drug word, PREFER the INN — it resolves in ChEMBL/OT
+    # where the codename doesn't. Without this, "BMS 188667 (Abatacept)" became
+    # `bms_188667` (unresolvable → diagnostic-filtered → empty arm → dropped),
+    # which silently lost biologic-heavy autoimmune trials. The default (keep the
+    # main token, strip the paren) is unchanged when the main token is itself the
+    # INN (e.g. "Sorafenib (Nexavar; BAY43-9006)" → "Sorafenib").
+    if _CODENAME_PATTERN.match(stripped) and re.fullmatch(
+        r"[A-Za-z][A-Za-z-]{3,}", inside_raw
+    ):
+        return inside_raw
     return stripped
+
+
+# Development codename shape: short alpha prefix + digits ("BMS 188667",
+# "AMG 510", "GDC-0941", "MK-3475", "CMP-001"). Used to prefer a parenthetical
+# INN over the codename in strip_parenthetical_brand.
+_CODENAME_PATTERN = re.compile(r"^[A-Za-z]{1,5}[\s\-]?\d{2,}")
 
 
 # Round-27: dose-suffix patterns. CT.gov intervention names commonly
@@ -200,14 +219,99 @@ class ArmGroup(BaseModel):
 
 
 # Intervention types that should produce a CompoundNode. ClinicalTrials.gov
-# splits drug-like therapies between DRUG (small molecules) and BIOLOGICAL
-# (antibodies, fusion proteins, cell therapies). Both belong in the graph;
-# the original DRUG-only filter dropped every checkpoint inhibitor.
-DRUG_LIKE_INTERVENTION_TYPES: frozenset[str] = frozenset({"DRUG", "BIOLOGICAL"})
+# splits drug-like therapies between DRUG (small molecules), BIOLOGICAL
+# (antibodies, fusion proteins, cell therapies), and GENETIC (gene therapy,
+# antisense, AAV vectors — e.g. AAV1/SERCA2a in NCT00534703, which targets
+# SERCA2a → a real cardiac-contractility chain). All three belong in the graph;
+# the original DRUG-only filter dropped every checkpoint inhibitor, and omitting
+# GENETIC dropped gene therapies (leaving only their placebo arm to pass the gate).
+DRUG_LIKE_INTERVENTION_TYPES: frozenset[str] = frozenset(
+    {"DRUG", "BIOLOGICAL", "GENETIC"}
+)
+
+# Generic / placeholder intervention names that name NO specific molecule, so the
+# compound→target→mechanism backbone can't resolve a real chain from them. A trial
+# whose only drug-like interventions are generic is effectively non-mechanistic —
+# e.g. NCT00091962, a behavioral depression trial whose lone DRUG is the unnamed
+# "Pharmacotherapy" (the rest BEHAVIORAL / Usual Care). NOT included: "chemotherapy"
+# and named regimens, which resolve via the chemo heuristics. Matched case-folded;
+# a trailing plural "s" is tolerated ("medications" → "medication").
+_GENERIC_INTERVENTION_NAMES: frozenset[str] = frozenset({
+    "pharmacotherapy", "drug therapy", "medication", "medical therapy",
+    "medical management", "standard treatment", "standard therapy",
+    "standard of care", "standard care", "study drug", "active drug",
+    "investigational drug", "investigational product", "active treatment",
+    "active comparator", "experimental drug", "active agent",
+    "conventional treatment", "treatment", "therapy", "best available therapy",
+    "best available care", "systemic therapy",
+})
+_PLACEBO_MARKERS: tuple[str, ...] = ("placebo", "sham", "vehicle")
 
 
 def is_drug_like(intervention: "Intervention") -> bool:
     return intervention.type in DRUG_LIKE_INTERVENTION_TYPES
+
+
+def is_generic_intervention_name(name: str) -> bool:
+    """True when an intervention name is a generic placeholder that names no
+    specific molecule (so it can't anchor a compound→target chain)."""
+    n = (name or "").strip().lower().rstrip(".")
+    if n.endswith("s") and n[:-1] in _GENERIC_INTERVENTION_NAMES:
+        return True
+    return n in _GENERIC_INTERVENTION_NAMES
+
+
+def strip_placebo_constituents(name: str) -> str | None:
+    """Return the real-drug portion of an intervention name, or None if the name
+    is a PURE placebo/sham/vehicle (the patient receives no active molecule).
+
+    Splits on combo separators so a double-dummy or add-on arm keeps its real
+    drug:
+        "Double-blind adalimumab placebo"      -> None  (placebo of adalimumab)
+        "infliximab infusion; AZA placebo caps" -> "infliximab infusion"
+        "olmesartan + candesartan placebo"      -> "olmesartan"
+        "Placebo tablet"                        -> None
+    """
+    parts = [p.strip() for p in re.split(r"[;+/]| and ", name or "") if p.strip()]
+    real = [
+        p for p in parts
+        if not any(m in p.lower() for m in _PLACEBO_MARKERS)
+    ]
+    if not real:
+        return None
+    return "; ".join(real)
+
+
+def names_specific_molecule(intervention: "Intervention") -> bool:
+    """Drug-like AND names a specific molecule — not a generic placeholder and
+    not a pure placebo/sham (which name no active drug). This is the real
+    corpus-quality signal: a trial needs ≥1 of these to build a causal chain."""
+    if not is_drug_like(intervention):
+        return False
+    if is_generic_intervention_name(intervention.name):
+        return False
+    return strip_placebo_constituents(intervention.name) is not None
+
+
+def is_processable_drug_trial(record: "TrialRecord") -> bool:
+    """True iff the drug-centric pipeline can build a causal chain from this
+    trial: it has ≥1 drug/biologic intervention that NAMES A SPECIFIC MOLECULE
+    AND ≥1 primary outcome.
+
+    Corpus-quality gate for leaving oncology — the CT.gov search for a condition
+    returns trials the compound→target→mechanism backbone structurally can't use:
+    OBSERVATIONAL studies (no interventions), BEHAVIORAL-only (lifestyle), DEVICE/
+    PROCEDURE-only (e.g. CABG — no drug compound), sparse records with no posted
+    primary outcome, and trials whose only "drug" is a generic placeholder
+    ("Pharmacotherapy") or a pure placebo (no named active molecule). Filtering
+    candidates through this keeps multi-indication corpora to trials that can
+    actually produce chains (a cancer drug+surgery combo still passes — it has ≥1
+    named drug; a double-dummy ARB trial passes — each arm names a real drug
+    alongside the other's placebo). Does NOT require a results section, so
+    terminated/withdrawn trials (a key failure signal) still pass."""
+    has_specific = any(names_specific_molecule(iv) for iv in record.interventions)
+    has_primary = len(record.primary_outcomes) >= 1
+    return has_specific and has_primary
 
 
 class Reference(BaseModel):

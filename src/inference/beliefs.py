@@ -171,6 +171,15 @@ EVIDENCE_TYPE_N_EFF: dict[EvidenceType, float] = {
     #   Gene symbol found in intervention free text. Not curation, just
     #   string overlap. Same as COMPUTATIONAL.
     EvidenceType.DATABASE_CROSS_REFERENCE:     0.3,
+    #
+    # LLM-inferred drug→target gene → 3.0
+    #   For compounds OT/ChEMBL/mAb couldn't resolve. The gene is validated
+    #   to a real Ensembl id (OT search_target) before use, and for known
+    #   drugs the target is usually correct, so this earns more than a raw
+    #   name-match — but the binding is INFERRED, not curated, so it sits an
+    #   order of magnitude below OT-direct (12) / ChEMBL (10). Calibrated by
+    #   source character, not the holdout. See /tuning-log.
+    EvidenceType.DATABASE_LLM_INFERENCE:       3.0,
     # ────────────────────────────────────────────────────────────────────
     EvidenceType.COMPUTATIONAL:       0.3,
     EvidenceType.LITERATURE:          0.2,

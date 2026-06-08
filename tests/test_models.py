@@ -227,18 +227,20 @@ class TestPopulationNode:
             SubgroupFeature(axis="gene", key="EGFR", level="mutant"),
             SubgroupFeature(axis="line", level="first"),
         ]
-        pop_id = PopulationNode.compose_id("nsclc", feats)
+        pop_id = PopulationNode.compose_id(feats)
         node = PopulationNode(
             id=pop_id,
-            name="EGFR-mutant first-line NSCLC",
+            name="EGFR-mutant first-line",
             defining_features=feats,
             estimated_size=50000,
         )
         assert node.estimated_size == 50000
-        assert pop_id == "nsclc__egfr_mutant__line_first"
+        # disease-agnostic: axes only, no indication prefix
+        assert pop_id == "egfr_mutant__line_first"
 
-    def test_compose_id_parent_population(self):
-        assert PopulationNode.compose_id("melanoma", []) == "melanoma__unselected"
+    def test_compose_id_all_comers_is_none(self):
+        # all-comers (no axes) gets NO population node
+        assert PopulationNode.compose_id([]) is None
 
     def test_compose_id_is_order_independent(self):
         from src.graph.models import SubgroupFeature
@@ -251,9 +253,47 @@ class TestPopulationNode:
             SubgroupFeature(axis="gene", key="CD274", level="high"),
         ]
         assert (
-            PopulationNode.compose_id("nsclc", feats_a)
-            == PopulationNode.compose_id("nsclc", feats_b)
+            PopulationNode.compose_id(feats_a)
+            == PopulationNode.compose_id(feats_b)
         )
+
+    def test_describe_is_disease_agnostic_natural_language(self):
+        from src.graph.models import SubgroupFeature
+        # The axes render to a clinical-state sentence — never a disease (the
+        # BioLORD substrate for a node shared across indications).
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="line", level="first"),
+            SubgroupFeature(axis="stage", level="iii"),
+        ]) == "Patients with first-line therapy, stage III disease."
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="extent", level="locally_advanced"),
+            SubgroupFeature(axis="line", level="adjuvant"),
+        ]) == "Patients with locally advanced disease, adjuvant treatment."
+        assert PopulationNode.describe([
+            SubgroupFeature(axis="gene", key="CD274", level="positive"),
+        ]) == "Patients with CD274 positive."
+
+    def test_describe_order_independent_and_empty(self):
+        from src.graph.models import SubgroupFeature
+        a = [SubgroupFeature(axis="stage", level="iv"),
+             SubgroupFeature(axis="line", level="second")]
+        b = [SubgroupFeature(axis="line", level="second"),
+             SubgroupFeature(axis="stage", level="iv")]
+        assert PopulationNode.describe(a) == PopulationNode.describe(b)
+        assert PopulationNode.describe([]) == ""  # all-comers ⇒ no node, no text
+
+    def test_describe_never_contains_a_disease_name(self):
+        # Regression guard for the stuck-description bug: a population built from
+        # axes alone must not embed a disease (it's shared across indications).
+        from src.graph.models import SubgroupFeature
+        feats = [
+            SubgroupFeature(axis="extent", level="metastatic",
+                            raw_descriptor="metastatic breast cancer"),
+            SubgroupFeature(axis="line", level="first"),
+        ]
+        desc = PopulationNode.describe(feats).lower()
+        for disease_word in ("breast", "cancer", "melanoma", "nsclc", "carcinoma"):
+            assert disease_word not in desc
 
 
 class TestEndpointNode:
@@ -581,22 +621,19 @@ class TestNormalizeEntity:
         assert normalize_entity("PD-L1", "BiomarkerNode") == "PD_L1"
         assert normalize_entity("EGFR mutation", "BiomarkerNode") == "EGFR_MUTATION"
 
-    def test_population_requires_indication_double_underscore_features(self):
+    def test_population_id_is_disease_agnostic_axes(self):
         from src.graph.models import normalize_entity
 
-        # Composed-id form passes through as-is.
+        # Disease-agnostic redesign: population ids are '__'-joined axis slugs,
+        # no indication. Multi-axis composed id passes through.
         assert (
-            normalize_entity("melanoma__cd274_high__line_first", "PopulationNode")
-            == "melanoma__cd274_high__line_first"
+            normalize_entity("cd274_high__line_first", "PopulationNode")
+            == "cd274_high__line_first"
         )
-        # Parent population (no subgroup features) is "{indication}__unselected".
-        assert (
-            normalize_entity("melanoma__unselected", "PopulationNode")
-            == "melanoma__unselected"
-        )
-        # Bare indication slug (no "__feature" tail) is invalid.
-        with pytest.raises(ValueError):
-            normalize_entity("melanoma", "PopulationNode")
+        # Single-axis id is valid (no '__' required).
+        assert normalize_entity("line_first", "PopulationNode") == "line_first"
+        # Case + whitespace normalized.
+        assert normalize_entity("Line First", "PopulationNode") == "line_first"
 
     def test_endpoint_requires_class_and_indication(self):
         from src.graph.models import normalize_entity

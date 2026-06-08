@@ -169,6 +169,31 @@ class OpenTargetsClient:
             "approved_symbol": obj["approvedSymbol"],
         }
 
+    async def search_disease(self, name: str) -> str | None:
+        """Resolve a disease name to its EFO/MONDO id (top search hit), or None."""
+        query = """
+        query SearchDisease($name: String!) {
+          search(queryString: $name, entityNames: ["disease"], page: {size: 1, index: 0}) {
+            hits { id }
+          }
+        }
+        """
+        data = await self._post(query, {"name": name})
+        hits = data["search"]["hits"]
+        return hits[0]["id"] if hits else None
+
+    async def get_disease_ancestors(self, efo_id: str) -> list[str]:
+        """Ancestor EFO/MONDO ids for a disease (the is-a chain up the ontology).
+        Empty on miss. Used to build SUBTYPE_OF edges (ALL is_a leukemia)."""
+        query = """
+        query DiseaseAncestors($efoId: String!) {
+          disease(efoId: $efoId) { id ancestors }
+        }
+        """
+        data = await self._post(query, {"efoId": efo_id})
+        disease = data.get("disease")
+        return list(disease.get("ancestors") or []) if disease else []
+
     async def search_drug(self, name: str) -> dict[str, Any]:
         """Resolve a drug name to its ChEMBL id + canonical name + aliases.
 

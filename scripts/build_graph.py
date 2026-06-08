@@ -370,7 +370,7 @@ async def main(
     min_subgraph_success_rate: float = 0.75,
     allow_partial_subgraphs: bool = False,
     exclude_from_attribution: list[str] | None = None,
-    assemble: bool = False,
+    assemble: bool = True,
     enrich_pubmed: bool = False,
     bottom_up: bool = True,
 ) -> None:
@@ -595,6 +595,18 @@ async def main(
             trials=trials,
         )
 
+    # Phase-4 EFO indication tree: connect ALL→leukemia, uveal→melanoma, … on
+    # the assembled graph so the prediction's indication backoff can pool a
+    # leaf-anchored chain onto its parent disease. Additive + best-effort
+    # (a failed EFO lookup just skips that disease).
+    try:
+        from src.graph.populate import link_indication_subtypes_via_efo
+        from src.ingestion.opentargets import OpenTargetsClient
+        n_sub = await link_indication_subtypes_via_efo(graph, OpenTargetsClient())
+        console.print(f"  EFO indication hierarchy: +{n_sub} SUBTYPE_OF edges")
+    except Exception:  # noqa: BLE001
+        logger.debug("EFO indication linking skipped", exc_info=True)
+
     # Round-20.5 / round-21 followup: silent-drop guard.
     # build_trial_subgraphs skips a trial when its indication / endpoint
     # / arm structure can't be resolved. Without this check, 14 of 50
@@ -781,21 +793,33 @@ async def main(
     # (assemble_v2 --merge), deliberately NOT baked in here.
     if assemble:
         console.rule("[bold]Step 5: assemble geometry + materialize (s,t) field[/bold]")
-        from scripts.assemble_v2 import assemble_geometry
-        from scripts.materialize_belief_field import materialize_field
+        # Best-effort: steps 1-4 (incl. paid extractions) are already done and
+        # written to annotated_path, so a step-5 failure (offline BioLORD, unset
+        # private root, …) must NOT crash the build. The field is regenerable
+        # (scripts/materialize_belief_field.py) and post-hoc by construction.
+        try:
+            from scripts.assemble_v2 import assemble_geometry
+            from scripts.materialize_belief_field import materialize_field
 
-        geo = assemble_geometry(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
-        console.print(
-            f"  geometry: {geo['boxes']} boxes, "
-            f"is-a SUBTYPE_OF {geo['subtype_before']}→{geo['subtype_after']} "
-            f"(+{geo['subtype_added']})"
-        )
-        fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
-        console.print(
-            f"  (s,t) field: {fld['edges_localized']} edges localized, "
-            f"{fld['anchors_total']} anchors"
-        )
-        console.print(f"  private artifacts -> {geo['private_root']}")
+            geo = assemble_geometry(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
+            console.print(
+                f"  geometry: {geo['boxes']} boxes, "
+                f"is-a SUBTYPE_OF {geo['subtype_before']}→{geo['subtype_after']} "
+                f"(+{geo['subtype_added']})"
+            )
+            fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
+            console.print(
+                f"  (s,t) field: {fld['edges_localized']} edges localized, "
+                f"{fld['anchors_total']} anchors"
+            )
+            console.print(f"  private artifacts -> {geo['private_root']}")
+        except Exception as exc:  # noqa: BLE001 — field is regenerable; don't lose the build
+            console.print(
+                f"  [red]Step 5 (geometry + (s,t) field) FAILED:[/red] {exc}\n"
+                f"  [yellow]The graph snapshot is intact. Regenerate the field with:[/yellow]\n"
+                f"  python -m scripts.materialize_belief_field {annotated_path}"
+            )
+            logger.warning("assemble/materialize step failed", exc_info=True)
 
     final = GraphStore()
     final.import_snapshot(str(annotated_path))
@@ -814,6 +838,31 @@ async def main(
         f"trials full, {coverage['trials_partial']} partial, "
         f"[red]{coverage['trials_zero']} zero[/red]"
     )
+
+    # Phantom-edge guard: every edge type the PREDICTION consumes must be
+    # PRODUCED by the populator. A type consumed but instantiated by no producer
+    # is a phantom (the reflects_biology gap — defined in the schema, walked by
+    # the attributor, in the field EDGE_SPECS, but created by no populate method,
+    # so it silently never carried a belief). Warn loudly if any backbone edge
+    # type is absent from the built graph so the gap can't reopen unnoticed.
+    from src.prediction.path_query import CONSUMED_BACKBONE_EDGE_TYPES
+    present_edge_types = {k for *_, k in final._graph.edges(keys=True)}  # noqa: SLF001
+    missing_backbone = sorted(
+        et.value for et in CONSUMED_BACKBONE_EDGE_TYPES
+        if et.value not in present_edge_types
+    )
+    if missing_backbone:
+        console.print(
+            f"  [red]⚠ PHANTOM EDGE(S): the prediction consumes {missing_backbone} "
+            f"but the build produced ZERO of them[/red] — they will never carry a "
+            f"belief or materialize into the (s,t) field. A producer is missing "
+            f"(see path_query.CONSUMED_BACKBONE_EDGE_TYPES)."
+        )
+    else:
+        console.print(
+            f"  [green]backbone complete[/green]: all "
+            f"{len(CONSUMED_BACKBONE_EDGE_TYPES)} consumed edge types are present"
+        )
 
 
 if __name__ == "__main__":
@@ -972,17 +1021,18 @@ if __name__ == "__main__":
              "is the default and the production path.",
     )
     parser.add_argument(
-        "--assemble", action="store_true",
+        "--assemble", action=argparse.BooleanOptionalAction, default=True,
         help="Step 5: after attribution, run the v2 post-build geometry — fit "
              "boxes on all 7 chain node types, resolve the box-geometry is-a "
              "hierarchy (public SUBTYPE_OF edges), and materialize the per-(s,t) "
              "belief field. Boxes + field are PRIVATE artifacts written under "
              "EROOM_PRIVATE_ROOT (defaults to ~/.eroom/private; point it at the "
-             "enterprise artifacts dir for canonical builds). Off by default — "
-             "adds BioLORD embedding compute. Replaces the manual assemble_v2 + "
-             "materialize_belief_field two-script dance so the (s,t) field can't "
-             "drift stale relative to the graph. Node-merge stays separate "
-             "(assemble_v2 --merge).",
+             "enterprise artifacts dir for canonical builds). ON by default — the "
+             "(s,t) belief field is core to the product, so every build carries "
+             "it in lockstep with the graph (it's post-hoc by construction and "
+             "would otherwise drift stale). Pass --no-assemble for a fast debug "
+             "build that skips the BioLORD embedding compute. Node-merge stays "
+             "separate (assemble_v2 --merge).",
     )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]

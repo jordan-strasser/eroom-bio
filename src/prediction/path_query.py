@@ -40,6 +40,16 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
     ("subgroup_population_id", "indication_id", EdgeType.RESPONDS_DIFFERENTLY),
 ]
 
+# Every edge type the prediction CONSUMES along/around the chain. The populator
+# must PRODUCE each of these — a type consumed here but instantiated by no
+# producer is a phantom edge (the reflects_biology gap: defined + walked by the
+# attributor + in the field EDGE_SPECS, but created by no populate method, so it
+# never carried a belief). ``build_graph`` checks this set is non-empty per type
+# on every build so the gap can't silently reopen.
+CONSUMED_BACKBONE_EDGE_TYPES: frozenset[EdgeType] = frozenset(
+    {et for *_, et in _CAUSAL_CHAIN} | {et for *_, et in _AUXILIARY_EDGES}
+)
+
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
 
@@ -130,10 +140,23 @@ def _ae_severity_weight(
 # measures AE *occurrence* (incidence) — but an effective drug with tolerated
 # toxicity (e.g. nivolumab irAEs in trials that SUCCEEDED) should not be
 # penalized like one whose toxicity was dose-limiting. Each AE's contribution
-# scales toward a floor when its evidence came from tolerated/successful
+# scales toward this floor when its evidence came from tolerated/successful
 # trials and toward full weight when it came from dose-limiting-toxicity
-# failures. Flag-gated (default off -> round-29 behavior unchanged).
-_SAFETY_DLT_FLOOR = 0.15
+# failures.
+#
+# Round-31 (benchmark, 2026-06-05): floor 0.15 -> 0.0. The 0.15 floor made
+# every *tolerated* AE still contribute 15% of its severity weight, and the
+# soft-or over ~10 AEs/trial compounded that into a ~0.40 penalty on drugs
+# whose toxicity was entirely manageable — the dominant source of the
+# prediction's systematic pessimism (mean P 0.49 vs 0.71 base rate; accuracy
+# BELOW base rate). The benchmark (scripts/tune_composition.py, n=129 holdout)
+# isolated it: floor 0.15->0.0 lifts holdout Brier 0.266->0.232, accuracy
+# 0.550->0.674, ECE 0.223->0.160, with NO loss of the safety thesis — a
+# failure-causing tox (e.g. torcetrapib, failure_causing_fraction~1) still
+# contributes fully; only tolerated AEs (fraction 0) now contribute nothing.
+# contribution = floor + (1-floor)*fraction = fraction, the clean DLT gate the
+# round-30 design intended. See memory project_benchmark_verdict / tuning-log.
+_SAFETY_DLT_FLOOR = 0.0
 
 
 def _safety_dlt_gate_enabled() -> bool:
@@ -322,6 +345,95 @@ def _aggregate_samples(
 
 
 # ── Models ──────────────────────────────────────────────────────────────
+
+
+def _population_ancestors(pop_id: str) -> list[str]:
+    """Disease-agnostic population ids, most-specific-first: the id itself then
+    every coarser axis-subset down to single axes.
+
+    The hierarchy is implicit in the ``__``-joined slug (``compose_id`` sorts
+    axes), so a 3-axis population's ancestors are its 2-axis and 1-axis subsets
+    (e.g. ``line_first__stage_iii`` → ``line_first``, ``stage_iii``). Used for
+    the prediction backoff so a sparse specific population borrows its coarser
+    parent's (cross-disease-pooled) evidence."""
+    from itertools import combinations
+
+    axes = pop_id.split("__")
+    if len(axes) <= 1:
+        return [pop_id]
+    out = [pop_id]
+    for k in range(len(axes) - 1, 0, -1):
+        for combo in combinations(axes, k):
+            out.append("__".join(combo))
+    return out
+
+
+def _resolve_responds_differently(
+    graph: GraphStore, pop_id: str, indication_id: str
+) -> tuple[str, "EdgeBeliefState"] | None:
+    """Most-specific *evidenced* ``responds_differently`` belief for a chain's
+    population, walking the population hierarchy (specific → coarser ancestors).
+
+    Borrow-strength backoff: if the specific population's edge to this
+    indication carries no evidence, fall back to its coarser ancestor (e.g.
+    ``line_first__stage_iii`` → ``line_first``), which pools first-line evidence
+    across diseases. Returns ``(resolved_population_id, belief)`` or ``None``
+    when no level in the hierarchy has evidence."""
+    for ancestor in _population_ancestors(pop_id):
+        try:
+            belief = graph.get_edge_belief(
+                ancestor, indication_id, EdgeType.RESPONDS_DIFFERENTLY
+            )
+        except KeyError:
+            continue
+        if belief.evidence_strength > 0.0:
+            return ancestor, belief
+    return None
+
+
+def _indication_ancestors(
+    graph: GraphStore, indication_id: str, *, max_depth: int = 5
+) -> list[str]:
+    """A leaf indication and its SUBTYPE_OF ancestors, most-specific-first
+    (uveal_melanoma → melanoma → …). Walks SUBTYPE_OF out-edges (specific →
+    parent), bounded depth, cycle-guarded. The hierarchy is sourced from the
+    hand-curated map + EFO/MONDO (Phase 4)."""
+    out = [indication_id]
+    seen = {indication_id}
+    cur = indication_id
+    for _ in range(max_depth):
+        parents = [
+            v
+            for _u, v, key in graph._graph.out_edges(cur, keys=True)  # noqa: SLF001
+            if key == EdgeType.SUBTYPE_OF.value and v not in seen
+        ]
+        if not parents:
+            break
+        cur = parents[0]
+        seen.add(cur)
+        out.append(cur)
+    return out
+
+
+def _resolve_indication_edge(
+    graph: GraphStore, src_id: str, indication_id: str, edge_type: EdgeType
+) -> tuple[str, "EdgeBeliefState"] | None:
+    """Most-specific *evidenced* belief for an indication-targeted edge
+    (biology_drives / endpoint_captures), walking the SUBTYPE_OF hierarchy.
+
+    Phase-4 indication backoff (symmetric with the population backoff): with
+    chains leaf-anchored, a sparse leaf (uveal_melanoma) borrows its parent's
+    (melanoma) cross-trial evidence — e.g. biology→melanoma when
+    biology→uveal_melanoma is unobserved. Returns (resolved_indication, belief)
+    or None."""
+    for ancestor in _indication_ancestors(graph, indication_id):
+        try:
+            belief = graph.get_edge_belief(src_id, ancestor, edge_type)
+        except KeyError:
+            continue
+        if belief.evidence_strength > 0.0:
+            return ancestor, belief
+    return None
 
 
 class EdgeContribution(BaseModel):
@@ -668,9 +780,10 @@ class PredictionEngine:
         events in 30% of patients" ≠ "this drug causes Grade 1 rash
         in 60% of patients."
 
-        Aggregation: soft-or so multiple AEs accumulate with
-        diminishing returns; capped at ``_SAFETY_PENALTY_CAP`` so the
-        architecture stays efficacy-led even under extreme AE tails.
+        Aggregation: MAX over per-AE contributions (round-31; was
+        soft-or, which double-counted correlated AEs in a failed trial);
+        capped at ``_SAFETY_PENALTY_CAP`` so the architecture stays
+        efficacy-led even under extreme AE tails.
 
         Reuses ``_collect_safety_risks`` retrieval (so both
         ``causes_ae`` compound-level edges AND ``target_associated_ae``
@@ -687,9 +800,10 @@ class PredictionEngine:
         return self._penalty_from_risks(risks)
 
     def _penalty_from_risks(self, risks: list[SafetyRisk]) -> float:
-        """Soft-or, severity-weighted safety drag over a precomputed risk list
-        — the shared core of the single-chain penalty (one compound's risks)
-        and the combo penalty (constituents' risks unioned by AE)."""
+        """Max-over-AEs, severity-weighted safety drag over a precomputed risk
+        list — the shared core of the single-chain penalty (one compound's risks)
+        and the combo penalty (constituents' risks unioned by AE). Round-31
+        switched the aggregation from soft-or to max (see the inline note)."""
         if not risks:
             return 0.0
         contributions: list[float] = []
@@ -742,10 +856,18 @@ class PredictionEngine:
                     + (1.0 - _SAFETY_DLT_FLOOR) * r.failure_causing_fraction
                 )
             contributions.append(contribution)
-        penalty = 1.0
-        for c in contributions:
-            penalty *= (1.0 - c)
-        return min(self._SAFETY_PENALTY_CAP, 1.0 - penalty)
+        # Round-31 (benchmark): MAX over per-AE contributions, not soft-or.
+        # Soft-or (noisy-OR, 1-prod(1-c)) is the correct model for INDEPENDENT
+        # failure modes — but AEs reported in a failed trial are CORRELATED (the
+        # failure_causing attribution smears across co-occurring AEs), so soft-or
+        # double-counts and over-penalizes. A drug's safety risk is its WORST
+        # toxicity; max avoids the double-count. On the n=129 holdout this fixes
+        # the residual pessimism the floor fix left: the [0.2,0.3)-rated trials
+        # (71% actually succeeded) lift to a calibrated ~0.46 (obs 0.50);
+        # Brier 0.231->0.209, accuracy 0.674->0.713, ECE 0.160->0.116, torcetrapib
+        # still correctly failure. See memory tuning_safety_aggregation.
+        penalty = max(contributions) if contributions else 0.0
+        return min(self._SAFETY_PENALTY_CAP, penalty)
 
     def _collect_safety_risks(
         self,
@@ -952,6 +1074,32 @@ class PredictionEngine:
             tgt_id = getattr(chain, tgt_field)
 
             if src_id == "UNKNOWN" or tgt_id == "UNKNOWN":
+                continue
+
+            if edge_type == EdgeType.RESPONDS_DIFFERENTLY:
+                # Phase-3 hierarchical backoff: a sparse specific population
+                # (line_first__stage_iii) borrows its coarser ancestor's
+                # (line_first) cross-disease-pooled evidence. The resolved
+                # ancestor's belief stands in for the population edge.
+                resolved = _resolve_responds_differently(self.graph, src_id, tgt_id)
+                if resolved is not None:
+                    anc_id, belief = resolved
+                    edges.append((anc_id, tgt_id, edge_type, belief))
+                continue
+
+            if edge_type in (
+                EdgeType.BIOLOGY_DRIVES, EdgeType.ENDPOINT_CAPTURES
+            ):
+                # Phase-4 indication backoff: chains are leaf-anchored, so a
+                # sparse leaf indication (uveal_melanoma) borrows its SUBTYPE_OF
+                # parent's (melanoma) evidence for biology→indication /
+                # endpoint→indication.
+                resolved = _resolve_indication_edge(
+                    self.graph, src_id, tgt_id, edge_type
+                )
+                if resolved is not None:
+                    anc_ind, belief = resolved
+                    edges.append((src_id, anc_ind, edge_type, belief))
                 continue
 
             try:
