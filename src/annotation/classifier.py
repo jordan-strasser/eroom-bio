@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _ANNOTATIONS_DIR = Path("data/annotations")
 
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 4096
 MAX_RETRIES = 3
 
