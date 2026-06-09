@@ -48,10 +48,10 @@ from src.graph.models import EdgeBeliefState
 from src.graph.store import GraphStore
 from src.prediction.calibration import auroc, brier_score, expected_calibration_error
 from src.prediction.path_query import (
+    PredictionEngine,
     _aggregate_samples,
     _sample_edge,
     _trust_weight,
-    predict_clinical_hypothesis,
 )
 from src.prediction.provenance import (
     _NCT_RE,
@@ -120,23 +120,30 @@ def _load_json(path: Path) -> dict | None:
 
 
 def _decisive_result(store: GraphStore, nct: str, n_samples: int):
-    """Replicate trace_holdout's choice: predict each distinct (compound,
-    indication) the trial poses, return the PredictionResult with the LOWEST
-    overall probability (the most decisive chain)."""
+    """Predict the trial's OWN decomposed chains (the stated chains in its
+    trial_subgraph) and return the PredictionResult with the LOWEST overall
+    probability (the most decisive chain).
+
+    Critically this uses ``PredictionEngine.predict(chain)`` on each STATED chain
+    rather than ``predict_clinical_hypothesis(compound, indication)``, which
+    re-resolves the chain by walking strongest-evidenced neighbors and lands on
+    the generic, heavily-pooled biology ("DNA-damage apoptosis") instead of the
+    drug's actual mechanism (chain-walking optimism). For a holdout trial that is
+    IN the graph we already have its faithful decomposition — predict that."""
     sg = store.trial_subgraphs.get(nct)
     if sg is None:
         return None
+    engine = PredictionEngine(store)
     seen, results = set(), []
     for ch in sg.chains:
-        key = (ch.compound_id, ch.indication_id)
+        key = (ch.compound_id, ch.target_id, ch.mechanism_id,
+               ch.biology_id, ch.endpoint_id, ch.subgroup_population_id)
         if key in seen:
             continue
         seen.add(key)
         try:
-            res = predict_clinical_hypothesis(
-                store, ch.compound_id, ch.indication_id, n_samples=n_samples
-            )
-        except KeyError:
+            res = engine.predict(ch, n_samples=n_samples)
+        except Exception:  # noqa: BLE001 — a single unresolvable chain shouldn't sink the trial
             continue
         if res.edge_contributions:
             results.append(res)
