@@ -1,0 +1,174 @@
+{
+  "nct_id": "NCT00824005",
+  "therapeutic_hypothesis": {
+    "compound": "Bone marrow mononucleated cells (BM-MNCs)",
+    "claimed_target": "bone marrow mononucleated cells (myocardial injection site)",
+    "proposed_mechanism": "cell-based regeneration / paracrine signaling",
+    "intended_biology": "myocardial regeneration and perfusion restoration",
+    "target_population": "Adults with chronic ischemic cardiomyopathy, left ventricular dysfunction, and angina",
+    "primary_endpoint": "Change in VO2max, LVESV, and reversible defect size at 6 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "VO2max: mean difference 1.0 mL/kg/min; LVESV: mean difference 1.0 mL/m2; Reversible defect: mean difference -1.2%",
+    "p_value": 0.169,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "BNP change (BNP subgroup): placebo +63 IU vs BM-MNC +28 IU; pro-BNP subgroup: placebo +234 IU vs BM-MNC +497 IU; mean difference -34.7 IU, p=0.55",
+      "LV diastolic dimension change: placebo -8.5 mL vs BM-MNC +0.9 mL; mean difference 9.5 mL, p=0.198",
+      "Fixed perfusion defect change: placebo +1.9% vs BM-MNC +1.2%; mean difference -0.7%, p=0.7"
+    ],
+    "subgroup_findings": [
+      "BNP subgroup: BM-MNC arm showed smaller BNP increase (+28 IU) vs placebo (+63 IU)",
+      "pro-BNP subgroup: BM-MNC arm showed larger pro-BNP increase (+497 IU) vs placebo (+234 IU)"
+    ],
+    "safety_signals": [
+      "Chest pain SAE: 2/31 placebo vs 4/61 BM-MNC",
+      "Tachycardia SAE: 1/31 placebo vs 3/61 BM-MNC",
+      "Heart failure SAE: 3/31 placebo vs 2/61 BM-MNC",
+      "No notable excess of serious adverse events in the active treatment arm"
+    ],
+    "dose_info": {
+      "dose": "~100 million BM-MNCs",
+      "schedule": "Single procedure, 15 intramyocardial injection sites",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Chest pain",
+        "grade": "",
+        "incidence_treatment_pct": 6.56,
+        "incidence_control_pct": 6.45,
+        "serious": true
+      },
+      {
+        "term": "Tachycardia",
+        "grade": "",
+        "incidence_treatment_pct": 4.92,
+        "incidence_control_pct": 3.23,
+        "serious": true
+      },
+      {
+        "term": "Heart Failure",
+        "grade": "",
+        "incidence_treatment_pct": 3.28,
+        "incidence_control_pct": 9.68,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Chronic ischemic cardiomyopathy with left ventricular dysfunction and angina",
+    "comparator": "Placebo (intramyocardial injections of 5% human serum albumin and saline)",
+    "sample_size": 92,
+    "duration": "6 months",
+    "duration_weeks": 26.07,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "placebo_injections",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "active_stem_cell_injections",
+      "compounds": [
+        "bone_marrow_mononucleated_cells"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "BNP",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "bnp",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "pro-BNP",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "pro_bnp",
+          "level": "positive"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "active_stem_cell_injections",
+      "intervention": "bone_marrow_mononucleated_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "VO2max",
+      "effect_size": 1.0,
+      "p_value": 0.169,
+      "outcome": "failure",
+      "mechanism_description": "cell-based regeneration / paracrine signaling",
+      "biology_description": "myocardial regeneration and perfusion restoration",
+      "population_description": "Adults with chronic ischemic cardiomyopathy, left ventricular dysfunction, and angina",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "active_stem_cell_injections",
+      "intervention": "bone_marrow_mononucleated_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "LVESV",
+      "effect_size": 1.0,
+      "p_value": 0.856,
+      "outcome": "failure",
+      "mechanism_description": "cell-based regeneration / paracrine signaling",
+      "biology_description": "myocardial regeneration and perfusion restoration",
+      "population_description": "Adults with chronic ischemic cardiomyopathy, left ventricular dysfunction, and angina",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "active_stem_cell_injections",
+      "intervention": "bone_marrow_mononucleated_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "Reversible defect size",
+      "effect_size": -1.2,
+      "p_value": 0.835,
+      "outcome": "failure",
+      "mechanism_description": "cell-based regeneration / paracrine signaling",
+      "biology_description": "myocardial regeneration and perfusion restoration",
+      "population_description": "Adults with chronic ischemic cardiomyopathy, left ventricular dysfunction, and angina",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "active_stem_cell_injections",
+      "intervention": "bone_marrow_mononucleated_cells",
+      "subgroup_descriptor": "BNP",
+      "endpoint": "Serum BNP",
+      "effect_size": -34.7,
+      "p_value": 0.55,
+      "outcome": "failure",
+      "mechanism_description": "cell-based regeneration / paracrine signaling",
+      "biology_description": "myocardial regeneration and perfusion restoration",
+      "population_description": "Adults with chronic ischemic cardiomyopathy and CHF with BNP measured",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "active_stem_cell_injections",
+      "intervention": "bone_marrow_mononucleated_cells",
+      "subgroup_descriptor": "pro-BNP",
+      "endpoint": "Serum pro-BNP",
+      "effect_size": null,
+      "p_value": 0.55,
+      "outcome": "failure",
+      "mechanism_description": "cell-based regeneration / paracrine signaling",
+      "biology_description": "myocardial regeneration and perfusion restoration",
+      "population_description": "Adults with chronic ischemic cardiomyopathy and CHF with pro-BNP measured",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

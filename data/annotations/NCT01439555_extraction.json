@@ -1,0 +1,116 @@
+{
+  "nct_id": "NCT01439555",
+  "therapeutic_hypothesis": {
+    "compound": "Simvastatin + L-Arginine + Tetrahydrobiopterin",
+    "claimed_target": "endothelial nitric oxide synthase (eNOS)",
+    "proposed_mechanism": "eNOS cofactor supplementation and enzyme upregulation",
+    "intended_biology": "cerebral endothelial function enhancement and cerebral blood flow improvement",
+    "target_population": "Patients with Alzheimer's disease",
+    "primary_endpoint": "Mean change in cerebral blood flow as measured by MRI (arterial spin labeling) from baseline to 16 weeks",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "CBF at baseline: 0.621528 ml/110g/min; at week 16: 0.579839 ml/110g/min (slight decrease); ASL MRI data corrupted and unavailable",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Cerebral blood flow (MRI): baseline 0.621528, week 4 0.6448, week 8 0.6548, week 16 0.5798 ml/110g/min",
+      "ASL MRI data files corrupted and could not be analyzed",
+      "MMSE: baseline 24.2, week 4 25.33, week 8 26.0, week 16 25.55",
+      "CDR: baseline 0.9, week 16 0.9 (no change)",
+      "ADAS-COG: baseline 21.6, week 16 21.9 (minimal change)",
+      "CAST mean score: 31.4",
+      "CIBIC Plus: change baseline to week 4: -0.1; week 4 to week 8: +0.6; week 8 to week 16: -0.1"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "Simvastatin 40 mg; L-Arginine 2 g x4/day (8 g/day); Tetrahydrobiopterin 20 mg/kg/day",
+      "schedule": "Simvastatin once daily; L-Arginine four times per day; Tetrahydrobiopterin once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Alzheimer's disease",
+    "comparator": "none (single-arm study)",
+    "sample_size": 11,
+    "duration": "16 weeks",
+    "duration_weeks": 16.0,
+    "investigator_commentary": "ASL MRI data files were corrupted and could not be analyzed, limiting interpretation of the primary endpoint. The trial was a small single-arm pilot study with 11 participants."
+  },
+  "arms": [
+    {
+      "arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "compounds": [
+        "Simvastatin",
+        "L-Arginine",
+        "Tetrahydrobiopterin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "intervention": "Simvastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "Cerebral Blood Flow (MRI)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "HMG-CoA reductase inhibition",
+      "biology_description": "endothelial function enhancement and cerebrovascular perfusion improvement",
+      "population_description": "Patients with Alzheimer's disease enrolled in a 16-week single-arm pilot study",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "intervention": "L-Arginine",
+      "subgroup_descriptor": null,
+      "endpoint": "Cerebral Blood Flow (MRI)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "nitric oxide synthase substrate supplementation",
+      "biology_description": "endothelial nitric oxide production and vasodilation",
+      "population_description": "Patients with Alzheimer's disease enrolled in a 16-week single-arm pilot study",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "intervention": "Tetrahydrobiopterin",
+      "subgroup_descriptor": null,
+      "endpoint": "Cerebral Blood Flow (MRI)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "eNOS cofactor supplementation",
+      "biology_description": "endothelial nitric oxide production and cerebrovascular perfusion improvement",
+      "population_description": "Patients with Alzheimer's disease enrolled in a 16-week single-arm pilot study",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "L-Arginine",
+      "primary_compound_id": "Simvastatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "L-Arginine provides substrate for eNOS, potentially amplifying the endothelial NO production that simvastatin upregulates via eNOS expression, together enhancing cerebral blood flow",
+      "citation": "Data not available as files corrupted and could not be analyzed"
+    },
+    {
+      "modulator_compound_id": "Tetrahydrobiopterin",
+      "primary_compound_id": "Simvastatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Tetrahydrobiopterin as an eNOS cofactor prevents eNOS uncoupling and supports NO synthesis, complementing simvastatin's upregulation of eNOS to improve cerebral endothelial function",
+      "citation": "Data not available as files corrupted and could not be analyzed"
+    }
+  ]
+}

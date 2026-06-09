@@ -1,0 +1,127 @@
+{
+  "nct_id": "NCT00348712",
+  "therapeutic_hypothesis": {
+    "compound": "inhaled human insulin",
+    "claimed_target": "insulin receptor",
+    "proposed_mechanism": "receptor agonism",
+    "intended_biology": "glucose uptake and glycemic control",
+    "target_population": "Type 2 diabetes patients on metformin background therapy",
+    "primary_endpoint": "Treatment difference in HbA1c after 26 weeks",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "pre-prandial inhalation, treat-to-target titration",
+      "max_tolerated_dose": "",
+      "dose_modifications": "treat-to-target dose titration scheme"
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Type 2 diabetes mellitus",
+    "comparator": "rosiglitazone + metformin",
+    "sample_size": 301,
+    "duration": "26 weeks",
+    "duration_weeks": 26.0,
+    "investigator_commentary": "See termination reason in detailed description"
+  },
+  "arms": [
+    {
+      "arm_id": "a",
+      "compounds": [
+        "inhaled human insulin",
+        "metformin"
+      ]
+    },
+    {
+      "arm_id": "b",
+      "compounds": [
+        "rosiglitazone",
+        "metformin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "a",
+      "intervention": "inhaled human insulin",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic regulation",
+      "population_description": "Type 2 diabetes patients on metformin background therapy",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "a",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "hepatic glucose production suppression and insulin sensitization",
+      "population_description": "Type 2 diabetes patients on metformin background therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "b",
+      "intervention": "rosiglitazone",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "insulin sensitization and glucose homeostasis",
+      "population_description": "Type 2 diabetes patients on metformin background therapy",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "b",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "hepatic glucose production suppression and insulin sensitization",
+      "population_description": "Type 2 diabetes patients on metformin background therapy",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "metformin",
+      "primary_compound_id": "inhaled human insulin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Metformin reduces hepatic glucose output and improves insulin sensitivity, potentially amplifying the glycemic effect of inhaled insulin; however, the trial was terminated without results to confirm this interaction.",
+      "citation": "See termination reason in detailed description"
+    },
+    {
+      "modulator_compound_id": "metformin",
+      "primary_compound_id": "rosiglitazone",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Metformin's suppression of hepatic glucose production complements rosiglitazone's peripheral insulin sensitization, but the trial was terminated without results to confirm additive glycemic benefit.",
+      "citation": "See termination reason in detailed description"
+    }
+  ]
+}

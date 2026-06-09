@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT00203151",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether edratide engaged its intended target (anti-DNA antibodies / T-cell epitopes on pathogenic antibodies). No target engagement evidence was reported. Per the round-28 AFFECTS rule, since target engagement was not measured, no 'affects' record should be emitted. 2. PATHWAY MODULATION: No biomarker changes were reported. There is no evidence that downstream biology (suppression of autoreactive immune responses) was modulated. 3. CLINICAL TRANSLATION: The primary endpoint (Improvement of Disease Activity Score at 30 weeks) was not met in either arm (arm 1 and arm 2 both failed). No effect size or p-value was reported, only that the trial 'did not meet its primary endpoints.' 4. POPULATION EFFECTS: No subgroup findings were reported. 5. CONFOUNDERS: The trial enrolled 340 patients with SLE over 30 weeks with a placebo comparator, which is a reasonably sized and designed trial. No safety signals or dose-limiting toxicity were reported. No manufacturing or delivery issues noted. The trial appears to have been adequately powered and conducted, but the mechanism simply did not translate to clinical benefit. The absence of biomarker data means we cannot pinpoint where in the causal chain the failure occurred, but the primary endpoint clearly missed. The failure mode is most consistent with the biology not driving the clinical endpoint, or the mechanism not affecting the biology \u2014 we cannot distinguish these without PD data. Given no biomarker data and a clear primary endpoint miss, this is classified as a failure with the most likely mode being that the mechanism did not affect the intended biology or the biology did not drive the indication.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "No biomarker data available to confirm biology moved; primary endpoint missed in both arms. Cannot confirm biology moved, but this is one plausible failure mode."
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.3,
+      "evidence": "No target engagement data available. Tolerogenic peptide immunomodulation may not have engaged the intended T-cell epitopes or suppressed autoreactive responses sufficiently."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.25,
+      "evidence": "SLE is a heterogeneous disease; without biomarker stratification, the enrolled population may not have been the subset where tolerogenic peptide immunomodulation would be effective."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:0dbc5accfe1b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "Primary endpoint missed in arm 1 with no biomarker evidence of mechanism engagement. Per round-14 rules, failure of the whole chain with no PD data warrants weak_contradict on mechanism_affects."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:0dbc5accfe1b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "Primary endpoint missed in arm 2 with no biomarker evidence of mechanism engagement. Per round-14 rules, failure of the whole chain with no PD data warrants weak_contradict on mechanism_affects."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0dbc5accfe1b",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "Primary endpoint missed in arm 1; no evidence that suppression of autoreactive immune responses drove clinical benefit in SLE in this trial. Weak contradict per round-14 rules for no-PD-data failures."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0dbc5accfe1b",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "Primary endpoint missed in arm 2; no evidence that suppression of autoreactive immune responses drove clinical benefit in SLE in this trial. Weak contradict per round-14 rules for no-PD-data failures."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_improvement_disease_activity_score",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The Disease Activity Score endpoint was used as the primary measure but was not met. Without effect size or p-value data, and given the drug failed, it is unclear whether the endpoint failed to capture benefit or the drug simply had no effect. The endpoint is a recognized measure in SLE but the result is ambiguous given the lack of numeric data."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "acrcriteria_positive__severity_moderate",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed in both arms with adequate sample size (N=340) and placebo comparator. No subgroup showed differential response. This population did not respond to edratide treatment, supporting moderate_contradict for this population-indication edge."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker, PD, or target engagement data was reported, and no effect size or p-value was provided for the primary endpoint. This makes it impossible to determine where in the causal chain the failure occurred (target engagement, pathway modulation, or clinical translation). Expert review is needed to assess whether the lack of numeric results reflects a reporting gap or a true absence of any signal, and to determine whether the tolerogenic peptide mechanism was ever pharmacologically active in this trial."
+}

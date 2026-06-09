@@ -1,0 +1,154 @@
+{
+  "nct_id": "NCT01447719",
+  "therapeutic_hypothesis": {
+    "compound": "florbetapir F 18",
+    "claimed_target": "amyloid beta plaques",
+    "proposed_mechanism": "radioligand binding to amyloid beta aggregates",
+    "intended_biology": "in vivo detection of cerebral amyloid plaque burden",
+    "target_population": "subjects previously imaged with florbetapir F 18 PET in trial 18F-AV-45-A07, followed to autopsy",
+    "primary_endpoint": "sensitivity and specificity of florbetapir-PET scan to detect moderate to frequent amyloid plaques at autopsy (CERAD criteria); Spearman correlation of PET image and amyloid plaque density by IHC",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Sensitivity 92% (95% CI: 78\u201398); Specificity 100% (95% CI: 80\u2013100); Spearman correlation r=0.76 (95% CI: 0.62\u20130.85)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": "Spearman rank order correlation of florbetapir-PET median visual read vs. quantitative IHC amyloid plaque density across 6 brain regions = 0.76 (p<0.0001)",
+    "biomarker_changes": [
+      "Florbetapir-PET positive (majority interpretation): 36 subjects with moderate/frequent plaques at autopsy",
+      "Florbetapir-PET negative (majority interpretation): 3 subjects with moderate/frequent plaques at autopsy (false negatives)",
+      "Florbetapir-PET positive (majority interpretation): 0 subjects with no/sparse plaques at autopsy (false positives)",
+      "Florbetapir-PET negative (majority interpretation): 20 subjects with no/sparse plaques at autopsy (true negatives)",
+      "Median sensitivity across 5 readers: 92% (95% CI: 69\u201395); Median specificity: 95% (95% CI: 90\u2013100)"
+    ],
+    "subgroup_findings": [
+      "Sensitivity in subjects with autopsy within 1 year of scan: 96% (95% CI: 80\u2013100)",
+      "Specificity in subjects with autopsy within 1 year of scan: 100% (95% CI: 78\u2013100)",
+      "Reader 5 had the highest false negative rate (12 in all-autopsy population; 7 in within-1-year subgroup)"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Alzheimer's Disease (amyloid plaque detection)",
+    "comparator": "histopathological amyloid plaque assessment at autopsy (CERAD criteria)",
+    "sample_size": 110,
+    "duration": "Follow-up to autopsy within 24 months of florbetapir PET scan",
+    "duration_weeks": 104.28,
+    "investigator_commentary": "This is an autopsy follow-up extension study of trial 18F-AV-45-A07 (NCT00857415). No study drug was administered in this trial. Subjects previously dosed with florbetapir F 18 were followed to autopsy to validate PET imaging against histopathological gold standard."
+  },
+  "arms": [
+    {
+      "arm_id": "OG000",
+      "compounds": [
+        "florbetapir F 18"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Florbetapir PET positive (majority interpretation)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "florbetapir_pet_positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Florbetapir PET negative (majority interpretation)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "florbetapir_pet_negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Autopsy within 1 year of scan",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "autopsy_within_1_year"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "OG000",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": null,
+      "endpoint": "Spearman correlation of PET image and amyloid plaque density",
+      "effect_size": 0.76,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding to amyloid beta aggregates enabling PET imaging",
+      "biology_description": "in vivo detection of cerebral amyloid plaque burden",
+      "population_description": "subjects previously imaged with florbetapir F 18 PET, followed to autopsy within 24 months of scan",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "OG000",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Florbetapir PET positive (majority interpretation)",
+      "endpoint": "Sensitivity (all autopsy population, within 24 months)",
+      "effect_size": 92.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding to amyloid beta aggregates enabling PET imaging",
+      "biology_description": "in vivo detection of cerebral amyloid plaque burden",
+      "population_description": "subjects with moderate or frequent amyloid plaques at autopsy within 24 months of florbetapir PET scan",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "OG000",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Florbetapir PET negative (majority interpretation)",
+      "endpoint": "Specificity (all autopsy population, within 24 months)",
+      "effect_size": 100.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding to amyloid beta aggregates enabling PET imaging",
+      "biology_description": "in vivo detection of cerebral amyloid plaque burden",
+      "population_description": "subjects with no or sparse amyloid plaques at autopsy within 24 months of florbetapir PET scan",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "OG000",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Autopsy within 1 year of scan",
+      "endpoint": "Sensitivity (autopsy within 1 year of scan)",
+      "effect_size": 96.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding to amyloid beta aggregates enabling PET imaging",
+      "biology_description": "in vivo detection of cerebral amyloid plaque burden",
+      "population_description": "subjects with moderate or frequent amyloid plaques at autopsy within 12 months of florbetapir PET scan",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "OG000",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Autopsy within 1 year of scan",
+      "endpoint": "Specificity (autopsy within 1 year of scan)",
+      "effect_size": 100.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding to amyloid beta aggregates enabling PET imaging",
+      "biology_description": "in vivo detection of cerebral amyloid plaque burden",
+      "population_description": "subjects with no or sparse amyloid plaques at autopsy within 12 months of florbetapir PET scan",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

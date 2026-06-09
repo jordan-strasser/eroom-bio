@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00138671",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Inhaled insulin demonstrated clear target engagement via the insulin receptor. Fasting plasma glucose dropped -28.55 mg/dL in the inhaled arm vs +2.36 mg/dL in the subcutaneous arm, and HbA1c declined -0.28% vs -0.26% respectively. These glycemic biomarkers confirm the drug reached and activated its intended target (insulin receptor agonism). 2. PATHWAY MODULATION: Downstream biology (glucose uptake and glycemic regulation) was modulated \u2014 both arms showed HbA1c reductions, and the inhaled arm showed numerically greater fasting glucose reduction. The mechanism of receptor agonism driving glycemic control was confirmed. 3. CLINICAL TRANSLATION: The primary endpoints were pulmonary safety measures (FEV1 and DLco changes over 52 weeks), not glycemic efficacy. The trial was designed as a pulmonary safety study in diabetic COPD patients. No p-values were reported for the primary endpoints, and the trial was terminated early. Numerically, the inhaled insulin arm showed smaller FEV1 decline (-0.068 L vs -0.128 L) and smaller DLco decline (-0.614 vs -0.882 mL/min/mmHg) compared to subcutaneous insulin, suggesting inhaled insulin did not worsen pulmonary function relative to comparator. However, without statistical testing and with early termination, the primary endpoint is formally unmet/unknown. 4. POPULATION EFFECTS: The population was specifically diabetic patients with COPD \u2014 a population selected to assess pulmonary safety risk. No subgroup analyses with differential responses were reported. 5. CONFOUNDERS: The trial was terminated early (reason not fully specified), which severely limits interpretability. The small sample size (n=105, with ~59 inhaled and ~46 subcutaneous) means the study was likely underpowered for the primary pulmonary endpoints. No p-values were reported for the primary endpoints. The trial appears to have been a safety/feasibility study rather than a definitive efficacy trial. The glycemic endpoints showed partial success (both arms reduced HbA1c similarly), but the pulmonary primary endpoints remain statistically unresolved. The causal chain for the glycemic mechanism was validated, but the primary pulmonary safety question was not definitively answered due to early termination and lack of statistical analysis. This is classified as 'partial' because glycemic target engagement was confirmed but the primary pulmonary safety endpoints were not formally evaluated.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Sample size of only 105 patients (59 inhaled, 46 subcutaneous) with early termination and no p-values reported for primary endpoints (FEV1, DLco). The trial was terminated before completing full analysis, leaving primary endpoints statistically unresolved."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.5,
+      "evidence": "Trial was terminated with reason not fully specified. No p-values reported for primary pulmonary endpoints. Primary endpoint outcome listed as 'unknown' for both FEV1 and DLco endpoints, preventing definitive classification of pulmonary safety."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "inhaled_human_insulin",
+      "target_entity": "ENSG00000254647",
+      "support": "strong_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "Fasting plasma glucose dropped -28.55 mg/dL and HbA1c declined -0.28% in the inhaled insulin arm, confirming target engagement of the insulin receptor signaling pathway. Per round-28 AFFECTS rule, demonstrated downstream PD biomarker movement confirms target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000254647",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "The insulin receptor signaling pathway was demonstrably activated: fasting plasma glucose and HbA1c both moved in the expected direction, confirming that engaging the insulin receptor (INS) modulated the insulin receptor signaling pathway (GO:0008286)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "HbA1c reduction of -0.28% and fasting glucose reduction of -28.55 mg/dL confirm that insulin receptor signaling pathway activation translated to glycemic control biology. Effect is modest but directionally consistent."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "Glycemic control biology was modulated (HbA1c -0.28%, FPG -28.55 mg/dL) and both arms showed partial glycemic improvement, providing weak support that glycemic control biology drives diabetes mellitus outcomes. Effect sizes are modest and no p-values are available."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_post_bronchodilator_forced_expiratory_volume_1",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "FEV1 was measured as a pulmonary safety endpoint in diabetic COPD patients. No p-values were reported and the trial was terminated early. Numerically inhaled insulin showed less FEV1 decline than subcutaneous, but without statistical analysis the endpoint's ability to capture benefit in this indication is ambiguous. FEV1 is a pulmonary measure being used as a safety endpoint in a diabetes trial, making its relationship to the diabetes indication inherently indirect."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "fev1fvcratio_low__fev1percentpredicted_low",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The COPD-defined population (low FEV1/FVC ratio, low FEV1% predicted) showed partial glycemic response to both inhaled and subcutaneous insulin, but primary pulmonary endpoints were not statistically evaluated due to early termination. The population's differential response to inhaled vs subcutaneous insulin cannot be definitively assessed."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early with reason not fully specified, preventing formal statistical analysis of primary pulmonary endpoints (FEV1, DLco). No p-values were reported for primary endpoints. The trial's primary question was pulmonary safety of inhaled insulin in COPD patients, not glycemic efficacy \u2014 the causal chain entities in the resolved graph (insulin receptor \u2192 glycemic control) do not align well with the actual primary endpoints (pulmonary function measures). The subcutaneous insulin arm's causal chain maps to VDR/SUMOylation which appears to be an extraction artifact unrelated to insulin's actual mechanism. Expert review needed to assess: (1) whether early termination was commercial/safety-driven, (2) whether the pulmonary safety signal (pneumonia 5.1% vs 0% in inhaled arm) contributed to termination, and (3) whether the resolved graph entities accurately represent the trial's mechanistic hypothesis."
+}

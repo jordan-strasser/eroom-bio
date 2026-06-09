@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00111306",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether epratuzumab engaged CD22 on B cells. No target engagement evidence is reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., B-cell counts, CD22 occupancy, BCR signaling markers) are reported. We cannot assess whether B-cell depletion/modulation occurred. 3. CLINICAL TRANSLATION: The primary endpoint (patient response variable at 24 weeks) has an outcome of 'unknown' \u2014 no numeric result, no p-value, no effect size is reported. The trial enrolled 510 patients over 48 weeks but produced no usable efficacy readout. This is consistent with the trial being terminated or results never being reported, rather than a clean efficacy miss. 4. POPULATION EFFECTS: No subgroup findings are reported. 5. CONFOUNDERS: The complete absence of any efficacy readout \u2014 null primary endpoint result, null effect size, null p-value, and 'unknown' outcome \u2014 indicates this trial provides no usable efficacy or safety readout. This is the canonical 'insufficient_information' scenario: the trial cannot be used to update the mechanistic causal chain because we do not know whether the endpoint was reached, missed, or never analyzed. The operational failure flag is set to true because the trial appears to have been terminated or abandoned before a primary endpoint readout was available, meaning the mechanism was never given a fair test in terms of producing analyzable data.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint result is null, effect size is null, p-value is null, and the per-arm outcome is listed as 'unknown'. Despite 510 enrolled patients and a 48-week duration, no efficacy readout is available. This is not a missed endpoint \u2014 it is an absence of any endpoint result, consistent with early termination or unreported results."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (complete/partial/non-response at 24 weeks) was pre-specified but no result was reported. We cannot assess whether this endpoint captures clinical benefit in SLE from this trial alone. Ambiguous is appropriate given the absence of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lupusantibody_positive__severity_severe",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy result was reported for this population. The trial enrolled severe SLE patients but produced no usable outcome data, so no population-level response signal can be extracted."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial enrolled 510 patients with a 48-week duration but produced no efficacy readout whatsoever (null primary endpoint, null effect size, null p-value, unknown outcome). It is unclear whether this reflects early termination, a regulatory hold, unreported results, or a data extraction failure. Expert review is needed to determine whether results exist elsewhere (e.g., published literature, FDA submissions) and whether the trial should be reclassified once results are located. The 'insufficient_information' classification may need to be revised if results are found."
+}

@@ -1,0 +1,161 @@
+{
+  "nct_id": "NCT00396812",
+  "therapeutic_hypothesis": {
+    "compound": "rituximab",
+    "claimed_target": "CD20",
+    "proposed_mechanism": "B-cell depletion via anti-CD20 antibody",
+    "intended_biology": "B-cell mediated autoimmune suppression",
+    "target_population": "Adults with early active rheumatoid arthritis",
+    "primary_endpoint": "Change from baseline in DAS28-ESR at Week 48",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "DAS28-ESR mean change: -1.5; ESR mean change: -24.7 mm/hr; HAQ-DI mean change: -0.9",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "ESR mean change from baseline: -24.7 mm/hr at Week 48"
+    ],
+    "subgroup_findings": [
+      "SF-36 Physical Health Score mean change: +14.5 (improvement)",
+      "SF-36 Mental Health Score mean change: -1.2 (worsening)"
+    ],
+    "safety_signals": [
+      "Serious adverse events included hypoxia, laryngospasm, and pulmonary oedema (each in 1/4 participants); trial terminated due to unfavorable risk-benefit ratio in early RA"
+    ],
+    "dose_info": {
+      "dose": "1 gram IV",
+      "schedule": "Two infusions 14 days apart (Day 0 and Week 2)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Hypoxia",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Laryngospasm",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pulmonary oedema",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Early rheumatoid arthritis",
+    "comparator": "none (single-arm)",
+    "sample_size": 4,
+    "duration": "48 weeks",
+    "duration_weeks": 48.0,
+    "investigator_commentary": "The perceived risk-benefit ratio for individuals with early active RA led to trial termination."
+  },
+  "arms": [
+    {
+      "arm_id": "rituximab",
+      "compounds": [
+        "rituximab",
+        "methotrexate"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Change in Short-Form-36 Physical Health Score",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sf36_physical_health"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Change in Short-Form-36 Mental Health Score",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sf36_mental_health"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "rituximab",
+      "intervention": "rituximab",
+      "subgroup_descriptor": null,
+      "endpoint": "DAS28-ESR change from baseline at Week 48",
+      "effect_size": -1.5,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with early active rheumatoid arthritis",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "rituximab",
+      "intervention": "methotrexate",
+      "subgroup_descriptor": null,
+      "endpoint": "DAS28-ESR change from baseline at Week 48",
+      "effect_size": -1.5,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "folate pathway inhibition",
+      "biology_description": "anti-inflammatory immunosuppression via lymphocyte proliferation inhibition",
+      "population_description": "Adults with early active rheumatoid arthritis",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "rituximab",
+      "intervention": "rituximab",
+      "subgroup_descriptor": "Change in Short-Form-36 Physical Health Score",
+      "endpoint": "SF-36 Physical Health Score change from baseline at Week 48",
+      "effect_size": 14.5,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with early active rheumatoid arthritis",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "rituximab",
+      "intervention": "rituximab",
+      "subgroup_descriptor": "Change in Short-Form-36 Mental Health Score",
+      "endpoint": "SF-36 Mental Health Score change from baseline at Week 48",
+      "effect_size": -1.2,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with early active rheumatoid arthritis",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "methotrexate",
+      "primary_compound_id": "rituximab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.55,
+      "hypothesis": "Methotrexate co-administration may enhance rituximab's B-cell depletion and anti-inflammatory effects by suppressing lymphocyte proliferation and reducing immunogenicity, but the trial was too small and terminated early to demonstrate this interaction.",
+      "citation": "Concomitant treatments to be administered at a dose and frequency prescribed per protocol include methotrexate (MTX) and folic or folinic acid."
+    }
+  ]
+}

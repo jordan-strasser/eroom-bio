@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00261352",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. There is no evidence reported about whether tesaglitazar engaged PPAR\u03b1/\u03b3 in this trial. The development program was terminated, and no efficacy readout was produced. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., HDL-C change, triglyceride change, insulin sensitivity markers) were reported. All arm outcomes are listed as 'unknown.' 3. CLINICAL TRANSLATION: The primary endpoint (change in HDL-C from baseline) has no reported result \u2014 effect size and p-value are both null. The trial produced no usable efficacy readout. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The investigator commentary explicitly states 'The development program has been terminated.' This is a commercial/strategic termination \u2014 AstraZeneca terminated tesaglitazar's development program in 2006 citing concerns about renal effects seen across the program (a safety-driven commercial decision), not because this specific trial completed and missed its endpoint. The trial was terminated before the primary endpoint was reached, meaning the mechanism was never given a fair test in this specific trial. This is an operational failure \u2014 the causal chain was not tested. The failure mode is commercial_not_scientific (program-level termination) with a secondary component of dose_limiting_toxicity (renal safety concerns drove the program termination), though the structured AE data is absent here. Given no efficacy readout exists, this is classified as insufficient_information for the mechanistic chain, with commercial_not_scientific as the primary driver.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Investigator commentary states 'The development program has been terminated.' Tesaglitazar's development was halted by AstraZeneca in 2006 as a program-level decision, not due to this specific trial missing its endpoint. No efficacy data was reported."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "All arm outcomes are 'unknown,' effect size and p-value are null, and no biomarker or safety data is reported. The trial was terminated before producing a primary endpoint readout, leaving no usable efficacy or mechanistic signal."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hdl_c_end_randomized_treatment_period",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was never measured to completion \u2014 the trial was terminated before a readout. HDL-C change is a plausible surrogate for metabolic benefit in type 2 diabetes, but this trial provides no evidence either way about whether the endpoint captures clinical benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial was terminated before the primary endpoint was reached. No efficacy data is available to assess whether this population responded to any of the interventions. The result is uninformative about population response."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated as part of a program-level decision (AstraZeneca halted tesaglitazar development in 2006 due to renal safety signals observed across the program). No efficacy readout was produced for this specific trial. Expert review is needed to confirm whether the termination was purely commercial/strategic or whether renal toxicity data from other tesaglitazar trials should be incorporated as a dose_limiting_toxicity signal for this compound's causal chain. Additionally, the canonical chain maps tesaglitazar to PPARA via SUMOylation of intracellular receptors, which may not fully capture the PPAR\u03b3 agonism component of tesaglitazar's dual mechanism \u2014 this mapping warrants expert review."
+}

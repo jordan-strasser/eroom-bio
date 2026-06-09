@@ -1,0 +1,142 @@
+{
+  "nct_id": "NCT00596687",
+  "therapeutic_hypothesis": {
+    "compound": "Insulin glargine + Insulin glulisine (Basal Bolus)",
+    "claimed_target": "insulin receptor",
+    "proposed_mechanism": "receptor agonism",
+    "intended_biology": "glycemic control via exogenous insulin replacement",
+    "target_population": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+    "primary_endpoint": "Mean blood glucose concentration during hospital stay days 2-10",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Basal Bolus: 145 mg/dl vs SSRI: 172 mg/dl (difference: -27 mg/dl)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Mean blood glucose: Basal Bolus 145 mg/dl vs SSRI 172 mg/dl"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Hypoglycemia (<70 mg/dl) occurred in 24/104 (23.1%) of Basal Bolus patients vs 5/107 (4.7%) of SSRI patients"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "Insulin glargine once daily SQ; Insulin glulisine TID at mealtime SQ; Regular insulin four-times daily SQ",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Hypoglycemia < 70 mg/dl",
+        "grade": "",
+        "incidence_treatment_pct": 23.08,
+        "incidence_control_pct": 4.67,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Type 2 diabetes with inpatient hyperglycemia undergoing general surgery",
+    "comparator": "Sliding scale regular insulin (SSRI)",
+    "sample_size": 234,
+    "duration": "Hospital stay days 2-10 (up to 10 days)",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "insulin glargine",
+        "insulin glulisine"
+      ]
+    },
+    {
+      "arm_id": "2",
+      "compounds": [
+        "regular insulin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "insulin glargine",
+      "subgroup_descriptor": null,
+      "endpoint": "Mean Blood Glucose Concentration",
+      "effect_size": 145.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glycemic control via exogenous insulin replacement",
+      "population_description": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "insulin glulisine",
+      "subgroup_descriptor": null,
+      "endpoint": "Mean Blood Glucose Concentration",
+      "effect_size": 145.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glycemic control via exogenous insulin replacement",
+      "population_description": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "2",
+      "intervention": "regular insulin",
+      "subgroup_descriptor": null,
+      "endpoint": "Mean Blood Glucose Concentration",
+      "effect_size": 172.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glycemic control via exogenous insulin replacement",
+      "population_description": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "insulin glargine",
+      "subgroup_descriptor": null,
+      "endpoint": "# Participants With Hypoglycemic Events",
+      "effect_size": 24.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glycemic control via exogenous insulin replacement",
+      "population_description": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "2",
+      "intervention": "regular insulin",
+      "subgroup_descriptor": null,
+      "endpoint": "# Participants With Hypoglycemic Events",
+      "effect_size": 5.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glycemic control via exogenous insulin replacement",
+      "population_description": "Type 2 diabetes patients undergoing general surgery with inpatient hyperglycemia",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "insulin glulisine",
+      "primary_compound_id": "insulin glargine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.75,
+      "hypothesis": "Prandial insulin glulisine complements basal insulin glargine coverage by controlling postprandial glucose excursions, together achieving better overall glycemic control than basal insulin alone.",
+      "citation": "Insulin glargine once daily SQ; scheduled glulisine given SQ at mealtime TID; Basal Bolus mean blood glucose 145 mg/dl vs SSRI 172 mg/dl"
+    }
+  ]
+}

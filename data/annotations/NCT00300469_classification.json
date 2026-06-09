@@ -1,0 +1,236 @@
+{
+  "nct_id": "NCT00300469",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement for both compounds. ABT-335 (PPAR\u03b1 agonist) produced robust TG reductions (-29.6% to -45.6%) and HDL-C increases (+12.6% to +19.9%) consistent with PPAR\u03b1 agonism. Atorvastatin produced LDL-C reductions (-33.7% to -46.0%) consistent with HMG-CoA reductase inhibition. VLDL-C, non-HDL-C, and Apo B changes further confirm target engagement for both agents. 2. PATHWAY MODULATION: Downstream biology clearly moved. TG, HDL-C, LDL-C, VLDL-C, non-HDL-C, and Apo B all changed in the predicted directions. The combination arms showed additive/complementary effects: ABT-335 contributed TG reduction and HDL-C elevation while atorvastatin contributed LDL-C reduction. hsCRP also declined, suggesting broader metabolic effects. 3. CLINICAL TRANSLATION: The primary endpoint (mean percent change in TG, HDL-C, and LDL-C at 12 weeks) was met with p=0.001. Combination arms (a and b) showed superior TG reduction (-45.6% and -42.1%) vs atorvastatin monotherapy (-16.5% and -23.2%), and superior HDL-C elevation (+14.0% and +12.6% vs +6.3% and +5.3%). LDL-C reductions were comparable across combo and mono arms, as expected since atorvastatin drives LDL-C lowering. ABT-335 monotherapy (arm c) also showed meaningful TG and HDL-C effects. 4. POPULATION EFFECTS: No subgroup analyses reported. All arms showed consistent directional effects appropriate to their mechanisms. 5. CONFOUNDERS: No major confounders identified. SAEs were infrequent and distributed across arms. Cholecystitis/cholelithiasis in the ABT-335+40mg arm (1 subject each) is consistent with known fibrate class effects but did not represent dose-limiting toxicity. The 12-week duration is appropriate for lipid biomarker endpoints. N=613 provides adequate power. The trial is a clean success demonstrating complementary mechanisms of ABT-335 and atorvastatin in mixed dyslipidemia.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "abt_335",
+      "target_entity": "ENSG00000186951",
+      "support": "strong_support",
+      "affecting_arm_id": "a",
+      "reasoning": "ABT-335 in combo arm a produced TG -45.6% and HDL-C +14.0% at p<0.001 and p=0.005, directly demonstrating PPAR\u03b1 target engagement via downstream lipid biomarker changes."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "abt_335",
+      "target_entity": "ENSG00000186951",
+      "support": "strong_support",
+      "affecting_arm_id": "b",
+      "reasoning": "ABT-335 in combo arm b produced TG -42.1% and HDL-C +12.6% at p<0.001 and p=0.01, confirming PPAR\u03b1 engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "abt_335",
+      "target_entity": "ENSG00000186951",
+      "support": "strong_support",
+      "affecting_arm_id": "c",
+      "reasoning": "ABT-335 monotherapy produced TG -29.6% and HDL-C +19.9%, consistent with PPAR\u03b1 agonism as a standalone agent."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "atorvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "a",
+      "reasoning": "Atorvastatin 20mg in combo arm a produced LDL-C -33.7% at p=0.001, confirming HMG-CoA reductase inhibition."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "atorvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "b",
+      "reasoning": "Atorvastatin 40mg in combo arm b produced LDL-C -35.4% at p=0.001, confirming HMG-CoA reductase inhibition."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "atorvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "d",
+      "reasoning": "Atorvastatin 20mg monotherapy produced LDL-C -37.1%, confirming HMG-CoA reductase inhibition."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "atorvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "e",
+      "reasoning": "Atorvastatin 40mg monotherapy produced LDL-C -39.7%, confirming HMG-CoA reductase inhibition."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "atorvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "f",
+      "reasoning": "Atorvastatin 80mg monotherapy produced LDL-C -46.0%, confirming HMG-CoA reductase inhibition with dose-response relationship."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186951",
+      "target_entity": "R-HSA-1989781",
+      "support": "strong_support",
+      "affecting_arm_id": "a",
+      "reasoning": "PPAR\u03b1 engagement by ABT-335 produced robust TG reduction and HDL-C elevation consistent with PPAR\u03b1-driven gene expression activation of fatty acid oxidation pathways."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186951",
+      "target_entity": "R-HSA-1989781",
+      "support": "strong_support",
+      "affecting_arm_id": "b",
+      "reasoning": "PPAR\u03b1 engagement confirmed in arm b with similar TG and HDL-C effects, supporting PPAR\u03b1 gene expression activation mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186951",
+      "target_entity": "R-HSA-1989781",
+      "support": "strong_support",
+      "affecting_arm_id": "c",
+      "reasoning": "ABT-335 monotherapy arm confirms PPAR\u03b1-driven gene expression modulation with TG -29.6% and HDL-C +19.9%."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "GO:0042177",
+      "support": "strong_support",
+      "affecting_arm_id": "d",
+      "reasoning": "Atorvastatin monotherapy produced robust LDL-C reduction consistent with HMG-CoA reductase inhibition driving negative regulation of cholesterol biosynthesis."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "GO:0042177",
+      "support": "strong_support",
+      "affecting_arm_id": "e",
+      "reasoning": "Atorvastatin 40mg monotherapy LDL-C -39.7% confirms HMG-CoA reductase inhibition driving cholesterol biosynthesis regulation."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "GO:0042177",
+      "support": "strong_support",
+      "affecting_arm_id": "f",
+      "reasoning": "Atorvastatin 80mg monotherapy LDL-C -46.0% with dose-response confirms HMG-CoA reductase inhibition mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:cd14af7da72d",
+      "support": "strong_support",
+      "affecting_arm_id": "a",
+      "reasoning": "PPAR\u03b1 gene expression activation by ABT-335 produced TG -45.6% and HDL-C +14.0% in combo arm a, directly demonstrating the mechanism drives the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:cd14af7da72d",
+      "support": "strong_support",
+      "affecting_arm_id": "b",
+      "reasoning": "PPAR\u03b1 activation in arm b produced TG -42.1% and HDL-C +12.6%, confirming mechanism-to-biology link."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:cd14af7da72d",
+      "support": "strong_support",
+      "affecting_arm_id": "c",
+      "reasoning": "ABT-335 monotherapy arm c: TG -29.6% and HDL-C +19.9% confirms PPAR\u03b1 activation drives TG/HDL biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042177",
+      "target_entity": "bio:2e9305c64f0f",
+      "support": "strong_support",
+      "affecting_arm_id": "d",
+      "reasoning": "HMG-CoA reductase inhibition by atorvastatin 20mg produced LDL-C -37.1%, confirming the mechanism drives LDL-C reduction biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042177",
+      "target_entity": "bio:2e9305c64f0f",
+      "support": "strong_support",
+      "affecting_arm_id": "e",
+      "reasoning": "Atorvastatin 40mg LDL-C -39.7% confirms HMG-CoA reductase inhibition drives LDL-C reduction biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042177",
+      "target_entity": "bio:2e9305c64f0f",
+      "support": "strong_support",
+      "affecting_arm_id": "f",
+      "reasoning": "Atorvastatin 80mg LDL-C -46.0% with dose-response confirms mechanism-to-biology link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cd14af7da72d",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": "a",
+      "reasoning": "TG reduction and HDL-C elevation are core components of mixed dyslipidemia correction; combo arm a achieved clinically meaningful improvements in both at p<0.001."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cd14af7da72d",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": "b",
+      "reasoning": "Combo arm b similarly demonstrated TG and HDL-C biology driving mixed dyslipidemia correction."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cd14af7da72d",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "moderate_support",
+      "affecting_arm_id": "c",
+      "reasoning": "ABT-335 monotherapy drove TG and HDL-C biology relevant to mixed dyslipidemia, though without LDL-C component."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2e9305c64f0f",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": "d",
+      "reasoning": "LDL-C reduction is a key component of mixed dyslipidemia management; atorvastatin 20mg achieved -37.1% LDL-C reduction."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2e9305c64f0f",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": "e",
+      "reasoning": "Atorvastatin 40mg LDL-C -39.7% confirms LDL-C reduction biology drives mixed dyslipidemia correction."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2e9305c64f0f",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": "f",
+      "reasoning": "Atorvastatin 80mg LDL-C -46.0% with dose-response confirms LDL-C reduction biology drives mixed dyslipidemia."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_triglycerides_final_visit",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "TG percent change at 12 weeks was the primary endpoint and was met with p=0.001, supported by concordant HDL-C, LDL-C, VLDL-C, non-HDL-C, and Apo B changes. TG is a regulator-accepted biomarker endpoint for mixed dyslipidemia trials."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "mixed_dyslipidemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met at p=0.001 with clinically meaningful effect sizes across all arms. Combination arms showed superior TG reduction and HDL-C elevation vs monotherapy, confirming the enrolled population of adults with mixed dyslipidemia responds to both PPAR\u03b1 agonism and HMG-CoA reductase inhibition."
+    }
+  ],
+  "confidence_overall": 0.88,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

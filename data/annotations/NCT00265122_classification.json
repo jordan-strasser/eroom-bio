@@ -1,0 +1,108 @@
+{
+  "nct_id": "NCT00265122",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that ustekinumab engaged IL-12/IL-23 (p40 subunit) in this trial. The drug is a well-characterized monoclonal antibody with established binding to IL-12B (p40), so binding is assumed from prior molecular characterization, but this trial provides no direct confirmation. Per the round-28 AFFECTS rule, no affects edge update is emitted since target engagement was not measured in this trial.\n\n2. PATHWAY MODULATION: No pathway biomarkers (e.g., Th1/Th17 cytokine levels, mucosal inflammation markers) were reported. We cannot assess whether downstream biology (Th1/Th17-mediated intestinal inflammation suppression) was modulated. Per the modulates_via rule, no modulates_via record is emitted since engagement was not measured.\n\n3. CLINICAL TRANSLATION: The primary endpoint (CDAI reduction \u226525% and \u226570 points at Week 8) was not met. The response rate was 25/107 ustekinumab vs 21/107 placebo (combined SC and IV), p=0.337. This is a clear miss with no statistically significant treatment effect. The effect size is numerically small and not clinically meaningful.\n\n4. POPULATION EFFECTS: Population 1 was a mixed anti-TNF naive/experienced population. Population 2 (prior anti-TNF failure) had unknown outcomes reported. No subgroup analyses were reported. The population enrolled (cdai_high__line_second__severity_severe) may represent a heterogeneous group where the IL-12/IL-23 mechanism may not be uniformly relevant, but no subgroup data supports this inference.\n\n5. CONFOUNDERS: The sample size was 131 total (107 evaluable in Population 1), which is relatively small for a Phase 2 Crohn's disease trial. The crossover design and mixed population (anti-TNF naive and experienced) could dilute any treatment signal. The dose used (90 mg SC or 4.5 mg/kg IV) was lower than doses later shown to be effective in Crohn's disease (notably, higher IV induction doses were used in subsequent successful trials). The 8-week timeframe may be insufficient for full clinical response in Crohn's disease. No biomarker data precludes mechanistic interpretation. The primary failure mode is most consistent with wrong_population (mixed anti-TNF naive/experienced, unselected for IL-12/IL-23 pathway activity) combined with possible underpowering and potentially suboptimal dosing. Notably, ustekinumab was later approved for Crohn's disease at higher doses (IV induction ~6 mg/kg), suggesting the dose/population selection in this early trial was suboptimal rather than a fundamental mechanism failure.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "Population 1 included both anti-TNF naive and anti-TNF experienced patients without biomarker selection for IL-12/IL-23 pathway activity. The mixed population may have diluted any treatment signal. Subsequent successful ustekinumab trials in Crohn's disease used enriched populations (anti-TNF refractory) and higher doses."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Only 107 evaluable patients in Population 1 (combined SC and IV arms), which is small for a Crohn's disease efficacy trial. The response rates (25 vs 21) suggest a numerically small difference that a larger trial might not have detected as significant either, but the small N limits conclusions."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "No biomarker data available to confirm biology moved. However, given ustekinumab's later success in Crohn's disease at higher doses, it is possible the biology was partially engaged but the dose/population combination was insufficient to translate to clinical endpoint improvement."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002708",
+      "target_entity": "bio:73b29d576fc2",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_ustekinumab_sc_followed_by_placebo_sc",
+      "reasoning": "Primary endpoint missed (p=0.337) with no biomarker data. Per round-14 rules, emit weak_contradict for mechanism_affects when no PD data is available and endpoint missed. The chain failure is directional information even without knowing where it broke."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002708",
+      "target_entity": "bio:73b29d576fc2",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_placebo_sc_followed_by_ustekinumab_sc",
+      "reasoning": "Primary endpoint missed (p=0.337) with no biomarker data. Weak contradict for mechanism_affects per round-14 rules."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002708",
+      "target_entity": "bio:73b29d576fc2",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_ustekinumab_iv_followed_by_placebo_iv",
+      "reasoning": "Primary endpoint missed (p=0.337) with no biomarker data. Weak contradict for mechanism_affects per round-14 rules."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002708",
+      "target_entity": "bio:73b29d576fc2",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_placebo_iv_followed_by_ustekinumab_iv",
+      "reasoning": "Primary endpoint missed (p=0.337) with no biomarker data. Weak contradict for mechanism_affects per round-14 rules."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:73b29d576fc2",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_ustekinumab_sc_followed_by_placebo_sc",
+      "reasoning": "Primary endpoint missed. Without biomarker data, we cannot confirm the biology was engaged. Weak contradict per round-14 rules for the biology_drives edge when the full chain failed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:73b29d576fc2",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_placebo_sc_followed_by_ustekinumab_sc",
+      "reasoning": "Primary endpoint missed. Weak contradict for biology_drives per round-14 rules."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:73b29d576fc2",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_ustekinumab_iv_followed_by_placebo_iv",
+      "reasoning": "Primary endpoint missed. Weak contradict for biology_drives per round-14 rules."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:73b29d576fc2",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "population_1_placebo_iv_followed_by_ustekinumab_iv",
+      "reasoning": "Primary endpoint missed. Weak contradict for biology_drives per round-14 rules."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CDAI-based composite response endpoint (\u226525% and \u226570 point reduction) is a standard endpoint for Crohn's disease trials and is a regulator-accepted measure. However, the endpoint missed and no biomarker data confirms whether the biology was engaged. The endpoint itself is a reasonable surrogate for Crohn's disease activity, but the trial's failure does not clearly indict the endpoint's validity \u2014 it may reflect drug/dose/population issues rather than endpoint inadequacy. Ambiguous is appropriate given the mixed signals."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdai_high__line_second__severity_severe",
+      "target_entity": "crohn_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with p=0.337 (well above 0.20), in an adequately described population. No responding subgroup signal was identified. The population enrolled (severe, second-line Crohn's disease) did not respond to ustekinumab at these doses in this trial. Moderate contradict per the responds_differently rubric (primary endpoint missed p>0.20, adequate description, no subgroup signal)."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Ustekinumab was subsequently approved for Crohn's disease at higher IV induction doses (~6 mg/kg), suggesting this trial's failure may reflect suboptimal dosing rather than a fundamental mechanism failure. The dose used here (4.5 mg/kg IV or 90 mg SC) may have been below the threshold for adequate target engagement in Crohn's disease. This dose-response context is important for interpreting the contradict signals emitted here \u2014 they should be weighted against the later positive trials at higher doses. Additionally, the mixed anti-TNF naive/experienced population in Population 1 may have diluted any signal. Expert review is recommended to contextualize these edges against the subsequent successful ustekinumab Crohn's disease program."
+}

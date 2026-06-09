@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT00112723",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: PK data was collected showing AUC Day 1: 10.404 hr\u00d7\u03bcM and Cmax Day 1: 1.954 \u03bcM, with pharmacodynamic effects assessed on PBMCs on Day 1. This provides evidence that alvocidib reached systemic circulation and had pharmacodynamic effects, suggesting target engagement with CDK family members including CDK4. However, the PD data is described only as 'pharmacodynamic effects on normal PBMCs' without specific downstream pathway biomarkers (e.g., phospho-Rb reduction, cyclin D degradation) being reported quantitatively. Target engagement is implied but not definitively confirmed via pathway-specific biomarkers.\n\n2. PATHWAY MODULATION: The intended downstream biology is cell-cycle arrest and apoptosis induction via CDK inhibition leading to ubiquitin-dependent degradation of Cyclin D. While PD effects on PBMCs were noted, no specific pathway biomarkers (e.g., Cyclin D levels, phospho-CDK substrates) are reported. The pathway modulation step is not directly confirmed by the available data.\n\n3. CLINICAL TRANSLATION: This was a Phase I/II trial. The Phase I component succeeded \u2014 MTD was established at 100 mg/m2 (50+50 mg/m2) with no dose-limiting toxicities observed. The Phase II efficacy component showed only 6 partial responses (out of ~46 patients, ~13% ORR) and 0 complete responses, with 3 patients achieving stable disease. No p-value is reported and there is no comparator arm. The response rate is modest for relapsed/refractory lymphoma/myeloma, suggesting limited clinical translation of the mechanism in this broad population.\n\n4. POPULATION EFFECTS: The trial enrolled a heterogeneous population (relapsed/refractory lymphoma OR multiple myeloma). Cohort-level data shows differential responses: Cohort 1 had 3 PRs, Cohort 2 had 2 PRs, Cohort 4 had 0 PRs but 3 stable disease. This suggests possible disease-subtype-specific activity, but the data is insufficient to define a clear responding subgroup. The broad, unselected population may have diluted any signal in a CDK-sensitive subset.\n\n5. CONFOUNDERS: This is a single-arm Phase I/II trial with no comparator, making it difficult to assess true drug effect vs. natural disease course. The sample size is small (n=46). The primary Phase I endpoint (MTD) was met successfully. The Phase II efficacy signal is weak but present (6 PRs). The trial was administratively complete. The indication resolved to 'hodgkin_lymphoma' in the graph entities, though the trial enrolled broader lymphoid/plasma cell malignancies \u2014 this may represent a population mismatch with the graph entity. The overall outcome is 'partial': Phase I succeeded, Phase II showed minimal but non-zero activity insufficient to advance without biomarker selection.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "The trial enrolled a broad, unselected population of relapsed/refractory lymphoma and multiple myeloma patients without biomarker selection for CDK pathway dependence. Differential responses across cohorts (Cohort 1: 3 PRs vs Cohort 4: 0 PRs, 3 SD) suggest subtype-specific activity. CDK inhibition may be more relevant in specific lymphoma subtypes with cyclin D overexpression or CDK-dependent proliferation."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "PK/PD data suggests drug exposure was achieved and pharmacodynamic effects were noted on PBMCs, but clinical responses were limited (6 PRs, 0 CRs). The biology (cell-cycle arrest) may have been partially engaged but did not translate to meaningful clinical responses in this population."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "Single-arm trial with n=46 patients across a heterogeneous population (multiple lymphoma subtypes plus myeloma). No formal power calculation reported for the Phase II component. The small sample size and disease heterogeneity limit the ability to detect activity in any specific subtype."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "alvocidib",
+      "target_entity": "ENSG00000135446",
+      "support": "weak_support",
+      "affecting_arm_id": "treatment_alvocidib",
+      "reasoning": "PK data confirms systemic exposure (AUC ~10-12 hr\u00d7\u03bcM, Cmax ~2 \u03bcM) and pharmacodynamic effects on PBMCs were noted on Day 1, suggesting CDK4 engagement. However, no CDK4-specific biomarker (e.g., phospho-Rb) was reported, so support is weak rather than strong."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000135446",
+      "target_entity": "R-HSA-75815",
+      "support": "ambiguous",
+      "affecting_arm_id": "treatment_alvocidib",
+      "reasoning": "PD effects on PBMCs were noted but no specific pathway biomarker for ubiquitin-dependent Cyclin D degradation was reported. The mechanism engagement is implied by drug exposure but not directly measured, making this genuinely equivocal."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-75815",
+      "target_entity": "bio:b005c439bd4c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_alvocidib",
+      "reasoning": "The limited clinical response (6 PRs, 0 CRs out of ~46 patients) in this relapsed/refractory population suggests that even if CDK4/Cyclin D pathway was engaged, the downstream biology of cell-cycle arrest and apoptosis induction did not translate to meaningful clinical benefit in this broad population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b005c439bd4c",
+      "target_entity": "hodgkin_lymphoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_alvocidib",
+      "reasoning": "The modest response rate (6 PRs, 0 CRs) in relapsed/refractory lymphoma/myeloma provides weak contradict evidence that cell-cycle arrest and apoptosis induction via CDK inhibition drives meaningful disease control in this indication as enrolled. The heterogeneous population and lack of biomarker selection limit interpretation."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_disease_specific_dose_limiting_toxicity_maximum",
+      "target_entity": "hodgkin_lymphoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The Phase I safety/MTD endpoint was successfully met (MTD established at 100 mg/m2, no DLTs observed), confirming the endpoint captured the relevant safety profile. However, this is a safety endpoint rather than an efficacy endpoint, so its clinical benefit translation is limited. The Phase II response rate endpoint showed minimal activity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_third_plus__severity_active",
+      "target_entity": "hodgkin_lymphoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this heavily pre-treated, active disease population (relapsed/refractory lymphoma/myeloma), alvocidib produced only 6 partial responses and 0 complete responses out of ~46 patients (~13% ORR), with no p-value and no comparator. This modest signal in a third-line-plus active disease population provides weak contradict evidence that this population responds to CDK inhibition with alvocidib."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved indication entity is 'hodgkin_lymphoma' but the trial enrolled a broader population including multiple lymphoma subtypes and multiple myeloma. This entity mismatch may mean the graph edges don't accurately represent the trial's actual population. Additionally, the PD data ('pharmacodynamic effects on normal PBMCs') is described narratively without quantitative pathway-specific biomarkers, making it impossible to confirm whether CDK4/Cyclin D pathway modulation actually occurred. The trial is a Phase I/II with no comparator arm and no formal statistical testing for efficacy, limiting mechanistic interpretation. Expert review is needed to assess whether the cohort-level differential responses (Cohort 1 vs Cohort 4) suggest a disease-subtype-specific signal worth pursuing."
+}

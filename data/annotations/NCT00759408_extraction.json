@@ -1,0 +1,182 @@
+{
+  "nct_id": "NCT00759408",
+  "therapeutic_hypothesis": {
+    "compound": "BQ-123",
+    "claimed_target": "endothelin A receptor (ETA)",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "pulmonary vasodilation / reduction of pulmonary vascular resistance",
+    "target_population": "patients with pulmonary hypertension undergoing hypoxia and normoxia challenge",
+    "primary_endpoint": "Pulmonary Vascular Resistance (PVR) at baseline and four subsequent time points",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "PVR reduced from 67 dyn*sec/cm^5 (normoxia) to 46 dyn*sec/cm^5 (normoxia + BQ-123); hypoxia-induced PVR rise attenuated from 119 to 85 dyn*sec/cm^5 with BQ-123",
+    "p_value": null,
+    "target_engagement_evidence": "BQ-123 reduced PVR under normoxia and attenuated hypoxia-induced PVR elevation, consistent with ETA receptor blockade",
+    "biomarker_changes": [
+      "PVR at baseline: 64 dyn*sec/cm^5",
+      "PVR during hypoxia: 119 dyn*sec/cm^5",
+      "PVR during normoxia: 67 dyn*sec/cm^5",
+      "PVR during normoxia + BQ-123: 46 dyn*sec/cm^5",
+      "PVR during hypoxia + BQ-123: 85 dyn*sec/cm^5",
+      "SVR at baseline: 1368 dyn*sec/cm^5",
+      "SVR during hypoxia: 1050 dyn*sec/cm^5",
+      "SVR during normoxia: 1351 dyn*sec/cm^5",
+      "SVR during normoxia + BQ-123: 1069 dyn*sec/cm^5",
+      "SVR during hypoxia + BQ-123: 828 dyn*sec/cm^5",
+      "Mean PAP at baseline: 10 mmHg; hypoxia: 15 mmHg; normoxia: 10 mmHg; normoxia + BQ-123: 9 mmHg; hypoxia + BQ-123: 14 mmHg",
+      "Cardiac output at baseline: 5.3 L/min; hypoxia: 6.7 L/min; normoxia: 5.2 L/min; normoxia + BQ-123: 6.4 L/min; hypoxia + BQ-123: 8.3 L/min"
+    ],
+    "subgroup_findings": [
+      "BQ-123 reduced PVR from 67 to 46 dyn*sec/cm^5 under normoxia conditions",
+      "BQ-123 attenuated hypoxia-induced PVR rise (119 vs 85 dyn*sec/cm^5)",
+      "BQ-123 reduced SVR under normoxia (1351 to 1069 dyn*sec/cm^5) and hypoxia (1050 to 828 dyn*sec/cm^5)",
+      "BQ-123 increased cardiac output under normoxia (5.2 to 6.4 L/min) and hypoxia (6.7 to 8.3 L/min)"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "6-120 \u00b5g/min",
+      "schedule": "administered for 60 min",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "pulmonary hypertension",
+    "comparator": "within-subject baseline (no separate control arm)",
+    "sample_size": 38,
+    "duration": "single session with sequential hypoxia/normoxia/BQ-123 challenge periods",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "BQ-123"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Baseline",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Time 2: Hypoxia",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hypoxia"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Time 3: Normoxia",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "normoxia"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Time 4: Normoxia/BQ-123",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "normoxia_bq123"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Time 5: Hypoxia/BQ-123",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hypoxia_bq123"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "BQ-123",
+      "subgroup_descriptor": null,
+      "endpoint": "PVR",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "pulmonary vasodilation / reduction of pulmonary vascular resistance",
+      "population_description": "patients with pulmonary hypertension undergoing sequential hypoxia and normoxia challenge",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "BQ-123",
+      "subgroup_descriptor": "Time 4: Normoxia/BQ-123",
+      "endpoint": "PVR",
+      "effect_size": 46.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "pulmonary vasodilation / reduction of pulmonary vascular resistance",
+      "population_description": "patients with pulmonary hypertension under normoxia conditions after 60 min BQ-123 infusion",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "BQ-123",
+      "subgroup_descriptor": "Time 5: Hypoxia/BQ-123",
+      "endpoint": "PVR",
+      "effect_size": 85.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "pulmonary vasodilation / reduction of pulmonary vascular resistance",
+      "population_description": "patients with pulmonary hypertension under hypoxia conditions after BQ-123 infusion",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "BQ-123",
+      "subgroup_descriptor": "Time 4: Normoxia/BQ-123",
+      "endpoint": "SVR",
+      "effect_size": 1069.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "systemic vasodilation",
+      "population_description": "patients with pulmonary hypertension under normoxia conditions after 60 min BQ-123 infusion",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "BQ-123",
+      "subgroup_descriptor": "Time 5: Hypoxia/BQ-123",
+      "endpoint": "SVR",
+      "effect_size": 828.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "systemic vasodilation",
+      "population_description": "patients with pulmonary hypertension under hypoxia conditions after BQ-123 infusion",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": []
+}

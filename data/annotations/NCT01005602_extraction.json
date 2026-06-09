@@ -1,0 +1,139 @@
+{
+  "nct_id": "NCT01005602",
+  "therapeutic_hypothesis": {
+    "compound": "Digoxin (nomogram-guided dosing)",
+    "claimed_target": "Na+/K+-ATPase",
+    "proposed_mechanism": "Na+/K+-ATPase inhibition",
+    "intended_biology": "positive inotropy and heart rate reduction",
+    "target_population": "Heart failure patients requiring digoxin therapy",
+    "primary_endpoint": "Percent of patients achieving steady-state serum digoxin concentration between 0.5\u20130.9 ng/ml at 2\u20134 weeks",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "38.5% (nomogram) vs 34.8% (standard care) achieved target SDC 0.5\u20130.9 ng/ml",
+    "p_value": null,
+    "target_engagement_evidence": "Mean serum digoxin concentration 0.52 ng/ml (nomogram) vs 1.12 ng/ml (standard); 86.2% vs 42.4% achieved SDC < 1.0 ng/ml",
+    "biomarker_changes": [
+      "Mean SDC nomogram arm: 0.52 ng/ml; standard arm: 1.12 ng/ml",
+      "ABCB1 C1236T: Wild type 0.52, CT 0.56, TT 0.58 ng/ml (nomogram substudy, n=55)",
+      "ABCB1 C3435T: Wild type (CC) 0.54, CT 0.54, TT 0.46 ng/ml",
+      "ABCB1 G2677T/A: Wild type (GG) 0.54, GT 0.50, TT 0.66, GA 0.40 ng/ml"
+    ],
+    "subgroup_findings": [
+      "ABCB1 SNP genotype subgroups showed modest variation in SDC but no large pharmacogenetic effect in nomogram arm"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Heart failure",
+    "comparator": "Standard digoxin dosing",
+    "sample_size": 131,
+    "duration": "2\u20134 weeks to steady state; trial ran December 2006 to December 2009",
+    "duration_weeks": 4.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "digoxin_dosing_per_nomogram",
+      "compounds": [
+        "digoxin"
+      ]
+    },
+    {
+      "arm_id": "standard_digoxin_dosing",
+      "compounds": [
+        "digoxin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "digoxin_dosing_per_nomogram",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Percent achieving SDC 0.5\u20130.9 ng/ml",
+      "effect_size": 38.5,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed via simplified nomogram based on creatinine clearance and ideal body weight",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "standard_digoxin_dosing",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Percent achieving SDC 0.5\u20130.9 ng/ml",
+      "effect_size": 34.8,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed per standard clinical care",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "digoxin_dosing_per_nomogram",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Mean serum digoxin concentration",
+      "effect_size": 0.52,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed via simplified nomogram based on creatinine clearance and ideal body weight",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "standard_digoxin_dosing",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Mean serum digoxin concentration",
+      "effect_size": 1.12,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed per standard clinical care",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "digoxin_dosing_per_nomogram",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Serum digoxin concentration < 1.0 ng/ml",
+      "effect_size": 86.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed via simplified nomogram based on creatinine clearance and ideal body weight",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "standard_digoxin_dosing",
+      "intervention": "digoxin",
+      "subgroup_descriptor": null,
+      "endpoint": "Serum digoxin concentration < 1.0 ng/ml",
+      "effect_size": 42.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "Na+/K+-ATPase inhibition",
+      "biology_description": "positive inotropy and heart rate reduction",
+      "population_description": "Heart failure patients dosed per standard clinical care",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -1,0 +1,100 @@
+{
+  "nct_id": "NCT01222351",
+  "therapeutic_hypothesis": {
+    "compound": "BAY 94-9172 (Florbetaben)",
+    "claimed_target": "amyloid beta plaques",
+    "proposed_mechanism": "PET radiotracer binding to amyloid plaques",
+    "intended_biology": "amyloid plaque load quantification in brain",
+    "target_population": "older adults with late onset Alzheimer disease",
+    "primary_endpoint": "Relationship between cognitive change over time and amyloid (A\u03b2) deposition over up to 3 years and 10 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Beta weight (slope) = -0.034 (unitless; negative value indicates greater cognitive decline associated with amyloid positivity)",
+    "p_value": 0.02,
+    "target_engagement_evidence": "PET imaging confirmed amyloid-positive vs amyloid-negative classification; 41 participants with positive amyloid reading, 75 without",
+    "biomarker_changes": [
+      "Amyloid-positive participants (n=41) showed greater cognitive decline over time compared to amyloid-negative participants (n=75) as measured by global cognitive Z-score"
+    ],
+    "subgroup_findings": [
+      "Amyloid-positive participants (n=41): greater cognitive decline (negative Beta weight = -0.034, p=0.02)",
+      "Amyloid-negative participants (n=75): less cognitive decline relative to amyloid-positive group"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Late onset Alzheimer disease",
+    "comparator": "participants without positive amyloid reading",
+    "sample_size": 161,
+    "duration": "up to 3 years and 10 months",
+    "duration_weeks": 200.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "bay_94_9172",
+      "compounds": [
+        "BAY 94-9172 (Florbetaben)"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Participant with positive amyloid reading",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "APP",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Participant without positive amyloid reading",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "APP",
+          "level": "negative"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "bay_94_9172",
+      "intervention": "BAY 94-9172 (Florbetaben)",
+      "subgroup_descriptor": "Participant with positive amyloid reading",
+      "endpoint": "Cognitive change over time (global cognitive Z-score slope)",
+      "effect_size": -0.034,
+      "p_value": 0.02,
+      "outcome": "success",
+      "mechanism_description": "radiotracer binding to amyloid plaques for PET imaging quantification",
+      "biology_description": "amyloid plaque burden assessment",
+      "population_description": "older adults with late onset Alzheimer disease and positive amyloid PET reading",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "bay_94_9172",
+      "intervention": "BAY 94-9172 (Florbetaben)",
+      "subgroup_descriptor": "Participant without positive amyloid reading",
+      "endpoint": "Cognitive change over time (global cognitive Z-score slope)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "radiotracer binding to amyloid plaques for PET imaging quantification",
+      "biology_description": "amyloid plaque burden assessment",
+      "population_description": "older adults with late onset Alzheimer disease and negative amyloid PET reading",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

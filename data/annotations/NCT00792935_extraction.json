@@ -1,0 +1,144 @@
+{
+  "nct_id": "NCT00792935",
+  "therapeutic_hypothesis": {
+    "compound": "MK-0941",
+    "claimed_target": "glucokinase",
+    "proposed_mechanism": "glucokinase activation",
+    "intended_biology": "glucose-stimulated insulin secretion and hepatic glucose metabolism",
+    "target_population": "Adults with type 2 diabetes mellitus with inadequate glycemic control on metformin",
+    "primary_endpoint": "Change from baseline to week 6 in 24-hour weighted mean glucose",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Mean difference in 24-hr WMG: 0.9 mg/dL (95% CI: -7.9 to 9.6) vs glimepiride",
+    "p_value": 0.847,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "MK-0941: 32 participants experienced hypoglycemia vs 37 on glimepiride (p=0.361)",
+      "1 serious AE of blood creatine phosphokinase increased in MK-0941 arm",
+      "1 serious AE of comminuted fracture in glimepiride arm"
+    ],
+    "dose_info": {
+      "dose": "titrated to maximally effective dose",
+      "schedule": "three times daily (TID), within 15 minutes before each meal",
+      "max_tolerated_dose": "",
+      "dose_modifications": "MK-0941 titrated to maximally effective dose; metformin dose stabilized at \u22651500 mg/day and \u22642550 mg/day (or \u22643000 mg/day per local label)"
+    },
+    "adverse_events": [
+      {
+        "term": "Hypoglycemia (symptomatic or asymptomatic)",
+        "grade": "",
+        "incidence_treatment_pct": 44.4,
+        "incidence_control_pct": 52.1,
+        "serious": false
+      },
+      {
+        "term": "Blood creatine phosphokinase increased",
+        "grade": "",
+        "incidence_treatment_pct": 1.39,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Comminuted fracture",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 1.41,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Type 2 diabetes mellitus with inadequate glycemic control on metformin",
+    "comparator": "glimepiride",
+    "sample_size": 143,
+    "duration": "6-week treatment period (plus up to 4-week metformin titration/stabilization)",
+    "duration_weeks": 6.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "mk_0941",
+      "compounds": [
+        "MK-0941",
+        "metformin"
+      ]
+    },
+    {
+      "arm_id": "glimepiride",
+      "compounds": [
+        "glimepiride",
+        "metformin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "mk_0941",
+      "intervention": "MK-0941",
+      "subgroup_descriptor": null,
+      "endpoint": "Change from baseline in 24-hour weighted mean glucose at week 6",
+      "effect_size": -43.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "glucokinase activation",
+      "biology_description": "glucose-stimulated insulin secretion and hepatic glucose uptake",
+      "population_description": "Adults with type 2 diabetes mellitus with inadequate glycemic control on metformin",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "mk_0941",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "Change from baseline in 24-hour weighted mean glucose at week 6",
+      "effect_size": -43.4,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "mitochondrial complex I inhibition reducing hepatic gluconeogenesis",
+      "biology_description": "hepatic glucose output suppression and insulin sensitization",
+      "population_description": "Adults with type 2 diabetes mellitus with inadequate glycemic control on metformin",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "glimepiride",
+      "intervention": "glimepiride",
+      "subgroup_descriptor": null,
+      "endpoint": "Change from baseline in 24-hour weighted mean glucose at week 6",
+      "effect_size": -44.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "ATP-sensitive potassium channel blockade stimulating insulin secretion",
+      "biology_description": "glucose-independent insulin secretion from pancreatic beta cells",
+      "population_description": "Adults with type 2 diabetes mellitus with inadequate glycemic control on metformin",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "glimepiride",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "Change from baseline in 24-hour weighted mean glucose at week 6",
+      "effect_size": -44.2,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "mitochondrial complex I inhibition reducing hepatic gluconeogenesis",
+      "biology_description": "hepatic glucose output suppression and insulin sensitization",
+      "population_description": "Adults with type 2 diabetes mellitus with inadequate glycemic control on metformin",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "metformin",
+      "primary_compound_id": "MK-0941",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Metformin's suppression of hepatic glucose output provides a complementary glycemic-lowering background that could amplify MK-0941's insulin-secretory effect, but the trial showed no differential benefit of the combination over glimepiride plus metformin.",
+      "citation": "Mean Difference (Final Values) = 0.9 (95% CI: -7.9\u20139.6), p = 0.847"
+    }
+  ]
+}

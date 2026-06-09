@@ -1,0 +1,68 @@
+{
+  "nct_id": "NCT00137969",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data is available to confirm CD20 target engagement (B-cell depletion) in this trial. Rituximab is a well-characterized anti-CD20 monoclonal antibody with established binding and B-cell depletion activity in other indications (e.g., NHL, RA), so binding is assumed from curated molecular databases. However, no PD/PK or B-cell count data is reported here to confirm engagement in this SLE population. Per the round-28 AFFECTS rule, no affects record is emitted since target engagement is unmeasured.\n\n2. PATHWAY MODULATION: No biomarker data is available to confirm downstream B-cell depletion or autoimmune pathway modulation. The AUCMB of BILAG score was nearly identical between arms (-5.8 rituximab vs -5.9 placebo, p=0.8230), suggesting that even if B-cells were depleted, the downstream biology (autoimmune suppression) did not translate to measurable clinical improvement beyond what prednisone alone achieved. This is consistent with either target-engaged-biology-not-moved or biology-moved-endpoint-flat, but without B-cell count data we cannot distinguish.\n\n3. CLINICAL TRANSLATION: The primary endpoint (MCR/PCR/NCR by BILAG at 52 weeks) was clearly missed (p=0.4875). All subgroup analyses also failed: MCR p=0.4318, PCR p=0.9069, BILAG C or better at 24 weeks p=0.5602, time to flare p=0.8979, physical function p=0.1277, MCR ITT weeks 24-52 p=0.6202. The AUCMB of BILAG score was essentially identical between arms (-5.8 vs -5.9, p=0.8230), indicating no differential biological effect. The effect sizes are numerically small and directionally inconsistent (e.g., PCR: 50 rituximab vs 25 placebo but p=0.9069 suggests proportional similarity when accounting for arm sizes). The clinical endpoint did not improve.\n\n4. POPULATION EFFECTS: No subgroup showed a meaningful differential response. All pre-specified and exploratory subgroups failed. The enrolled population was active SLE patients, which is the intended population for B-cell depletion therapy. There is no evidence of a responding subgroup within this trial.\n\n5. CONFOUNDERS: The comparator arm included prednisone, which itself has immunosuppressive activity. Both arms received prednisone, so the trial was testing rituximab ADD-ON to prednisone vs prednisone alone. The high background immunosuppression from prednisone may have masked any incremental benefit from rituximab (high background response). The AUCMB BILAG scores being nearly identical (-5.8 vs -5.9) strongly suggests the prednisone background was driving most of the clinical response in both arms, leaving little room for rituximab to demonstrate additional benefit. This is a 'wrong_population' or 'biology_moved_endpoint_flat' scenario where the background therapy confounds detection. The sample size (N=262) is moderate but the near-identical BILAG scores suggest this is a genuine null result rather than an underpowered study. The primary failure mode is that B-cell depletion via rituximab did not add clinical benefit over prednisone alone in this unselected active SLE population \u2014 consistent with 'biology_moved_endpoint_flat' (prednisone moved the biology, rituximab added nothing) or 'wrong_population' (unselected SLE may not be the right population for B-cell depletion). The AUCMB data showing identical BILAG trajectories is the strongest signal: the biology was being moved by prednisone in both arms equally, and rituximab's B-cell depletion mechanism did not provide additional modulation of the autoimmune biology in this unselected population.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "AUCMB of BILAG score was -5.8 (rituximab) vs -5.9 (placebo), p=0.8230 \u2014 essentially identical biological response in both arms, suggesting prednisone drove the biology in both arms and rituximab's B-cell depletion mechanism added no incremental biological or clinical effect. Primary endpoint p=0.4875."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "Unselected active SLE population without biomarker stratification (e.g., anti-dsDNA, complement, B-cell counts). Subsequent research suggested that B-cell depletion may benefit specific SLE subpopulations (e.g., lupus nephritis, anti-dsDNA positive). The broad unselected enrollment may have diluted any signal in a responding subgroup."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.4,
+      "evidence": "Both arms received prednisone as background therapy, which is an active immunosuppressant. The placebo arm (prednisone alone) showed substantial BILAG improvement (-5.9 AUCMB), creating a high background response that compressed the detectable treatment effect of rituximab add-on."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rituximab_1000_mg_prednisone",
+      "reasoning": "No biomarker data to confirm B-cell depletion occurred, and the AUCMB BILAG scores were identical between arms (-5.8 vs -5.9, p=0.8230), suggesting the antibody-dependent cytotoxicity mechanism did not produce differential downstream autoimmune suppression biology beyond prednisone alone. Weak rather than moderate contradict because no PD data confirms engagement was achieved."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rituximab_1000_mg_prednisone",
+      "reasoning": "The B-cell mediated autoimmune suppression biology, if modulated by rituximab, did not translate to clinical benefit in SLE (primary endpoint missed, all subgroups failed, BILAG trajectories identical). Weak contradict because no PD data confirms the biology was actually engaged by rituximab specifically."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The BILAG-based composite response endpoint (MCR/PCR/NCR) is a validated disease activity measure for SLE, but the near-identical BILAG trajectories in both arms (-5.8 vs -5.9) suggest the endpoint was sensitive to prednisone effects but may not have been able to discriminate the incremental effect of B-cell depletion. The endpoint's ability to capture rituximab-specific benefit in this context is ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The active SLE population showed no differential response to rituximab add-on vs prednisone alone. Primary endpoint missed at p=0.4875 with adequate sample size (N=262) and no responding subgroup identified. All subgroup analyses also failed. This is a moderate contradict because the trial was adequately powered and the null result was consistent across all analyses."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0009725",
+      "target_entity": "bio:0c3298be64d8",
+      "support": "weak_support",
+      "affecting_arm_id": "rituximab_1000_mg_prednisone",
+      "reasoning": "Prednisone (glucocorticoid receptor agonism via NR3C1) was present in both arms and both arms showed substantial BILAG improvement (-5.8 to -5.9 AUCMB), consistent with prednisone driving broad immunosuppression. However, this is a weak support because the trial was not designed to test prednisone efficacy specifically and no prednisone-specific biomarker data is available."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The near-identical BILAG trajectories in both arms (-5.8 vs -5.9, p=0.8230) raise the question of whether the prednisone background therapy was so effective that it created a ceiling effect preventing detection of rituximab's incremental benefit. This is a plausible alternative explanation (active comparator masking) not fully captured in the standard failure mode taxonomy. Additionally, the absence of B-cell depletion biomarker data (CD19/CD20 counts) means we cannot confirm whether rituximab actually engaged its target in this population, making it impossible to distinguish 'no_target_engagement' from 'target_engaged_biology_not_moved' from 'biology_moved_endpoint_flat'. Expert review of B-cell count data from this trial (if available in supplementary materials) would substantially clarify the mechanistic failure point."
+}

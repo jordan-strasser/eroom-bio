@@ -1,0 +1,63 @@
+{
+  "nct_id": "NCT00113087",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct ACE inhibition biomarker (e.g., ACE activity, angiotensin II levels) was measured. However, enalapril is a well-established ACE inhibitor with robust pharmacological evidence of target engagement at standard doses. The dose used (0.4 mg/kg/day BID) is within the therapeutic range for pediatric patients. We cannot confirm engagement from this trial's data alone, but the curated molecular record supports it.\n\n2. PATHWAY MODULATION: There is partial evidence of downstream biological activity. The ventricular mass to volume ratio just before Glenn surgery was significantly reduced (1.15 vs 1.31, p=0.02), and ventricular mass Z-score trended lower (4.0 vs 4.9, p=0.05). These suggest some cardiac remodeling effect consistent with afterload reduction. However, BNP levels were not significantly different at either timepoint (p=0.74 pre-Glenn; p=0.22 at 14 months), and ejection fraction was unchanged. The cardiac structural signal is present but partial and did not persist to 14 months (mass-to-volume ratio p=0.34 at 14 months). So biology moved partially but incompletely.\n\n3. CLINICAL TRANSLATION: The primary endpoint (weight-for-age Z-score at 14 months) was not met (effect size -0.20, p=0.28). Notably, head circumference-for-age Z-score at 14 months was actually worse in the enalapril arm (effect size -0.64, p=0.008), suggesting potential harm to somatic growth. The biological changes observed (transient cardiac remodeling) did not translate to improved somatic growth outcomes. This is a biology_moved_endpoint_flat pattern \u2014 some biology moved (cardiac structure pre-Glenn) but the clinical endpoint (somatic growth) did not improve and may have worsened.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population (infants with single ventricle congenital heart defects) is a highly specific and severely ill group. The mechanism of ACE inhibition for improving somatic growth in this population may be fundamentally flawed \u2014 the link between neurohormonal modulation/afterload reduction and weight gain in single ventricle infants was not established. This may represent a wrong_population or wrong endpoint issue as well.\n\n5. CONFOUNDERS: The trial was adequately powered (n=230, 115 per arm). The duration (~60 weeks) seems appropriate. SAE rates were high in both arms reflecting disease severity, but the cardiac general SAE rate was higher in the enalapril arm (25.2% vs 16.5%), which may reflect drug effect or disease progression. No dose-limiting toxicity pattern is evident from the structured AE data \u2014 the differences are not dramatic enough to suggest DLT prevented adequate dosing. The primary failure mode is that the biological changes observed (transient cardiac structural improvement) did not translate to the clinical endpoint of somatic growth, and the endpoint choice (weight-for-age Z-score) may not have been the right surrogate for the mechanism's benefits in this population.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Ventricular mass to volume ratio significantly improved pre-Glenn (p=0.02), suggesting some cardiac biological activity, but the primary endpoint of weight-for-age Z-score at 14 months was not met (p=0.28). The biological signal was transient and did not persist to 14 months, and somatic growth was not improved."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "Single ventricle infants are a highly specific population with complex hemodynamics. The assumption that ACE inhibition-mediated afterload reduction would translate to improved somatic growth in this population may be mechanistically flawed. Head circumference Z-score was actually worse in the enalapril arm (p=0.008), suggesting the drug may not be appropriate for this population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000159640",
+      "target_entity": "GO:0010468",
+      "support": "weak_support",
+      "affecting_arm_id": "enalapril",
+      "reasoning": "Partial downstream biological signal (ventricular mass to volume ratio reduction pre-Glenn, p=0.02) suggests ACE engagement did modulate some downstream biology, but the effect was transient and incomplete. BNP was not significantly changed. Weak support for the target-to-mechanism link."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0010468",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_contradict",
+      "affecting_arm_id": "enalapril",
+      "reasoning": "The mechanism (regulation of gene expression via ACE inhibition) produced only partial and transient cardiac structural changes. The intended biology (neurohormonal modulation / cardiac afterload reduction) was not robustly or durably engaged \u2014 BNP unchanged, EF unchanged, mass-to-volume ratio normalized by 14 months. Weak contradict for the mechanism-to-biology link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:13e632992f59",
+      "target_entity": "congenital_heart_defects",
+      "support": "weak_contradict",
+      "affecting_arm_id": "enalapril",
+      "reasoning": "Even where some biological signal was present (transient cardiac remodeling), it did not translate to clinical benefit in somatic growth outcomes. The biology (neurohormonal modulation / cardiac afterload reduction) did not drive meaningful improvement in the indication as measured by the primary endpoint."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_weight_age_z_score_14_months_age",
+      "target_entity": "congenital_heart_defects",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The weight-for-age Z-score at 14 months was the primary endpoint but did not capture the partial biological signal observed (cardiac structural improvement pre-Glenn). The endpoint may not be the right surrogate for ACE inhibition benefits in single ventricle infants \u2014 the biology moved transiently but the endpoint did not reflect this, suggesting the endpoint does not well capture the relevant biology in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "aorticoxygensaturation_high",
+      "target_entity": "congenital_heart_defects",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (infants with single ventricle congenital heart defects) did not respond to enalapril on the primary endpoint (p=0.28). No subgroup showed differential benefit. The population-level response was negative."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The head circumference-for-age Z-score was significantly worse in the enalapril arm (p=0.008, effect size -0.64), which is an unexpected and potentially harmful signal not easily explained by the mechanism. This raises questions about whether ACE inhibition may be harmful to neurodevelopment in single ventricle infants, which is a clinically important finding that warrants expert review. Additionally, the mechanism node (GO:0010468, regulation of gene expression) is an unusual mechanistic descriptor for ACE inhibition \u2014 the canonical mechanism is angiotensin II reduction and bradykinin accumulation leading to vasodilation, not gene expression regulation \u2014 which may affect the validity of the causal chain mapping."
+}

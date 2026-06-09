@@ -1,0 +1,217 @@
+{
+  "nct_id": "NCT01265394",
+  "therapeutic_hypothesis": {
+    "compound": "[18F] Flutemetamol",
+    "claimed_target": "amyloid plaques",
+    "proposed_mechanism": "radiotracer binding to amyloid aggregates",
+    "intended_biology": "amyloid plaque detection via PET imaging",
+    "target_population": "healthy young adult subjects",
+    "primary_endpoint": "Number of brain scans in healthy young adults which do not show amyloid",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "179\u2013181 of 181 scans read as normal (no amyloid) across 5 readers",
+    "p_value": null,
+    "target_engagement_evidence": "SUVR of 1.12 (cerebellum reference) and 0.49 (pons reference) indicating low amyloid uptake in healthy young adults",
+    "biomarker_changes": [
+      "Mean SUVR (cerebellum reference region): 1.12 (95% CI: 1.108\u20131.136)",
+      "Mean SUVR (pons reference region): 0.49 (95% CI: 0.487\u20130.498)"
+    ],
+    "subgroup_findings": [
+      "Reader 1: 181 normal reads, 0 abnormal reads",
+      "Reader 2: 123 normal reads, 58 abnormal reads",
+      "Reader 3: 180 normal reads, 1 abnormal read",
+      "Reader 4: 180 normal reads, 1 abnormal read",
+      "Reader 5: 179 normal reads, 2 abnormal reads"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "185 MBq / 5 mCi",
+      "schedule": "single intravenous injection",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Healthy (amyloid PET imaging reference standard in young adults)",
+    "comparator": "none",
+    "sample_size": 218,
+    "duration": "Single visit; PET scan 90 minutes post-injection",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "18f_flutemetamol",
+      "compounds": [
+        "[18F] Flutemetamol"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Reader 1 -Normal Read-no amyloid",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 1- Abnormal Read- amyloid is present",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 2 - Normal Read-no amyloid",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 2 - Abnormal Read-amyloid is present",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 3 - Normal Read-no amyloid",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 3 - Abnormal Read-amyloid is present",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 4 - Normal Read-no amyloid",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 4 - Abnormal Read-amyloid is present",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 5 - Normal Read-no amyloid",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Reader 5 - Abnormal Read-amyloid is present",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Cerebullum Region",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "cerebellum_reference_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Pons Region",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "pons_reference_region"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "18f_flutemetamol",
+      "intervention": "[18F] Flutemetamol",
+      "subgroup_descriptor": null,
+      "endpoint": "Number of brain scans without amyloid (normal read)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radiotracer binding to amyloid aggregates",
+      "biology_description": "amyloid plaque detection via PET imaging",
+      "population_description": "healthy young adult subjects",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "18f_flutemetamol",
+      "intervention": "[18F] Flutemetamol",
+      "subgroup_descriptor": "Cerebullum Region",
+      "endpoint": "SUVR (cerebellum reference region)",
+      "effect_size": 1.12,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radiotracer binding to amyloid aggregates",
+      "biology_description": "amyloid plaque detection via PET imaging",
+      "population_description": "healthy young adult subjects assessed using cerebellum as reference region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "18f_flutemetamol",
+      "intervention": "[18F] Flutemetamol",
+      "subgroup_descriptor": "Pons Region",
+      "endpoint": "SUVR (pons reference region)",
+      "effect_size": 0.49,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radiotracer binding to amyloid aggregates",
+      "biology_description": "amyloid plaque detection via PET imaging",
+      "population_description": "healthy young adult subjects assessed using pons as reference region",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

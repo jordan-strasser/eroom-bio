@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00160147",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether bifeprunox engaged the dopamine D2 receptor (or serotonin HTR1A per the resolved chain) in this elderly Alzheimer's population. No target engagement evidence was reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers were reported. We cannot assess whether partial agonism at the target translated to reduction of dopaminergic hyperactivity. 3. CLINICAL TRANSLATION: The primary endpoint (BPRS Total Score at 10 weeks) has an unknown outcome \u2014 the trial was discontinued prematurely on 25 February 2008 due to slow enrollment, with only 60 subjects enrolled. No efficacy readout was obtained. 4. POPULATION EFFECTS: No subgroup findings were reported. 5. CONFOUNDERS: The trial was explicitly terminated early due to slow enrollment/recruitment failure, which is an operational/administrative reason. With only 60 subjects and premature discontinuation before the primary endpoint was reached, no usable efficacy readout exists. This is a classic operational failure \u2014 the mechanism was never given a fair test. The failure mode is commercial_not_scientific / underpowered due to recruitment collapse, best classified as insufficient_information since no primary endpoint result was obtained.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "The trial was discontinued prematurely on 25 February 2008 due to slow enrollment. The primary endpoint outcome is listed as 'unknown' with null effect size and null p-value. No efficacy readout was obtained before termination, making it impossible to assess the mechanistic causal chain."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Only 60 subjects were enrolled and the trial was terminated early due to slow enrollment, meaning the study was substantially below any reasonable power threshold for detecting a BPRS treatment effect in this population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_brief_psychiatric_rating_scale_bprs_score",
+      "target_entity": "alzheimers_dementia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The BPRS was the pre-specified primary endpoint for psychosis/behavioral disturbances in Alzheimer's dementia, but the trial was terminated before any efficacy readout was obtained. The endpoint's ability to capture clinical benefit in this indication cannot be assessed from this trial. Ambiguous is appropriate given no result was produced."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_dementia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before the primary endpoint was reached due to slow enrollment. No population-level response data is available, making it impossible to assess whether this population responds to bifeprunox in Alzheimer's dementia. Ambiguous is the appropriate bucket."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated prematurely due to slow enrollment before any efficacy readout was obtained. The resolved causal chain maps bifeprunox to HTR1A (serotonin receptor) rather than the dopamine D2 receptor stated in the therapeutic hypothesis \u2014 this entity mismatch may reflect a populator error or a dual-mechanism compound, and should be verified. No mechanistic conclusions can be drawn from this trial."
+}

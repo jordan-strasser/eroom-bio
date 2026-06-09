@@ -1,0 +1,251 @@
+{
+  "nct_id": "NCT00777608",
+  "therapeutic_hypothesis": {
+    "compound": "donepezil",
+    "claimed_target": "acetylcholinesterase",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "cholinergic neurotransmission enhancement",
+    "target_population": "patients with mild-to-moderate Alzheimer's Disease",
+    "primary_endpoint": "Change in Mean CogState Composite Score at Week 4",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Mean Difference -0.07 (90% CI: -0.2 to 0.08)",
+    "p_value": 0.231,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "CogState composite score at Week 2: donepezil -0.2 vs placebo -0.006, p=0.041 (significant)",
+      "CogState composite score at Week 8: donepezil -0.1 vs placebo -0.02, p=0.143 (not significant)",
+      "CogState composite score at Week 12: donepezil -0.2 vs placebo -0.09, p=0.226 (not significant)",
+      "ADAS-Cog at Week 4: donepezil +0.2 vs placebo -0.3, p=0.324 (not significant)",
+      "ADAS-Cog at Week 8: donepezil +0.07 vs placebo -0.7, p=0.285 (not significant)",
+      "ADAS-Cog at Week 12: donepezil -1.4 vs placebo -1.0, p=0.401 (not significant)"
+    ],
+    "safety_signals": [
+      "Serious adverse events reported only in donepezil arm: inguinal hernia, head injury, subdural haematoma, convulsion, urinary incontinence (each 1/53)"
+    ],
+    "dose_info": {
+      "dose": "5 mg escalating to 10 mg",
+      "schedule": "once daily; 5 mg for 14 days then 10 mg for 70 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose escalation from 5 mg to 10 mg at day 15 per protocol"
+    },
+    "adverse_events": [
+      {
+        "term": "Inguinal hernia",
+        "grade": "",
+        "incidence_treatment_pct": 1.887,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Head injury",
+        "grade": "",
+        "incidence_treatment_pct": 1.887,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Subdural haematoma",
+        "grade": "",
+        "incidence_treatment_pct": 1.887,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Convulsion",
+        "grade": "",
+        "incidence_treatment_pct": 1.887,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Urinary incontinence",
+        "grade": "",
+        "incidence_treatment_pct": 1.887,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Alzheimer's Disease (mild-to-moderate)",
+    "comparator": "placebo",
+    "sample_size": 106,
+    "duration": "12 weeks (with optional 24-week extension from day 85)",
+    "duration_weeks": 12.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "compounds": [
+        "donepezil"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Week 2 (N=38, N=43)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_2_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 8 (N=38, N=40)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_8_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 12 (N=38, N=41)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_12_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 4 (N=38, N=43)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_4_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 8 (N=37, N=40)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_8_timepoint_adas"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Week 12 (N=38, N=40)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "week_12_timepoint_adas"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": null,
+      "endpoint": "CogState Composite Score change at Week 4",
+      "effect_size": -0.07,
+      "p_value": 0.231,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 2 (N=38, N=43)",
+      "endpoint": "CogState Composite Score change at Week 2",
+      "effect_size": -0.2,
+      "p_value": 0.041,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 2 assessment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 8 (N=38, N=40)",
+      "endpoint": "CogState Composite Score change at Week 8",
+      "effect_size": -0.1,
+      "p_value": 0.143,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 8 assessment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 12 (N=38, N=41)",
+      "endpoint": "CogState Composite Score change at Week 12",
+      "effect_size": -0.07,
+      "p_value": 0.226,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 12 assessment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 4 (N=38, N=43)",
+      "endpoint": "ADAS-Cog change at Week 4",
+      "effect_size": 0.5,
+      "p_value": 0.324,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 4 ADAS-Cog assessment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 8 (N=37, N=40)",
+      "endpoint": "ADAS-Cog change at Week 8",
+      "effect_size": 0.8,
+      "p_value": 0.285,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 8 ADAS-Cog assessment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "donepezil_5_10_mg",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Week 12 (N=38, N=40)",
+      "endpoint": "ADAS-Cog change at Week 12",
+      "effect_size": -0.3,
+      "p_value": 0.401,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "patients with mild-to-moderate Alzheimer's Disease at week 12 ADAS-Cog assessment",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

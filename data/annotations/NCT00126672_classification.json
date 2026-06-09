@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00126672",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming mTOR engagement is reported. However, rapamycin is a well-established mTOR inhibitor (via FKBP1A/FKBP12 complex), and the strong mechanistic rationale (TSC mutations lead to constitutive mTOR activation) makes target engagement highly plausible. No explicit PD readout is available in this trial. 2. PATHWAY MODULATION: No pathway biomarkers (e.g., p-S6K1, p-4EBP1) are reported. The safety note that 'no changes observed in other TSC lesions at week 52' is a partial negative signal for some lesion types, but the primary angiomyolipoma endpoint succeeded. 3. CLINICAL TRANSLATION: The primary endpoint (ORR by RECIST) was met with a 44.4% response rate (95% CI: 28-61%) in a single-arm trial of 36 patients. This is a clinically meaningful response rate for angiomyolipomas in TSC/LAM, a condition with no prior approved therapy at the time. The absence of a p-value is expected for a single-arm trial where the comparison is against a historical benchmark. 4. POPULATION EFFECTS: No subgroup analyses reported. The population is biologically well-selected (TSC/LAM patients with constitutive mTOR activation due to TSC1/TSC2 loss-of-function mutations). 5. CONFOUNDERS: Single-arm design (no control arm) limits causal inference. Sample size is small (n=36). The 88.9% rate of Grade 3-4 neutrophil count decrease is notable but appears to be a known class effect and did not prevent trial completion or dose delivery at therapeutic levels. No dose-limiting toxicity that prevented adequate dosing is documented. The trial ran for 52 weeks, appropriate for this mechanism. Overall, this is a successful single-arm Phase 2 trial with a clinically meaningful ORR in a biologically selected population, consistent with the mTOR inhibition hypothesis in TSC-driven tumors.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "Single-arm trial with n=36 and no control arm; no p-value reported. While the ORR of 44.4% is clinically meaningful, the small sample size and single-arm design limit the strength of causal inference and generalizability."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000088832",
+      "target_entity": "R-HSA-166208",
+      "support": "moderate_support",
+      "affecting_arm_id": "ramaycin",
+      "reasoning": "The clinical response (44.4% ORR) in a population with constitutive mTOR activation (TSC1/TSC2 mutations) is consistent with rapamycin engaging FKBP1A and modulating mTORC1 signalling. No direct PD biomarker was measured, so this is inferred from the clinical outcome in a mechanistically selected population."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-166208",
+      "target_entity": "bio:454c78aae6d6",
+      "support": "moderate_support",
+      "affecting_arm_id": "ramaycin",
+      "reasoning": "The 44.4% ORR in angiomyolipomas driven by mTOR pathway dysregulation supports that mTORC1-mediated signalling inhibition translates to tumor growth suppression. No direct pathway biomarker data available, limiting this to moderate support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:454c78aae6d6",
+      "target_entity": "nonmalignant_neoplasm",
+      "support": "moderate_support",
+      "affecting_arm_id": "ramaycin",
+      "reasoning": "The clinical response in TSC/LAM-associated angiomyolipomas supports that mTOR pathway-driven tumor growth is a key driver of this nonmalignant neoplasm. The 44.4% ORR is consistent with this biology driving disease, though single-arm design limits causal certainty."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR",
+      "target_entity": "nonmalignant_neoplasm",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR by RECIST was the primary endpoint and was met (44.4%), demonstrating tumor shrinkage in angiomyolipomas. This is a clinically accepted endpoint for this indication and the response rate is meaningful. Single-arm design without OS/PFS confirmation limits this to moderate rather than strong support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "angiomyolipomasize_high__severity_mild",
+      "target_entity": "nonmalignant_neoplasm",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (TSC/LAM patients with kidney angiomyolipomas) showed a 44.4% ORR, indicating this biologically selected population responds to mTOR inhibition. Moderate rather than strong support due to single-arm design and absence of a p-value against a formal comparator."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The 88.9% rate of Grade 3-4 neutrophil count decrease is unusually high and warrants expert review to determine whether this represents a true class effect of rapamycin in this population, a data quality issue, or a potential dose-limiting concern that was managed without formal dose modification documentation. Additionally, the absence of any PD/biomarker data and the single-arm design without a formal historical control comparison limit mechanistic confidence. The note that no changes were observed in other TSC lesions (tubers, SEGAs, facial angiofibromas, kidney cysts) at week 52 is a partial negative signal that may indicate lesion-type specificity of the mTOR inhibition response."
+}

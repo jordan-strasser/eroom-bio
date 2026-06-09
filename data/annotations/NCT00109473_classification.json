@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00109473",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Clear evidence of GH receptor engagement. IGF-1 z-score rose from -0.4 at baseline to 1.8 at week 12 and 3.3 at week 24 in the GH+CTX arm, while remaining stable (-0.7 to -1.0) in the CTX-alone arm through week 12. This confirms the drug reached and modulated its intended target (GH receptor \u2192 IGF-1 axis). 2. PATHWAY MODULATION: Downstream biology showed mixed signals. CDEIS (endoscopic index) improved more in GH+CTX (9\u21923) than CTX alone (8\u21926), suggesting some mucosal healing benefit. However, fecal calprotectin remained elevated in GH+CTX (863\u2192868 \u00b5g/g) while decreasing in CTX arm (904\u2192656 \u00b5g/g), indicating the inflammatory biology was not consistently modulated in the expected direction. Height velocity improved markedly (8 vs 3 cm/year at week 12), confirming growth promotion biology was engaged. 3. CLINICAL TRANSLATION: The primary endpoint (CDHIS histologic index) was not met \u2014 CDHIS was 6 in GH+CTX vs 8 in CTX at week 12, with no statistically significant difference reported (p-value not provided). However, the secondary clinical endpoint PCDAI showed a significant difference (effect size 14, p=0.02 favoring GH+CTX at week 12). This is a classic biology_moved_endpoint_flat pattern for the primary endpoint, with the secondary endpoint capturing clinical benefit. The histologic endpoint may not have been the most sensitive measure for this mechanism. 4. POPULATION EFFECTS: The trial enrolled only 22 pediatric patients, making it severely underpowered for the primary histologic endpoint. The PCDAI success at p=0.02 suggests the clinical disease activity endpoint was more sensitive to the treatment effect. Corticosteroid use was modestly lower in GH+CTX arm (22 vs 28 mg prednisone; 7 vs 8 mg budesonide), suggesting a steroid-sparing trend. 5. CONFOUNDERS: The trial was severely underpowered (N=22) for the primary histologic endpoint. The choice of CDHIS as primary endpoint may have been suboptimal \u2014 histologic healing may require longer treatment duration or may be less sensitive than clinical indices (PCDAI) for detecting GH effects. The mixed biomarker signals (CDEIS improved but calprotectin did not) suggest the mechanism partially engaged the intended biology. The partial outcome classification reflects: primary endpoint missed, secondary clinical endpoint met, biomarker signals mixed, and the trial was underpowered.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 22 patients enrolled total. The primary endpoint (CDHIS) showed a numerical difference (6 vs 8) but no statistical significance was reported, consistent with insufficient power to detect a real effect. The secondary PCDAI endpoint reached p=0.02, suggesting a real signal exists that the primary endpoint analysis was too small to confirm."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Target engagement confirmed (IGF-1 z-score rose substantially). CDEIS improved more in GH+CTX arm. PCDAI significantly improved (p=0.02). However, the primary histologic endpoint CDHIS did not reach statistical significance, suggesting the histologic endpoint may not have been the most sensitive measure for this mechanism, or that histologic healing lags behind clinical improvement."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "growth_hormone",
+      "target_entity": "ENSG00000112964",
+      "support": "strong_support",
+      "affecting_arm_id": "growth_hormone_plus_cortecosteroid",
+      "reasoning": "IGF-1 z-score rose from -0.4 to 1.8 at week 12 and 3.3 at week 24 in the GH+CTX arm, directly confirming GH receptor engagement. This is a mechanistic biomarker that requires the affects edge to be true."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112964",
+      "target_entity": "R-HSA-1170546",
+      "support": "strong_support",
+      "affecting_arm_id": "growth_hormone_plus_cortecosteroid",
+      "reasoning": "IGF-1 z-score increase confirms GH receptor engagement drove downstream signaling (prolactin receptor signaling pathway includes GH-IGF-1 axis). The target was engaged and its immediate downstream readout (IGF-1) moved substantially."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1170546",
+      "target_entity": "bio:e42e3c9599d9",
+      "support": "weak_support",
+      "affecting_arm_id": "growth_hormone_plus_cortecosteroid",
+      "reasoning": "Mixed signals: CDEIS improved more in GH+CTX (9\u21923 vs 8\u21926), height velocity improved markedly (8 vs 3 cm/year), and PCDAI improved significantly. However, fecal calprotectin did not decrease in GH+CTX arm, suggesting incomplete mucosal healing biology engagement. Overall directional support but not consistent across all biomarkers."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e42e3c9599d9",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "growth_hormone_plus_cortecosteroid",
+      "reasoning": "The primary histologic endpoint missed but secondary clinical endpoint (PCDAI) met significance. The biology (mucosal healing and growth promotion) showed partial engagement with mixed downstream effects on Crohn's disease. The trial was underpowered, limiting conclusions, but directional support exists from PCDAI and CDEIS improvements."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_crohn_s_disease_histologic_index_severity_cdhis",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary histologic endpoint (CDHIS) missed significance while the clinical endpoint PCDAI showed significant improvement (p=0.02) and endoscopic index CDEIS also improved more in the GH arm. This pattern suggests CDHIS may not be the most sensitive endpoint for capturing GH-mediated benefit in pediatric Crohn's disease \u2014 the biology moved (CDEIS, PCDAI) but the histologic endpoint did not capture it."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "pcdai_high__severity_moderate",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of pediatric Crohn's disease patients with moderate severity showed a significant PCDAI response (p=0.02) but the primary histologic endpoint missed. The trial was underpowered (N=22), limiting confidence. Directional positive signal in this population warrants weak support rather than stronger classification."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial presents a complex partial outcome: primary histologic endpoint missed (no p-value reported, likely underpowered with N=22), but secondary clinical endpoint PCDAI met significance (p=0.02). Mixed biomarker signals (CDEIS improved, calprotectin did not) make it difficult to definitively classify the failure mode. Expert review needed to assess: (1) whether CDHIS was an appropriate primary endpoint for this mechanism and population, (2) whether the calprotectin elevation in GH+CTX arm represents a true biology failure or a confounded measurement, and (3) whether the PCDAI success at p=0.02 in a 22-patient trial is robust or a false positive. The pancreatitis SAE (5.9%) in the extension phase also warrants safety review, though control arm incidence is unknown."
+}

@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00445263",
+  "therapeutic_hypothesis": {
+    "compound": "tirofiban",
+    "claimed_target": "GPIIb/IIIa receptor",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "platelet aggregation inhibition",
+    "target_population": "patients with acute coronary syndrome without ST elevation",
+    "primary_endpoint": "composite of mortality, myocardial infarction, and emergency revascularization at 30 days",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "2 vs 21 participants with composite endpoint (early invasive vs delayed invasive)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Major bleeding: 2/83 in early invasive strategy arm vs 1/86 in delayed invasive strategy arm"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "intravenous infusion",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Major bleeding",
+        "grade": "",
+        "incidence_treatment_pct": 2.41,
+        "incidence_control_pct": 1.16,
+        "serious": true
+      }
+    ],
+    "primary_endpoint_met_source": "reask"
+  },
+  "context": {
+    "indication": "acute coronary syndrome without ST elevation",
+    "comparator": "delayed invasive strategy (coronarography without tirofiban)",
+    "sample_size": 170,
+    "duration": "30 days follow-up",
+    "duration_weeks": 4.345,
+    "investigator_commentary": "Trial was terminated because of inclusion delay."
+  },
+  "arms": [
+    {
+      "arm_id": "early_invasive_strategy",
+      "compounds": [
+        "tirofiban",
+        "coronarography"
+      ]
+    },
+    {
+      "arm_id": "delayed_invasive_strategy",
+      "compounds": [
+        "coronarography"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "early_invasive_strategy",
+      "intervention": "tirofiban",
+      "subgroup_descriptor": null,
+      "endpoint": "composite of mortality, MI, emergency revascularization at 30 days",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "platelet aggregation inhibition",
+      "population_description": "patients with acute coronary syndrome without ST elevation undergoing early invasive strategy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "delayed_invasive_strategy",
+      "intervention": "coronarography",
+      "subgroup_descriptor": null,
+      "endpoint": "composite of mortality, MI, emergency revascularization at 30 days",
+      "effect_size": 21.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "diagnostic coronary angiography",
+      "biology_description": "coronary artery disease assessment",
+      "population_description": "patients with acute coronary syndrome without ST elevation undergoing delayed invasive strategy",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

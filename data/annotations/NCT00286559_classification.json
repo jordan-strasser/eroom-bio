@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00286559",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data is available. The trial was withdrawn before any efficacy readout was obtained, so we cannot assess whether SonoVue or Optison engaged the myocardial microvasculature as intended. 2. PATHWAY MODULATION: No pathway or pharmacodynamic biomarker data is available. The trial was terminated before any biological readout. 3. CLINICAL TRANSLATION: The primary endpoint (coronary bypass graft patency at 30 days) was never assessed \u2014 both arms show 'unknown' outcomes. No effect size or p-value was reported. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The trial was withdrawn for a regulatory/safety reason: echo contrast agents (SonoVue and Optison) were no longer permitted in coronary artery disease patients. This is a commercial/regulatory/safety-driven termination \u2014 the mechanism was never given a fair test. The withdrawal was driven by a regulatory restriction on the use of these agents in CAD patients, not by observed toxicity within the trial itself (no structured AE data, no dose-limiting toxicity documented). This is best classified as a commercial/administrative termination (regulatory restriction) rather than a dose-limiting toxicity, as there is no structured AE table showing grade 3+ events or MTD issues within this trial. The causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Trial was withdrawn because regulatory authorities no longer allowed echo contrast agents in coronary artery disease patients \u2014 an external regulatory/administrative decision, not a scientific or mechanistic failure within the trial itself. No efficacy data was collected."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Both arms show 'unknown' outcomes for the primary endpoint. No effect size, p-value, biomarker data, or AE data was reported. The trial was terminated before any primary endpoint readout, leaving no usable efficacy or safety signal."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_coronary_bypass_graft_patency",
+      "target_entity": "coronary_artery_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was never measured due to trial withdrawal. No information about whether this endpoint captures clinical benefit in CAD can be derived from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lvef_low",
+      "target_entity": "coronary_artery_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial was withdrawn before any efficacy readout. No population-level response data is available to assess differential response in this population."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was withdrawn due to a regulatory restriction on echo contrast agents in CAD patients before any efficacy data was collected. This is an operational failure (regulatory/administrative termination) rather than a mechanistic failure. The classification as 'commercial_not_scientific' vs a safety-driven withdrawal is uncertain \u2014 the regulatory restriction may itself have been driven by post-market safety signals for these agents in CAD patients (e.g. FDA/EMA label changes for ultrasound contrast agents around 2007), which could make this closer to a dose_limiting_toxicity or safety-driven termination at the class level. Expert review is needed to determine whether the regulatory restriction was based on class-level safety data that should inform the mechanistic chain."
+}

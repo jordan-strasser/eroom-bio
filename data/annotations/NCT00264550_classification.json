@@ -1,0 +1,194 @@
+{
+  "nct_id": "NCT00264550",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: CRP-based DAS28 response improvements were observed across golimumab arms, with DAS28-CRP response at Week 14 showing 67 responders in placebo+MTX vs 131 in combined golimumab+MTX arms (p<0.001). CRP is a downstream marker of TNF-alpha-driven inflammation, confirming that golimumab engaged TNF-alpha and suppressed its pro-inflammatory signaling. Target engagement is well-supported.\n\n2. PATHWAY MODULATION: The DAS28-CRP biomarker data confirms downstream pathway modulation \u2014 TNF neutralization by golimumab suppressed the adaptive immune response and pro-inflammatory cytokine signaling, as evidenced by CRP reduction incorporated in ACR response criteria. Biology moved as predicted.\n\n3. CLINICAL TRANSLATION: The primary endpoints were met. ACR20 at Week 14 was achieved by 59% (golimumab 100mg monotherapy), 49% (golimumab 50mg+MTX), and 50% (golimumab 100mg+MTX) vs 44% placebo+MTX, all at p=0.001. HAQ change at Week 24 was significantly improved in both combination arms (0.375 and 0.5 vs 0.125 for placebo+MTX, p=0.001). The golimumab 100mg monotherapy arm showed ACR20 success but HAQ improvement did not reach significance (p=0.24), suggesting the combination with MTX is important for functional improvement. Overall, the trial met its primary endpoints.\n\n4. POPULATION EFFECTS: No formal subgroup analyses were reported. The combination arms (golimumab+MTX) consistently outperformed golimumab monotherapy on HAQ, suggesting the enrolled population (MTX-inadequate responders) benefits more from combination therapy. The modulation entry confirms methotrexate amplifies golimumab's anti-inflammatory effect.\n\n5. CONFOUNDERS: The placebo+MTX arm showed a 44% ACR20 response rate, which is relatively high for a background MTX arm in an MTX-inadequate responder population, potentially compressing the detectable treatment effect for the monotherapy arm. However, the combination arms still showed clear superiority. Safety signals (cardiac events in the 100mg monotherapy arm) are notable but did not prevent adequate dosing or trial completion. The trial was adequately powered (N=444) and completed per protocol.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.4,
+      "evidence": "Golimumab 100mg monotherapy arm achieved ACR20 success but failed the HAQ endpoint (p=0.24, effect_size=0.125 same as placebo+MTX), suggesting full functional benefit requires combination with methotrexate. This is a design caveat rather than a true failure \u2014 the trial overall succeeded \u2014 but the monotherapy arm's HAQ miss is a weak point worth noting for future trial designers."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "group_2_golimumab_100_mg_placebo",
+      "reasoning": "DAS28-CRP biomarker improvements and ACR20 success at p=0.001 in the monotherapy arm confirm golimumab engaged TNF-alpha. Per round-28 AFFECTS rule, demonstrated downstream PD biomarker movement confirms target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "ACR20 success at p=0.001 and HAQ improvement at p=0.001 in the 50mg+MTX arm, with DAS28-CRP biomarker confirmation, demonstrate golimumab engaged TNF-alpha."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "ACR20 success at p=0.001 and HAQ improvement at p=0.001 in the 100mg+MTX arm, with DAS28-CRP biomarker confirmation, demonstrate golimumab engaged TNF-alpha."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "strong_support",
+      "affecting_arm_id": "group_2_golimumab_100_mg_placebo",
+      "reasoning": "DAS28-CRP response improvements confirm that TNF neutralization modulated the adaptive immune response pathway, with CRP as a downstream marker of TNF-driven inflammation."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "strong_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "DAS28-CRP response at Week 14 (131 combined golimumab+MTX vs 67 placebo+MTX, p<0.001) confirms TNF neutralization modulated the adaptive immune response."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "strong_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "DAS28-CRP response improvements confirm TNF neutralization modulated the adaptive immune response pathway in the 100mg+MTX arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "strong_support",
+      "affecting_arm_id": "group_2_golimumab_100_mg_placebo",
+      "reasoning": "ACR20 success (59%, p=0.001) and DAS28-CRP improvements confirm that modulation of adaptive immune response translated to pro-inflammatory cytokine suppression."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "strong_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "ACR20 (49%, p=0.001) and HAQ improvement (0.375, p=0.001) confirm adaptive immune response modulation drove pro-inflammatory cytokine suppression."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "strong_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "ACR20 (50%, p=0.001) and HAQ improvement (0.5, p=0.001) confirm adaptive immune response modulation drove pro-inflammatory cytokine suppression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "Suppression of pro-inflammatory cytokine signaling via TNF neutralization drove significant clinical improvement in RA (ACR20 49%, HAQ 0.375, both p=0.001), confirming this biology drives RA disease activity."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "Suppression of pro-inflammatory cytokine signaling drove significant clinical improvement in RA (ACR20 50%, HAQ 0.5, both p=0.001), confirming this biology drives RA disease activity."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_2_golimumab_100_mg_placebo",
+      "reasoning": "ACR20 success (59%, p=0.001) supports biology driving RA, but HAQ endpoint missed in monotherapy arm (p=0.24), suggesting partial translation without MTX combination."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "methotrexate",
+      "target_entity": "ENSG00000228716",
+      "support": "strong_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "Methotrexate's DHFR inhibition is well-established; the combination arm's superior outcomes vs golimumab monotherapy confirm methotrexate engaged its target and contributed to clinical benefit."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "methotrexate",
+      "target_entity": "ENSG00000228716",
+      "support": "strong_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "Methotrexate's DHFR inhibition is well-established; the combination arm's superior outcomes confirm methotrexate engaged its target."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000228716",
+      "target_entity": "GO:0035999",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "Combination arm success supports DHFR inhibition modulating tetrahydrofolate interconversion, though no direct folate pathway biomarker was reported."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000228716",
+      "target_entity": "GO:0035999",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "Combination arm success supports DHFR inhibition modulating tetrahydrofolate interconversion, though no direct folate pathway biomarker was reported."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0035999",
+      "target_entity": "bio:0ee71449bd2e",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "Combination arm success (ACR20 49%, HAQ 0.375, p=0.001) supports tetrahydrofolate interconversion disruption driving anti-inflammatory immunosuppression, though the contribution cannot be isolated from golimumab's effect."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0035999",
+      "target_entity": "bio:0ee71449bd2e",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "Combination arm success (ACR20 50%, HAQ 0.5, p=0.001) supports tetrahydrofolate interconversion disruption driving anti-inflammatory immunosuppression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0ee71449bd2e",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_3_golimumab_50_mg_methotrexate",
+      "reasoning": "Anti-inflammatory immunosuppression via folate pathway inhibition contributed to RA clinical improvement in combination arms, though the independent contribution of MTX cannot be fully isolated."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0ee71449bd2e",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_4_golimumab_100_mg_methotrexate",
+      "reasoning": "Anti-inflammatory immunosuppression via folate pathway inhibition contributed to RA clinical improvement in combination arms."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "ACR20 and HAQ endpoints both met in combination arms at p=0.001 with clinically meaningful effect sizes, and both endpoints are regulator-accepted surrogates for RA clinical benefit. The concordance between ACR20 and HAQ in the combination arms confirms these endpoints capture RA disease activity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "anticcp_positive__crp_high__esr_high__line_second__rf_positive__severity_active__swollenjoints_high__tenderjoints_high",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "This MTX-inadequate responder population with active RA showed strong responses to golimumab+MTX combination (ACR20 49-50%, HAQ 0.375-0.5, all p=0.001), confirming this biomarker-enriched population responds to TNF neutralization combined with MTX."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

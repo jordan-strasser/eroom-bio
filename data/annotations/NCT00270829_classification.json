@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00270829",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial enrolled only 2 patients and was terminated due to lack of funding before any meaningful data could be collected. There is no evidence of target engagement with NPR-A/NPRA. 2. PATHWAY MODULATION: No downstream pathway data (renal vasodilation, natriuresis) was reported. With only 2 patients enrolled and no results, pathway modulation cannot be assessed. 3. CLINICAL TRANSLATION: The primary endpoint (GFR) has an unknown outcome \u2014 no effect size or p-value was reported. The trial was effectively terminated before the primary endpoint was reached. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The trial was terminated due to funding unavailability with only 2 patients enrolled (far below any meaningful sample size). This is a clear operational/commercial failure \u2014 the mechanism was never given a fair test. The sample size of 2 is grossly insufficient for any efficacy or safety conclusion. This is classified as a commercial/administrative termination combined with gross underpowering, making it an operational failure where the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states 'Funding not available' as the reason for trial termination. The trial enrolled only 2 patients and produced no efficacy readout."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Sample size of 2 patients is far below any meaningful statistical threshold. The trial was terminated before accruing sufficient patients to test the hypothesis."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_gfr",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "GFR was selected as the primary endpoint for renal function in heart failure patients, which is a clinically relevant surrogate. However, the trial produced no data to confirm or refute whether GFR captures clinical benefit in this indication. The endpoint selection is plausible but untested here."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "creatinineelevation_high__ejectionfraction_low__functional_class_ii__severity_severe",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled severe CHF patients with low ejection fraction and elevated creatinine, but with only 2 patients enrolled and no efficacy readout, no conclusion can be drawn about whether this population responds differently to nesiritide."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

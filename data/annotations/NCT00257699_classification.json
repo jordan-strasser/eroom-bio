@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00257699",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that ciprofloxacin or metronidazole engaged their respective bacterial targets (DNA gyrase inhibition / anaerobic bacterial DNA disruption) in this population. The trial was terminated early due to inadequate recruitment (only 12 patients enrolled), so no efficacy readout was obtained. 2. PATHWAY MODULATION: No data on gut microbiome modulation or luminal bacterial load reduction is reported. Without an efficacy readout, pathway modulation cannot be assessed. 3. CLINICAL TRANSLATION: The primary endpoint (CDAI complete response at 8 weeks) was never evaluated \u2014 the trial was terminated before completion due to failure to recruit sufficient patients by the completion date. No effect size or p-value is available. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The dominant failure mode is operational \u2014 the trial was terminated due to inadequate recruitment (only 12 patients enrolled, far below what would be needed for any meaningful efficacy assessment). This is a classic operational/administrative failure that prevented the mechanistic hypothesis from being tested. The trial provides no usable efficacy readout, making this an insufficient_information classification from a mechanistic standpoint. The small sample size (n=12) and early termination mean no conclusions can be drawn about the antibiotic combination's efficacy in colonic Crohn's disease.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Trial terminated due to inadequate recruitment to meet completion date. Only 12 patients enrolled. Primary endpoint outcome is 'unknown' for both arms. No effect size or p-value reported. No biomarker data available. The trial never reached a point where efficacy could be assessed."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Sample size of 12 patients is grossly insufficient for a CDAI-based complete response endpoint in Crohn's disease. Typical trials of this type require 50-200+ patients per arm. The trial was terminated specifically because it could not recruit enough patients to complete the study."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CDAI complete response endpoint was pre-specified but never evaluated due to early termination. No data was generated to assess whether this endpoint captures clinical benefit in Crohn's disease. The endpoint itself (CDAI <150 with \u226570-point reduction) is a validated surrogate in Crohn's disease, but this trial contributes no evidence for or against its translatability."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdai_high__severity_moderate",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated before any efficacy readout. No data available to assess whether this population responds to antibiotic therapy for Crohn's disease. The n=12 enrollment and unknown outcomes preclude any population-level inference."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:0b3fb3e1e22d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ii",
+      "reasoning": "Per round-14 rules, a failed/uninformative trial must emit at least one upstream causal-chain edge. The trial was terminated without efficacy data and no biomarker data was collected. In the absence of any readout, a weak_contradict is emitted to reflect that the mechanistic chain was not validated in this trial. This is a minimal signal given the operational nature of the failure."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0b3fb3e1e22d",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ii",
+      "reasoning": "Per round-14 rules, failure to obtain any efficacy readout in this trial contributes a weak contradict signal to the biology_drives edge. The gut microbiome modulation \u2192 Crohn's disease link was not validated here, though the operational nature of the failure (recruitment collapse) means this signal should be heavily discounted."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated due to administrative/recruitment failure with only 12 patients enrolled and no efficacy readout. The mechanistic hypothesis was never tested. The operational_failure flag is set to true because this is a recruitment collapse / failure to accrue scenario. Expert review is needed to determine whether this trial should be excluded from evidence synthesis entirely, and whether any of the 12 enrolled patients contributed partial data that could inform the analysis."
+}

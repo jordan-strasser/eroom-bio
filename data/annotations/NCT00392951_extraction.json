@@ -1,0 +1,207 @@
+{
+  "nct_id": "NCT00392951",
+  "therapeutic_hypothesis": {
+    "compound": "sirolimus",
+    "claimed_target": "mTOR",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "immunosuppression via T-cell proliferation inhibition",
+    "target_population": "Pediatric and adult patients with autoimmune diseases of blood cells including ALPS, Evans syndrome, ITP, autoimmune hemolytic anemia, autoimmune neutropenia, autoimmune pancytopenia, SLE, IBD, and rheumatoid arthritis",
+    "primary_endpoint": "Number of participants with Grade 3 and 4 toxicities of administration of oral sirolimus at 6 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "1 out of 30 participants experienced Grade 3 or 4 toxicity",
+    "p_value": null,
+    "target_engagement_evidence": "Mean sirolimus trough level 8.5 ng/mL (95% CI: 2.9\u201320) within first 5 days, within target range of 5\u201315 ng/mL",
+    "biomarker_changes": [
+      "Mean sirolimus trough level 8.5 ng/mL (95% CI: 2.9\u201320 ng/mL) within first 5 days of starting sirolimus"
+    ],
+    "subgroup_findings": [
+      "ALPS patients (n=12): 11 CR, 1 PR, 0 NR, 0 PD for autoimmune disease response",
+      "Multilineage cytopenias patients (n=12): 7 CR, 1 PR, 2 NR, 2 PD for autoimmune disease response",
+      "Single-lineage autoimmune cytopenias patients (n=6): 1 CR, 2 PR, 3 NR, 0 PD for autoimmune disease response",
+      "ALPS patients lymphoproliferation response: 11 CR, 1 PR, 0 NR, 0 PD, 0 N/A",
+      "Multilineage cytopenias lymphoproliferation response: 3 CR, 0 PR, 1 NR, 1 PD, 7 N/A",
+      "Single-lineage autoimmune cytopenias lymphoproliferation response: 1 CR, 0 PR, 0 NR, 0 PD, 5 N/A"
+    ],
+    "safety_signals": [
+      "1 serious adverse event of vasculitis reported in the sirolimus treatment group (1/30)",
+      "Only 1 participant experienced Grade 3 or 4 toxicity overall"
+    ],
+    "dose_info": {
+      "dose": "Loading dose 3 mg/m2, then 2.5 mg/m2 with adjustment to target trough 5\u201315 ng/mL",
+      "schedule": "once or twice daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose adjusted based on serum trough levels measured by high-performance liquid chromatography"
+    },
+    "adverse_events": [
+      {
+        "term": "Vasculitis",
+        "grade": "",
+        "incidence_treatment_pct": 3.33,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 3 or 4 toxicity (any)",
+        "grade": "3-4",
+        "incidence_treatment_pct": 3.33,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Autoimmune diseases of blood cells (ALPS, Evans syndrome, ITP, autoimmune hemolytic anemia, autoimmune neutropenia, autoimmune pancytopenia, SLE, IBD, rheumatoid arthritis)",
+    "comparator": "none (single-arm study)",
+    "sample_size": 30,
+    "duration": "6 months treatment/observation",
+    "duration_weeks": 26.07,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "sirolimus_treatment",
+      "compounds": [
+        "sirolimus"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Response in patients w/ ALPS",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ALPS"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Response in patients w/ multilineage cytopenias",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "multilineage_cytopenias"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Resp pts w/ single-lineage autoimmune cytopenias",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "single_lineage_autoimmune_cytopenias"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "esp pts w/ single-lineage autoimmune cytopenias",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "single_lineage_autoimmune_cytopenias"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": null,
+      "endpoint": "Grade 3 and 4 Toxicities",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Pediatric and adult patients with autoimmune diseases of blood cells including ALPS, Evans syndrome, ITP, autoimmune hemolytic anemia, autoimmune neutropenia, autoimmune pancytopenia, SLE, IBD, and rheumatoid arthritis",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "Response in patients w/ ALPS",
+      "endpoint": "Autoimmune Disease Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with Autoimmune Lymphoproliferative Syndrome (ALPS)",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "Response in patients w/ multilineage cytopenias",
+      "endpoint": "Autoimmune Disease Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with multilineage autoimmune cytopenias",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "Resp pts w/ single-lineage autoimmune cytopenias",
+      "endpoint": "Autoimmune Disease Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with single-lineage autoimmune cytopenias",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "Response in patients w/ ALPS",
+      "endpoint": "Lymphoproliferation Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with Autoimmune Lymphoproliferative Syndrome (ALPS)",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "Response in patients w/ multilineage cytopenias",
+      "endpoint": "Lymphoproliferation Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with multilineage autoimmune cytopenias",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "sirolimus_treatment",
+      "intervention": "sirolimus",
+      "subgroup_descriptor": "esp pts w/ single-lineage autoimmune cytopenias",
+      "endpoint": "Lymphoproliferation Response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "immunosuppression via T-cell proliferation inhibition",
+      "population_description": "Patients with single-lineage autoimmune cytopenias",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

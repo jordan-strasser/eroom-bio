@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00295165",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that sargramostim engaged the GM-CSF receptor (CSF2RA/CSF2RB) at the 6 mcg/kg dose. The trial was terminated early with only 33 of the planned patients enrolled, and no efficacy readout was reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., myeloid cell activation markers, mucosal immune restoration markers) were reported. Without target engagement data, we cannot assess whether the intended biology was modulated. 3. CLINICAL TRANSLATION: The primary endpoint (clinical remission/response at 8 weeks) has an outcome of 'unknown' \u2014 no numeric result, p-value, or effect size was reported. The trial was terminated before a primary endpoint readout was achieved. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial was terminated early (only 33 patients enrolled, reason not stated). This is the dominant failure mode \u2014 the trial was stopped before it could generate a usable efficacy readout, making it an operational failure. The small sample size and lack of any results mean the mechanistic chain was never adequately tested. This is a classic 'insufficient_information' scenario combined with gross underpowering due to early termination.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Trial was terminated early with only 33 patients enrolled (reason not stated). Primary endpoint outcome is 'unknown' \u2014 no effect size, p-value, or efficacy readout was reported. No biomarker or safety data available. The trial provides no usable efficacy readout."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Only 33 patients were enrolled before termination, which is substantially below what would be needed for adequate power to detect a treatment effect on clinical remission/response in moderate-to-severe Crohn's disease."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial used clinical remission/response (composite_response) as the primary endpoint for Crohn's disease, which is a standard and accepted endpoint for this indication. However, the trial was terminated before any efficacy readout was obtained, so we cannot assess whether the endpoint captured clinical benefit in this trial. The endpoint itself is a validated surrogate for Crohn's disease activity, so ambiguous is appropriate given the lack of data."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdai_high__severity_severe",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled patients with moderate to severe Crohn's disease (CDAI high/severe), but was terminated before any efficacy readout. No information is available about whether this population responded to sargramostim, making the evidence ambiguous."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2bd0d2553970",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "Per the round-14 rule, a failed/terminated trial with no efficacy readout must still emit at least one upstream causal-chain edge. The trial was terminated without demonstrating that myeloid cell activation and mucosal immune restoration drives clinical benefit in Crohn's disease. In the absence of any positive signal, a weak_contradict is appropriate as the chain was not validated."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-912526",
+      "target_entity": "bio:2bd0d2553970",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "No PD or biomarker data was reported to confirm that interleukin receptor SHC signaling (via GM-CSF receptor agonism) led to myeloid cell activation and mucosal immune restoration. The trial's early termination without any readout provides weak contradict evidence for this mechanistic link in this context."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early with no stated reason and no efficacy readout. It is unclear whether termination was due to commercial/strategic reasons, safety signals not captured in the structured data, or recruitment failure. The lack of any results means the mechanistic chain was never tested, and the reason for termination is unknown. Expert review is needed to determine whether any unpublished data exists and to clarify the termination reason."
+}

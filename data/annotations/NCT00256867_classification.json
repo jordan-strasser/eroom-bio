@@ -1,0 +1,42 @@
+{
+  "nct_id": "NCT00256867",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Simvastatin (HMG-CoA reductase inhibitor) produced LDL-c reductions of -34% to -44.2% in monotherapy arms and -39% to -44.4% in FDC arms, confirming HMG-CoA reductase inhibition. Rosiglitazone (PPAR-gamma agonist) produced HbA1c reductions of -0.83 to -1.31% in RSG-containing arms, confirming PPAR-gamma engagement and insulin sensitization. FPG reductions in RSG-containing arms (-2.10 to -2.23 mmol/L) vs. increases in SIMV monotherapy (+0.37 to +0.43 mmol/L) further confirm target-specific engagement. 2. PATHWAY MODULATION: Downstream biology clearly moved. LDL-c reduction reflects mevalonate pathway suppression by simvastatin. HbA1c and FPG reductions reflect insulin sensitization via PPAR-gamma agonism by rosiglitazone. Weight gain in RSG-containing arms is a known on-target PPAR-gamma effect, further confirming pathway engagement. 3. CLINICAL TRANSLATION: The primary endpoint (median percent change in LDL-c, FDC vs. RSG monotherapy) was met with a -37.2% difference (p=0.0001). FDC arms achieved -39.9% LDL-c reduction vs. +5.4% in RSG monotherapy. Secondary endpoints also met: HbA1c reduction in FDC vs. SIMV monotherapy (OR 4.05, p<0.0001), FPG reduction (OR 3.93, p<0.0001), and LDL<100 mg/dL achievement (OR 36.32, p<0.0001). The FDC demonstrated additive benefit across both metabolic targets. 4. POPULATION EFFECTS: No subgroup-specific differential response was identified; the FDC benefit was consistent across dose combinations. Higher doses (8/80 mg) showed numerically greater LDL-c reduction (-44.4%), consistent with dose-response. 5. CONFOUNDERS: No major confounders. Safety signals (pneumonia, MI, fracture) were isolated events without systematic excess vs. comparators given the lack of control-arm incidence data. Weight gain with RSG is expected on-target. The trial was adequately powered (n=369) for the primary endpoint. The 16-week duration is appropriate for LDL-c and HbA1c endpoints. The FDC concept was validated: co-administration did not meaningfully alter either component's efficacy (modulation entries confirm neutral interaction). Note: The resolved graph entities show a mismatch \u2014 the canonical chain maps GSK523338 to ADORA2A/adenosine receptors, which does not reflect the actual pharmacology of rosiglitazone/simvastatin FDC. This is a graph entity resolution issue; the trial itself is a clear success for the FDC concept.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.3,
+      "evidence": "The resolved graph entities map GSK523338 to ADORA2A (adenosine receptor) rather than PPAR-gamma/HMG-CoA reductase, creating a mismatch between the trial's actual mechanism and the canonical chain. This limits the ability to emit mechanistically meaningful edge updates against the provided canonical IDs. This is a graph-resolution caveat, not a trial design weakness."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "gsk523338",
+      "target_entity": "ENSG00000128271",
+      "support": "ambiguous",
+      "affecting_arm_id": "gsk523338",
+      "reasoning": "The canonical chain maps GSK523338 to ADORA2A (ENSG00000128271), but the actual pharmacology of this FDC is PPAR-gamma agonism (rosiglitazone) and HMG-CoA reductase inhibition (simvastatin). The trial demonstrates clear target engagement for PPAR-gamma and HMG-CoA reductase, but provides no evidence regarding ADORA2A engagement. Emitting ambiguous to flag the entity mismatch rather than fabricating support or contradict for an unrelated target."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_week_6_ldl_c_fdc_rsg_monotherapy",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (LDL-c percent change at Week 6, FDC vs RSG monotherapy) was met at p=0.0001 with a clinically meaningful -37.2% difference. LDL-c is a well-established surrogate endpoint for cardiovascular risk in type 2 diabetes. The endpoint captured the intended pharmacological benefit of the FDC. Moderate rather than strong support because this is a surrogate biomarker endpoint rather than a hard clinical outcome (CV events, mortality)."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was met at p=0.0001 with a clinically meaningful effect size (-37.2% LDL-c difference). Multiple secondary endpoints also met significance (OR 36.32 for LDL<100, OR 4.05 for HbA1c response, OR 3.93 for FPG response, all p<0.0001). The enrolled population of adults with type 2 diabetes responded robustly to the FDC intervention."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved graph entities map GSK523338 to ADORA2A (adenosine P1 receptor pathway) rather than the actual pharmacological targets of the rosiglitazone/simvastatin FDC (PPAR-gamma and HMG-CoA reductase). This entity mismatch means the canonical chain IDs provided do not correspond to the trial's actual mechanism, preventing meaningful causal-chain edge updates for the true targets. Expert review is needed to correct the graph entity resolution for this trial so that the strong positive evidence for PPAR-gamma agonism and HMG-CoA reductase inhibition can be properly attributed to the correct nodes."
+}

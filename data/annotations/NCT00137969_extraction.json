@@ -1,0 +1,251 @@
+{
+  "nct_id": "NCT00137969",
+  "therapeutic_hypothesis": {
+    "compound": "Rituximab",
+    "claimed_target": "CD20",
+    "proposed_mechanism": "B-cell depletion via anti-CD20 antibody",
+    "intended_biology": "B-cell mediated autoimmune suppression",
+    "target_population": "Adults with systemic lupus erythematosus (SLE)",
+    "primary_endpoint": "Number of participants achieving MCR, PCR, or NCR defined by BILAG scores over 52-week treatment period",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "MCR: 21 vs 14; PCR: 29 vs 11; NCR: 119 vs 63 (rituximab vs placebo)",
+    "p_value": 0.4875,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "MCR (excluding PCR): rituximab 21 vs placebo 14 (p=0.4318)",
+      "PCR (including MCR): rituximab 50 vs placebo 25 (p=0.9069)",
+      "BILAG C or better in all domains at 24 weeks: rituximab 42 vs placebo 24 (p=0.5602)",
+      "Time to first moderate or severe flare: median 112 days (rituximab) vs 126 days (placebo), p=0.8979",
+      "Change in SLE Expanded Health Survey Physical Function Score: +8.2 (rituximab) vs +4.1 (placebo), p=0.1277",
+      "MCR in ITT population (weeks 24-52): rituximab 14 vs placebo 9 (p=0.6202)",
+      "AUCMB of BILAG score: -5.8 (rituximab) vs -5.9 (placebo), p=0.8230"
+    ],
+    "safety_signals": [
+      "Neutropenia observed in 6/169 rituximab patients (serious AE)",
+      "Thrombocythaemia in 2/169 rituximab patients",
+      "Diastolic dysfunction in 2/169 rituximab patients",
+      "Pancytopenia, haemolytic anaemia, lymphopenia, cardiomyopathy, cardiac failure, angina pectoris each in 1/169 rituximab patients",
+      "Pancytopenia and coronary artery disease each in 1/88 placebo patients"
+    ],
+    "dose_info": {
+      "dose": "1000 mg",
+      "schedule": "IV infusion (retreatment regimen)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 3.55,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pancytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": 1.14,
+        "serious": true
+      },
+      {
+        "term": "Haemolytic Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphophenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocythaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.18,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Coronary Artery Disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": 1.14,
+        "serious": true
+      },
+      {
+        "term": "Diastolic Dysfunction",
+        "grade": "",
+        "incidence_treatment_pct": 1.18,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiomyopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac Failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Angina Pectoris",
+        "grade": "",
+        "incidence_treatment_pct": 0.59,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Systemic Lupus Erythematosus (SLE)",
+    "comparator": "Placebo + prednisone",
+    "sample_size": 262,
+    "duration": "52 weeks",
+    "duration_weeks": 52.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "compounds": [
+        "rituximab",
+        "prednisone",
+        "acetaminophen",
+        "diphenhydramine"
+      ]
+    },
+    {
+      "arm_id": "placebo_prednisone",
+      "compounds": [
+        "placebo",
+        "prednisone",
+        "acetaminophen",
+        "diphenhydramine"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "MCR (excluding PCR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PCR",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Nonclinical Response (NCR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "intervention": "rituximab",
+      "subgroup_descriptor": null,
+      "endpoint": "MCR/PCR/NCR (BILAG) at 52 weeks",
+      "effect_size": null,
+      "p_value": 0.4875,
+      "outcome": "failure",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with systemic lupus erythematosus",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "intervention": "prednisone",
+      "subgroup_descriptor": null,
+      "endpoint": "MCR/PCR/NCR (BILAG) at 52 weeks",
+      "effect_size": null,
+      "p_value": 0.4875,
+      "outcome": "failure",
+      "mechanism_description": "glucocorticoid receptor agonism",
+      "biology_description": "broad immunosuppression and anti-inflammatory response",
+      "population_description": "Adults with systemic lupus erythematosus",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "intervention": "rituximab",
+      "subgroup_descriptor": "MCR (excluding PCR)",
+      "endpoint": "MCR at 52 weeks",
+      "effect_size": null,
+      "p_value": 0.4318,
+      "outcome": "failure",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with SLE achieving major clinical response",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "intervention": "rituximab",
+      "subgroup_descriptor": "PCR",
+      "endpoint": "PCR (including MCR) at 52 weeks",
+      "effect_size": null,
+      "p_value": 0.9069,
+      "outcome": "failure",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with SLE achieving partial clinical response",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "rituximab_1000_mg_prednisone",
+      "intervention": "rituximab",
+      "subgroup_descriptor": "Nonclinical Response (NCR)",
+      "endpoint": "NCR at 52 weeks",
+      "effect_size": null,
+      "p_value": 0.4875,
+      "outcome": "failure",
+      "mechanism_description": "B-cell depletion via anti-CD20 monoclonal antibody",
+      "biology_description": "B-cell mediated autoimmune suppression",
+      "population_description": "Adults with SLE with nonclinical response",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "prednisone",
+      "primary_compound_id": "rituximab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.72,
+      "hypothesis": "Prednisone co-administration was intended to amplify rituximab's immunosuppressive effect by providing broad anti-inflammatory coverage during B-cell depletion, but the combination failed to demonstrate superiority over prednisone alone.",
+      "citation": "Rituximab 1000 mg + Prednisone vs Placebo + Prednisone: primary endpoint p=0.4875; AUCMB of BILAG score -5.8 vs -5.9, p=0.8230"
+    }
+  ]
+}

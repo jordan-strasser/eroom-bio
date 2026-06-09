@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00178620",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Reteplase is a recombinant plasminogen activator that cleaves fibrin to dissolve thrombi. No direct biomarker or PD data confirming fibrinolysis/target engagement is reported in this trial. However, the mechanism of action is well-established pharmacologically and the drug was administered at standard doses (10 U IV bolus). We cannot confirm engagement from this trial's data alone.\n\n2. PATHWAY MODULATION: No biomarker data (e.g., TIMI flow grades, fibrinogen levels, D-dimer) is reported to confirm coronary artery reperfusion occurred. The downstream biology (coronary artery reperfusion) is assumed but not measured in the reported extraction.\n\n3. CLINICAL TRANSLATION: The primary endpoint (30-day mortality) has outcome listed as 'unknown' for all arms, with no p-values reported. The effect sizes appear to be raw death counts (Group A: 1 death/37 patients ~2.7%; Group B: 7 deaths/253 patients ~2.8%; Group C: 3 deaths/37 patients ~8.1%; Group D: 2 deaths/63 patients ~3.2%). No formal statistical comparison is reported. The trial appears to be a registry/observational study or a pilot feasibility study rather than a powered RCT, as evidenced by the small sample sizes, lack of p-values, and 'unknown' outcome designations.\n\n4. POPULATION EFFECTS: No subgroup analyses reported. The four groups represent different treatment strategies (pre-hospital fibrinolysis, facilitated PCI, primary PCI for ineligible patients, transfer PCI), suggesting this was a comparative effectiveness registry rather than a randomized trial.\n\n5. CONFOUNDERS: The trial appears underpowered (N=390 across 4 groups) for a 30-day mortality endpoint in AMI. No p-values are reported, outcomes are 'unknown', and the design appears observational/registry-based. The lack of formal statistical analysis and the 'unknown' outcome designations suggest this trial did not produce a definitive efficacy readout. This is classified as 'partial' because some mortality data exists but no formal comparative analysis was completed or reported, making it insufficient for definitive mechanistic conclusions. The primary failure mode is insufficient_information combined with underpowering.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.65,
+      "evidence": "All arm outcomes are listed as 'unknown', no p-values are reported, and the primary endpoint result is null. While raw death counts are available, no formal statistical comparison between arms was reported, making it impossible to determine whether the primary endpoint was met or missed."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Total N=390 across 4 arms (Group A: 37, Group B: 253, Group C: 37, Group D: 63). For a 30-day mortality endpoint in AMI, these sample sizes are substantially below what would be needed for adequate statistical power, particularly for Groups A, C, and D."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS",
+      "target_entity": "heart_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "30-day mortality (OS) was measured as the primary endpoint in AMI, which is a well-accepted endpoint for this indication. However, no formal statistical result was reported (all outcomes 'unknown', no p-values), so the endpoint's ability to capture benefit in this trial cannot be assessed. The endpoint itself is appropriate for AMI but the trial did not produce a usable comparative readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "stelevation_high",
+      "target_entity": "heart_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled STEMI patients across multiple treatment strategy groups, but no formal comparative statistical analysis was reported and all outcomes are 'unknown'. The raw mortality counts suggest variation across groups (Group C ~8% vs Group B ~2.8%) but without statistical testing this cannot be interpreted as differential response."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042730",
+      "target_entity": "bio:7bffbf5236ad",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_a_full_dose_pre_hospital_fibrinolysis",
+      "reasoning": "No biomarker data confirms that fibrinolysis led to coronary artery reperfusion. The trial did not produce a usable efficacy readout for the full-dose fibrinolysis arm (outcome unknown, no p-value). Per round-14 rules, a missed/unknown endpoint with no PD data warrants weak_contradict on the mechanism_affects edge."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7bffbf5236ad",
+      "target_entity": "heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_a_full_dose_pre_hospital_fibrinolysis",
+      "reasoning": "No formal efficacy result was reported for the full-dose fibrinolysis arm. Without a demonstrated clinical benefit signal, the biology_drives edge (coronary reperfusion \u2192 heart disease benefit) cannot be supported from this trial. Weak_contradict is assigned per round-14 rules for trials with no usable efficacy readout."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042730",
+      "target_entity": "bio:7bffbf5236ad",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_b_half_dose_pre_hospital_fibrinolysis_followed_by_urgent_pci",
+      "reasoning": "No biomarker data confirms fibrinolysis-driven reperfusion in the half-dose + PCI arm. Outcome is unknown with no p-value. Per round-14 rules, weak_contradict is emitted for the mechanism_affects edge when no usable efficacy readout exists."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7bffbf5236ad",
+      "target_entity": "heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_b_half_dose_pre_hospital_fibrinolysis_followed_by_urgent_pci",
+      "reasoning": "No formal efficacy result was reported for the half-dose fibrinolysis + urgent PCI arm. Without a demonstrated clinical benefit signal, the biology_drives edge cannot be supported from this trial. Weak_contradict is assigned per round-14 rules."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "All arm outcomes are listed as 'unknown' with no p-values reported, suggesting this may be a registry study, pilot feasibility study, or a trial that was terminated or reported incompletely before formal statistical analysis. The design with 4 non-randomized groups of very different sizes (37, 253, 37, 63) is atypical for a powered RCT. Expert review is needed to determine whether this was an observational registry, a pilot study, or an underpowered RCT, and whether any formal comparative analysis exists in the full publication. The 'operational_failure' flag is set because the trial does not appear to have produced a formal comparative efficacy readout, suggesting the mechanism was not given a fair test in a powered comparative framework."
+}

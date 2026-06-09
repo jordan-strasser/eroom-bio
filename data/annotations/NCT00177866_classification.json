@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00177866",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial was terminated early due to inability to secure additional funding, and data were destroyed. There is no evidence regarding whether celecoxib engaged COX-2 in this population at the 200mg BID dose. 2. PATHWAY MODULATION: No pathway biomarker data (e.g., prostaglandin levels, inflammatory markers) were reported. We cannot assess whether prostaglandin-mediated inflammation was suppressed. 3. CLINICAL TRANSLATION: The primary endpoint (change in CDAI scores) has no reported result \u2014 effect size and p-value are both null. The investigator commentary explicitly states no results or publication exist and data were destroyed. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was terminated due to funding failure before completion. With only 28 enrolled patients in a crossover design and no results available, this is a clear operational/commercial failure \u2014 the mechanism was never given a fair test. The primary failure mode is commercial_not_scientific (funding-driven termination), with the trial classified as operational_failure=true because the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states: 'We were unable to get additional funding to complete study. No results or publication; data destroyed due to age of study.' The trial was terminated for funding/administrative reasons, not scientific ones."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint result is null (effect_size=null, p_value=null), data were destroyed, and no efficacy readout of any kind is available. The trial provides no usable efficacy or safety readout."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_crohn_s_disease_activity_index_cdai_scores",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CDAI was the pre-specified primary endpoint for Crohn's disease activity, but no result was ever reported \u2014 the trial was terminated before completion and data destroyed. The endpoint's ability to capture clinical benefit in this indication cannot be assessed from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy data were reported. The trial was terminated before completion due to funding failure, so no conclusion can be drawn about whether this population responds to celecoxib for Crohn's disease."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated before primary endpoint was reached due to funding failure; all data were destroyed. No efficacy or safety readout is available. This is a pure operational failure with no mechanistic signal. Expert review may be needed to confirm whether any partial data exist in unpublished records, and to assess whether the 200mg BID dose would have been pharmacologically adequate for COX-2 engagement in Crohn's disease."
+}

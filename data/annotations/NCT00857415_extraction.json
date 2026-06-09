@@ -1,0 +1,260 @@
+{
+  "nct_id": "NCT00857415",
+  "therapeutic_hypothesis": {
+    "compound": "florbetapir F 18",
+    "claimed_target": "amyloid plaques (beta-amyloid aggregates)",
+    "proposed_mechanism": "radioligand binding to amyloid plaques enabling PET imaging",
+    "intended_biology": "in vivo detection and quantification of cerebral amyloid burden",
+    "target_population": "patients with suspected Alzheimer's disease undergoing end-of-life care (autopsy cohort) and younger healthy controls (specificity cohort)",
+    "primary_endpoint": "Spearman's rank order correlation of florbetapir-PET image and amyloid plaque density at autopsy; specificity in younger healthy controls",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Spearman's correlation coefficient = 0.78 (95% CI: 0.58\u20130.89); Specificity = 100% (95% CI: 91\u2013100)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": "Spearman's rank correlation of 0.78 between PET visual read and post-mortem IHC amyloid plaque density across 6 brain regions",
+    "biomarker_changes": [
+      "Median semi-quantitative visual read of florbetapir-PET correlated with quantitative IHC amyloid plaque density (r=0.78, p<0.0001)",
+      "Regional correlations ranged from 0.68 (temporal cortex) to 0.77 (parietal cortex)",
+      "100% specificity in younger healthy controls presumed amyloid-negative (47/47 negative scans)"
+    ],
+    "subgroup_findings": [
+      "Precuneus: Spearman r=0.75 (95% CI: 0.53\u20130.88)",
+      "Parietal cortex: Spearman r=0.77 (95% CI: 0.56\u20130.88)",
+      "Frontal cortex: Spearman r=0.69 (95% CI: 0.44\u20130.84)",
+      "Temporal cortex: Spearman r=0.68 (95% CI: 0.42\u20130.84)",
+      "Posterior cingulate: Spearman r=0.70 (95% CI: 0.44\u20130.85)",
+      "Anterior cingulate: Spearman r=0.74 (95% CI: 0.51\u20130.87)"
+    ],
+    "safety_signals": [
+      "1 case of respiratory failure (serious adverse event) in the autopsy cohort (1/152)"
+    ],
+    "dose_info": {
+      "dose": "370 MBq (10 mCi)",
+      "schedule": "single i.v. bolus injection 50 minutes prior to imaging",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Respiratory failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Alzheimer's Disease",
+    "comparator": "post-mortem quantitative immunohistochemistry (amyloid plaque density)",
+    "sample_size": 226,
+    "duration": "up to 12 months post-scan (autopsy cohort); 50-60 minutes post-injection (specificity cohort)",
+    "duration_weeks": 52.14,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "autopsy_cohort",
+      "compounds": [
+        "florbetapir F 18"
+      ]
+    },
+    {
+      "arm_id": "specificity_cohort",
+      "compounds": [
+        "florbetapir F 18"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Positive for amyloid",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "APP",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Negative for amyloid",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "APP",
+          "level": "negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Precuneus",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "precuneus_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Parietal cortex",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "parietal_cortex_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Frontal cortex",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "frontal_cortex_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Temporal cortex",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "temporal_cortex_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Posterior cingulate",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "posterior_cingulate_region"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Anterior cingulate",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "anterior_cingulate_region"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": null,
+      "endpoint": "Spearman correlation of PET image vs amyloid plaque density (6-region average)",
+      "effect_size": 0.78,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "specificity_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Negative for amyloid",
+      "endpoint": "Specificity (negative scan in amyloid-negative subjects)",
+      "effect_size": 100.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "younger healthy controls presumed to be negative for amyloid",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Precuneus",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.75,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, precuneus region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Parietal cortex",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.77,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, parietal cortex region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Frontal cortex",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.69,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, frontal cortex region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Temporal cortex",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.68,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, temporal cortex region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Posterior cingulate",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.7,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, posterior cingulate region",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "autopsy_cohort",
+      "intervention": "florbetapir F 18",
+      "subgroup_descriptor": "Anterior cingulate",
+      "endpoint": "Regional Spearman correlation of PET image vs amyloid plaque density",
+      "effect_size": 0.74,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "radioligand binding enabling PET-based amyloid plaque visualization",
+      "biology_description": "in vivo detection and quantification of cerebral amyloid burden",
+      "population_description": "patients with suspected Alzheimer's disease undergoing end-of-life care with planned autopsy, anterior cingulate region",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

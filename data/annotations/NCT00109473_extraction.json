@@ -1,0 +1,228 @@
+{
+  "nct_id": "NCT00109473",
+  "therapeutic_hypothesis": {
+    "compound": "growth hormone",
+    "claimed_target": "GH receptor",
+    "proposed_mechanism": "receptor agonism",
+    "intended_biology": "mucosal healing and growth promotion",
+    "target_population": "Pediatric patients with Crohn's Disease",
+    "primary_endpoint": "Crohn's Disease Histologic Index of Severity (CDHIS) at baseline and 12 weeks",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "CDHIS: GH+CTX 6 vs CTX 8 at week 12 (no statistically significant difference reported)",
+    "p_value": null,
+    "target_engagement_evidence": "Serum IGF-1 z-score increased from -0.4 at baseline to 1.8 at week 12 and 3.3 at week 24 in GH arm, confirming GH receptor engagement",
+    "biomarker_changes": [
+      "IGF-1 z-score increased from -0.4 to 1.8 at week 12 and 3.3 at week 24 in GH+CTX arm",
+      "IGF-1 z-score remained stable (-0.7 to -1.0) in CTX-alone arm through week 12, then rose to 3.8 at week 24",
+      "Fecal calprotectin remained elevated in GH+CTX arm (863 to 868 \u00b5g/g) vs decrease in CTX arm (904 to 656 \u00b5g/g) at week 12",
+      "CDEIS decreased from 9 to 3 in GH+CTX arm and from 8 to 6 in CTX arm at week 12"
+    ],
+    "subgroup_findings": [
+      "PCDAI mean difference (final values) = 14, p = 0.02 favoring GH+CTX arm at week 12",
+      "PCDAI at week 12: GH+CTX 8 vs CTX 22; at week 24: GH+CTX 9 vs CTX 6",
+      "Height velocity at week 12: GH+CTX 8 cm/year vs CTX 3 cm/year",
+      "Height velocity at week 24: GH+CTX 9 cm/year vs CTX 7 cm/year",
+      "Total prednisone use over 12 weeks: GH+CTX 22 mg vs CTX 28 mg",
+      "Total budesonide use over 12 weeks: GH+CTX 7 mg vs CTX 8 mg"
+    ],
+    "safety_signals": [
+      "Bruising at injection site in 1/10 GH+CTX patients",
+      "Abdominal pain in 1/17 patients in extension phase",
+      "Pancreatitis in 1/17 patients in extension phase"
+    ],
+    "dose_info": {
+      "dose": "0.075 mg/kg/day",
+      "schedule": "subcutaneously daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Bruising at injection site",
+        "grade": "",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Abdominal Pain",
+        "grade": "",
+        "incidence_treatment_pct": 5.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pancreatitis",
+        "grade": "",
+        "incidence_treatment_pct": 5.9,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Pediatric Crohn's Disease",
+    "comparator": "corticosteroids alone",
+    "sample_size": 22,
+    "duration": "12 weeks primary; 24 and 48 week secondary follow-up",
+    "duration_weeks": 48.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "compounds": [
+        "growth hormone",
+        "corticosteroid"
+      ]
+    },
+    {
+      "arm_id": "cortecosteroids_alone",
+      "compounds": [
+        "corticosteroid"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "prednisone",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "prednisone"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "budesonide",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "budesonide"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "intervention": "growth hormone",
+      "subgroup_descriptor": null,
+      "endpoint": "CDHIS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "mucosal healing and growth promotion",
+      "population_description": "Pediatric patients with active Crohn's Disease receiving corticosteroids",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "intervention": "growth hormone",
+      "subgroup_descriptor": null,
+      "endpoint": "PCDAI",
+      "effect_size": 14.0,
+      "p_value": 0.02,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "mucosal healing and growth promotion",
+      "population_description": "Pediatric patients with active Crohn's Disease receiving corticosteroids",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "intervention": "corticosteroid",
+      "subgroup_descriptor": null,
+      "endpoint": "CDHIS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "glucocorticoid receptor agonism",
+      "biology_description": "anti-inflammatory immunosuppression",
+      "population_description": "Pediatric patients with active Crohn's Disease",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "cortecosteroids_alone",
+      "intervention": "corticosteroid",
+      "subgroup_descriptor": null,
+      "endpoint": "CDHIS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "glucocorticoid receptor agonism",
+      "biology_description": "anti-inflammatory immunosuppression",
+      "population_description": "Pediatric patients with active Crohn's Disease",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "intervention": "growth hormone",
+      "subgroup_descriptor": "prednisone",
+      "endpoint": "Total Corticosteroid Use",
+      "effect_size": 22.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "mucosal healing and growth promotion",
+      "population_description": "Pediatric Crohn's Disease patients receiving prednisone",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "cortecosteroids_alone",
+      "intervention": "corticosteroid",
+      "subgroup_descriptor": "prednisone",
+      "endpoint": "Total Corticosteroid Use",
+      "effect_size": 28.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "glucocorticoid receptor agonism",
+      "biology_description": "anti-inflammatory immunosuppression",
+      "population_description": "Pediatric Crohn's Disease patients receiving prednisone",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "growth_hormone_plus_cortecosteroid",
+      "intervention": "growth hormone",
+      "subgroup_descriptor": "budesonide",
+      "endpoint": "Total Corticosteroid Use",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "mucosal healing and growth promotion",
+      "population_description": "Pediatric Crohn's Disease patients receiving budesonide",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "cortecosteroids_alone",
+      "intervention": "corticosteroid",
+      "subgroup_descriptor": "budesonide",
+      "endpoint": "Total Corticosteroid Use",
+      "effect_size": 8.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "glucocorticoid receptor agonism",
+      "biology_description": "anti-inflammatory immunosuppression",
+      "population_description": "Pediatric Crohn's Disease patients receiving budesonide",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "growth hormone",
+      "primary_compound_id": "corticosteroid",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.65,
+      "hypothesis": "Growth hormone was hypothesized to amplify corticosteroid-mediated mucosal healing by promoting IGF-1-driven epithelial repair and reducing corticosteroid requirements, but the primary histologic endpoint (CDHIS) was not significantly improved",
+      "citation": "CDHIS at week 12: GH+CTX 6 (95% CI: 4\u20138) vs CTX 8 (95% CI: 5\u201310); no statistically significant difference reported for primary endpoint"
+    }
+  ]
+}

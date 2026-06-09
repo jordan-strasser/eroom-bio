@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT00295633",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Saxagliptin is a DPP-4 inhibitor. While direct DPP-4 enzyme inhibition assays are not reported, the downstream pharmacodynamic markers (FPG, PPG AUC, HbA1c) all moved substantially more in saxagliptin arms than placebo, consistent with DPP-4 inhibition prolonging incretin activity. The dose-response relationship (2.5 mg: -0.66% HbA1c, 5 mg: -0.94% HbA1c) further supports target engagement. 2. PATHWAY MODULATION: Downstream biology clearly moved. FPG decreased -14.3 mg/dL (2.5 mg) and -17.3 mg/dL (5 mg) vs -2.8 mg/dL placebo. PPG AUC decreased -7849 and -9269 mg*min/dL vs -2690 mg*min/dL placebo. These are consistent with enhanced incretin-mediated insulin secretion following DPP-4 inhibition. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change at Week 24) was met for both saxagliptin doses. The 2.5 mg arm achieved -0.66% vs -0.30% placebo (difference -0.36%), and the 5 mg arm achieved -0.94% vs -0.30% placebo (difference -0.64%). Additionally, ~42% of saxagliptin patients achieved HbA1c <7% vs 25.6% placebo. The dose-response relationship is consistent and clinically meaningful. 4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (T2DM inadequately controlled on TZD) is appropriate for the mechanism \u2014 DPP-4 inhibition adds complementary incretin-mediated insulin secretion to TZD-mediated insulin sensitization. 5. CONFOUNDERS: No major confounders identified. Safety was acceptable with SAEs infrequent and distributed across arms. No dose-limiting toxicity. The 24-week duration is standard for HbA1c endpoint trials. The trial was adequately powered (N=565). Overall, this is a clean mechanistic success with dose-response confirmation.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "saxagliptin",
+      "target_entity": "ENSG00000197635",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_a",
+      "reasoning": "Saxagliptin 2.5 mg + TZD produced substantially greater FPG, PPG AUC, and HbA1c reductions vs placebo, consistent with DPP-4 engagement and incretin prolongation."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "saxagliptin",
+      "target_entity": "ENSG00000197635",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_b",
+      "reasoning": "Saxagliptin 5 mg + TZD produced the largest FPG, PPG AUC, and HbA1c reductions, with a clear dose-response vs 2.5 mg arm, strongly supporting DPP-4 target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000197635",
+      "target_entity": "R-HSA-381676",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_a",
+      "reasoning": "PPG AUC reduction (-7849 mg*min/dL vs -2690 placebo) and FPG reduction confirm that DPP-4 inhibition activated the GLP-1-mediated insulin secretion pathway."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000197635",
+      "target_entity": "R-HSA-381676",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_b",
+      "reasoning": "PPG AUC reduction (-9269 mg*min/dL vs -2690 placebo) and FPG reduction confirm dose-dependent activation of GLP-1-mediated insulin secretion pathway via DPP-4 inhibition."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-381676",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_a",
+      "reasoning": "GLP-1-mediated insulin secretion enhancement translated to improved glycemic control (HbA1c -0.66%, FPG -14.3 mg/dL) in the 2.5 mg saxagliptin arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-381676",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_b",
+      "reasoning": "GLP-1-mediated insulin secretion enhancement translated to improved glycemic control (HbA1c -0.94%, FPG -17.3 mg/dL) in the 5 mg saxagliptin arm with dose-response confirmation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_a",
+      "reasoning": "Incretin-mediated glycemic control enhancement drove clinically meaningful HbA1c reduction in T2DM patients inadequately controlled on TZD."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "saxagliptin_plus_open_label_tzd_b",
+      "reasoning": "Incretin-mediated glycemic control enhancement drove clinically meaningful HbA1c reduction with dose-response confirmation in T2DM patients inadequately controlled on TZD."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "comparator_pioglitazone",
+      "target_entity": "ENSG00000132170",
+      "support": "moderate_support",
+      "affecting_arm_id": "placebo_plus_open_label_tzd_c",
+      "reasoning": "Placebo + TZD arm achieved -0.30% HbA1c reduction, consistent with ongoing PPAR-gamma agonism from background TZD therapy, supporting pioglitazone's target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "GO:0030518",
+      "support": "moderate_support",
+      "affecting_arm_id": "placebo_plus_open_label_tzd_c",
+      "reasoning": "Background TZD produced modest but real HbA1c reduction (-0.30%), consistent with nuclear receptor-mediated steroid hormone signaling pathway activation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "moderate_support",
+      "affecting_arm_id": "placebo_plus_open_label_tzd_c",
+      "reasoning": "PPAR-gamma-mediated insulin sensitization biology was active in the placebo+TZD arm, producing modest glycemic improvement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "placebo_plus_open_label_tzd_c",
+      "reasoning": "Insulin sensitization biology drove modest HbA1c reduction in T2DM patients on background TZD, confirming the biology is relevant to the indication."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hemoglobin_a1c_a1c_week_24",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c change at Week 24 is a regulator-accepted primary endpoint for T2DM trials. It was hit in both saxagliptin arms with dose-response confirmation and concordant secondary endpoints (FPG, PPG AUC, proportion achieving <7%)."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high__hba1c_high__line_second__severity_active",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "T2DM patients inadequately controlled on TZD (second-line, active disease, elevated HbA1c) responded positively to saxagliptin add-on therapy, with ~42% achieving HbA1c <7% vs 25.6% placebo, supporting this population's responsiveness to DPP-4 inhibition."
+    }
+  ],
+  "confidence_overall": 0.78,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

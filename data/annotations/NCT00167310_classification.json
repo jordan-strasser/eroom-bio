@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00167310",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: The biomarker data shows directional reductions across virtually all lipid fractions in the EPA arm vs placebo (triglycerides 155 vs 182 mg/dL, total cholesterol 158 vs 175 mg/dL, LDL 98.14 vs 109.83 mg/dL, VLDL 21.24 vs 24.67 mg/dL, IDL 8.24 vs 11.17 mg/dL). These consistent directional changes across multiple lipid subfractions suggest EPA engaged its intended target (lipid metabolism / PPAR-alpha pathway). However, no p-values are reported, so statistical significance cannot be confirmed. 2. PATHWAY MODULATION: The downstream biology (dyslipidemia correction) appears to have moved in the expected direction \u2014 triglycerides reduced by ~15%, LDL by ~11%, total cholesterol by ~10%. This is consistent with PPAR-alpha activation and fatty acid oxidation modulation. However, HDL did not improve (38.95 vs 40.22 mg/dL, slightly lower in EPA arm), and Lp(a) was slightly higher in EPA arm (6.10 vs 4.83 mg/dL), suggesting incomplete or mixed pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoint was plasma lipid levels at 4 months \u2014 these ARE the biomarker endpoints, not a downstream clinical outcome like cardiovascular events. The outcome is listed as 'unknown' with no p-values reported, meaning we cannot determine if the observed differences were statistically significant. The trial appears to have been underpowered (N=57) to detect statistical significance in these lipid changes. 4. POPULATION EFFECTS: No subgroup analyses reported. The population is psychiatric patients at elevated CAD risk \u2014 a potentially relevant population for lipid-lowering intervention, but the psychiatric medication background (antipsychotics, mood stabilizers) may confound lipid metabolism. 5. CONFOUNDERS: The trial is small (N=57), no p-values are reported for any endpoint, and the primary endpoint result is listed as 'None' (not met). The absence of statistical significance data is the critical gap \u2014 the directional signals are present but we cannot confirm they crossed significance thresholds. This is most consistent with an underpowered trial that showed biological signals but could not achieve statistical significance, or a trial where results were not fully reported.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "Sample size of 57 patients with no p-values reported for any endpoint. Directional lipid improvements are present across all fractions but statistical significance cannot be confirmed. The primary endpoint is listed as not met (null), suggesting the trial lacked power to detect the observed differences as statistically significant."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.45,
+      "evidence": "No p-values reported for any endpoint. Outcome listed as 'unknown' for all arms. Cannot determine whether the observed directional differences (e.g., triglycerides 155 vs 182 mg/dL) were statistically significant or clinically meaningful in this population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:30499b63f17c",
+      "support": "weak_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Consistent directional reductions in triglycerides (~15%), LDL (~11%), total cholesterol (~10%), VLDL, and IDL in the EPA arm vs placebo suggest the mechanism (PPAR-alpha activation / fatty acid oxidation modulation) affected the intended biology (LDL-C reduction). However, no p-values are available and HDL did not improve, limiting this to weak support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30499b63f17c",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": "1",
+      "reasoning": "The trial enrolled psychiatric patients at elevated CAD risk and measured lipid endpoints as surrogates for cardiovascular risk reduction. The biology (LDL-C reduction / atherosclerosis inhibition) is not directly linked to schizophrenia as an indication \u2014 the connection is indirect (metabolic comorbidity management). No clinical cardiovascular outcomes were measured, making the biology-to-indication link ambiguous in this context."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_plasma_triglycerides_lipoprotein_cholesterol",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The plasma lipid endpoints were measured and showed directional improvements, but no p-values were reported and the primary endpoint was not formally met. The endpoint captures metabolic/cardiovascular risk biology rather than schizophrenia disease biology directly, making the translation ambiguous. The endpoint is appropriate for the metabolic comorbidity hypothesis but not for the primary psychiatric indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hdl_low__ldl_high",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The population (psychiatric patients with elevated CAD risk / dyslipidemia) showed directional lipid improvements with EPA, but without p-values or formal endpoint achievement, the population response cannot be confirmed as statistically meaningful. The signal is directionally positive but statistically unconfirmed."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values are reported for any endpoint despite the trial having a placebo comparator and reporting numeric results for both arms. It is unclear whether this reflects a reporting gap, a deliberate decision not to report significance, or a trial that was not powered for formal hypothesis testing. The directional lipid improvements are consistent with EPA's known pharmacology but cannot be classified as success or failure without statistical testing results. Additionally, the indication is listed as 'schizophrenia' but the therapeutic hypothesis targets cardiovascular risk reduction as a metabolic comorbidity \u2014 the mismatch between the canonical indication ID and the actual therapeutic target of the trial warrants expert review of the graph entity mapping."
+}

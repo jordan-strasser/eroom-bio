@@ -1,0 +1,152 @@
+{
+  "nct_id": "NCT00178620",
+  "therapeutic_hypothesis": {
+    "compound": "Reteplase",
+    "claimed_target": "fibrin",
+    "proposed_mechanism": "fibrinolysis / thrombus dissolution",
+    "intended_biology": "coronary artery reperfusion",
+    "target_population": "Patients with acute myocardial infarction presenting pre-hospital or transferred for PCI",
+    "primary_endpoint": "Mortality at 30 Days",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "Group A: 1 death, Group B: 7 deaths, Group C: 3 deaths, Group D: 2 deaths",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Death (SAE): Group B 9/253; Group C 4/37"
+    ],
+    "dose_info": {
+      "dose": "10 U (full dose: 10 U x2; half dose: 10 U x1)",
+      "schedule": "IV bolus; second dose 30 minutes after first (full dose arm)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Death",
+        "grade": "",
+        "incidence_treatment_pct": 3.56,
+        "incidence_control_pct": 10.81,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Acute Myocardial Infarction",
+    "comparator": "Primary PCI (Groups C and D)",
+    "sample_size": 390,
+    "duration": "30 days primary endpoint; 1 year secondary endpoints",
+    "duration_weeks": 4.345,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "group_a_full_dose_pre_hospital_fibrinolysis",
+      "compounds": [
+        "Reteplase"
+      ]
+    },
+    {
+      "arm_id": "group_b_half_dose_pre_hospital_fibrinolysis_followed_by_urgent_pci",
+      "compounds": [
+        "Reteplase",
+        "Urgent Percutaneous Coronary Intervention"
+      ]
+    },
+    {
+      "arm_id": "group_c_fibrinolytic_ineligible_patients_receiving_primary_pci",
+      "compounds": [
+        "Primary Percutaneous Coronary Intervention"
+      ]
+    },
+    {
+      "arm_id": "group_d_patients_transferred_in_and_treated_with_primary_pci",
+      "compounds": [
+        "Primary Percutaneous Coronary Intervention"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "group_a_full_dose_pre_hospital_fibrinolysis",
+      "intervention": "Reteplase",
+      "subgroup_descriptor": null,
+      "endpoint": "Mortality at 30 Days",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "fibrinolysis / thrombus dissolution",
+      "biology_description": "coronary artery reperfusion",
+      "population_description": "Pre-hospital acute MI patients eligible for fibrinolysis receiving full-dose reteplase",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "group_b_half_dose_pre_hospital_fibrinolysis_followed_by_urgent_pci",
+      "intervention": "Reteplase",
+      "subgroup_descriptor": null,
+      "endpoint": "Mortality at 30 Days",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "fibrinolysis / thrombus dissolution",
+      "biology_description": "coronary artery reperfusion",
+      "population_description": "Pre-hospital acute MI patients eligible for fibrinolysis receiving half-dose reteplase followed by urgent PCI",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "group_b_half_dose_pre_hospital_fibrinolysis_followed_by_urgent_pci",
+      "intervention": "Urgent Percutaneous Coronary Intervention",
+      "subgroup_descriptor": null,
+      "endpoint": "Mortality at 30 Days",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "mechanical coronary revascularization",
+      "biology_description": "coronary artery reperfusion",
+      "population_description": "Pre-hospital acute MI patients eligible for fibrinolysis receiving half-dose reteplase followed by urgent PCI",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "group_c_fibrinolytic_ineligible_patients_receiving_primary_pci",
+      "intervention": "Primary Percutaneous Coronary Intervention",
+      "subgroup_descriptor": null,
+      "endpoint": "Mortality at 30 Days",
+      "effect_size": 3.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "mechanical coronary revascularization",
+      "biology_description": "coronary artery reperfusion",
+      "population_description": "Fibrinolytic-ineligible acute MI patients receiving primary PCI",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "group_d_patients_transferred_in_and_treated_with_primary_pci",
+      "intervention": "Primary Percutaneous Coronary Intervention",
+      "subgroup_descriptor": null,
+      "endpoint": "Mortality at 30 Days",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "mechanical coronary revascularization",
+      "biology_description": "coronary artery reperfusion",
+      "population_description": "Transferred-in acute MI patients treated with primary PCI",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "Urgent Percutaneous Coronary Intervention",
+      "primary_compound_id": "Reteplase",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Urgent PCI following half-dose fibrinolysis was hypothesized to amplify coronary reperfusion by mechanically opening residual thrombus after partial lysis, improving TIMI flow beyond fibrinolysis alone.",
+      "citation": "Group B: Half dose pre-hospital fibrinolysis followed by urgent PCI: Reteplase 10 U, Urgent Percutaneous Coronary Intervention (PCI)"
+    }
+  ]
+}

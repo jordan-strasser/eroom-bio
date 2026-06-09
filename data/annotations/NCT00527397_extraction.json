@@ -1,0 +1,205 @@
+{
+  "nct_id": "NCT00527397",
+  "therapeutic_hypothesis": {
+    "compound": "CP-464,005 (inhaled insulin)",
+    "claimed_target": "insulin receptor",
+    "proposed_mechanism": "receptor agonism",
+    "intended_biology": "glucose uptake and glycemic control",
+    "target_population": "Japanese patients with Type 1 or Type 2 diabetes mellitus",
+    "primary_endpoint": "Self-Monitoring Blood Glucose Levels: Change From Baseline at one year",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "Not reported (trial terminated before primary endpoint data collected)",
+    "p_value": null,
+    "target_engagement_evidence": "HbA1c reductions observed across subgroups (e.g., -0.42% to -0.93% at Week 6); insulin antibody levels increased in some subgroups",
+    "biomarker_changes": [
+      "HbA1c change from baseline at end of treatment: Type 1 DM -0.22%, Type 2 DM Using Insulin +0.01%, Type 2 DM Not Using Insulin -0.48%",
+      "Fasting plasma glucose change from baseline at end of treatment: Type 1 DM +87.3 mg/mL, Type 2 DM Using Insulin +18.3 mg/mL, Type 2 DM Not Using Insulin -8.8 mg/mL",
+      "FEV1 change from baseline at end of treatment (all subjects): -0.034 L",
+      "FVC change from baseline at end of treatment (all subjects): -0.001 L",
+      "FEV1/FVC change from baseline at end of treatment (all subjects): -0.012 L/L",
+      "Insulin antibody change from baseline at end of treatment: Type 1 DM +10.52 microU/mL, Type 2 DM Using Insulin +3220.95 microU/mL, Type 2 DM Not Using Insulin +11.42 microU/mL"
+    ],
+    "subgroup_findings": [
+      "Type 2 DM Using Insulin showed large insulin antibody increases (up to +3630.63 microU/mL at Week 6)",
+      "Type 1 DM showed worsening fasting plasma glucose at end of treatment (+87.3 mg/mL)",
+      "Hypoglycemia rate 0-3 months: Type 1 DM 3.5 events/subject-month, Type 2 DM Using Insulin 3.2 events/subject-month, Type 2 DM Not Using Insulin 0.1 events/subject-month"
+    ],
+    "safety_signals": [
+      "Tendon rupture (SAE): 1/24 subjects",
+      "Diabetic ketoacidosis (SAE): 1/24 subjects",
+      "Hyperglycaemia (SAE): 1/24 subjects",
+      "Small but consistent decline in FEV1 observed across early timepoints",
+      "High hypoglycemia rates in Type 1 and insulin-using Type 2 DM patients in first 3 months"
+    ],
+    "dose_info": {
+      "dose": "adjusted based on self-monitoring of blood glucose",
+      "schedule": "immediately before each meal (three times daily)",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose adjusted based on self-monitoring blood glucose results before each meal"
+    },
+    "adverse_events": [
+      {
+        "term": "Tendon rupture",
+        "grade": "",
+        "incidence_treatment_pct": 4.17,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Diabetic ketoacidosis",
+        "grade": "",
+        "incidence_treatment_pct": 4.17,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyperglycaemia",
+        "grade": "",
+        "incidence_treatment_pct": 4.17,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Type 1 and Type 2 Diabetes Mellitus",
+    "comparator": "none (single-arm study)",
+    "sample_size": 24,
+    "duration": "Up to 52 weeks (1 year); trial terminated early, most data up to 26 weeks",
+    "duration_weeks": 52.0,
+    "investigator_commentary": "Trial was terminated. See termination reason in detailed description. The trial enrolled Japanese patients across three cohorts (Type 1 DM, Type 2 DM Using Insulin, Type 2 DM Not Using Insulin). Primary endpoint data were not fully collected due to early termination."
+  },
+  "arms": [
+    {
+      "arm_id": "a",
+      "compounds": [
+        "CP-464,005"
+      ]
+    },
+    {
+      "arm_id": "b",
+      "compounds": [
+        "CP-464,005"
+      ]
+    },
+    {
+      "arm_id": "c",
+      "compounds": [
+        "CP-464,005"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Type 1 Diabetes Mellitus",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "type_1_diabetes"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Type 2 Diabetes Mellitus Using Insulin",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "type_2_diabetes_insulin_using"
+        },
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "treated"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Type 2 Diabetes Mellitus Not Using Insulin",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "type_2_diabetes_insulin_naive"
+        },
+        {
+          "axis": "prior_tx",
+          "key": "",
+          "level": "naive"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "a",
+      "intervention": "CP-464,005",
+      "subgroup_descriptor": "Type 1 Diabetes Mellitus",
+      "endpoint": "HbA1c change from baseline (end of treatment)",
+      "effect_size": -0.22,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic control",
+      "population_description": "Japanese patients with Type 1 Diabetes Mellitus",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "b",
+      "intervention": "CP-464,005",
+      "subgroup_descriptor": "Type 2 Diabetes Mellitus Using Insulin",
+      "endpoint": "HbA1c change from baseline (end of treatment)",
+      "effect_size": 0.01,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic control",
+      "population_description": "Japanese patients with Type 2 Diabetes Mellitus currently using insulin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "c",
+      "intervention": "CP-464,005",
+      "subgroup_descriptor": "Type 2 Diabetes Mellitus Not Using Insulin",
+      "endpoint": "HbA1c change from baseline (end of treatment)",
+      "effect_size": -0.48,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic control",
+      "population_description": "Japanese patients with Type 2 Diabetes Mellitus not currently using insulin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "a",
+      "intervention": "CP-464,005",
+      "subgroup_descriptor": null,
+      "endpoint": "FEV1 change from baseline (end of treatment)",
+      "effect_size": -0.034,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic control",
+      "population_description": "All Japanese patients with Type 1 or Type 2 Diabetes Mellitus enrolled in the trial",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "a",
+      "intervention": "CP-464,005",
+      "subgroup_descriptor": "Type 1 Diabetes Mellitus",
+      "endpoint": "Self-Monitoring Blood Glucose change from baseline (primary endpoint)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "glucose uptake and glycemic control",
+      "population_description": "Japanese patients with Type 1 Diabetes Mellitus",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00251953",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether tesaglitazar engaged PPAR\u03b1/\u03b3 or whether metformin engaged its target. No PK/PD readouts are reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., insulin sensitivity markers, lipid profiles, HbA1c changes) are reported. The development program was terminated, and no efficacy data was released. 3. CLINICAL TRANSLATION: The primary endpoint (absolute change in HbA1c) has no reported result \u2014 effect size and p-value are both null. The trial outcome is listed as 'unknown' for all arms. 4. POPULATION EFFECTS: No subgroup findings are reported. 5. CONFOUNDERS: The investigator commentary states 'The development program has been terminated.' This is a commercial/strategic termination \u2014 AstraZeneca terminated tesaglitazar's development program in 2006 citing concerns about renal effects observed across the program (a class-level safety concern for dual PPAR agonists), not because this specific trial produced a negative efficacy readout. The trial enrolled 555 patients but produced no reportable efficacy data, consistent with early termination before primary endpoint analysis. Given the program-level termination and absence of any efficacy readout, this is classified as a commercial/strategic stop with a possible safety-driven component at the program level, though no structured AE data is available for this specific trial to confirm dose-limiting toxicity per the DLT criteria.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Investigator commentary explicitly states 'The development program has been terminated.' Tesaglitazar's development was halted by AstraZeneca in 2006 as a program-level decision, not due to a specific efficacy failure in this trial. No efficacy data (effect size, p-value) was reported, consistent with termination before primary endpoint analysis."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "All arm outcomes are listed as 'unknown.' No effect size, p-value, biomarker data, or safety data is available. The trial was terminated before producing a usable efficacy readout, leaving no mechanistic signal to classify."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_end_randomized_treatment_period_glycosylated",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c is a well-established surrogate endpoint for type 2 diabetes glycemic control and is regulator-accepted. However, this trial produced no efficacy readout due to program termination, so the endpoint's performance in this specific trial cannot be assessed. The ambiguous rating reflects the absence of data rather than any evidence against the endpoint's validity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy data was reported for any arm. The trial was terminated before the primary endpoint was reached, so no population-level response signal is available. Ambiguous is appropriate given the complete absence of outcome data."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tesaglitazar",
+      "reasoning": "Per the round-14 rule, a failed/terminated trial with no efficacy readout must still emit at least one upstream causal-chain contradict signal. The program was terminated without demonstrating clinical benefit, providing weak contradict evidence that SUMOylation of intracellular receptors via PPAR\u03b1/\u03b3 agonism translates to insulin sensitization and metabolic regulation in this population. No biomarker data is available to localize the failure more precisely."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "tesaglitazar",
+      "reasoning": "Program termination without efficacy data provides weak contradict evidence that the intended biology (insulin sensitization and metabolic regulation via dual PPAR agonism) drives clinical benefit in type 2 diabetes via this mechanism. The signal is weak because termination was commercial/safety-driven at the program level rather than a clean efficacy miss in this trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The development program was terminated before this trial produced a primary endpoint readout. The termination appears to have been driven by program-level renal safety concerns with tesaglitazar (a known class effect of dual PPAR agonists) rather than a specific efficacy failure in this trial. No structured AE data is available to confirm dose-limiting toxicity per the DLT criteria. Expert review is needed to determine whether the termination was primarily safety-driven (which would warrant a dose_limiting_toxicity classification) or purely commercial/strategic, and to assess whether any partial data from this trial exists that could inform the mechanistic chain."
+}

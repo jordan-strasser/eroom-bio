@@ -1,0 +1,130 @@
+{
+  "nct_id": "NCT00122954",
+  "therapeutic_hypothesis": {
+    "compound": "fish oil concentrate (EPA/DHA)",
+    "claimed_target": "phospholipid membranes / inflammatory eicosanoid pathway",
+    "proposed_mechanism": "omega-3 fatty acid incorporation into cell membranes with competitive inhibition of arachidonic acid-derived eicosanoids",
+    "intended_biology": "neuroinflammation reduction and monoaminergic neurotransmission modulation",
+    "target_population": "patients with multiple sclerosis and comorbid depression",
+    "primary_endpoint": "50% or greater improvement on the Montgomery-Asberg Depression Rating Scale (MADRS) from baseline to 3 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "47.4% responders (fish oil) vs 45.5% responders (placebo)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "SF-36 Physical Component Summary (PCS): fish oil +1.6 vs placebo -0.8",
+      "SF-36 Mental Component Summary (MCS): fish oil +1.5 vs placebo +4.2"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "6 grams daily (2.1 g EPA + 1.5 g DHA)",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "depression in patients with multiple sclerosis",
+    "comparator": "placebo (soybean oil with 1% fish oil)",
+    "sample_size": 39,
+    "duration": "3 months",
+    "duration_weeks": 13.04,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "fish_oil_concentrate",
+      "compounds": [
+        "fish oil concentrate"
+      ]
+    },
+    {
+      "arm_id": "placebo_oil",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Physical (PCS)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sf36_physical_component"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Mental (MCS)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "sf36_mental_component"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "fish_oil_concentrate",
+      "intervention": "fish oil concentrate",
+      "subgroup_descriptor": null,
+      "endpoint": "MADRS \u226550% improvement",
+      "effect_size": 47.4,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "omega-3 fatty acid membrane incorporation with eicosanoid pathway modulation",
+      "biology_description": "neuroinflammation reduction and monoaminergic neurotransmission modulation",
+      "population_description": "patients with multiple sclerosis and comorbid depression",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "fish_oil_concentrate",
+      "intervention": "fish oil concentrate",
+      "subgroup_descriptor": "Physical (PCS)",
+      "endpoint": "SF-36 PCS mean change",
+      "effect_size": 1.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "omega-3 fatty acid membrane incorporation with eicosanoid pathway modulation",
+      "biology_description": "neuroinflammation reduction and monoaminergic neurotransmission modulation",
+      "population_description": "patients with multiple sclerosis and comorbid depression \u2014 physical component subgroup",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "fish_oil_concentrate",
+      "intervention": "fish oil concentrate",
+      "subgroup_descriptor": "Mental (MCS)",
+      "endpoint": "SF-36 MCS mean change",
+      "effect_size": 1.5,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "omega-3 fatty acid membrane incorporation with eicosanoid pathway modulation",
+      "biology_description": "neuroinflammation reduction and monoaminergic neurotransmission modulation",
+      "population_description": "patients with multiple sclerosis and comorbid depression \u2014 mental component subgroup",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "placebo_oil",
+      "intervention": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "MADRS \u226550% improvement",
+      "effect_size": 45.5,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "",
+      "biology_description": "",
+      "population_description": "patients with multiple sclerosis and comorbid depression \u2014 placebo control",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

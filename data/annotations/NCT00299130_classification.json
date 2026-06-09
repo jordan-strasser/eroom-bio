@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00299130",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. CD19+ B-cell depletion was demonstrated with median repletion time of ~110 weeks in both rituximab arms, confirming that rituximab successfully engaged CD20 on B-cells and depleted them. Post-rituximab low immunoglobulin concentration increased from 0.2% to 5.1%, consistent with B-cell depletion. 2. PATHWAY MODULATION: Downstream biology clearly moved. CRP decreased ~27.5% (2x0.5g) and ~23.1% (2x1.0g) vs increased 58.1% in placebo. ESR decreased ~28-29% in rituximab arms vs increased 8% in placebo. DAS28-ESR improved by -1.71 and -1.68 in rituximab arms vs -0.76 in placebo. These inflammatory biomarkers confirm that B-cell depletion translated into suppression of autoimmune inflammation. 3. CLINICAL TRANSLATION: The primary endpoint was met. ACR20 at Week 24 was 54.5% (2x0.5g) and 50.6% (2x1.0g) vs 23.3% (placebo), representing a ~31 percentage point treatment difference. Secondary endpoints also supported efficacy: ACR50 26.3% and 25.9% vs 9.3%; EULAR Good Response 17.4% and 11.8% vs 4.7%; DAS28 clinical remission 9.6% and 9.4% vs 2.3%. The effect size is clinically meaningful. 4. POPULATION EFFECTS: Both rituximab doses showed similar efficacy, suggesting the mechanism is robust across dose levels in this population. HAQ-DI improvement was also observed (66.1% and 58.2% vs 47.7%), indicating functional benefit. No subgroup analysis identified differential responders, suggesting broad population benefit. 5. CONFOUNDERS: The placebo response rate of 23.3% ACR20 is moderate but not unusually high for RA trials. The trial was adequately powered (n=511). Safety signals (serious infections, prolonged B-cell depletion, hypogammaglobulinemia) are consistent with the mechanism but did not prevent adequate dosing or compromise the efficacy readout. No dose-limiting toxicity prevented target engagement. The trial is a clean success with strong mechanistic validation across the entire causal chain.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "hematopoietic_cell_transplantation",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_0_5_g_mtx",
+      "reasoning": "CD19+ B-cell depletion with median repletion ~110 weeks directly confirms rituximab engaged CD20 (MS4A1/ENSG00000156738) on B-cells in the 2x0.5g arm."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "hematopoietic_cell_transplantation",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_1_0_g_mtx",
+      "reasoning": "CD19+ B-cell depletion with median repletion ~110 weeks directly confirms rituximab engaged CD20 (MS4A1/ENSG00000156738) on B-cells in the 2x1.0g arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_0_5_g_mtx",
+      "reasoning": "Profound and prolonged B-cell depletion (median repletion ~110 weeks) confirms that engaging CD20 drove antibody-dependent cytotoxicity as the mechanism of B-cell elimination in the 2x0.5g arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_1_0_g_mtx",
+      "reasoning": "Profound and prolonged B-cell depletion (median repletion ~110 weeks) confirms that engaging CD20 drove antibody-dependent cytotoxicity as the mechanism of B-cell elimination in the 2x1.0g arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_0_5_g_mtx",
+      "reasoning": "B-cell depletion via ADCC translated to suppression of autoimmune inflammation: CRP decreased ~27.5%, ESR decreased ~28-29%, DAS28-ESR improved by -1.71 vs -0.76 placebo in the 2x0.5g arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_1_0_g_mtx",
+      "reasoning": "B-cell depletion via ADCC translated to suppression of autoimmune inflammation: CRP decreased ~23.1%, ESR decreased ~28-29%, DAS28-ESR improved by -1.68 vs -0.76 placebo in the 2x1.0g arm."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_0_5_g_mtx",
+      "reasoning": "Suppression of B-cell mediated autoimmune inflammation drove clinically meaningful ACR20 response (54.5% vs 23.3% placebo), ACR50 (26.3% vs 9.3%), and DAS28 remission (9.6% vs 2.3%) in the 2x0.5g arm, confirming this biology drives RA disease activity."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "rituximab_2_x_1_0_g_mtx",
+      "reasoning": "Suppression of B-cell mediated autoimmune inflammation drove clinically meaningful ACR20 response (50.6% vs 23.3% placebo), ACR50 (25.9% vs 9.3%), and DAS28 remission (9.4% vs 2.3%) in the 2x1.0g arm, confirming this biology drives RA disease activity."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (ACR20 at Week 24) was met with a large treatment difference (~31 percentage points), and was concordantly supported by ACR50, DAS28-ESR, EULAR Good Response, DAS28 remission, and HAQ-DI secondary endpoints, confirming the composite response endpoint captures clinical benefit in RA."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "crp_high__esr_high__line_second__severity_active__swollenjointcount_high__tenderjointcount_high",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of active RA patients with high CRP/ESR/joint counts on stable MTX showed a large and consistent treatment response to rituximab (ACR20 ~54.5% and 50.6% vs 23.3% placebo, p<0.01 implied by the large effect size and n=511), confirming this population responds to B-cell depletion therapy."
+    }
+  ],
+  "confidence_overall": 0.85,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

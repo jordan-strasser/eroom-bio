@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00288626",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial provides strong evidence of target engagement. Successful hematopoietic reconstitution was confirmed by neutrophil engraftment at mean 10.8 days and platelet engraftment at mean 18.5 days. The BEAM conditioning regimen is designed to ablate autoreactive lymphocytes, and the engraftment data confirms the immune reconstitution arm of the mechanism functioned as intended.\n\n2. PATHWAY MODULATION: Downstream biology moved substantially. Gadolinium-enhancing lesions decreased by -2.1 at 8 weeks and -2.7 at 5 years, indicating near-complete suppression of inflammatory CNS activity. New T2 lesions per scan remained near 0 (0.1\u20130.4) throughout follow-up. T2 lesion volume decreased by -2.3 mL at 5 years. EDSS improved by -0.9 at 5 years. These MRI and clinical biomarkers confirm that the intended biology (elimination of autoreactive lymphocytes driving demyelination) was achieved.\n\n3. CLINICAL TRANSLATION: The primary endpoint (EFS at 5 years) was met at 0.692 (90% CI: 0.502\u20130.821). Secondary endpoints were also strongly positive: MS progression-free survival 91.3%, relapse-free survival 86.9%, MRI activity-free survival 86.3%, overall survival 86.3%, and DMT-free survival 95.0% at 5 years. These results represent a clinically meaningful benefit in a population with active relapsing-remitting MS.\n\n4. POPULATION EFFECTS: The enrolled population (active RRMS with T2 abnormalities, second-line or beyond) is appropriate for the mechanism. No subgroup analyses comparing differential response were reported; the overall population showed consistent benefit across all timepoints.\n\n5. CONFOUNDERS: This is a single-arm study (n=25) without a randomized comparator, which limits causal inference. No p-value is reported for the primary endpoint. The 100% grade \u22653 AE rate is expected for high-dose chemotherapy with HSCT and did not prevent adequate dosing or result in treatment-related mortality. Brain volume atrophy continued (-2.3% at 5 years), which may reflect ongoing neurodegeneration independent of inflammation suppression \u2014 a caveat for long-term interpretation. The small sample size and single-arm design are the primary trial-design weak points.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Single-arm study with n=25 and no randomized comparator; no p-value reported for primary endpoint. While the trial met its pre-specified EFS endpoint, the small sample size and absence of a control arm limit the strength of causal inference and generalizability."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "carmustine_etoposide_cytarabine_melphalan",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "ms_treatment",
+      "reasoning": "Successful hematopoietic reconstitution (neutrophil engraftment 10.8 days, platelet engraftment 18.5 days) and near-complete suppression of MRI inflammatory activity confirm that the BEAM conditioning regimen engaged its intended target (autoreactive lymphocytes/immune cells) and ablated the autoreactive immune system as intended."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "UNKNOWN",
+      "target_entity": "dna_damage",
+      "support": "strong_support",
+      "affecting_arm_id": "ms_treatment",
+      "reasoning": "The BEAM conditioning regimen's DNA-damaging mechanism (alkylation, topoisomerase II inhibition, nucleoside analogue incorporation) demonstrably ablated the autoreactive immune system as evidenced by successful engraftment and near-complete suppression of inflammatory MRI activity, confirming the target drove the intended mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "strong_support",
+      "affecting_arm_id": "ms_treatment",
+      "reasoning": "DNA-damage-induced apoptosis of proliferating autoreactive lymphocytes was confirmed by the near-complete suppression of gadolinium-enhancing lesions and new T2 lesions throughout follow-up, indicating the mechanism successfully eliminated the autoreactive immune cells driving demyelination."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": "ms_treatment",
+      "reasoning": "Elimination of autoreactive lymphocytes (via DNA-damage-induced apoptosis) followed by immune reconstitution was associated with 69.2% EFS at 5 years, 91.3% progression-free survival, and 86.9% relapse-free survival, supporting that this biology drives MS disease activity. Moderate rather than strong due to single-arm design without randomized comparator."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_survival",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The composite EFS endpoint was met (0.692 at 5 years) and was concordant with multiple secondary endpoints (PFS 91.3%, relapse-free survival 86.9%, MRI activity-free survival 86.3%, OS 86.3%), supporting that the composite survival endpoint captures clinically meaningful benefit in MS. Moderate rather than strong due to single-arm design and absence of a randomized comparator."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__mrit2abnormalities_positive__severity_active",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (active RRMS with T2 MRI abnormalities, second-line or beyond) showed clinically meaningful EFS of 69.2% at 5 years with near-complete suppression of MRI inflammatory activity, supporting that this biomarker-selected, active-disease population responds to high-dose immunoablation with HSCT. Moderate rather than strong due to single-arm design and n=25."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm study (n=25) without a randomized comparator and no p-value for the primary endpoint. The 100% grade \u22653 AE rate is expected for BEAM/HSCT but warrants expert review of the benefit-risk profile. Ongoing brain volume atrophy (-2.3% at 5 years) despite inflammatory suppression raises a question about whether neurodegeneration continues independently of the immune mechanism \u2014 this is not captured in the standard failure mode taxonomy and may be relevant for long-term endpoint interpretation. Additionally, the causal chain entities (UNKNOWN target nodes) limit precise edge attribution."
+}

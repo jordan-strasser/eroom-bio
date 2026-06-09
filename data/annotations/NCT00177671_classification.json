@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT00177671",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that donepezil engaged acetylcholinesterase (ACHE) or that antidepressants engaged their respective transporters (SLC6A4, SLC6A2) in this population. Standard clinical doses were used (donepezil 5-10mg, escitalopram 10-20mg, venlafaxine 150-300mg), which are within established therapeutic ranges, so target engagement is assumed but not directly measured.\n\n2. PATHWAY MODULATION: No pathway biomarkers (e.g., CSF acetylcholine levels, serotonin metabolites) were reported. We cannot confirm whether cholinergic or serotonergic neurotransmission was modulated as intended.\n\n3. CLINICAL TRANSLATION: The primary endpoint (recurrence of major depression) was NOT met \u2014 in fact, the donepezil arm showed MORE depression recurrences (19 vs 11 in placebo arm, HR=3.97, p=0.05). This is a borderline-significant result in the WRONG direction for the depression endpoint. For cognitive endpoints, there were directional trends favoring donepezil (global cognition Z-score -0.31 vs -0.56 at Year 2; MCI-to-dementia conversion 10% vs 33% post-hoc), but these were not statistically significant primary endpoint results. The trial failed on its primary endpoint.\n\n4. POPULATION EFFECTS: The post-hoc finding of reduced MCI-to-dementia conversion (10% vs 33%) suggests donepezil may have cognitive benefit in this population, but this was not a pre-specified primary endpoint and the sample was small. The depression recurrence signal going in the wrong direction (HR=3.97) suggests the cholinergic enhancement hypothesis for depression prevention was incorrect or even harmful \u2014 possibly because increased cholinergic tone can worsen depression (cholinergic-adrenergic imbalance hypothesis). The trial enrolled older adults with late-life depression and cognitive impairment, which is a specific population where the mechanism may not apply for the depression endpoint.\n\n5. CONFOUNDERS: The trial was adequately powered (N=220, 2-year duration). The p=0.05 for depression recurrence is borderline and the HR=3.97 is in the wrong direction, suggesting the drug may have worsened depression recurrence rather than preventing it. The study is underpowered for the cognitive subgroup analyses (Year 2 N=42 vs N=49). The combination of multiple antidepressants makes it difficult to isolate the donepezil effect. The primary failure appears to be that the biological hypothesis \u2014 that cholinergic enhancement would prevent depression recurrence \u2014 was incorrect; the biology (cholinergic neurotransmission enhancement) did not drive the expected clinical benefit for depression, and may have been counterproductive. The cognitive trends are directionally positive but not statistically significant as primary endpoints.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Cognitive trends favored donepezil (global cognition -0.31 vs -0.56 at Year 2; MCI conversion 10% vs 33%), suggesting some biological activity, but the primary endpoint (depression recurrence) was not only missed but trended in the wrong direction (HR=3.97, p=0.05 favoring MORE recurrence in donepezil arm)."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.5,
+      "evidence": "The cholinergic enhancement hypothesis for preventing depression recurrence in late-life depression with cognitive impairment may be mechanistically incorrect for this population. Increased cholinergic tone is associated with worsened mood in some models, and the HR=3.97 for depression recurrence suggests the mechanism was counterproductive in this specific population."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "Cognitive subgroup analyses at Year 2 had only N=42 (donepezil) vs N=49 (placebo), substantially reduced from baseline N=67/63, limiting power to detect cognitive benefits as primary endpoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:97ae9d9c975b",
+      "target_entity": "depression",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "Cholinergic neurotransmission enhancement (donepezil's intended biology) was associated with MORE depression recurrences (HR=3.97, p=0.05), directly contradicting the hypothesis that this biology drives benefit in depression. The signal is borderline significant and in the wrong direction."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-112311",
+      "target_entity": "bio:97ae9d9c975b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "No biomarker data confirms that neurotransmitter clearance inhibition via ACHE translated to the intended cholinergic biology change. The clinical outcome (worsened depression recurrence) suggests the mechanism-to-biology translation did not produce the expected therapeutic effect."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0bc75e1d0e38",
+      "target_entity": "depression",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "Serotonergic neurotransmission enhancement (escitalopram/venlafaxine/duloxetine) in combination with donepezil did not prevent depression recurrence. However, the antidepressant-only arm (arm 2) outcome is unknown, making it difficult to isolate the serotonergic contribution. Weak contradict given confounding by donepezil."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0bc75e1d0e38",
+      "target_entity": "depression",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "Arm 2 (antidepressant + placebo) outcome for depression recurrence is unknown/unreported, limiting inference. The overall trial failure on depression recurrence provides weak contradict signal for the serotonergic biology driving depression benefit in this population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_global_cognitive_performance",
+      "target_entity": "depression",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Global cognitive performance was a primary endpoint but showed only directional trends (not statistically significant) favoring donepezil. The endpoint captured some signal (cognitive trends, MCI conversion post-hoc) but did not reach significance as a primary endpoint, making its translatability to clinical benefit ambiguous in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hrsd17_high__severity_active",
+      "target_entity": "depression",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (older adults with late-life depression and cognitive impairment, high HRSD-17 severity) did not respond to donepezil + antidepressant combination on the primary depression recurrence endpoint. The HR=3.97 (p=0.05) in the wrong direction and missed cognitive primary endpoints indicate this population did not benefit from the intervention."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The depression recurrence HR=3.97 (p=0.05) is borderline significant and in the wrong direction \u2014 donepezil may have worsened depression recurrence, which is a potentially important safety/mechanistic signal (cholinergic-adrenergic imbalance hypothesis). Expert review is needed to determine whether this represents a true harmful effect of cholinergic enhancement on mood, or a statistical artifact in a small sample. Additionally, the cognitive trends (MCI conversion 10% vs 33% post-hoc) are clinically meaningful but not pre-specified, and the arm structure (arm 2 outcomes largely unknown) makes it difficult to isolate antidepressant vs donepezil contributions. The causal chain assignments for venlafaxine and duloxetine to SLC6A2 and the 'Defective SLC6A2' pathway appear mechanistically misassigned in the resolved entities (these are NET inhibitors, not defective SLC6A2 carriers), which may affect edge validity."
+}

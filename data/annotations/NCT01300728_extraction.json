@@ -1,0 +1,228 @@
+{
+  "nct_id": "NCT01300728",
+  "therapeutic_hypothesis": {
+    "compound": "NewGam 10% IVIG",
+    "claimed_target": "amyloid-beta and other pathological antibody targets",
+    "proposed_mechanism": "passive immunization / antibody-mediated neutralization",
+    "intended_biology": "amyloid clearance and neuroprotection",
+    "target_population": "Adults with amnestic mild cognitive impairment (a-MCI)",
+    "primary_endpoint": "Annualized Percent Change in Ventricular Volume (APCV) as measured by MRI at baseline, 12, and 24 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "APCV 0-12 months: IVIG 5.87% vs placebo 8.14%; APCV 0-24 months: IVIG 6.26% vs placebo 7.08% (percent change per participant year)",
+    "p_value": null,
+    "target_engagement_evidence": "CSF A\u03b21-42/P-Tau181P Alzheimer signature subgroup assessed; ventricular volumes reported by CSF biomarker status",
+    "biomarker_changes": [
+      "Mean ventricular volume at 24 months in A\u03b242 subgroup: IVIG 294.00 cc vs placebo 353.41 cc",
+      "Mean ventricular volume at 24 months in tau subgroup: IVIG 107.47 cc vs placebo 96.18 cc",
+      "Mean ventricular volume at 24 months in p-tau subgroup: IVIG 43.59 cc vs placebo 39.47 cc"
+    ],
+    "subgroup_findings": [
+      "APCV baseline to 12 months: IVIG 5.87 vs placebo 8.14 (percent/year)",
+      "APCV baseline to 24 months: IVIG 6.26 vs placebo 7.08 (percent/year)",
+      "Conversion from a-MCI to AD at 24 months: IVIG 16 participants vs placebo 10 participants",
+      "MMSE at 12 months: IVIG 26.04 vs placebo 25.38",
+      "ADAS-Cog at 12 months: IVIG 11.03 vs placebo 11.00",
+      "CDR-SB at 12 months: IVIG 2.7 vs placebo 2.65",
+      "MMSE at 24 months: IVIG 24.00 vs placebo 24.46",
+      "ADAS-Cog at 24 months: IVIG 15.39 vs placebo 13.25",
+      "CDR-SB at 24 months: IVIG 4.33 vs placebo 3.37",
+      "More IVIG-treated participants converted to AD (16 vs 10) suggesting no benefit on conversion"
+    ],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "0.4 g/kg per infusion",
+      "schedule": "every 14 days x 5 infusions (over 2 months)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "amnestic mild cognitive impairment (a-MCI)",
+    "comparator": "placebo (0.9% saline solution)",
+    "sample_size": 52,
+    "duration": "24 months follow-up",
+    "duration_weeks": 104.28,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "compounds": [
+        "NewGam 10% IVIG"
+      ]
+    },
+    {
+      "arm_id": "saline_solution",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "APCV Baseline to12 months",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "APCV_0_12_months"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "APCV Baseline to 24 months",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "APCV_0_24_months"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "A\u03b242 (cc)",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "APP",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "tau (cc)",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "tau",
+          "level": "high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "p-tau (cc)",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "p_tau181",
+          "level": "high"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Mini Mental State Exam (MMSE)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "MMSE_score"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Alzheimer's Disease Assessment Scale (ADAS-Cog)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "ADAS_Cog_score"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Clinical Dementia Rating Sum of Boxes (CDR-SB)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "CDR_SB_score"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": null,
+      "endpoint": "Annualized Percent Change in Ventricular Volume (APCV) 0-24 months",
+      "effect_size": 6.26,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": "APCV Baseline to12 months",
+      "endpoint": "Annualized Percent Change in Ventricular Volume (APCV) 0-12 months",
+      "effect_size": 5.87,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment at 12-month timepoint",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": "APCV Baseline to 24 months",
+      "endpoint": "Annualized Percent Change in Ventricular Volume (APCV) 0-24 months",
+      "effect_size": 6.26,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment at 24-month timepoint",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": "Mini Mental State Exam (MMSE)",
+      "endpoint": "Mean MMSE at 24 months",
+      "effect_size": 24.0,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment assessed by MMSE at 24 months",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": "Alzheimer's Disease Assessment Scale (ADAS-Cog)",
+      "endpoint": "Mean ADAS-Cog at 24 months",
+      "effect_size": 15.39,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment assessed by ADAS-Cog at 24 months",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "intravenous_immunoglobulin_ivig",
+      "intervention": "NewGam 10% IVIG",
+      "subgroup_descriptor": "Clinical Dementia Rating Sum of Boxes (CDR-SB)",
+      "endpoint": "Mean CDR-SB at 24 months",
+      "effect_size": 4.33,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "passive immunization via exogenous polyclonal antibodies",
+      "biology_description": "amyloid clearance and neuroprotection",
+      "population_description": "adults with amnestic mild cognitive impairment assessed by CDR-SB at 24 months",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

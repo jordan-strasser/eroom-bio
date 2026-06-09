@@ -1,0 +1,79 @@
+{
+  "nct_id": "NCT00292162",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Radiofrequency ablation targets pulmonary vein myocardium to electrically isolate arrhythmogenic foci. There is no direct target engagement biomarker reported (e.g., confirmation of pulmonary vein isolation or sinus rhythm restoration rates). The BNP data shows a trend favoring RFA (-196 pg/mL vs +85 pg/mL in medical therapy) but with extremely wide confidence intervals that overlap zero, suggesting no statistically meaningful difference. No p-value is reported for the primary endpoint. 2. PATHWAY MODULATION: The intended downstream biology is restoration of sinus rhythm and reverse cardiac remodeling. Without confirmation of sinus rhythm restoration rates, we cannot confirm pathway modulation. The BNP trend is directionally favorable for RFA but not statistically significant given the wide CIs. 3. CLINICAL TRANSLATION: The primary endpoint (change in LVEF at 6 months by MRI) was not met. RFA arm showed +4.5% LVEF change vs +2.8% in medical therapy \u2014 a numerically larger improvement but no p-value is reported and the trial is very small (N=41, ~22 per arm). The difference of 1.7 percentage points is clinically modest and statistically uninterpretable without a p-value. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population is patients with chronic heart failure and atrial fibrillation \u2014 a plausible population for this mechanism. 5. CONFOUNDERS: The trial is critically underpowered with only 41 patients total (~22 per arm). This is far below what would be needed to detect a clinically meaningful difference in LVEF change with adequate statistical power. No p-value is reported, suggesting the trial was not powered for formal hypothesis testing. The safety profile of RFA is notable: 9.09% cardiac tamponade and 4.55% stroke in the RFA arm are serious procedural complications, though these did not appear to prevent dosing per se. The primary failure mode is underpowering \u2014 the trial was too small to detect a real difference even if one existed. The numerical trend favors RFA but is uninterpretable. The RFA arm also had notable procedural SAEs. The medical therapy arm showed partial improvement (2.8% LVEF gain), consistent with known efficacy of HF medications. Overall, this is primarily an underpowered trial with a directional but non-significant signal for RFA, and the failure to meet the primary endpoint is most attributable to insufficient sample size rather than a clear mechanistic failure.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 41 patients enrolled (~22 per arm). No p-value reported for the primary endpoint. The numerical difference in LVEF change (4.5% vs 2.8%) is directionally favorable for RFA but cannot be interpreted statistically. The trial was clearly not powered to detect a clinically meaningful difference in LVEF change by MRI."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "BNP trended favorably in the RFA arm (-196 pg/mL vs +85 pg/mL) suggesting possible biological activity, but the primary LVEF endpoint did not show a statistically significant improvement. However, the wide CIs on BNP and absence of p-values make this interpretation uncertain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:13e632992f59",
+      "target_entity": "chronic_heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was not met in the RFA arm. No p-value available and the trial is underpowered, but the failure to demonstrate significant LVEF improvement provides weak contradict signal for the biology-to-indication link. Underpowering is a major mitigating factor preventing stronger contradict."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0010468",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_support",
+      "affecting_arm_id": "medical_therapy",
+      "reasoning": "Medical therapy (ACE inhibitor component) showed partial LVEF improvement (+2.8%), consistent with known neurohormonal modulation driving cardiac remodeling attenuation. Effect is directionally supportive but no p-value available and the trial is underpowered."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007189",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_support",
+      "affecting_arm_id": "medical_therapy",
+      "reasoning": "Beta blocker component of medical therapy contributed to the partial LVEF improvement (+2.8%), consistent with sympathetic nervous system suppression driving cardiac remodeling attenuation. Underpowered trial limits confidence."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_support",
+      "affecting_arm_id": "medical_therapy",
+      "reasoning": "Aldosterone antagonist component of medical therapy contributed to the partial LVEF improvement (+2.8%), consistent with neurohormonal blockade and cardiac fibrosis reduction. Underpowered trial limits confidence."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:13e632992f59",
+      "target_entity": "chronic_heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": "medical_therapy",
+      "reasoning": "Medical therapy arm showed partial LVEF improvement (+2.8%), directionally consistent with neurohormonal modulation driving improvement in chronic heart failure. No p-value available and trial is underpowered."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_left_ventricular_ejection_fraction_magnetic",
+      "target_entity": "chronic_heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "LVEF change by MRI is a clinically relevant endpoint for chronic heart failure, but the trial is underpowered and no p-value is reported, making it impossible to assess whether the endpoint adequately captured treatment benefit. Both arms showed numerical improvement, suggesting the endpoint is sensitive to change but the trial design prevents definitive assessment."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii__lvef_low__qrsduration_high",
+      "target_entity": "chronic_heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (HF with AF, low LVEF) did not show a statistically significant differential response to RFA vs medical therapy. The primary endpoint was not met and no p-value is available. The numerical trend favors RFA but the trial is underpowered, yielding a weak contradict signal for this population responding differently."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint, making statistical interpretation impossible. The trial is very small (N=41) and likely underpowered. The numerical trend favors RFA (+4.5% vs +2.8% LVEF change) and BNP trends directionally favor RFA, but without statistical testing these signals are uninterpretable. Expert review is needed to assess whether the trial was designed as a pilot/feasibility study rather than a definitive efficacy trial, and whether the RFA arm's arm_id ('radiofrequency_ablation_rfa') should be included in the valid arm_ids list for edge attribution. Additionally, the procedural SAE rate in the RFA arm (cardiac tamponade 9.09%, stroke 4.55%) warrants expert assessment of whether safety concerns contributed to the trial's limitations."
+}

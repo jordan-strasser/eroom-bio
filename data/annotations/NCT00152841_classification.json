@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00152841",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data was collected. The trial was terminated early due to lack of patient recruitment (only 30 patients enrolled, trial terminated for lack of patients), meaning the primary endpoint was never reached and no efficacy readout was obtained. There is no evidence of target engagement for either iron supplement or Vitamin E on oxidative stress pathways. 2. PATHWAY MODULATION: No pathway biomarker data available. Calprotectin measurements were planned at baseline, week 4, week 6, and week 10, but outcomes are listed as unknown, consistent with early termination before data collection was complete. 3. CLINICAL TRANSLATION: The primary endpoint (calprotectin in stools) was not met \u2014 no results were reported. This is an operational failure due to recruitment collapse rather than a mechanistic failure. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The trial was explicitly terminated due to lack of patients (investigator commentary: 'Trial terminated due to lack of patients'). With only 30 patients enrolled and no efficacy readout, this is a classic operational failure \u2014 the causal chain was never given a fair test. The mechanism was not tested, and no conclusions about the biology can be drawn.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Trial terminated due to lack of patients before the primary endpoint was reached. All per-arm outcomes are listed as 'unknown' with null effect sizes and p-values. No efficacy readout was obtained."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_calprotectin_stools_week_4_week_6_week_10",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The endpoint was planned but never measured due to early termination from recruitment failure. No data exists to assess whether calprotectin in stools captures clinical benefit in Crohn's Disease / UC in this context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated before any efficacy readout; no information about whether this mild-severity IBD population responds to iron/Vitamin E supplementation."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

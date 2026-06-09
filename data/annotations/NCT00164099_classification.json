@@ -1,0 +1,22 @@
+{
+  "nct_id": "NCT00164099",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The investigator commentary states 'Patients would not take product,' indicating a compliance/delivery failure that prevented adequate exposure to Synbiotic 2000. Without patient adherence, the gut microbiome target was almost certainly not engaged. 2. PATHWAY MODULATION: Cannot be assessed \u2014 no biomarker data and no evidence of product consumption. 3. CLINICAL TRANSLATION: The primary endpoint (Infection at 3 months) has no reported result (null effect size, null p-value, outcome=unknown). This is not a missed endpoint with a numeric result; it is a complete absence of efficacy readout, consistent with a trial that failed due to non-compliance/delivery failure before generating usable data. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The dominant confounder is a manufacturing/delivery failure \u2014 specifically, patients refused to take the product. This is an operational failure: the intervention was never delivered, so the causal chain was never tested. The trial is essentially uninformative about the biology. With N=40 and no comparator arm described, the trial was also small, but the primary failure is non-compliance preventing any efficacy readout.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states 'Patients would not take product,' indicating the intervention was not consumed and therefore never delivered to the target (gut microbiome). No efficacy data was generated as a result."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint result is null (no effect size, no p-value, outcome=unknown). The trial produced no usable efficacy readout due to non-compliance, making it impossible to assess the mechanistic causal chain."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial failed due to patient non-compliance with the study product ('Patients would not take product'), resulting in no efficacy readout. This is an operational failure \u2014 the intervention was never delivered and the causal chain was never tested. No graph entities were resolved for this trial, so no edge updates can be emitted. Expert review is warranted to determine whether the trial should be excluded from evidence synthesis entirely, and whether reformulation or alternative delivery strategies for Synbiotic 2000 in cardiac surgery patients should be explored."
+}

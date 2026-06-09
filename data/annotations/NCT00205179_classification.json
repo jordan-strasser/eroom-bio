@@ -1,0 +1,73 @@
+{
+  "nct_id": "NCT00205179",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Plasma isoflavone concentrations (genistein, daidzein, equol) were markedly elevated in the Novasoy arm vs. placebo at both months 3 and 6 (e.g., genistein 2777.7 vs. 2.1 ng/ml at month 3), confirming that the compound was absorbed and circulating at pharmacologically relevant levels. This constitutes strong evidence of systemic exposure and presumed estrogen receptor engagement. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., neuroinflammatory markers, synaptic function markers, neuroprotective signaling readouts) were reported. The trial did not measure whether estrogen receptor modulation translated into neuroprotective biology in the CNS. The mechanism step (phytoestrogen receptor modulation \u2192 neuroprotection/synaptic function preservation) was not directly assessed. 3. CLINICAL TRANSLATION: All cognitive endpoints (language fluency, verbal memory, attention, planning, visual memory) showed outcome=unknown with no p-values reported. The extraction states 'None' for primary endpoint met and 'None' for p-value, with 'mixed directional differences across cognitive domains; no statistical significance reported.' This indicates the primary endpoints were not met. The effect sizes reported appear to be raw scores (not treatment differences), making interpretation difficult. No statistically significant cognitive benefit was demonstrated. 4. POPULATION EFFECTS: No subgroup analyses were reported. ApoE4 carrier distribution was balanced (16 vs. 15), but no ApoE4-stratified outcomes were provided. 5. CONFOUNDERS: The trial was small (N=72, ~32-33 per arm), likely underpowered for detecting cognitive effects in Alzheimer's disease. The 6-month duration may be insufficient for neuroprotective effects to manifest in established AD. The rationale strength was rated 'weak' \u2014 phytoestrogen modulation of estrogen receptors as a neuroprotective mechanism in AD is biologically plausible but not strongly validated. The absence of p-values and the 'unknown' outcome designations suggest this may have been a pilot/feasibility study without formal hypothesis testing power. The failure most likely reflects a combination of underpowering, potentially wrong population (established AD may be too late for neuroprotective intervention), and possibly insufficient duration, with the underlying biology-to-endpoint translation being the primary unvalidated step.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "N=72 total (~32-33 per arm) is small for a cognitive outcomes trial in Alzheimer's disease. No p-values were reported across any of the 11 cognitive endpoints, and the extraction notes 'no statistical significance reported,' consistent with a pilot study lacking power for definitive conclusions."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Plasma isoflavone levels were markedly elevated confirming systemic exposure and presumed target engagement, yet no cognitive endpoint showed significant improvement. However, no CNS pathway biomarkers were measured, so it is unclear whether the biology (neuroprotection/synaptic function) was actually modulated."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "Patients with established Alzheimer's disease may be beyond the window where phytoestrogen-mediated neuroprotection can reverse or halt cognitive decline. The neuroprotective hypothesis may be more relevant to prevention or early-stage disease."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.4,
+      "evidence": "6 months may be insufficient for a neuroprotective mechanism to produce measurable cognitive benefit in Alzheimer's disease, where neurodegeneration is chronic and progressive."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "novasoy",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "novasoy_treated",
+      "reasoning": "Plasma isoflavone concentrations (genistein, daidzein, equol) were dramatically elevated in the Novasoy arm vs. placebo at both months 3 and 6, confirming systemic absorption and presumed target engagement with estrogen receptors. Per round-28 AFFECTS rule, demonstrated systemic exposure/engagement warrants strong_support regardless of clinical outcome."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:3cadc4ba8d66",
+      "support": "weak_contradict",
+      "affecting_arm_id": "novasoy_treated",
+      "reasoning": "Despite confirmed systemic exposure to isoflavones, no cognitive benefit was observed across 11 endpoints. No CNS pathway biomarkers were measured to confirm the mechanism (phytoestrogen receptor modulation) actually drove neuroprotective biology. The absence of clinical signal with confirmed exposure suggests the mechanism-to-biology step may not be operative in established AD, though underpowering is a mitigating factor."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3cadc4ba8d66",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "novasoy_treated",
+      "reasoning": "No cognitive improvement was observed despite systemic isoflavone exposure. Even if neuroprotection/synaptic function preservation biology was engaged, it did not translate to clinical benefit in Alzheimer's disease. Underpowering and short duration are mitigating factors preventing stronger contradict classification."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_cognitive_outcomes_language_executive_function",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The cognitive battery (language fluency, verbal memory, attention, planning, visual memory) is a clinically relevant endpoint set for Alzheimer's disease. However, no p-values were reported and outcomes were all 'unknown,' making it impossible to assess whether the endpoint set adequately captured disease-relevant change. The endpoints themselves are standard for AD trials, but the reporting is insufficient to confirm their translatability in this context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "No primary endpoint was met and no statistical significance was reported across any cognitive domain. The enrolled Alzheimer's disease population did not respond to soy isoflavone treatment. Underpowering is a mitigating factor preventing stronger contradict classification."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial reports effect sizes as raw scores (not treatment differences vs. placebo) and provides no p-values for any of the 11 cognitive endpoints, making it impossible to determine the direction or magnitude of treatment effect. It is unclear whether this was a formally powered efficacy trial or a pilot/feasibility study. The absence of statistical reporting prevents definitive classification of the failure mode. Additionally, the 'target engagement' evidence (elevated plasma isoflavones) confirms systemic exposure but does not confirm CNS estrogen receptor engagement or downstream neuroprotective pathway activation \u2014 an expert in phytoestrogen pharmacology and AD neuroscience should assess whether the dose and duration were appropriate for the proposed mechanism."
+}

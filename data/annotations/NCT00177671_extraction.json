@@ -1,0 +1,223 @@
+{
+  "nct_id": "NCT00177671",
+  "therapeutic_hypothesis": {
+    "compound": "Donepezil + antidepressant (escitalopram/venlafaxine/duloxetine)",
+    "claimed_target": "acetylcholinesterase",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "cholinergic neurotransmission enhancement",
+    "target_population": "Older adults with late-life depression and cognitive impairment",
+    "primary_endpoint": "Global Cognitive Performance, Cognitive IADL, Recurrence of Major Depression",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR = 3.97 (95% CI: 1.00\u20134.41) for depression recurrence; Global cognition Z-score donepezil -0.31 vs placebo -0.56 at Year 2",
+    "p_value": 0.05,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Participants with MCI converting to dementia: 10% donepezil vs 33% placebo (post-hoc)",
+      "Global cognition at Year 1: donepezil -0.23 vs placebo -0.65",
+      "Global cognition at Year 2: donepezil -0.31 vs placebo -0.56",
+      "Cognitive IADL independent functioning at Year 2: donepezil 36.67% vs placebo 47.22%",
+      "Depression recurrence: donepezil 19 participants vs placebo 11 participants (HR=3.97, p=0.05)"
+    ],
+    "safety_signals": [
+      "Suicide attempt in donepezil arm (1/67)",
+      "Stroke in donepezil arm (1/67)",
+      "Myocardial infarction with congestive heart failure in donepezil arm (1/67)",
+      "Death due to heart attack in placebo arm (1/63)"
+    ],
+    "dose_info": {
+      "dose": "Donepezil 5\u201310 mg; Escitalopram 10\u201320 mg; Venlafaxine 150\u2013300 mg",
+      "schedule": "daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Suicide attempt",
+        "grade": "",
+        "incidence_treatment_pct": 1.49,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Stroke",
+        "grade": "",
+        "incidence_treatment_pct": 1.49,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myocardial infarction with congestive heart failure",
+        "grade": "",
+        "incidence_treatment_pct": 1.49,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Death due to heart attack",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.59,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Late-life depression with cognitive impairment / risk of dementia",
+    "comparator": "placebo (antidepressant + placebo)",
+    "sample_size": 220,
+    "duration": "2 years maintenance",
+    "duration_weeks": 104.28,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "escitalopram",
+        "donepezil",
+        "venlafaxine",
+        "duloxetine"
+      ]
+    },
+    {
+      "arm_id": "2",
+      "compounds": [
+        "escitalopram",
+        "venlafaxine",
+        "duloxetine",
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Baseline (N=67;N=63)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Year 1 (N=45; N=57)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "year1_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Year 2 N=42; N=49)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "year2_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Baseline (N=33; N=34)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "baseline_iadl_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Year 1 (N=23; N=25)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "year1_iadl_timepoint"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Year 2 (N=11; N=17)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "year2_iadl_timepoint"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "donepezil",
+      "subgroup_descriptor": null,
+      "endpoint": "Number of Participants With Recurrence of Major Depression",
+      "effect_size": 3.97,
+      "p_value": 0.05,
+      "outcome": "failure",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "Older adults with late-life depression and cognitive impairment receiving antidepressant maintenance therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "donepezil",
+      "subgroup_descriptor": "Year 2 N=42; N=49)",
+      "endpoint": "Global Cognitive Performance",
+      "effect_size": -0.31,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "cholinergic neurotransmission enhancement",
+      "population_description": "Older adults with late-life depression and cognitive impairment at Year 2 of maintenance",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "escitalopram",
+      "subgroup_descriptor": null,
+      "endpoint": "Number of Participants With Recurrence of Major Depression",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "serotonin reuptake inhibition",
+      "biology_description": "monoaminergic neurotransmission enhancement",
+      "population_description": "Older adults with late-life depression and cognitive impairment receiving maintenance antidepressant therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "2",
+      "intervention": "escitalopram",
+      "subgroup_descriptor": null,
+      "endpoint": "Number of Participants With Recurrence of Major Depression",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "serotonin reuptake inhibition",
+      "biology_description": "monoaminergic neurotransmission enhancement",
+      "population_description": "Older adults with late-life depression and cognitive impairment receiving antidepressant plus placebo",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "donepezil",
+      "primary_compound_id": "escitalopram",
+      "affects_layer": "biology",
+      "direction": "suppresses",
+      "confidence": 0.72,
+      "hypothesis": "Donepezil co-administration with antidepressant was associated with higher depression recurrence rates (HR=3.97), suggesting cholinergic enhancement may negatively modulate antidepressant-mediated mood stabilization biology",
+      "citation": "Depression recurrence: donepezil 19 participants vs placebo 11 participants (HR=3.97, 95% CI: 1.00\u20134.41, p=0.05)"
+    }
+  ]
+}

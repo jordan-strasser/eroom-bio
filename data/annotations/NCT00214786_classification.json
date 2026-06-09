@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00214786",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: There is evidence of target engagement \u2014 a mean of 8717 IEQ/kg was infused over a mean of 2 infusions, indicating donor islets were delivered. The 34.3% reduction in insulin requirements in non-independent patients suggests partial beta-cell function was restored, confirming the transplanted islets were biologically active to some degree. However, only 1/4 patients (25%) achieved the primary endpoint of insulin independence at 12 months.\n\n2. PATHWAY MODULATION: The downstream biology did partially move \u2014 insulin requirements were reduced by 34.3% in those who did not achieve independence, and hypoglycemic episodes were reduced (7.3/month at 12 months, though this is still elevated). This suggests partial restoration of endogenous insulin secretion and glycemic regulation, but not sufficient for full insulin independence.\n\n3. CLINICAL TRANSLATION: The primary endpoint (insulin independence at 12 months) was not met \u2014 only 1/4 patients achieved it. The biology partially moved but did not translate to the clinical endpoint in most patients. This is a partial biology-moved-endpoint-flat pattern, though the small sample size (n=4) is a major confounder.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The sample size of 4 is far too small to draw meaningful subgroup conclusions.\n\n5. CONFOUNDERS: This is a Phase 1 study with only 4 patients \u2014 it is grossly underpowered for any efficacy conclusion. The primary failure mode is underpowering. Additionally, 100% of patients experienced elevated liver function tests (SAE), and 3/4 experienced SAEs related to the islet infusion, and 2/4 experienced SAEs related to immunosuppression. The safety burden is notable but the structured AE table does not show explicit dose reductions or MTD being below target-engaging dose. The causal chain was tested (biology partially moved), but the n=4 design means no reliable efficacy conclusion can be drawn. The mapped causal chain (islet_cell_transplantation \u2192 IMPDH1 \u2192 R-HSA-6798695 \u2192 glycemic control via incretin enhancement) appears to reflect the immunosuppression component (IMPDH1 is inosine monophosphate dehydrogenase, a target of mycophenolate used in immunosuppression) rather than the islet transplantation mechanism itself, which is cellular replacement. This mismatch between the resolved graph entities and the actual mechanism of action is a notable limitation for edge interpretation.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Only 4 patients enrolled in this Phase 1 study. No statistical power calculation could be meaningful at this sample size. The primary endpoint was missed (1/4 = 25% achieved insulin independence), but this result is uninterpretable for efficacy conclusions given n=4."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Insulin requirements were reduced by 34.3% in non-independent patients, indicating partial biological activity of transplanted islets. However, only 1/4 patients achieved full insulin independence, suggesting the biology moved partially but did not translate to the primary clinical endpoint in most patients."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6798695",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "islet_cell_transplantation",
+      "reasoning": "The mechanism (mapped to R-HSA-6798695 via IMPDH1, reflecting immunosuppression pathway) did not translate to full glycemic control restoration in 3/4 patients. Biology partially moved (34.3% insulin reduction) but the primary endpoint was missed. Weak contradict given partial signal and extreme underpowering (n=4)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_1_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "islet_cell_transplantation",
+      "reasoning": "Glycemic control via incretin enhancement (the mapped biology) did not drive sufficient clinical benefit to achieve insulin independence in 3/4 patients. However, the extreme underpowering (n=4) and partial biological signal (34.3% insulin reduction) limit the strength of this contradict signal."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_achievement_insulin_independence_12_month_post",
+      "target_entity": "type_1_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Insulin independence at 12 months is a clinically meaningful endpoint for Type 1 Diabetes, but the n=4 sample size and single-arm design with no comparator make it impossible to assess whether the endpoint reliably captures clinical benefit in this indication. The endpoint itself is appropriate but the trial design prevents meaningful interpretation."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_low__hba1c_high__hypoglycemiaunawareness_positive__severity_severe",
+      "target_entity": "type_1_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this severely affected T1D population (low C-peptide, high HbA1c, hypoglycemia unawareness), only 1/4 patients achieved insulin independence. The primary endpoint was missed. Weak contradict given extreme underpowering (n=4) and partial biological signal observed."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved graph entities map the causal chain through IMPDH1 (inosine monophosphate dehydrogenase) and R-HSA-6798695, which appears to reflect the immunosuppression component (mycophenolate targets IMPDH1) rather than the primary mechanism of allogeneic islet transplantation (cellular replacement of beta cells). This mismatch between the actual therapeutic mechanism and the resolved graph chain makes all causal-chain edge updates unreliable. Additionally, n=4 is an extremely small Phase 1 cohort \u2014 the trial was not designed or powered to test efficacy, and the primary endpoint miss should be interpreted with extreme caution. Expert review is needed to assess whether the graph chain correctly represents the islet transplantation mechanism and whether any efficacy signal can be meaningfully extracted from this pilot study."
+}

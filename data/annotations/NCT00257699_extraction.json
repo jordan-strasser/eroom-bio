@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00257699",
+  "therapeutic_hypothesis": {
+    "compound": "ciprofloxacin + metronidazole",
+    "claimed_target": "bacterial DNA gyrase / anaerobic bacterial metabolism",
+    "proposed_mechanism": "broad-spectrum antibacterial activity",
+    "intended_biology": "gut microbiome modulation / reduction of luminal bacterial load",
+    "target_population": "patients with colonic Crohn's disease",
+    "primary_endpoint": "Complete response defined as CDAI score reduction to below 150 points with at least 70-point reduction from baseline at 8 weeks",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": null,
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "ciprofloxacin 500 mg bid; metronidazole 250 mg bid / 250 mg tid / 500 mg bid depending on body weight",
+      "schedule": "twice or three times daily oral",
+      "max_tolerated_dose": "",
+      "dose_modifications": "metronidazole dose adjusted by body weight"
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "colonic Crohn's disease",
+    "comparator": "placebo (metronidazole placebo + ciprofloxacin placebo)",
+    "sample_size": 12,
+    "duration": "8 weeks",
+    "duration_weeks": 8.0,
+    "investigator_commentary": "Trial terminated due to inadequate recruitment to meet completion date."
+  },
+  "arms": [
+    {
+      "arm_id": "i",
+      "compounds": [
+        "metronidazole placebo",
+        "ciprofloxacin placebo"
+      ]
+    },
+    {
+      "arm_id": "ii",
+      "compounds": [
+        "ciprofloxacin",
+        "metronidazole"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "ii",
+      "intervention": "ciprofloxacin",
+      "subgroup_descriptor": null,
+      "endpoint": "CDAI complete response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "bacterial DNA gyrase inhibition",
+      "biology_description": "gut microbiome modulation / reduction of luminal bacterial load",
+      "population_description": "patients with colonic Crohn's disease",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "ii",
+      "intervention": "metronidazole",
+      "subgroup_descriptor": null,
+      "endpoint": "CDAI complete response",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "anaerobic bacterial DNA disruption via nitroreduction",
+      "biology_description": "gut microbiome modulation / reduction of anaerobic bacterial load",
+      "population_description": "patients with colonic Crohn's disease",
+      "mechanism_category": "dna_damage"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "metronidazole",
+      "primary_compound_id": "ciprofloxacin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Metronidazole targets anaerobic bacteria while ciprofloxacin targets aerobic/gram-negative bacteria; together they provide broader luminal antibacterial coverage potentially amplifying gut microbiome modulation, but the trial was terminated without efficacy data.",
+      "citation": "Trial terminated due to inadequate recruitment to meet completion date."
+    }
+  ]
+}

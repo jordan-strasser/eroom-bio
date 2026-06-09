@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00207727",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that ustekinumab engaged IL-12/IL-23 (p40 subunit) in the CNS or periphery in MS patients. Ustekinumab is known to bind p40 from other indications (psoriasis, Crohn's disease), so binding is plausible, but this trial provides no direct evidence of target engagement in MS. Per the round-28 AFFECTS rule, no affects record is emitted since engagement was not measured.\n\n2. PATHWAY MODULATION: No biomarker data on Th1/Th17 pathway suppression was reported. We cannot confirm whether IL-12/IL-23 neutralization translated into downstream Th1/Th17 pathway modulation in the CNS compartment. The absence of PD data means we cannot distinguish between failure of target engagement in the CNS vs. failure of pathway modulation vs. failure of clinical translation.\n\n3. CLINICAL TRANSLATION: The primary endpoint (cumulative newly Gd-enhancing T1 lesions through Week 23) was not met. Notably, the ustekinumab arms showed numerically MORE lesions than placebo (placebo median 1.20 vs. ustekinumab arms 1.00\u20132.40), with no arm showing a meaningful reduction. The relapse endpoint was also completely flat across all arms (p-values 0.517\u20130.967). There is no dose-response relationship \u2014 higher doses did not produce better outcomes, and the 90mg q4w arm had the worst lesion count (2.40 vs. placebo 1.20). This consistent failure across all doses and schedules suggests the mechanism does not translate to clinical benefit in MS.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population had active MS (Gd-enhancing lesions at baseline), which is appropriate for detecting MRI activity changes. However, the IL-12/IL-23 axis may not be the dominant driver of CNS inflammation in relapsing MS \u2014 Th17 cells driven by IL-23 have been implicated, but the CNS compartment may be less accessible to peripheral cytokine blockade, or the relevant inflammatory pathways in MS may differ from psoriasis/IBD where ustekinumab succeeds.\n\n5. CONFOUNDERS: The trial was adequately powered (n=249, placebo-controlled, multiple dose arms). Duration of 23 weeks is reasonable for detecting MRI activity changes. The lack of dose-response (higher doses performed no better, and some performed worse) is a strong signal against mechanism relevance. The wrong_population/wrong_biology hypothesis is plausible \u2014 IL-12/IL-23 blockade may not be the right mechanism for MS, as subsequent MS therapies have focused on different targets (natalizumab, S1P modulators, anti-CD20). The primary failure mode is biology_moved_endpoint_flat is not applicable since biology was not confirmed to move; the most parsimonious explanation is that the IL-12/IL-23 \u2192 Th1/Th17 axis is not the dominant driver of MS lesion formation, making this a wrong_population or target_engaged_biology_not_moved scenario. Given no PD data, the most defensible classification is that the mechanism (IL-12/IL-23 blockade \u2192 Th1/Th17 suppression \u2192 MS lesion reduction) failed to translate, with the break point unknown but likely at the biology_drives or mechanism_affects level.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.25,
+      "evidence": "No biomarker data to confirm biology moved; this mode is less likely given no PD evidence of pathway engagement."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "IL-12/IL-23 blockade is effective in psoriasis and IBD but all ustekinumab arms failed in MS with no dose-response. The Th1/Th17 axis may not be the dominant driver of CNS lesion formation in relapsing MS. Ustekinumab has since succeeded in other inflammatory conditions but not MS, suggesting the mechanism is wrong for this indication/population."
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.35,
+      "evidence": "No PD biomarker data available. The consistent failure across all doses with no dose-response relationship and numerically worse outcomes at higher doses suggests the mechanism may not engage the relevant biology in the CNS compartment of MS patients, even if peripheral IL-12/IL-23 is neutralized."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002708",
+      "target_entity": "bio:5bb4a5eca0ba",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cnto_1275",
+      "reasoning": "All ustekinumab arms failed to reduce MRI lesions or relapses vs placebo, with no dose-response. No PD data available. The mechanism (positive regulation of lymphocyte-mediated immunity modulation) did not translate to Th1/Th17 pathway suppression in MS, or if it did, it had no clinical effect. Weak contradict because no PD data to confirm where the chain broke."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5bb4a5eca0ba",
+      "target_entity": "multiple_sclerosis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cnto_1275",
+      "reasoning": "Complete failure across all doses and schedules with no dose-response, and numerically worse outcomes in higher-dose arms, suggests Th1/Th17 inflammatory pathway suppression via IL-12/IL-23 blockade does not drive MS lesion reduction. This is weak contradict because no PD data confirms the biology was actually modulated."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_cumulative_newly_gadolinium_enhancing_t1",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Gd-enhancing T1 lesions on MRI is a well-validated surrogate endpoint for MS disease activity and is widely accepted by regulators. The endpoint was measured and reported. The failure here reflects drug mechanism failure, not endpoint inadequacy \u2014 the endpoint is appropriate for detecting anti-inflammatory effects in relapsing MS."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "multiple_sclerosis",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The active MS population (with Gd-enhancing lesions at baseline) showed no response to ustekinumab across all doses and schedules. Primary endpoint missed with p-values far from significance on relapse endpoint (0.517\u20130.967), and MRI lesion counts were numerically higher in treatment arms vs placebo. Adequate sample size (n=249). Moderate contradict because the trial was adequately powered and the population was appropriately selected for detecting MRI activity."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The numerically worse outcomes in ustekinumab arms vs placebo (median lesions 1.0\u20132.4 vs placebo 1.2) with no dose-response relationship is unusual and may suggest either a paradoxical effect, inadequate CNS penetration of the antibody, or that IL-12/IL-23 blockade is genuinely wrong for MS. Expert review is warranted to assess whether CNS penetration of ustekinumab was adequate, whether the Th1/Th17 hypothesis for MS was biologically sound at the time, and whether the numerically worse outcomes in higher-dose arms represent a real signal or statistical noise in a small trial."
+}

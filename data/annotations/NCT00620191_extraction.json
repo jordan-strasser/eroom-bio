@@ -1,0 +1,96 @@
+{
+  "nct_id": "NCT00620191",
+  "therapeutic_hypothesis": {
+    "compound": "Metformin",
+    "claimed_target": "AMPK / mTOR / insulin signaling pathway",
+    "proposed_mechanism": "insulin sensitization and AMPK activation",
+    "intended_biology": "neuroprotection via improved cerebral glucose metabolism",
+    "target_population": "Adults with amnestic mild cognitive impairment",
+    "primary_endpoint": "Change in Total Recall Score in the Selective Reminding Test and Change in ADAS-cog score at 12 months",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "SRT total recall: mean difference 3.7 (t-test, p=0.05); ADAS-cog: mean difference 1.98 (t-test, p=0.06), 0.9 (ANCOVA, p=0.34)",
+    "p_value": 0.05,
+    "target_engagement_evidence": "Change in relative cerebral glucose uptake (rCMRgl) in posterior cingulate-precuneus: +2.0% in metformin vs 0.0% in placebo (p=0.36)",
+    "biomarker_changes": [
+      "Plasma Amyloid beta-42 change: +0.69 pg/ml (metformin) vs -4.40 pg/ml (placebo), mean difference 5.09 pg/ml, p=0.34",
+      "rCMRgl in posterior cingulate-precuneus: +2.0% (metformin) vs 0.0% (placebo), p=0.36"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "1000 mg twice daily",
+      "schedule": "twice daily, titrated from 500 mg once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Titrated from 500 mg once daily up to 1000 mg twice daily"
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "Amnestic mild cognitive impairment",
+    "comparator": "Placebo",
+    "sample_size": 80,
+    "duration": "12 months",
+    "duration_weeks": 52.14,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "matching_placebo",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "metformin",
+      "compounds": [
+        "metformin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "metformin",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "SRT Total Recall Score change",
+      "effect_size": 3.7,
+      "p_value": 0.05,
+      "outcome": "partial",
+      "mechanism_description": "AMPK activation and insulin sensitization",
+      "biology_description": "neuroprotection via improved cerebral glucose metabolism",
+      "population_description": "Adults with amnestic mild cognitive impairment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "metformin",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "ADAS-cog score change",
+      "effect_size": 0.9,
+      "p_value": 0.34,
+      "outcome": "failure",
+      "mechanism_description": "AMPK activation and insulin sensitization",
+      "biology_description": "neuroprotection via improved cerebral glucose metabolism",
+      "population_description": "Adults with amnestic mild cognitive impairment",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "metformin",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "rCMRgl change in posterior cingulate-precuneus",
+      "effect_size": 2.0,
+      "p_value": 0.36,
+      "outcome": "failure",
+      "mechanism_description": "AMPK activation and insulin sensitization",
+      "biology_description": "neuroprotection via improved cerebral glucose metabolism",
+      "population_description": "Adults with amnestic mild cognitive impairment",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

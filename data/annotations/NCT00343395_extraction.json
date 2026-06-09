@@ -1,0 +1,93 @@
+{
+  "nct_id": "NCT00343395",
+  "therapeutic_hypothesis": {
+    "compound": "Avandamet (rosiglitazone + metformin)",
+    "claimed_target": "PPARG / AMPK",
+    "proposed_mechanism": "PPAR-gamma agonism and AMPK activation",
+    "intended_biology": "insulin sensitization and anti-inflammatory effects",
+    "target_population": "nondiabetic patients with stable coronary syndromes",
+    "primary_endpoint": "change from baseline in hs-CRP; safety on clinical outcomes (death, MI, cardiovascular hospitalizations) and serious drug-related adverse events",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": null,
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Trial terminated due to FDA concerns regarding Avandamet (rosiglitazone cardiovascular safety signal)"
+    ],
+    "dose_info": {
+      "dose": "2/500 mg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "coronary artery disease (stable coronary syndromes, nondiabetic)",
+    "comparator": "placebo",
+    "sample_size": 200,
+    "duration": "June 2006 to January 2008",
+    "duration_weeks": 83.7,
+    "investigator_commentary": "FDA concerns regarding Avandamet"
+  },
+  "arms": [
+    {
+      "arm_id": "avandamet",
+      "compounds": [
+        "rosiglitazone",
+        "metformin"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "avandamet",
+      "intervention": "rosiglitazone",
+      "subgroup_descriptor": null,
+      "endpoint": "hs-CRP change from baseline",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "PPAR-gamma agonism",
+      "biology_description": "insulin sensitization and systemic inflammation reduction",
+      "population_description": "nondiabetic patients with stable coronary syndromes",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "avandamet",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "hs-CRP change from baseline",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "AMPK activation",
+      "biology_description": "glucose metabolism regulation and anti-inflammatory signaling",
+      "population_description": "nondiabetic patients with stable coronary syndromes",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "metformin",
+      "primary_compound_id": "rosiglitazone",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Metformin's AMPK activation may complement rosiglitazone's PPAR-gamma-mediated insulin sensitization, potentially amplifying anti-inflammatory and metabolic effects in cardiovascular patients",
+      "citation": "FDA concerns regarding Avandamet"
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "nct_id": "NCT00686634",
+  "therapeutic_hypothesis": {
+    "compound": "Sitagliptin",
+    "claimed_target": "DPP-4",
+    "proposed_mechanism": "enzyme inhibition",
+    "intended_biology": "incretin-mediated glucose-dependent insulin secretion enhancement",
+    "target_population": "Type 2 diabetes mellitus patients inadequately controlled on metformin and sulfonylurea",
+    "primary_endpoint": "HbA1c change from baseline at 4 months",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "-1.3 percentage points change in HbA1c from baseline",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Mean HbA1c change from baseline: -1.3% at 4 months",
+      "47 subjects achieved HbA1c \u22647.5% at 4 months",
+      "26 subjects maintained HbA1c \u22647.5% at 1 year"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "3 hypoglycemia events over 1 year",
+      "3 other adverse events over 1 year"
+    ],
+    "dose_info": {
+      "dose": "100 mg",
+      "schedule": "once daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Hypoglycemia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Other adverse events",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "Type 2 Diabetes Mellitus",
+    "comparator": "none (single-arm study)",
+    "sample_size": 108,
+    "duration": "1 year",
+    "duration_weeks": 52.14,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "sitagliptin",
+        "metformin",
+        "sulfonylurea"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Hypoglycemia",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hypoglycemia"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Other adverse events",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "other_adverse_events"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "sitagliptin",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c change from baseline",
+      "effect_size": -1.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "enzyme inhibition",
+      "biology_description": "incretin-mediated glucose-dependent insulin secretion enhancement",
+      "population_description": "Type 2 diabetes mellitus patients inadequately controlled on metformin and sulfonylurea combination therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "metformin",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c change from baseline",
+      "effect_size": -1.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "mitochondrial complex I inhibition reducing hepatic gluconeogenesis",
+      "biology_description": "hepatic glucose output suppression and insulin sensitization",
+      "population_description": "Type 2 diabetes mellitus patients inadequately controlled on metformin and sulfonylurea combination therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "sulfonylurea",
+      "subgroup_descriptor": null,
+      "endpoint": "HbA1c change from baseline",
+      "effect_size": -1.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "ATP-sensitive potassium channel blockade stimulating insulin secretion",
+      "biology_description": "pancreatic beta-cell insulin secretion stimulation",
+      "population_description": "Type 2 diabetes mellitus patients inadequately controlled on metformin and sulfonylurea combination therapy",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sitagliptin",
+      "primary_compound_id": "metformin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "Sitagliptin's DPP-4 inhibition raises GLP-1/GIP levels, enhancing glucose-dependent insulin secretion and complementing metformin's insulin-sensitizing and hepatic glucose-lowering effects to produce additive glycemic control",
+      "citation": "Sitagliptin 100 mg by mouth once daily in combination with metformin and sulfonylurea; mean HbA1c change from baseline: -1.3%"
+    },
+    {
+      "modulator_compound_id": "sitagliptin",
+      "primary_compound_id": "sulfonylurea",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.6,
+      "hypothesis": "Sitagliptin's incretin-mediated glucose-dependent insulin secretion complements sulfonylurea-driven insulin release, providing additive glycemic lowering while the glucose-dependence of sitagliptin may partially offset sulfonylurea-associated hypoglycemia risk",
+      "citation": "Sitagliptin 100 mg by mouth once daily in combination with metformin and sulfonylurea; 3 hypoglycemia events over 1 year"
+    }
+  ]
+}

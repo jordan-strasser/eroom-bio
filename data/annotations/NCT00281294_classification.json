@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00281294",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether fontolizumab engaged IFN-gamma in vivo. No target engagement evidence was reported. Per the round-28 AFFECTS rule, since target engagement was not measured, no affects record is emitted. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., STAT1 phosphorylation, IFN-gamma-driven gene expression changes) were reported. We cannot determine whether IFN-gamma neutralization led to suppression of pro-inflammatory cytokine signaling. 3. CLINICAL TRANSLATION: The primary endpoint (ACR50 at Week 14) was not met. No effect size or p-value was reported, and the trial was terminated early after Stage A failed. The sample size was small (N=40), which limits interpretability. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial was small (N=40) and terminated early after the first stage failed to meet the primary endpoint. This is consistent with a pre-specified futility stopping rule in a two-stage design. The small sample size raises underpowering as a plausible contributor. However, the primary endpoint was measured and missed, making this a real test of the hypothesis. The rationale for IFN-gamma neutralization in RA was described as 'moderate,' and the mechanism may simply not be the dominant driver of RA pathology compared to TNF or IL-6 pathways. Without biomarker data, we cannot localize the failure in the causal chain, but the missed endpoint provides directional contradict signal for the biology_drives and mechanism_affects edges.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.25,
+      "evidence": "No biomarker data available to confirm biology moved; primary endpoint missed. This mode is speculative without PD data."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.55,
+      "evidence": "Sample size of only 40 subjects in a two-stage design; trial terminated after Stage A. Small N limits ability to detect a true treatment effect even if one exists."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "IFN-gamma neutralization has a moderate rationale in RA; the dominant pathways in RA are TNF and IL-6. The enrolled population may not be enriched for IFN-gamma-driven disease."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-877312",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "fontolizumab",
+      "reasoning": "No biomarker data available; primary endpoint missed. Per round-14 rules, a missed endpoint with no PD data emits weak_contradict on mechanism_affects. The IFN-gamma neutralization mechanism did not translate to clinical benefit in this RA population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "fontolizumab",
+      "reasoning": "No biomarker data available; primary endpoint missed. Per round-14 rules, a missed endpoint with no PD data emits weak_contradict on biology_drives. Pro-inflammatory cytokine suppression via IFN-gamma neutralization did not drive clinical improvement in RA in this trial."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "ACR50 is a well-validated composite endpoint for RA and is a regulator-accepted measure of clinical response. However, the endpoint was not met and no effect size was reported, making it impossible to assess whether the endpoint failed to capture biology or whether the drug simply did not work. The endpoint itself is appropriate for RA; the ambiguity arises from the absence of any quantitative result."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "crp_high__functional_class_i__morningstiffness_high__severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with no reported p-value or effect size in this active RA population. The small sample (N=40) and early termination limit confidence, but the directional signal is negative. Per the responds_differently rubric, a missed primary endpoint with p>0.10 (implied by no reported significance) maps to weak_contradict."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated early after Stage A failure with only N=40 subjects and no reported effect size or p-value. It is unclear whether the failure reflects true lack of efficacy of IFN-gamma neutralization in RA, underpowering, or a wrong-population issue. No biomarker or PD data were collected to localize the failure in the causal chain. Expert review is needed to determine whether the two-stage design's stopping rule was pre-specified and whether the sample size was adequate for the Stage A futility analysis."
+}

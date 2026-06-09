@@ -1,0 +1,256 @@
+{
+  "nct_id": "NCT00323037",
+  "therapeutic_hypothesis": {
+    "compound": "carvedilol controlled release (Coreg CR)",
+    "claimed_target": "beta-adrenergic receptor",
+    "proposed_mechanism": "beta-adrenergic receptor blockade",
+    "intended_biology": "cardiac remodeling reversal / ventricular function improvement",
+    "target_population": "adults with stable chronic heart failure",
+    "primary_endpoint": "Change from baseline in Left Ventricular End Systolic Volume Index (LVESVI) at 24 weeks after entry into the maintenance period",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Coreg CR: -20.81 mL/m\u00b2; Coreg IR: -18.36 mL/m\u00b2 (mean change from baseline in LVESVI)",
+    "p_value": null,
+    "target_engagement_evidence": "Both arms showed reductions in LVESVI, LVEDV, LVESV, and improvements in LVEF consistent with beta-blockade",
+    "biomarker_changes": [
+      "LVEF improved by 0.08 (8 percentage points) in both arms",
+      "LVEDV decreased by -42.22% (CR) and -36.61% (IR)",
+      "LVESV decreased by -43.00% (CR) and -36.61% (IR)",
+      "LVEDVI decreased by -20.57% (CR) and -18.29% (IR)",
+      "LVM changed by -9.29% (CR) and +9.5% (IR)",
+      "Deceleration time increased by 53.37 ms (CR) and 24.00 ms (IR)",
+      "E:A ratio changed by -0.45 (CR) and -0.20 (IR)",
+      "BNP levels changed by -0.86% (CR) and -0.88% (IR)"
+    ],
+    "subgroup_findings": [
+      "Hospitalization for heart failure: 6 patients in each arm",
+      "Hospitalization due to any cause: 29 (CR) vs 31 (IR)",
+      "Hospitalization or death: 29 (CR) vs 32 (IR)",
+      "Most patients titrated to maximum dose (80mg CR / 25mg IR): 114 (CR) vs 116 (IR) at maintenance entry"
+    ],
+    "safety_signals": [
+      "SAEs: 35 in Coreg CR arm vs 40 in Coreg IR arm",
+      "Treatment non-compliance: 6 (CR) vs 4 (IR)"
+    ],
+    "dose_info": {
+      "dose": "10, 20, 40, or 80 mg (CR); 3.125, 6.25, 12.5, or 25 mg (IR)",
+      "schedule": "CR: once daily in the morning; IR: twice daily",
+      "max_tolerated_dose": "80 mg CR / 25 mg IR",
+      "dose_modifications": "Titration period of variable duration prior to maintenance period; dose escalation from 10 mg CR / 3.125 mg IR up to 80 mg CR / 25 mg IR"
+    },
+    "adverse_events": [
+      {
+        "term": "Serious Adverse Events (SAEs)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "stable chronic heart failure",
+    "comparator": "carvedilol immediate release (Coreg IR)",
+    "sample_size": 318,
+    "duration": "Up to 32 weeks (titration plus 24-week maintenance phase)",
+    "duration_weeks": 32.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "carvedilol immediate release"
+      ]
+    },
+    {
+      "arm_id": "2",
+      "compounds": [
+        "carvedilol controlled release"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Hospitalization for Heart Failure",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hospitalization_for_heart_failure"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hospitalization Due to Any Cause",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hospitalization_any_cause"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hospitalization or Death",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "hospitalization_or_death"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Study Entry (10mg Coreg CR, 3.125mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "10mg_CR_3.125mg_IR_study_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Maintenance Entry (10mg Coreg CR, 3.125mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "10mg_CR_3.125mg_IR_maintenance_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "End of Study (10mg Coreg CR, 3.125mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "10mg_CR_3.125mg_IR_end_of_study"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Study Entry (20mg Coreg CR, 6.25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "20mg_CR_6.25mg_IR_study_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Maintenance Entry (20mg Coreg CR, 6.25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "20mg_CR_6.25mg_IR_maintenance_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "End of Study (20mg Coreg CR, 6.25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "20mg_CR_6.25mg_IR_end_of_study"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Study Entry (40mg Coreg CR, 12.5mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "40mg_CR_12.5mg_IR_study_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Maintenance Entry (40mg Coreg CR, 12.5mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "40mg_CR_12.5mg_IR_maintenance_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "End of Study (40mg Coreg CR, 12.5mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "40mg_CR_12.5mg_IR_end_of_study"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Study Entry (80mg Coreg CR, 25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "80mg_CR_25mg_IR_study_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Maintenance Entry (80mg Coreg CR, 25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "80mg_CR_25mg_IR_maintenance_entry"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "End of Study (80mg Coreg CR, 25mg Coreg IR)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "dose_level",
+          "level": "80mg_CR_25mg_IR_end_of_study"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "carvedilol immediate release",
+      "subgroup_descriptor": null,
+      "endpoint": "LVESVI change from baseline",
+      "effect_size": -18.36,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "beta-adrenergic receptor blockade",
+      "biology_description": "cardiac remodeling reversal / ventricular function improvement",
+      "population_description": "adults with stable chronic heart failure",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "2",
+      "intervention": "carvedilol controlled release",
+      "subgroup_descriptor": null,
+      "endpoint": "LVESVI change from baseline",
+      "effect_size": -20.81,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "beta-adrenergic receptor blockade",
+      "biology_description": "cardiac remodeling reversal / ventricular function improvement",
+      "population_description": "adults with stable chronic heart failure",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": []
+}

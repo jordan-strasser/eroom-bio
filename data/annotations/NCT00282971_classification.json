@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00282971",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Inhaled insulin clearly engaged the insulin receptor \u2014 HbA1c declined progressively from baseline at weeks 4, 12, and 24 in the inhaled insulin arm (-1.08%, -2.03%, -2.02% respectively), consistently exceeding the SOC arm (-0.62%, -1.37%, -1.44%). This is strong pharmacodynamic evidence of receptor agonism driving glucose uptake and glycemic regulation. 2. PATHWAY MODULATION: The downstream biology (glycemic regulation) clearly moved. HbA1c is a direct readout of glycemic control over ~3 months. The consistent, dose-time-dependent reduction confirms the mechanism (receptor agonism \u2192 glucose uptake \u2192 glycemic control) was engaged. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c % change at week 24 LOCF) was met: -1.94% vs -1.42% for SOC. Additionally, 32% of inhaled insulin patients achieved HbA1c \u22647% vs 12.9% SOC, and 15.2% achieved \u22646.5% vs 5.9% SOC. These are clinically meaningful differences. However, no p-value is reported, and the trial was terminated early due to Pfizer's commercial decision to discontinue Exubera marketing \u2014 not due to efficacy failure. The outcome is classified as 'partial' because the trial was terminated before full completion, though the efficacy signal was positive. 4. POPULATION EFFECTS: The subgroup data (HbA1c \u22647% and \u22646.5% thresholds) consistently favor inhaled insulin across all timepoints, suggesting broad benefit in the T2DM population on oral therapy. No differential subgroup response was identified. 5. CONFOUNDERS: The trial was terminated for commercial/strategic reasons (Pfizer withdrew Exubera from the market). There is a notable FEV1 decline in the inhaled insulin arm (-0.27 L vs -0.08 L), which was a known pulmonary safety concern with Exubera and contributed to its commercial failure, though it did not meet DLT criteria in this trial (no dose reductions mandated, no safety termination). The SAE profile is sparse and balanced. The absence of a p-value limits statistical interpretation, but the effect size and directional consistency across timepoints support a genuine efficacy signal.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Trial explicitly terminated due to discontinuation of marketing of Exubera by Pfizer \u2014 a commercial/strategic decision, not a scientific or safety failure. The primary endpoint was met and efficacy signal was consistent across timepoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "inhaled_human_insulin",
+      "target_entity": "ENSG00000254647",
+      "support": "strong_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "Progressive HbA1c reduction consistent with insulin receptor agonism confirms target engagement. The mechanism requires insulin receptor binding to drive glucose uptake; the observed PD signal (HbA1c -1.94% vs -1.42% SOC) is mechanistically dependent on this binding."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000254647",
+      "target_entity": "GO:0090277",
+      "support": "moderate_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "Insulin receptor engagement demonstrably modulated downstream glycemic biology (HbA1c reduction), consistent with the receptor agonism mechanism. However, the canonical mechanism listed (positive regulation of peptide hormone secretion) is an indirect mapping for exogenous insulin's primary action; moderate rather than strong support reflects this mechanistic annotation uncertainty."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0090277",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "The mechanism drove glycemic control biology as evidenced by consistent HbA1c reductions across all timepoints. Moderate rather than strong support because no p-value is reported and the trial was terminated early for commercial reasons."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "inhaled_insulin",
+      "reasoning": "Glycemic control biology (HbA1c reduction) translated to clinically meaningful improvement in T2DM management. 32% vs 12.9% achieved HbA1c \u22647% target. Moderate rather than strong because no p-value is available and the trial was terminated early."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin_hba1c_week_24",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at week 24 is a well-validated, regulator-accepted surrogate endpoint for glycemic control in T2DM. The endpoint was hit and directional clinical benefit is supported by the proportion achieving target HbA1c thresholds. Moderate rather than strong because no p-value is reported."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "T2DM patients on pre-existing oral diabetes therapy (second-line setting) showed consistent HbA1c improvement with inhaled insulin vs SOC across all timepoints and threshold analyses, supporting that this population responds to insulin receptor agonism. Moderate support due to absence of p-value and early commercial termination."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated for commercial reasons (Pfizer withdrew Exubera from market) before full completion, and no p-value is reported for the primary endpoint. The FEV1 decline (-0.27 L vs -0.08 L) represents a pulmonary safety signal that contributed to the commercial withdrawal but does not meet DLT criteria per the structured AE table. Expert review is warranted to assess: (1) whether the efficacy signal would have reached statistical significance with full enrollment, (2) the clinical significance of the FEV1 decline in the context of long-term pulmonary safety, and (3) whether the commercial termination should be weighted differently given the known post-market lung cancer signal that emerged with Exubera."
+}
