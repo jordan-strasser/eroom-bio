@@ -324,8 +324,8 @@ def main() -> None:
     store = GraphStore()
     store.import_snapshot(a.graph)
     nct_index = build_nct_indication_index(store)
-    ncts = [ln.strip() for ln in Path(a.holdout_ncts).read_text().splitlines()
-            if ln.strip() and not ln.lstrip().startswith("#")]
+    ncts = [c for ln in Path(a.holdout_ncts).read_text().splitlines()
+            if (c := ln.split("#", 1)[0].strip())]
     print(f"graph: {a.graph}  |  holdout trials: {len(ncts)}  |  threshold {a.threshold}")
 
     axis1(store)
