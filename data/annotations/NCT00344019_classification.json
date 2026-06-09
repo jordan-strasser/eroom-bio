@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00344019",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement data is available. The trial was terminated early due to slow recruitment with only 97 patients enrolled, and collected biomarker data is no longer available (retention period passed). No PK/PD data on HMG-CoA reductase inhibition or downstream lipid/inflammatory markers was reported. 2. PATHWAY MODULATION: No pathway biomarker data available. The intended pleiotropic cardioprotective and anti-inflammatory effects of atorvastatin could not be assessed. 3. CLINICAL TRANSLATION: The primary endpoint (peri-procedural myonecrosis via troponin T at 18-24h post-PCI) was never analyzed. The trial was terminated before reaching adequate enrollment, and the small amount of data collected was not analyzed and is no longer available. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The dominant failure mode is operational \u2014 the trial was terminated due to slow recruitment (failure to accrue), with only 97 patients enrolled. This is a classic underpowering/recruitment collapse scenario. The 4 SAEs reported in the screening arm appear to be disease-related events in an ACS population rather than drug-related toxicity signals, and per-arm incidence data is unavailable to assess differential toxicity. The mechanism was never given a fair test because the trial collapsed before generating any analyzable efficacy data. This is an operational failure (commercial_not_scientific is not applicable; this is a recruitment/accrual failure). The primary failure mode is underpowered/insufficient_information due to early termination before any primary endpoint readout.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Trial terminated due to slow recruitment; no data was analyzed due to small numbers; collected data no longer available as retention period has passed. Primary endpoint outcome is 'unknown' for both arms. No efficacy readout was generated."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 97 patients enrolled before termination due to slow recruitment. No analysis was performed, indicating the sample size was insufficient to generate any meaningful efficacy signal."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_peri_procedural_myonecrosis",
+      "target_entity": "coronary_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (troponin T at 18-24h post-PCI as a measure of peri-procedural myonecrosis) was never analyzed due to trial termination before adequate enrollment. The endpoint's ability to capture clinical benefit in coronary disease/ACS-PCI cannot be assessed from this trial. Ambiguous is appropriate as no readout was generated."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ck_negative__ckmb_negative__troponin_negative",
+      "target_entity": "coronary_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated before any efficacy readout; no information about population response is available. The enrolled ACS/PCI population's response to atorvastatin 80mg cannot be assessed from this trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

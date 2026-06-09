@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00894322",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Plasma exenatide concentrations were measured by validated ELISA in both cohorts. Cohort 1 (healthy participants, single 10 mg dose) showed AUC(0-8h) of 125.6 pg*h/mL and AUC(0-Week 12) of 147,220.2 pg*h/mL. Cohort 2 (T2DM, 2 mg weekly) showed AUC(0-168h) at steady state of 49,100.2 pg*h/mL. This confirms adequate systemic exposure and target engagement with the GLP-1 receptor agonist. 2. PATHWAY MODULATION: GLP-1 receptor agonism drives glucose-dependent insulin secretion and glycemic regulation. HbA1c decreased by 0.87% in the exenatide arm vs. +0.08% in placebo (p=0.0013), and FPG decreased by 32 mg/dL vs. +8 mg/dL in placebo (p=0.0035). These are direct downstream biomarkers of GLP-1 receptor-mediated glycemic regulation, confirming pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoints (PK parameters and safety/tolerability) were met. Secondary glycemic endpoints (HbA1c, FPG) showed statistically significant and clinically meaningful improvements. 14/23 exenatide vs. 2/12 placebo achieved HbA1c <7% (p=0.0033). Body weight change was not statistically significant (-1.41 kg vs. -0.39 kg, p=0.2285), likely due to the small sample size and short 12-week duration. 4. POPULATION EFFECTS: Nearly all enrolled T2DM patients had baseline HbA1c \u22657%, confirming appropriate population selection. Systolic BP also improved (-8.4 vs. -1.7 mmHg). Antibody development occurred in both cohorts but did not appear to blunt efficacy. 5. CONFOUNDERS: This was a small Phase 1/2 study (N=65) primarily designed for PK/safety assessment. The glycemic endpoints were secondary but showed strong signals. No dose-limiting toxicities occurred; no withdrawals due to AEs. The body weight endpoint missed significance, likely due to underpowering for that endpoint at 12 weeks. Overall, the trial succeeded on its primary PK/safety objectives and demonstrated meaningful glycemic efficacy signals.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Small sample size (N=23 exenatide, N=12 placebo in Cohort 2) and 12-week duration insufficient to detect statistically significant body weight change (-1.41 kg vs. -0.39 kg, p=0.2285). This is a trial-design caveat for the weight endpoint, not a mechanistic failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "exenatide once weekly",
+      "target_entity": "GLP-1 receptor",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Plasma exenatide concentrations confirmed by validated ELISA in both cohorts with well-characterized PK parameters (AUC, Cmax, Tmax), directly demonstrating systemic exposure consistent with GLP-1 receptor engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "GLP-1 receptor",
+      "target_entity": "receptor_agonism",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "GLP-1 receptor agonism by exenatide demonstrably modulated downstream glycemic biology: HbA1c and FPG both improved significantly vs. placebo, confirming the receptor drove its intended mechanism of glucose-dependent insulin secretion and glycemic regulation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "glucose-dependent insulin secretion and glycemic regulation",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c LS mean change -0.87% vs. +0.08% placebo (p=0.0013) and FPG -32 mg/dL vs. +8 mg/dL placebo (p=0.0035) confirm that GLP-1 receptor agonism successfully modulated glycemic biology in T2DM patients."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "glucose-dependent insulin secretion and glycemic regulation",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Significant improvements in HbA1c and FPG confirm that modulating glucose-dependent insulin secretion drives clinically meaningful benefit in type 2 diabetes mellitus."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "HbA1c_type_2_diabetes_mellitus",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c change from baseline was statistically significant (p=0.0013) and clinically meaningful (-0.87% vs. +0.08%), supported by concordant FPG improvement and HbA1c target achievement rates, confirming HbA1c as a valid endpoint for T2DM."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "type_2_diabetes_mellitus__unselected",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "T2DM patients with baseline HbA1c \u22657% showed significant glycemic improvement with exenatide once weekly vs. placebo (p=0.0013 for HbA1c, p=0.0035 for FPG), confirming this population responds to GLP-1 receptor agonism."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,154 @@
+{
+  "nct_id": "NCT00246376",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial does not report direct PK/PD biomarkers of HCAR2 (GPR109A) agonism or PPARA activation. However, the lipid changes (triglyceride reduction, HDL-C increase) are well-established downstream consequences of these mechanisms, providing indirect evidence of target engagement. Adiponectin elevation in niacin arms (11.01 vs 7.12 mcg/mL in usual care) is consistent with GPR109A-mediated effects. No direct binding assay data is reported.\n\n2. PATHWAY MODULATION: Downstream biology clearly moved. Triglycerides fell from 199 mg/dL (usual care) to 135.6 mg/dL in the combo arm. HDL-C rose from 37.1 to 44.8 mg/dL. TC:HDL ratio improved from 5.2 to 4.0. Adiponectin increased in niacin-containing arms. These are consistent with PPAR-alpha activation (fenofibrate) and GPR109A agonism (niacin) driving dyslipidemia correction. The biology moved as predicted.\n\n3. CLINICAL TRANSLATION: The primary endpoints (triglycerides, non-HDL-C, HDL-C, total cholesterol, TC:HDL ratio at 24 weeks) were met in the combination arm. The combo arm achieved the best results across all lipid parameters. Monotherapy arms showed partial improvements. No p-values are reported, which is a limitation, but the effect sizes are clinically meaningful (e.g., ~32% triglyceride reduction in combo vs usual care). The primary endpoint is declared met.\n\n4. POPULATION EFFECTS: The HIV-infected population with lipodystrophy/dyslipidemia responded to the combination. A notable concern is that niacin arms showed higher HOMA-IR (2.76 vs 1.92 in usual care), suggesting possible worsening of insulin resistance \u2014 a known niacin side effect relevant in this metabolic-risk population. Diet/exercise alone improved insulin sensitivity index (4.95 vs 3.54). The combo arm showed lowest insulin sensitivity index (2.38), suggesting the metabolic benefit of lipid lowering may be partially offset by insulin resistance effects of niacin in this population.\n\n5. CONFOUNDERS: No p-values are reported, which limits statistical interpretation. The trial is relatively small (N=221 across 5 arms, ~40-42 per arm). The 24-week duration is appropriate for lipid endpoint assessment. Safety signals (elevated transaminases, creatinine) were distributed across arms including controls, and the structured AE table does not show a clear excess in treatment arms that would indicate dose-limiting toxicity preventing adequate dosing. The combination arm achieved the pre-specified lipid targets, supporting a genuine treatment effect.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.35,
+      "evidence": "No p-values reported for primary endpoints; ~40 patients per arm limits statistical power for definitive conclusions. The trial is declared successful on effect size grounds but formal statistical significance cannot be confirmed from the available data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "er_niacin",
+      "target_entity": "ENSG00000182782",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Niacin monotherapy arm showed directional improvement in triglycerides (177.6 vs 199 mg/dL) and HDL-C (41.8 vs 37.1 mg/dL), and elevated adiponectin (11.01 vs 7.12 mcg/mL), consistent with GPR109A engagement, though partial outcome only."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "er_niacin",
+      "target_entity": "ENSG00000182782",
+      "support": "strong_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm achieved primary endpoint success with triglycerides 135.6 mg/dL and HDL-C 44.8 mg/dL; adiponectin elevated (10.34 mcg/mL vs 7.12 usual care), consistent with GPR109A engagement driving downstream lipid biology."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "fenofibrate",
+      "target_entity": "ENSG00000186951",
+      "support": "moderate_support",
+      "affecting_arm_id": "4",
+      "reasoning": "Fenofibrate monotherapy arm showed directional triglyceride reduction (155.1 vs 199 mg/dL) and HDL-C improvement (40.7 vs 37.1 mg/dL), consistent with PPARA engagement, though partial outcome only."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "fenofibrate",
+      "target_entity": "ENSG00000186951",
+      "support": "strong_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm achieved primary endpoint success; fenofibrate's PPARA-mediated triglyceride lowering contributed to the best lipid profile (TG 135.6, HDL 44.8, TC:HDL 4.0), consistent with PPARA engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000182782",
+      "target_entity": "R-HSA-3296197",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Niacin arm showed downstream lipid changes (TG reduction, HDL increase, adiponectin elevation) consistent with HCAR2 driving hydroxycarboxylic acid receptor signaling, though no direct pathway biomarker measured."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000182782",
+      "target_entity": "R-HSA-3296197",
+      "support": "moderate_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm success with adiponectin elevation and lipid improvements consistent with HCAR2-mediated pathway activation; indirect evidence supports the modulates_via link."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186951",
+      "target_entity": "R-HSA-1989781",
+      "support": "moderate_support",
+      "affecting_arm_id": "4",
+      "reasoning": "Fenofibrate monotherapy showed directional lipid improvements consistent with PPARA activating gene expression for lipoprotein lipase and fatty acid oxidation pathways."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186951",
+      "target_entity": "R-HSA-1989781",
+      "support": "moderate_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm success with best triglyceride lowering consistent with PPARA-mediated gene expression activation contributing to dyslipidemia correction."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-3296197",
+      "target_entity": "bio:34cae77bb76c",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Niacin arm showed partial improvement in dyslipidemia biology (TG 177.6, HDL 41.8, adiponectin elevated), supporting that HCAR2 receptor signaling affects dyslipidemia correction biology, though not to the level of full success."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-3296197",
+      "target_entity": "bio:34cae77bb76c",
+      "support": "strong_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm achieved primary endpoint success with best lipid profile; HCAR2 receptor signaling mechanism demonstrably affected dyslipidemia correction biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:34cae77bb76c",
+      "support": "moderate_support",
+      "affecting_arm_id": "4",
+      "reasoning": "Fenofibrate monotherapy showed partial dyslipidemia correction (TG 155.1, HDL 40.7), supporting PPARA gene expression activation affecting dyslipidemia biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:34cae77bb76c",
+      "support": "strong_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm success with best lipid outcomes supports PPARA-mediated gene expression strongly affecting dyslipidemia correction biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:34cae77bb76c",
+      "target_entity": "cardiovascular_diseases",
+      "support": "moderate_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Combo arm achieved clinically meaningful dyslipidemia correction (TG 135.6, HDL 44.8, TC:HDL 4.0) in HIV-infected patients with dyslipidemia, supporting that correcting this biology is relevant to cardiovascular disease risk in this population. No hard CV outcomes measured at 24 weeks, limiting to moderate support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:34cae77bb76c",
+      "target_entity": "cardiovascular_diseases",
+      "support": "weak_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Niacin monotherapy showed partial dyslipidemia correction; directional support for biology driving cardiovascular disease relevance but incomplete endpoint achievement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:34cae77bb76c",
+      "target_entity": "cardiovascular_diseases",
+      "support": "weak_support",
+      "affecting_arm_id": "4",
+      "reasoning": "Fenofibrate monotherapy showed partial dyslipidemia correction; directional support for biology driving cardiovascular disease relevance but incomplete endpoint achievement."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_triglycerides",
+      "target_entity": "cardiovascular_diseases",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Triglycerides as a primary endpoint captured the dyslipidemia biology relevant to cardiovascular disease in HIV-infected patients; the endpoint was hit in the combo arm with clinically meaningful effect sizes. No p-values reported limits to moderate support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cd4count_high__triglycerides_high__viralload_low",
+      "target_entity": "cardiovascular_diseases",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HIV-infected patients with high triglycerides and low viral load responded to combination niacin+fenofibrate+diet/exercise with clinically meaningful lipid improvements. No p-values reported limits to moderate support, but effect sizes are clinically meaningful."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values are reported for any primary endpoint comparison, making formal statistical significance assessment impossible. The trial is declared successful based on effect sizes alone. Additionally, niacin's worsening of HOMA-IR (2.76 vs 1.92 in usual care) in HIV-infected patients with lipodystrophy raises a clinically important concern about metabolic trade-offs in this population that may affect the benefit-risk assessment. Expert review is warranted to assess whether the lipid improvements translate to cardiovascular benefit given the concurrent insulin resistance worsening."
+}

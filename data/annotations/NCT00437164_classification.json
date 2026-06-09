@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00437164",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial was terminated by a company decision unrelated to safety, with a sample size of 1 participant. There is no evidence that GW677954 engaged PPAR-gamma or that insulin engaged its receptor in a measurable way within this trial context. 2. PATHWAY MODULATION: No downstream pathway biomarkers were reported. With only 1 participant enrolled and no results, pathway modulation cannot be assessed. 3. CLINICAL TRANSLATION: The primary endpoint (changes in hematocrit, hemoglobin, and body weight at 24 weeks) was not met \u2014 no effect size or p-value was reported. The trial produced no usable efficacy readout. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The investigator commentary explicitly states 'Company decision not related to safety,' indicating this was a commercial/strategic termination. The sample size of 1 is far below any meaningful enrollment target, confirming the trial was terminated before any scientific readout could be obtained. This is a clear operational failure \u2014 the mechanism was never given a fair test. The primary failure mode is commercial_not_scientific, with the trial terminated before any efficacy or safety data could be generated.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.9,
+      "evidence": "Investigator commentary explicitly states 'Company decision not related to safety.' Only 1 participant was enrolled, and no primary endpoint data (effect size, p-value) was reported, confirming the trial was stopped for strategic/commercial reasons before any scientific readout."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Sample size of 1, no efficacy results reported (effect size = null, p-value = null), no biomarker data, no adverse event data. The trial produced no usable efficacy or mechanistic readout whatsoever."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_fluid_related_parameters_hematocrit_hemoglobin",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (hematocrit, hemoglobin, body weight) was selected to capture fluid-related safety parameters relevant to PPAR-gamma agonism in type 2 diabetes. However, the trial was terminated before any data was collected (n=1, no results), so the endpoint's ability to capture clinical benefit in this indication cannot be assessed. Ambiguous is appropriate given zero informative data."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No population-level response data was generated. The trial enrolled only 1 participant and was terminated by company decision before any endpoint was measured. Population response cannot be assessed; ambiguous is the only defensible bucket."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated by company decision with only 1 participant enrolled and zero efficacy or safety data reported. The mechanism was never tested. The resolved graph entities include several UNKNOWN ids (target, population) which prevent meaningful causal-chain edge updates. Expert review is needed to confirm whether GW677954 (oral_anti_diabetics canonical id) has curated binding/target engagement data elsewhere that should inform the PPAR-gamma affects edge, and to clarify the canonical compound id mapping for GW677954 vs oral_anti_diabetics."
+}

@@ -1,0 +1,127 @@
+{
+  "nct_id": "NCT00621855",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. D-dimer (a marker of thrombin activity and fibrinolysis) was significantly reduced across all dabigatran doses vs placebo at both week 1 (ratio 0.52\u20130.58 vs 0.87) and week 4 (ratio 0.29\u20130.33 vs 0.57), with p<0.001. There was also a dose-dependent increase in the proportion of patients with any D-dimer reduction (p<0.001). This confirms dabigatran etexilate engaged thrombin (Factor IIa) and modulated downstream coagulation biology. 2. PATHWAY MODULATION: The downstream biology (anticoagulation / thrombus formation inhibition) clearly moved \u2014 D-dimer reduction is a direct pharmacodynamic marker of reduced thrombin activity and fibrin generation. The dose-dependent D-dimer reduction confirms the mechanism (direct thrombin inhibition) was operating as predicted. 3. CLINICAL TRANSLATION: The primary endpoint \u2014 composite of major and clinically relevant minor bleeding \u2014 was met (p=0.001), but this is a SAFETY endpoint, not an efficacy endpoint. The trial was designed to characterize the bleeding risk of dabigatran on top of dual antiplatelet therapy in ACS patients. The bleeding rates were dose-dependently higher in dabigatran arms vs placebo (13, 16, 32, 27 vs 8 events). The ischemic efficacy endpoints (CVD/non-fatal MI/non-haemorrhagic stroke composite) showed no clear benefit signal \u2014 event counts were similar across arms (12\u201318 dabigatran vs 14 placebo). This is a dose-finding/safety characterization trial (Phase 2), not a definitive efficacy trial. The 'success' of the primary endpoint means the trial successfully characterized bleeding risk, not that dabigatran reduced ischemic events. 4. POPULATION EFFECTS: No biomarker-defined subgroup showed differential ischemic benefit. The all-cause death numerically favored dabigatran (7\u201310 vs 14 placebo) but this is exploratory. The ischemic composite was essentially flat across all doses. 5. CONFOUNDERS: This is a dose-ranging Phase 2 safety trial \u2014 the primary endpoint was a safety/tolerability measure (bleeding), not an ischemic efficacy endpoint. The trial was designed to find a dose with acceptable bleeding risk for further study. The outcome is 'partial' because: the safety characterization objective was met (bleeding risk quantified, dose-dependent), target engagement was confirmed, but no ischemic efficacy signal was demonstrated. The trial outcome is partial because it achieved its dose-finding/safety objective but did not demonstrate ischemic benefit, which was the ultimate therapeutic goal.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "D-dimer was robustly reduced (confirming anticoagulation biology moved), but the ischemic composite endpoints (CVD/non-fatal MI/non-haemorrhagic stroke) showed no benefit signal across any dose (12\u201318 dabigatran vs 14 placebo). The biology of thrombin inhibition was engaged but did not translate to ischemic event reduction in this ACS population on dual antiplatelet therapy."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "ACS patients already on dual antiplatelet therapy may have sufficient platelet inhibition such that additional thrombin inhibition provides marginal ischemic benefit while substantially increasing bleeding risk. The background DAPT may have already addressed the dominant thrombotic mechanism in this population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dabigatran_etexilate",
+      "target_entity": "ENSG00000180210",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_50mg",
+      "reasoning": "D-dimer reduction at week 1 and week 4 (ratio 0.52\u20130.58 vs 0.87 placebo at week 1; 0.33 vs 0.57 at week 4) with p<0.001 confirms dabigatran etexilate engaged thrombin (F2) and modulated downstream coagulation. Target engagement is directly demonstrated."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabigatran_etexilate",
+      "target_entity": "ENSG00000180210",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_75mg",
+      "reasoning": "D-dimer geometric mean ratio week 4/baseline 0.31 vs 0.57 placebo (p<0.001) confirms target engagement at 75mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabigatran_etexilate",
+      "target_entity": "ENSG00000180210",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_110mg",
+      "reasoning": "D-dimer geometric mean ratio week 4/baseline 0.29 vs 0.57 placebo (p<0.001) confirms target engagement at 110mg dose \u2014 strongest D-dimer reduction observed."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabigatran_etexilate",
+      "target_entity": "ENSG00000180210",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_150mg",
+      "reasoning": "D-dimer geometric mean ratio week 4/baseline 0.31 vs 0.57 placebo (p<0.001) confirms target engagement at 150mg dose."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000180210",
+      "target_entity": "R-HSA-9672391",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_50mg",
+      "reasoning": "D-dimer reduction is a direct downstream marker of thrombin inhibition reducing fibrin generation. The significant dose-dependent D-dimer reduction confirms that engaging thrombin (F2) modulated the coagulation/thrombus formation mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000180210",
+      "target_entity": "R-HSA-9672391",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_75mg",
+      "reasoning": "D-dimer reduction at 75mg confirms thrombin engagement modulated the downstream coagulation mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000180210",
+      "target_entity": "R-HSA-9672391",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_110mg",
+      "reasoning": "D-dimer reduction at 110mg (strongest signal, ratio 0.29) confirms thrombin engagement modulated the downstream coagulation mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000180210",
+      "target_entity": "R-HSA-9672391",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_150mg",
+      "reasoning": "D-dimer reduction at 150mg confirms thrombin engagement modulated the downstream coagulation mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9672391",
+      "target_entity": "bio:36e3fd60b9df",
+      "support": "strong_support",
+      "affecting_arm_id": "dabigatran_etexilate_110mg",
+      "reasoning": "D-dimer reduction confirms the thrombin inhibition mechanism successfully modulated anticoagulation biology across all doses. The mechanism-to-biology link is validated by the pharmacodynamic data."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:36e3fd60b9df",
+      "target_entity": "coronary_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dabigatran_etexilate_110mg",
+      "reasoning": "Despite robust anticoagulation biology (D-dimer reduction), ischemic composite endpoints (CVD/non-fatal MI/non-haemorrhagic stroke: 12 events at 110mg vs 14 placebo) showed no meaningful benefit. The anticoagulation biology did not translate to ischemic event reduction in ACS patients on background DAPT, suggesting this biology does not strongly drive the residual ischemic risk in this population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:36e3fd60b9df",
+      "target_entity": "coronary_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dabigatran_etexilate_150mg",
+      "reasoning": "At the highest dose (150mg), ischemic composite events (12 vs 14 placebo) showed no meaningful reduction despite confirmed anticoagulation biology, further supporting that this biology does not drive ischemic outcomes in this population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_displaying_composite_major",
+      "target_entity": "coronary_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/bleeding composite, not an ischemic efficacy endpoint. It successfully captured the bleeding risk of dabigatran (dose-dependent increase, p=0.001) but does not capture the ischemic benefit that would constitute clinical benefit in coronary disease. The endpoint is appropriate for dose-finding/safety characterization but ambiguous as a measure of clinical benefit in coronary disease."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "coronary_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "ACS patients on background dual antiplatelet therapy did not show ischemic benefit from dabigatran addition across any dose tested. The ischemic composite event counts were essentially flat vs placebo (12\u201318 vs 14), suggesting this population does not respond differently (better) with added thrombin inhibition on top of DAPT."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial's primary endpoint was a safety/bleeding composite rather than an ischemic efficacy endpoint, making the 'success' classification of the primary endpoint mechanistically ambiguous \u2014 it confirms on-target pharmacology (bleeding is expected with anticoagulation) but not therapeutic benefit. The ischemic composite data is reported as event counts without p-values or formal statistical testing, making it impossible to formally assess whether the ischemic endpoint was powered or pre-specified. The trial appears to be a Phase 2 dose-ranging safety study (RE-DEEM), and the partial outcome classification reflects that the safety characterization objective was met but ischemic efficacy was not demonstrated. Expert review is needed to confirm whether the ischemic endpoints were pre-specified secondary endpoints with adequate power, and to assess whether the biology_drives contradict signal is appropriate given the exploratory nature of the ischemic data."
+}

@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00862940",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker (e.g., NMDA receptor occupancy) was measured. Memantine 10 mg BID is a well-established dose used in approved AD indications, so adequate exposure is assumed, but the trial provides no PD confirmation of NMDA receptor modulation. Per Round-28 rules, no 'affects' record is emitted since target engagement was not directly measured or implied by a downstream PD readout.\n\n2. PATHWAY MODULATION: The intended downstream biology is neuroprotection/reduction of excitotoxic neuronal loss, which should manifest as reduced brain atrophy. The primary endpoint (BBSI) showed essentially zero effect (adjusted mean difference -0.04 mL/year, p=0.9754). Hippocampal volume change was also virtually identical between arms (-218 vs -220 mm\u00b3/year, p=0.842). These structural imaging biomarkers are the most direct available proxies for neuroprotection in this trial, and they showed no signal. This suggests the intended biology (neuroprotection via NMDA antagonism) was not meaningfully engaged or did not translate to reduced neurodegeneration.\n\n3. CLINICAL TRANSLATION: The primary endpoint (BBSI) was clearly missed (p=0.9754, effect size near zero). MMSE also failed (p=0.602). The only positive signal was COWAT (verbal fluency, p=0.034, effect size 1.68), which is a secondary cognitive endpoint. This isolated positive finding on a single secondary endpoint, without any structural or primary endpoint benefit, is likely a chance finding given multiple comparisons and does not constitute evidence of clinical translation.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population was patients with Alzheimer's disease (moderate severity). There is no evidence that any subgroup responded differently.\n\n5. CONFOUNDERS: The trial was adequately powered (n=277, 52 weeks), used an established dose, and had a placebo comparator. The SAE profile was balanced. Atrial fibrillation appeared in 3/133 memantine patients vs 0/144 placebo, but this did not require dose reductions or trial termination and does not meet DLT criteria. The failure appears to be a genuine mechanistic failure: NMDA receptor antagonism at this dose and duration did not reduce brain atrophy in this AD population. The failure mode is best characterized as 'biology_moved_endpoint_flat' is not applicable here since the biology (atrophy) did NOT move. Rather, the target was presumably engaged (approved dose) but the downstream biology (neuroprotection/atrophy reduction) did not change \u2014 consistent with 'target_engaged_biology_not_moved' or more broadly the chain failing at the biology_drives step. Given no direct target engagement confirmation, the most parsimonious classification is that the mechanism (NMDA antagonism \u2192 neuroprotection) did not translate to the intended biology in this population, making this a 'biology_moved_endpoint_flat' failure at the mechanism_affects level, or more precisely a failure where the mechanism did not drive the expected biology. The COWAT signal is intriguing but isolated and does not rescue the trial.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.62,
+      "evidence": "Memantine 10 mg BID is an approved dose with established PK; target engagement is assumed. However, both primary (BBSI, p=0.9754, effect -0.04 mL/year) and secondary structural (HCV, p=0.842, -3.5 mm\u00b3/year) endpoints showed no difference from placebo, indicating the intended neuroprotective biology was not engaged. MMSE also failed (p=0.602). Only COWAT showed a positive signal (p=0.034), which is likely a chance finding."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "Memantine is approved for moderate-to-severe AD for symptomatic benefit; its neuroprotective hypothesis (reducing excitotoxic atrophy) may not be operative in this population or at this disease stage. The enrolled population (moderate severity) may not be the right target for a neuroprotection/atrophy-reduction endpoint."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-438066",
+      "target_entity": "bio:589962ccedba",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "memantine",
+      "reasoning": "Both structural biomarkers (BBSI and HCV) showed no meaningful difference from placebo despite an assumed-adequate dose, indicating that NMDA receptor unblocking/antagonism did not translate to reduced excitotoxic neuronal loss (neuroprotection) in this AD population. This is a direct test of the mechanism_affects edge and it failed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:589962ccedba",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "memantine",
+      "reasoning": "The neuroprotection/excitotoxic loss biology did not translate to clinical benefit (MMSE flat, BBSI flat), providing weak contradict evidence that this biology drives the AD indication in a way that is modifiable by this intervention at this timeframe."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_brain_atrophy_rate_estimated_brain_boundary",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "BBSI is a plausible structural biomarker for neuroprotection in AD, but the trial failed to show any signal. It is unclear whether the endpoint failed because the drug didn't work or because BBSI is not sensitive enough to capture neuroprotective benefit over 52 weeks in this population. The endpoint's validity as a surrogate for AD benefit remains uncertain from this trial alone."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_moderate",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The moderate-severity AD population showed no response to memantine on the primary atrophy endpoint (p=0.9754) or MMSE (p=0.602), with adequate sample size (n=277). This provides moderate contradict evidence that this population responds to memantine's neuroprotective mechanism on structural endpoints."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The isolated COWAT success (p=0.034) amid otherwise flat endpoints raises the question of whether memantine has a selective effect on verbal fluency/executive function independent of neuroprotection, or whether this is a multiple-comparisons artifact. Additionally, the absence of direct NMDA receptor engagement biomarkers makes it impossible to definitively distinguish 'target_engaged_biology_not_moved' from 'no_target_engagement' \u2014 though the approved dose makes the latter unlikely. Expert review should assess whether 52 weeks is sufficient to detect atrophy differences with BBSI in moderate AD, and whether the COWAT finding warrants follow-up."
+}

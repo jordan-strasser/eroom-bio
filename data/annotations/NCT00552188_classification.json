@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00552188",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker for 5-LO inhibition (e.g., leukotriene B4 or urinary LTE4 levels) was reported. The trial did not measure whether VIA-2291 actually inhibited 5-LO activity in vivo. Without PD/PK data confirming target engagement, we cannot determine if the drug reached and modulated ALOX5. 2. PATHWAY MODULATION: The intended downstream biology was vascular inflammation reduction, measured indirectly via FDG-PET TBR. No direct pathway biomarkers (e.g., leukotrienes, inflammatory cytokines) were reported. The FDG-PET TBR is a downstream imaging surrogate, not a direct pathway readout. 3. CLINICAL TRANSLATION: The primary endpoint (change in TBR at 24 weeks) was not met: VIA-2291 showed -0.01 change vs. placebo -0.06 (p=0.34). Notably, the placebo arm showed a numerically larger reduction in TBR than the treatment arm at both 6 and 24 weeks, suggesting either a high placebo/regression-to-mean effect or that VIA-2291 had no effect on vascular inflammation as measured by FDG-PET. The effect size is essentially zero and directionally unfavorable. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population (n=52, ACS patients) is small. 5. CONFOUNDERS: The trial is small (n=52), which limits power. The placebo arm showed a larger TBR reduction than the treatment arm, which is counterintuitive and may reflect regression to the mean or natural disease fluctuation in ACS patients post-event. No target engagement data was collected, so we cannot determine if the failure was due to insufficient 5-LO inhibition, or if 5-LO inhibition simply does not reduce vascular inflammation as measured by FDG-PET in this population. The most parsimonious interpretation given the data is that either the drug did not engage its target sufficiently, or the target engagement did not translate to measurable vascular inflammation reduction. Given the absence of PD biomarkers, the failure mode is most likely a combination of possible no/insufficient target engagement and biology not moving, with underpowering as a contributing factor.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.45,
+      "evidence": "No 5-LO inhibition biomarkers (e.g., urinary LTE4, LTB4) were reported. Without PD evidence of target engagement, we cannot confirm VIA-2291 inhibited ALOX5 in vivo at the dose used."
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.35,
+      "evidence": "Even if 5-LO was inhibited, FDG-PET TBR did not decrease in the treatment arm (VIA-2291 -0.01 vs placebo -0.06), suggesting vascular inflammation was not reduced. The placebo arm showed numerically greater TBR reduction."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "Sample size of 52 patients is small for a biomarker imaging endpoint with high variability. Wide confidence intervals (e.g., -0.08 to 0.06 for VIA-2291 at 24 weeks) indicate insufficient power to detect a clinically meaningful difference."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-2142688",
+      "target_entity": "bio:53353e906a76",
+      "support": "weak_contradict",
+      "affecting_arm_id": "via_2291",
+      "reasoning": "The treatment arm showed no reduction in vascular inflammation (FDG-PET TBR -0.01) compared to placebo (-0.06), suggesting that modulation of the 5-eicosatetraenoic acid synthesis pathway did not translate to measurable vascular inflammation reduction. However, without confirmed target engagement, this is a weak signal."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:53353e906a76",
+      "target_entity": "acute_coronary_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "via_2291",
+      "reasoning": "The failure to reduce vascular inflammation (as measured by FDG-PET TBR) in ACS patients provides weak contradict evidence that this biology drives ACS in a way that is modifiable by 5-LO inhibition. However, the absence of target engagement data limits the strength of this inference."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_plaque_imaging_after_24_weeks",
+      "target_entity": "acute_coronary_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "FDG-PET TBR is a plausible surrogate for vascular inflammation in ACS, but the placebo arm showed numerically greater TBR reduction than the treatment arm, raising questions about whether this endpoint reliably captures treatment-related changes in this population. The endpoint's validity as a surrogate for clinical ACS outcomes is not established in this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_low__tbr_high",
+      "target_entity": "acute_coronary_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (ACS patients with vascular inflammation, including TBR-high patients) did not respond to VIA-2291 treatment as measured by FDG-PET TBR change (p=0.34, no meaningful effect size). This provides weak contradict evidence that this population responds to 5-LO inhibition in ACS."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The absence of any 5-LO target engagement biomarkers (e.g., urinary LTE4, LTB4, or cysteinyl leukotrienes) makes it impossible to determine whether the failure was due to insufficient target engagement or a failure of the downstream biology. Expert review is needed to assess whether the dose (100 mg QD) was pharmacologically adequate for 5-LO inhibition in this population, and whether FDG-PET TBR is a validated surrogate endpoint for ACS outcomes in the context of 5-LO inhibition. The counterintuitive finding that placebo showed greater TBR reduction than treatment also warrants expert interpretation."
+}

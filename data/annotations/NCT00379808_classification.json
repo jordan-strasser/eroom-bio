@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00379808",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker (e.g., leukotriene levels, receptor occupancy) was measured. The standard clinical dose of 10 mg montelukast is the approved dose for asthma/allergic rhinitis, so pharmacological engagement of CysLT1 is assumed based on prior PK/PD data, but not directly demonstrated in this trial. 2. PATHWAY MODULATION: There is partial evidence of downstream biology moving. IL-1ra increased significantly (p=0.03), suggesting some anti-inflammatory activity. ENA-78 trended downward (p=0.09). However, MCP-1, HDL-cholesterol, and triglycerides showed no significant changes. The picture is mixed \u2014 some downstream inflammatory markers moved, but the primary inflammatory marker (hs-CRP) did not. 3. CLINICAL TRANSLATION: The primary endpoint (hs-CRP at 1 month) completely failed \u2014 median difference was 0 mg/dl (p=0.22). Despite some partial biomarker signals (IL-1ra), the primary clinical biomarker of cardiovascular inflammation did not respond. This suggests the leukotriene pathway modulation, even if partially engaged, does not translate to meaningful hs-CRP reduction in this population. 4. POPULATION EFFECTS: No subgroup analyses were reported. The sample size was very small (N=22), which severely limits power. 5. CONFOUNDERS: The trial is critically underpowered (N=22 for a crossover or parallel design). One month may be insufficient to see hs-CRP changes in a cardiovascular risk population. The population (patients at risk for CHD) may not be the right population for leukotriene-mediated inflammation to drive hs-CRP. The mixed biomarker signals (IL-1ra moved, hs-CRP did not) suggest either the biology partially moved but hs-CRP is not the right endpoint for this mechanism, or the effect is too small to detect with N=22. Multiple factors contribute: underpowering, possible wrong endpoint for this mechanism, and possible wrong population.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Sample size of only 22 patients is critically small for detecting hs-CRP changes in a cardiovascular risk population. The p-value of 0.22 with zero median difference suggests the trial lacked statistical power to detect even a modest effect, and the IL-1ra signal (p=0.03) may reflect a real but small biological effect that a larger trial could have detected on hs-CRP as well."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "IL-1ra increased significantly (p=0.03) and ENA-78 trended downward (p=0.09), indicating some anti-inflammatory biology was engaged. However, hs-CRP \u2014 the primary endpoint \u2014 showed no change (median difference 0, p=0.22). This pattern is consistent with partial pathway modulation that did not translate to the primary inflammatory biomarker endpoint."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "Patients at risk for coronary heart disease may not have elevated leukotriene-driven inflammation as a primary driver of their hs-CRP levels. The leukotriene pathway may be more relevant in allergic/asthmatic inflammation than in cardiovascular risk-associated inflammation, making this population suboptimal for detecting CysLT1 antagonism effects on hs-CRP."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-391906",
+      "target_entity": "bio:3ed013214a71",
+      "support": "weak_contradict",
+      "affecting_arm_id": "montelukast_10_mg",
+      "reasoning": "The primary endpoint (hs-CRP) failed completely with zero effect. While IL-1ra showed a partial signal, the overall leukotriene receptor mechanism did not meaningfully modulate the intended inflammatory biology in this cardiovascular risk population. The mixed signals warrant only weak contradict rather than moderate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3ed013214a71",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "montelukast_10_mg",
+      "reasoning": "The leukotriene-mediated inflammatory pathway inhibition did not translate to improvement in the primary cardiovascular biomarker (hs-CRP), providing weak evidence against this biology driving coronary heart disease risk in this population. The small sample size and partial biomarker signals prevent stronger contradict."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_high_sensitivity_c_reactive_protein",
+      "target_entity": "coronary_heart_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "hs-CRP is a well-validated biomarker for cardiovascular risk and is generally accepted as a surrogate endpoint for coronary heart disease risk. However, in this trial, the endpoint was measured but the drug failed to move it, and some upstream inflammatory markers (IL-1ra) did move. It is unclear whether hs-CRP failed to capture the biology that was engaged, or whether the biology simply didn't translate. The ambiguity between endpoint validity and drug failure prevents a clear directional signal."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bloodpressure_high__hdl_low",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (patients at risk for CHD, characterized by high blood pressure and low HDL) did not respond to montelukast on the primary endpoint (hs-CRP, p=0.22). This population did not demonstrate benefit from CysLT1 antagonism, providing weak evidence against this population responding to this mechanism for coronary heart disease."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial is critically underpowered (N=22), making it difficult to distinguish a true null effect from a type II error. The mixed biomarker signals (IL-1ra significantly increased, ENA-78 trended down, but hs-CRP flat) create ambiguity about whether the biology partially moved but the endpoint is insensitive, or whether the mechanism genuinely doesn't work in this population. Expert review is needed to assess whether the IL-1ra signal represents meaningful pathway engagement and whether a larger trial would be warranted. Additionally, no direct target engagement data (e.g., urinary leukotriene levels) was reported, making it impossible to confirm CysLT1 engagement at this dose in this population."
+}

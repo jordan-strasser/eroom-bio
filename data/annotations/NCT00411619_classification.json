@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00411619",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Trough serum levels were targeted at 5-15 ng/ml as a PK/PD surrogate for mTOR inhibition. Dose titration was used to achieve this therapeutic window, providing evidence that the drug reached its intended target (mTORC1 via FKBP1A binding). This constitutes adequate target engagement evidence.\n\n2. PATHWAY MODULATION: The downstream biology clearly moved. 14/28 patients (50%) achieved >30% SEGA tumor volume reduction and 12/28 (42.9%) achieved >50% reduction relative to baseline. SEGA tumor volume reduction is a direct readout of mTOR pathway suppression and tumor growth inhibition in TSC, where TSC1/TSC2 mutations lead to constitutive mTORC1 activation. These tumor volume reductions confirm that mTOR pathway suppression translated to biological activity.\n\n3. CLINICAL TRANSLATION: The primary endpoint was a safety/tolerability endpoint (number of participants with observed adverse side effects), which was met (14 patients = 50% of 28 had the primary safety readout). However, the more clinically meaningful efficacy endpoints \u2014 SEGA tumor volume reduction >30% (50% of patients) and >50% (42.9% of patients) \u2014 were both met as secondary/exploratory endpoints. This is a Phase 2 single-arm study in a rare pediatric disease (TSC-SEGA) where historical data suggests spontaneous regression is rare, making these response rates clinically meaningful.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population was specifically selected (TSC with SEGA), which is the biologically appropriate population given the TSC1/TSC2-mTORC1 mechanistic link.\n\n5. CONFOUNDERS: This is a single-arm study (n=28) without a control arm, so placebo response cannot be formally assessed. However, SEGA in TSC is a progressive condition with rare spontaneous regression, making the 50% response rate at >30% volume reduction clinically meaningful. The safety profile shows high rates of AEs (stomatitis 89.3%, URTI 92.9%) but these are consistent with known mTOR inhibitor class effects and did not prevent adequate dosing \u2014 dose titration was used to maintain therapeutic levels. No grade information is provided in the structured AE table, limiting formal DLT assessment, but the trial completed its 26-week course with 28 patients, suggesting tolerability was manageable. The trial outcome is classified as success based on the strong efficacy signal in a biologically-selected population with a well-validated mechanism.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "Single-arm study with n=28 and no control arm; no p-values reported for efficacy endpoints. While the response rates are compelling, the small sample and absence of a comparator limit formal statistical inference. This is a design caveat rather than a failure mode."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "everolimus",
+      "target_entity": "ENSG00000088832",
+      "support": "strong_support",
+      "affecting_arm_id": "everolimus",
+      "reasoning": "Trough serum levels were monitored and titrated to 5-15 ng/ml as a PK/PD surrogate for mTOR inhibition via FKBP1A binding. This constitutes direct PK evidence of target engagement, and the downstream tumor volume reductions confirm the mechanistic cascade was activated."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000088832",
+      "target_entity": "R-HSA-166208",
+      "support": "strong_support",
+      "affecting_arm_id": "everolimus",
+      "reasoning": "SEGA tumor volume reductions of 50% (>30% threshold) and 42.9% (>50% threshold) of patients confirm that mTORC1-mediated signalling was suppressed. In TSC, constitutive mTORC1 activation drives SEGA growth; tumor shrinkage is a direct readout of mTORC1 pathway inhibition via FKBP1A-everolimus complex."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-166208",
+      "target_entity": "bio:454c78aae6d6",
+      "support": "strong_support",
+      "affecting_arm_id": "everolimus",
+      "reasoning": "mTORC1-mediated signalling inhibition translated directly to tumor growth inhibition: 50% of patients had >30% SEGA volume reduction and 42.9% had >50% reduction, confirming the mechanism drove the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:454c78aae6d6",
+      "target_entity": "tuberous_sclerosis",
+      "support": "strong_support",
+      "affecting_arm_id": "everolimus",
+      "reasoning": "mTOR pathway suppression and tumor growth inhibition directly addresses the pathophysiology of TSC-associated SEGA, where TSC1/TSC2 loss leads to constitutive mTORC1 activation. The substantial tumor volume reductions confirm this biology drives the disease manifestation."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_observed_adverse_side_effects",
+      "target_entity": "tuberous_sclerosis",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/tolerability measure (number of participants with observed adverse side effects), which is appropriate for a Phase 2 dose-finding study but does not directly capture clinical benefit in tuberous sclerosis. The efficacy signal came from secondary tumor volume endpoints. The safety endpoint was met but is a weak surrogate for clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "tuberous_sclerosis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The TSC-SEGA population showed meaningful response to everolimus (50% of patients with >30% tumor volume reduction) in a single-arm study. No subgroup analyses were reported. Moderate support rather than strong because there is no control arm and no p-values, though the response rates in this biologically-selected population are clinically meaningful given the progressive natural history of SEGA."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm design with no control arm and no p-values for efficacy endpoints limits formal causal inference. The primary endpoint was safety rather than efficacy, with tumor volume reduction as secondary/exploratory. No grade information provided in the structured AE table, preventing formal DLT assessment despite high AE rates (stomatitis 89.3%, URTI 92.9%). Expert review recommended to confirm whether the tumor volume response rates exceed historical benchmarks for untreated TSC-SEGA and to assess whether the safety profile at therapeutic doses represents a clinically acceptable risk-benefit profile."
+}

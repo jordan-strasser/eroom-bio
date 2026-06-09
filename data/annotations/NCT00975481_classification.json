@@ -1,0 +1,82 @@
+{
+  "nct_id": "NCT00975481",
+  "trial_outcome": "success",
+  "reasoning": "This is an abuse potential assessment trial, not a therapeutic efficacy trial. The study's purpose was to demonstrate that dimebon does NOT have abuse potential (i.e., it should NOT produce drug liking above placebo). The primary endpoint was met in the sense that the study successfully demonstrated dimebon's lack of abuse potential: all three dimebon doses (20, 40, 60 mg) produced Drug Liking VAS Emax scores (57.2, 55.8, 58.5 mm) statistically indistinguishable from placebo (57.8 mm), with p-values of 0.84, 0.50, and 0.74 respectively. The positive control (alprazolam) worked as expected, validating the assay sensitivity (78.6 and 82.2 mm, both p<0.0001). Drug Similarity VAS confirmed dimebon was rated most similar to placebo (55.7\u201361.4 mm) rather than benzodiazepines (33.0\u201353.0 mm). Step 1 (Target Engagement): No PD/PK biomarker data available; the trial was not designed to assess NMDA/mitochondrial target engagement. Step 2 (Pathway Modulation): Not assessed; this is a human abuse potential study, not a mechanistic study. Step 3 (Clinical Translation): The study endpoint was Drug Liking VAS \u2014 a regulatory requirement for abuse potential characterization. The 'success' here is the ABSENCE of drug liking signal for dimebon, which is the desired outcome for a CNS drug candidate seeking to demonstrate low abuse potential. Step 4 (Population Effects): Subgroup analyses across drug similarity categories (placebo, benzodiazepines, codeine/morphine, THC, pseudoephedrine) consistently showed dimebon resembling placebo, not any controlled substance class. Step 5 (Confounders): The assay was validated by the positive control (alprazolam), ruling out assay insensitivity. The trial outcome is a regulatory/safety success demonstrating dimebon lacks abuse potential, which is a prerequisite for CNS drug development. The 'Primary Endpoint Met: True' in the extraction reflects this regulatory success. The per-arm 'failure' labels in results_by_chain reflect the fact that dimebon did not produce drug liking above placebo \u2014 which is the desired outcome, not a failure. The trial is classified as 'success' for its stated purpose.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.3,
+      "evidence": "No mechanistic biomarker data available to assess NMDA receptor or mitochondrial target engagement. The trial was not designed to test the therapeutic hypothesis for Alzheimer's disease \u2014 it was a regulatory abuse potential study. The causal chain from dimebon to neuroprotection/Alzheimer's disease cannot be evaluated from this trial's data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000022355",
+      "target_entity": "R-HSA-977443",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_1_mg",
+      "reasoning": "Alprazolam 1 mg produced significant drug liking (VAS 78.6 mm, p=0.0001) and high benzodiazepine similarity (88.6 mm), confirming GABA-A receptor activation drove the expected CNS depressant/euphoric pharmacodynamic response. This validates the GABRA1 \u2192 GABA receptor activation pathway."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000022355",
+      "target_entity": "R-HSA-977443",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_3_mg",
+      "reasoning": "Alprazolam 3 mg produced significant drug liking (VAS 82.2 mm, p=0.0001) and very high benzodiazepine similarity (92.7 mm), strongly confirming GABA-A receptor activation drives the expected CNS depressant pharmacodynamic response."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "alprazolam",
+      "target_entity": "ENSG00000022355",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_1_mg",
+      "reasoning": "Alprazolam 1 mg produced robust drug liking and benzodiazepine-class similarity, confirming engagement of GABA-A receptor (GABRA1) and downstream CNS depressant effects consistent with known mechanism of action."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "alprazolam",
+      "target_entity": "ENSG00000022355",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_3_mg",
+      "reasoning": "Alprazolam 3 mg produced the highest drug liking scores and near-maximal benzodiazepine similarity, confirming dose-dependent GABA-A receptor engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-977443",
+      "target_entity": "bio:a1538e73ca45",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_1_mg",
+      "reasoning": "GABA receptor activation by alprazolam 1 mg produced measurable CNS depression/anxiolysis as captured by drug liking VAS (78.6 mm, p=0.0001) and benzodiazepine similarity ratings, confirming the mechanism drives the expected biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-977443",
+      "target_entity": "bio:a1538e73ca45",
+      "support": "strong_support",
+      "affecting_arm_id": "alprazolam_3_mg",
+      "reasoning": "GABA receptor activation by alprazolam 3 mg produced robust CNS depression/anxiolysis (drug liking VAS 82.2 mm, p=0.0001), confirming dose-dependent mechanism-to-biology translation."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_balance_effects_drug_liking_vas_peak_effect",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The Drug Liking VAS Emax is a regulatory abuse potential endpoint, not a therapeutic efficacy endpoint for Alzheimer's disease. It captures CNS psychoactive/euphoric effects relevant to abuse liability assessment, not disease-modifying benefit. The endpoint is not designed to capture Alzheimer's disease benefit and its relationship to the indication is indirect at best \u2014 it was used here to demonstrate absence of abuse potential as a regulatory prerequisite."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (healthy recreational polydrug users) is not the target population for Alzheimer's disease treatment. The trial was a regulatory abuse potential study, not a therapeutic efficacy study. Population response to dimebon in this context (absence of drug liking) cannot be extrapolated to Alzheimer's disease patient response to dimebon's intended neuroprotective mechanism."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial has an unusual structure: it is a regulatory abuse potential assessment where 'success' means the drug does NOT produce drug liking above placebo. The per-arm results_by_chain labels all dimebon arms as 'failure' (because drug liking was not elevated), but the trial's stated purpose and regulatory interpretation is that this is a successful demonstration of low abuse potential. The primary_endpoint_met field is True, consistent with the regulatory success interpretation. Expert review is needed to confirm the correct trial_outcome classification and to assess whether any edges in the dimebon \u2192 UNKNOWN \u2192 other \u2192 bio:3cadc4ba8d66 chain can be meaningfully updated from this non-therapeutic study design. Additionally, the target entity for dimebon is listed as UNKNOWN, preventing meaningful affects/modulates_via edge updates for dimebon's intended mechanism."
+}

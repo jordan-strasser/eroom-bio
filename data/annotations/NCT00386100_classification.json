@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00386100",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement for rosiglitazone (PPARG agonism). Adiponectin increased 128.44% with Avandamet vs 12.96% with metformin (p<0.0001) \u2014 adiponectin is a canonical PPARG-driven gene product and a direct marker of PPARG activation. HOMA-S increased 55.58% vs 18.65% (p<0.001), and fasting insulin decreased -35.2 vs -1.5 pmol/L (p=0.0042), all consistent with robust PPARG-mediated insulin sensitization beyond metformin's AMPK mechanism. Metformin's target engagement is also confirmed by its significant HbA1c reduction (-1.36%, p=0.0001) as monotherapy. 2. PATHWAY MODULATION: Downstream biology clearly moved. The insulin sensitization pathway (HOMA-S, adiponectin, FFA reduction) was substantially more activated in the Avandamet arm. FFA decreased -2.97% vs +9.40% with metformin (p=0.0342), consistent with PPARG-driven adipocyte lipid metabolism. HOMA-B was not significantly different between arms (p=0.7148), suggesting the glycemic benefit is primarily through insulin sensitization rather than beta-cell preservation. BMD changes were also observed \u2014 Avandamet preserved lumbar spine BMD (+0.1%) vs metformin (-2.1%), though hip BMD declined more with Avandamet (-1.5% vs 0.0%), suggesting complex bone biology effects. 3. CLINICAL TRANSLATION: The primary endpoint was met. Avandamet produced -1.85% HbA1c change vs -1.36% for metformin, with a between-arm difference of -0.50% (95% CI: -0.69 to -0.30, p=0.0001). Secondary endpoints strongly supported: treatment failure HR=0.58 (p<0.0001), HbA1c <7% OR=2.59 (p<0.0001), FPG \u22646.1 mmol/L OR=4.47 (p<0.0001). Both arms succeeded on the primary endpoint, with the combo arm showing superior glycemic control. 4. POPULATION EFFECTS: The enrolled population (first-line T2DM, high HbA1c/FPG/BMI) was appropriate for the mechanism. Subgroup BMD analyses showed sex-specific differences: males showed BMD preservation or slight gain with Avandamet vs loss with metformin, while females showed hip BMD loss with Avandamet. Postmenopausal females showed lumbar spine BMD preservation with Avandamet (0%) vs loss with metformin (-3.3%, p=0.0161), which is a notable finding. 5. CONFOUNDERS: No major confounders. The trial was adequately powered (n=688, 80 weeks), had an active comparator, and used a clinically relevant primary endpoint. Safety signals (subcutaneous abscess 2.62% vs 0.30% with Avandamet, BMD changes at hip, LDL increase) are notable but did not prevent adequate dosing or compromise the efficacy readout. These are real safety concerns for rosiglitazone class effects but do not constitute dose-limiting toxicity per the DLT criteria (no MTD below target-engaging dose, no protocol-required dose reductions for toxicity, no safety termination).",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.2,
+      "evidence": "Subcutaneous abscess rate was 2.62% vs 0.30% (Avandamet vs metformin), a ~9-fold increase, classified as SAE. Hip and trochanter BMD declined significantly more with Avandamet. LDL and total cholesterol increased. However, these did not prevent adequate dosing or require protocol-mandated dose reductions for safety reasons \u2014 the trial completed per protocol. Confidence is low; this is a weak signal, not a true DLT by the defined criteria."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "avandamet_500_mg",
+      "target_entity": "ENSG00000132170",
+      "support": "strong_support",
+      "affecting_arm_id": "avandamet_rosiglitazone_maleate_metformin_hydrochloride",
+      "reasoning": "Adiponectin increased 128.44% vs 12.96% (p<0.0001) and HOMA-S increased 55.58% vs 18.65% (p<0.001) in the Avandamet arm \u2014 both are canonical downstream markers of PPARG engagement, directly confirming target binding and activation."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "avandamet",
+      "target_entity": "ENSG00000132170",
+      "support": "strong_support",
+      "affecting_arm_id": "avandamet_rosiglitazone_maleate_metformin_hydrochloride",
+      "reasoning": "Same evidence as avandamet_500_mg: adiponectin and HOMA-S strongly confirm PPARG engagement in the Avandamet combo arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "R-HSA-4090294",
+      "support": "strong_support",
+      "affecting_arm_id": "avandamet_rosiglitazone_maleate_metformin_hydrochloride",
+      "reasoning": "PPARG engagement (confirmed by adiponectin +128%, HOMA-S +55%) drove the SUMOylation/intracellular receptor pathway, producing robust downstream insulin sensitization biology. The mechanism was demonstrably activated."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:03b27f41914b",
+      "support": "strong_support",
+      "affecting_arm_id": "avandamet_rosiglitazone_maleate_metformin_hydrochloride",
+      "reasoning": "PPARG-mediated SUMOylation pathway activation translated to robust insulin sensitization biology: HOMA-S +55.58%, adiponectin +128.44%, FFA -2.97% vs +9.40%, fasting insulin -35.2 pmol/L \u2014 all consistent with enhanced insulin sensitization and metabolic regulation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "avandamet_rosiglitazone_maleate_metformin_hydrochloride",
+      "reasoning": "Insulin sensitization biology drove clinically meaningful HbA1c reduction (-1.85%, p=0.0001), treatment failure HR=0.58 (p<0.0001), HbA1c <7% OR=2.59 (p<0.0001), and FPG \u22646.1 mmol/L OR=4.47 (p<0.0001). The biology-to-disease link is strongly validated."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "comparator_metformin_b_i_d",
+      "target_entity": "ENSG00000198695",
+      "support": "strong_support",
+      "affecting_arm_id": "metformin",
+      "reasoning": "Metformin monotherapy produced -1.36% HbA1c change (p=0.0001) with HOMA-S increase of 18.65%, consistent with its known mechanism of hepatic glucose production inhibition. Target engagement is implied by the robust glycemic response."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5419276",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "metformin",
+      "reasoning": "Metformin monotherapy achieved significant HbA1c reduction (-1.36%, p=0.0001) and HOMA-S improvement (+18.65%), supporting that its mitochondrial/AMPK mechanism drove glycemic control biology, though the mechanism-biology link is inferred rather than directly measured."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "metformin",
+      "reasoning": "Metformin monotherapy's glycemic control biology drove significant HbA1c reduction (-1.36%, p=0.0001), confirming that glycemic control via incretin/hepatic mechanisms drives T2DM disease modification."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hba1c_week_80",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at Week 80 was the pre-specified primary endpoint and was met with p=0.0001. It was concordantly supported by secondary endpoints (treatment failure HR, FPG target achievement, HbA1c <7% rates), confirming HbA1c as a valid surrogate for T2DM clinical benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_high__fastingglucose_high__hba1c_high__line_first",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (first-line T2DM with high HbA1c/FPG/BMI) responded robustly to both metformin monotherapy and Avandamet combination, with the primary endpoint met at p=0.0001 and clinically meaningful effect sizes (-0.50% between-arm difference, -1.85% absolute for combo arm). This population is well-matched to the mechanism."
+    }
+  ],
+  "confidence_overall": 0.9,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

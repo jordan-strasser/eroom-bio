@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00655473",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data is available confirming CETP inhibition (e.g., HDL-C elevation). Dalcetrapib is known from other trials to raise HDL-C via CETP inhibition, but this trial provides no direct PD/PK evidence of target engagement. Per the round-28 AFFECTS rule, without direct engagement evidence, we do not emit an affects record here. 2. PATHWAY MODULATION: No biomarker changes (HDL-C, LDL-C, or other lipid panel data) are reported. We cannot confirm whether CETP inhibition led to HDL elevation or LDL remodeling in this trial. 3. CLINICAL TRANSLATION: Both primary endpoints failed. Mean wall thickness percent change: dalcetrapib 4.245% vs placebo 6.679% \u2014 the dalcetrapib arm showed numerically less increase, but no p-value is reported and the endpoint was not met. Target-to-background ratio change: dalcetrapib -0.188 vs placebo -0.260 \u2014 again numerically similar but endpoint not met. The small sample size (N=130) and absence of p-values suggest the trial was likely underpowered to detect differences in these imaging endpoints. 4. POPULATION EFFECTS: No subgroup analyses reported. The population (coronary heart disease with atherosclerotic plaque, severity_mild) may not have been optimally selected for detecting plaque regression over 24 months. 5. CONFOUNDERS: The trial is small (N=130), which is substantially underpowered for imaging endpoints like carotid intima-media thickness or FDG-PET plaque activity. No p-values are reported, consistent with a study that may have been exploratory/pilot in nature. Safety signals (pneumonia, bronchitis, scrotal infections) are numerically higher in the dalcetrapib arm but SAEs are described as generally balanced. The AE profile does not suggest dose-limiting toxicity prevented adequate dosing. The primary failure mode is underpowering \u2014 the trial was too small to detect the expected effect on imaging endpoints, and the directional trends (less wall thickness increase, similar TBR reduction) are consistent with a modest or null effect that a larger trial would need to adjudicate. This aligns with the broader dalcetrapib program context where the larger dal-OUTCOMES trial also failed, suggesting the mechanism (CETP inhibition via dalcetrapib's specific modality) may not translate to clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "Sample size of 130 patients is small for imaging endpoints (wall thickness, TBR). No p-values reported, suggesting the trial may have been exploratory. Directional trends exist (dalcetrapib arm showed numerically less wall thickness increase: 4.245% vs 6.679%) but statistical significance was not achieved."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Dalcetrapib is known to raise HDL-C via CETP inhibition (established in other trials), but HDL elevation did not translate to plaque regression as measured by wall thickness or TBR. The broader dal-OUTCOMES program failure supports that CETP inhibition via dalcetrapib does not drive atherosclerotic plaque regression or cardiovascular benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8964041",
+      "target_entity": "bio:3232e05dd638",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dalcetrapib_ro4607381",
+      "reasoning": "LDL remodeling via CETP inhibition did not demonstrably drive HDL elevation and atherosclerotic plaque regression as measured by imaging endpoints. No biomarker data confirms pathway activation, and both imaging endpoints failed. Weak rather than moderate contradict because the trial was small and underpowered."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3232e05dd638",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dalcetrapib_ro4607381",
+      "reasoning": "HDL cholesterol elevation and atherosclerotic plaque regression biology did not translate to measurable improvement in coronary heart disease imaging endpoints. Both primary endpoints failed. Weak contradict due to small sample size and absence of p-values limiting interpretability."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_wall_thickness",
+      "target_entity": "coronary_heart_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Wall thickness as an imaging biomarker endpoint is a plausible surrogate for atherosclerotic plaque burden in coronary heart disease, but the trial was underpowered and no p-values were reported. The endpoint's ability to capture clinical benefit in this indication cannot be confirmed or refuted from this small trial alone."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The mild severity coronary heart disease population did not show a statistically significant response to dalcetrapib on imaging endpoints. Both primary endpoints failed, though the trial was underpowered. Weak contradict reflects the directional negativity without statistical confirmation."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values reported for either primary endpoint, making it impossible to formally assess statistical significance. The trial appears exploratory/pilot with N=130, which is substantially underpowered for imaging endpoints. No biomarker data (HDL-C, LDL-C) is available to confirm CETP target engagement, preventing assessment of where the causal chain broke. The directional trends (less wall thickness increase in dalcetrapib arm) could represent a real but underpowered signal or a null effect. Expert review needed to determine whether this trial should be classified as underpowered vs. biology_moved_endpoint_flat, and to contextualize within the broader dalcetrapib program."
+}

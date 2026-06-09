@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT00369928",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The target of PG-760564 is listed as 'unclear' in the extraction, though the resolved graph entities map it to MAPK14 (p38 MAPK). No biomarker or PD data was reported to confirm target engagement. We cannot determine whether the drug reached and modulated MAPK14 in vivo.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., cytokine levels, CRP, ESR, or ERK/MAPK pathway readouts) were reported. There is no evidence that the ERK/MAPK pathway was modulated.\n\n3. CLINICAL TRANSLATION: The primary endpoint (ACR20 at 12 weeks) was clearly missed. Placebo response was 60%, while 25 mg BID achieved 56% (p=0.982) and 100 mg BID achieved 54% (p=0.666). Notably, both active arms performed WORSE than placebo, with no dose-response relationship. This is a clean, unambiguous failure with a high placebo response rate (60%) that likely compressed any detectable treatment effect.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population was RA patients on background methotrexate, which is a standard population for RA trials.\n\n5. CONFOUNDERS: The placebo ACR20 rate of 60% is notably high for an RA trial (historical placebo rates typically 20-40%), which would substantially compress any detectable treatment effect. The sample size of 254 patients across 3 arms (~85/arm) may be underpowered given the high placebo response. The mechanism of PG-760564 is unclear, raising the possibility of wrong target or wrong mechanism. The lack of dose-response (higher dose performed slightly worse) suggests either no drug effect or a ceiling effect from the high placebo response. The primary failure mode appears to be a combination of high placebo response masking any potential signal and possibly no true drug effect (wrong target/mechanism).",
+  "failure_modes": [
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.75,
+      "evidence": "Placebo ACR20 response rate was 60%, which is substantially higher than typical historical placebo rates of 20-40% in RA trials. Both active arms (56% and 54%) performed below placebo, making it impossible to detect a treatment effect even if one existed."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "The target and mechanism of PG-760564 are unclear. If the drug targets MAPK14/p38, this pathway has historically failed in RA trials, suggesting the enrolled population (MTX-inadequate responders) may not be the right population for this mechanism, or the mechanism itself is not relevant to RA pathophysiology."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "With ~85 patients per arm and a placebo response of 60%, the study would need a very large treatment effect to achieve significance. The trial may have been powered assuming a lower placebo response rate, rendering it effectively underpowered given the observed placebo rate."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:e4e9436da756",
+      "support": "weak_contradict",
+      "affecting_arm_id": "25_mg_pg_760564",
+      "reasoning": "No biomarker data available; primary endpoint missed with active arm performing below placebo. Without PD data, we cannot localize the failure, but the chain failed downstream of the target. Weak contradict rather than moderate because high placebo response is a significant confounder."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:e4e9436da756",
+      "support": "weak_contradict",
+      "affecting_arm_id": "100_mg_pg_760564",
+      "reasoning": "No biomarker data available; primary endpoint missed with active arm performing below placebo. Without PD data, we cannot localize the failure, but the chain failed downstream of the target. Weak contradict rather than moderate because high placebo response is a significant confounder."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e4e9436da756",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "25_mg_pg_760564",
+      "reasoning": "The biological hypothesis (suppression of inflammatory joint destruction via MAPK14/ERK pathway) did not translate to clinical benefit. Weak contradict because high placebo response and unclear target engagement prevent strong conclusions."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e4e9436da756",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "100_mg_pg_760564",
+      "reasoning": "The biological hypothesis (suppression of inflammatory joint destruction via MAPK14/ERK pathway) did not translate to clinical benefit. Weak contradict because high placebo response and unclear target engagement prevent strong conclusions."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "ACR20 is a well-validated endpoint for RA, but the 60% placebo response rate in this trial raises questions about whether the endpoint captured true drug-specific benefit in this trial context. The endpoint itself is appropriate for RA, but the high placebo rate makes interpretation ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Both active arms failed to show benefit vs. placebo (p=0.666 and p=0.982), with active arms performing below placebo. The enrolled population of active RA patients on background MTX did not respond to PG-760564 treatment."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The target and mechanism of PG-760564 are listed as 'unclear' in the extraction, though the graph maps it to MAPK14/p38. The unusually high placebo ACR20 rate (60%) is a major confounder that may have masked any true drug effect. Expert review is needed to: (1) confirm the actual target/mechanism of PG-760564, (2) assess whether the placebo response rate was anomalously high due to trial design issues (e.g., patient selection, concomitant medication use, regression to the mean), and (3) determine whether the trial was adequately powered given the observed placebo response."
+}

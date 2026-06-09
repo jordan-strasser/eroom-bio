@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT01035138",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Semagacestat achieved measurable plasma concentrations (2h post-dose 1160 ng/mL), confirming drug exposure. The plasma A\u03b21-42 data is complex: the LY140mg/LY140mg arm showed a +14.27% increase in plasma A\u03b21-42 at week 12, while the placebo/LY140mg arm showed -5.84% and LY100mg/LY140mg showed -6.09%. The paradoxical increase in plasma A\u03b21-42 in the highest-dose arm is consistent with known gamma-secretase inhibitor pharmacology where peripheral A\u03b2 production rebounds or is differentially affected. This is a complex target engagement signal \u2014 the drug reached its target (adequate PK) but the downstream A\u03b2 biomarker did not move in the expected direction (reduction), suggesting either the mechanism is more complex than anticipated or the plasma A\u03b2 readout reflects peripheral rather than CNS effects. 2. PATHWAY MODULATION: The intended biology was amyloid beta peptide reduction. Plasma A\u03b21-42 did not decrease in the semagacestat arms relative to placebo in a consistent manner \u2014 the 140mg arm actually showed an increase. Hippocampal volume data showed greater loss in the LY100mg arm (-279.29 mm\u00b3) vs placebo (-115.39 mm\u00b3), suggesting possible worsening of neurodegeneration. AV-45-PET amyloid imaging was not done due to insufficient sample size. The biology did not move as predicted \u2014 amyloid was not reduced, and structural brain changes trended worse. 3. CLINICAL TRANSLATION: Both primary endpoints (ADAS-Cog11 and ADCS-ADL at 16 weeks post-cessation) failed. Semagacestat-treated patients showed worse cognitive (ADAS-Cog11 +10.5 to +12.5 vs placebo +6.4) and functional (ADCS-ADL -5.1 to -10.6 vs placebo -4.5) outcomes. This is not merely a null result but an apparent worsening, consistent with gamma-secretase inhibition affecting Notch signaling and other substrates beyond APP, causing off-target harm. 4. POPULATION EFFECTS: Both dose arms (100mg and 140mg) showed worse outcomes than placebo, with the 100mg arm showing numerically worse ADAS-Cog11 (+12.5) than the 140mg arm (+10.5). No subgroup showed benefit. The hippocampal volume data showed dose-dependent worsening. 5. CONFOUNDERS: This is a crossover/follow-on study design (LFAN = Late Follow-up After Notification), measuring outcomes 16 weeks after cessation of a prior trial. The design is unusual and the primary endpoint timing (post-cessation) is atypical. The trial was terminated early (the parent trial LY450139 was stopped for futility/harm). The plasma A\u03b2 biomarker paradox and the worsening clinical outcomes suggest the failure is primarily mechanistic \u2014 gamma-secretase inhibition with semagacestat did not reduce amyloid burden and caused harm, likely through Notch pathway interference. The failure mode is primarily biology_moved_endpoint_flat (biology moved but in wrong direction) combined with wrong_population considerations, but most accurately characterized as target_engaged_biology_not_moved (the target was engaged but the intended biology \u2014 amyloid reduction \u2014 did not occur as predicted; instead the drug worsened outcomes).",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.72,
+      "evidence": "Semagacestat achieved high plasma concentrations (1160 ng/mL at 2h post-dose), confirming target engagement. However, plasma A\u03b21-42 did not decrease in the 140mg arm (+14.27% vs placebo -5.84%), and hippocampal volume loss was greater in treated arms. The intended biology (amyloid beta peptide reduction) was not achieved; instead, the drug appeared to worsen neurodegeneration, consistent with off-target gamma-secretase substrate effects (e.g., Notch signaling)."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "The plasma A\u03b21-42 paradoxically increased in the 140mg arm, and hippocampal volume worsened dose-dependently. Clinical endpoints (ADAS-Cog11, ADCS-ADL) also worsened relative to placebo, suggesting the biology moved in the wrong direction and the endpoint captured this worsening accurately \u2014 the drug caused harm rather than benefit."
+    },
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.6,
+      "evidence": "The trial failure reflects multiple overlapping issues: (1) gamma-secretase inhibition did not reduce amyloid as predicted (target_engaged_biology_not_moved), (2) off-target Notch pathway inhibition likely caused harm, (3) the post-cessation endpoint design is unusual and may not optimally capture drug effects, and (4) the parent trial was terminated early for futility/harm, limiting the follow-on study's interpretability."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ly450139",
+      "target_entity": "ENSG00000117362",
+      "support": "strong_support",
+      "affecting_arm_id": "drug_semagacestat",
+      "reasoning": "Semagacestat achieved high plasma concentrations (1160 ng/mL at 2h post-dose), confirming adequate drug exposure and target engagement with gamma-secretase (APH1A subunit). The drug demonstrably reached its target."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000117362",
+      "target_entity": "R-HSA-1227986",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "drug_semagacestat",
+      "reasoning": "Gamma-secretase was engaged (adequate PK confirmed), but the intended downstream mechanism (amyloid beta peptide reduction via APP cleavage modulation) did not activate as predicted \u2014 plasma A\u03b21-42 increased (+14.27%) in the 140mg arm rather than decreasing, and hippocampal volume worsened. The target was hit but did not drive the intended mechanism in the expected direction."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1227986",
+      "target_entity": "bio:090def8a3caa",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "drug_semagacestat",
+      "reasoning": "The gamma-secretase inhibition mechanism did not produce the intended amyloid beta peptide reduction. Plasma A\u03b21-42 paradoxically increased in the highest-dose arm, and structural brain biomarkers (hippocampal volume) worsened dose-dependently, indicating the mechanism failed to drive the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:090def8a3caa",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "drug_semagacestat",
+      "reasoning": "The amyloid beta peptide reduction biology was not achieved, and clinical outcomes worsened. This provides weak contradict evidence for the amyloid reduction \u2192 Alzheimer's disease benefit hypothesis, though the confound of off-target Notch inhibition makes it difficult to cleanly attribute the clinical worsening to failure of the amyloid hypothesis specifically."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimer_s_disease_assessment_scale_cognitive",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The ADAS-Cog11 endpoint captured the clinical signal clearly \u2014 treated patients showed worse cognitive outcomes than placebo, and the endpoint discriminated between arms. The endpoint appropriately captured disease progression/worsening in Alzheimer's disease, supporting its validity as a clinical measure for this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The Alzheimer's disease patient population enrolled showed no benefit and actually worsened on both cognitive and functional endpoints relative to placebo. Both dose arms (100mg and 140mg) showed worse outcomes than placebo, with no subgroup showing benefit. This is a clear negative signal for this population responding to semagacestat."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The paradoxical increase in plasma A\u03b21-42 in the 140mg arm (+14.27% vs placebo -5.84%) is mechanistically complex \u2014 it may reflect peripheral rebound, differential APP vs Notch substrate effects, or assay artifacts. The post-cessation endpoint design (measuring outcomes 16 weeks after drug cessation) is unusual and may confound interpretation of drug effects vs. rebound phenomena. The off-target Notch pathway inhibition hypothesis (explaining worsening outcomes) is plausible but not directly measured in this trial. Expert review is needed to determine whether the plasma A\u03b2 signal represents true target engagement failure or a peripheral pharmacokinetic artifact, and to assess whether the post-cessation design appropriately tests the mechanistic hypothesis."
+}

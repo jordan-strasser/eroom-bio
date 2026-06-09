@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00602680",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that SSR180711C engaged the alpha-7 nicotinic acetylcholine receptor (CHRNA7) in vivo. The trial reports no target engagement evidence whatsoever. Per the round-28 AFFECTS rule, we do not emit an affects record when engagement is unmeasured. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., measures of cholinergic neurotransmission enhancement) were reported. We cannot determine whether the mechanism (partial agonism at CHRNA7 \u2192 R-HSA-629587) was activated. 3. CLINICAL TRANSLATION: The primary endpoint (change in cognitive performance at 4 weeks) was not met across all three SSR180711C dose arms (arm_ids 1, 2, 3). No effect sizes or p-values are reported, suggesting either the trial was terminated early or results were not fully disclosed. The investigator commentary notes 'Insufficient expected benefit risk,' suggesting the sponsor concluded the drug did not provide adequate benefit relative to risk. The sample size is listed as 1, which is almost certainly a data artifact, but the multi-arm structure and 4-week duration suggest this was a real trial that ran. 4. POPULATION EFFECTS: No subgroup findings were reported. The donepezil active comparator arm (arm 5) has an unknown outcome, so we cannot use it as a positive control to distinguish population vs. mechanism failure. 5. CONFOUNDERS: The 4-week duration is very short for demonstrating cognitive improvement in Alzheimer's disease, raising the possibility of a wrong_timeframe failure. The sample size field (=1) is likely a data extraction artifact. The investigator commentary ('Insufficient expected benefit risk') suggests the sponsor may have stopped or concluded based on a benefit-risk assessment rather than a clean efficacy miss, but the primary endpoint is still recorded as failed. The most parsimonious interpretation is that the drug failed to produce cognitive benefit, with wrong_timeframe as a plausible contributing factor given the short 4-week window for an Alzheimer's cognitive endpoint. Without biomarker data, we cannot localize the failure in the causal chain, so we distribute weak_contradict signals across mechanism_affects and biology_drives.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "No biomarker data available; primary endpoint missed across all SSR180711C arms. Cannot confirm biology moved, but endpoint clearly did not improve."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.4,
+      "evidence": "4-week treatment duration is very short for detecting cognitive improvement in mild Alzheimer's disease; standard trials use 6-12+ months. This may have prevented detection of any real effect."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.25,
+      "evidence": "Mild Alzheimer's disease patients may not have sufficient cholinergic deficit to respond to alpha-7 nAChR partial agonism, or the disease stage may not be optimal for this mechanism."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-629587",
+      "target_entity": "bio:97ae9d9c975b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "SSR180711C arm 1 failed to improve cognitive performance with no biomarker data to confirm pathway engagement. Without PD data, we cannot localize the failure, but the chain failed at or upstream of this step. Emit weak_contradict per round-14 rule for no-biomarker failures."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-629587",
+      "target_entity": "bio:97ae9d9c975b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "SSR180711C arm 2 (different dose) also failed. Consistent failure across doses adds directional contradict signal to the mechanism_affects edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-629587",
+      "target_entity": "bio:97ae9d9c975b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3",
+      "reasoning": "SSR180711C arm 3 (third dose level) also failed. Three-arm consistent failure strengthens the contradict signal on this edge."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:97ae9d9c975b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "1",
+      "reasoning": "Failure of cholinergic neurotransmission enhancement via alpha-7 nAChR partial agonism to improve Alzheimer's cognitive endpoints provides weak contradict evidence that this biology drives the disease in a therapeutically meaningful way. No biomarker data to confirm biology moved, so signal is weak."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:97ae9d9c975b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "Same reasoning as arm 1; consistent failure across dose arms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:97ae9d9c975b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3",
+      "reasoning": "Same reasoning as arm 1; consistent failure across dose arms."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_cognitive_performance",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The cognitive performance endpoint is a standard and accepted measure for Alzheimer's disease, but the 4-week timeframe is very short for this indication. The endpoint was measured but the drug failed; we cannot determine whether the endpoint would have captured benefit had the drug worked, given the short duration. Ambiguous is appropriate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Mild Alzheimer's disease patients (first-line, mild severity) did not respond to SSR180711C alpha-7 nAChR partial agonism across three dose arms. Primary endpoint missed. Weak contradict because the short 4-week duration is a confounding factor that limits interpretation."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Sample size is listed as 1 in the extraction, which is almost certainly a data artifact for a multi-arm trial. No effect sizes or p-values are reported despite the primary endpoint being marked as failed, suggesting possible early termination or incomplete data disclosure. The investigator commentary ('Insufficient expected benefit risk') is ambiguous\u2014it could indicate a benefit-risk stopping decision rather than a clean efficacy miss. The 4-week duration is unusually short for an Alzheimer's cognitive endpoint and may be the primary driver of failure rather than the mechanism itself. Expert review needed to confirm whether the trial ran to completion and whether the failure reflects mechanism failure or trial design issues."
+}

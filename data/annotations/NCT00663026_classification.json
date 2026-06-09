@@ -1,0 +1,26 @@
+{
+  "nct_id": "NCT00663026",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial reports dose-proportional serum PK for bapineuzumab (Cmax 4219.97 ng/mL at 5 mg and 8012.88 ng/mL at 10 mg; Cavg,ss 3123.071 and 6912.301 ng/mL respectively), confirming adequate systemic exposure and dose-proportional pharmacokinetics. This is a Phase 1/safety study (subcutaneous formulation), so the primary endpoint is safety/tolerability, not efficacy. PK data confirms drug was delivered and circulated, consistent with target engagement (bapineuzumab is an anti-A\u03b2 monoclonal antibody). However, no direct amyloid-binding biomarker (e.g., PET amyloid imaging, CSF A\u03b242) was reported in this extraction. 2. PATHWAY MODULATION: No downstream pathway biomarkers (amyloid plaque clearance, CSF tau, amyloid PET) are reported. The trial appears to be a safety/PK study without efficacy or pathway biomarker readouts. 3. CLINICAL TRANSLATION: The primary endpoint is safety (AEs/SAEs), not a clinical efficacy endpoint. The primary endpoint result is listed as 'None' (not met/not assessed in the traditional sense). AE rates were higher in bapineuzumab arms (75.86% at 5 mg, 90.32% at 10 mg) vs placebo (84.21% overall), with SAE rates of 6.9% (5 mg), 9.68% (10 mg) vs 5.26% (placebo). Serious hemorrhagic events (subdural hemorrhage, subarachnoid hemorrhage) occurred in the 10 mg arm, raising safety concerns. However, the DLT criteria are not formally met per the structured rules: no MTD was stated as below target-engaging dose, no protocol-mandated dose reductions are documented, and the trial was not terminated for safety. The SAE excess in the 10 mg arm is modest (9.68% vs 5.26% placebo). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This is a small Phase 1/2 safety study (N=79) with a primary safety endpoint. The trial was not designed to test efficacy. The 'primary endpoint met: None' reflects that this is a safety characterization study, not a failed efficacy trial. The outcome is 'partial' because PK was characterized (informative) but no efficacy readout was obtained, and the safety signal (especially hemorrhagic SAEs at 10 mg) is a meaningful finding. The trial is classified as 'partial' because it provided PK/safety information but no efficacy conclusion. The primary failure mode is insufficient_information for the mechanistic chain (no efficacy endpoint), but the safety signal is real and informative.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "This is a Phase 1/2 safety and PK study. The primary endpoint is number of participants with AEs/SAEs, not a clinical efficacy endpoint. No amyloid biomarker, cognitive, or functional endpoints were reported. The mechanistic causal chain (target engagement \u2192 amyloid clearance \u2192 cognitive benefit) cannot be assessed from this trial's readouts."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_treatment_emergent_adverse_events",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint is a safety measure (AE/SAE incidence), not a clinical benefit endpoint for Alzheimer's disease. It captures tolerability information but does not speak to whether the endpoint translates to clinical benefit in this indication. The endpoint was measured and reported, but its relevance to disease benefit is not assessable from this safety-only study."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a safety/PK Phase 1/2 trial with no efficacy readout. The mechanistic causal chain cannot be assessed. The hemorrhagic SAEs (subdural and subarachnoid hemorrhage) in the 10 mg arm are clinically notable and may have influenced dose selection in subsequent trials, but formal DLT criteria per the structured rules are not clearly met. Expert review is needed to determine whether the safety signal at 10 mg constituted a dose-limiting finding that affected downstream development, and whether any amyloid biomarker data exists from this trial that was not captured in this extraction."
+}

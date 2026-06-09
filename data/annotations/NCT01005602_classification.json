@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT01005602",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Digoxin clearly reached its pharmacokinetic target (serum drug concentration was measured). The nomogram arm achieved a mean SDC of 0.52 ng/ml and 86.2% achieved SDC < 1.0 ng/ml, demonstrating the nomogram successfully lowered concentrations compared to standard dosing (mean 1.12 ng/ml, 42.4% < 1.0 ng/ml). The drug was administered and absorbed \u2014 target engagement at the Na+/K+-ATPase is assumed given measurable serum concentrations. 2. PATHWAY MODULATION: The trial did not measure downstream pharmacodynamic markers (inotropy, heart rate) directly. SDC is a PK surrogate, not a PD biomarker of Na+/K+-ATPase inhibition or downstream biology. 3. CLINICAL TRANSLATION: The primary endpoint was the proportion of patients achieving SDC 0.5\u20130.9 ng/ml. The nomogram arm achieved 38.5% vs 34.8% in standard care \u2014 both arms failed to achieve the target concentration range in the majority of patients. The nomogram did shift concentrations lower (mean 0.52 vs 1.12 ng/ml) and improved safety (more patients below 1.0 ng/ml), but the narrow therapeutic window target (0.5\u20130.9 ng/ml) was not reliably achieved by either strategy. This is fundamentally a dosing/delivery precision failure \u2014 the nomogram could not reliably place patients in the narrow target range. 4. POPULATION EFFECTS: ABCB1 pharmacogenetic subgroups showed only modest variation in SDC in the nomogram arm, suggesting pharmacogenetic factors were not a major driver of the failure. 5. CONFOUNDERS: The trial enrolled 131 patients over 3 years. No p-value was reported, suggesting the comparison may not have been formally powered for statistical inference on the primary endpoint. The failure appears to be a dosing precision/delivery issue \u2014 the nomogram algorithm itself was insufficient to reliably achieve the narrow 0.5\u20130.9 ng/ml window, even though it successfully reduced concentrations below 1.0 ng/ml. This is a manufacturing/delivery (dosing algorithm) failure rather than a mechanistic failure of digoxin itself.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.72,
+      "evidence": "The nomogram dosing algorithm failed to reliably place patients in the target SDC range of 0.5\u20130.9 ng/ml (only 38.5% achieved this), despite successfully reducing mean SDC to 0.52 ng/ml and getting 86.2% below 1.0 ng/ml. The failure is in the precision of the dosing algorithm, not in the drug's mechanism or biology."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "Heart failure patients have variable pharmacokinetics (renal function, body composition, drug interactions) that may make a simplified nomogram based on creatinine clearance and ideal body weight insufficient to achieve a narrow therapeutic window in a heterogeneous population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-936837",
+      "target_entity": "bio:1e3229d7a29d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "digoxin_dosing_per_nomogram",
+      "reasoning": "No downstream PD biomarkers (inotropy, heart rate) were measured. The primary endpoint (achieving target SDC range) was missed. Without PD data, the chain from ion transport modulation to positive inotropy/heart rate reduction cannot be confirmed in this trial context."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-936837",
+      "target_entity": "bio:1e3229d7a29d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "standard_digoxin_dosing",
+      "reasoning": "Standard dosing arm also failed the primary endpoint. No PD biomarkers measured. Chain from ion transport to downstream biology unconfirmed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1e3229d7a29d",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "digoxin_dosing_per_nomogram",
+      "reasoning": "Primary endpoint missed; no clinical benefit endpoint (e.g., symptoms, hospitalization) was measured. The biology-to-indication link was not validated in this trial."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1e3229d7a29d",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "standard_digoxin_dosing",
+      "reasoning": "Standard dosing arm failed primary endpoint; no clinical benefit endpoint measured."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_patients_achieving_desired_steady_state_serum",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (% achieving SDC 0.5\u20130.9 ng/ml) is a PK/dosing precision endpoint, not a clinical benefit endpoint. It captures whether the dosing algorithm works, not whether digoxin benefits heart failure patients. Its relationship to clinical outcomes in heart failure is indirect and not validated within this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "lvef_low",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Neither arm achieved the primary endpoint of placing the majority of patients in the target SDC range. The low-LVEF heart failure population did not respond to the nomogram-guided dosing strategy as intended, though this reflects dosing algorithm precision rather than lack of drug effect."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial tests a dosing algorithm (nomogram) rather than a drug's efficacy per se \u2014 the primary endpoint is a PK precision metric, not a clinical outcome. The failure mode sits at the intersection of 'manufacturing_or_delivery' (dosing algorithm imprecision) and trial design (the narrow 0.5\u20130.9 ng/ml window may be inherently difficult to achieve in a heterogeneous population). No p-value was reported, making statistical interpretation difficult. Expert review is needed to determine whether the nomogram failure reflects algorithm design, population heterogeneity, or an inherently unachievable target range. Additionally, the causal chain edges are difficult to assess because no downstream PD biomarkers were measured and the primary endpoint is a PK surrogate rather than a clinical benefit measure."
+}

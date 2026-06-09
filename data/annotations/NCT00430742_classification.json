@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00430742",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that taranabant engaged the CB1 cannabinoid receptor (CNR1) in this trial. The trial was terminated early, and no efficacy readout with numeric results was reported. Per the round-28 AFFECTS rule, without direct target engagement evidence, no affects record should be emitted. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., appetite suppression markers, metabolic readouts) were reported. The mechanism of CB1 inverse agonism/antagonism leading to appetite suppression and weight reduction cannot be assessed from this trial's data. 3. CLINICAL TRANSLATION: The primary endpoint (body weight and HbA1c at 36 weeks) was not met, and all arm outcomes are listed as 'unknown,' indicating the trial was terminated before a meaningful efficacy readout was obtained. No effect sizes or p-values are available. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial was terminated by the sponsor due to the 'overall profile not supporting development for obesity,' with safety/tolerability concerns implied. This is consistent with the broader taranabant program history, where psychiatric adverse events (depression, anxiety, suicidality) were a major concern across the CB1 inverse agonist class (similar to rimonabant). The termination appears to be driven by a combination of safety/tolerability concerns and a commercial/strategic decision that the benefit-risk profile was unfavorable. However, without structured AE data confirming dose-limiting toxicity per the DLT criteria, and given the sponsor's explicit statement about 'overall profile,' this is best classified as a commercial/strategic termination with implied safety concerns. The trial did not complete its primary endpoint assessment, making this an operational failure where the mechanism was not given a fair efficacy test.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.55,
+      "evidence": "Sponsor explicitly stated 'the overall profile does not support development for obesity,' indicating a strategic decision to terminate rather than a clear mechanistic failure demonstrated by the trial data. No numeric efficacy results were reported."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.45,
+      "evidence": "Safety/tolerability concerns are implied by the sponsor's termination decision. The CB1 inverse agonist class (including rimonabant) is known for psychiatric adverse events. However, no structured AE data is available to confirm DLT criteria were met per the rubric."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-373076",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated without a meaningful efficacy readout, and the sponsor's decision implies the benefit-risk profile was unfavorable. No evidence that CB1 antagonism via this mechanism drove the intended metabolic biology in this population. Per the round-14 rule, a missed/terminated endpoint still contributes a weak contradict signal to the mechanism_affects edge."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "obesity_type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The trial failed to demonstrate that insulin sensitization and metabolic regulation biology driven by CB1 antagonism translates to clinical benefit in obesity with type 2 diabetes. The termination without efficacy data provides a weak contradict signal."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_body_weight_36_weeks_hba1c_36_weeks",
+      "target_entity": "obesity_type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoints (body weight and HbA1c at 36 weeks) were not reached due to early termination. These are well-established endpoints for obesity and T2DM, but the trial did not produce a usable efficacy readout, making the endpoint_captures signal ambiguous rather than informative."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_high__hba1c_high__triglycerides_low",
+      "target_entity": "obesity_type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled obese patients with T2DM (high BMI, high HbA1c) but was terminated before demonstrating benefit. The sponsor's decision implies this population did not show a favorable benefit-risk profile with taranabant, providing a weak contradict signal for this population responding to CB1 antagonism."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated early without reporting numeric efficacy results (all arm outcomes listed as 'unknown'), making it impossible to assess the mechanistic causal chain. The termination reason ('overall profile does not support development for obesity') is ambiguous between a commercial/strategic decision and a safety-driven termination. No structured AE data is available to confirm whether dose-limiting toxicity per the rubric criteria was the primary driver. Expert review is needed to determine whether safety data from the broader taranabant program (including other NCT trials) should inform the classification of this specific trial."
+}

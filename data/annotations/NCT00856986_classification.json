@@ -1,0 +1,108 @@
+{
+  "nct_id": "NCT00856986",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement in the insulin detemir + liraglutide + metformin arm. Fasting plasma glucose dropped by -2.12 mmol/L vs -0.39 mmol/L in the liraglutide-alone arm, confirming that insulin detemir engaged the insulin receptor (INSR) and drove basal glucose lowering. Liraglutide's GLP-1R engagement is evidenced by prandial glucose reductions and weight loss (-0.95 kg in lira-alone arm). Fasting pro-insulin and C-peptide reductions further confirm downstream insulin pathway modulation.\n\n2. PATHWAY MODULATION: Downstream biology clearly moved in the combination arm. HbA1c fell by -0.51 pp in the insulin detemir + lira arm vs +0.02 pp in lira alone (estimated treatment difference -0.52 pp, 95% CI -0.68 to -0.36). Fasting glucose, prandial glucose increments at all meals, triglycerides, and free fatty acids all improved more in the combination arm. The lira-alone arm showed weight loss (-0.95 kg) consistent with GLP-1R agonism but failed to further improve HbA1c beyond baseline (already on liraglutide + metformin), confirming the population was inadequately controlled on liraglutide + metformin alone and needed basal insulin intensification.\n\n3. CLINICAL TRANSLATION: The primary endpoint (mean change in HbA1c at Week 26) was met. The combination of insulin detemir added to liraglutide + metformin produced a clinically meaningful and statistically significant improvement in HbA1c vs liraglutide + metformin alone. The effect size of -0.52 pp is clinically meaningful in this context (patients already on liraglutide + metformin with residual hyperglycemia).\n\n4. POPULATION EFFECTS: The enrolled population (adults with T2DM inadequately controlled on liraglutide + metformin) was appropriate for the mechanism. The lira-alone arm's failure to improve HbA1c confirms the population had genuine residual hyperglycemia requiring basal insulin intensification. No differential subgroup responses were formally reported beyond the overall result.\n\n5. CONFOUNDERS: Minor hypoglycemia was more frequent in the combination arm (22 vs 2 events at Week 26), but no major hypoglycemic episodes occurred. This is an expected and manageable safety profile for basal insulin addition. No dose-limiting toxicity, no manufacturing issues, no high placebo response (lira-alone arm showed no HbA1c improvement). The trial was adequately powered (N=987 total, ~163 per randomized arm). The 26-week primary endpoint is appropriate for HbA1c assessment. Overall, the trial cleanly demonstrated that adding insulin detemir to liraglutide + metformin in inadequately controlled T2DM patients achieves meaningful additional glycemic control with acceptable safety.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "liraglutide",
+      "target_entity": "ENSG00000112164",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Prandial glucose reductions and weight loss in both arms confirm GLP-1R engagement by liraglutide. The combination arm's success further validates liraglutide's target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "detemir",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Fasting plasma glucose dropped by -2.12 mmol/L in the insulin detemir + lira arm vs -0.39 mmol/L in lira alone, directly confirming insulin detemir engaged INSR and drove basal glucose lowering."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112164",
+      "target_entity": "R-HSA-420092",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Prandial glucose increments at all meals were reduced in both arms, and weight loss was observed in the lira arm, confirming GLP-1R engagement modulated the glucagon-type ligand receptor pathway."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "R-HSA-74713",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Fasting glucose reduction of -2.12 mmol/L, reduced fasting pro-insulin and C-peptide confirm INSR activation drove IRS activation pathway, consistent with basal insulin mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-420092",
+      "target_entity": "bio:03b27f41914b",
+      "support": "moderate_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "GLP-1R pathway modulation contributed to insulin sensitization and metabolic regulation as evidenced by prandial glucose reductions and weight effects in the combination arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-74713",
+      "target_entity": "bio:136b637d8d43",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "IRS activation by insulin detemir drove fasting glucose lowering (-2.12 mmol/L) and HbA1c reduction (-0.51 pp), directly validating the fasting glucose lowering biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:136b637d8d43",
+      "target_entity": "diabetes",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Fasting glucose lowering via hepatic glucose output suppression and peripheral glucose uptake drove clinically meaningful HbA1c reduction (-0.51 pp) in T2DM patients, confirming this biology drives the indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "diabetes",
+      "support": "moderate_support",
+      "affecting_arm_id": "insulin_detemir_lira_1_8",
+      "reasoning": "Insulin sensitization and metabolic regulation biology contributed to overall glycemic control in the combination arm, supporting its role in driving diabetes outcomes."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "liraglutide",
+      "target_entity": "ENSG00000112164",
+      "support": "moderate_support",
+      "affecting_arm_id": "lira_1_8",
+      "reasoning": "In the lira-alone arm, weight loss of -0.95 kg confirms GLP-1R engagement, though HbA1c did not improve further (patients already on liraglutide + metformin at baseline, so no incremental HbA1c benefit expected from continuing same regimen)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lira_1_8",
+      "reasoning": "The lira-alone arm showed no incremental HbA1c improvement (+0.02 pp), suggesting that insulin sensitization biology alone (without basal insulin addition) was insufficient to further control diabetes in this already-treated population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_randomisation_glycosylated_haemoglobin_a1c_hba1c",
+      "target_entity": "diabetes",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c change at Week 26 was the pre-specified primary endpoint and was met with a clinically meaningful treatment difference of -0.52 pp (95% CI -0.68 to -0.36), supported by concordant fasting glucose, prandial glucose, and metabolic biomarker improvements."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high__line_first",
+      "target_entity": "diabetes",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Adults with T2DM inadequately controlled on liraglutide + metformin responded meaningfully to basal insulin intensification (insulin detemir addition), with HbA1c treatment difference of -0.52 pp at p<0.01 (95% CI excludes zero), confirming this population responds to the combination regimen."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

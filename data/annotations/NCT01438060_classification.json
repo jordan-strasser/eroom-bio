@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT01438060",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that aripiprazole engaged the dopamine D2 receptor (or the serotonin HTR2A receptor as listed in the resolved chain) in this Alzheimer's dementia population. The dose titration reached up to 15 mg/day, which is within the approved antipsychotic range, so pharmacological exposure is plausible, but direct engagement evidence is absent.\n\n2. PATHWAY MODULATION: No pathway biomarker data is reported. The resolved chain maps aripiprazole through HTR2A \u2192 serotonin receptors \u2192 reduction of dopaminergic hyperactivity. There is no PD readout confirming this pathway was modulated. The MMSE worsening in the aripiprazole arm (p=0.001) is a concerning signal suggesting possible adverse cognitive effects, but does not speak to the intended psychosis-reduction pathway.\n\n3. CLINICAL TRANSLATION: The primary endpoint (NPI Psychosis Subscale change from baseline at Week 10) was not met. The ANCOVA mean difference was -1.02 (95% CI: -2.49 to 0.44), p=0.169. Both arms improved substantially (aripiprazole -6.55, placebo -5.52), suggesting a high placebo response that compressed the detectable treatment effect. The BPRS total score showed numerically greater improvement with aripiprazole (-8.53 vs -6.28) but this was not the primary endpoint. The open-label extension showed continued NPI improvement, but this is uncontrolled and uninterpretable for efficacy.\n\n4. POPULATION EFFECTS: The population (Alzheimer's dementia with psychosis) is a notoriously difficult population for antipsychotic trials due to high placebo response rates and the complex neurobiological substrate of dementia-related psychosis, which may differ mechanistically from schizophrenia-spectrum psychosis. The MMSE worsening signal suggests the population may be particularly vulnerable to adverse cognitive effects of D2/5HT2A modulation. No biomarker-defined subgroup analyses were reported.\n\n5. CONFOUNDERS: The most prominent confounder is high placebo response \u2014 both arms improved by approximately 5.5-6.6 points on the NPI Psychosis Subscale, leaving only a ~1-point difference. This is a well-documented phenomenon in dementia-related psychosis trials. The sample size (n=232) may have been underpowered to detect a small true effect against this background. Safety signals are notable: 4 deaths in the aripiprazole arm vs 0 in placebo during the acute phase, and substantial SAE burden in the extension, consistent with the known class-level risk of antipsychotics in elderly dementia patients (black box warning). However, the DLT criteria are not met per the structured rules \u2014 the dose was not truncated below target-engagement levels, and the trial was not terminated for safety. The primary failure mode is high placebo response compressing the treatment effect, with wrong population (dementia-related psychosis may not share the same dopaminergic mechanism as schizophrenia) as a secondary contributor.",
+  "failure_modes": [
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.75,
+      "evidence": "Both arms showed substantial NPI Psychosis Subscale improvement (aripiprazole -6.55, placebo -5.52), leaving only a 1.02-point difference. The placebo response magnitude is large relative to the treatment effect, compressing the detectable signal and likely masking any true drug effect."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "Psychosis in Alzheimer's dementia has a distinct neurobiological substrate from schizophrenia-spectrum disorders. The mechanism (D2/5HT2A partial agonism reducing dopaminergic hyperactivity) may not be the primary driver of dementia-related psychosis. The MMSE worsening in the aripiprazole arm (p=0.001) suggests the population is particularly vulnerable to adverse cognitive effects, further questioning mechanistic fit."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "With n=232 and a high placebo response compressing the treatment effect to ~1 point, the trial may have been underpowered to detect a clinically meaningful but small true difference. The 95% CI (-2.49 to 0.44) does not exclude a modest benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:1cc24a8f23a3",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aripiprazole_bms_337039",
+      "reasoning": "No biomarker data confirms pathway modulation. The primary endpoint missed, and with no PD evidence of mechanism engagement, the chain from serotonin receptor modulation to reduction of dopaminergic hyperactivity underlying psychotic symptoms in Alzheimer's dementia is not supported. Weak rather than moderate contradict because high placebo response and possible underpowering are mitigating factors."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cc24a8f23a3",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aripiprazole_bms_337039",
+      "reasoning": "The primary endpoint missed, providing weak contradict evidence that reduction of dopaminergic hyperactivity drives the psychotic symptoms in Alzheimer's disease. Mitigated by high placebo response and possible underpowering, preventing a stronger contradict signal."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_neuropsychiatric_inventory_npi_psychosis",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The NPI Psychosis Subscale was measured and showed large improvements in both arms, but the high placebo response means the endpoint may not reliably discriminate drug effect from natural fluctuation or placebo response in this population. The endpoint is clinically relevant but its sensitivity to detect drug effects in dementia-related psychosis is questionable given the observed placebo response magnitude."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mmse_low",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (Alzheimer's dementia with psychosis, low MMSE) did not respond to aripiprazole on the primary endpoint (p=0.169). The MMSE worsening signal in the aripiprazole arm further suggests this population responds adversely rather than beneficially to D2/5HT2A modulation."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial has a notable safety signal (4 deaths in aripiprazole arm vs 0 in placebo during the 10-week acute phase) that raises questions about whether the population's vulnerability influenced trial conduct or interpretation, though the DLT criteria per protocol rules are not formally met. Additionally, the resolved causal chain maps aripiprazole through HTR2A/serotonin receptors rather than the dopamine D2 receptor stated as the primary target in the extraction \u2014 this discrepancy between the stated mechanism (D2 partial agonism) and the resolved graph entities (HTR2A \u2192 serotonin receptors) warrants expert review to ensure the correct mechanistic chain is being updated. The high placebo response in dementia-related psychosis trials is a well-known phenomenon that may require domain expertise to properly weight against the underpowering hypothesis."
+}

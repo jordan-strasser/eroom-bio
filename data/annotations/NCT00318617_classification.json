@@ -1,0 +1,31 @@
+{
+  "nct_id": "NCT00318617",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. No dose/exposure information is reported. There is no evidence that GW501516X reached or modulated PPAR\u03b4 in this trial. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., cardiac energy metabolism markers) were reported. The trial was terminated before any readout. 3. CLINICAL TRANSLATION: The primary endpoint (energy-related chemicals and heart contraction by MRI) has an outcome of 'unknown' \u2014 no numeric result, no p-value, no effect size. The trial was terminated with no reason stated. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was terminated early (investigator commentary: 'Trial was terminated; no reason stated.') with a sample size of only 30 and no results reported. This is a classic operational failure \u2014 the trial was stopped before the primary endpoint was reached, providing no usable efficacy or safety readout. The mechanism was never given a fair test. This maps to 'insufficient_information' as the primary failure mode, with 'commercial_not_scientific' as a possible secondary (no reason stated for termination). Because the trial produced no efficacy readout at all, the causal chain cannot be assessed at any step.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Trial was terminated with no reason stated. Primary endpoint outcome is 'unknown' \u2014 no effect size, no p-value, no biomarker data, no dose/exposure data. No usable efficacy or safety readout was produced."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.3,
+      "evidence": "No reason was stated for termination. Commercial or strategic decisions are a plausible explanation when no scientific or safety rationale is provided, but this is speculative."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_energy_related_chemicals_heart_contraction",
+      "target_entity": "dyslipidemia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was never measured \u2014 the trial was terminated before any readout. The endpoint's ability to capture clinical benefit in dyslipidemia/heart failure cannot be assessed from this trial. Ambiguous is appropriate as no informative signal was generated."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated with no stated reason and no results reported. It is unclear whether termination was due to safety concerns (GW501516X has known carcinogenicity signals in preclinical studies), commercial decisions, or other factors. The causal chain was never tested. Expert review is needed to determine the true reason for termination, which would affect how this trial's evidence should be weighted in the graph."
+}

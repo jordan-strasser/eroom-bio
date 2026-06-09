@@ -1,0 +1,186 @@
+{
+  "nct_id": "NCT01044758",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial provides strong evidence of target engagement. At 62.5mg BID, DG/CA3 BOLD mean beta dropped from 0.4353 (placebo) to -0.1203 (drug), approaching the age-matched control level of -0.02507. At 125mg BID, the reduction was even more pronounced (0.8814 placebo \u2192 -0.2238 drug). This BOLD fMRI signal directly reflects hippocampal hyperactivity suppression, consistent with SV2A modulation reducing synaptic vesicle release and neuronal excitability. The 250mg dose showed a paradoxical/inverted response (0.4825 \u2192 0.3928), suggesting an inverted-U dose-response relationship rather than target non-engagement. 2. PATHWAY MODULATION: The downstream biology (hippocampal circuit normalization) clearly moved at the 62.5mg and 125mg doses. The DG/CA3 BOLD signal is a direct readout of hippocampal hyperactivity, which is the intended biology. The normalization toward control levels at lower doses confirms the mechanism (synaptic vesicle release modulation \u2192 reduced neuronal hyperactivity \u2192 hippocampal circuit normalization) is operative. 3. CLINICAL TRANSLATION: The primary endpoint (DG/CA3 BOLD fMRI activity) was met at 125mg BID (the pre-specified primary dose per the effect_size=125.0 in the extraction header). The mnemonic similarity task showed partial success across all dose arms (38%, 33%, 34% correct recalled), suggesting some cognitive benefit but not a clean clinical endpoint hit. The trial was primarily a mechanistic/biomarker proof-of-concept study, and the primary endpoint was the fMRI biomarker, not a clinical cognitive outcome. 4. POPULATION EFFECTS: No formal subgroup analyses were reported. The crossover design (drug-first vs placebo-first) showed consistent results within each dose level, confirming the within-subject effect is real. The inverted-U dose-response (62.5mg < 125mg > 250mg for DG/CA3 suppression) is a notable finding suggesting optimal dosing is critical. 5. CONFOUNDERS: No p-values were reported, which limits statistical confidence. The trial is a small proof-of-concept crossover study (n=96 total across arms). The 2-week treatment duration is short for a cognitive indication but appropriate for a mechanistic biomarker study. No safety signals were reported. The absence of formal p-values is a limitation but the effect sizes at 62.5mg and 125mg are large and directionally consistent. Overall, this is a successful mechanistic proof-of-concept trial demonstrating that levetiracetam at 125mg BID suppresses hippocampal hyperactivity in aMCI patients toward control levels, with partial cognitive benefit signals.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "No p-values reported for any endpoint; the trial appears to be a proof-of-concept study with limited statistical power for cognitive endpoints. The mnemonic similarity task showed only partial success across all doses without clear statistical significance."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_125mg_drug_first_then_placebo",
+      "reasoning": "DG/CA3 BOLD fMRI signal was substantially reduced at 125mg BID (from 0.8814 to -0.2238), approaching age-matched control levels, providing direct evidence of target engagement via hippocampal hyperactivity suppression consistent with SV2A/CACNA1B modulation."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_placebo_first_then_125mg_drug",
+      "reasoning": "Same 125mg dose effect replicated in the placebo-first crossover arm, confirming target engagement is robust and not order-dependent."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_62_5mg_drug_first_then_placebo",
+      "reasoning": "DG/CA3 BOLD signal reduced from 0.4353 to -0.1203 at 62.5mg BID, showing target engagement at a lower dose, though effect size is smaller than 125mg."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_placebo_first_then_62_5mg_drug",
+      "reasoning": "Same 62.5mg dose effect replicated in placebo-first crossover arm."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "weak_contradict",
+      "affecting_arm_id": "amci_250mg_drug_first_then_placebo",
+      "reasoning": "At 250mg BID, DG/CA3 BOLD signal was minimally changed (0.4825 \u2192 0.3928), suggesting the highest dose did not engage the target effectively for hippocampal normalization, consistent with an inverted-U dose-response or paradoxical effect at supratherapeutic doses."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "levetiracetam",
+      "target_entity": "ENSG00000148408",
+      "support": "weak_contradict",
+      "affecting_arm_id": "amci_placebo_first_then_250mg_drug",
+      "reasoning": "Same 250mg dose failure to normalize DG/CA3 activity replicated in placebo-first crossover arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000148408",
+      "target_entity": "GO:0007268",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_125mg_drug_first_then_placebo",
+      "reasoning": "The substantial reduction in DG/CA3 BOLD fMRI signal at 125mg BID directly demonstrates that engaging CACNA1B modulates chemical synaptic transmission, as the BOLD signal reflects neuronal activity driven by synaptic vesicle release."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000148408",
+      "target_entity": "GO:0007268",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_placebo_first_then_125mg_drug",
+      "reasoning": "Replicated in crossover arm; CACNA1B engagement demonstrably modulates synaptic transmission as evidenced by BOLD signal normalization."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000148408",
+      "target_entity": "GO:0007268",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_62_5mg_drug_first_then_placebo",
+      "reasoning": "Partial but meaningful reduction in DG/CA3 BOLD at 62.5mg supports modulation of synaptic transmission, though effect is smaller."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000148408",
+      "target_entity": "GO:0007268",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_placebo_first_then_62_5mg_drug",
+      "reasoning": "Replicated in crossover arm at 62.5mg."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_125mg_drug_first_then_placebo",
+      "reasoning": "Modulation of chemical synaptic transmission at 125mg BID produced clear hippocampal circuit normalization (DG/CA3 BOLD approaching control levels), directly demonstrating the mechanism drives the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "strong_support",
+      "affecting_arm_id": "amci_placebo_first_then_125mg_drug",
+      "reasoning": "Replicated in crossover arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_62_5mg_drug_first_then_placebo",
+      "reasoning": "Synaptic transmission modulation at 62.5mg produced meaningful hippocampal circuit normalization, though smaller in magnitude."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_placebo_first_then_62_5mg_drug",
+      "reasoning": "Replicated in crossover arm at 62.5mg."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "weak_contradict",
+      "affecting_arm_id": "amci_250mg_drug_first_then_placebo",
+      "reasoning": "At 250mg BID, synaptic transmission modulation did not produce hippocampal circuit normalization (BOLD signal barely changed), suggesting the mechanism-to-biology link breaks at supratherapeutic doses."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007268",
+      "target_entity": "bio:cd6aa6a1bf67",
+      "support": "weak_contradict",
+      "affecting_arm_id": "amci_placebo_first_then_250mg_drug",
+      "reasoning": "Replicated failure at 250mg in crossover arm."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cd6aa6a1bf67",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_125mg_drug_first_then_placebo",
+      "reasoning": "Normalization of hippocampal circuit hyperactivity at 125mg BID was associated with partial improvement in mnemonic similarity task performance (33% correct recalled), suggesting hippocampal circuit dysfunction drives aMCI symptoms, though the cognitive endpoint was only partially met."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cd6aa6a1bf67",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "moderate_support",
+      "affecting_arm_id": "amci_62_5mg_drug_first_then_placebo",
+      "reasoning": "Hippocampal circuit normalization at 62.5mg was associated with partial cognitive improvement (38% correct recalled on mnemonic similarity task)."
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "bio:cd6aa6a1bf67",
+      "target_entity": "biomarker_brain_activity_dentate_gyrus_ca3_subregion",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The DG/CA3 BOLD fMRI signal directly and sensitively reflects hippocampal circuit normalization biology, as demonstrated by the clear dose-dependent changes in BOLD signal that tracked with the expected mechanism of action and approached age-matched control levels at optimal doses."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_brain_activity_dentate_gyrus_ca3_subregion",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The DG/CA3 BOLD fMRI endpoint successfully captured the mechanistic biology (hippocampal hyperactivity) relevant to aMCI, and changes in this biomarker were associated with partial cognitive improvements on the mnemonic similarity task. However, as a biomarker endpoint rather than a clinical outcome endpoint, its direct translation to clinical benefit in aMCI remains to be fully established in longer trials."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cognitivefunction_low__memoryfunction_low__severity_mild",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The aMCI population showed clear biological response to levetiracetam at 62.5mg and 125mg BID doses (DG/CA3 BOLD normalization toward control levels), with partial cognitive improvement signals, supporting that this population responds to hippocampal hyperactivity suppression. The absence of formal p-values limits upgrading to strong_support."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values were reported for any endpoint, making statistical significance assessment impossible. The trial used a biomarker (BOLD fMRI) as the primary endpoint rather than a clinical cognitive outcome, which is appropriate for a proof-of-concept study but limits direct clinical translation inference. The inverted-U dose-response relationship at 250mg (paradoxical failure) is mechanistically interesting but unexplained and warrants expert interpretation. The mnemonic similarity task results (partial success across all doses) lack statistical context. The canonical target listed (CACNA1B/ENSG00000148408) may not perfectly represent SV2A (the established levetiracetam target), which could affect edge routing accuracy."
+}

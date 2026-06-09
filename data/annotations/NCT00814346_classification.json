@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00814346",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: EGb761 targets reactive oxygen species / mitochondrial electron transport chain via antioxidant free radical scavenging. There is no direct target engagement biomarker reported (e.g., ROS levels, oxidative stress markers). The trial does not provide PK/PD data confirming that EGb761 reached its intended target in the brain at adequate concentrations. Target engagement is unmeasured.\n\n2. PATHWAY MODULATION: The primary pharmacodynamic readout was 18FDG-PET brain glucose metabolism (SUVBSA2). The biomarker data shows that median SUVBSA2 changes were small and overlapping between EGb761 and placebo across all brain regions at 4 weeks, and near zero at 18 months in both CNE and MC groups. This suggests no meaningful pathway modulation (neuroprotection/cerebral metabolic preservation) was detected, though the absence of a direct ROS/oxidative stress biomarker means we cannot definitively distinguish between no target engagement vs. target engaged but biology not moved.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change in brain glucose metabolism by 18FDG-PET at week 4) was not met. No statistically significant difference between EGb761 and placebo was reported. Cognitive test scores (MMSE, CDR, GDS, FCSRT, TMT, WAIS, MEM III) showed median changes near zero in both CNE and MC groups. Only 1 MC subject converted to AD by month 9, with 0 conversions at month 18, but this is insufficient to draw conclusions given the small sample.\n\n4. POPULATION EFFECTS: The trial enrolled a heterogeneous population (AD, MCI, CNE). No subgroup showed a differential response. The small sample size (N=49 total) severely limits subgroup analyses. The AD arm appears to have been the primary double-blind phase (4 weeks), while CNE and MC were followed open-label for 18 months \u2014 a design that limits interpretability.\n\n5. CONFOUNDERS: The trial is severely underpowered (N=49 across three cognitive groups). The 4-week double-blind phase for the primary endpoint is very short for a neuroprotective mechanism. The open-label 18-month phase for CNE/MC lacks a concurrent control arm, making interpretation impossible. The AE profile does not suggest dose-limiting toxicity \u2014 in fact, the treatment arm had lower overall AE rates than placebo (21.7% vs 69.2%), which is unusual and may reflect small sample noise. The trial design (mixed populations, short double-blind phase, open-label extension without control) is a major confounder. The primary failure mode is underpowering combined with an inappropriate trial design (wrong timeframe for the primary endpoint, no control in the long-term phase).",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Total N=49 across three cognitive groups (AD, MCI, CNE). The double-blind phase for the primary endpoint was only 4 weeks with a small sample, providing insufficient statistical power to detect a meaningful difference in brain glucose metabolism. No p-value was reported, consistent with an underpowered study."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.7,
+      "evidence": "The primary endpoint was assessed at 4 weeks, which is likely too short for a neuroprotective antioxidant mechanism to produce measurable changes in brain glucose metabolism. The 18-month open-label phase for CNE/MC lacked a control arm, making it uninterpretable for efficacy."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "The trial enrolled three heterogeneous cognitive groups (AD, MCI, CNE) simultaneously, diluting any potential signal. The mechanism of antioxidant neuroprotection may be more relevant in a specific disease stage, and mixing populations reduces the ability to detect an effect in any one group."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:5f4ab3e27277",
+      "support": "weak_contradict",
+      "affecting_arm_id": "egb_120_mg",
+      "reasoning": "The 18FDG-PET SUVBSA2 changes were small and overlapping between EGb761 and placebo, suggesting the antioxidant free radical scavenging mechanism did not meaningfully affect neuroprotection and cerebral metabolic preservation. However, the trial was underpowered and the timeframe was short, so this is only weak contradict."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5f4ab3e27277",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "egb_120_mg",
+      "reasoning": "No meaningful change in brain glucose metabolism was observed, and cognitive outcomes were near zero. This provides weak contradict evidence that neuroprotection/cerebral metabolic preservation drives Alzheimer's disease outcomes in this context, though the trial design limitations (underpowered, short timeframe, no control in long-term phase) prevent strong conclusions."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_brain_glucose_metabolism_18_fluorodeoxyglucose",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The 18FDG-PET endpoint was measured but the trial was too underpowered and short (4 weeks double-blind) to determine whether this endpoint can capture disease-relevant changes in Alzheimer's disease. The endpoint is biologically plausible as a surrogate for neurodegeneration, but this trial provides no informative signal about its translatability given the design limitations."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdr_low__gds_low__line_first__mmse_high__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The MCI/CNE population (mild severity, first-line) showed near-zero changes in both brain glucose metabolism and cognitive scores over 18 months open-label, with no differential response compared to the overall population. The primary endpoint was missed and no subgroup showed a meaningful response, providing weak contradict evidence for this population responding to EGb761 in this indication."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial has several unusual design features that complicate mechanistic interpretation: (1) the primary endpoint was assessed at only 4 weeks in the double-blind phase while the long-term phase (18 months) was open-label without a control arm, making efficacy assessment for the longer phase impossible; (2) the AE profile shows paradoxically lower rates in the treatment arm vs. placebo (21.7% vs 69.2%), which may reflect small sample noise or selection bias; (3) no p-value was reported for the primary endpoint, making it unclear whether the miss was due to lack of effect or insufficient power; (4) the target (ROS/mitochondrial electron transport chain) has no direct engagement biomarker reported, leaving the entire upstream causal chain unverified. Expert review is needed to assess whether the 4-week timeframe was ever expected to show a signal and whether the open-label design was pre-specified or post-hoc."
+}

@@ -1,0 +1,31 @@
+{
+  "nct_id": "NCT00382837",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available. The trial was withdrawn before any data collection occurred, so there is no evidence of target engagement with CD22. 2. PATHWAY MODULATION: No downstream pathway data available. No evidence of B-cell modulation or CD22-mediated BCR regulation changes. 3. CLINICAL TRANSLATION: The primary endpoint was long-term safety data collection, and the outcome is listed as unknown. The trial was withdrawn with no reason stated, meaning no efficacy or safety readout was generated. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was withdrawn before completion with no stated reason. This is a classic commercial/administrative termination scenario \u2014 the mechanism was never tested, no data was collected, and the withdrawal appears to be a sponsor decision rather than a scientific finding. The primary endpoint was a safety data collection objective, not an efficacy endpoint, and even that was not met. This trial provides no usable mechanistic or clinical readout.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.55,
+      "evidence": "Trial was withdrawn with no reason stated. No data was collected (sample size 0, no dose info, no AE data, no biomarker data). This pattern is consistent with a sponsor business/strategic decision to withdraw rather than a scientific failure."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "The trial was withdrawn before the primary endpoint (long-term safety data collection) was reached. No efficacy readout, no comparator, no safety data, no biomarker data \u2014 the mechanism was never given a fair test and the trial provides no usable scientific information."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_primary_objective_continue_gather_long_term",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety data collection objective. The trial was withdrawn before any data was collected, so no information about whether this endpoint captures clinical benefit in SLE can be derived. Emitting ambiguous as required by the always-on rule, but the endpoint is a safety/tolerability measure rather than an efficacy endpoint, making its translatability to clinical benefit inherently ambiguous."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was withdrawn with no stated reason and zero data collected (sample size 0, no dose info, no AE data, no biomarker data, outcome unknown). It is unclear whether this was a commercial/strategic decision, a regulatory issue, or another administrative reason. The mechanism was never tested. Expert review is needed to determine the actual reason for withdrawal and whether any unpublished data exists. The primary endpoint was a safety data collection objective rather than an efficacy endpoint, which is unusual and may reflect a compassionate use or registry-type design rather than a standard interventional trial."
+}

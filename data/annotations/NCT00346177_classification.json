@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00346177",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No subjects were enrolled in this trial. The investigator commentary explicitly states 'Funding not obtained. No subjects enrolled.' Therefore, no target engagement data exists and the causal chain was never tested. 2. PATHWAY MODULATION: Not applicable \u2014 no subjects enrolled, no biological data collected. 3. CLINICAL TRANSLATION: Not applicable \u2014 no primary endpoint data collected. Primary endpoint met is null, effect size is null, p-value is null. 4. POPULATION EFFECTS: Not applicable \u2014 no subjects enrolled, no subgroup data. 5. CONFOUNDERS: The trial failed entirely due to a commercial/operational reason: funding was not obtained, preventing any enrollment. This is a pure operational failure \u2014 the mechanism was never given a fair test. The trial should be classified as insufficient_information because there is no usable efficacy or safety readout at all, terminated before the primary endpoint was reached due to failure to accrue (zero subjects enrolled).",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.95,
+      "evidence": "Investigator commentary explicitly states 'Funding not obtained. No subjects enrolled.' Zero subjects were enrolled, no efficacy or safety data was collected, and no primary endpoint was measured. The trial was terminated before any readout."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "The trial failed to obtain funding, which is a commercial/administrative reason unrelated to the scientific merit of the intervention. This prevented any enrollment or data collection."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_purpose_this_determine_if_cell_therapy_your_own",
+      "target_entity": "myocardial_ischemia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before any subjects were enrolled, so the endpoint was never measured. No information about whether this endpoint captures benefit in myocardial ischemia can be derived from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bnp_high__functional_class_iii__lvef_low__severity_severe",
+      "target_entity": "myocardial_ischemia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No subjects were enrolled, so no population-level response data is available. The trial provides no information about whether this population responds differently to autologous stem cell therapy for myocardial ischemia."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

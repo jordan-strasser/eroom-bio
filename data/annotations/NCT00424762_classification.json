@@ -1,0 +1,63 @@
+{
+  "nct_id": "NCT00424762",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker for PPAR\u03b3 agonism was reported. The intra-myocardial triglyceride content (a downstream metabolic readout) showed no significant difference between rosiglitazone (0.9%) and placebo (0.85%), suggesting the intended metabolic biology was not meaningfully modulated. The significant increase in peripheral edema (54% vs 33%, p=0.03) is a known on-target PPAR\u03b3 effect, providing indirect evidence that the drug was pharmacologically active, but the primary metabolic/cardiac biology target was not moved. 2. PATHWAY MODULATION: The intra-myocardial triglyceride content did not change significantly, suggesting that even if PPAR\u03b3 was engaged (as implied by the edema signal), the intended downstream biology (insulin sensitization and metabolic regulation in the myocardium) was not meaningfully altered in this population. 3. CLINICAL TRANSLATION: The primary endpoint, Peak VO2 at 6 months, was not met (26.1 vs 27.6 ml O2/kg fat-free mass/min, p=0.26). The effect size was actually numerically lower in the rosiglitazone arm, indicating no benefit and possibly a slight trend toward harm. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population was T2DM patients, but the endpoint (VO2peak) is a cardiorespiratory fitness measure. The hypothesis that PPAR\u03b3 agonism would improve exercise capacity in T2DM patients was not supported. The peripheral edema signal and heart failure SAEs (3/74 vs 2/76 or 3/74 vs 0/76 depending on the table) suggest the drug may have worsened fluid retention, potentially counteracting any metabolic benefit on cardiac function. 5. CONFOUNDERS: The sample size (n=150) is modest but likely adequate for a 6-month endpoint. The peripheral edema and fluid retention caused by rosiglitazone may have confounded the VO2peak measurement by increasing body weight/fluid load. The wrong population/wrong endpoint combination is plausible \u2014 VO2peak may not be the right endpoint to capture PPAR\u03b3-mediated metabolic benefits in T2DM, and the population may not have had the cardiac metabolic dysfunction that rosiglitazone was hypothesized to improve. The biology (myocardial triglyceride reduction) did not move, suggesting the mechanism did not engage the intended biology in this population.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.55,
+      "evidence": "Peripheral edema (54% vs 33%, p=0.03) suggests on-target PPAR\u03b3 engagement, but intra-myocardial triglyceride content did not change significantly (0.9% vs 0.85%, p>0.05), indicating the intended downstream metabolic biology was not modulated."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "T2DM patients without specific cardiac metabolic dysfunction selection; VO2peak as endpoint requires cardiorespiratory fitness improvement, which may not be the primary benefit of PPAR\u03b3 agonism in an unselected T2DM population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "GO:0030518",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "The intended downstream pathway (nuclear receptor-mediated steroid hormone signaling leading to insulin sensitization and metabolic regulation in myocardium) was not demonstrably activated \u2014 intra-myocardial triglyceride content did not change. The peripheral edema signal suggests PPAR\u03b3 was engaged, but the intended metabolic mechanism did not follow, supporting weak contradict for this target-to-mechanism edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "The nuclear receptor agonism mechanism did not produce measurable changes in insulin sensitization and metabolic regulation biology as assessed by intra-myocardial triglyceride content, supporting a weak contradict on this mechanism-to-biology edge."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "The biology (insulin sensitization and metabolic regulation) did not translate to clinical benefit (VO2peak improvement) in T2DM patients, providing weak contradict evidence that this biology drives meaningful clinical outcomes in this indication as measured."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_peak_oxygen_uptake_vo2",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "VO2peak was measured and missed, but it is unclear whether this endpoint is the right surrogate for PPAR\u03b3-mediated metabolic benefit in T2DM. The endpoint may not adequately capture the metabolic improvements that rosiglitazone was hypothesized to produce, making the endpoint_captures relationship ambiguous for this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hscrp_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "No subgroup analyses were reported; the overall T2DM population did not respond to rosiglitazone on the primary endpoint (p=0.26), providing weak contradict evidence for population response in this indication."
+    }
+  ],
+  "confidence_overall": 0.52,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The peripheral edema signal (54% vs 33%, p=0.03) provides indirect evidence of on-target PPAR\u03b3 engagement, but no direct target engagement biomarker was measured. It is unclear whether the failure reflects wrong biology target (myocardial triglyceride reduction not the right readout), wrong population (unselected T2DM without cardiac metabolic dysfunction), or whether fluid retention from rosiglitazone confounded the VO2peak measurement by increasing body weight. The heart failure SAE data is internally inconsistent (one table shows 3/74 vs 2/76, another shows 3/74 vs 0/76), which warrants expert review. Additionally, the population id 'hscrp_high' does not appear to match the enrolled T2DM population described in the trial, suggesting a possible entity resolution mismatch."
+}

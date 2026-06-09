@@ -1,0 +1,81 @@
+{
+  "nct_id": "NCT00428090",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PPARG target engagement biomarker was measured (e.g., no adiponectin, no PPARG-responsive gene expression). However, indirect pharmacodynamic markers consistent with PPARG agonism are present: body weight increased (+0.8 kg vs -0.3 kg placebo), hemoglobin/hematocrit decreased dose-dependently with 8 mg, and cholesterol/LDL elevations were more frequent in the 8 mg arm. These are well-established on-target effects of thiazolidinediones via PPARG activation. HbA1c did not change significantly, but the population was non-diabetic AD patients, so this is not unexpected. The weight gain and hematologic changes provide indirect evidence of PPARG engagement. 2. PATHWAY MODULATION: PPARG agonism appears to have occurred (based on peripheral PD markers), but there is no evidence that the intended CNS biology \u2014 insulin sensitization and neuroprotection in the brain \u2014 was modulated. No CNS biomarkers (e.g., CSF insulin, amyloid, tau, neuroinflammation markers) were reported. The mechanism linking peripheral PPARG agonism to CNS neuroprotection in AD is speculative and was not validated here. 3. CLINICAL TRANSLATION: The primary endpoint (ADAS-Cog change at W24 stratified by APOE e4 status) was not met in any cohort. Full population: effect size -0.8, p=0.272. APOE e4-negative: -1.8, p=0.074 (trend but not significant). All-except-e4/e4: -1.2, p=0.131. CIBIC+ showed no benefit (p=0.939). Critically, the donepezil arm showed significant benefit on CIBIC+ (p=0.009) and MMSE (p=0.030), confirming assay sensitivity \u2014 the trial was capable of detecting a treatment effect, and rosiglitazone simply did not produce one. 4. POPULATION EFFECTS: There is a directional trend in APOE e4-negative patients (p=0.074) but it does not reach significance and the effect size (-1.8 points) is modest. This was a pre-specified subgroup hypothesis from earlier trials, but it was not confirmed here. The APOE e4-negative signal is suggestive but insufficient to classify as efficacy_in_subgroup_only given it missed significance. 5. CONFOUNDERS: The trial was adequately powered (N=862), had assay sensitivity confirmed by donepezil, used appropriate endpoints for AD, and ran for 24 weeks. The 24-week duration may be insufficient to detect disease-modifying effects in AD (a wrong_timeframe consideration), but the trial was designed as a symptomatic/functional assessment. The primary failure mode is that the biology (PPARG-mediated neuroprotection in AD) did not translate to clinical benefit \u2014 the mechanism may not be relevant to AD pathophysiology, or CNS penetration/engagement was insufficient. The peripheral PD markers suggest PPARG was engaged systemically, but the CNS biology was not demonstrably moved, and the clinical endpoint was flat.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Peripheral PPARG engagement is suggested by weight gain, hemoglobin decrease, and lipid changes, but no CNS biology movement was demonstrated. The clinical endpoint (ADAS-Cog) was flat across all cohorts (p=0.272 full population). This is more accurately a case where peripheral target engagement occurred but CNS biology was not moved, making it borderline between target_engaged_biology_not_moved and biology_moved_endpoint_flat."
+    },
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.5,
+      "evidence": "Indirect PD markers (weight gain, hemoglobin decrease, lipid changes) suggest systemic PPARG engagement, but no CNS-relevant biology (neuroprotection, insulin sensitization in brain) was demonstrated to have moved. The intended biology for AD \u2014 CNS insulin sensitization and neuroprotection \u2014 was not measured and likely not engaged, even if peripheral PPARG was activated."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "The APOE e4-negative trend (p=0.074) suggests the mechanism may be APOE genotype-dependent. The full unselected AD population may not be the right population for PPARG-mediated neuroprotection, which may require APOE e4-negative status for benefit."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.25,
+      "evidence": "24 weeks may be insufficient to detect disease-modifying effects in AD if the mechanism is neuroprotective rather than symptomatic. However, the trial was designed as a functional/symptomatic assessment, and donepezil showed benefit at 24 weeks, so this is a minor consideration."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "AVANDAMET",
+      "target_entity": "ENSG00000132170",
+      "support": "weak_support",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "Indirect PD markers consistent with PPARG agonism (weight gain, hemoglobin decrease, lipid changes) suggest systemic PPARG engagement, but no direct target engagement biomarker was measured. Per round-28 AFFECTS rule, indirect PD evidence of on-target effects supports this edge at weak level."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "GO:0030518",
+      "support": "weak_support",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "Peripheral PD markers (weight gain, hematologic changes, lipid changes) are consistent with PPARG-mediated nuclear receptor signaling pathway activation systemically. However, CNS pathway modulation was not measured. Weak support for peripheral pathway engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "Even if PPARG nuclear receptor signaling was engaged peripherally, the intended biology (insulin sensitization and neuroprotection in AD brain) was not demonstrated to have moved. No CNS biomarkers were reported, and the clinical endpoint was flat. The mechanism did not translate to the intended biology in this indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone",
+      "reasoning": "The clinical endpoint was flat across all cohorts (ADAS-Cog p=0.272, CIBIC+ p=0.939) despite assay sensitivity being confirmed by donepezil. This suggests that insulin sensitization and metabolic regulation via PPARG does not meaningfully drive Alzheimer's disease biology in this population, or at least does not translate to clinical benefit."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_w0_adas_cog_score_w24_function_apoe_e4_status",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The ADAS-Cog is a validated, regulator-accepted endpoint for AD. The donepezil arm showed significant benefit on CIBIC+ and MMSE, confirming assay sensitivity. The endpoint itself is appropriate for capturing AD benefit; the failure was in the drug, not the endpoint. Moderate support for endpoint validity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was missed across all cohorts (p=0.272 full population, p=0.074 APOE e4-negative, p=0.131 all-except-e4/e4) with adequate power (N=862) and confirmed assay sensitivity. The mild-to-moderate AD population did not respond to rosiglitazone XR. Moderate contradict given adequate power and assay sensitivity confirmation."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial lacks CNS-specific biomarkers (CSF insulin, amyloid, tau, neuroinflammation markers) that would allow definitive classification of where the causal chain broke \u2014 whether at CNS target engagement, CNS pathway modulation, or biology-to-endpoint translation. The peripheral PD markers suggest systemic PPARG engagement but cannot confirm CNS engagement. Additionally, the APOE e4-negative trend (p=0.074) raises the question of whether a larger, genotype-selected trial might show benefit, making the wrong_population failure mode plausible. Expert review is needed to assess whether CNS PPARG engagement was plausible at these doses and whether the APOE e4-negative signal warrants further investigation."
+}

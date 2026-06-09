@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT00736879",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Reductions in fasting plasma glucose (-11.0, -21.6, -28.5 mg/dL across doses vs +4.1 mg/dL placebo) and 2-hour post-meal glucose (-33.3, -39.3, -51.8 mg/dL vs +8.81 mg/dL placebo) are consistent with SGLT2 inhibition driving urinary glucose excretion. A clear dose-response relationship is observed across the 1 mg, 2.5 mg, and 5 mg arms. 2. PATHWAY MODULATION: Downstream biology moved as predicted. HbA1c reductions (-0.68%, -0.72%, -0.82% vs +0.02% placebo), fasting plasma glucose reductions, and 2-hour post-meal glucose reductions all confirm that SGLT2 inhibition translated into meaningful glycemic reduction. Additional pleiotropic effects (body weight reduction ~2.7 kg across all doses vs ~1 kg placebo; systolic BP reduction 3.1-4.6 mmHg vs +0.8 mmHg placebo) are consistent with the mechanism of caloric loss via glucosuria. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change at Week 24) was met at p=0.0001 for all three dose arms. Effect sizes of -0.69%, -0.74%, and -0.84% vs placebo are clinically meaningful for a monotherapy in treatment-naive T2DM patients. Secondary endpoints (FPG, body weight) also met significance. 4. POPULATION EFFECTS: The trial enrolled treatment-naive T2DM adults. Subgroup analysis for HbA1c <7.0% target showed significant benefit for 1 mg (p=0.0157) but not 2.5 mg (p=0.2512) or 5 mg (p=0.0726), though this is a secondary endpoint and the primary HbA1c change was significant across all doses. No major subgroup heterogeneity issues. 5. CONFOUNDERS: Safety profile was acceptable \u2014 no hypoglycemia, no deaths, SAEs were low and not clearly drug-related (convulsion, tuberculosis, uterine leiomyoma, pneumonia). Genital infections and UTIs were slightly elevated but low in absolute terms. No dose-limiting toxicity. The trial was adequately powered (n=497) and 24 weeks is an appropriate duration for HbA1c assessment. The dose-response relationship across all three arms strengthens causal inference.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dapagliflozin",
+      "target_entity": "ENSG00000140675",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_1_mg",
+      "reasoning": "Fasting plasma glucose and post-meal glucose reductions consistent with SGLT2 inhibition confirm target engagement at 1 mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dapagliflozin",
+      "target_entity": "ENSG00000140675",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_2_5_mg",
+      "reasoning": "Fasting plasma glucose and post-meal glucose reductions consistent with SGLT2 inhibition confirm target engagement at 2.5 mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dapagliflozin",
+      "target_entity": "ENSG00000140675",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_5_mg",
+      "reasoning": "Fasting plasma glucose and post-meal glucose reductions consistent with SGLT2 inhibition confirm target engagement at 5 mg dose, with strongest dose-response signal."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000140675",
+      "target_entity": "GO:0055085",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_1_mg",
+      "reasoning": "Glucose reductions in fasting and post-meal states are mechanistically explained by SGLT2 inhibition driving urinary glucose excretion via transmembrane transport blockade."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000140675",
+      "target_entity": "GO:0055085",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_2_5_mg",
+      "reasoning": "Glucose reductions in fasting and post-meal states confirm SGLT2 modulates transmembrane transport at 2.5 mg dose."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000140675",
+      "target_entity": "GO:0055085",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_5_mg",
+      "reasoning": "Strongest glucose reductions at 5 mg confirm dose-dependent SGLT2 modulation of transmembrane transport."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0055085",
+      "target_entity": "bio:0d1f9c40c4ac",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_1_mg",
+      "reasoning": "Transmembrane transport inhibition led to measurable urinary glucose excretion and glycemic reduction as evidenced by FPG and post-meal glucose reductions at 1 mg."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0055085",
+      "target_entity": "bio:0d1f9c40c4ac",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_2_5_mg",
+      "reasoning": "Transmembrane transport inhibition led to measurable urinary glucose excretion and glycemic reduction at 2.5 mg."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0055085",
+      "target_entity": "bio:0d1f9c40c4ac",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_5_mg",
+      "reasoning": "Transmembrane transport inhibition led to measurable urinary glucose excretion and glycemic reduction at 5 mg with strongest effect."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0d1f9c40c4ac",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_1_mg",
+      "reasoning": "Urinary glucose excretion and glycemic reduction drove clinically meaningful HbA1c improvement (p=0.0001) in T2DM patients at 1 mg."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0d1f9c40c4ac",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_2_5_mg",
+      "reasoning": "Urinary glucose excretion and glycemic reduction drove clinically meaningful HbA1c improvement (p=0.0001) in T2DM patients at 2.5 mg."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0d1f9c40c4ac",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "dapagliflozin_5_mg",
+      "reasoning": "Urinary glucose excretion and glycemic reduction drove clinically meaningful HbA1c improvement (p=0.0001) in T2DM patients at 5 mg with largest effect size."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_adjusted_hemoglobin_a1c_hba1c_week_24_last",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at Week 24 is a well-validated, regulator-accepted surrogate endpoint for T2DM glycemic control. The endpoint was hit at p=0.0001 across all dose arms and was concordant with secondary endpoints (FPG, body weight, post-meal glucose), confirming it captures clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high__hba1c_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (treatment-naive T2DM adults) responded robustly to dapagliflozin across all dose arms with p=0.0001 for the primary endpoint, indicating this population responds to SGLT2 inhibition."
+    }
+  ],
+  "confidence_overall": 0.92,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

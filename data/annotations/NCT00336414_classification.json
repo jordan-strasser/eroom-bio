@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00336414",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data available. The trial was withdrawn before generating any efficacy or safety readout due to low and unexpected enrollment rate. No target engagement evidence exists. 2. PATHWAY MODULATION: No pathway biomarker data available. The trial did not reach the point of generating any biological readout. 3. CLINICAL TRANSLATION: Primary endpoint result is null/unknown. The trial was withdrawn without any efficacy data being collected or reported. 4. POPULATION EFFECTS: No subgroup findings reported. The trial enrolled children with new onset juvenile SLE nephritis, but enrollment was insufficient to generate any results. 5. CONFOUNDERS: The trial was explicitly withdrawn due to 'low and unexpected enrollment rate.' This is a pure operational/recruitment failure \u2014 the mechanism was never given a fair test. The causal chain was never tested because the trial could not accrue sufficient patients. This is a commercial_not_scientific / underpowered / operational failure driven by recruitment collapse, not a mechanistic failure. The primary failure mode is underpowered (terminated far below planned enrollment due to recruitment failure), making this an operational failure.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "The study was explicitly withdrawn due to 'low and unexpected enrollment rate,' meaning the trial never accrued sufficient patients to generate any efficacy readout. All per-arm outcomes are 'unknown' and all effect sizes and p-values are null."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "systemic_lupus_erythematosus_nephritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (composite response requiring 50% improvement in at least 2 core set variables) was never measured due to trial withdrawal before any efficacy readout. No information about whether this endpoint captures benefit in this indication can be derived from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__proteinuria24h_high__severity_active",
+      "target_entity": "systemic_lupus_erythematosus_nephritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was withdrawn before generating any efficacy data. No information about whether this population responds to the intervention can be derived from this trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

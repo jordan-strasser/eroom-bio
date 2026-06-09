@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00307827",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. There is no evidence reported about whether visilizumab reached and modulated CD3/CD3E on T cells. The trial was canceled before generating usable efficacy or safety readouts. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., T-cell depletion, cytokine levels) were reported. Cannot assess whether GO:0050852 (T cell receptor signaling pathway) was modulated. 3. CLINICAL TRANSLATION: The primary endpoint (proportion responding at Day 45) has no reported result \u2014 all three arms show 'unknown' outcomes. The study was canceled (investigator commentary: 'Study Canceled'), meaning no primary endpoint readout was generated. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was canceled before completion. With only 38 subjects enrolled across three dose groups and no efficacy readout, this is an operational failure \u2014 the mechanism was never given a fair test. The cancellation appears to be administrative/strategic rather than due to a mechanistic finding. Because the trial was canceled before the primary endpoint was reached and no comparator or historical benchmark is available for this specific readout, this qualifies as insufficient_information. The operational_failure flag is set to true because the trial was terminated before any efficacy readout, meaning the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Study was canceled (investigator commentary: 'Study Canceled'). All three arms show 'unknown' outcomes for the primary endpoint. No efficacy, biomarker, or safety data were reported. No comparator arm and no historical benchmark available for this specific readout context."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.4,
+      "evidence": "The study cancellation without any reported scientific rationale (no safety signal, no futility analysis mentioned) suggests a possible commercial or strategic decision, though this cannot be confirmed from available data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR",
+      "target_entity": "ulcerative_colitis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (clinical response at Day 45, mapped to ORR) was never measured due to study cancellation. No result was generated, so the endpoint's ability to capture benefit in ulcerative_colitis cannot be assessed from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__mayoscore_high__mtwsi_high__severity_severe",
+      "target_entity": "ulcerative_colitis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled steroid-refractory UC patients (a severe, second-line population) but was canceled before any efficacy readout. No information about whether this population responds to visilizumab can be derived."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was canceled before primary endpoint was reached with no reported scientific rationale (no safety signal, no futility analysis). It is unclear whether cancellation was due to commercial/strategic reasons, enrollment difficulties, or other factors. No efficacy or safety data are available to assess the mechanistic causal chain. Expert review needed to determine if any interim data exists that could inform the chain."
+}

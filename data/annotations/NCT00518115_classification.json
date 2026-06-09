@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT00518115",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. EC50 for HbA1c was ~1140-1230 ng/mL across treatment-naive and prior monotherapy subgroups, with detailed PK parameters (clearance 94.2 mL/hr, Vd 16400 L, absorption rate 0.0193 hr^-1) confirming drug exposure. Higher doses achieved concentrations sufficient to engage GLP-1R and produce dose-dependent HbA1c reductions. 2. PATHWAY MODULATION: Downstream biology clearly moved. Fasting plasma glucose reduced up to -1.44 mmol/L, fasting fructosamine reduced up to -38.1 \u00b5mol/L, and fasting glucagon was reduced in most active arms \u2014 all consistent with GLP-1R agonism driving glucose-dependent insulin secretion and glucagon suppression. Clear dose-response relationship observed. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change from baseline at Week 16) was met. Four albiglutide arms achieved statistically significant HbA1c reductions vs placebo: 30 mg weekly (-1.08%, p=0.0027), 30 mg bi-weekly (-1.01%, p=0.0057), 50 mg bi-weekly (-1.03%, p=0.0032), and 100 mg every 4 weeks (-1.06%, p=0.0022). The overall trial p-value was 0.0022. Lower doses (4 mg, 15 mg) did not achieve significance, consistent with dose-response pharmacology. 4. POPULATION EFFECTS: The enrolled population (T2DM on no medication or metformin only) was appropriate for the mechanism. EC50 values were similar between treatment-naive and prior monotherapy subgroups (1140 vs 1230 ng/mL), suggesting consistent mechanism across these subgroups. Dose-response was clear and consistent. 5. CONFOUNDERS: The placebo arm showed a -0.46% HbA1c reduction, which is somewhat notable but not unusually high for this indication. The trial was adequately powered with 361 participants across 10 arms. Safety profile was acceptable \u2014 injection site reactions were mild and infrequent; albiglutide had less nausea/vomiting than exenatide BID. No dose-limiting toxicity prevented adequate dosing. The trial successfully demonstrated proof-of-concept for albiglutide as a GLP-1R agonist with a favorable tolerability profile vs exenatide. Caveats: this is a Phase 2 dose-ranging study with relatively short 16-week primary endpoint; long-term cardiovascular and durability outcomes were not assessed here.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Individual arms had small sample sizes (~31-51 per arm across 10 arms), which may explain why some intermediate doses (15 mg weekly, 15 mg bi-weekly) did not reach statistical significance despite numerically meaningful HbA1c reductions (-0.71%, -0.68%). This is a dose-ranging Phase 2 study design caveat rather than a trial-level failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "albiglutide",
+      "target_entity": "ENSG00000112164",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_gsk716155_or_exenatide",
+      "reasoning": "EC50 for HbA1c (~1140-1230 ng/mL) and detailed PK parameters directly demonstrate target engagement. Dose-dependent HbA1c reductions confirm albiglutide engages GLP-1R at therapeutic concentrations."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112164",
+      "target_entity": "R-HSA-420092",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_gsk716155_or_exenatide",
+      "reasoning": "GLP-1R engagement demonstrably activated the glucagon-type ligand receptor pathway: fasting glucagon was reduced in most active arms, fasting plasma glucose and fructosamine were reduced in a dose-dependent manner, consistent with GLP-1R-mediated insulin secretion and glucagon suppression."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-420092",
+      "target_entity": "bio:03b27f41914b",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_gsk716155_or_exenatide",
+      "reasoning": "GLP-1R agonism via albiglutide produced clear downstream metabolic biology changes: reduced FPG (up to -1.44 mmol/L), reduced fructosamine (up to -38.1 \u00b5mol/L), reduced glucagon \u2014 all consistent with insulin sensitization and metabolic regulation biology being engaged."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_gsk716155_or_exenatide",
+      "reasoning": "Insulin sensitization and metabolic regulation biology drove clinically meaningful HbA1c reductions (up to -1.08% vs placebo) at adequate doses, confirming this biology is causally relevant to T2DM disease control."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin_hba1c_week_16",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c change from baseline at Week 16 was the pre-specified primary endpoint and was met (p=0.0022 for best arm). HbA1c is a well-validated, regulator-accepted surrogate for glycemic control in T2DM. Concordant secondary biomarkers (FPG, fructosamine, glucagon) supported the primary endpoint signal."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prior_tx_naive",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Treatment-naive subgroup had EC50 for HbA1c of 1140 ng/mL (95% CI 483-2990), similar to prior monotherapy group (1230 ng/mL), suggesting both subgroups respond to albiglutide with comparable dose-response characteristics. Primary endpoint was met in the overall population including both subgroups."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prior_tx_treated",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Prior monotherapy subgroup had EC50 for HbA1c of 1230 ng/mL (95% CI 403-3560), very similar to treatment-naive group, indicating this population also responds to albiglutide GLP-1R agonism with comparable efficacy."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

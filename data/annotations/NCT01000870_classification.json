@@ -1,0 +1,22 @@
+{
+  "nct_id": "NCT01000870",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: MNI-513 is a PET radioligand designed to bind amyloid beta plaques. The trial's primary endpoint was detection/exclusion of cerebral amyloid beta by PET imaging. No biomarker or target engagement data is reported. The investigator commentary states 'results did not show reason to continue with study,' suggesting the radioligand did not adequately bind or visualize amyloid plaques. With only 6 subjects and no quantitative PET readout reported, we cannot confirm target engagement. 2. PATHWAY MODULATION: Not applicable in the traditional sense \u2014 this is a diagnostic imaging agent, not a therapeutic. The 'pathway' here is radioligand binding to amyloid plaques producing a detectable PET signal. No imaging data or SUV ratios are reported. 3. CLINICAL TRANSLATION: The primary endpoint was not met. The trial failed to demonstrate that MNI-513 PET could detect or exclude cerebral amyloid beta in AD patients versus healthy volunteers. No effect size or p-value is reported, consistent with a very small sample (n=6) and a decision to discontinue. 4. POPULATION EFFECTS: No subgroup findings reported. The sample size of 6 is too small to draw any subgroup conclusions. 5. CONFOUNDERS: The study is severely underpowered (n=6). The failure could reflect inadequate radioligand binding (no_target_engagement), insufficient sample size (underpowered), or both. The investigator commentary suggests the imaging signal was insufficient to justify continuation. Given the extremely small sample and lack of any quantitative readout, the primary failure mode is likely no_target_engagement (the radioligand did not produce adequate PET signal to distinguish AD from healthy volunteers), compounded by severe underpowering. The absence of any resolved graph entities means no causal-chain edges can be reliably emitted.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.55,
+      "evidence": "Investigator commentary states 'results did not show reason to continue with study,' suggesting MNI-513 did not produce adequate PET signal for amyloid detection. No quantitative imaging data reported. Primary endpoint of detection/exclusion of cerebral amyloid beta was not met."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "Sample size of only 6 subjects is grossly insufficient to establish diagnostic performance of a PET radioligand. Even if some signal was present, the study lacked statistical power to demonstrate detection/exclusion of amyloid beta."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.35,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No resolved graph entities are available for this trial, preventing any causal-chain edge updates. The trial involves a diagnostic PET radioligand (not a therapeutic), which does not map cleanly to the standard compound\u2192target\u2192mechanism\u2192biology\u2192indication chain. The failure could reflect inadequate radioligand binding affinity/selectivity, poor brain penetration/pharmacokinetics, or simply insufficient sample size. No quantitative PET imaging data (SUV ratios, standardized uptake values, or visual read results) are reported, making mechanistic classification highly uncertain. Expert review is needed to determine whether MNI-513's failure reflects a compound-specific binding deficiency or a study design/power issue."
+}

@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00762411",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: LY450139 clearly engaged its intended target (gamma-secretase). Plasma A\u03b21-42 decreased by 16.03% in the treatment arm vs. increased 76.37% in placebo (p=0.009), providing statistically significant evidence of target engagement. CSF A\u03b21-42 also showed directional changes consistent with gamma-secretase inhibition (increased in treatment arm, decreased in placebo), though not statistically significant (p=0.417). This confirms the drug reached and modulated gamma-secretase.\n\n2. PATHWAY MODULATION: Target was engaged and A\u03b2 production was reduced in plasma. However, downstream biology did not change as predicted. CSF tau and p-tau showed non-significant trends. AV-45 PET amyloid SUVR showed a directional but non-significant difference (LY450139 -0.36 vs placebo +0.16, p=0.326). Hippocampal volume actually trended worse in the treatment arm for right hippocampus (LY450139 -158.50 mm\u00b3 vs placebo -73.60 mm\u00b3, p=0.101), suggesting possible harm rather than neuroprotection. The biology (amyloid plaque reduction, neurodegeneration prevention) did not clearly move in the expected direction despite target engagement. Critically, dosing was stopped due to dose-dependent cognitive/functional worsening, suggesting the drug may have had off-target effects (e.g., Notch signaling inhibition via gamma-secretase) that worsened outcomes.\n\n3. CLINICAL TRANSLATION: Both primary endpoints failed completely. ADAS-Cog11: LY450139 7.37 vs placebo 6.77 (p=0.56); ADCS-ADL: LY450139 -10.49 vs placebo -9.77 (p=0.567). The treatment arm actually showed numerically worse cognitive and functional outcomes than placebo, consistent with the dose-dependent worsening that led to dosing cessation. This is a biology_moved_endpoint_flat pattern at the plasma A\u03b2 level, but the hippocampal and clinical data suggest the biology did not move beneficially \u2014 and may have moved harmfully due to off-target gamma-secretase inhibition (Notch pathway).\n\n4. POPULATION EFFECTS: No meaningful subgroup responders identified. Hippocampal volume subgroup analyses showed no benefit. The enrolled population (Alzheimer's disease patients with low GDS and low Hachinski scores) was appropriate for the mechanism hypothesis.\n\n5. CONFOUNDERS: The primary failure mode is complex. Target was engaged (plasma A\u03b2 reduced), but: (a) the downstream biology did not improve \u2014 amyloid plaque burden (PET) did not significantly decrease, hippocampal volume trended worse; (b) the drug caused dose-dependent cognitive/functional worsening, suggesting off-target toxicity (likely Notch inhibition by non-selective gamma-secretase inhibition) that may have actively harmed patients; (c) the clinical endpoints clearly missed. This represents a combination of biology_moved_endpoint_flat (plasma A\u03b2 moved but clinical endpoints didn't improve) and a possible wrong_population or target_engaged_biology_not_moved pattern where the amyloid hypothesis itself may be insufficient, compounded by off-target harm from non-selective gamma-secretase inhibition. The dose-dependent worsening is a critical signal \u2014 it suggests the drug's mechanism of action (broad gamma-secretase inhibition affecting Notch and other substrates) caused harm that overwhelmed any potential benefit from A\u03b2 reduction.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Plasma A\u03b21-42 was significantly reduced (p=0.009), confirming target engagement and partial biology movement, but both primary clinical endpoints (ADAS-Cog11 p=0.56, ADCS-ADL p=0.567) failed completely with numerically worse outcomes in the treatment arm. The amyloid reduction did not translate to cognitive or functional benefit."
+    },
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.7,
+      "evidence": "Multiple overlapping failure factors: (1) biology moved at plasma A\u03b2 level but clinical endpoints flat/worse; (2) dose-dependent cognitive/functional worsening led to dosing cessation, suggesting off-target harm from non-selective gamma-secretase inhibition (Notch pathway); (3) hippocampal volume trended worse in treatment arm (right: -158.50 vs -73.60 mm\u00b3, p=0.101), suggesting neurodegeneration was not halted and may have been accelerated; (4) the amyloid hypothesis itself may be insufficient to drive clinical benefit even when A\u03b2 production is reduced."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ly450139",
+      "target_entity": "ENSG00000117362",
+      "support": "strong_support",
+      "affecting_arm_id": "ly450139",
+      "reasoning": "Plasma A\u03b21-42 decreased significantly (p=0.009) in the treatment arm vs. placebo, providing direct pharmacodynamic evidence that LY450139 engaged gamma-secretase (APH1A) and inhibited its enzymatic activity. This is a mechanistically required downstream readout of gamma-secretase inhibition."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000117362",
+      "target_entity": "R-HSA-1227986",
+      "support": "moderate_support",
+      "affecting_arm_id": "ly450139",
+      "reasoning": "Gamma-secretase engagement was confirmed by plasma A\u03b21-42 reduction (p=0.009), indicating the target modulated its downstream signaling pathway. However, the broader pathway modulation (amyloid plaque reduction, neuroprotection) was not clearly demonstrated, warranting moderate rather than strong support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1227986",
+      "target_entity": "bio:090def8a3caa",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly450139",
+      "reasoning": "While plasma A\u03b21-42 was reduced, the broader amyloid biology did not move beneficially: AV-45 PET amyloid SUVR showed non-significant changes (p=0.326), hippocampal volume trended worse in the treatment arm, and dose-dependent cognitive worsening occurred. The mechanism (gamma-secretase inhibition via this pathway) did not produce the expected beneficial amyloid biology reduction at the tissue/plaque level."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:090def8a3caa",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly450139",
+      "reasoning": "Despite partial reduction in plasma A\u03b21-42, clinical endpoints (ADAS-Cog11, ADCS-ADL) showed no benefit and numerically worse outcomes in the treatment arm. This suggests that amyloid beta peptide reduction via this mechanism does not drive meaningful clinical improvement in Alzheimer's disease, providing weak contradict evidence for the amyloid hypothesis as implemented here."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimer_s_disease_assessment_scale_cognitive",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The ADAS-Cog11 endpoint was measured and clearly missed (p=0.56) with adequate power (N=1111). The endpoint did detect disease progression in both arms (both worsened over time), confirming it captures disease biology, but it failed to detect any treatment benefit. Given the plasma A\u03b2 biomarker moved significantly, the endpoint's failure to capture any benefit from A\u03b2 reduction suggests either the endpoint is insensitive to this mechanism's effects or the biology-to-clinical translation is broken. Moderate contradict because the endpoint did capture disease progression but not treatment benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "geriatricdepressionscale_low__modifiedhachinskiischemiascale_low",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (low GDS, low Hachinski scores \u2014 i.e., non-depressed, non-vascular dementia Alzheimer's patients) showed no response to LY450139 treatment. Both primary endpoints missed with p>0.50 in an adequately powered trial (N=1111), and the treatment arm showed numerically worse outcomes. This population did not respond to gamma-secretase inhibition."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial presents a complex mechanistic picture: target engagement was confirmed (plasma A\u03b2 reduced, p=0.009) but clinical outcomes were numerically worse in the treatment arm, and dosing was stopped due to dose-dependent cognitive/functional worsening. This pattern is consistent with off-target gamma-secretase inhibition (Notch signaling) causing harm that overwhelmed any potential amyloid-reduction benefit. Expert review is needed to: (1) determine whether the failure should be classified primarily as off-target toxicity masking potential efficacy vs. true biology_moved_endpoint_flat; (2) assess whether the CSF A\u03b21-42 increase (paradoxical vs. plasma decrease) reflects a redistribution artifact or a different biological process; (3) evaluate whether the hippocampal volume worsening in the treatment arm represents drug-induced harm; and (4) assess the appropriate causal chain update given that the drug may have actively worsened outcomes rather than simply failing to help."
+}

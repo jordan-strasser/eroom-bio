@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00406419",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Ocrelizumab binds CD20 (MS4A1/ENSG00000156738) on B-cells. The trial provides strong indirect evidence of target engagement: CRP decreased markedly in both ocrelizumab arms (-30.41 mg/dL at 200 mg, -23.07 mg/dL at 500 mg) versus an increase in placebo (+11.64 mg/dL). ESR also decreased substantially in ocrelizumab arms vs minimal change in placebo. These inflammatory biomarker reductions are consistent with B-cell depletion via anti-CD20 binding. Target engagement is well-supported.\n\n2. PATHWAY MODULATION: Downstream biology clearly moved. DAS28 improved by -2.42 (200 mg) and -2.68 (500 mg) vs -1.38 (placebo) at Week 48. mTSS radiographic progression was markedly reduced (+0.26 and -0.03 vs +1.74 placebo). DAS28 remission rates (16.0%, 17.5% vs 5.3%), ACR70 rates (20.7%, 22.4% vs 6.6%), and HAQ-DI improvements all confirm robust downstream biological activity. B-cell mediated autoimmune inflammation suppression was clearly achieved.\n\n3. CLINICAL TRANSLATION: The primary endpoint (ACR20 at Week 24 and Week 48) was met with high statistical significance (p=0.0001). ACR20 rates of 56.9%/54.5% at Week 24 and 58.3%/62.1% at Week 48 vs 35.7%/27.6% placebo represent clinically meaningful differences of ~20-34 percentage points. The clinical endpoint translated well from the biology.\n\n4. POPULATION EFFECTS: No specific biomarker-defined subgroup analysis is reported. Both doses showed consistent efficacy across all secondary endpoints. The enrolled population (active RA on stable MTX) was appropriate for the mechanism.\n\n5. CONFOUNDERS: Despite clear efficacy, the trial was terminated and ocrelizumab was not pursued in RA due to an unfavorable benefit-to-risk profile. The safety signals \u2014 serious cardiovascular events (aortic aneurysm, aortic dissection in 200 mg arm), malignancies (B-cell lymphoma, breast cancer in ocrelizumab arms), and serious infections (pneumonia notably higher in 500 mg arm: 2.9% vs 0.9% placebo) \u2014 drove a commercial/regulatory decision to discontinue development in RA. The structured AE table shows pneumonia SAEs at 10/345 (2.9%) in the 500 mg arm vs 3/318 (0.9%) in placebo, a clinically meaningful excess. However, the MTD was not below the target-engaging dose \u2014 both doses were efficacious. The termination was driven by overall benefit-risk assessment rather than inability to dose adequately. This is primarily a commercial/strategic decision informed by safety concerns, not a dose-limiting toxicity failure in the strict DLT sense (dosing was not curtailed below the efficacious range). The trial outcome is classified as 'partial' \u2014 efficacy was demonstrated but development was halted for safety/commercial reasons.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Trial was terminated and ocrelizumab not pursued in RA based on 'unfavorable overall benefit-to-risk profile' per investigator commentary, despite meeting primary efficacy endpoints at p=0.0001. This is a strategic benefit-risk decision, not a scientific failure of the mechanism."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.45,
+      "evidence": "Serious safety signals contributed to the benefit-risk decision: pneumonia SAEs at 2.9% (500 mg) vs 0.9% (placebo), serious cardiovascular events (aortic aneurysm, aortic dissection) in 200 mg arm, and malignancies in ocrelizumab arms. However, dosing was not curtailed below the efficacious range \u2014 both doses achieved the primary endpoint \u2014 so this does not meet the strict DLT definition of MTD below target-engaging dose."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ocrelizumab",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_200_mg_2_iv_mtx",
+      "reasoning": "CRP and ESR reductions in ocrelizumab arms vs placebo, combined with robust ACR20 and DAS28 responses, confirm target engagement with CD20/MS4A1. The downstream inflammatory biomarker changes are mechanistically consistent with B-cell depletion via anti-CD20 binding."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ocrelizumab",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_500_mg_2_iv_mtx",
+      "reasoning": "Same target engagement evidence applies to the 500 mg arm: CRP -23.07 mg/dL, ESR -29.98%, DAS28 -2.68, all consistent with CD20-mediated B-cell depletion."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_200_mg_2_iv_mtx",
+      "reasoning": "The downstream inflammatory biomarker reductions (CRP, ESR) and clinical responses (ACR20, DAS28) are consistent with CD20 engagement driving antibody-dependent cytotoxicity and B-cell depletion. The mechanism's immediate downstream readout (inflammation suppression) clearly activated."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_500_mg_2_iv_mtx",
+      "reasoning": "Same evidence applies to 500 mg arm \u2014 ESR decreased -29.98%, CRP -23.07 mg/dL, DAS28 -2.68, confirming CD20 engagement drove the ADCC mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_200_mg_2_iv_mtx",
+      "reasoning": "B-cell mediated autoimmune inflammation suppression was clearly achieved: DAS28 remission 16.0%, ACR70 20.7%, HAQ-DI improvement 58.9%, mTSS near-zero progression (+0.26 vs +1.74 placebo). The ADCC mechanism drove the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_500_mg_2_iv_mtx",
+      "reasoning": "500 mg arm showed even stronger biology modulation: DAS28 remission 17.5%, ACR70 22.4%, HAQ-DI improvement 65.9%, mTSS -0.03 vs +1.74 placebo. ADCC mechanism robustly drove B-cell inflammation suppression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_200_mg_2_iv_mtx",
+      "reasoning": "B-cell mediated autoimmune inflammation suppression drove meaningful clinical benefit in RA: ACR20 58.3% at Week 48 vs 27.6% placebo (p=0.0001), with concordant DAS28, HAQ-DI, and radiographic endpoints all supporting that this biology is central to RA pathogenesis."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": "ocrelizumab_500_mg_2_iv_mtx",
+      "reasoning": "500 mg arm: ACR20 62.1% at Week 48 vs 27.6% placebo (p=0.0001). Consistent with 200 mg arm, confirming B-cell autoimmune inflammation suppression drives RA disease activity."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "ACR20 is a well-validated, regulator-accepted composite response endpoint for RA. It was met at p=0.0001 and supported by concordant secondary endpoints (DAS28, ACR70, HAQ-DI, mTSS), confirming it captures clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Active RA patients on stable MTX (second-line, active disease) responded robustly to ocrelizumab: ACR20 ~56-62% vs 27-36% placebo at p=0.0001, with clinically meaningful effect sizes across all endpoints. This population clearly responds to B-cell depletion."
+    }
+  ],
+  "confidence_overall": 0.78,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial met its primary efficacy endpoint with high statistical significance and robust effect sizes, yet was terminated for an unfavorable benefit-risk profile. The classification of 'partial' reflects this tension. Expert review is warranted to assess: (1) whether the cardiovascular SAEs (aortic aneurysm, aortic dissection) in the 200 mg arm represent a true drug-related signal or chance findings given small absolute numbers; (2) whether the pneumonia excess in the 500 mg arm (2.9% vs 0.9%) constitutes a dose-limiting safety signal that should shift the failure mode classification toward dose_limiting_toxicity; (3) the long-term safety follow-up data (up to 8.5 years) that may have informed the benefit-risk decision but is not fully captured in the structured extraction."
+}

@@ -1,0 +1,159 @@
+{
+  "nct_id": "NCT00361335",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD/PK biomarker for TNF-alpha neutralization is reported. CRP is used as a component of ACR composite scores but is not a standalone target engagement readout. Golimumab is a well-characterized anti-TNF antibody; binding to TNF-alpha is established by prior molecular data. The trial does not provide explicit target engagement evidence but the mechanism is well-validated. 2. PATHWAY MODULATION: No explicit pathway biomarker (e.g., standalone CRP reduction, IL-6, synovial biopsy) is reported beyond its inclusion in composite ACR scores. The ACR20 success at Week 14 in combination arms (p=0.001) and ACR50 success at Week 24 in multiple arms suggest downstream biology was modulated, but this is inferred from clinical composite scores rather than direct pathway readouts. 3. CLINICAL TRANSLATION: The pre-specified primary endpoint (ACR50 at Week 14) was missed across all arms (p=0.051 for Group I, 0.073 for Group II, 0.093 for Group III, 0.465 for Group IV). However, ACR50 at Week 24 was achieved in Groups I (p=0.002), II (p=0.032), and III (p=0.001), and ACR20 at Week 14 was achieved in Groups I and III (p=0.001). This pattern strongly suggests the primary endpoint timeframe was too early \u2014 the drug works but needs more than 14 weeks to achieve ACR50 levels. Group IV (4mg/kg monotherapy) failed at both timepoints, suggesting dose or combination dependency. 4. POPULATION EFFECTS: The combination arms (golimumab + MTX) consistently outperformed monotherapy arms, particularly at Week 24. The 4mg/kg monotherapy arm failed at both timepoints, while the 2mg/kg monotherapy arm succeeded at Week 24. This suggests MTX combination is important for efficacy, and the 4mg/kg monotherapy dose may have had a paradoxical or immunogenicity-related issue. No biomarker-defined subgroups were reported. 5. CONFOUNDERS: The primary failure is best explained by wrong timeframe \u2014 ACR50 at Week 14 was the pre-specified endpoint, but the drug's effect on ACR50 emerges more clearly by Week 24. The p=0.051 for the best-performing arm at Week 14 is a marginal miss. The trial is classified as 'partial' because multiple arms succeeded on secondary/later timepoints while the primary endpoint was missed. The 4mg/kg monotherapy arm's complete failure at both timepoints is notable and may reflect immunogenicity without MTX co-administration or other confounders.",
+  "failure_modes": [
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.75,
+      "evidence": "ACR50 at Week 14 missed across all arms (best p=0.051), but ACR50 at Week 24 succeeded in Groups I (p=0.002), II (p=0.032), and III (p=0.001). ACR20 at Week 14 succeeded in Groups I and III (p=0.001), indicating biological activity was present but ACR50-level response required more time to manifest."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.35,
+      "evidence": "The primary arm (Group I, 2mg/kg + MTX) had p=0.051 at Week 14, a marginal miss that could reflect insufficient power to detect a real but modest effect at this timepoint. The trial enrolled 643 patients across 5 arms, potentially diluting power per arm."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "weak_support",
+      "affecting_arm_id": "group_i_2mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 success at Week 14 (p=0.001) and ACR50 success at Week 24 (p=0.002) in this arm imply golimumab engaged TNF-alpha and produced downstream anti-inflammatory effects. No direct binding assay reported, but clinical response pattern is consistent with target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "weak_support",
+      "affecting_arm_id": "group_ii_2mg_kg_golimumab_only",
+      "reasoning": "ACR50 success at Week 24 (p=0.032) suggests target engagement occurred, though primary endpoint at Week 14 was missed."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "weak_support",
+      "affecting_arm_id": "group_iii_4mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 success at Week 14 (p=0.001) and ACR50 success at Week 24 (p=0.001) imply target engagement. Primary ACR50 at Week 14 missed (p=0.093) but later timepoint success is consistent with TNF neutralization."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "golimumab",
+      "target_entity": "ENSG00000232810",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_iv_4mg_kg_golimumab_only",
+      "reasoning": "4mg/kg golimumab monotherapy failed at both Week 14 (p=0.465) and Week 24 (p=0.795). While this may reflect immunogenicity without MTX rather than non-binding, the complete lack of efficacy signal provides weak contradict evidence for this arm's chain."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_i_2mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 at Week 14 and ACR50 at Week 24 success in this arm suggest TNF neutralization modulated adaptive immune response, consistent with the proposed mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_iii_4mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 at Week 14 and ACR50 at Week 24 success support TNF modulating adaptive immune response in this arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_iv_4mg_kg_golimumab_only",
+      "reasoning": "Complete failure at both timepoints in the 4mg/kg monotherapy arm provides weak contradict evidence that TNF engagement modulated adaptive immune response in this arm's context."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_i_2mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 at Week 14 and ACR50 at Week 24 success indicate adaptive immune response modulation translated to pro-inflammatory cytokine suppression in this combination arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_support",
+      "affecting_arm_id": "group_ii_2mg_kg_golimumab_only",
+      "reasoning": "ACR50 success at Week 24 (p=0.032) supports mechanism-to-biology translation, though primary endpoint missed."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_iii_4mg_kg_golimumab_mtx",
+      "reasoning": "ACR20 at Week 14 and ACR50 at Week 24 success support mechanism-to-biology translation in this arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_iv_4mg_kg_golimumab_only",
+      "reasoning": "Complete failure at both timepoints in 4mg/kg monotherapy arm provides weak contradict evidence for mechanism-to-biology translation in this context."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_i_2mg_kg_golimumab_mtx",
+      "reasoning": "ACR50 success at Week 24 and ACR20 success at Week 14 in the 2mg/kg + MTX arm support that pro-inflammatory cytokine suppression drives RA disease activity."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_support",
+      "affecting_arm_id": "group_ii_2mg_kg_golimumab_only",
+      "reasoning": "ACR50 success at Week 24 (p=0.032) in monotherapy arm supports biology-drives-indication link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "group_iii_4mg_kg_golimumab_mtx",
+      "reasoning": "ACR50 success at Week 24 (p=0.001) and ACR20 at Week 14 (p=0.001) in 4mg/kg + MTX arm support biology driving RA."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_iv_4mg_kg_golimumab_only",
+      "reasoning": "Complete failure at both timepoints in 4mg/kg monotherapy arm provides weak contradict evidence, though this may reflect immunogenicity rather than biology-indication disconnect."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ACR50 is a well-validated composite endpoint for RA. The primary endpoint (ACR50 at Week 14) was missed, but ACR50 at Week 24 succeeded in multiple arms and ACR20 at Week 14 succeeded in combination arms. The endpoint captures RA biology but the Week 14 timeframe was insufficient for ACR50-level response, suggesting the endpoint is valid but the measurement timing was suboptimal."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (active RA despite MTX) showed positive trends at Week 14 (p=0.051 for best arm) and clear responses at Week 24 in combination arms. The population does respond to golimumab+MTX but the primary endpoint timeframe was too early to demonstrate ACR50. Overall, a weak positive signal for this population responding to TNF inhibition."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The 4mg/kg monotherapy arm (Group IV) showed complete failure at both Week 14 and Week 24 (p=0.465 and p=0.795), while the 2mg/kg monotherapy arm succeeded at Week 24 (p=0.032). This paradoxical dose-response pattern (lower dose outperforming higher dose in monotherapy) may reflect immunogenicity differences, a hook effect, or other pharmacological phenomena not captured in the extraction. Expert review is warranted to assess whether the 4mg/kg monotherapy failure represents a true mechanistic signal or a trial conduct/immunogenicity artifact. Additionally, the marginal primary endpoint miss (p=0.051) and the wrong-timeframe interpretation require clinical expert validation."
+}

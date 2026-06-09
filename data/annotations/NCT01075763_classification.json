@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT01075763",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that interferon beta-1a engaged IFNAR in the CNS of Alzheimer's patients. The dose used (22 mcg TIW SC) is the standard MS dose, but there is no evidence it achieves meaningful CNS interferon signaling in AD patients. Target engagement is unmeasured.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., interferon-stimulated gene expression, cytokine levels, neuroinflammatory markers) were reported. Whether R-HSA-909733 (Interferon alpha/beta signaling) was modulated in the brain is unknown.\n\n3. CLINICAL TRANSLATION: The primary endpoint (ADAS-Cog change from baseline to Week 52) clearly failed: Rebif 20.66 vs Placebo 20.33, p=0.92. This is essentially a null result with near-identical scores between arms. No clinical benefit was demonstrated.\n\n4. POPULATION EFFECTS: Subgroup findings are mixed and non-significant. ADAS-NonCog numerically favored Rebif (5.47 vs 7.20, p=0.41) but did not reach significance. GDS numerically favored placebo (10.79 vs 7.50, p=0.12). CIBIC-PLUS showed no clear directional benefit. No subgroup showed a meaningful treatment effect.\n\n5. CONFOUNDERS: The trial was very small (N=42), making it severely underpowered to detect a clinically meaningful effect. The theoretical rationale for using interferon beta-1a in Alzheimer's disease is weak \u2014 the immunomodulatory/neuroprotective hypothesis for IFN-beta in AD lacks strong preclinical or mechanistic support. The p=0.92 result suggests no trend whatsoever, consistent with a wrong mechanism/wrong population scenario rather than merely underpowering. The combination of a small sample, weak biological rationale, and a completely flat result (effect size near zero) points to wrong_population and underpowered as co-primary failure modes.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.65,
+      "evidence": "Interferon beta-1a is approved for multiple sclerosis (an autoimmune demyelinating disease). Its use in Alzheimer's disease rests on a speculative immunomodulation/neuroprotection hypothesis with weak rationale. The ADAS-Cog result (20.66 vs 20.33, p=0.92) shows essentially zero effect, consistent with the mechanism not being relevant to this disease population."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Only 42 patients were enrolled in this trial. This is far below what would be needed to detect a clinically meaningful difference on ADAS-Cog in an Alzheimer's population. However, the near-zero effect size (difference of ~0.33 points) suggests underpowering alone cannot explain the failure \u2014 the drug simply showed no trend."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-909733",
+      "target_entity": "bio:bc75d06e803d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_arm_rebif",
+      "reasoning": "No biomarker data available to confirm pathway modulation. The completely flat clinical result (p=0.92) with no trend provides weak contradict evidence that interferon alpha/beta signaling modulates immunomodulation and neuroprotection in a clinically meaningful way in Alzheimer's disease."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:bc75d06e803d",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "treatment_arm_rebif",
+      "reasoning": "The completely null result (p=0.92, effect size ~0.33 ADAS-Cog points) provides weak contradict evidence that immunomodulation and neuroprotection via IFN-beta signaling drives Alzheimer's disease pathology in a therapeutically relevant way. No biomarker data available to localize the failure in the chain."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_alzheimer_s_disease_assessment_scale_cognitive",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "ADAS-Cog is a validated and widely accepted endpoint for Alzheimer's disease trials. However, the trial was very small (N=42) and the drug showed no effect whatsoever, so we cannot determine whether the endpoint failed to capture biology or whether there was simply no biology to capture. The endpoint itself is appropriate for the indication; the ambiguity arises from the trial's inability to test the endpoint's sensitivity given the null mechanism."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The mild severity Alzheimer's population showed no response to interferon beta-1a (p=0.92, near-zero effect size). With adequate duration (52 weeks) and a placebo-controlled design, this population did not respond to this intervention, providing moderate contradict evidence for this population-indication pairing with this mechanism."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

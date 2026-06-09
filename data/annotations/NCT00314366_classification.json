@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT00314366",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a Phase 1 safety trial of autologous ALDH-bright stem cells delivered intramyocardially. The canonical chain maps to PTGS2 (COX-2) via paracrine signaling \u2192 eicosatetraenoic acid synthesis \u2192 myocardial regeneration/angiogenesis. No direct target engagement biomarker (e.g., PTGS2 activity, prostaglandin levels) was measured. The delivery was confirmed procedurally (NOGA mapping + Myostar catheter, 15 injections of 0.2 ml each), so cells were delivered to the myocardium, but molecular target engagement is unconfirmed. 2. PATHWAY MODULATION: Downstream biology showed directional signals: LVESV improved (85.9 vs 94.7 ml in control), MVO2 improved (17.7 vs 14.6 ml/kg/min), and most notably the Total Severity Score (reversible perfusion defect on SPECT) improved dramatically in the stem cell arm (72.6\u219222.9) vs worsening in control (46.5\u219287.3). These suggest some biological activity consistent with improved myocardial perfusion. However, EF by SPECT-gated was slightly lower in the stem cell arm (40.4% vs 42.2%), and WMSI showed only modest improvement. No p-values were reported for any secondary endpoint, and the sample size (n=10 per arm) is too small to draw firm conclusions. 3. CLINICAL TRANSLATION: The primary endpoint was safety, which was met \u2014 the overall safety profile was deemed acceptable for Phase 1. However, there were numerically more adverse events in the stem cell arm (angina exacerbation 50% vs 10%, atrial arrhythmia 20% vs 0%, intracardiac thrombus 10% vs 0%), though the trial investigators considered these acceptable. Secondary efficacy endpoints showed directional improvement but no statistical significance was reported, and the trial was not powered for efficacy. 4. POPULATION EFFECTS: No formal subgroup analyses were conducted. The enrolled population (end-stage ischemic cardiomyopathy not amenable to revascularization) is appropriate for the mechanism. NYHA and CCS scores improved similarly in both arms. 5. CONFOUNDERS: This is a small Phase 1 trial (n=21 total, ~10 per arm) designed primarily for safety, not efficacy. The lack of p-values for secondary endpoints, small sample size, and the fact that this is a feasibility/safety study all limit mechanistic conclusions. The trial is classified as 'partial' because the primary safety endpoint was met but efficacy signals are directional only without statistical confirmation, and there are some concerning safety signals (angina exacerbation rate) in the treatment arm. The trial is underpowered for efficacy conclusions by design.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Phase 1 safety trial with n=10 per arm; no p-values reported for any secondary efficacy endpoint; trial explicitly not powered for efficacy. Directional signals in LVESV, MVO2, and reversible perfusion defect cannot be statistically evaluated."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-2142688",
+      "target_entity": "bio:24b6b2bea938",
+      "support": "weak_support",
+      "affecting_arm_id": "stem_cell_therapy",
+      "reasoning": "Reversible perfusion defect (SPECT Total Severity Score) improved substantially in the stem cell arm (72.6\u219222.9) vs worsening in control (46.5\u219287.3), and MVO2 improved (17.7 vs 14.6 ml/kg/min), suggesting the mechanism may be driving some myocardial perfusion restoration. However, no p-values, small n=10, and no direct pathway biomarker measurement limit confidence to weak support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:24b6b2bea938",
+      "target_entity": "coronary_artery_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "stem_cell_therapy",
+      "reasoning": "Directional improvements in perfusion (SPECT reversible defect), exercise capacity (MVO2), and ventricular volumes (LVESV) suggest myocardial regeneration/angiogenesis biology may drive benefit in ischemic cardiomyopathy, but the trial is underpowered and no statistical significance was demonstrated."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_safety_aldehyde_dehydrogenase_bright_stem_cells",
+      "target_entity": "coronary_artery_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary safety endpoint was met and the overall safety profile was deemed acceptable for Phase 1. However, the safety endpoint does not capture clinical benefit (efficacy) in coronary artery disease \u2014 it only establishes feasibility. The endpoint is appropriate for Phase 1 but does not translate to indication-level benefit assessment."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ejectionfraction_low__functional_class_ii__perfusiondefect_positive",
+      "target_entity": "coronary_artery_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "This population (low EF, NYHA class II, perfusion defect positive \u2014 end-stage ischemic cardiomyopathy not amenable to revascularization) showed directional improvements in perfusion and exercise capacity with stem cell therapy vs control, but the trial is underpowered (n=10/arm) and no statistical significance was demonstrated. Weak support for population responsiveness."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a Phase 1 safety trial with n=10 per arm and no reported p-values for secondary endpoints. The canonical causal chain maps through PTGS2/COX-2 and eicosatetraenoic acid synthesis, which is an unusual mechanistic annotation for stem cell therapy (typically attributed to paracrine signaling broadly). The dramatic improvement in reversible perfusion defect (SPECT TSS: 72.6\u219222.9 in stem cell vs 46.5\u219287.3 in control) is a striking signal that warrants expert review to determine whether it reflects true biological activity or baseline imbalance (control arm had lower baseline reversible defect score). Additionally, the high rate of angina exacerbation (50% vs 10%) in the treatment arm deserves expert assessment of whether this represents a procedural effect or a true safety signal that could limit future development."
+}

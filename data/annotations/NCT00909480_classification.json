@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00909480",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both insulin detemir (IDet) and insulin glargine (IGlar) clearly engaged the insulin receptor \u2014 both produced meaningful reductions in FPG (IDet 6.22 mmol/L, IGlar 6.09 mmol/L from presumably elevated baselines) and HbA1c reductions (IDet -0.48 pp, IGlar -0.74 pp). Target engagement is confirmed for both arms.\n\n2. PATHWAY MODULATION: Downstream biology (glucose homeostasis) was clearly modulated by both agents. FPG was reduced to near-normal levels, HbA1c improved, and glycemic variability (SMPG before breakfast) was reduced. The biology moved in both arms.\n\n3. CLINICAL TRANSLATION: This is a head-to-head comparison trial, not a placebo-controlled trial. The primary endpoint was non-inferiority or equivalence of IDet vs IGlar on HbA1c change. IDet produced -0.48 pp vs IGlar -0.74 pp \u2014 a difference of +0.30 pp (95% CI 0.14\u20130.46) favoring IGlar. The primary endpoint was NOT met for IDet (it failed to demonstrate non-inferiority/equivalence to IGlar). IGlar showed numerically better glycemic control across all subgroups. The trial outcome is classified as failure for IDet (inferior to comparator) and partial for IGlar (active comparator that performed better but this is not a placebo-controlled success).\n\n4. POPULATION EFFECTS: Subgroup analyses show consistent pattern: IGlar outperformed IDet across all OAD background therapy subgroups (Metformin mono: 70% vs 55%; Metformin+TZD: 40% vs 40% [tied]; Metformin+2nd OAD: 47% vs 31%). IDet showed advantages in weight (\u22120.49 kg vs +1.00 kg) and total hypoglycemia (329 vs 457 episodes), but these did not compensate for inferior glycemic control on the primary endpoint.\n\n5. CONFOUNDERS: No major trial design confounders. The trial was adequately powered (N=457, 26 weeks), used a treat-to-target algorithm, and had a clear active comparator design. The failure of IDet relative to IGlar on HbA1c is a real comparative effectiveness finding. The biology_drives and mechanism_affects edges for IDet are weakly contradicted relative to IGlar's performance, while IGlar's edges receive moderate support. Both drugs engaged the target and moved biology, but IDet was inferior on the primary glycemic endpoint compared to IGlar.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.75,
+      "evidence": "Insulin detemir clearly engaged the insulin receptor and moved glycemic biology (HbA1c -0.48 pp, FPG reduced to 6.22 mmol/L), but failed to meet the primary endpoint relative to insulin glargine (difference +0.30 pp, 95% CI 0.14\u20130.46 favoring IGlar). The biology moved but IDet's clinical performance was inferior to the active comparator."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "detemir",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "idet",
+      "reasoning": "Insulin detemir demonstrably engaged the insulin receptor: FPG reduced to 6.22 mmol/L and HbA1c decreased by 0.48 pp, confirming receptor agonism and target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_glargine",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "iglar",
+      "reasoning": "Insulin glargine demonstrably engaged the insulin receptor: FPG reduced to 6.09 mmol/L and HbA1c decreased by 0.74 pp, confirming receptor agonism and target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "idet",
+      "reasoning": "Insulin receptor engagement by detemir clearly modulated the insulin receptor signaling pathway, as evidenced by FPG normalization and HbA1c reduction, confirming the target drives its intended mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "iglar",
+      "reasoning": "Insulin receptor engagement by glargine clearly modulated the insulin receptor signaling pathway, as evidenced by superior FPG normalization and HbA1c reduction (-0.74 pp), confirming the target drives its intended mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "idet",
+      "reasoning": "Insulin receptor signaling pathway activation by detemir produced meaningful glycemic control improvements (HbA1c -0.48 pp, FPG 6.22 mmol/L, weight loss -0.49 kg), confirming the mechanism affects glycemic biology, though less effectively than glargine."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "iglar",
+      "reasoning": "Insulin receptor signaling pathway activation by glargine produced robust glycemic control improvements (HbA1c -0.74 pp, FPG 6.09 mmol/L, 53% achieving HbA1c \u22647.0%), strongly confirming the mechanism affects glycemic biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "idet",
+      "reasoning": "While detemir moved glycemic biology, it failed to achieve non-inferiority to glargine on the primary endpoint (difference +0.30 pp), suggesting that the degree of glycemic control achieved by detemir was insufficient relative to the comparator standard, providing weak contradict signal for this arm's chain."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "diabetes",
+      "support": "moderate_support",
+      "affecting_arm_id": "iglar",
+      "reasoning": "Insulin glargine achieved superior glycemic control (HbA1c -0.74 pp, 53% achieving \u22647.0%), supporting that glycemic biology drives diabetes outcomes when adequately modulated."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hba1c",
+      "target_entity": "diabetes",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c change from baseline is a well-validated surrogate endpoint for glycemic control in type 2 diabetes, and the endpoint clearly differentiated between the two active treatments (IDet -0.48 pp vs IGlar -0.74 pp), demonstrating its sensitivity to capture glycemic biology differences."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high__line_first",
+      "target_entity": "diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this population of type 2 diabetes patients on stable metformin, insulin detemir was inferior to insulin glargine on the primary HbA1c endpoint (difference +0.30 pp favoring IGlar, 95% CI 0.14\u20130.46), indicating this population responded better to glargine than detemir, providing a weak contradict signal for detemir's chain in this population."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is an active-comparator head-to-head trial (IDet vs IGlar), not a placebo-controlled trial. The 'failure' classification applies specifically to insulin detemir failing to demonstrate non-inferiority to insulin glargine. Both drugs engaged the target and moved biology; the trial outcome reflects comparative effectiveness rather than absolute efficacy failure. The biology_drives and mechanism_affects edge updates for IDet are directionally weak contradict relative to IGlar's performance, but both drugs are mechanistically active. Expert review is warranted to confirm appropriate edge routing in a head-to-head active comparator design where the 'failure' is relative inferiority rather than absolute lack of effect. Additionally, no p-value was reported for the primary endpoint comparison, limiting statistical interpretation."
+}

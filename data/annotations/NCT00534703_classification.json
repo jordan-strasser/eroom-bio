@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00534703",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The qPCR assay for viral vector genome in myocardium showed 0 of 4 AAV1/SERCA2a-treated participants had detectable exogenous viral vector genome. This is direct evidence of failed gene delivery \u2014 the AAV1 vector did not successfully transduce the myocardium. This is a manufacturing/delivery failure at the most fundamental step: the gene therapy never reached its intended target tissue. 2. PATHWAY MODULATION: Because the vector genome was not detected in the myocardium, SERCA2a protein overexpression could not have occurred. Downstream pathway biomarkers (phospholamban, SR calcium release channel, Na+/Ca2+-exchanger) were not reported due to early termination, but this is moot given the absence of transduction. 3. CLINICAL TRANSLATION: The trial was terminated early after only 5 subjects enrolled (4 treatment, 1 placebo), making statistical analysis of the primary safety/feasibility endpoint impossible. The primary endpoint outcome is listed as 'unknown.' The safety/feasibility endpoint was not formally assessed. 4. POPULATION EFFECTS: No subgroup analyses were possible given the tiny sample size and early termination. 5. CONFOUNDERS: The trial was terminated early by the Trial Steering Committee after only 5 of the planned subjects were enrolled. The critical finding is that the viral vector failed to transduce the myocardium (0/4 positive by qPCR), which represents a manufacturing or delivery failure \u2014 the percutaneous administration route did not achieve adequate myocardial gene delivery. The early termination was likely driven by both the safety signals in a very sick LVAD population (1 death, 1 transplant, 1 worsening HF in 4 patients) and the lack of target engagement evidence. The primary failure mode is manufacturing/delivery: the AAV1 vector did not successfully deliver the SERCA2a gene to the myocardium via the percutaneous route used. This is an operational failure in the sense that the mechanism was never given a fair test \u2014 the drug never reached its target.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.85,
+      "evidence": "0 of 4 AAV1/SERCA2a-treated participants showed detectable viral vector genome in myocardium by qPCR, indicating the percutaneous delivery route failed to achieve myocardial transduction. Without gene delivery, SERCA2a overexpression could not occur."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Trial terminated after only 5 subjects enrolled (4 treatment, 1 placebo), far below any planned sample size for meaningful statistical analysis. Full statistical analysis was explicitly stated as impossible."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "aav1_serca2a",
+      "target_entity": "ENSG00000174437",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aav1_serca2a",
+      "reasoning": "The qPCR assay directly measured target engagement (viral genome in myocardium) and found 0/4 treated patients had detectable vector genome. This is explicit evidence of non-engagement \u2014 the vector did not reach the target tissue. Per the round-28 AFFECTS rule, explicit non-engagement evidence (flat target-engagement biomarker despite dosing) warrants a contradict signal. Weak rather than moderate because n=4 is very small and the delivery route (percutaneous) may not be representative of other delivery methods."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000174437",
+      "target_entity": "GO:0032470",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aav1_serca2a",
+      "reasoning": "Because the vector genome was not detected in the myocardium, the target (SERCA2a) was not engaged, and therefore the intended mechanism (positive regulation of ER calcium ion concentration) was not modulated. The target-engaged-but-pathway-flat pattern does not apply here; rather, the target was never engaged. Weak contradict because the failure is attributable to delivery, not to the target-mechanism link itself."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0032470",
+      "target_entity": "bio:e4b7a67a8841",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aav1_serca2a",
+      "reasoning": "No mechanism engagement occurred due to failed delivery. The entire causal chain downstream of delivery failure is untested. Weak contradict reflects the chain failure without strong mechanistic evidence against the link itself."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e4b7a67a8841",
+      "target_entity": "chronic_heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "aav1_serca2a",
+      "reasoning": "The full causal chain failed due to delivery failure. No evidence was generated to support or refute whether restoration of SR calcium cycling drives chronic heart failure outcomes. Weak contradict reflects the chain failure; the biology-disease link itself was not tested."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_overall_safety_feasibility_administering_aav1",
+      "target_entity": "chronic_heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary safety/feasibility endpoint was not formally assessed due to early termination with only 5 subjects. The endpoint outcome is listed as unknown. No numeric result was reported, making it impossible to assess whether this endpoint captures benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ldh_low",
+      "target_entity": "chronic_heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled LVAD-supported chronic heart failure patients and failed to demonstrate any benefit signal (primary endpoint unknown, delivery failed). The population did not respond to the intervention, though this is confounded by delivery failure rather than population selection per se. Weak contradict given the very small sample size and operational failure."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated extremely early (n=5 of planned enrollment) following Trial Steering Committee recommendation, with the primary safety/feasibility endpoint formally unassessed. The critical finding of 0/4 myocardial transduction by qPCR suggests delivery failure, but n=4 is too small to draw definitive conclusions about the AAV1 delivery route. It is unclear whether the early termination was driven primarily by the safety signals (which are expected in a very sick LVAD population and may not be drug-related), the delivery failure, or administrative/commercial factors. Expert review is needed to determine: (1) whether the percutaneous delivery route was the cause of transduction failure vs. patient-specific factors; (2) whether the SAEs in the treatment arm (death, transplant, worsening HF) were attributable to the intervention or to the underlying disease severity; and (3) whether the operational_failure classification is appropriate given that the delivery failure itself constitutes a mechanistic finding."
+}

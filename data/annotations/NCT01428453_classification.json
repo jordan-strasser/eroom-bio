@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT01428453",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Plasma Lp-PLA2 activity was inhibited by 83.59% in the rilapladib arm vs -3.86% in placebo at Week 24. This confirms the drug reached and modulated its intended target (PLA2G7/Lp-PLA2) at the 250mg dose. Per Round-28 AFFECTS rule, this warrants strong_support for the affects edge.\n\n2. PATHWAY MODULATION: Despite robust target engagement, downstream biology did not move as predicted. The intended biology was neuroinflammation reduction, with CSF biomarkers (Abeta42, Abeta40, tau, P-tau) serving as proxies. None of these biomarkers showed statistically significant changes: CSF Abeta42 p=0.133, CSF Abeta40 p=0.829, CSF tau p=0.902, CSF P-tau p=0.892, CSF albumin quotient p=0.828. The directional trends are inconsistent and not significant. This is a classic 'target_engaged_biology_not_moved' pattern \u2014 the enzyme was inhibited but the downstream neuroinflammatory/amyloid/tau biology did not respond. The mechanism linking Lp-PLA2 inhibition to neuroinflammation reduction and amyloid/tau changes in AD was not validated.\n\n3. CLINICAL TRANSLATION: The primary endpoint was not met. The composite primary endpoint included CSF biomarkers and CogState WM/EF score. The WM/EF composite showed a nominally significant improvement (mean difference 0.167, p=0.026), but this is one of multiple co-primary endpoints and the overall composite score was not significant (p=0.982). The CSF biomarker endpoints all failed. Given the multiple testing context and the failure of the overall cognitive composite, this partial signal on WM/EF is likely a chance finding. Clinical translation failed.\n\n4. POPULATION EFFECTS: No formal subgroup analyses by biomarker-defined populations were reported. The WM/EF signal could suggest a cognitive domain-specific effect, but the overall composite failure undermines this interpretation. The trial enrolled mild AD patients (CDR low, MMSE low).\n\n5. CONFOUNDERS: The trial was relatively small (N=124, ~61 per arm), which limits power for detecting modest biomarker changes. The 24-week duration may be insufficient to detect amyloid/tau changes in AD. The mechanism linking Lp-PLA2 to AD pathology (via the ghrelin synthesis pathway \u2014 R-HSA-422085 \u2014 is an unusual and weakly supported mechanistic link). The primary failure mode is target_engaged_biology_not_moved: the enzyme was inhibited but the intended downstream biology (neuroinflammation reduction, amyloid/tau changes) did not follow. Secondary considerations include potential underpowering and wrong timeframe for biomarker detection.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.75,
+      "evidence": "83.59% inhibition of plasma Lp-PLA2 activity confirmed robust target engagement, but all CSF biomarkers (Abeta42 p=0.133, Abeta40 p=0.829, tau p=0.902, P-tau p=0.892, albumin quotient p=0.828) failed to show significant changes, indicating the downstream neuroinflammatory/amyloid biology did not respond to Lp-PLA2 inhibition."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "N=124 total (~61 per arm) is a relatively small sample for detecting modest CSF biomarker changes in AD over 24 weeks. The trial may have been underpowered to detect biologically meaningful but small changes in these endpoints."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.4,
+      "evidence": "24 weeks may be insufficient to detect meaningful changes in CSF amyloid and tau biomarkers in Alzheimer's disease, where pathological changes accumulate over years. Even if the mechanism were valid, the timeframe may not allow detection of downstream biology changes."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "250mg_rilapladib",
+      "target_entity": "ENSG00000146070",
+      "support": "strong_support",
+      "affecting_arm_id": "250mg_rilapladib",
+      "reasoning": "83.59% inhibition of plasma Lp-PLA2 activity (encoded by PLA2G7/ENSG00000146070) in the rilapladib arm vs -3.86% in placebo directly demonstrates target engagement. Per Round-28 AFFECTS rule, this warrants strong_support regardless of overall trial outcome."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000146070",
+      "target_entity": "R-HSA-422085",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "250mg_rilapladib",
+      "reasoning": "The target (PLA2G7/Lp-PLA2) was clearly engaged (83.59% inhibition), but the intended downstream mechanism (R-HSA-422085 pathway leading to neuroinflammation reduction) did not activate \u2014 all CSF biomarkers remained flat. This is the target_engaged_biology_not_moved pattern, which per the modulates_via rule warrants moderate_contradict: the target was hit but did not drive its intended mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-422085",
+      "target_entity": "bio:9ae6888460bd",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "250mg_rilapladib",
+      "reasoning": "Despite confirmed target engagement, the mechanism (R-HSA-422085) did not translate to the intended biology (neuroprotection via reduction of neuroinflammation), as evidenced by flat CSF amyloid and tau biomarkers. The mechanism-to-biology link failed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:9ae6888460bd",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "250mg_rilapladib",
+      "reasoning": "The biology (neuroprotection via neuroinflammation reduction via Lp-PLA2 inhibition) did not translate to clinical benefit in Alzheimer's disease. Given the chain broke at the mechanism-to-biology step, this is a weak contradict for the biology-drives-indication link \u2014 the biology was not demonstrated to drive the disease in this trial."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_day_0_cerebral_spinal_fluid_csf_amyloid_beta",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "CSF amyloid beta was measured as a primary endpoint but did not change significantly (p=0.133 for Abeta42). The endpoint was not moved by the drug, and it is unclear whether this reflects a failure of the drug mechanism or a limitation of the endpoint's sensitivity over 24 weeks in this population. The endpoint's ability to capture AD benefit is ambiguous in this context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdr_low__mmse_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The mild AD population (CDR low, MMSE low) did not respond to rilapladib treatment across the primary endpoint composite. All CSF biomarkers failed and the overall cognitive composite was not significant (p=0.982). The WM/EF signal (p=0.026) is a single domain in a multiple-testing context and insufficient to establish population response. Moderate contradict given adequate power considerations and clear primary endpoint miss."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The mechanistic pathway assigned in the trial subgraph (Lp-PLA2/PLA2G7 \u2192 R-HSA-422085 Synthesis/secretion/deacylation of Ghrelin \u2192 neuroprotection via neuroinflammation reduction) is an unusual and potentially incorrect mechanistic mapping \u2014 the ghrelin pathway is not the canonical mechanism by which Lp-PLA2 inhibition is hypothesized to reduce neuroinflammation in AD. Expert review is needed to verify whether the graph entities correctly represent the intended mechanistic hypothesis, and whether the WM/EF cognitive signal (p=0.026) warrants further investigation in a larger trial or represents a chance finding in a multiple-testing context."
+}

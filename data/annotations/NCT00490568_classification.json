@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00490568",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This is an open-label extension safety study with a primary endpoint of adverse event incidence/severity, not efficacy. The biomarker changes observed (lipid profile shifts: LDL +0.281 mmol/L, triglycerides -0.092 mmol/L, body weight +1.4 kg) are consistent with known PPARG agonist pharmacodynamic effects, suggesting the drug did engage PPARG. However, no direct target engagement biomarker (e.g., PPARG transcriptional activity, adiponectin) was explicitly reported. The metabolic changes (weight gain, lipid shifts) are indirect evidence of PPARG engagement. 2. PATHWAY MODULATION: The metabolic biomarker changes (weight gain, lipid alterations) suggest PPARG nuclear receptor agonism was occurring, consistent with the known mechanism. However, no neuroinflammation or insulin sensitization biomarkers in the CNS were reported, so the intended biology (insulin sensitization and neuroinflammation modulation in Alzheimer's disease) cannot be confirmed as modulated. 3. CLINICAL TRANSLATION: The primary endpoint was a safety endpoint (AE incidence/severity), not an efficacy endpoint. The trial was terminated based on preliminary parent study results \u2014 meaning the parent efficacy trial had already failed. The ADAS-cog data reported here are from an open-label extension without a comparator arm, making efficacy interpretation impossible. All ADAS-cog effect sizes represent worsening from baseline (disease progression), not treatment benefit vs. control. 4. POPULATION EFFECTS: Subgroup data by APOE4 status shows slightly worse cognitive decline in APOE4 positives vs. negatives across ADAS-cog, MMSE, CDR-SB, and NPI, but these are all within-arm changes from baseline without a control comparator \u2014 no differential treatment response can be inferred. 5. CONFOUNDERS: This is a single-arm open-label extension study terminated early because the parent double-blind trial failed. The primary endpoint (safety) was not 'met' in the sense that 49.6% of participants experienced AEs, which is descriptive rather than a pass/fail threshold. The trial was terminated for commercial/strategic reasons tied to the parent study failure. The lack of a control arm makes any efficacy inference impossible. The primary failure mode is commercial/strategic termination based on parent study results, compounded by insufficient information for efficacy assessment given the single-arm design and early termination.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Trial was explicitly terminated based on preliminary parent study results, not due to safety signals or scientific findings within this extension study itself. The investigator commentary states: 'Trial was terminated based on preliminary parent study results.'"
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "This is a single-arm open-label extension with no comparator arm. All ADAS-cog data represent within-arm changes from baseline (disease progression), not treatment effect vs. control. No p-values are reported for any endpoint. The primary endpoint is safety (AE count/severity), not efficacy. Efficacy cannot be assessed from this trial design alone."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_any_adverse_events_aes_severity_aes",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (AE incidence/severity) is a safety endpoint, not an efficacy endpoint. It does not capture clinical benefit in Alzheimer's disease. The 49.6% AE rate is descriptive with no comparator, making it impossible to assess whether this endpoint captures disease-relevant benefit. Ambiguous because the endpoint is not designed to capture efficacy."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Single-arm open-label extension with no comparator. ADAS-cog data show disease progression across all APOE4 subgroups but no differential treatment response can be inferred without a control arm. The population response to rosiglitazone XR in mild-to-moderate AD cannot be assessed from this design."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:f7702ea6d4f1",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone_xr",
+      "reasoning": "The parent study (which this extension was based on) failed, and this extension was terminated as a result. No evidence that nuclear receptor agonism via PPARG translated to insulin sensitization or neuroinflammation modulation in the CNS context of Alzheimer's disease. Metabolic PPARG effects (weight gain, lipid changes) were observed but CNS pathway modulation was not demonstrated."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f7702ea6d4f1",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone_xr",
+      "reasoning": "The parent efficacy trial failed and this extension was terminated based on those results. The intended biology (insulin sensitization and neuroinflammation modulation) did not translate to clinical benefit in Alzheimer's disease. Cognitive decline continued across all subgroups in this single-arm extension, consistent with the parent study failure."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This is an open-label extension safety study terminated early due to parent study failure. The primary endpoint is safety (AE incidence), not efficacy. There is no comparator arm, making efficacy inference impossible. The trial was terminated for commercial/strategic reasons tied to the parent study. Expert review is needed to determine whether any efficacy signal from the parent study (not this extension) should inform edge updates, and to assess whether the metabolic biomarker changes (lipid shifts, weight gain) constitute sufficient indirect evidence of PPARG target engagement to warrant an affects edge update. The compound id in the resolved entities ('avandamet') appears to be a combination product id rather than rosiglitazone alone, which may be a data quality issue requiring review."
+}

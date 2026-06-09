@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT01053312",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: [18F]Flutemetamol was administered as a single IV dose (185 MBq) and SUVR values were measured across multiple brain regions (range 1.00\u20132.86). The radiotracer did distribute to the brain and produced measurable SUVR signals, indicating the compound reached its intended anatomical target. Subject 201-0004, who had the highest IHC plaque load (1.007%), also had the highest composite SUVR (2.74), suggesting directional target engagement. However, three subjects had zero IHC plaque load, limiting the dynamic range for correlation. 2. PATHWAY MODULATION: The mechanism here is radiotracer binding to amyloid-beta aggregates, which is directly reflected in SUVR. The SUVR values did vary across subjects in a directionally consistent manner with IHC plaque burden, suggesting the tracer does bind amyloid plaques when present. The biology (amyloid plaque detection/neuroimaging) appears to have been partially engaged. 3. CLINICAL TRANSLATION: The primary endpoint was the correlation between composite SUVR and IHC amyloid plaque area. The linear regression yielded R\u00b2=0.688, p=0.098 \u2014 a strong effect size but statistically non-significant. Two additional analyses yielded R\u00b2=0.482 (p=0.268) and R\u00b2=0.685 (p=0.099), all failing to reach p<0.05. The primary endpoint was not formally met. 4. POPULATION EFFECTS: With only 7 subjects, 3 of whom had zero IHC plaque load, the dynamic range was severely restricted. The one subject with meaningful plaque load (201-0004) drove the correlation. This is a feasibility study in normal pressure hydrocephalus patients undergoing biopsy \u2014 a very specific and small population. 5. CONFOUNDERS: The dominant confounder is the extremely small sample size (n=7). The investigator commentary explicitly attributes the failure to reach significance to the small sample. With n=7, the study was grossly underpowered to detect a statistically significant correlation even if the true R\u00b2 is ~0.69. The effect size itself (R\u00b2=0.688) is actually quite large and directionally supportive of the tracer's validity. This is a classic underpowered feasibility study where the biological signal is present but statistical significance cannot be achieved. The trial outcome is classified as 'partial' because the effect size is large and directionally consistent, but the primary endpoint was not formally met due to insufficient power.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.92,
+      "evidence": "n=7 subjects, 3 with zero IHC plaque load. R\u00b2=0.688 is a large effect size but p=0.098 fails significance threshold. Investigator commentary explicitly attributes non-significance to small sample size. A study of this size cannot reliably detect even a strong correlation at p<0.05."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "18f_flutemetamol",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "1_flutemetamol",
+      "reasoning": "SUVR values ranged from 1.34 to 2.74 across subjects and directionally tracked IHC plaque burden (highest SUVR in subject with highest plaque load, lowest SUVR in subjects with zero plaque), indicating the tracer engaged amyloid-beta plaques. Target engagement is implied by the PD readout (SUVR), though the correlation did not reach statistical significance due to small n."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:35ef13f77a13",
+      "support": "weak_support",
+      "affecting_arm_id": "1_flutemetamol",
+      "reasoning": "The radiotracer binding mechanism produced SUVR signals that directionally tracked amyloid plaque detection (IHC), but the correlation was not statistically significant (p=0.098) in this underpowered n=7 study. The large R\u00b2=0.688 suggests the mechanism does affect amyloid plaque detection biology, but the evidence is weak due to sample size limitations."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:35ef13f77a13",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "weak_support",
+      "affecting_arm_id": "1_flutemetamol",
+      "reasoning": "Amyloid plaque detection via PET imaging is directionally associated with amyloid burden in NPH patients, as evidenced by the directional SUVR-IHC correlation. However, the study was not powered to confirm this link statistically, and NPH is not primarily an amyloid disease, so the biology-indication link is uncertain."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_quantitative_estimates_brain_uptake_18f",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The SUVR-based endpoint was measured and showed a large directional effect (R\u00b2=0.688) but did not reach statistical significance (p=0.098) in this n=7 feasibility study. The endpoint is a biomarker correlation endpoint rather than a clinical benefit endpoint, and the study was too small to determine whether SUVR reliably captures amyloid burden in NPH. The result is ambiguous \u2014 the endpoint may be valid but the study cannot confirm it."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloid_positive",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Subject 201-0004 (highest amyloid plaque load) had the highest SUVR values, suggesting amyloid-positive patients may respond differently (show higher tracer uptake). However, with only one subject having meaningful plaque load, this is a very weak signal. The directional consistency supports a weak differential response in amyloid-positive patients."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a small feasibility/validation study (n=7) with a diagnostic/imaging endpoint rather than a therapeutic endpoint. The trial tests whether [18F]flutemetamol SUVR correlates with IHC amyloid \u2014 a diagnostic validation question, not a therapeutic efficacy question. The causal chain schema (compound\u2192target\u2192mechanism\u2192biology\u2192indication) maps imperfectly onto a diagnostic imaging validation study. The large R\u00b2=0.688 with p=0.098 in n=7 is arguably a positive feasibility signal that would be confirmed with adequate power, yet the primary endpoint was formally not met. Expert review is needed to determine whether this should be classified as a diagnostic validation partial success or a true failure, and whether the graph edges appropriately capture the diagnostic (rather than therapeutic) nature of this compound's mechanism."
+}

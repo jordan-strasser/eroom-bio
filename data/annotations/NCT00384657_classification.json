@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00384657",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial was withdrawn before completion due to lack of cooperation among centers and financial reasons, meaning no efficacy readout was obtained. There is no evidence of target engagement (iron stores, transferrin saturation, hemoglobin changes) reported. 2. PATHWAY MODULATION: No downstream biology data (erythropoiesis markers, hemoglobin, reticulocyte counts) was reported. The trial did not generate any pathway modulation evidence. 3. CLINICAL TRANSLATION: The primary endpoint (percentage of patients with increased ejection fraction at 12 months) has no reported result \u2014 effect size and p-value are both null. The trial was withdrawn before the primary endpoint was reached. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was explicitly withdrawn due to 'lack of cooperation among centers and financial reasons' \u2014 this is a commercial/operational termination, not a scientific failure. The mechanism was never given a fair test. This is an operational failure (commercial_not_scientific) with no usable efficacy readout, classifying as insufficient_information from a mechanistic standpoint.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states: 'Trial withdrawn due to lack of cooperation among centers and financial reasons.' No efficacy data was generated."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Primary endpoint result is null (no effect size, no p-value). Sample size is 0. The trial was terminated before any primary endpoint readout was obtained, leaving no usable efficacy or safety data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_patients_increased_ejection_fraction",
+      "target_entity": "chronic_kidney_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before any efficacy readout. The endpoint was never measured in a way that allows assessment of whether it captures clinical benefit in this indication. Ambiguous is appropriate given zero data."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "crp_low__ferritin_low__functional_class_iii__gfr_low__lvef_low__severity_severe__stage_iii__transferrinsaturation_low",
+      "target_entity": "chronic_kidney_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No outcome data was generated for this population. The trial was withdrawn before enrollment or completion, so no population-level response can be assessed."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00924833",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Beta-adrenergic receptor blockade was confirmed by reductions in heart rate and blood pressure across both treatment arms. Nebivolol targets ADRB1 (beta-1 selective) while carvedilol targets ADRA1A (non-selective alpha/beta blocker). Both drugs demonstrably engaged their respective adrenergic receptor targets. 2. PATHWAY MODULATION: Downstream biology did change. At high altitude (Time 3), nebivolol preserved peak VO2 better (-22.5 ml/kg/min decline vs -37.6 for carvedilol and -32.7 for placebo) and increased minute ventilation (+15.2 L/min vs -9.3 for carvedilol and +0.7 for placebo). Carvedilol, by contrast, showed worse cardiopulmonary performance than placebo at altitude, suggesting its non-selective blockade (including alpha-1 and beta-2) impaired hypoxic ventilatory response and exercise capacity. 3. CLINICAL TRANSLATION: The primary endpoint was met (p=0.05) for nebivolol on the VE endpoint (success) and partially on VO2 (partial \u2014 nebivolol showed the smallest decline but all arms declined at altitude). Carvedilol failed on both endpoints relative to placebo. The trial is therefore a partial success: nebivolol showed meaningful differentiation from carvedilol and placebo at altitude, but all groups still experienced VO2 decline at altitude. 4. POPULATION EFFECTS: The study enrolled healthy subjects (n=27), a small but appropriate population for a mechanistic comparison of beta-blocker effects on hypoxic exercise physiology. The key finding is the differential between nebivolol (beta-1 selective + NO-mediated vasodilation) and carvedilol (non-selective) at altitude, suggesting the mechanism of selectivity matters. 5. CONFOUNDERS: Small sample size (n=27) limits statistical power. The p=0.05 threshold is borderline. The trial is a head-to-head mechanistic comparison rather than a disease-treatment trial, so the 'indication' of hypoxia is a physiological stress model. The 3-week treatment duration appears adequate for steady-state pharmacology. Overall: nebivolol demonstrated superior preservation of cardiopulmonary function at altitude vs carvedilol, supporting its beta-1 selectivity and NO-mediated vasodilation as mechanistically advantageous in hypoxic conditions. Carvedilol failed to improve and may have worsened altitude exercise capacity.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Sample size of 27 subjects across 3 arms (~9 per arm) is small; p-value at borderline 0.05 threshold; this is a mechanistic/physiological study rather than a powered clinical trial"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "nebivolol",
+      "target_entity": "ENSG00000043591",
+      "support": "strong_support",
+      "affecting_arm_id": "3_nebivolol",
+      "reasoning": "Heart rate and blood pressure reductions confirm nebivolol engaged beta-1 adrenergic receptors (ADRB1); downstream cardiopulmonary effects at altitude further confirm target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carvedilol",
+      "target_entity": "ENSG00000120907",
+      "support": "strong_support",
+      "affecting_arm_id": "2_carvedilol",
+      "reasoning": "Heart rate and blood pressure reductions confirm carvedilol engaged adrenergic receptors; the worsened VO2 and VE at altitude are consistent with non-selective blockade including beta-2 and alpha-1 receptors"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000043591",
+      "target_entity": "GO:0001996",
+      "support": "moderate_support",
+      "affecting_arm_id": "3_nebivolol",
+      "reasoning": "Nebivolol's beta-1 selective blockade with NO-mediated vasodilation resulted in preserved/increased minute ventilation at altitude (+15.2 L/min), consistent with positive modulation of heart rate regulation by epinephrine-norepinephrine pathway; partial because VO2 still declined"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000120907",
+      "target_entity": "GO:0006937",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2_carvedilol",
+      "reasoning": "Carvedilol's non-selective adrenergic blockade worsened exercise capacity at altitude (greater VO2 decline than placebo, reduced VE), suggesting regulation of muscle contraction via this pathway was impaired rather than beneficially modulated under hypoxic stress"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0001996",
+      "target_entity": "bio:8841b6ee0f0d",
+      "support": "moderate_support",
+      "affecting_arm_id": "3_nebivolol",
+      "reasoning": "Nebivolol's modulation of heart rate regulation pathway translated to better preserved cardiopulmonary function under hypoxic stress (smallest VO2 decline, largest VE increase at altitude), supporting this mechanism-to-biology link"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0006937",
+      "target_entity": "bio:8841b6ee0f0d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2_carvedilol",
+      "reasoning": "Carvedilol's regulation of muscle contraction via non-selective adrenergic blockade did not improve and may have worsened cardiopulmonary function under hypoxic stress, with greater VO2 decline and reduced VE compared to placebo"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8841b6ee0f0d",
+      "target_entity": "hypoxia",
+      "support": "moderate_support",
+      "affecting_arm_id": "3_nebivolol",
+      "reasoning": "Cardiopulmonary function modulation under hypoxic stress is directly relevant to the hypoxia indication; nebivolol's preservation of VO2 and VE at altitude supports this biology-to-indication link"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8841b6ee0f0d",
+      "target_entity": "hypoxia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2_carvedilol",
+      "reasoning": "Carvedilol failed to modulate cardiopulmonary function beneficially under hypoxic stress, with outcomes worse than placebo, providing weak contradict evidence for this biology-indication link via non-selective beta blockade"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_peak_exercise_oxygen_consumption",
+      "target_entity": "hypoxia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Peak exercise oxygen consumption and minute ventilation are physiologically appropriate endpoints for capturing cardiopulmonary response to hypoxia; the endpoints successfully differentiated between drug mechanisms and placebo at altitude, supporting their validity for this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_low__dbp_low__fastingglucose_low__sbp_low",
+      "target_entity": "hypoxia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Healthy subjects with low cardiovascular risk parameters (low BMI, DBP, fasting glucose, SBP) showed differential responses to nebivolol vs carvedilol at altitude, with nebivolol preserving exercise capacity better; the population responded meaningfully to the intervention at p=0.05"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is an unusual mechanistic head-to-head comparison in healthy subjects exposed to high altitude hypoxia rather than a standard disease-treatment trial. The causal chain entities (ADRA1A for carvedilol, ADRB1 for nebivolol) reflect different receptor selectivity profiles that are central to interpreting the differential outcomes. The small sample size (n=27, ~9/arm) and borderline p=0.05 threshold warrant caution. Additionally, carvedilol's mechanism chain maps to ADRA1A/regulation of muscle contraction which may not fully capture its beta-2 and beta-1 blockade effects relevant to the altitude physiology findings. Expert review is recommended to assess whether the resolved graph entities adequately represent the mechanistic distinction between selective and non-selective beta-blockade in hypoxic conditions."
+}

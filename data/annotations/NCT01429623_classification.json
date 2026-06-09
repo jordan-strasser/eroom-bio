@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT01429623",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that ladostigil hemitartrate engaged acetylcholinesterase or MAO-B in vivo at the 10 mg once-daily dose used. The dose is notably low (ladostigil base), and without CSF or peripheral enzyme inhibition data, target engagement cannot be confirmed or refuted. Per the round-28 AFFECTS rule, no affects edge is emitted since engagement was not measured.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., CSF acetylcholine levels, monoamine metabolites, neuroinflammatory markers) were reported. There is no evidence that cholinergic/monoaminergic neurotransmission was enhanced or that neuroprotective biology was activated. The modulates_via and mechanism_affects edges cannot be assessed from PD data.\n\n3. CLINICAL TRANSLATION: The primary endpoint\u2014conversion from MCI to Alzheimer's disease over 36 months\u2014was not met (OR 1.55, 95% CI 0.74\u20133.25, p=0.16). Numerically, 14 conversions occurred in the ladostigil arm vs. 21 in placebo, suggesting a directional trend but far from statistical significance. All secondary endpoints (Geriatric Depression Scale, Neuropsychiatric Test Battery, Disability Assessment in Dementia) also failed. The effect size OR of 1.55 is in the right direction but the confidence interval crosses 1.0 substantially.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population was MCI patients, which is a heterogeneous group\u2014some may not have prodromal AD, reducing the signal. Without biomarker-defined enrichment (e.g., amyloid-positive MCI), the population may have been too broad for the mechanism to show benefit.\n\n5. CONFOUNDERS: The trial enrolled ~210 patients (103 ladostigil, 107 placebo). For a conversion endpoint over 36 months with a relatively low conversion rate (21/107 = ~20% in placebo), the study may have been underpowered to detect a modest treatment effect. The conversion rate in placebo (~20%) is within the expected range for unselected MCI, but the sample size limits power. The dose (10 mg ladostigil base once daily) is low and target engagement was never confirmed. The trial ran for 36 months which is an appropriate timeframe for a conversion endpoint. Safety profile does not suggest dose-limiting toxicity\u2014cardiac SAEs were distributed across both arms with no clear treatment-arm excess. The primary failure mode is likely a combination of insufficient power and potentially inadequate dose/target engagement, with the underlying biology possibly not being adequately modulated.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.55,
+      "evidence": "N=210 with ~20% placebo conversion rate over 36 months; OR=1.55 (p=0.16) suggests a directional trend that a larger trial might have detected. The confidence interval (0.74\u20133.25) is wide, consistent with insufficient power to detect a modest effect."
+    },
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.45,
+      "evidence": "No PD/PK or biomarker data confirming AChE or MAO-B inhibition at the 10 mg once-daily dose. The dose is low and without enzyme inhibition confirmation, it is plausible the drug did not achieve meaningful target engagement in the CNS."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "MCI is a heterogeneous population; without amyloid or tau biomarker enrichment, many enrolled patients may not have had prodromal AD, diluting any treatment effect on conversion to AD specifically."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "cholinergic and monoaminergic neurotransmission enhancement with neuroprotection",
+      "target_entity": "mild cognitive impairment",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint missed (p=0.16) with no biomarker data to confirm pathway engagement. Per round-14 rules, a missed endpoint with no PD data warrants weak_contradict on biology_drives. Mitigating factors (underpowering, possible inadequate dose) prevent stronger contradict."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "cholinergic and monoaminergic neurotransmission enhancement with neuroprotection",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "No PD data confirms the mechanism engaged the intended biology. All endpoints failed. Per round-14 rules, weak_contradict is emitted for the mechanism_affects edge when the full chain failed and no biomarker data is available."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "conversion_from_mci_to_alzheimers_disease",
+      "target_entity": "mild cognitive impairment",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The conversion endpoint is a clinically meaningful and regulator-accepted endpoint for MCI-to-AD prevention trials. However, the unselected MCI population (no amyloid enrichment) means the endpoint may not have been optimally positioned to capture drug effect in the relevant subpopulation. The endpoint itself is appropriate in principle but its application in an unenriched population introduces ambiguity about whether it would capture a real effect."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mild_cognitive_impairment__unselected",
+      "target_entity": "mild cognitive impairment",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed at p=0.16 with OR=1.55 (CI crosses 1.0). Directional trend exists but no statistical significance. Weak_contradict reflects the missed primary with a marginal p-value and directional but non-significant effect."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No target engagement or PD biomarker data available, making it impossible to determine where in the causal chain the failure occurred. The low dose (10 mg ladostigil base once daily) raises questions about whether adequate CNS AChE/MAO-B inhibition was achieved. The unenriched MCI population (no amyloid/tau biomarker selection) is a potential confounder that could explain the null result independent of mechanism. Expert review is needed to assess whether the dose was pharmacologically adequate and whether the population selection was appropriate for the mechanism."
+}

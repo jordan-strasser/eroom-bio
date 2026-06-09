@@ -1,0 +1,127 @@
+{
+  "nct_id": "NCT00660309",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Aliskiren clearly engaged its intended target (renin). PRA ratio dropped to 0.09 (91% suppression) at single dose peak, angiotensin I ratio 0.14, angiotensin II ratio 0.26, aldosterone ratio 0.66, and plasma renin concentration increased (ratio 2.53) \u2014 all consistent with potent direct renin inhibition. This is strong, unambiguous target engagement evidence. Irbesartan showed the expected AT1 receptor blockade pattern (PRA ratio 1.30, angiotensin I/II increased due to feedback). 2. PATHWAY MODULATION: The RAAS pathway was clearly modulated by aliskiren \u2014 angiotensin I/II and aldosterone were suppressed. The biology (RAAS suppression) moved as predicted. 3. CLINICAL TRANSLATION: The primary endpoint was change in renal plasma flow (RPF). Both aliskiren and irbesartan produced similar RPF increases at single dose (~+37 vs +36 mL/min/1.73m\u00b2) and at steady state peak (~+25 vs +24 mL/min/1.73m\u00b2). At steady state trough, both showed slight decreases (aliskiren -5.67, irbesartan -13.08). No p-values are reported and primary_endpoint_met is null, making formal success/failure determination impossible. The effect sizes are numerically similar between arms, suggesting aliskiren is non-inferior to irbesartan on RPF but not clearly superior. The trial appears to be a mechanistic/PD study comparing two active agents rather than a placebo-controlled efficacy trial. 4. POPULATION EFFECTS: No meaningful subgroup differences are reported. The population is T2DM patients. 5. CONFOUNDERS: This is a small (N=45), short-duration (2 weeks) mechanistic study with no placebo arm and no formal statistical comparison reported (no p-values). The trial design appears to be a PD/mechanistic comparison study, not a definitive efficacy trial. The lack of p-values and null primary_endpoint_met status reflects the exploratory/descriptive nature rather than a clear failure. Both arms showed similar RPF improvements, suggesting the RAAS suppression biology does drive renal hemodynamic changes, but aliskiren offers no clear advantage over irbesartan on this endpoint. The trial is classified as 'partial' because: target engagement is confirmed, biology moved, RPF did change, but no formal statistical conclusion was drawn and the comparative hypothesis (aliskiren superior to irbesartan on RPF) appears unsupported by the numerically similar effect sizes.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.5,
+      "evidence": "No p-values reported, primary_endpoint_met is null, no placebo arm, small N=45, short 2-week duration. This is a mechanistic/PD study without formal statistical testing of the primary endpoint, making definitive success/failure classification impossible."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "Despite strong RAAS suppression by aliskiren (PRA ratio 0.09, angiotensin II ratio 0.26), RPF changes were nearly identical between aliskiren and irbesartan arms (+37.18 vs +35.88 single dose; +24.62 vs +24.22 steady state peak), suggesting that the degree of RAAS suppression mechanism does not differentiate renal hemodynamic outcomes between these two mechanistically distinct agents."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "aliskiren",
+      "target_entity": "ENSG00000143839",
+      "support": "strong_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "PRA ratio 0.09 (91% suppression), angiotensin I ratio 0.14, angiotensin II ratio 0.26, PRC ratio 2.53 \u2014 all directly confirm aliskiren engaged renin and inhibited its enzymatic activity."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000143839",
+      "target_entity": "GO:0002003",
+      "support": "strong_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "Renin inhibition by aliskiren markedly suppressed angiotensin maturation (angiotensin I ratio 0.14, angiotensin II ratio 0.26), directly demonstrating that engaging renin modulates the angiotensin maturation pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002003",
+      "target_entity": "bio:0899f5d9212e",
+      "support": "strong_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "Angiotensin maturation suppression (via renin inhibition) led to clear RAAS suppression: PRA 0.09, angiotensin I 0.14, angiotensin II 0.26, aldosterone 0.66 \u2014 the mechanism drove the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0899f5d9212e",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "RAAS suppression produced RPF increases (~+37 mL/min/1.73m\u00b2) in T2DM patients, suggesting the biology does drive renal hemodynamic changes relevant to diabetic nephropathy, but no formal statistical test was performed and the effect was similar to irbesartan, limiting confidence."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "captopril",
+      "target_entity": "ENSG00000159640",
+      "support": "strong_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "Captopril single dose in the aliskiren arm produced angiotensin II ratio 0.31, aldosterone ratio 0.58, and RPF change +43.32 mL/min/1.73m\u00b2, consistent with ACE inhibition engaging its target."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000159640",
+      "target_entity": "GO:0002003",
+      "support": "strong_support",
+      "affecting_arm_id": "aliskiren",
+      "reasoning": "Captopril ACE inhibition suppressed angiotensin II (ratio 0.31) and aldosterone (ratio 0.58), confirming ACE engagement modulates angiotensin maturation."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "irbesartan",
+      "target_entity": "ENSG00000144891",
+      "support": "strong_support",
+      "affecting_arm_id": "irbesartan",
+      "reasoning": "Irbesartan produced PRA ratio 1.30, angiotensin I ratio 0.83, angiotensin II ratio 1.23 \u2014 the expected AT1 receptor blockade pattern with reactive RAAS activation, confirming target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000144891",
+      "target_entity": "R-HSA-375276",
+      "support": "strong_support",
+      "affecting_arm_id": "irbesartan",
+      "reasoning": "Irbesartan AT1 receptor blockade produced the expected downstream PD changes (increased PRA, angiotensin I/II due to feedback), confirming the target modulates peptide ligand-binding receptor signaling."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:0899f5d9212e",
+      "support": "moderate_support",
+      "affecting_arm_id": "irbesartan",
+      "reasoning": "Irbesartan AT1 blockade produced RPF increases similar to aliskiren (+35.88 single dose, +24.22 steady state peak), suggesting the mechanism does affect RAAS-related biology, though no formal statistical test was performed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0899f5d9212e",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": "irbesartan",
+      "reasoning": "RAAS modulation via irbesartan produced similar RPF changes as aliskiren in T2DM patients, providing weak support that RAAS biology is relevant to this indication, but no formal statistical testing was done."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "captopril",
+      "target_entity": "ENSG00000159640",
+      "support": "strong_support",
+      "affecting_arm_id": "irbesartan",
+      "reasoning": "Captopril in the irbesartan arm produced RPF change +40.13 mL/min/1.73m\u00b2, consistent with ACE inhibition engaging its target and producing renal hemodynamic effects."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_renal_plasma_flow_rpf_after_single_dose",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "RPF was measured and showed changes in both arms, but no p-values were reported, no placebo arm was included, and both active comparators produced nearly identical RPF changes. The endpoint captured a biological signal but its translatability to clinical benefit in T2DM cannot be assessed from this mechanistic study alone."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "egfr_low__hba1c_low",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No p-values reported, no placebo arm, and both active comparators produced similar RPF effects. The population response cannot be formally assessed from this mechanistic study."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial is a mechanistic/PD study with no placebo arm, no formal statistical testing (no p-values reported), and primary_endpoint_met is null. The trial appears designed to compare RAAS biomarker profiles and renal hemodynamic effects between aliskiren and irbesartan rather than to test efficacy vs. placebo. The 'partial' classification reflects that the mechanistic chain was tested and biology moved, but the comparative hypothesis cannot be formally evaluated without statistical testing. Expert review is needed to determine whether this trial should be classified as a mechanistic success (both agents improved RPF similarly, RAAS suppression confirmed) or as insufficient information for the comparative hypothesis."
+}

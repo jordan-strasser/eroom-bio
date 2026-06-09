@@ -1,0 +1,137 @@
+{
+  "nct_id": "NCT01561430",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: LY2886721 demonstrated robust, dose-dependent target engagement. CSF A\u03b21-40 reductions ranged from -31.8% (15 mg) to -58.9% (70 mg) vs +3.7% placebo at 12 weeks. CSF A\u03b21-42 reductions ranged from -34.4% to -60.7% vs +6.5% placebo. Plasma A\u03b2 reductions were even larger (up to -88.1% for A\u03b21-40). This is strong evidence that LY2886721 engaged BACE1 and inhibited amyloid beta production. 2. PATHWAY MODULATION: The downstream biology (amyloid beta reduction) clearly moved \u2014 this is the intended mechanism. However, CSF tau and Ptau-181 showed slight increases in treated arms vs slight decreases in placebo, which is not the expected downstream effect if amyloid reduction were translating to neuroprotection. The amyloid cascade hypothesis predicts that reducing A\u03b2 should reduce tau pathology, but this was not observed. 3. CLINICAL TRANSLATION: The NTB Z-score (cognitive endpoint) at 26 weeks showed no benefit: -0.039 (15 mg), -0.161 (35 mg), and an uncertain +0.424 (70 mg, data incomplete due to early termination). The primary endpoint (CSF A\u03b2 at 12 and 26 weeks) was partially met at 12 weeks for the biomarker component, but the 26-week data was not collected due to early termination. The cognitive endpoint clearly failed. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population was MCI/mild AD, which is a relatively early stage \u2014 potentially appropriate for the mechanism but the trial was too short and too small to detect cognitive benefit. 5. CONFOUNDERS: The trial was terminated early due to hepatotoxicity signals (abnormal liver biochemical tests). This is the primary reason the trial failed to complete its pre-specified endpoints. The hepatotoxicity prevented adequate duration of dosing and prevented collection of 26-week CSF data. This is a dose-limiting toxicity / safety termination scenario. The cognitive endpoint also failed in the arms that did complete 26 weeks (15 mg and 35 mg), suggesting that even if the trial had continued, cognitive benefit was not emerging. The trial was also small (N=70) and 26 weeks is likely too short to detect cognitive benefit in MCI/mild AD. Multiple failure factors are present: (a) dose-limiting toxicity leading to early termination, (b) wrong timeframe for cognitive endpoints, (c) possible biology-moved-endpoint-flat for the cognitive readout (A\u03b2 reduced but cognition didn't improve), and (d) the trial was underpowered for cognitive endpoints.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.85,
+      "evidence": "Study was terminated early due to abnormal liver biochemical tests (hepatotoxicity). This prevented collection of 26-week CSF A\u03b2 and tau data, and cut short the cognitive endpoint assessment. The termination was explicitly attributed to safety signals, meeting criterion (c) for DLT classification."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Despite robust dose-dependent reductions in CSF and plasma A\u03b2 (up to -60.7% CSF A\u03b21-42 at 70 mg), the NTB Z-score cognitive endpoint showed no benefit at 26 weeks in the 15 mg (-0.039) and 35 mg (-0.161) arms. The biology (amyloid reduction) clearly moved but the clinical cognitive endpoint did not improve."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.6,
+      "evidence": "26 weeks is likely insufficient to detect cognitive benefit in MCI/mild AD even with substantial A\u03b2 reduction. The amyloid cascade hypothesis predicts that cognitive benefit from A\u03b2 reduction would require longer treatment duration to manifest as measurable cognitive improvement."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.55,
+      "evidence": "Total N=70 across 4 arms (approximately 15-18 per arm) is grossly underpowered to detect cognitive benefit in MCI/mild AD at 26 weeks. The trial was likely designed primarily as a biomarker/PD study rather than a powered cognitive efficacy study."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2886721",
+      "target_entity": "ENSG00000186318",
+      "support": "strong_support",
+      "affecting_arm_id": "15_mg_ly2886721",
+      "reasoning": "Dose-dependent CSF and plasma A\u03b2 reductions confirm BACE1 engagement at 15 mg. CSF A\u03b21-40 -31.8%, A\u03b21-42 -34.4% vs placebo increases, demonstrating target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2886721",
+      "target_entity": "ENSG00000186318",
+      "support": "strong_support",
+      "affecting_arm_id": "35_mg_ly2886721",
+      "reasoning": "Dose-dependent CSF and plasma A\u03b2 reductions confirm BACE1 engagement at 35 mg. CSF A\u03b21-40 -57.7%, A\u03b21-42 -52.0% vs placebo increases."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2886721",
+      "target_entity": "ENSG00000186318",
+      "support": "strong_support",
+      "affecting_arm_id": "70_mg_ly2886721",
+      "reasoning": "Dose-dependent CSF and plasma A\u03b2 reductions confirm BACE1 engagement at 70 mg. CSF A\u03b21-40 -58.9%, A\u03b21-42 -60.7% vs placebo increases."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186318",
+      "target_entity": "GO:0060134",
+      "support": "strong_support",
+      "affecting_arm_id": "15_mg_ly2886721",
+      "reasoning": "BACE1 inhibition by LY2886721 produced robust, dose-dependent reductions in CSF and plasma A\u03b2, confirming that engaging BACE1 modulates the intended mechanism (amyloid beta production reduction). The mechanism's immediate downstream readout (A\u03b2 levels) clearly changed."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186318",
+      "target_entity": "GO:0060134",
+      "support": "strong_support",
+      "affecting_arm_id": "35_mg_ly2886721",
+      "reasoning": "BACE1 inhibition produced robust A\u03b2 reductions at 35 mg, confirming target-to-mechanism link."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000186318",
+      "target_entity": "GO:0060134",
+      "support": "strong_support",
+      "affecting_arm_id": "70_mg_ly2886721",
+      "reasoning": "BACE1 inhibition produced robust A\u03b2 reductions at 70 mg, confirming target-to-mechanism link."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0060134",
+      "target_entity": "bio:090def8a3caa",
+      "support": "strong_support",
+      "affecting_arm_id": "15_mg_ly2886721",
+      "reasoning": "The mechanism (BACE1 enzyme inhibition) clearly affected the intended biology (amyloid beta peptide reduction): CSF A\u03b21-40 -31.8%, A\u03b21-42 -34.4% at 15 mg vs placebo increases. The mechanism-to-biology link is confirmed."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0060134",
+      "target_entity": "bio:090def8a3caa",
+      "support": "strong_support",
+      "affecting_arm_id": "35_mg_ly2886721",
+      "reasoning": "CSF A\u03b21-40 -57.7%, A\u03b21-42 -52.0% at 35 mg confirms mechanism-to-biology link."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0060134",
+      "target_entity": "bio:090def8a3caa",
+      "support": "strong_support",
+      "affecting_arm_id": "70_mg_ly2886721",
+      "reasoning": "CSF A\u03b21-40 -58.9%, A\u03b21-42 -60.7% at 70 mg confirms mechanism-to-biology link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:090def8a3caa",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "15_mg_ly2886721",
+      "reasoning": "Despite substantial A\u03b2 reduction at 15 mg, NTB Z-score at 26 weeks was -0.039 (no cognitive benefit). Biology moved but disease didn't improve, providing weak contradict evidence for the amyloid-drives-AD hypothesis. Mitigating factors: trial was underpowered, 26 weeks may be too short, and early termination limits interpretation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:090def8a3caa",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "35_mg_ly2886721",
+      "reasoning": "Despite substantial A\u03b2 reduction at 35 mg, NTB Z-score at 26 weeks was -0.161 (no cognitive benefit, actually slightly negative). Biology moved but disease didn't improve. Mitigating factors: underpowered, short duration, early termination."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_12_weeks_cerebrospinal_fluid_csf_amyloid_beta_1",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The CSF A\u03b2 biomarker endpoint clearly captured the pharmacodynamic effect of BACE1 inhibition (large, dose-dependent reductions). However, the trial was terminated early and the 26-week CSF data was not collected, and the cognitive endpoint did not improve despite A\u03b2 reduction, raising questions about whether CSF A\u03b2 reduction translates to clinical benefit in AD. Weak support as a PD biomarker endpoint that captured the biology but whose clinical relevance remains uncertain."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloidbeta_positive__cdr_low__fcsrtirfreerecall_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The MCI/mild AD population with amyloid positivity did not show cognitive benefit from BACE1 inhibition despite robust A\u03b2 reduction. NTB Z-scores were flat or negative at 26 weeks in the 15 mg and 35 mg arms. The trial was terminated early and underpowered, limiting interpretation, hence weak rather than moderate contradict."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial has multiple overlapping failure factors: (1) early termination due to hepatotoxicity prevented collection of 26-week CSF biomarker data and cut short the cognitive endpoint assessment, making it partially an operational failure; (2) the cognitive endpoint failed in completed arms (15 mg, 35 mg) despite robust A\u03b2 reduction, suggesting biology-moved-endpoint-flat; (3) the 70 mg arm cognitive data is incomplete/unknown due to early termination; (4) CSF tau and Ptau-181 showed slight increases in treated arms vs decreases in placebo, which is an unexpected and potentially concerning signal that warrants expert interpretation; (5) the trial was grossly underpowered for cognitive endpoints (N~15-18 per arm); (6) 26 weeks is likely too short for cognitive benefit detection in MCI/mild AD. Expert review is needed to determine whether the cognitive failure reflects true biology-moved-endpoint-flat (amyloid hypothesis failure) vs. wrong timeframe/underpowering, and to interpret the tau signal."
+}

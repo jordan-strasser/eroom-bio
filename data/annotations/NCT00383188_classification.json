@@ -1,0 +1,151 @@
+{
+  "nct_id": "NCT00383188",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: There is clear evidence of target engagement. Dose-proportional plasma trough concentrations were observed (Ctrough: 5.4, 30.8, 51.3, 79.4 ng/mL for 0.5, 3, 6, 10 mg), confirming PK exposure. CRP decreased significantly vs placebo at weeks 1-2 for 3, 6, and 10 mg doses (p<0.05), indicating that p38 MAPK inhibition by PH-797804 was engaging its target and modulating downstream inflammatory signaling early on.\n\n2. PATHWAY MODULATION: The downstream biology did move initially. CRP reductions and DAS28-4(CRP) improvements were statistically significant vs placebo at multiple early timepoints for 3, 6, and 10 mg doses. This confirms that p38 MAPK inhibition was suppressing pro-inflammatory cytokine production early in treatment. However, critically, CRP reductions attenuated by weeks 4-12 despite continued dosing, suggesting tachyphylaxis or compensatory pathway activation \u2014 a well-documented phenomenon with p38 MAPK inhibitors where the pathway adapts over time.\n\n3. CLINICAL TRANSLATION: Despite early biological activity, the primary endpoint (ACR20 at Week 12) was not met across any dose arm. Effect sizes were modest (+8-11% over placebo) and p-values ranged from 0.17 to 0.34. The attenuation of CRP suppression over time directly explains the failure to sustain clinical benefit at Week 12. Early signals at Week 4 (ACR20: 10 mg arm p=0.0279) suggest transient clinical benefit that was not maintained, consistent with the biology attenuation pattern.\n\n4. POPULATION EFFECTS: No formal biomarker-defined subgroup analyses were reported. The early Week 4 signals in higher dose arms suggest the mechanism may work transiently but the biology attenuates. Pain VAS and DAS28-4(CRP) improvements were statistically significant at multiple timepoints for 3 mg and 6 mg, suggesting partial clinical translation that was not captured by the Week 12 ACR20 primary endpoint.\n\n5. CONFOUNDERS: The placebo ACR20 rate appears to be approximately 30% (inferred from effect sizes: 39.13% in 0.5 mg arm with +8.05% difference implies ~31% placebo rate), which is within normal range for RA trials. The trial was adequately powered (N=305). The primary failure mode is the attenuation of biological effect over time \u2014 the p38 MAPK pathway appears to be subject to compensatory upregulation, meaning the biology moved early but the endpoint (measured at Week 12) did not capture sustained benefit. This is a biology_moved_endpoint_flat pattern with a strong component of wrong_timeframe (the biology attenuated before the primary endpoint was measured) and a fundamental target_engaged_biology_not_moved pattern at the 12-week timepoint. The dominant failure mode is that the biology moved early but attenuated \u2014 making this primarily a biology_moved_endpoint_flat failure with a secondary wrong_timeframe component.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.75,
+      "evidence": "CRP and DAS28-4(CRP) decreased significantly vs placebo at weeks 1-2 and at multiple early timepoints, confirming biological activity. However, CRP reductions attenuated by weeks 4-12 despite continued dosing, and ACR20 at Week 12 was not met across all four dose arms (p=0.17-0.34). The biology moved early but did not sustain to the primary endpoint timepoint."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.65,
+      "evidence": "The biological effect (CRP suppression) was demonstrable at weeks 1-2 but attenuated by weeks 4-12, a known tachyphylaxis phenomenon with p38 MAPK inhibitors. The primary endpoint at Week 12 was measured after the biological effect had waned, making the 12-week timeframe inappropriate for capturing the mechanism's peak effect. Early Week 4 signals (ACR20 10 mg p=0.0279) suggest the drug had transient clinical activity."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ph_797804",
+      "target_entity": "ENSG00000112062",
+      "support": "strong_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Dose-proportional PK exposure confirmed and CRP reductions at weeks 1-2 (p<0.05) demonstrate target engagement of p38 MAPK (MAPK14) by PH-797804 at 3 mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ph_797804",
+      "target_entity": "ENSG00000112062",
+      "support": "strong_support",
+      "affecting_arm_id": "4",
+      "reasoning": "Dose-proportional PK exposure confirmed and CRP reductions at weeks 1-2 (p<0.05) demonstrate target engagement of p38 MAPK (MAPK14) by PH-797804 at 6 mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ph_797804",
+      "target_entity": "ENSG00000112062",
+      "support": "strong_support",
+      "affecting_arm_id": "5",
+      "reasoning": "Dose-proportional PK exposure confirmed and CRP reductions at weeks 1-2 (p<0.05) demonstrate target engagement of p38 MAPK (MAPK14) by PH-797804 at 10 mg dose."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112062",
+      "target_entity": "R-HSA-198753",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "CRP reductions and DAS28-4(CRP) improvements at early timepoints confirm that p38 MAPK inhibition modulated downstream ERK/MAPK targets and inflammatory signaling. However, the effect attenuated over time, suggesting compensatory pathway activation, warranting only moderate rather than strong support."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112062",
+      "target_entity": "R-HSA-198753",
+      "support": "moderate_support",
+      "affecting_arm_id": "4",
+      "reasoning": "CRP reductions and DAS28-4(CRP) improvements at early timepoints confirm pathway modulation at 6 mg, but attenuation by weeks 4-12 limits confidence."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112062",
+      "target_entity": "R-HSA-198753",
+      "support": "moderate_support",
+      "affecting_arm_id": "5",
+      "reasoning": "CRP reductions and DAS28-4(CRP) improvements at early timepoints confirm pathway modulation at 10 mg, but attenuation by weeks 4-12 limits confidence."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3",
+      "reasoning": "While early CRP suppression confirmed initial mechanism activity, the attenuation of CRP reductions by weeks 4-12 despite continued dosing indicates that sustained ERK/MAPK pathway inhibition did not maintain pro-inflammatory cytokine suppression, suggesting compensatory mechanisms override the intended biology over time."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "4",
+      "reasoning": "Same attenuation pattern at 6 mg \u2014 initial cytokine suppression did not sustain, indicating the mechanism does not durably affect the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "5",
+      "reasoning": "Same attenuation pattern at 10 mg \u2014 initial cytokine suppression did not sustain, indicating the mechanism does not durably affect the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198753",
+      "target_entity": "bio:1cf8c3ac79b7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "At 0.5 mg, no significant CRP reduction was observed, and ACR20 was not met. The mechanism did not demonstrably affect the intended biology at this dose."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3",
+      "reasoning": "Despite early CRP suppression (biology moved transiently), ACR20 at Week 12 was not met. The sustained suppression of pro-inflammatory cytokines did not translate to durable clinical benefit in RA, providing weak contradict evidence for this biology driving the disease in a therapeutically meaningful way via this mechanism."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "4",
+      "reasoning": "Same pattern at 6 mg \u2014 transient biology movement did not translate to sustained clinical benefit."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "5",
+      "reasoning": "Same pattern at 10 mg \u2014 transient biology movement did not translate to sustained clinical benefit."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1cf8c3ac79b7",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "2",
+      "reasoning": "At 0.5 mg, no meaningful biology movement and no clinical benefit observed."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "ACR20 at Week 12 is a well-validated endpoint for RA trials. However, the early Week 4 signals (ACR20 10 mg p=0.0279) and DAS28-4(CRP) improvements suggest the endpoint may have captured benefit at an earlier timepoint but not at Week 12 due to biology attenuation. The endpoint itself is appropriate for RA but the timing may have missed the window of biological activity, making the endpoint's translatability ambiguous in this specific mechanistic context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of adults with active RA did not respond to PH-797804 at Week 12 across all four dose arms (p=0.17-0.34). The primary endpoint was missed with adequate power (N=305) and no responding subgroup was identified. Moderate contradict rather than strong because early Week 4 signals suggest transient response in this population."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The attenuation of CRP suppression despite continued dosing is a well-documented tachyphylaxis phenomenon with p38 MAPK inhibitors, potentially due to compensatory upregulation of upstream kinases or alternative inflammatory pathways. Expert review is warranted to assess whether this represents a fundamental limitation of p38 MAPK inhibition as a therapeutic strategy in RA (wrong target/mechanism) versus a pharmacological limitation specific to PH-797804 (e.g., insufficient sustained target coverage). Additionally, the QT prolongation signals (QTcB 450-480 ms in active arms, QT \u2265500 ms in 3 participants) and MI events in higher dose arms may have constrained dose escalation beyond 10 mg, potentially limiting the ability to test whether higher sustained exposure could overcome tachyphylaxis. The structured AE table lacks per-arm incidence data for most events, preventing formal DLT classification."
+}

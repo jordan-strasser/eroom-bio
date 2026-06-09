@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00659295",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: This is an observational post-marketing safety study of insulin detemir in routine clinical practice. No formal target engagement biomarker data is reported. Insulin detemir is a well-established insulin analogue that binds the insulin receptor (INSR); its mechanism is not in question. The study was not designed to test target engagement. 2. PATHWAY MODULATION: No pathway biomarker data (e.g., HbA1c, fasting glucose) is reported in the structured extraction. The study collected SAR counts but not glycemic control metrics in a comparative framework. 3. CLINICAL TRANSLATION: The primary endpoint was 'incidence of serious adverse reactions including major hypoglycaemic events over 3-12 months.' The primary endpoint met field is null, and no p-value or comparative benchmark is provided. The effect sizes reported are raw SAR counts (186, 208, 109 for T1D; 93, 112, 48 for T2D at 3/6/12 months), not rates or comparisons to a control. There is no comparator arm. The study notes that major hypoglycaemic events were not all reported as SARs by physicians, undermining the primary endpoint's validity. Without a comparator or pre-specified threshold, the primary endpoint cannot be assessed as met or missed. 4. POPULATION EFFECTS: Two populations were studied (T1D and T2D), with T1D showing higher SAR counts consistent with known higher hypoglycaemia risk. No formal subgroup analysis with statistical comparison is available. 5. CONFOUNDERS: This is an observational, single-arm, post-marketing surveillance study with no comparator, no pre-specified success threshold, and a primary endpoint that was incompletely captured (major hypoglycaemic events not consistently reported as SARs). The study provides descriptive safety data only. The outcome is classified as 'partial' because the study did generate a safety readout (SAR counts across time points and populations) but cannot be interpreted as a success or failure of the therapeutic hypothesis due to the absence of a comparator, missing p-values, and incomplete endpoint capture. The trial is primarily a pharmacovigilance exercise rather than an efficacy or mechanistic test.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "No comparator arm, no pre-specified success threshold, no p-values, primary endpoint met field is null, and major hypoglycaemic events were not consistently reported as SARs. The study is observational/post-marketing surveillance and cannot support a mechanistic causal chain assessment."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_incidence_serious_adverse_reactions_including",
+      "target_entity": "diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The endpoint (SAR incidence including major hypoglycaemic events) was measured but without a comparator or pre-specified threshold, and with acknowledged under-reporting of major hypoglycaemic events as SARs. The endpoint's ability to capture clinical benefit or harm in this indication cannot be assessed from this observational study alone."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The study enrolled both T1D and T2D patients in routine clinical practice but provides no comparative statistical analysis between populations or against a control. SAR counts differ between T1D and T2D arms but no formal test of differential response was conducted."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a post-marketing observational safety surveillance study with no comparator, no pre-specified success/failure threshold, no p-values, and incomplete capture of the primary endpoint (major hypoglycaemic events not consistently reported as SARs). The mechanistic causal chain cannot be assessed. Expert review is needed to determine whether any meaningful signal can be extracted from the raw SAR counts and whether this trial should contribute any evidence to the graph beyond the ambiguous endpoint_captures edge."
+}

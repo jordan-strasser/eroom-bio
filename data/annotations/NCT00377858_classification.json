@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00377858",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both insulin lispro mid mixture (MM) and insulin glargine are established insulin receptor agonists with well-documented mechanisms. Both arms achieved substantial HbA1c reductions from baseline (both arms reached ~7.5-7.7% HbA1c), confirming that both drugs engaged the insulin receptor and modulated glycemic biology. Blood glucose biomarkers moved (morning pre-meal glucose, evening postprandial glucose differed between arms), confirming pharmacodynamic activity. Target engagement is not in question for either arm.\n\n2. PATHWAY MODULATION: Both drugs demonstrably modulated the insulin receptor signaling pathway \u2014 HbA1c fell substantially in both arms from baseline, blood glucose levels were controlled, and glycemic variability metrics were similar between arms. The biology (glycemic control) clearly moved in both arms.\n\n3. CLINICAL TRANSLATION: This is an active-controlled non-inferiority or superiority trial comparing two insulin formulations. The primary endpoint (HbA1c at 36 weeks) was NOT met in the sense that MM did not demonstrate non-inferiority or superiority to glargine \u2014 glargine achieved 7.49% vs MM 7.66%, a difference of 0.17% (p=0.097). Glargine numerically outperformed MM at all timepoints (weeks 12, 24, and 36). More glargine patients achieved HbA1c \u22646.5% (19.1% vs 13.2%). The trial failed to show MM was equivalent or superior to glargine on the primary glycemic endpoint.\n\n4. POPULATION EFFECTS: MM showed significantly fewer non-nocturnal hypoglycemic episodes (71 vs 98 patients, p=0.013) and lower hypoglycemic rates overall. This suggests MM has a safety/tolerability advantage in terms of daytime hypoglycemia, but this did not translate to a primary endpoint advantage. No biomarker-defined subgroup showed differential HbA1c response favoring MM.\n\n5. CONFOUNDERS: This is fundamentally an active-controlled comparison between two insulin regimens, not a placebo-controlled trial. The 'failure' here is relative \u2014 both drugs work, but MM did not match glargine's glycemic control. The trial was adequately powered (n=484). The 36-week duration is appropriate for HbA1c assessment. The failure is best characterized as MM being an inferior comparator to glargine for HbA1c control, not a mechanistic failure of insulin receptor agonism per se. Both drugs engaged their targets and moved biology; the clinical endpoint difference between arms was real but modest (0.17%), and MM simply did not match glargine. This is a comparative effectiveness failure \u2014 the mechanism works for both, but glargine performs better on the primary glycemic endpoint. The failure mode is best classified as biology_moved_endpoint_flat from MM's perspective (biology moved but MM didn't match the comparator on the primary endpoint), though more precisely this is a head-to-head comparison where MM underperformed glargine.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Both arms achieved substantial glycemic control (HbA1c ~7.5-7.7%), confirming biology moved. However, MM failed to demonstrate non-inferiority/superiority to glargine on HbA1c (0.17% difference, p=0.097). The biology moved for both drugs, but MM's glycemic endpoint did not match glargine's performance. MM did show a hypoglycemia advantage (fewer non-nocturnal episodes, p=0.013), suggesting a partial clinical benefit profile."
+    },
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.4,
+      "evidence": "The trial is an active-controlled comparison; both drugs work mechanistically. MM's relative underperformance on HbA1c may reflect the pharmacokinetic profile of the mid-mixture formulation (TID dosing) vs glargine's flat basal coverage (QD), rather than a fundamental mechanistic failure. The hypoglycemia advantage of MM adds complexity \u2014 this is a partial success/failure profile depending on the endpoint prioritized."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_lispro_mid_mixture",
+      "target_entity": "ENSG00000254647",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_lispro_mid_mixture",
+      "reasoning": "Insulin lispro mid mixture demonstrably engaged the insulin receptor \u2014 HbA1c fell substantially from baseline in the MM arm, blood glucose was modulated, confirming receptor engagement and downstream pharmacodynamic activity."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_glargine",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin glargine demonstrably engaged the insulin receptor \u2014 HbA1c reached 7.49% at endpoint with superior glycemic control vs MM, morning pre-meal glucose 6.53 mmol/L, confirming robust receptor engagement and downstream pharmacodynamic activity."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000254647",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_lispro_mid_mixture",
+      "reasoning": "The insulin receptor signaling pathway was demonstrably activated by MM \u2014 HbA1c fell from baseline, blood glucose was regulated, and evening postprandial glucose was significantly lower with MM (9.27 vs 9.84 mmol/L, p=0.009), confirming the target drove the intended mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin glargine engagement of INSR demonstrably drove the insulin receptor signaling pathway \u2014 superior HbA1c reduction, lower morning pre-meal glucose (6.53 mmol/L, p=0.010 vs MM), and more patients achieving HbA1c \u22646.5% (19.1% vs 13.2%) confirm robust pathway modulation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin receptor signaling pathway activation by glargine clearly drove glycemic control biology \u2014 HbA1c 7.49%, superior morning glucose control, and more patients at target HbA1c thresholds confirm the mechanism-to-biology link for glargine."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "insulin_lispro_mid_mixture",
+      "reasoning": "Insulin receptor signaling pathway activation by MM drove glycemic control biology (HbA1c 7.66%, evening postprandial glucose advantage), but the glycemic control achieved was modestly inferior to glargine, warranting moderate rather than strong support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Glycemic control biology clearly drives type 2 diabetes mellitus outcomes \u2014 glargine's superior HbA1c reduction and higher proportion of patients at glycemic targets confirms that modulating this biology translates to clinical benefit in T2DM."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "insulin_lispro_mid_mixture",
+      "reasoning": "MM also drove glycemic control biology and achieved meaningful HbA1c reduction, confirming the biology-to-indication link, though with modestly inferior glycemic outcomes vs glargine and a hypoglycemia safety advantage."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hemoglobin_a1c_hba1c_36_week_endpoint",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at 36 weeks is a well-validated, regulator-accepted surrogate endpoint for type 2 diabetes mellitus management. Both arms achieved clinically meaningful HbA1c reductions from baseline, and the endpoint clearly captured differential glycemic control between the two insulin regimens, confirming its validity as a T2DM endpoint."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The overall T2DM population did not show a differential response favoring MM over glargine on the primary HbA1c endpoint (p=0.097, MM numerically inferior). The high HbA1c subgroup (>6.5%, >7.0%) similarly showed glargine superiority at multiple timepoints. MM showed a hypoglycemia advantage but not a glycemic control advantage in this population."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial is an active-controlled head-to-head comparison between two insulin formulations, both of which work mechanistically. The 'failure' classification reflects MM's inability to match glargine on HbA1c, not a failure of insulin receptor agonism per se. The trial has a complex partial-success profile: MM failed on the primary glycemic endpoint but showed a statistically significant hypoglycemia advantage (fewer non-nocturnal episodes, p=0.013). Expert review is warranted to assess whether the failure mode classification appropriately captures this comparative effectiveness context, and whether the hypoglycemia advantage of MM constitutes a clinically meaningful partial success that should influence edge updates differently. Additionally, the biology node 'glycemic control via incretin enhancement' appears mismatched to the mechanism of insulin receptor agonism (incretins are a separate mechanism), which may indicate a graph entity mismatch requiring expert resolution."
+}

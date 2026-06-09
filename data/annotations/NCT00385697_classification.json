@@ -1,0 +1,87 @@
+{
+  "nct_id": "NCT00385697",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker (e.g., T-cell subset changes, CD3 occupancy) is reported. The trial does not provide explicit PD data confirming teplizumab engaged CD3/TCR complex in vivo. However, teplizumab is a well-characterized anti-CD3 antibody with established binding, and cytokine release syndrome in the open-label arm is consistent with immune activation upon CD3 engagement. We cannot confirm engagement from this extraction alone.\n\n2. PATHWAY MODULATION: The intended downstream biology is immune tolerance induction and beta-cell preservation. C-peptide AUC at 104 weeks showed a statistically significant but very small difference (mean difference 0.047 min*nmol/L, p=0.049) in the full Herold regimen arm vs placebo (-0.18 vs -0.22). This marginal signal suggests a very modest slowing of beta-cell decline, but the effect size is clinically negligible. HbA1c changes were essentially identical between treatment and placebo at both 52 and 104 weeks. The biology moved only minimally.\n\n3. CLINICAL TRANSLATION: The primary composite endpoint (insulin dose <0.5 U/kg/day AND HbA1c <6.5% at 52 weeks) was not met in any arm. The full Herold regimen showed OR 0.963 (p=0.904), essentially no difference from placebo. The 33.3% dose arm (p=0.222) and curtailed regimen (p=0.885) also failed. The marginal C-peptide signal did not translate to meaningful clinical benefit on the composite endpoint.\n\n4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population was children and adults with recent-onset T1DM, which is the intended population for immune tolerance induction. No biomarker-defined responder subgroups were identified in this trial.\n\n5. CONFOUNDERS: The composite endpoint (insulin dose <0.5 U/kg/day AND HbA1c <6.5%) is a stringent dual criterion that may have been difficult to achieve even with meaningful beta-cell preservation. The endpoint may not have been optimally designed to capture the modest biological effect seen (C-peptide). The trial was adequately powered (N=554) and duration was 104 weeks, so underpowering and wrong timeframe are less likely explanations. The primary failure appears to be that the biological effect (modest beta-cell preservation) was insufficient to translate to the composite clinical endpoint \u2014 a combination of biology_moved_endpoint_flat (the endpoint was too stringent/wrong for the modest biology) and the biology itself moving only minimally. The composite endpoint requiring BOTH insulin dose AND HbA1c thresholds may have been too demanding given the modest immunomodulatory effect achieved.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "C-peptide AUC showed a marginally significant difference at 104 weeks (p=0.049, mean difference 0.047 min*nmol/L) suggesting very modest beta-cell preservation, but the primary composite endpoint (insulin dose <0.5 U/kg/day AND HbA1c <6.5%) was completely missed (OR 0.963, p=0.904). HbA1c changes were identical between arms. The stringent composite endpoint may not have captured the modest biological signal."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.3,
+      "evidence": "The enrolled population (recent-onset T1DM) is the intended population, but the lack of biomarker stratification (e.g., C-peptide reserve, HLA type, autoantibody profile) may have diluted any treatment effect. Subsequent teplizumab trials in pre-symptomatic T1DM showed benefit, suggesting timing/population selection matters."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bd299b6e0bd",
+      "target_entity": "type_1_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_herold_regimen",
+      "reasoning": "The primary composite endpoint was completely missed (p=0.904) despite marginal C-peptide signal, suggesting that the immune tolerance / beta-cell preservation biology as modulated by teplizumab in this population does not drive meaningful clinical benefit in recent-onset T1DM at this stage."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bd299b6e0bd",
+      "target_entity": "type_1_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_33_3_herold_regimen",
+      "reasoning": "33.3% dose arm also failed the primary endpoint (p=0.222), consistent with the full-dose arm failure."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bd299b6e0bd",
+      "target_entity": "type_1_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_curtailed_herold_regimen",
+      "reasoning": "Curtailed regimen arm also failed the primary endpoint (p=0.885), consistent with the other arm failures."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0050852",
+      "target_entity": "bio:1bd299b6e0bd",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_herold_regimen",
+      "reasoning": "T-cell receptor signaling pathway modulation via teplizumab produced only a marginal C-peptide benefit (p=0.049, clinically negligible effect size) and no meaningful immune tolerance induction as measured by clinical endpoints. The mechanism did not robustly drive the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0050852",
+      "target_entity": "bio:1bd299b6e0bd",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_33_3_herold_regimen",
+      "reasoning": "Reduced dose arm showed no meaningful biology movement on clinical endpoints."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0050852",
+      "target_entity": "bio:1bd299b6e0bd",
+      "support": "weak_contradict",
+      "affecting_arm_id": "double_blind_curtailed_herold_regimen",
+      "reasoning": "Curtailed regimen also showed no meaningful biology movement on clinical endpoints."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_subjects_segment_2_both_daily_insulin_dose_less",
+      "target_entity": "type_1_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The composite endpoint (insulin dose <0.5 U/kg/day AND HbA1c <6.5%) was missed across all arms despite a marginal C-peptide signal suggesting some beta-cell preservation. The stringent dual-criterion composite may not adequately capture the modest biological effects of immunomodulation in recent-onset T1DM, suggesting this endpoint does not optimally capture clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_positive__gadautoantibodies_positive__insulinautoantibodies_positive__isletcellautoantibodies_positive__line_first__severity_active",
+      "target_entity": "type_1_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (recent-onset T1DM with autoantibody positivity) did not respond to teplizumab on the primary composite endpoint across all three dose regimens (p=0.904, 0.222, 0.885). The population as enrolled did not demonstrate meaningful clinical benefit, consistent with moderate_contradict given adequate power (N=554) and no responding subgroup identified."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The marginal C-peptide signal (p=0.049, mean difference 0.047 min*nmol/L) at 104 weeks in the full Herold regimen arm is statistically significant but clinically negligible. It is unclear whether this represents true biological activity or a chance finding. Additionally, subsequent teplizumab trials in pre-symptomatic T1DM (e.g., NCT01030861) showed benefit, raising the question of whether this trial enrolled patients too late in disease course (wrong population/wrong timeframe). Expert review is needed to assess whether the composite endpoint was appropriately designed for this mechanism, and whether the marginal C-peptide signal should be interpreted as partial target engagement evidence."
+}

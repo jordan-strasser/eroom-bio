@@ -1,0 +1,27 @@
+{
+  "nct_id": "NCT00870519",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial directly assessed whether 123-I MNI-168 could engage \u03b2-amyloid plaques in the brain via SPECT imaging. The investigator commentary explicitly states 'inadequate brain uptake,' meaning the radioligand failed to reach and bind its intended target in the brain at sufficient levels. This is a direct measurement of target engagement failure \u2014 the tracer did not adequately penetrate the brain or bind amyloid plaques to produce a usable imaging signal. 2. PATHWAY MODULATION: Because target engagement failed (inadequate brain uptake), there is no downstream pathway modulation to assess. The radioligand binding mechanism never activated. 3. CLINICAL TRANSLATION: The primary endpoint \u2014 uptake and washout as an imaging biomarker for amyloid burden \u2014 was not met. With inadequate brain uptake, no differential signal between AD patients and healthy controls could be established. 4. POPULATION EFFECTS: No subgroup findings reported. The sample size was only 2 subjects, making any subgroup analysis impossible. 5. CONFOUNDERS: The study was extremely small (n=2), which raises underpowering concerns, but the failure mode here is more fundamental \u2014 the tracer itself failed to achieve adequate brain uptake, which is a manufacturing/delivery/formulation issue (the radioligand's pharmacokinetic properties were inadequate for brain penetration) rather than a statistical power issue. The failure is best classified as no_target_engagement due to inadequate brain uptake, with a secondary consideration of manufacturing_or_delivery (the tracer's physicochemical properties were insufficient for CNS penetration). The extremely small sample size (n=2) also contributes as underpowered, though the fundamental issue is the tracer's inadequate brain uptake.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.85,
+      "evidence": "Investigator assessment explicitly states 'inadequate brain uptake, suggesting the tracer is inadequate as an imaging biomarker of brain amyloid.' The radioligand failed to achieve sufficient brain penetration to bind \u03b2-amyloid plaques."
+    },
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.65,
+      "evidence": "The failure of brain uptake suggests the radioligand's physicochemical properties (lipophilicity, molecular weight, protein binding) were insufficient for adequate CNS penetration \u2014 a formulation/delivery-level failure of the imaging agent itself."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Sample size of only 2 subjects is extremely small, though the primary failure is the tracer's inadequate brain uptake rather than statistical power."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.65,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "No resolved graph entities were provided for this trial, so no edge updates could be emitted despite the clear mechanistic failure signal. Expert review is needed to: (1) confirm whether 123-I MNI-168 and its target/biology nodes exist in the graph under canonical IDs, (2) assess whether the n=2 sample size represents a true pilot feasibility study or a terminated trial, and (3) determine whether the brain uptake failure reflects a CNS penetration/formulation issue or a binding affinity issue with the radioligand. The operational_failure flag is set to true because the extremely small sample (n=2) and the fundamental tracer delivery failure mean the mechanistic hypothesis (radioligand binding to amyloid plaques as an imaging biomarker) was never given a fair test at scale."
+}

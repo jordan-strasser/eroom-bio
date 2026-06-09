@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00806585",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The target is listed as HSD11B1 (11\u03b2-HSD1) per the resolved graph entities, but no direct target engagement biomarker (e.g., cortisol/cortisone ratio, urinary steroid metabolites) was reported. LDL-C changes were not significantly different from placebo across all doses, providing no indirect evidence of meaningful HSD11B1 modulation. The target is 'unknown' in the extraction narrative, and no PK/PD data confirming HSD11B1 engagement is provided. 2. PATHWAY MODULATION: The proposed mechanism is glucocorticoid biosynthesis modulation (R-HSA-194002). No pathway biomarkers (e.g., cortisol suppression, ACTH changes) were reported. The absence of any glucocorticoid pathway readout means we cannot confirm downstream biology was engaged. However, there are modest signals in body weight reduction (statistically significant at 0.5 mg and 2.0 mg) and HbA1c reduction (significant at 2.0 mg), which are consistent with HSD11B1 inhibition biology but are not specific to the blood pressure pathway. 3. CLINICAL TRANSLATION: The primary endpoint (SiDBP and SiSBP at Week 12) was clearly missed across all MK-0736 monotherapy arms. The highest dose (8.0 mg) showed essentially no effect on blood pressure vs placebo (SiDBP: -0.2 mmHg, p=0.829; SiSBP: -0.4 mmHg, p=0.821). There is no dose-response relationship for blood pressure. The HCTZ combination arm showed significant SiSBP reduction (-12.4 mmHg, p=0.001), but this is likely driven by HCTZ's known diuretic mechanism rather than MK-0736. 4. POPULATION EFFECTS: No subgroup analyses were reported. The modest weight and HbA1c signals at lower doses suggest some metabolic activity, but these are secondary endpoints and do not rescue the primary blood pressure failure. The lack of dose-response for blood pressure across 0.5, 2.0, and 8.0 mg doses is particularly concerning. 5. CONFOUNDERS: The trial was adequately powered (N=620) and of sufficient duration (24 weeks). The primary failure appears to be a genuine mechanistic failure\u2014MK-0736 did not reduce blood pressure in this population despite some metabolic signals. The high placebo response in blood pressure (typical in hypertension trials) may have contributed, but the near-zero effect sizes at the highest dose suggest the drug simply does not lower blood pressure via this mechanism in this population. The biology_moved_endpoint_flat pattern partially applies for metabolic endpoints (weight, HbA1c moved modestly) but the primary blood pressure endpoint showed no movement at all, suggesting the mechanism does not translate to blood pressure reduction even if some metabolic effects are present. The most parsimonious explanation is that HSD11B1 inhibition does not meaningfully reduce blood pressure in T2DM patients with hypertension\u2014the biology (glucocorticoid modulation) does not drive the intended clinical outcome (blood pressure reduction) in this indication.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Modest but statistically significant reductions in body weight and HbA1c at 2.0 mg suggest some biological activity consistent with HSD11B1 inhibition, yet the primary blood pressure endpoints showed essentially no effect across all doses (SiSBP: -0.4 mmHg at 8.0 mg, p=0.821). The biology that moved (metabolic) did not translate to the primary endpoint (blood pressure)."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "T2DM patients with hypertension may not have blood pressure driven primarily by glucocorticoid excess/HSD11B1 activity. The mechanism may be more relevant to metabolic outcomes than blood pressure in this population."
+    },
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.3,
+      "evidence": "No direct HSD11B1 target engagement biomarkers were reported. LDL-C showed no significant changes vs placebo. Without cortisol/cortisone ratio data, it is possible the drug did not adequately engage HSD11B1 at these doses, particularly given the lack of dose-response for blood pressure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:58463317bbd4",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "mk_0736_8_0_mg",
+      "reasoning": "The highest dose of MK-0736 showed essentially no blood pressure reduction (SiSBP -0.4 mmHg, p=0.821; SiDBP -0.2 mmHg, p=0.829) despite adequate power and duration, suggesting that modulating glucocorticoid biosynthesis via HSD11B1 inhibition does not drive meaningful blood pressure reduction in T2DM with hypertension."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:58463317bbd4",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "mk_0736_2_0_mg",
+      "reasoning": "The 2.0 mg dose also failed to reduce blood pressure (SiDBP p=0.919, SiSBP p=0.246) despite showing metabolic signals, further supporting that blood pressure reduction biology does not drive clinical benefit in this indication via this mechanism."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:58463317bbd4",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "mk_0736_0_5_mg",
+      "reasoning": "The 0.5 mg dose also failed to reduce blood pressure (SiDBP p=0.253, SiSBP p=0.543), consistent with the pattern across all doses."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-194002",
+      "target_entity": "bio:58463317bbd4",
+      "support": "weak_contradict",
+      "affecting_arm_id": "mk_0736_8_0_mg",
+      "reasoning": "No dose-response relationship for blood pressure was observed across 0.5, 2.0, and 8.0 mg doses, and the highest dose showed near-zero blood pressure effect. This suggests glucocorticoid biosynthesis modulation does not translate to blood pressure reduction biology in this population, though absence of pathway biomarkers limits certainty."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-194002",
+      "target_entity": "bio:58463317bbd4",
+      "support": "weak_contradict",
+      "affecting_arm_id": "mk_0736_2_0_mg",
+      "reasoning": "Despite modest metabolic signals (weight, HbA1c) at 2.0 mg suggesting some pathway activity, blood pressure was not reduced, indicating the mechanism does not translate to the blood pressure biology endpoint."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-194002",
+      "target_entity": "bio:58463317bbd4",
+      "support": "weak_contradict",
+      "affecting_arm_id": "mk_0736_0_5_mg",
+      "reasoning": "0.5 mg arm failed on blood pressure endpoints despite significant body weight reduction, suggesting mechanism does not translate to blood pressure biology."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_sitting_diastolic_blood_pressure_sidbp_week_12",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The SiDBP endpoint is a well-established surrogate for cardiovascular risk in hypertension, but in this trial it failed to capture any drug effect. The HCTZ combination arm showed SiSBP reduction (p=0.001), suggesting the endpoint can detect blood pressure changes when a drug actually works, so the endpoint itself is not the problem\u2014the drug simply did not move it. The endpoint's validity for T2DM with hypertension is established, but the drug's failure to engage it makes the translatability ambiguous in this specific mechanistic context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "dbp_high__hba1c_high__ldl_low__sbp_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (T2DM with hypertension, high DBP/SBP, high HbA1c) did not respond to MK-0736 on the primary blood pressure endpoint across all doses. The primary endpoint was missed with p>0.20 at the highest dose, with adequate power (N=620) and no responding subgroup identified."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The target (HSD11B1) and mechanism (glucocorticoid biosynthesis) were inferred from resolved graph entities but not explicitly confirmed in the trial narrative (listed as 'unknown'). No direct HSD11B1 target engagement biomarkers (cortisol/cortisone ratio) were reported, making it impossible to determine whether the drug engaged its target. The modest metabolic signals (weight, HbA1c) at lower doses are consistent with HSD11B1 inhibition but do not confirm it. Expert review is needed to determine whether the blood pressure failure reflects lack of target engagement, wrong mechanism for blood pressure in this population, or a genuine biology-to-endpoint translation failure. Additionally, the paradoxical finding that lower doses (0.5 mg, 2.0 mg) showed more metabolic activity than the highest dose (8.0 mg) is unexplained and warrants pharmacological review."
+}

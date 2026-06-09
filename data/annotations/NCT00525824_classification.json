@@ -1,0 +1,130 @@
+{
+  "nct_id": "NCT00525824",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. During the monotherapy phase, rosuvastatin 10 mg reduced LDL-C by -46.49% and rosuvastatin 20 mg by -53.59%, confirming HMG-CoA reductase inhibition. Simvastatin 40 mg reduced LDL-C by -40.86% and simvastatin 80 mg by -46.35%, also confirming HMGCR engagement. Ezetimibe's NPC1L1 engagement is confirmed by the incremental LDL-C reductions upon addition to statin monotherapy (e.g., R10 from -46.49% to -59.72% with ezetimibe added). 2. PATHWAY MODULATION: Downstream biology clearly moved. LDL-C reductions were substantial across all arms. Additional lipid biomarkers (total cholesterol, non-HDL-C, ApoB, triglycerides, HDL-C, ApoA-1) all moved in the expected direction, confirming broad lipid pathway modulation. The hs-CRP signal was inconsistent with wide CIs, suggesting no reliable anti-inflammatory effect, but this was not a primary endpoint. 3. CLINICAL TRANSLATION: The primary endpoint (percent change in LDL-C after 6 weeks combination treatment) was met across all arms. The rosuvastatin + ezetimibe combinations achieved greater LDL-C reductions (-59.72% and -63.48%) compared to simvastatin + ezetimibe combinations (-55.22% and -57.42%), with a ~10% differential favoring rosuvastatin combinations. The effect sizes are clinically meaningful for lipid-lowering therapy. No p-value is reported, but the magnitude of effects and the pre-specified endpoint being met indicate success. 4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (hypercholesterolemia with CHD or atherosclerosis) is appropriate for the mechanism. 5. CONFOUNDERS: Safety was acceptable with infrequent serious adverse events. No dose-limiting toxicity. The 12-week duration (6 weeks monotherapy + 6 weeks combination) is appropriate for LDL-C endpoint assessment. The trial is adequately powered (N=1743). The main caveat is that LDL-C is a surrogate endpoint; hard cardiovascular outcomes were not assessed in this short-term trial. The absence of a reported p-value is a minor limitation but the effect sizes are large and consistent.",
+  "failure_modes": [
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.3,
+      "evidence": "12-week trial with LDL-C as surrogate endpoint; no hard cardiovascular outcome data. This is a design caveat rather than a failure\u2014LDL-C is a well-validated surrogate for this indication, but long-term cardiovascular benefit was not demonstrated in this trial."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "rosuvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "rosuvastatin_crestor",
+      "reasoning": "Rosuvastatin monotherapy produced robust LDL-C reductions (-46.49% at 10 mg, -53.59% at 20 mg), directly confirming HMG-CoA reductase engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "simvastatin",
+      "target_entity": "ENSG00000113161",
+      "support": "strong_support",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Simvastatin monotherapy produced robust LDL-C reductions (-40.86% at 40 mg, -46.35% at 80 mg), directly confirming HMG-CoA reductase engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ezetimibe",
+      "target_entity": "ENSG00000015520",
+      "support": "strong_support",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "Ezetimibe addition to statin monotherapy produced incremental LDL-C reductions (e.g., R10 from -46.49% to -59.72%), confirming NPC1L1-mediated intestinal cholesterol absorption inhibition."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "GO:0042177",
+      "support": "strong_support",
+      "affecting_arm_id": "rosuvastatin_crestor",
+      "reasoning": "HMGCR inhibition by rosuvastatin demonstrably reduced LDL-C through the expected mechanism of negative regulation of cholesterol biosynthesis, confirmed by large monotherapy LDL-C reductions."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000113161",
+      "target_entity": "GO:0042177",
+      "support": "strong_support",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "HMGCR inhibition by simvastatin demonstrably reduced LDL-C through the expected mechanism of negative regulation of cholesterol biosynthesis, confirmed by large monotherapy LDL-C reductions."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000015520",
+      "target_entity": "R-HSA-8963678",
+      "support": "strong_support",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "NPC1L1 engagement by ezetimibe modulated intestinal lipid absorption, confirmed by incremental LDL-C reductions beyond statin monotherapy across all combination arms."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042177",
+      "target_entity": "bio:dd497e786b82",
+      "support": "strong_support",
+      "affecting_arm_id": "rosuvastatin_crestor",
+      "reasoning": "Negative regulation of cholesterol biosynthesis via HMGCR inhibition produced substantial hepatic cholesterol synthesis reduction and LDL-C lowering, confirmed by large LDL-C reductions and concordant ApoB, total cholesterol, and non-HDL-C reductions."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0042177",
+      "target_entity": "bio:dd497e786b82",
+      "support": "strong_support",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Negative regulation of cholesterol biosynthesis via HMGCR inhibition produced substantial hepatic cholesterol synthesis reduction and LDL-C lowering, confirmed by large LDL-C reductions and concordant ApoB, total cholesterol, and non-HDL-C reductions."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8963678",
+      "target_entity": "bio:ed1e70c4c972",
+      "support": "strong_support",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "Intestinal lipid absorption inhibition via NPC1L1 blockade produced meaningful reduction in dietary and biliary cholesterol uptake, confirmed by incremental LDL-C, ApoB, and non-HDL-C reductions upon ezetimibe addition."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:dd497e786b82",
+      "target_entity": "hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": "rosuvastatin_crestor",
+      "reasoning": "Hepatic cholesterol synthesis reduction and LDL-C lowering directly addresses the pathophysiology of hypercholesterolemia; large LDL-C reductions confirm this biology drives the indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:dd497e786b82",
+      "target_entity": "hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": "simvastatin",
+      "reasoning": "Hepatic cholesterol synthesis reduction and LDL-C lowering directly addresses the pathophysiology of hypercholesterolemia; large LDL-C reductions confirm this biology drives the indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:ed1e70c4c972",
+      "target_entity": "hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "Reduction of dietary and biliary cholesterol uptake leading to LDL-C lowering directly addresses hypercholesterolemia pathophysiology; incremental LDL-C reductions confirm this biology drives the indication."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_low_density_lipoprotein_cholesterol_ldl_c_after",
+      "target_entity": "hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "LDL-C percent change from baseline is a well-validated, regulator-accepted surrogate endpoint for hypercholesterolemia. The endpoint was met with large effect sizes across all arms, and concordant secondary biomarkers (ApoB, non-HDL-C, total cholesterol, HDL-C) all moved in the expected direction, confirming the endpoint captures the indication biology."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "framingham10yearchdrisk_high",
+      "target_entity": "hypercholesterolemia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (high cardiovascular risk patients with hypercholesterolemia, CHD, or atherosclerosis) responded robustly to both rosuvastatin+ezetimibe and simvastatin+ezetimibe combinations, with LDL-C reductions of 55-63% across all arms, confirming this high-risk population responds to dual lipid-lowering therapy."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

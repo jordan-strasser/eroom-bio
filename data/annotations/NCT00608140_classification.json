@@ -1,0 +1,22 @@
+{
+  "nct_id": "NCT00608140",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial was terminated after enrolling only 2 patients due to inability to recruit sufficient numbers. No patients reached the 18-month primary endpoint measurement window. Therefore, no target engagement data, biomarker data, or efficacy readout was generated. The mechanism (mechanical annuloplasty reducing mitral regurgitation and promoting LV reverse remodeling) was never tested. 2. PATHWAY MODULATION: Not assessable \u2014 no patients completed follow-up to generate any pharmacodynamic or imaging data. 3. CLINICAL TRANSLATION: Not assessable \u2014 the primary endpoint (LVESVI at Month 18) was never measured in any patient. 4. POPULATION EFFECTS: Not assessable \u2014 only 2 patients enrolled, no subgroup analyses possible. 5. CONFOUNDERS: The sole reason for trial failure is an operational one: recruitment collapse. Only 2 of the planned sample were enrolled, and the trial was terminated administratively before any efficacy readout. This is a textbook operational failure \u2014 the causal chain was never given a fair test. The SAEs reported (cardiac failure, haemodynamic instability in the medical arm; atrial fibrillation in the surgical arm) are based on n=1 per event and cannot be interpreted as safety signals. No mechanistic inference can be drawn from this trial.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Trial enrolled only 2 patients total before termination due to inability to recruit. No patients reached the 18-month primary endpoint window. No efficacy analysis was performed. This represents a catastrophic recruitment failure rendering the trial completely uninformative about the mechanistic hypothesis."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.3,
+      "evidence": "Investigator commentary states termination was due to inability to recruit sufficient patients \u2014 this is a recruitment/operational failure rather than a scientific or commercial decision, but the underlying cause of poor recruitment is not specified."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated after enrolling only 2 patients with no efficacy readout whatsoever. No graph entities were resolved for this trial, so no edges can be emitted without risking hallucinated entity ids. The resolved graph entities block is empty, preventing any edge updates. Expert review is needed to determine whether this trial's recruitment failure reflects a broader feasibility issue with this surgical intervention in this population, and whether any graph nodes exist for SMVR, mitral valve annulus, LV reverse remodeling, or the relevant population that would allow future edge updates if the trial is re-processed with resolved entities."
+}

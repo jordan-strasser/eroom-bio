@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00392951",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Sirolimus trough levels were measured and confirmed within the therapeutic target range (mean 8.5 ng/mL, 95% CI 2.9\u201320 ng/mL, target 5\u201315 ng/mL) within the first 5 days. This confirms adequate drug exposure and mTOR engagement via FKBP1A binding. Target engagement is well-established.\n\n2. PATHWAY MODULATION: The mechanism of mTOR inhibition via FKBP1A leading to negative regulation of TGF-beta receptor signaling and T-cell mediated immune suppression is consistent with the observed clinical responses. While no direct pathway biomarkers (e.g., phospho-S6K1) were reported, the clinical responses in ALPS patients (11/12 CR, 1/12 PR) strongly imply downstream immunosuppressive biology was engaged.\n\n3. CLINICAL TRANSLATION: The primary endpoint was a safety endpoint (Grade 3/4 toxicities at 6 months), which was met \u2014 only 1/30 participants (3.33%) experienced Grade 3/4 toxicity (vasculitis). This is a favorable safety profile. Secondary efficacy endpoints showed strong responses in ALPS (11 CR, 1 PR out of 12), partial responses in multilineage cytopenias (7 CR, 1 PR, 2 NR, 2 PD out of 12), and partial responses in single-lineage autoimmune cytopenias (1 CR, 2 PR, 3 NR out of 6). The ALPS subgroup showed near-complete response, supporting clinical translation of the mechanism.\n\n4. POPULATION EFFECTS: Clear differential response by subgroup: ALPS patients responded best (near-complete), multilineage cytopenias showed partial response, and single-lineage autoimmune cytopenias showed the weakest response. This suggests the mTOR inhibition mechanism is most relevant in ALPS where lymphoproliferation is driven by dysregulated T-cell signaling.\n\n5. CONFOUNDERS: This is a single-arm study (n=30) with no control arm, so efficacy conclusions are limited by lack of comparator. The primary endpoint was safety, not efficacy. The heterogeneous population (multiple autoimmune conditions) limits generalizability. However, the trial met its primary safety endpoint and showed meaningful efficacy signals, particularly in ALPS.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Single-arm study with n=30 across a heterogeneous population of multiple autoimmune conditions; no control arm; primary endpoint was safety not efficacy; subgroup sizes are small (n=6\u201312 per subgroup), limiting statistical inference about efficacy."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "rapamycin (Rapamycin)",
+      "target_entity": "ENSG00000088832",
+      "support": "strong_support",
+      "affecting_arm_id": "sirolimus_treatment",
+      "reasoning": "Sirolimus trough levels confirmed within therapeutic range (mean 8.5 ng/mL, target 5\u201315 ng/mL), demonstrating adequate drug exposure and FKBP1A engagement per the round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000088832",
+      "target_entity": "GO:0030512",
+      "support": "moderate_support",
+      "affecting_arm_id": "sirolimus_treatment",
+      "reasoning": "Confirmed therapeutic drug levels and strong clinical responses (especially in ALPS) imply downstream pathway modulation via negative regulation of TGF-beta receptor signaling, though no direct pathway biomarker (e.g., phospho-S6K1) was explicitly reported."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030512",
+      "target_entity": "bio:1bc8e254260d",
+      "support": "moderate_support",
+      "affecting_arm_id": "sirolimus_treatment",
+      "reasoning": "Clinical responses in ALPS (11/12 CR) and partial responses in other autoimmune subgroups are consistent with T-cell mediated immune suppression being achieved through mTOR inhibition, supporting this mechanism-to-biology link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bc8e254260d",
+      "target_entity": "autoimmune_pancytopenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "sirolimus_treatment",
+      "reasoning": "Responses in autoimmune cytopenias and ALPS patients support that T-cell mediated immune suppression drives disease biology in these conditions, though the heterogeneous population and lack of control arm limit confidence."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_grade_3_4_toxicities_administration",
+      "target_entity": "autoimmune_pancytopenia",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/tolerability measure (Grade 3/4 toxicities), which was met with only 1/30 participants affected. This endpoint captures tolerability but not clinical benefit directly; it is appropriate for a Phase 1/2 safety-focused trial but does not directly capture indication-level benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "antineutrophilantibody_positive__antiplateletantibody_positive__directantiglobulintest_positive__line_second__severity_active",
+      "target_entity": "autoimmune_pancytopenia",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population showed differential responses by subgroup (ALPS near-complete, multilineage cytopenias partial, single-lineage partial/poor), suggesting the population responds to sirolimus but with variable magnitude. Single-arm design without comparator limits confidence; weak_support reflects positive directional signal without statistical confirmation."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a single-arm safety-primary trial with heterogeneous autoimmune indications and no control arm. The primary endpoint was safety (met), while efficacy was secondary and exploratory. The strong ALPS response (11/12 CR) is clinically notable but based on a small subgroup (n=12) without statistical testing. The resolved indication 'autoimmune_pancytopenia' may not fully capture the breadth of conditions studied (ALPS, Evans syndrome, ITP, etc.), and the canonical chain entities (FKBP1A, TGF-beta signaling) may not perfectly represent the primary mTOR/rapamycin mechanism. Expert review is warranted to assess whether the ALPS-specific response warrants a separate population-level edge and whether the indication mapping is appropriate."
+}

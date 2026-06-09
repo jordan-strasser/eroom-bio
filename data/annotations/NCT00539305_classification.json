@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00539305",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data is available to confirm that testosterone gel engaged the androgen receptor (AR) in this population. Serum testosterone levels were not reported, so we cannot confirm adequate systemic exposure or receptor engagement. The dose (50-100 mg topically daily) is a standard therapeutic range, but without PK/PD confirmation, target engagement remains unverified.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., androgen-responsive gene expression, neuroprotective markers) were reported. The intended biology\u2014androgen-mediated neuroprotection and cognitive enhancement\u2014was not directly assessed at the molecular level.\n\n3. CLINICAL TRANSLATION: The primary endpoints (POMS, RAVLT, GDS, SF-36) were all listed as 'None met' / outcome unknown with no p-values reported. The RAVLT long delay recall showed +2.3 at month 3 vs 0.0 placebo, but this reversed by month 6 (+0.9 vs +1.5 placebo, suggesting placebo caught up or surpassed). GDS showed a favorable trend (-2.8 testosterone vs +2.7 placebo at month 6), and SF-36 physical functioning showed a large early difference (+15.0 vs -3.8 at month 3, narrowing to +6.4 vs -5.4 at month 6). However, no statistical significance was demonstrated for any endpoint, and the primary endpoint was not met.\n\n4. POPULATION EFFECTS: The sample size was only 22 participants total, making this severely underpowered. The directional trends on GDS and SF-36 are suggestive but cannot be interpreted as statistically meaningful given the tiny N and absence of p-values. The RAVLT cognitive endpoint\u2014the most mechanistically relevant\u2014showed no sustained benefit.\n\n5. CONFOUNDERS: The most prominent confounder is severe underpowering (N=22 in a randomized placebo-controlled trial). This is far below what would be needed to detect clinically meaningful differences on any of these endpoints. The trial appears to be a pilot/feasibility study. The absence of p-values and the 'unknown' outcome designations across all endpoints further limit interpretability. The mixed directional signals (cognitive endpoint reversed by month 6, mood/physical endpoints trended favorably) suggest the trial was not designed or powered to draw mechanistic conclusions.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Sample size of only 22 participants across both arms. No p-values reported for any primary endpoint. All outcomes listed as 'unknown.' This is a pilot study that was not powered to detect statistically significant differences on any of the four primary endpoints."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "No p-values reported, all endpoint outcomes listed as 'unknown,' no target engagement biomarkers (serum testosterone levels), no statistical analysis results provided. The trial provides directional effect sizes but no inferential statistics, making it impossible to determine whether the primary endpoint was truly missed or simply underpowered."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:5e0208baff9b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "study_drug_testosterone_transdermal_gel",
+      "reasoning": "No biomarker data confirms pathway modulation. The primary cognitive endpoint (RAVLT) showed no sustained benefit at month 6, and no p-values were reported. The chain from AR SUMOylation to androgen-mediated neuroprotection/cognitive enhancement was not demonstrated. Weak contradict rather than moderate because the trial was severely underpowered (N=22) and may not have been able to detect a real effect."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5e0208baff9b",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "weak_contradict",
+      "affecting_arm_id": "study_drug_testosterone_transdermal_gel",
+      "reasoning": "The primary cognitive endpoint did not show sustained improvement at month 6 (RAVLT +0.9 testosterone vs +1.5 placebo), and no statistical significance was demonstrated. However, the severe underpowering (N=22) and absence of p-values limit the strength of this contradict signal to weak."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_behavioral_mood_measure_profile_mood_states_poms",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The POMS, RAVLT, GDS, and SF-36 endpoints were measured but no statistical results were reported. Directional trends were mixed across endpoints and timepoints. The RAVLT (most mechanistically relevant for cognitive impairment) showed no sustained benefit, while GDS and SF-36 trended favorably. Without p-values or a clear primary endpoint result, the endpoint's ability to capture benefit in this indication remains ambiguous. The trial was too small to draw conclusions about endpoint validity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild__testosterone_low",
+      "target_entity": "mild_cognitive_impairment",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled men with mild cognitive impairment or Alzheimer's disease, a population theoretically enriched for androgen-mediated benefit. However, with N=22 and no p-values, it is impossible to determine whether this population responds differently to testosterone supplementation. Mixed directional signals across endpoints and timepoints prevent a clear classification."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This appears to be a pilot/feasibility study with N=22 and no reported p-values for any endpoint. All outcomes are listed as 'unknown.' It is unclear whether this trial was designed as a hypothesis-generating pilot (in which case 'insufficient_information' is the primary failure mode) or as a powered efficacy trial that simply failed. The absence of statistical analysis results, target engagement biomarkers (serum testosterone levels), and formal primary endpoint determination makes mechanistic classification highly uncertain. Expert review is needed to determine: (1) whether this was a pre-specified pilot study, (2) whether serum testosterone levels were measured and confirmed adequate exposure, and (3) whether formal statistical analyses were conducted but not reported in the extraction."
+}

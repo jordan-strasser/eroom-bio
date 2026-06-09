@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00541567",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether ibipinabant engaged the CB1 receptor (CNR1) in vivo. No target engagement evidence was reported. Per the round-28 AFFECTS rule, since there is no direct or indirect evidence of binding/engagement, no affects record should be emitted. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., appetite hormones, metabolic markers beyond HbA1c) were reported. We cannot assess whether CB1 antagonism modulated the rhodopsin-like receptor signaling pathway or downstream metabolic biology. 3. CLINICAL TRANSLATION: All four arms report 'unknown' outcomes with null effect sizes and null p-values. The primary endpoints (body weight change and HbA1c change at 26 weeks) have no reported results. This is a complete absence of efficacy readout \u2014 the trial appears to have been terminated or results were never disclosed. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial had 600 participants across 4 arms (ibipinabant dose groups vs. placebo), a 52-week treatment period, and a 20-week off-medication follow-up. The complete absence of any efficacy data across all arms, with no safety signals reported either, strongly suggests the trial was terminated before the primary endpoint was reached or results were withheld for commercial/strategic reasons. Given that ibipinabant is a CB1 antagonist in the same class as rimonabant (which was withdrawn due to psychiatric adverse events), it is plausible the trial was stopped for safety or commercial reasons. However, with no data at all \u2014 no efficacy readout, no safety data, no biomarker data \u2014 this qualifies as insufficient_information. The operational_failure flag is set to true because the mechanism was never given a fair test with a reportable outcome.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "All four arms report 'unknown' outcomes with null effect sizes and null p-values. No safety signals, no biomarker data, and no efficacy readout of any kind are available. The trial cannot be classified mechanistically because no primary endpoint result was reported."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.45,
+      "evidence": "Ibipinabant is a CB1 antagonist in the same class as rimonabant, which was withdrawn from the European market in 2008 due to psychiatric adverse events (depression, suicidality). The complete absence of any reported results \u2014 including safety data \u2014 for a 600-patient trial with a 72-week duration is consistent with early termination for commercial or safety-related strategic reasons rather than a scientific endpoint miss."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_body_weight_kg_hba1c",
+      "target_entity": "obesity_and_type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoints (body weight change and HbA1c change) are clinically relevant and regulator-accepted surrogates for obesity and type 2 diabetes benefit. However, since no results were reported, we cannot assess whether the endpoint actually captured benefit in this trial. The endpoint design is appropriate for the indication, but the absence of any readout leaves the translatability ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_high__hba1c_high__line_first__severity_active",
+      "target_entity": "obesity_and_type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy results were reported for any arm, so it is impossible to assess whether this population responded to CB1 antagonism. The population selection (obese/overweight adults with T2D) is mechanistically appropriate for CB1 antagonism, but the absence of any outcome data renders the population response ambiguous."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "All four arms report unknown outcomes with no efficacy, safety, or biomarker data. The trial appears to have been terminated before the primary endpoint was reached or results were never disclosed. Expert review is needed to determine whether this was a safety-driven termination (consistent with the CB1 antagonist class effect of psychiatric adverse events seen with rimonabant), a commercial decision, or a data-reporting failure. The complete absence of any structured adverse event data is particularly unusual for a 600-patient, 72-week trial and warrants investigation."
+}

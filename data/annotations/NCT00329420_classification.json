@@ -1,0 +1,140 @@
+{
+  "nct_id": "NCT00329420",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: CRP levels declined from baseline across all arms following re-induction with CZP 400 mg. The geometric mean CRP ratios at Week 34 were 0.54 (prior placebo arm), 0.39 (prior CZP 200 mg arm), and 1.07 (prior CZP 400 mg arm). The first two arms show clear CRP suppression, confirming TNF-alpha neutralization and downstream inflammatory pathway modulation. The prior CZP 400 mg arm showed essentially no CRP reduction (ratio 1.07), suggesting possible tachyphylaxis or immunogenicity in that subgroup. Overall, target engagement is confirmed in at least two of three arms.\n\n2. PATHWAY MODULATION: CRP reduction confirms downstream biology moved \u2014 suppression of intestinal inflammation is evidenced by CRP decline. At Week 14 (end of re-induction), 100% of subjects in all three arms achieved CDAI response, indicating robust short-term biological activity. This confirms the mechanism (cytokine neutralization \u2192 suppression of intestinal inflammation) was operative.\n\n3. CLINICAL TRANSLATION: At Week 34, CDAI response rates were 66.7% (prior placebo), 28.6% (prior CZP 200 mg), and 42.9% (prior CZP 400 mg). No p-values are reported and no formal statistical comparison was made (no separate placebo control in this extension). The primary endpoint result is listed as 'None' for met/not met, and the overall effect size is 34.0%. The trial is a small open-label extension (N=46) with no concurrent placebo arm, making it impossible to formally assess drug effect vs. natural disease course. The prior-placebo arm's 66.7% response rate is encouraging and may reflect true drug effect (these patients were TNF-naive), while the prior-CZP arms show lower rates, possibly due to prior exposure effects.\n\n4. POPULATION EFFECTS: The prior-placebo subgroup (TNF-naive non-responders to placebo) showed the highest response rate (66.7%), consistent with CZP working in TNF-naive patients. Prior CZP-treated non-responders showed lower rates (28.6-42.9%), suggesting that patients who failed CZP previously are less likely to respond to re-induction \u2014 a wrong-population signal for those arms. This is a classic 'efficacy in subgroup only' pattern.\n\n5. CONFOUNDERS: The trial is severely underpowered (N=46 total, 13-18 per arm). There is no concurrent placebo arm in the extension, making it impossible to separate drug effect from natural disease fluctuation or regression to the mean. No p-values are reported. The prior-placebo arm's high response rate (66.7%) could partly reflect placebo response or natural disease fluctuation. The trial design (open-label extension of non-responders) is inherently difficult to interpret. The primary endpoint is listed as not met (null), likely because the study was not powered or designed for formal hypothesis testing. This is primarily an underpowered, exploratory extension study with insufficient information for definitive mechanistic conclusions, though the biology clearly moved.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "N=46 total (13-18 per arm), no concurrent placebo control in extension, no p-values reported, primary endpoint met listed as null \u2014 the study was not powered for formal hypothesis testing."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.65,
+      "evidence": "The enrolled population consists of non-responders to CZP in the parent study. Prior CZP-treated non-responders showed lower response rates (28.6-42.9%) compared to TNF-naive prior-placebo patients (66.7%), suggesting that patients who failed CZP previously are a suboptimal population for re-induction."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "No p-values reported, no concurrent placebo arm in extension, primary endpoint met is null \u2014 formal efficacy determination is not possible from this open-label extension design."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "CRP declined substantially in the prior-placebo arm (ratio 0.54 at Week 34), confirming TNF-alpha neutralization and target engagement by certolizumab pegol."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "CRP declined substantially in the prior-CZP 200 mg arm (ratio 0.39 at Week 34), confirming TNF-alpha neutralization and target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "CRP ratio was 1.07 in the prior-CZP 400 mg arm, suggesting minimal or no CRP suppression, possibly due to tachyphylaxis or immunogenicity. Target engagement is uncertain in this arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "CRP suppression and 100% CDAI response at Week 14 confirm that TNF neutralization modulated the adaptive immune response/inflammatory pathway in the prior-placebo arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "CRP suppression (ratio 0.39) and 100% CDAI response at Week 14 confirm pathway modulation in the prior-CZP 200 mg arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "Despite 100% CDAI response at Week 14, CRP was not suppressed at Week 34 (ratio 1.07), suggesting attenuated pathway modulation in prior-CZP 400 mg non-responders."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "66.7% CDAI response at Week 34 and CRP suppression in the prior-placebo arm suggest the adaptive immune response modulation translated to suppression of intestinal inflammation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "28.6% CDAI response at Week 34 with CRP suppression in the prior-CZP 200 mg arm provides only weak support for mechanism-to-biology translation in this subgroup."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "42.9% CDAI response at Week 34 but no CRP suppression in the prior-CZP 400 mg arm; mechanism-to-biology translation is uncertain."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "66.7% CDAI response in TNF-naive prior-placebo non-responders after re-induction supports that suppression of intestinal inflammation drives Crohn's disease outcomes, though no formal statistical comparison is available."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "28.6% CDAI response in prior-CZP 200 mg non-responders provides weak support for biology-to-disease link in this subgroup."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "42.9% CDAI response in prior-CZP 400 mg non-responders with no CRP suppression provides weak support."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "CDAI response rate was measured and reported across all arms, but no p-values or formal statistical comparisons are available, and there is no concurrent placebo control in this extension. The endpoint was measured but its translatability to clinical benefit cannot be formally assessed from this open-label, underpowered design."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdai_low__severity_active",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of CZP non-responders showed variable response rates (28.6-66.7%) depending on prior treatment history, but no formal statistical testing was performed and the study was not powered for subgroup comparisons. The prior-placebo subgroup showed the highest response, suggesting differential response by prior treatment history, but this cannot be formally confirmed."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a small open-label extension study (N=46) of non-responders from a parent trial, with no concurrent placebo arm and no p-values reported. The primary endpoint met status is null, making formal efficacy determination impossible. The high response rate in the prior-placebo arm (66.7%) may reflect true drug effect in TNF-naive patients or natural disease fluctuation/regression to the mean. The CRP data provides target engagement evidence for two of three arms but not the third. Expert review is needed to determine whether the prior-placebo arm's response rate constitutes meaningful evidence of efficacy in CZP non-responders, and to assess whether the CRP non-suppression in the prior-CZP 400 mg arm reflects immunogenicity or tachyphylaxis."
+}

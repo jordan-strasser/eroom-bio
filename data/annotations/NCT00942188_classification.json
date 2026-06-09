@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00942188",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Dose-proportional increases in serum Cmax and AUC\u03c4,SS confirm systemic exposure across all three dose levels (0.6 mg, 18 mg, 180 mg). The drug reached the systemic circulation. However, the resolved graph entities map LY2189102 to ENSG00000163394 (CCKAR, cholecystokinin A receptor), which is inconsistent with the stated target of IL-1\u03b2. This is a graph entity resolution anomaly \u2014 the trial is clearly testing an anti-IL-1\u03b2 antibody, but the canonical chain maps to CCKAR. I will proceed with the mechanistic reasoning based on the actual trial biology (IL-1\u03b2 neutralization) while using the canonical IDs for edge emissions.\n\n2. PATHWAY MODULATION: There is directional evidence of biological activity. Fasting glucose decreased across all active arms vs. placebo (-0.873, -1.270, -0.629 mmol/L vs. -0.019 mmol/L). Fasting insulin also decreased in active arms vs. an increase in placebo. HbA1c LS mean changes were -0.457%, -0.561%, -0.428% for the three doses vs. -0.183% for placebo. These suggest some downstream biological modulation consistent with reduced inflammation improving glycemic parameters, though the effect sizes are modest.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in HbA1c at 12 weeks) was not met. The LS mean differences vs. placebo were -0.274% (0.6 mg), -0.378% (18 mg), and -0.245% (180 mg). No p-values are reported, but the effect sizes are small and likely not statistically significant. Notably, there is no clear dose-response relationship \u2014 the 18 mg arm showed the largest effect but the 180 mg arm showed the smallest, suggesting the biology is not robustly driven by IL-1\u03b2 neutralization in this unselected T2D population. The 12-week duration may also be insufficient for HbA1c to fully reflect glycemic improvement.\n\n4. POPULATION EFFECTS: The population was unselected T2D patients. IL-1\u03b2-driven inflammation may be more relevant in a subset with elevated inflammatory markers (high CRP, high baseline HbA1c). The resolved population ID 'cpeptide_high__crp_high__hba1c_high__line_first' suggests the trial may have been designed with some biomarker enrichment in mind, but the overall results suggest the enrolled population may not have been optimally selected for IL-1\u03b2-driven disease. The lack of dose-response also suggests the mechanism may only be relevant in a subset.\n\n5. CONFOUNDERS: (a) The trial is small (N=106 across 4 arms, ~26 per arm), making it likely underpowered to detect the modest effect sizes observed. (b) No p-values are reported, making statistical interpretation difficult. (c) 12 weeks may be a short timeframe for HbA1c changes to fully manifest. (d) The placebo HbA1c change (-0.183%) is non-trivial, suggesting some placebo response. (e) The non-monotonic dose-response (18 mg > 0.6 mg > 180 mg) is unusual and may reflect small sample noise or a bell-shaped dose-response curve. Primary failure mode: underpowered study with biology that moved directionally but insufficiently to reach statistical significance, in an unselected population where the IL-1\u03b2 mechanism may only be relevant in a subset.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "N=106 across 4 arms (~26 per arm) is very small for detecting HbA1c changes. Effect sizes of -0.274% to -0.378% vs. placebo are directional but modest, and no p-values are reported, suggesting the trial lacked power to demonstrate statistical significance even with directional biological signals."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Fasting glucose decreased meaningfully across all active arms vs. placebo (-0.873 to -1.270 mmol/L vs. -0.019 mmol/L), and fasting insulin also moved directionally. HbA1c showed directional improvement but the effect size vs. placebo was insufficient to meet the primary endpoint, suggesting the biology partially moved but did not translate to a clinically meaningful HbA1c reduction."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "The enrolled population was unselected T2D patients. IL-1\u03b2-driven inflammation is likely most relevant in patients with elevated inflammatory markers (high CRP) or specific metabolic profiles. The resolved population ID suggests biomarker-enriched patients may have been the intended target. The non-monotonic dose-response and modest effect sizes are consistent with a diluted signal from an unselected population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:3b04cff91316",
+      "support": "weak_contradict",
+      "affecting_arm_id": "0_6_milligrams_mg_ly2189102",
+      "reasoning": "The 0.6 mg arm showed directional fasting glucose and insulin changes suggesting partial pathway modulation, but the HbA1c primary endpoint was not met. The mechanism (peptide ligand-binding receptor modulation mapped to IL-1\u03b2 neutralization) did not robustly translate to the intended biology of restoring insulin sensitivity and beta-cell function at this dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:3b04cff91316",
+      "support": "weak_contradict",
+      "affecting_arm_id": "18_mg_ly2189102",
+      "reasoning": "The 18 mg arm showed the largest directional effect on fasting glucose and HbA1c vs. placebo, but still failed the primary endpoint. Some biological signal is present but insufficient for clinical translation, suggesting weak mechanism-to-biology translation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:3b04cff91316",
+      "support": "weak_contradict",
+      "affecting_arm_id": "180_mg_ly2189102",
+      "reasoning": "The 180 mg arm showed the smallest effect despite the highest dose, with no dose-response relationship, suggesting the mechanism does not robustly drive the intended biology in this population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3b04cff91316",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "0_6_milligrams_mg_ly2189102",
+      "reasoning": "Even with directional biological signals (fasting glucose reduction), the primary HbA1c endpoint was not met, providing weak contradict evidence that reduction of chronic low-grade inflammation via IL-1\u03b2 neutralization drives meaningful clinical benefit in unselected T2D."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3b04cff91316",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "18_mg_ly2189102",
+      "reasoning": "The 18 mg arm had the largest effect size (-0.378% vs. placebo) but still failed the primary endpoint, providing weak contradict evidence for the biology-to-indication link in unselected T2D."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3b04cff91316",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "180_mg_ly2189102",
+      "reasoning": "The 180 mg arm showed the smallest effect despite the highest dose, with primary endpoint failure, providing weak contradict evidence for the biology-to-indication link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin_hba1c_12_weeks",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c is a well-validated surrogate endpoint for T2D glycemic control and is regulator-accepted. However, the 12-week duration may be insufficient for HbA1c to fully reflect glycemic changes (HbA1c reflects ~3-month average glucose). The endpoint is appropriate in principle but the timeframe may have limited its sensitivity to detect the modest biological signals observed."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high__crp_high__hba1c_high__line_first",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (T2D patients, likely enriched for high CRP/HbA1c per the resolved population ID) did not demonstrate a statistically significant response to IL-1\u03b2 neutralization. The directional but non-significant effects across all dose arms suggest this population does not robustly respond to this mechanism, providing weak contradict evidence."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved graph entities map LY2189102 to ENSG00000163394 (CCKAR, cholecystokinin A receptor) rather than IL-1\u03b2, which is inconsistent with the trial's stated mechanism (anti-IL-1\u03b2 antibody / cytokine neutralization). This entity resolution anomaly means the canonical chain IDs used in edge emissions may not accurately reflect the actual mechanistic hypothesis being tested. Expert review is needed to verify the correct target and mechanism IDs. Additionally, no p-values are reported for any arm, making statistical interpretation uncertain. The non-monotonic dose-response (18 mg > 0.6 mg > 180 mg) is unusual and warrants expert assessment of whether this reflects a bell-shaped dose-response, small sample noise, or a different mechanistic explanation."
+}

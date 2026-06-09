@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00838916",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Albiglutide plasma concentrations were directly measured at multiple timepoints (Week 8 pre-dose: 1642.83 ng/mL, post-dose: 1911.35 ng/mL; Week 24 pre-dose: 2159.30 ng/mL, post-dose: 2748.15 ng/mL), confirming adequate systemic exposure and target engagement with the GLP-1 receptor. 2. PATHWAY MODULATION: Downstream biology clearly moved \u2014 albiglutide produced meaningful HbA1c reductions (-0.67% at Week 52, -0.83% at Week 156), FPG reductions (-0.87 mmol/L at Week 52), and body weight reductions (-1.05 kg at Week 52, -3.47 kg at Week 156), all consistent with GLP-1 receptor agonism driving glucose-dependent insulin secretion and incretin-mediated glycemic control. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change at Week 52) was met with p=0.0086. The non-inferiority design was satisfied: the LS mean difference was +0.11% (albiglutide vs. insulin glargine), with the 95% CI (-0.04 to +0.27) falling within the pre-specified non-inferiority margin. Albiglutide was slightly less effective than insulin glargine on HbA1c and FPG (glargine: -0.79% HbA1c, -2.06 mmol/L FPG), but albiglutide showed a favorable body weight profile (-1.05 kg vs. +1.56 kg at Week 52). 4. POPULATION EFFECTS: Subgroup analyses of HbA1c target achievement (<6.5%, <7%, <7.5%) showed numerically more albiglutide participants achieving targets at Week 52, though insulin glargine had a longer median time to hyperglycemia rescue (not calculable vs. 107.57 weeks for albiglutide, suggesting glargine maintained glycemic control longer in more patients). No differential subgroup responses by biomarker-defined populations were formally reported. 5. CONFOUNDERS: The trial was adequately powered (n=779, 156-week duration). Safety signals were generally balanced; no dose-limiting toxicity pattern emerged. The non-inferiority design and active comparator (insulin glargine) are appropriate for this indication. The trial successfully demonstrated albiglutide's non-inferiority to insulin glargine on HbA1c with a favorable weight profile, constituting a meaningful clinical success.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.3,
+      "evidence": "Albiglutide showed slightly inferior FPG reduction (-0.87 vs. -2.06 mmol/L) and longer-term glycemic durability appeared weaker (median time to rescue 107.57 weeks vs. not calculable for glargine), suggesting albiglutide may be better suited to patients where weight benefit and GI tolerability are prioritized over maximal FPG lowering. This is a caveat, not a failure \u2014 the primary endpoint was met."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "albiglutide",
+      "target_entity": "ENSG00000112164",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_weekly_injection",
+      "reasoning": "Albiglutide plasma concentrations were directly measured at multiple timepoints confirming systemic exposure, and downstream GLP-1R-mediated effects (HbA1c reduction, weight loss) confirm target engagement per the round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112164",
+      "target_entity": "R-HSA-420092",
+      "support": "strong_support",
+      "affecting_arm_id": "albiglutide_weekly_injection",
+      "reasoning": "GLP-1 receptor engagement demonstrably modulated the glucagon-type ligand receptor pathway, evidenced by HbA1c reduction (-0.67% at Week 52, -0.83% at Week 156) and body weight reduction (-1.05 kg at Week 52, -3.47 kg at Week 156), consistent with GLP-1R agonism driving its intended mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-420092",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "albiglutide_weekly_injection",
+      "reasoning": "GLP-1R agonism via albiglutide produced meaningful glycemic control (HbA1c -0.67% at Week 52) and weight reduction, confirming the mechanism drives the intended biology. Rated moderate rather than strong because FPG reduction was less robust than the active comparator (-0.87 vs. -2.06 mmol/L), suggesting partial but not maximal glycemic biology engagement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "albiglutide_weekly_injection",
+      "reasoning": "Incretin-mediated glycemic control biology demonstrably drove clinically meaningful improvement in type 2 diabetes (non-inferior HbA1c reduction, favorable weight profile). Moderate rather than strong because albiglutide was slightly less effective than insulin glargine on HbA1c and FPG endpoints."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_glargine",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin glargine produced robust HbA1c reduction (-0.79%) and FPG reduction (-2.06 mmol/L), confirming engagement of the insulin receptor signaling pathway consistent with its known mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin glargine's robust FPG reduction (-2.06 mmol/L at Week 52, -2.19 mmol/L at Week 156) and HbA1c reduction (-0.79%) confirm that INSR engagement strongly modulated the insulin receptor signaling pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin receptor signaling via insulin glargine produced superior glycemic control (FPG -2.06 mmol/L, HbA1c -0.79%) compared to albiglutide, confirming the mechanism strongly affects glycemic control biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "insulin_glargine",
+      "reasoning": "Insulin glargine's glycemic control biology drove robust clinical improvement in type 2 diabetes, with HbA1c -0.79% and FPG -2.06 mmol/L at Week 52, and longer durability of glycemic control (median time to rescue not calculable)."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_bl_glycosylated_hemoglobin_hba1c_week_52",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at Week 52 is a regulator-accepted surrogate endpoint for type 2 diabetes that was cleanly hit (p=0.0086 for non-inferiority), supported by concordant secondary endpoints (FPG reduction, body weight change, HbA1c target achievement rates), confirming this endpoint captures clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The overall T2DM population on background metformin with or without sulfonylurea responded positively to albiglutide (non-inferior HbA1c reduction, favorable weight profile), supporting moderate response in this population. Rated moderate rather than strong because albiglutide was slightly less effective than insulin glargine on HbA1c and FPG, and glycemic durability appeared weaker."
+    }
+  ],
+  "confidence_overall": 0.78,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

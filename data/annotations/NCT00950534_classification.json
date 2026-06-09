@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00950534",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial was terminated early due to poor recruitment (only 25 patients enrolled), so no primary endpoint readout was obtained. There is no evidence of target engagement assessment. 2. PATHWAY MODULATION: No downstream biology data (e.g., fasting plasma glucose, HbA1c changes) was reported due to early termination. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c \u2264 7.0% at week 24) was not assessed \u2014 both arms show 'unknown' outcome. No efficacy data was generated. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The trial was explicitly terminated due to poor recruitment. With only 25 patients enrolled (likely far below the planned sample size for adequate power), the trial never generated a usable efficacy readout. This is a classic operational failure \u2014 the mechanism was never given a fair test due to recruitment collapse. The failure mode is commercial_not_scientific/underpowered due to recruitment failure, but most precisely this is an operational termination before any primary endpoint readout. The primary failure mode is 'insufficient_information' because the trial was terminated before the primary endpoint was reached and no comparator efficacy data exists.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Trial explicitly terminated due to poor recruitment with only 25 patients enrolled. Both arms show 'unknown' outcome for the primary endpoint. No efficacy, biomarker, or safety data was reported. The mechanism was never tested."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Sample size of 25 patients is grossly insufficient for a trial comparing HbA1c achievement rates between two arms at 24 weeks. The trial was terminated for poor recruitment, confirming it was far below any reasonable power threshold."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_patients_achieving_glycosylated_haemoglobin",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (HbA1c \u2264 7.0% at week 24) was pre-specified and is a well-established surrogate for glycemic control in type 2 diabetes, but the trial was terminated before any readout was obtained. The endpoint's translatability was not tested in this trial, so no informative signal can be extracted. Ambiguous is appropriate as the endpoint is clinically validated in principle but untested here."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled patients with high HbA1c in Australian primary care but was terminated before any efficacy readout. No differential response data is available. Ambiguous is the appropriate bucket given the complete absence of outcome data."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

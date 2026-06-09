@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00682565",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: CK-1827452 is a cardiac myosin activator. The trial does not report direct target engagement biomarkers (e.g., myosin ATPase activity), but the ST segment depression data (0 mid dose, 1 high dose, 2 placebo) suggests reduced ischemia in treated arms, consistent with improved myocardial perfusion from enhanced contractility \u2014 an indirect signal of biological activity downstream of target engagement. No explicit PK/PD binding data is reported.\n\n2. PATHWAY MODULATION: The ST segment depression reduction in treated arms vs placebo (0 vs 2 events) suggests the intended biology (enhanced cardiac contractility and myocardial perfusion) was modulated. Exercise duration increased by ~41 seconds in both active arms vs baseline, consistent with improved cardiac output. These are indirect but directionally consistent signals of pathway engagement.\n\n3. CLINICAL TRANSLATION: The primary endpoint \u2014 participants stopping ETT-3 for angina at an earlier stage than baseline ETT \u2014 was met. Zero participants in active drug arms stopped early for angina vs 1 in placebo. Exercise duration increased ~41 seconds in both dose arms. The primary endpoint was met in both mid and high dose arms. However, p-values are not reported, and the effect sizes are modest (0 vs 1 participant on primary endpoint; ~41 seconds on exercise duration). The absence of p-values limits confidence in statistical significance.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. Both dose cohorts showed similar results, suggesting consistent effect across dose levels within this population of stable angina/ischemic cardiomyopathy patients.\n\n5. CONFOUNDERS: The trial is very short (0.12 weeks, essentially a single-day infusion with ETT). Sample size is modest (N=94). The primary endpoint effect size is numerically small (0 vs 1 participant). Serious adverse events (ACS, post-procedural MI) occurred in the active arm at 2.94% each, though control incidence is not reported, limiting DLT assessment. The high dose arm had more participants stopping ETT for angina at any stage (7 vs 2 placebo), which is a safety signal but not classified as DLT per the structured criteria since MTD was not stated to be below target-engaging dose and the trial was not terminated for safety. Overall, this appears to be a Phase 2 proof-of-concept success with modest but directionally positive results across both arms.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ck_1827452_and_infusion",
+      "target_entity": "ENSG00000134571",
+      "support": "weak_support",
+      "affecting_arm_id": "mid_dose_ck_1827452_or_placebo",
+      "reasoning": "Indirect evidence of target engagement via reduced ST depression and improved exercise tolerance in mid-dose arm; no direct binding/PD biomarker reported but downstream biology moved directionally."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ck_1827452_and_infusion",
+      "target_entity": "ENSG00000134571",
+      "support": "weak_support",
+      "affecting_arm_id": "high_dose_ck_1827452_or_placebo",
+      "reasoning": "Indirect evidence of target engagement via reduced ST depression and improved exercise tolerance in high-dose arm; no direct binding/PD biomarker reported but downstream biology moved directionally."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000134571",
+      "target_entity": "GO:0045214",
+      "support": "weak_support",
+      "affecting_arm_id": "mid_dose_ck_1827452_or_placebo",
+      "reasoning": "ST segment depression reduction and improved exercise duration suggest sarcomere organization/contractility was modulated, though no direct sarcomere biomarker was measured."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000134571",
+      "target_entity": "GO:0045214",
+      "support": "weak_support",
+      "affecting_arm_id": "high_dose_ck_1827452_or_placebo",
+      "reasoning": "ST segment depression reduction and improved exercise duration suggest sarcomere organization/contractility was modulated in high-dose arm, though no direct sarcomere biomarker was measured."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0045214",
+      "target_entity": "bio:3f98ce1025c7",
+      "support": "weak_support",
+      "affecting_arm_id": "mid_dose_ck_1827452_or_placebo",
+      "reasoning": "Reduced ischemic episodes (ST depression) and increased exercise duration in mid-dose arm are consistent with enhanced cardiac contractility and myocardial perfusion, supporting the mechanism-to-biology link."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0045214",
+      "target_entity": "bio:3f98ce1025c7",
+      "support": "weak_support",
+      "affecting_arm_id": "high_dose_ck_1827452_or_placebo",
+      "reasoning": "Reduced ischemic episodes (ST depression) and increased exercise duration in high-dose arm are consistent with enhanced cardiac contractility and myocardial perfusion."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3f98ce1025c7",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": "mid_dose_ck_1827452_or_placebo",
+      "reasoning": "Primary endpoint met in mid-dose arm (0 vs 1 stopping early for angina) and exercise duration improved ~41.5 seconds, suggesting enhanced contractility/perfusion biology drives clinical benefit in this ischemic cardiomyopathy population. No p-value reported limits confidence."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3f98ce1025c7",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": "high_dose_ck_1827452_or_placebo",
+      "reasoning": "Primary endpoint met in high-dose arm (0 vs 1 stopping early for angina) and exercise duration improved ~40.5 seconds. Safety signals (more angina stops at any stage) temper confidence."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_stopping_exercise_treadmill_test_3",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The ETT-based endpoint (participants stopping for angina at earlier stage) was met and directionally consistent with clinical benefit in stable angina/ischemic cardiomyopathy. However, the effect size is very small (0 vs 1 participant), no p-value is reported, and the endpoint is a functional/exercise measure rather than a hard clinical outcome, limiting confidence in its translatability."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii__lveddi_high__lvef_low__troponin_negative",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Both dose arms met the primary endpoint in this population of functional class II ischemic cardiomyopathy patients with high LVEDDI, low LVEF, and negative troponin. Positive directional signal but no p-value and small absolute effect size limit confidence to weak support."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values are reported for the primary endpoint or secondary endpoints, making it difficult to assess statistical significance. The primary endpoint effect size is very small (0 vs 1 participant). The high-dose arm showed more participants stopping ETT for angina at any stage (7 vs 2 placebo), which is a potential safety signal that could indicate the drug worsened angina at higher doses \u2014 this is an unlisted confounding factor that warrants expert review. The indication resolved as 'heart_failure' but the trial enrolled stable angina/ischemic cardiomyopathy patients, which may represent a population mismatch in the graph. The arm_ids are labeled as 'combo' but appear to be crossover/parallel dose cohorts with placebo comparators, adding interpretive complexity."
+}

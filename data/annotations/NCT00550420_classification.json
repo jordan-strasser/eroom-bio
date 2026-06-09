@@ -1,0 +1,65 @@
+{
+  "nct_id": "NCT00550420",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The HbA1c data (range -0.02% to +0.09%) suggests minimal glycemic effect in this non-diabetic AD population, which is the expected readout for PPARG agonism in non-diabetic subjects. However, PPARG agonism in the CNS context is not primarily measured by HbA1c \u2014 the lipid changes (increased total cholesterol, LDL; decreased HDL) and modest weight gain are consistent with known PPARG agonist effects, suggesting some systemic PPARG engagement. The minimal HbA1c change is expected in non-diabetics and does not rule out PPARG engagement. Target engagement is partially supported by systemic metabolic biomarker changes but not definitively confirmed for CNS PPARG activity. 2. PATHWAY MODULATION: The intended biology was insulin sensitization and neuroprotection via metabolic modulation in the brain. The systemic metabolic changes (lipid profile shifts, weight gain) suggest peripheral PPARG engagement, but there is no direct evidence of CNS pathway modulation (no CSF biomarkers, no amyloid/tau markers, no neuroinflammation markers). The downstream neuroprotective biology was not demonstrated to have moved. 3. CLINICAL TRANSLATION: All cognitive endpoints failed. ADAS-Cog worsened by +2.5 points at W52 (disease progression, not improvement), MMSE declined by -1.6 points, DAD declined by -5.2 points, NPI worsened by +2.1 points. These represent disease progression rather than treatment benefit. There is no comparator arm, so we cannot distinguish drug effect from natural disease progression, but the direction of all endpoints is consistent with failure to slow or reverse disease. 4. POPULATION EFFECTS: Subgroup analyses by APOE4 status showed no differential benefit \u2014 both APOE4-positive and APOE4-negative subjects showed cognitive worsening. APOE4-positive subjects showed slightly less ADAS-Cog worsening (+1.8 vs +3.0) but greater MMSE decline (-2.1 vs -1.2), with no consistent pattern suggesting benefit in either subgroup. 5. CONFOUNDERS: This is a single-arm safety study with no control arm, making it impossible to distinguish drug effect from natural disease progression. The trial was terminated early based on preliminary results from a parent study (likely the larger rosiglitazone AD trials that failed). The primary endpoint was safety, not efficacy \u2014 the cognitive endpoints were secondary. The lack of a comparator arm is a major design limitation. The trial was terminated for commercial/strategic reasons (parent study failure) rather than completing its planned course. The primary failure mode is that the biology (insulin sensitization via PPARG) did not translate to clinical benefit in AD \u2014 this is consistent with the broader failure of the rosiglitazone AD program. The wrong population hypothesis is also plausible \u2014 AD patients without insulin resistance may not benefit from insulin sensitization. The single-arm design and early termination limit mechanistic conclusions.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Peripheral PPARG engagement is suggested by lipid changes and weight gain, but cognitive endpoints all showed worsening (ADAS-Cog +2.5, MMSE -1.6 at W52). However, without a control arm, it is unclear whether the drug caused harm or simply failed to slow natural progression."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "Non-diabetic AD patients with minimal insulin resistance may not be the right population for PPARG agonism. HbA1c changes were negligible (-0.02 to +0.09%), suggesting the metabolic target is not engaged in a clinically meaningful way in this population. The insulin sensitization hypothesis requires a population with underlying insulin dysregulation."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.6,
+      "evidence": "Trial was explicitly terminated based on preliminary parent study results, indicating a strategic/commercial decision rather than completion of the planned scientific evaluation."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "Single-arm design with no comparator prevents any statistical inference about drug effect vs. natural disease progression. The cognitive endpoints cannot be interpreted without a control arm."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "No evidence that nuclear receptor-mediated PPARG signaling translated to meaningful insulin sensitization or neuroprotection in the CNS of AD patients. Peripheral metabolic changes were modest and the intended biology (neuroprotection via metabolic modulation) showed no signal."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "Insulin sensitization and metabolic modulation via PPARG did not slow or reverse Alzheimer's disease progression. All cognitive endpoints worsened over the trial period, providing no support for this biology driving meaningful disease modification in AD."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_any_adverse_events_aes_severity_aes",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety endpoint (AE incidence and severity), not an efficacy endpoint. It does not capture clinical benefit in Alzheimer's disease. The cognitive endpoints (ADAS-Cog, MMSE) were secondary and all showed worsening, but without a comparator arm, the endpoint_captures relationship for efficacy cannot be assessed."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Mild-to-moderate AD patients treated with rosiglitazone XR showed cognitive worsening across all endpoints with no evidence of benefit. Without a control arm, the magnitude of drug effect vs. natural progression cannot be separated, but the direction is consistently negative."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This trial has multiple significant interpretive limitations: (1) single-arm design with no comparator prevents distinguishing drug effect from natural disease progression; (2) the primary endpoint was safety, not efficacy, making the cognitive endpoint results secondary and exploratory; (3) the trial was terminated early based on external parent study results rather than completing its planned course; (4) target engagement for CNS PPARG activity was not directly measured (no CSF biomarkers, no neuroimaging); (5) the HbA1c data suggests minimal systemic PPARG engagement in this non-diabetic population, raising questions about whether the target was meaningfully engaged at all. Expert review is needed to determine whether the cognitive worsening represents drug-induced harm, natural progression, or both, and to assess the appropriate failure mode classification given the single-arm design."
+}

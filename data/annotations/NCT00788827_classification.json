@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00788827",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker was reported for the pancreatic islet microenvironment or endogenous beta cells. The resolved graph chain maps to HBB/erythrocyte development, which is a mismatch with the stated therapeutic hypothesis. There is no PD evidence confirming CD34+ stem cell engraftment in the pancreatic islet niche. 2. PATHWAY MODULATION: The intended biology (beta-cell regeneration, restoration of endogenous insulin secretion) was not directly measured. Amylase increased (48.49 to 75.52 units/L), which could reflect pancreatic activity, but this is not a validated marker of beta-cell regeneration. HbA1c barely changed (7.2% to 7.24%, p=0.05 by mixed models \u2014 statistically marginal but clinically negligible, effect size 0.04%). Insulin requirement showed a modest reduction (-5.34 IU/day, from 59.4 to 54.06 IU/day, ~9% reduction) without a p-value. 3. CLINICAL TRANSLATION: The primary endpoint was a safety endpoint (number of participants experiencing adverse events at 14 days), which was 'met' in the sense that adverse events were characterized \u2014 7/7 had fatigue, 1/7 had haematoma. This is a Phase 1 safety study. The efficacy secondary endpoints (HbA1c, insulin requirement) showed no clinically meaningful improvement. HbA1c essentially unchanged; insulin reduction modest and without statistical significance. 4. POPULATION EFFECTS: Only 7 participants enrolled (T1D with successful renal transplant). No subgroup analyses for efficacy were possible at this sample size. 5. CONFOUNDERS: This is a single-arm, n=7 pilot/Phase 1 study with no control arm, making it impossible to attribute any changes to the intervention vs. natural variation. The study is grossly underpowered for any efficacy conclusion. The primary endpoint was safety, not efficacy. The resolved causal chain (HBB/erythrocyte development) does not match the stated therapeutic hypothesis (beta-cell regeneration), suggesting a graph entity mismatch. Overall: The trial was a small safety feasibility study. Safety was acceptable (mild AEs only). Efficacy signals were absent or negligible. The trial was not designed or powered to test efficacy.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Only 7 participants enrolled in a single-arm study with no control group. No statistical power for efficacy endpoints. HbA1c change of 0.04% and insulin reduction of 5.34 IU/day are clinically negligible and cannot be attributed to treatment without a comparator."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "Primary endpoint was a safety count (adverse events at 14 days), not an efficacy endpoint. No control arm, no target engagement biomarker, no beta-cell regeneration marker. The trial was a Phase 1 feasibility study not designed to test the therapeutic hypothesis mechanistically."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_1_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "autologous_cd34_stem_cells",
+      "reasoning": "HbA1c showed no clinically meaningful change (0.04% increase) and insulin requirement showed only a modest, non-significant reduction. No evidence that the proposed biology (glycemic control via incretin enhancement) drove meaningful benefit in T1D in this study, though the study was underpowered and lacked a control arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0048821",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "autologous_cd34_stem_cells",
+      "reasoning": "No evidence that erythrocyte development or the proposed mechanism translated to glycemic control biology. HbA1c and insulin requirement were essentially unchanged, providing no support for the mechanism-to-biology link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_who_experienced_adverse_events",
+      "target_entity": "type_1_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/tolerability measure (adverse events at 14 days), not a clinical efficacy endpoint for T1D. It captured procedural safety but does not speak to clinical benefit in T1D. Efficacy endpoints (HbA1c, insulin requirement) were secondary and showed no meaningful signal."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii",
+      "target_entity": "type_1_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this T1D population with successful renal transplant (n=7), there was no meaningful clinical response on efficacy endpoints. HbA1c unchanged, insulin reduction modest and non-significant. The population did not demonstrate a meaningful response to the intervention."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved causal chain (autologous_cd34_stem_cells \u2192 HBB/erythrocyte development \u2192 GO:0048821 \u2192 glycemic control via incretin enhancement) does not match the stated therapeutic hypothesis (CD34+ stem cells targeting pancreatic islet microenvironment for beta-cell regeneration). This entity mismatch suggests the graph chain may be incorrectly populated for this trial. Additionally, the primary endpoint was a safety count rather than an efficacy endpoint, making this a Phase 1 feasibility study where efficacy conclusions are not the primary intent. Expert review is needed to confirm whether the graph entities are correctly mapped and whether any efficacy signal from the secondary endpoints (modest insulin reduction) warrants further investigation."
+}

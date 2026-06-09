@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00307931",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No target engagement biomarker data is available. CRP was measured at multiple timepoints but values were not posted. There is no direct evidence that certolizumab pegol engaged TNF-alpha in this population. The drug is an established anti-TNF agent with known binding properties, but this trial provides no PD confirmation.\n\n2. PATHWAY MODULATION: Without CRP values or other inflammatory biomarker data, we cannot assess whether TNF neutralization led to downstream suppression of intestinal inflammation. The pathway modulation step is unassessable from this trial.\n\n3. CLINICAL TRANSLATION: The primary endpoint was the number of patients achieving \u2265100-point CDAI decrease at Week 6. 7/16 patients (43.75%) achieved this. However, there is no comparator arm, no p-value, and no pre-specified success threshold reported. The trial was terminated early due to slow recruitment with only 16 patients enrolled. Without a control arm or historical benchmark comparison, the clinical significance of 7/16 responders cannot be determined. The outcome is classified as 'unknown' in the extraction.\n\n4. POPULATION EFFECTS: The population was specifically infliximab-refractory Greek patients with moderate-to-severe Crohn's disease. This is a challenging population where anti-TNF response rates are expected to be lower. The response rates observed (7/16 = 43.75% for \u2265100-point CDAI decrease at Week 6; 5/16 = 31.25% for remission at Week 6) are numerically modest but cannot be interpreted without a comparator.\n\n5. CONFOUNDERS: The trial was explicitly terminated early due to slow recruitment, enrolling only 16 patients. This is a classic operational failure \u2014 the study was never adequately powered to test the hypothesis. With N=16 and no control arm, no statistical inference is possible. The primary failure mode is underpowering/early termination for non-scientific reasons (slow recruitment). This is an operational failure that prevented a fair mechanistic test.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Trial enrolled only 16 patients and was terminated early due to slow recruitment. No p-values are reported, no control arm exists, and no pre-specified power calculation threshold was met. The sample size is far too small to draw any conclusions about efficacy."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Single-arm design with no comparator, no p-values, CRP values not posted, and primary endpoint outcome classified as 'unknown'. The trial cannot be interpreted as a test of the mechanistic hypothesis without a control arm or historical benchmark comparison."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CDAI \u2265100-point decrease endpoint was measured and reported (7/16 at Week 6), but without a control arm, p-value, or pre-specified success threshold, it is impossible to determine whether this endpoint captured clinical benefit. The endpoint is a validated surrogate in Crohn's disease but the single-arm design with early termination makes interpretation ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_moderate",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The infliximab-refractory population showed 7/16 (43.75%) response at Week 6, but without a comparator arm or statistical testing, it is impossible to determine whether this population responds differently from the general Crohn's disease population. The trial's early termination and single-arm design prevent any population-level inference."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:47357acd6625",
+      "support": "weak_contradict",
+      "affecting_arm_id": "certolizumab_pegol",
+      "reasoning": "No biomarker data was available to confirm pathway modulation. The trial was terminated early with insufficient power and no control arm, so the mechanism-to-biology link cannot be confirmed. Per round-14 rules, a failed/uninterpretable trial with no PD data emits weak_contradict on mechanism_affects."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:47357acd6625",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "certolizumab_pegol",
+      "reasoning": "Without a control arm, p-values, or adequate power, the biology-to-indication link cannot be confirmed from this trial. Per round-14 rules, a failed/uninterpretable trial with no PD data emits weak_contradict on biology_drives. The early termination and single-arm design mean this is a very weak signal."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early due to slow recruitment with only 16 patients enrolled, no control arm, no p-values, and CRP biomarker values not posted. The mechanistic hypothesis was never adequately tested. The 7/16 response rate at Week 6 in an infliximab-refractory population cannot be interpreted without a comparator. Expert review is needed to determine whether this trial should contribute any evidence to the causal chain graph, and whether the observed response rates in this specific refractory population are consistent with or divergent from historical benchmarks for certolizumab pegol in Crohn's disease."
+}

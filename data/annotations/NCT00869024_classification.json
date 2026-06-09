@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00869024",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial involves intramyocardial delivery of bone marrow-derived mononuclear cells (BM-MNCs) to myocardial tissue. PET/CT viability data shows substantially more 'safe segments' in the stem cell group vs placebo across all four LAD territory segments (14-15 vs 4 safe segments). This suggests the cells reached the myocardium and had some biological effect on tissue viability. However, no formal p-values are reported, and the sample is very small (n=25 total). The resolved graph entities map the compound to 'granulocyte_colony_stimulating_factor' which is a mismatch with the actual intervention (BM-MNCs), limiting mechanistic edge updates. 2. PATHWAY MODULATION: PET/CT viability data suggests myocardial tissue viability was preserved or improved in the stem cell group. However, LV dimensional changes (LVEDD, LVESD) were similar between groups (-0.49 vs -0.57 cm for LVEDD; -0.73 vs -0.62 cm for LVESD), suggesting no clear advantage in reverse remodeling. Histological assessment was insufficient for analysis. The biology signal is mixed: viability improved but structural remodeling did not clearly favor treatment. 3. CLINICAL TRANSLATION: The primary endpoints were not formally met (no p-values reported, outcomes marked as 'unknown' for safety and death endpoints). The LVAD turn-down endpoint showed 12/16 stem cell vs 2/9 placebo patients completing without stopping rules \u2014 a numerically large difference but without statistical testing. Deaths: 2 (stem cell) vs 3 (placebo) \u2014 numerically similar. No formal clinical benefit was established. 4. POPULATION EFFECTS: The enrolled population is severely ill (LVAD candidates with severe heart failure). The viability signal in LAD segments is consistent across all four measured segments, suggesting a real biological effect in this population, but the clinical translation is unclear. 5. CONFOUNDERS: The trial is severely underpowered (n=25, 16 stem cell vs 9 placebo). No p-values are reported for any endpoint. The primary endpoints are marked as not met. The trial appears to be a feasibility/pilot study. The mismatch between the resolved graph entities (granulocyte_colony_stimulating_factor) and the actual intervention (BM-MNCs) is a data quality issue. The trial is best classified as 'partial' \u2014 there are biological signals (PET viability) but no formal clinical endpoint was met, and the study was underpowered to draw conclusions. The primary failure mode is underpowering, with insufficient_information as a secondary consideration given the lack of statistical testing.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 25 patients enrolled (16 stem cell, 9 placebo). No p-values reported for any endpoint. The trial appears to be a pilot/feasibility study not powered to detect clinical benefit. The numerically large LVAD turn-down difference (12/16 vs 2/9) could not be formally tested."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "Primary endpoints marked as 'unknown' outcome for safety and death. No p-values reported. Histological assessment data collection was insufficient for analysis. The trial lacks formal statistical testing to determine whether endpoints were met."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:24b6b2bea938",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": "stem_cell_therapy",
+      "reasoning": "PET/CT viability data shows substantially more safe segments in the stem cell group (14-15 vs 4 across LAD segments), and numerically more patients completed LVAD turn-down without stopping rules (12/16 vs 2/9). These signals suggest myocardial regeneration biology may drive some benefit in heart failure, but no formal statistical testing was performed and the study was severely underpowered."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "granulocyte_colony_stimulating_factor",
+      "target_entity": "bio:24b6b2bea938",
+      "support": "weak_support",
+      "affecting_arm_id": "stem_cell_therapy",
+      "reasoning": "PET/CT viability improvements in LAD segments suggest some myocardial regeneration/angiogenesis biology was engaged, consistent with paracrine signaling from delivered cells. However, LV dimensional changes were similar between groups, and no formal statistical testing was done. The signal is directionally positive but weak."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_safety_cell_delivery",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The safety endpoint (total adverse events at 24 months) showed 1 vs 0 events, but the structured AE table reveals higher bleeding rates in the stem cell group (43.75% vs 11.1%) and cerebrovascular accidents in 2/16 stem cell patients. The safety endpoint as defined appears to undercount clinically relevant events, making its capture of the true safety profile ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ejectionfraction_low__functional_class_iii__severity_severe",
+      "target_entity": "heart_failure",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Numerically favorable signals in PET/CT viability and LVAD turn-down in the stem cell group suggest this severely ill population (LVAD candidates) may respond to BM-MNC therapy, but the study was underpowered and no formal statistical testing was performed, limiting confidence."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved graph entities map the compound to 'granulocyte_colony_stimulating_factor' rather than 'Bone Marrow Derived Mononuclear Cells', which is a significant entity mismatch that may cause edge updates to route to the wrong chain. Additionally, no p-values were reported for any endpoint, making it impossible to formally assess statistical significance. The trial appears to be a pilot/feasibility study, and the clinical meaningfulness of the PET/CT viability signal (14-15 vs 4 safe segments) cannot be assessed without statistical testing. Expert review is needed to determine whether the viability signal represents a true biological effect or is confounded by the small sample size and lack of formal testing."
+}

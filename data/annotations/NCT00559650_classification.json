@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00559650",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether cinaciguat engaged sGC in this population. No target engagement evidence was reported. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., cGMP levels, vasodilatory markers) were reported, so we cannot assess whether sGC activation led to the intended vasodilation and preload/afterload reduction. 3. CLINICAL TRANSLATION: The primary endpoint (change in PCWP from baseline to 8 hours vs. placebo) has an unknown outcome \u2014 the trial was terminated before the primary endpoint was reached or reported. No effect size or p-value is available. 4. POPULATION EFFECTS: No subgroup findings were reported. 5. CONFOUNDERS: The trial was terminated with reason not stated in the record. With 150 planned participants and no efficacy readout, this appears to be a case where the trial was stopped before generating a usable efficacy signal. The termination reason is unknown \u2014 it could be commercial, safety-related, or administrative. Given the complete absence of any efficacy readout and the stated termination without results, this qualifies as insufficient_information. The mechanism was never given a fair test in terms of producing a reportable primary endpoint result. This is an operational failure \u2014 the causal chain was not tested to completion.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Trial was terminated before the primary endpoint was reached or reported. Primary endpoint result is null, effect size is null, p-value is null, and no biomarker or safety data are available. The outcome for arm_2 is listed as 'unknown', indicating no usable efficacy readout was generated."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.35,
+      "evidence": "Termination reason is not stated in the record. Given that cinaciguat was later tested in other heart failure trials (COMPOSE program), early termination of this trial without stated reason raises the possibility of a commercial or strategic decision, though this cannot be confirmed from available data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_primary_efficacy_outcome_measure_will_pulmonary",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before the primary endpoint (PCWP change) was measured or reported. PCWP is a well-established hemodynamic surrogate for acute decompensated heart failure, but this trial provides no evidence about whether it captured clinical benefit in this context \u2014 the endpoint was never evaluated. Ambiguous is appropriate given the lack of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_iii__pcwp_high__severity_severe",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before any efficacy readout was generated. No information is available about whether this population responded to cinaciguat. Ambiguous is the appropriate bucket given the complete absence of outcome data."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated with no stated reason and no efficacy readout. It is unclear whether termination was due to safety concerns (the COMPOSE program was later halted for hypotension), commercial/strategic decisions, or administrative issues. The termination reason is critical for determining whether this represents an operational failure (commercial/administrative) or a safety-driven stop. Expert review is needed to determine the actual reason for termination and whether any interim data exists that could inform the mechanistic causal chain."
+}

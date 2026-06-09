@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT01125683",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial used qEEG and ERP as primary endpoints to assess target engagement and pharmacodynamic effects of AZD1446 on nicotinic acetylcholine receptor (alpha4beta2), but all arm outcomes are reported as 'unknown' with null effect sizes and p-values. The investigator commentary explicitly notes 'Poor recruitment,' suggesting the trial failed to accrue sufficient participants to generate a meaningful readout. 2. PATHWAY MODULATION: Cannot be assessed \u2014 no data reported. 3. CLINICAL TRANSLATION: Cannot be assessed \u2014 no efficacy data reported. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The primary failure mode is operational: poor recruitment led to insufficient enrollment (sample size 40 in a crossover design with 5 treatment periods), and no primary endpoint results were generated. This is a classic underpowered/recruitment-failure scenario where the mechanistic hypothesis was never given a fair test. The trial was a Phase 1/2 pharmacodynamic study in mild-to-moderate Alzheimer's disease patients using qEEG/ERP as biomarker endpoints \u2014 a reasonable design \u2014 but the recruitment failure means no conclusions can be drawn about the causal chain. Given the 'unknown' outcome across all arms and the explicit poor recruitment note, this is classified as insufficient_information with underpowering as a contributing factor.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "All arm outcomes are 'unknown' with null effect sizes and p-values. Investigator commentary explicitly states 'Poor recruitment.' No primary endpoint results were generated, meaning the trial provides no usable efficacy or safety readout."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Poor recruitment is explicitly cited. A crossover design with 5 treatment periods and 40 participants in a complex Alzheimer's disease population likely fell well below the enrollment needed to power qEEG/ERP endpoint analyses."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_evaluate_effect_single_multiple_dosing_azd1446",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The qEEG/ERP endpoint was selected as a pharmacodynamic biomarker endpoint for Alzheimer's disease, but no results were generated due to poor recruitment. The endpoint's ability to capture clinical benefit in this indication cannot be assessed from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hachinskiischaemicscore_low__mse_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No outcome data was generated for this population due to poor recruitment. The population's response to AZD1446 cannot be assessed."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated or failed to complete due to poor recruitment with no usable efficacy readout across any arm. All outcomes are 'unknown' and no numeric results are available. This is an operational failure \u2014 the mechanistic hypothesis was never tested. Expert review needed to confirm whether any partial data exists that was not captured in this extraction, and to assess whether the trial design (crossover, qEEG/ERP endpoints, Alzheimer's population) was feasible."
+}

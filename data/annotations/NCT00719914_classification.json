@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00719914",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether eptifibatide engaged the GPIIb/IIIa receptor (ITGB3) in this intracoronary bolus setting. The trial was terminated early due to poor enrollment (only 31 patients enrolled), so no primary endpoint result was reported. Per the round-28 AFFECTS rule, with no target engagement data, no affects record should be emitted. 2. PATHWAY MODULATION: No downstream pathway biomarker data (e.g., platelet aggregation inhibition measures) was reported. The mechanism \u2014 receptor antagonism leading to platelet aggregation inhibition \u2014 was never assessed in this trial. 3. CLINICAL TRANSLATION: The primary endpoint (percent diameter stenosis by QCA at 30 days) was never reported. The trial was terminated before the primary analysis could be completed due to poor enrollment. Effect size and p-value are both null. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The dominant issue is an operational failure \u2014 the trial was terminated due to poor enrollment (only 31 patients, far below what would be needed for adequate power in a randomized controlled trial). This is a classic recruitment collapse / failure to accrue scenario. The mechanism was never given a fair test. The trial provides no usable efficacy readout. This maps to 'insufficient_information' as the primary failure mode, with 'underpowered' as a secondary contributor (terminated far below planned enrollment). Because the trial was terminated before the primary endpoint was reached and no efficacy readout is available, operational_failure is set to true.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Trial was explicitly terminated due to poor enrollment with only 31 patients. Primary endpoint result (percent diameter stenosis by QCA) is null \u2014 no efficacy readout was obtained. Effect size and p-value are both absent."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "Only 31 patients were enrolled across two arms before termination. This sample size is grossly insufficient for a randomized controlled trial assessing QCA-based angiographic endpoints, which typically require substantially larger cohorts to detect meaningful differences."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_improvement_diameter_stenosis_culprit_artery",
+      "target_entity": "st_elevation_myocardial_infarction",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (percent diameter stenosis by QCA at 30 days) was never reported due to early termination. The endpoint's ability to capture clinical benefit in STEMI cannot be assessed from this trial. Ambiguous is appropriate as no informative signal was generated."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "stelevation_positive",
+      "target_entity": "st_elevation_myocardial_infarction",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before the primary endpoint was reached. No efficacy data is available to assess whether this STEMI population responded to eptifibatide. Ambiguous is the appropriate bucket given the complete absence of an efficacy readout."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

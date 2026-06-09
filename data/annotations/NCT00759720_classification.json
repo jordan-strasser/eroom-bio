@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00759720",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm PPAR\u03b3 engagement by TAK-559. The trial was terminated early due to a hepatic safety signal, so no efficacy readout was obtained. We cannot assess target engagement from the available data.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., insulin sensitivity markers, adiponectin, fasting glucose changes) were reported. The trial termination precluded any assessment of pathway modulation.\n\n3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change from baseline) was not met, and all per-arm outcomes are listed as 'unknown' \u2014 consistent with early termination before the primary analysis was completed. No effect size or p-value is available.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The trial was terminated before any such analyses could be conducted.\n\n5. CONFOUNDERS: The trial was explicitly terminated due to a potential hepatic safety signal. This is a trial-conduct failure: the mechanism was never given a fair test because the drug was withdrawn before the primary endpoint could be evaluated. The hepatic toxicity concern (a known class risk for PPAR\u03b3 agonists, as seen with troglitazone) prevented adequate dosing and duration of exposure. This is an operational failure \u2014 the causal chain was not tested to completion. The structured AE table is absent, but the investigator commentary explicitly attributes termination to a hepatic safety signal, which is sufficient to classify this as a safety-driven termination. Per the DLT rule, criterion (c) applies: the trial was terminated for safety with a stated AE attribution.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.75,
+      "evidence": "Trial was explicitly terminated due to a potential hepatic safety signal. Investigator commentary states: 'Trial was terminated due to a potential hepatic safety signal.' This prevented completion of the 26-week treatment period and precluded any efficacy readout. PPAR\u03b3 agonists have a known hepatotoxicity liability (class effect). No structured AE data is available, but the stated termination reason satisfies DLT criterion (c): trial terminated for safety with stated AE attribution."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.65,
+      "evidence": "All per-arm efficacy outcomes are listed as 'unknown' with no effect sizes or p-values reported. The trial was terminated before the primary endpoint analysis was completed, leaving no usable efficacy readout to assess the mechanistic causal chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c is a well-established surrogate endpoint for glycemic control in type 2 diabetes and is regulator-accepted. However, the trial was terminated before the primary endpoint was evaluated, so we cannot assess whether the endpoint captured benefit in this trial. The endpoint itself is valid for the indication, but the trial provides no informative signal about its performance here \u2014 hence ambiguous rather than supportive or contradictory."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high__fastingplasmaglucose_high__hba1c_high__ldl_low__line_first__triglycerides_low",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated early for safety before any efficacy readout was obtained. No information about population response is available. The enrolled population (type 2 diabetes on stable glyburide) was not evaluated for differential response, so this edge cannot be updated with directional evidence."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": "tak_559_16_mg_qd_glyburide_qd",
+      "reasoning": "Trial terminated before efficacy readout; no information about whether insulin sensitization biology drove clinical benefit in this population. Cannot emit contradict signal because the chain was never tested \u2014 operational failure."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": "tak_559_32_mg_qd_glyburide_qd",
+      "reasoning": "Trial terminated before efficacy readout; no information about whether insulin sensitization biology drove clinical benefit in this population. Cannot emit contradict signal because the chain was never tested \u2014 operational failure."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": "glyburide_qd",
+      "reasoning": "Glyburide monotherapy arm also had unknown outcome due to early termination. No efficacy readout available for the comparator arm either."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1296025",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "ambiguous",
+      "affecting_arm_id": "glyburide_qd",
+      "reasoning": "Trial terminated before efficacy readout. Glyburide's mechanism (ATP-sensitive K+ channel blockade \u2192 insulin secretion) is well-established from prior evidence, but this trial provides no new signal about the mechanism_affects edge due to early termination."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early for a hepatic safety signal with no structured AE data provided. The classification as dose_limiting_toxicity relies solely on the investigator narrative commentary rather than structured per-arm AE incidence tables or documented dose reductions. Expert review is needed to: (1) confirm whether the hepatic signal was drug-related vs. background rate in this diabetic population, (2) assess whether any partial efficacy data was collected before termination that could inform the causal chain, and (3) determine whether the hepatic toxicity was dose-dependent (16 mg vs. 32 mg arms). Additionally, the resolved graph entities show the TAK-559 arms mapped to 'tak_559_glyburide#NCT00759720 \u2192 UNKNOWN' target, suggesting the PPAR\u03b3 target was not resolved in the graph \u2014 this may affect downstream edge routing."
+}

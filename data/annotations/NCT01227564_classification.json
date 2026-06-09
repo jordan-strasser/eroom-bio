@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT01227564",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Robust anti-A\u03b2 IgG and IgM antibody titers were induced in both ACC-001 dose groups (geometric mean IgG titers up to ~12,000 U/mL vs ~50 U/mL in placebo), confirming that the active immunization successfully engaged the immune system to produce antibodies against A\u03b2. Plasma A\u03b2-40 also significantly increased in ACC-001 arms vs placebo (p<0.05), consistent with antibody-mediated mobilization of peripheral A\u03b2. 2. PATHWAY MODULATION: Partial evidence of downstream biology moving. CSF A\u03b2-42 increased numerically in the ACC 10 \u03bcg arm (+75.55 vs -8.87 in placebo, p=0.0648), and CSF total tau decreased significantly in the ACC 10 \u03bcg arm (-27.48 vs +55.92 in placebo, p=0.0327). These CSF biomarker changes suggest some biological activity consistent with amyloid-related pathway modulation. However, the primary imaging endpoint (florbetapir PET SUVR) showed no significant difference between ACC-001 and placebo at any timepoint, and brain MRI volumetric measures showed no significant differences. The biology moved partially (CSF biomarkers) but the primary amyloid plaque clearance endpoint did not. 3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in brain fibrillar A\u03b2 SUVR at week 104) was not met: mean difference -0.050 SUVR (95% CI: -0.149 to 0.050), p=0.3221. Both dose arms showed effect sizes of only -0.018 SUVR. No significant differences were observed in cognitive or functional endpoints (NTB, FAQ, CDR-SOB, MMSE, ADAS-Cog). Some secondary behavioral/caregiver endpoints showed nominal significance (NPI, RUD-Lite) in the 10 \u03bcg arm, but these are likely spurious given the lack of primary endpoint signal and the small sample size (n=63). 4. POPULATION EFFECTS: No formal subgroup analyses by biomarker-defined responders were reported. The trial enrolled early AD patients. The small sample size (n=63 total across 3 arms) severely limits subgroup analysis power. Some nominal signals in NPI and RUD-Lite in the 10 \u03bcg arm could suggest dose-dependent effects but are not robust. 5. CONFOUNDERS: The trial was substantially underpowered (n=63 total, approximately 20 per arm) for detecting a meaningful change in amyloid PET SUVR over 104 weeks. The effect size of -0.050 SUVR is directionally consistent with a small treatment effect, but the confidence interval spans zero and the study lacked power to detect this magnitude of change. The antibody titers induced were robust, but the doses of ACC-001 (3 \u03bcg and 10 \u03bcg) may have been insufficient to generate antibody levels capable of meaningfully clearing fibrillar amyloid plaques. The primary failure mode is best characterized as biology_moved_endpoint_flat (CSF biomarkers moved but PET amyloid did not) combined with underpowering, though the lack of PET signal despite robust antibody induction also raises questions about whether the antibody-mediated mechanism can clear established fibrillar amyloid plaques in this population.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "CSF total tau decreased significantly in ACC 10 \u03bcg arm (p=0.0327) and CSF A\u03b2-42 trended upward (p=0.0648), and plasma A\u03b2-40 significantly increased (p<0.05), suggesting some biological activity. However, the primary PET amyloid SUVR endpoint showed no significant change (-0.050 SUVR, p=0.3221), and MRI volumetric measures were also flat. The CSF biomarker changes may not translate to detectable fibrillar plaque clearance on PET."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Total sample size of 63 patients across 3 arms (~20 per arm) is very small for detecting changes in amyloid PET SUVR over 104 weeks. The observed effect size of -0.050 SUVR with a 95% CI of -0.149 to 0.050 is directionally consistent with a small treatment effect that a larger trial might detect. This is a Phase 2 study with insufficient power to definitively test the hypothesis."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "Early AD patients with established fibrillar amyloid burden may have too much plaque for antibody-mediated clearance to produce detectable PET changes within 104 weeks. The mechanism may work better in prevention or pre-clinical stages. However, this is speculative given the data available."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "acc_001_qs_21",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "acc_001_3_g_qs_21_50_g",
+      "reasoning": "Robust anti-A\u03b2 IgG titers up to ~12,000 U/mL vs ~50 U/mL in placebo confirm that ACC-001+QS-21 successfully engaged the immune system to produce antibodies against A\u03b2, demonstrating target engagement per the round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "acc_001_qs_21",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "acc_001_10_g_qs_21_50_g",
+      "reasoning": "Robust anti-A\u03b2 IgG titers up to ~12,000 U/mL vs ~50 U/mL in placebo confirm that ACC-001+QS-21 successfully engaged the immune system to produce antibodies against A\u03b2 in the 10 \u03bcg arm as well."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:6f211f798e62",
+      "support": "weak_contradict",
+      "affecting_arm_id": "acc_001_3_g_qs_21_50_g",
+      "reasoning": "Despite robust antibody induction, the primary PET amyloid SUVR endpoint showed no significant change (-0.018 SUVR, p=0.3221), suggesting that antibody-dependent cytotoxicity/phagocytosis did not translate to meaningful amyloid plaque clearance. CSF biomarkers showed partial movement but the primary biology endpoint (fibrillar amyloid clearance) was not achieved. Underpowering is a mitigating factor, so weak rather than moderate contradict."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:6f211f798e62",
+      "support": "weak_contradict",
+      "affecting_arm_id": "acc_001_10_g_qs_21_50_g",
+      "reasoning": "Despite robust antibody induction in the 10 \u03bcg arm, the primary PET amyloid SUVR endpoint showed no significant change (-0.018 SUVR), suggesting that antibody-dependent cytotoxicity did not translate to meaningful amyloid plaque clearance. CSF tau and A\u03b2-42 showed some movement but fibrillar plaque clearance was not demonstrated. Underpowering is a mitigating factor."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6f211f798e62",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "acc_001_3_g_qs_21_50_g",
+      "reasoning": "The amyloid plaque clearance biology did not translate to clinical benefit in Alzheimer's disease in this arm. No significant differences in cognitive or functional endpoints were observed. The failure to clear amyloid and improve clinical outcomes provides weak contradict evidence for this biology-to-disease link, mitigated by underpowering."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6f211f798e62",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "acc_001_10_g_qs_21_50_g",
+      "reasoning": "The amyloid plaque clearance biology did not translate to clinical benefit in Alzheimer's disease in the 10 \u03bcg arm. Despite some CSF biomarker movement, no significant differences in cognitive or functional endpoints were observed. Weak contradict given underpowering and partial CSF biomarker signals."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_brain_fibrillar_beta_amyloid_protein_week_104",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The florbetapir PET SUVR endpoint is a validated biomarker for fibrillar amyloid burden and is a regulator-accepted surrogate in AD. However, the endpoint missed (p=0.3221) and the trial was underpowered (n=63), making it unclear whether the endpoint failed to capture a real effect or whether there was truly no effect. CSF biomarkers moved partially, suggesting some biological activity that PET may not have been sensitive enough to detect at this sample size. Ambiguous given the underpowering and partial CSF signals."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloidpet_positive__cdr_low__mmse_high__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of early AD patients (amyloid PET positive, low CDR, high MMSE, mild severity) did not respond to ACC-001+QS-21 on the primary endpoint (p=0.3221). No significant cognitive or functional improvements were observed. The trial was adequately designed for this population but underpowered, so moderate rather than strong contradict is appropriate."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial shows a complex pattern: robust immunological target engagement (antibody titers) with partial CSF biomarker movement (tau, A\u03b2-42) but no PET amyloid clearance signal. The small sample size (n=63) makes it difficult to distinguish between a true null effect and an underpowered study. The directional effect size (-0.050 SUVR) is consistent with a small treatment effect that a larger trial might detect. Expert review is needed to assess whether the CSF biomarker changes (particularly the significant tau reduction) represent meaningful biological activity that warrants further investigation, and whether the dose levels (3 \u03bcg and 10 \u03bcg) were sufficient to generate therapeutically relevant antibody levels for plaque clearance. The nominal NPI and RUD-Lite signals in the 10 \u03bcg arm also warrant expert interpretation."
+}

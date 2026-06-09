@@ -1,0 +1,22 @@
+{
+  "nct_id": "NCT00587990",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial used intramyocardial MSC injection targeting myocardial scar tissue. There is no direct target engagement biomarker (e.g., cell engraftment, homing markers). Infarct scar size decreased by -5.91g in treated vs -5.32g in placebo at 18 months \u2014 a marginal difference that is not clearly attributable to MSC action vs CABG alone. Regional LV wall thickening improved more in treated patients (20.68\u219247.87mm) vs placebo (32.21\u219242.09mm), suggesting some biological activity, but LVEF actually improved more in placebo (+14.61%) than treated (+2.50%), which is paradoxical and may reflect the very small sample size (n=9 total). 2. PATHWAY MODULATION: The downstream biology (myocardial regeneration, ventricular functional recovery) showed mixed signals. Some functional measures (6MWT, NYHA class, MLHF score) trended in favor of treated patients at 6 months, but LVEF \u2014 the most objective cardiac function measure \u2014 favored placebo at 18 months. The scar size reduction difference between arms was minimal. No clear paracrine-mediated regeneration signal is demonstrable above CABG background. 3. CLINICAL TRANSLATION: The primary endpoint was a safety composite (SAEs at 12 months). The trial reports 0 SAEs in treated vs 1 in placebo \u2014 technically a 'pass' on safety, but the primary endpoint was not met in the conventional sense (it was a safety feasibility endpoint, not an efficacy endpoint). The trial was terminated early due to recruitment failure with only 9 patients enrolled (vs planned sample), making all results uninterpretable statistically. 4. POPULATION EFFECTS: No meaningful subgroup analysis is possible with n=9. Functional trends (6MWT, NYHA, MLHF) favored treated patients at 6 months but these are exploratory with no statistical power. 5. CONFOUNDERS: The dominant failure mode is recruitment failure \u2014 only 9 of the planned patients were enrolled, and the trial was terminated for this reason. This is a classic operational failure (underpowered/terminated early). The safety primary endpoint was a feasibility/safety readout, not an efficacy endpoint, so no efficacy conclusion can be drawn. The trial was never given a fair test of the mechanistic hypothesis. Additionally, the very small n means all biomarker trends are noise-level. The primary endpoint being a safety composite rather than efficacy means even the 'missed' primary is not informative about mechanism. This is fundamentally an operational failure due to recruitment collapse and gross underpowering.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Trial terminated due to difficulty in recruitment with only 9 patients enrolled out of planned sample. No statistical analysis was possible. All results are descriptive only and cannot support any mechanistic conclusion."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint was a safety composite (SAEs), not an efficacy endpoint. The trial was terminated before reaching planned enrollment, and no efficacy primary endpoint was pre-specified or analyzed. The safety endpoint result (0 vs 1 SAE) is not informative about the mechanistic hypothesis of MSC-mediated myocardial regeneration."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated early due to recruitment failure with only 9 patients enrolled. Primary endpoint was a safety composite, not an efficacy endpoint, so no mechanistic conclusion about MSC-mediated myocardial regeneration can be drawn. No resolved graph entities were provided, so no edge updates can be emitted. Expert review needed to determine whether any exploratory biomarker trends (scar size, wall thickening, functional measures) are informative enough to update any graph edges if entity IDs become available, and to assess whether the safety signals (complete AV block, multiple SAEs in treated arm) warrant a dose-limiting toxicity flag in future trials."
+}

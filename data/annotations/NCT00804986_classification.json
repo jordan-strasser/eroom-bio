@@ -1,0 +1,164 @@
+{
+  "nct_id": "NCT00804986",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Dose-proportional plasma concentrations (Cavg 29.5\u20131290 ng/mL across 0.5\u201317.6 mg doses) confirm systemic exposure with clear dose-exposure relationship. Downstream PD markers (fasting glucose reductions, OGTT glucose AUC reductions, insulin AUC and C-peptide AUC increases at higher doses) confirm the drug engaged its intended receptor and drove the expected downstream biology. Target engagement is well-established.\n\n2. PATHWAY MODULATION: Downstream biology moved as predicted. Dose-dependent reductions in fasting self-monitored glucose, significant reductions in total glucose AUC (OGTT) at 6.2 mg and above, and increases in insulin AUC and C-peptide AUC at higher doses all confirm that GLP-1 receptor agonism drove glucose-dependent insulin secretion and glycemic regulation as intended. Body weight reductions at higher doses are also consistent with GLP-1 receptor agonism.\n\n3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change from baseline at Week 12) was met. The maximum effect vs placebo was -1.28% (12.0 mg, p<0.0001) and -1.24% (17.6 mg, p<0.0001), which are clinically meaningful reductions. A clear dose-response relationship was observed across all active arms (0.5 mg partial, 2.0 mg through 17.6 mg all statistically significant). The biology translated cleanly to the clinical endpoint.\n\n4. POPULATION EFFECTS: No formal subgroup analyses by biomarker-defined subsets were reported. The dose-response relationship was consistent across the enrolled population of adults with T2DM. Weight loss was significant only at higher doses (6.2 mg and 17.6 mg), consistent with dose-dependent GLP-1 receptor engagement. Anti-drug antibodies developed in 10 participants but did not appear to substantially affect efficacy.\n\n5. CONFOUNDERS: The trial was 12 weeks, which is a standard duration for HbA1c endpoint assessment. SAEs were scattered across arms and doses without a clear drug-related pattern; no dose-limiting toxicity prevented adequate dosing. The structured AE table shows low individual SAE incidences (~2-3%) without control arm comparators, but no evidence of dose reductions or trial termination for safety. The trial appears adequately powered (n=247) for a dose-ranging Phase 2 study. Note: the resolved graph entities map LY2428757 to CANX (calnexin) via enzyme_inhibition, which is inconsistent with the actual mechanism (GLP-1 receptor agonism); this appears to be a graph entity resolution error. Edges will be emitted using canonical IDs as required, but this discordance is flagged for expert review.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2428757",
+      "target_entity": "ENSG00000127022",
+      "support": "strong_support",
+      "affecting_arm_id": "0_5_mg_ly2428757",
+      "reasoning": "Dose-proportional plasma concentrations confirmed systemic exposure; downstream PD markers (glucose reductions, insulin AUC increases) confirm target engagement at 0.5 mg dose."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2428757",
+      "target_entity": "ENSG00000127022",
+      "support": "strong_support",
+      "affecting_arm_id": "2_0_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-0.67%, p=0.0003) and fasting glucose reductions at 2.0 mg confirm target engagement and downstream biology."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2428757",
+      "target_entity": "ENSG00000127022",
+      "support": "strong_support",
+      "affecting_arm_id": "6_2_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-1.11%, p=0.0001), OGTT glucose AUC reduction, insulin AUC increase, and body weight reduction confirm robust target engagement at 6.2 mg."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2428757",
+      "target_entity": "ENSG00000127022",
+      "support": "strong_support",
+      "affecting_arm_id": "12_0_mg_ly2428757",
+      "reasoning": "Largest HbA1c reduction (-1.28%, p=0.0001) and significant OGTT glucose AUC reduction confirm strong target engagement at 12.0 mg."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2428757",
+      "target_entity": "ENSG00000127022",
+      "support": "strong_support",
+      "affecting_arm_id": "17_6_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-1.24%, p=0.0001) and body weight reduction (-2.01 kg, p=0.0013) confirm strong target engagement at highest dose."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000127022",
+      "target_entity": "enzyme_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "6_2_mg_ly2428757",
+      "reasoning": "Increases in insulin AUC and C-peptide AUC at higher doses confirm the mechanism (glucose-dependent insulin secretion enhancement) was activated downstream of target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000127022",
+      "target_entity": "enzyme_inhibition",
+      "support": "strong_support",
+      "affecting_arm_id": "17_6_mg_ly2428757",
+      "reasoning": "Dose-dependent insulin AUC and C-peptide AUC increases confirm mechanism activation at highest dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "6_2_mg_ly2428757",
+      "reasoning": "Significant reductions in fasting glucose, OGTT glucose AUC, and HbA1c confirm the mechanism drove glycemic control biology as intended."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "12_0_mg_ly2428757",
+      "reasoning": "Largest HbA1c reduction and significant glucose AUC reductions confirm mechanism-to-biology translation at 12.0 mg."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "17_6_mg_ly2428757",
+      "reasoning": "Significant HbA1c and body weight reductions confirm mechanism drove glycemic control and weight biology at highest dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_0_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction and fasting glucose reductions at 2.0 mg confirm mechanism-to-biology translation, though OGTT AUC significance not reported at this dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_support",
+      "affecting_arm_id": "0_5_mg_ly2428757",
+      "reasoning": "Partial HbA1c reduction (-0.47%, p=0.0109) and dose-dependent glucose reductions suggest mechanism engagement at lowest dose, though effect is modest."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "12_0_mg_ly2428757",
+      "reasoning": "Clinically meaningful HbA1c reduction (-1.28%, p<0.0001) at 12.0 mg confirms that glycemic control biology drives T2DM disease outcomes."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "17_6_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-1.24%, p<0.0001) and body weight reduction confirm glycemic control biology drives T2DM."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "6_2_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-1.11%, p<0.0001) confirms biology-to-disease link at 6.2 mg."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "2_0_mg_ly2428757",
+      "reasoning": "Significant HbA1c reduction (-0.67%, p=0.0003) supports biology-to-disease link at 2.0 mg."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": "0_5_mg_ly2428757",
+      "reasoning": "Partial HbA1c reduction at lowest dose provides weak support for biology-to-disease link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hemoglobin_a1c_hba1c_week_12_endpoint",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at Week 12 is a well-validated, regulator-accepted surrogate endpoint for T2DM. The endpoint was hit with strong statistical significance (p<0.0001) and clinically meaningful effect sizes, supported by concordant secondary endpoints (fasting glucose, OGTT glucose AUC, body weight), confirming the endpoint captures T2DM disease biology."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high__line_first",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of adults with T2DM (HbA1c-elevated, first-line) showed robust, dose-dependent HbA1c reductions with p<0.0001 at higher doses and clinically meaningful effect sizes (-1.28% at 12.0 mg vs placebo), confirming this population responds to GLP-1 receptor agonism."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The resolved graph entities map LY2428757 to ENSG00000127022 (CANX, calnexin) via enzyme_inhibition, which is inconsistent with the actual mechanism of action (GLP-1 receptor agonism at GLP1R). This appears to be a graph entity resolution error. All edges have been emitted using the canonical IDs as required, but the mechanistic interpretation of these edges is discordant with the actual biology. Expert review is needed to correct the target and mechanism assignments in the graph before these edge updates are applied."
+}

@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00380744",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Dose-proportional increases in AUC0-168hr,ss from 196 \u00b5g\u00b7h/mL (0.02 mg/kg/wk) to 18200 \u00b5g\u00b7h/mL (2.5 mg/kg/wk) confirm adequate PK exposure across all dose levels. This is strong PK evidence that LY2189102 was systemically present at dose-proportional levels. However, the resolved causal chain maps LY2189102 to ENSG00000163394 (CCKAR, cholecystokinin A receptor), which is clearly a graph entity mismatch \u2014 LY2189102 is an anti-IL-17A antibody, not a CCKAR ligand. The canonical target should be IL-17A, but the graph has resolved it to CCKAR. This is a data quality issue in the graph, not a mechanistic finding. Despite this, the PK data confirms systemic exposure. 2. PATHWAY MODULATION: CRP decreased numerically more in the 0.1 and 0.3 mg/kg/wk arms compared to placebo (approximately -19 to -21 mg/dL vs -9 to -13 mg/dL), suggesting some anti-inflammatory pathway modulation. DAS28 improved across all arms including placebo, with 0.3 mg/kg/wk showing numerically greater improvement at several timepoints. However, there is no clear dose-response relationship \u2014 the highest dose (2.5 mg/kg/wk) did not show the greatest DAS28 improvement, and SDAI showed no clear dose-response advantage over placebo. This is a Phase 1 safety trial with exploratory efficacy endpoints, so the lack of a definitive dose-response is not unexpected. 3. CLINICAL TRANSLATION: The primary endpoint was safety (AEs up to Day 98), which was met \u2014 the AE profile was acceptable across all dose levels with no dose-limiting toxicity pattern. The DAS28 secondary endpoint showed partial outcomes across all arms (effect sizes ranging from -1.23 to -2.25), but without p-values and with high placebo response (DAS28 improvement in placebo arm of -1.11 at Day 98), it is difficult to attribute clinical benefit definitively to the drug. This is a Phase 1 trial primarily designed for safety, not efficacy. 4. POPULATION EFFECTS: No formal subgroup analyses were pre-specified. Numerically, 0.3 mg/kg/wk showed the largest early DAS28 and SDAI reductions, while 0.1 mg/kg/wk showed the largest DAS28 reduction at Day 98. The lack of a monotonic dose-response relationship raises questions about whether the efficacy signal is drug-driven or reflects high placebo response and small sample sizes (~25/arm). 5. CONFOUNDERS: This is a Phase 1 safety trial (primary endpoint = AEs), so it is inherently underpowered for efficacy. The placebo arm showed substantial DAS28 improvement (-1.11 at Day 98), consistent with high placebo response in RA trials. The trial was not designed to demonstrate efficacy. The graph entity mismatch (CCKAR instead of IL-17A) is a data quality issue. Overall, this trial is classified as 'partial' \u2014 the primary safety endpoint was met, and there are exploratory signals of biological activity (CRP reduction), but no definitive efficacy conclusion can be drawn from this Phase 1 study.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "This is a Phase 1 safety trial with ~25 participants per arm, not powered for efficacy. DAS28 outcomes are exploratory with no p-values reported. The trial was designed to assess safety, not demonstrate efficacy."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.65,
+      "evidence": "Placebo arm showed DAS28 improvement of -1.11 at Day 98, which is substantial and compresses the detectable treatment effect. SDAI also improved in placebo. This high placebo response makes it difficult to attribute DAS28 improvements to drug effect."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2189102",
+      "target_entity": "ENSG00000163394",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_0_1_mg_kg_wk",
+      "reasoning": "Dose-proportional PK exposure confirmed across all dose levels, indicating systemic drug presence. However, the graph maps LY2189102 to CCKAR (ENSG00000163394), which is a clear entity mismatch \u2014 LY2189102 is an anti-IL-17A antibody. PK exposure supports drug delivery but cannot confirm binding to this incorrectly resolved target. Emitting weak_support based on PK exposure alone, flagging for expert review."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2189102",
+      "target_entity": "ENSG00000163394",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_0_3_mg_kg_wk",
+      "reasoning": "Same PK exposure rationale as 0.1 mg/kg/wk arm. Dose-proportional AUC confirmed. Graph entity mismatch noted."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2189102",
+      "target_entity": "ENSG00000163394",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_1_0_mg_kg_wk",
+      "reasoning": "Same PK exposure rationale. Dose-proportional AUC confirmed. Graph entity mismatch noted."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ly2189102",
+      "target_entity": "ENSG00000163394",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_2_5_mg_kg_wk",
+      "reasoning": "Same PK exposure rationale. Highest dose arm with AUC of 18200 \u00b5g\u00b7h/mL. Graph entity mismatch noted."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163394",
+      "target_entity": "R-HSA-375276",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_0_3_mg_kg_wk",
+      "reasoning": "CRP reductions numerically greater in 0.3 mg/kg/wk arm vs placebo suggest some anti-inflammatory pathway modulation, consistent with cytokine neutralization. However, the graph entity mismatch (CCKAR/peptide ligand-binding receptors vs IL-17A/IL-17 signaling) means this edge is not mechanistically coherent. Weak support based on indirect inflammatory biomarker signal."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:7bb9a678fe66",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_0_3_mg_kg_wk",
+      "reasoning": "CRP reductions and numerically greater DAS28 improvements at 0.3 mg/kg/wk suggest some suppression of joint inflammation biology, but without dose-response and with high placebo response, the signal is weak. This is a Phase 1 trial not powered for efficacy."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:7bb9a678fe66",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_a_ly2189102_2_5_mg_kg_wk",
+      "reasoning": "The highest dose arm (2.5 mg/kg/wk) did not show the greatest DAS28 improvement (-1.89 vs -2.25 for 0.1 mg/kg/wk), suggesting no clear dose-response relationship between mechanism engagement and biology suppression. This is a weak contradict signal for the mechanism-biology link at the highest dose."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7bb9a678fe66",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_support",
+      "affecting_arm_id": "part_a_ly2189102_0_3_mg_kg_wk",
+      "reasoning": "Numerically greater DAS28 and SDAI improvements in 0.3 mg/kg/wk arm vs placebo provide weak support that suppression of IL-17-driven joint inflammation biology is relevant to RA disease activity. However, the signal is not statistically confirmed and the trial was not powered for this conclusion."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_adverse_events_aes",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was safety (AEs up to Day 98), which is a Phase 1 safety endpoint, not a clinical benefit endpoint for RA. It captures tolerability but not disease benefit. Emitting ambiguous as the endpoint is not designed to capture RA clinical benefit \u2014 it is a safety/tolerability measure appropriate for Phase 1."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "rheumatoid_arthritis",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Patients with active RA showed numerically greater DAS28 and CRP improvements in some LY2189102 arms vs placebo, suggesting this population may respond to IL-17A neutralization. However, the signal is not statistically confirmed, the trial was underpowered for efficacy, and placebo response was high. Weak support for this population responding to the mechanism."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Critical graph entity mismatch: the resolved causal chain maps LY2189102 to ENSG00000163394 (CCKAR, cholecystokinin A receptor) and R-HSA-375276 (Peptide ligand-binding receptors), but LY2189102 is an anti-IL-17A monoclonal antibody. The correct target should be IL-17A (IL17A gene) and the mechanism should be IL-17 signaling pathway. All edge updates in this trial are compromised by this mismatch and should be reviewed before incorporation into the graph. Additionally, this is a Phase 1 safety trial with exploratory efficacy endpoints and no p-values, making mechanistic conclusions uncertain. The lack of a monotonic dose-response relationship for DAS28 despite confirmed dose-proportional PK exposure warrants expert interpretation."
+}

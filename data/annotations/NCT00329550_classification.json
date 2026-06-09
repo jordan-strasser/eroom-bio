@@ -1,0 +1,135 @@
+{
+  "nct_id": "NCT00329550",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: CRP levels declined across all arms during the extension period. CRP geometric mean ratios at Week 26 vs baseline were 0.63 (prior placebo), 0.40 (prior CZP 200 mg), and 0.47 (prior CZP 400 mg), indicating meaningful CRP suppression. This is a downstream inflammatory biomarker consistent with TNF-alpha neutralization by certolizumab pegol. Target engagement is supported.\n\n2. PATHWAY MODULATION: CRP reduction confirms that TNF-alpha neutralization led to downstream suppression of the inflammatory cascade (adaptive immune response / intestinal inflammation biology). The biology did move, particularly in the arms with prior CZP exposure showing greater CRP reduction.\n\n3. CLINICAL TRANSLATION: CDAI responder rates at Week 26 were 44.4% (prior placebo), 73.3% (prior CZP 200 mg), and 60.0% (prior CZP 400 mg). No p-values are reported and no formal statistical comparison to a placebo control is available in this extension study (all arms received CZP 400 mg maintenance). The primary endpoint result is listed as 'None' for met/not-met, and the overall effect size is 26.0 (likely the difference from some reference). Without a concurrent placebo arm, it is impossible to formally attribute clinical response to drug vs. natural disease course or placebo effect. The trial is classified as partial because clinical signals are present but unconfirmed statistically.\n\n4. POPULATION EFFECTS: The prior CZP 200 mg arm showed the highest CDAI responder rate (73.3%) and remission rate (46.7%), suggesting that patients who had prior CZP exposure at the lower induction dose may have been better positioned for maintenance response. The prior placebo arm (44.4% responders) may include some placebo responders from the main study who then responded to open-label CZP. These differences are descriptive only given the small sample sizes (n=9, 15, 16 per arm).\n\n5. CONFOUNDERS: This is a small open-label extension study (N=40 total) with no concurrent placebo arm, making it impossible to separate drug effect from natural disease fluctuation or placebo response. The study is severely underpowered for formal statistical inference. No p-values are reported. The design is exploratory/descriptive. The primary endpoint was not formally declared as met or not met. This is fundamentally an insufficient_information scenario for formal efficacy determination, though the biological signals (CRP reduction, CDAI response rates) are directionally supportive of CZP activity.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Total N=40 across three arms (9, 15, 16 patients), no concurrent placebo control in extension, no p-values reported, primary endpoint met status listed as null. The study was an open-label extension not powered for formal efficacy testing."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No p-values reported, no formal statistical comparison available, no concurrent placebo arm in extension phase. Primary endpoint met status is null. Cannot formally attribute CDAI response rates to drug effect vs. natural history or placebo response from main study."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "CRP declined (ratio 0.63 vs baseline) in the prior placebo arm receiving CZP 400 mg maintenance, consistent with TNF-alpha neutralization driving downstream inflammatory suppression. Target engagement is implied by the biomarker movement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "CRP declined substantially (ratio 0.40 vs baseline) in the prior CZP 200 mg arm, the strongest CRP reduction across arms, consistent with TNF-alpha neutralization by certolizumab pegol."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "CRP declined (ratio 0.47 vs baseline) in the prior CZP 400 mg arm, consistent with ongoing TNF-alpha neutralization during maintenance."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "CRP reduction (ratio 0.40) in the prior CZP 200 mg arm indicates that TNF neutralization modulated the adaptive immune response / inflammatory pathway, consistent with the proposed mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "CRP reduction (ratio 0.63) in the prior placebo arm after switching to CZP 400 mg maintenance supports TNF neutralization modulating the adaptive immune/inflammatory pathway."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "CRP reduction (ratio 0.47) in the prior CZP 400 mg arm supports ongoing TNF neutralization modulating the adaptive immune/inflammatory pathway during maintenance."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "CDAI responder rate of 73.3% and remission rate of 46.7% in the prior CZP 200 mg arm suggest the adaptive immune response modulation translated to intestinal inflammation suppression, but no p-values and no placebo control limit confidence."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "CDAI responder rate of 44.4% in the prior placebo arm after switching to CZP maintenance is directionally supportive but without a concurrent control arm cannot be formally attributed to drug mechanism."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "CDAI responder rate of 60.0% in the prior CZP 400 mg arm is directionally supportive of mechanism-to-biology translation but lacks statistical confirmation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_200_mg",
+      "reasoning": "The highest CDAI response and remission rates in the arm with prior CZP exposure suggest intestinal inflammation suppression drives Crohn's disease activity, but the open-label uncontrolled design limits causal inference."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_placebo",
+      "reasoning": "Directional CDAI response in prior placebo arm after CZP initiation is consistent with inflammation suppression driving disease improvement, but uncontrolled design limits inference."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "czp_400_mg_czp_400_mg",
+      "reasoning": "Directional CDAI response in prior CZP 400 mg arm is consistent with inflammation suppression driving disease improvement, but uncontrolled design limits inference."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "CDAI responder rate was measured and shows directional signals (44.4-73.3% across arms), but without a concurrent placebo control and with no p-values, it is impossible to determine whether the endpoint captured true drug-attributable benefit vs. natural disease fluctuation or placebo response. The endpoint is a validated surrogate for Crohn's disease activity but the trial design prevents formal attribution."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "crohn_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "All enrolled patients had active Crohn's disease. Response rates varied by prior treatment history (44.4% vs 73.3% vs 60.0%) but no formal statistical comparison was made and the small sample sizes (n=9-16 per arm) preclude definitive conclusions about population-level response differences."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is an open-label extension study with no concurrent placebo arm, very small sample sizes (N=40 total), and no p-values reported. The primary endpoint met status is null. While CRP biomarker data supports target engagement, the clinical response rates cannot be formally attributed to drug effect vs. natural history or carryover placebo response from the main study. The trial design is fundamentally exploratory and the partial outcome classification reflects the absence of formal statistical confirmation rather than a mechanistic failure. Expert review is needed to determine whether this trial should be treated as providing meaningful efficacy evidence or primarily as a safety/tolerability extension study."
+}

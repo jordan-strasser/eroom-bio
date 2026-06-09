@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00886951",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The target engagement data explicitly states 'No uptake of the ligand observed in expected brain regions for amyloid.' The investigator commentary confirms 'There seemed to be no uptake of the ligand in the areas of the brain expected for subjects with amyloid.' This is direct evidence of failure at the target engagement step \u2014 the radioligands I123MNI388 and I123MNI390 did not bind to amyloid beta plaques in the brain as intended. This is the primary failure mode.\n\n2. PATHWAY MODULATION: Because the ligands failed to engage the target (no brain uptake), there was no downstream pathway modulation. The SPECT imaging could not detect amyloid plaques because the radioligand did not reach/bind the target.\n\n3. CLINICAL TRANSLATION: The primary endpoint \u2014 reliability of MNI 388/390 as a potential imaging biomarker for amyloid imaging \u2014 was not met. This directly follows from the failure of target engagement. No imaging signal means no biomarker reliability can be established.\n\n4. POPULATION EFFECTS: Only 2 subjects were enrolled. No subgroup analyses were reported or meaningful given the tiny sample size.\n\n5. CONFOUNDERS: The sample size of only 2 subjects is extremely small, but the failure here is mechanistic (no uptake) rather than statistical. The trial was essentially a feasibility/proof-of-concept study. The failure is clearly attributable to no target engagement rather than underpowering, since the imaging signal was absent entirely. There are no safety signals or dose-limiting toxicity issues reported. The dose was a single IV injection up to 5 mCi, which is a standard approach for SPECT radioligand studies. The failure is at the most fundamental level: the compound did not reach or bind its intended target in the brain.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.92,
+      "evidence": "Direct target engagement measurement showed 'No uptake of the ligand observed in expected brain regions for amyloid.' Investigator commentary confirms absence of signal in expected amyloid-bearing brain regions. The radioligands I123MNI388 and I123MNI390 failed to bind amyloid beta plaques as intended."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "i123mni388_i123mni390",
+      "target_entity": "UNKNOWN",
+      "support": "weak_contradict",
+      "affecting_arm_id": "access_i123mni388_i123mni390_and_brain_imaging",
+      "reasoning": "The trial directly measured target engagement via SPECT imaging and found no uptake in expected amyloid brain regions, providing explicit evidence that the compound did not engage its intended target (amyloid beta plaques). This is a direct non-binding observation, warranting a contradict signal on the affects edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:5354d379bc6e",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "access_i123mni388_i123mni390_and_brain_imaging",
+      "reasoning": "The radioligand binding mechanism failed to produce amyloid plaque detection via SPECT imaging because no uptake was observed. The mechanism (radioligand binding) did not affect the intended biology (amyloid plaque detection via imaging)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5354d379bc6e",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "access_i123mni388_i123mni390_and_brain_imaging",
+      "reasoning": "The failure of the imaging chain means no evidence was generated that amyloid plaque detection via SPECT imaging drives clinical utility in Alzheimer's disease in this context. The chain broke at target engagement, so this is a weak contradict signal for the downstream biology-drives-indication link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_determine_reliability_mni_388_390_potential",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (reliability of MNI 388/390 as imaging biomarker) was not met. No imaging signal was detected, meaning the endpoint could not capture any benefit in Alzheimer's disease. The endpoint itself is appropriate for the mechanism, but the compound failed to produce any signal, so the endpoint could not demonstrate clinical utility."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdr_high__modifiedhachinskiischemiascale_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this mild Alzheimer's disease population (CDR high, modified Hachinski low, mild severity), the imaging biomarker showed no uptake, indicating no response to the radioligand imaging approach. The population did not respond to the intervention, though the failure is primarily mechanistic (no target engagement) rather than population-specific."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial enrolled only 2 subjects, which is an extremely small sample. While the no-uptake finding is clear and mechanistically interpretable, it is possible that the failure reflects a formulation or delivery issue (e.g., poor CNS penetration, rapid clearance, or manufacturing quality of the radioligand) rather than a fundamental lack of binding affinity. The distinction between no_target_engagement and manufacturing_or_delivery failure modes is not fully resolvable from the available data. Expert review of the radioligand's physicochemical properties and CNS penetration data would help clarify whether this is a compound-intrinsic failure or a delivery/formulation issue."
+}

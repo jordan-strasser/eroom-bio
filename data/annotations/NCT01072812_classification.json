@@ -1,0 +1,44 @@
+{
+  "nct_id": "NCT01072812",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial's primary endpoint was PK/PD over 10 days, but the outcome is listed as 'unknown' with null effect size and p-value. No target engagement evidence was reported. 2. PATHWAY MODULATION: Cannot assess \u2014 no downstream biomarker data (APP levels, amyloid-beta, CSF markers) was reported. 3. CLINICAL TRANSLATION: Not applicable \u2014 the trial never reached a clinical efficacy endpoint. The primary endpoint was PK/PD, not a clinical outcome. 4. POPULATION EFFECTS: No subgroup findings reported. Sample size was only 5 subjects. 5. CONFOUNDERS: The investigator commentary explicitly states the trial was stopped for a 'business decision based on funding.' The trial enrolled only 5 subjects over 10 days with no reported results. This is a commercial/strategic termination before any meaningful readout. The trial was grossly underpowered (N=5) and terminated before the primary endpoint was reached, meaning the mechanism was never given a fair test. The primary failure mode is commercial_not_scientific, with underpowering as a contributing factor. Because the trial was terminated before any efficacy or PD readout was obtained, this is an operational failure \u2014 the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states: 'Business decision based on funding.' The trial was terminated with only 5 subjects enrolled and no reported PK/PD results."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Sample size of only 5 subjects is grossly insufficient for any meaningful PK/PD or efficacy analysis. Trial was terminated far below any reasonable enrollment target."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint outcome is 'unknown' with null effect size and null p-value. No biomarker changes, no safety signals, no PD data reported. The trial provides no usable efficacy or mechanistic readout."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_pharmacokinetics",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was PK/PD, which is a mechanistic/pharmacological measure rather than a clinical benefit endpoint. No results were reported due to early termination, so the endpoint's ability to capture disease benefit cannot be assessed. Ambiguous is appropriate given the endpoint is a surrogate/mechanistic measure with no readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdr_low__hamd17_low__mmse_high__severity_mild__wmsrlogicalmemoryii_low",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial was terminated before any primary endpoint readout with only 5 subjects. No population-level response data is available. Ambiguous is the only defensible bucket given the complete absence of efficacy data."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated for funding/business reasons with only 5 subjects and no reported PK/PD results. The mechanism (APP translation inhibition via ACHE/neurotransmitter clearance pathway) was never tested. The resolved causal chain maps posiphen tartrate to ACHE and neurotransmitter clearance, which may not accurately reflect the compound's claimed mechanism of APP translation inhibition \u2014 this discrepancy between the claimed target (APP translation/alpha-secretase) and the resolved graph entities (ACHE/neurotransmitter clearance) warrants expert review to confirm the correct mechanistic chain."
+}

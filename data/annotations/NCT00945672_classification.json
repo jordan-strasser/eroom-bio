@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00945672",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of peripheral target engagement. Plasma A-beta 1-x and A-beta 1-40 were markedly elevated in treated arms (>80,000\u2013150,000 pg/mL vs ~200\u20131500 pg/mL in placebo), consistent with peripheral sequestration of amyloid beta by the antibody. CSF PF-04360365 was detectable (60\u2013325 ng/mL), confirming CNS penetration. No anti-drug antibodies were detected. The drug clearly reached and bound its target (amyloid beta / APP-derived peptides). 2. PATHWAY MODULATION: Despite peripheral target engagement and CNS penetration, downstream biology did NOT move as predicted. PIB PET amyloid SUVR changes at Month 13 were numerically similar between PF-04360365 and placebo across all brain regions \u2014 no meaningful amyloid plaque clearance occurred. CSF A-beta changes were small and inconsistent. CSF tau and p-tau were not differentiated from placebo. The intended biology (amyloid plaque clearance) was not achieved despite the drug reaching the CNS. This is a classic 'target engaged, biology not moved' pattern \u2014 peripheral sequestration occurred but central plaque clearance did not. 3. CLINICAL TRANSLATION: Consistent with the failure of biology to move, clinical endpoints also failed. ADAS-cog at Month 18 (Cohort Q, 10 mg/kg): LS mean difference 8.18 favoring placebo, p=0.0534 (missed significance and trended in the wrong direction). ADAS-cog at Month 13 (Cohort M, 7.5 mg/kg): p=0.7486, no signal. MMSE at Month 13: non-significant in both cohorts. DAD changes also non-significant. 4. POPULATION EFFECTS: No subgroup analyses identified a responding population. The trial was small (N=36 total across two cohorts plus placebo), limiting subgroup power. No biomarker-defined responder subgroup was identified. 5. CONFOUNDERS: The trial was clearly underpowered (N=36 total, ~12 active per cohort) \u2014 this was a Phase 2 safety/PK/PD study not powered for cognitive endpoints. The primary endpoints were safety and PK/PD, not cognitive efficacy. The cognitive endpoints were exploratory. Safety was acceptable \u2014 AE rates were similar between treatment and placebo arms, SAE rates were not meaningfully elevated, no ARIA-E was observed, and micro-hemorrhage rates were equal. The primary failure mode is target_engaged_biology_not_moved: the drug bound amyloid beta peripherally and penetrated the CNS, but failed to clear amyloid plaques as measured by PIB PET. The underpowered nature of the trial for cognitive endpoints is a secondary factor. The trial was primarily a Phase 2 safety/PK/PD study, so the cognitive endpoint failures are exploratory and the study was not designed to detect cognitive benefit.",
+  "failure_modes": [
+    {
+      "mode": "target_engaged_biology_not_moved",
+      "confidence": 0.82,
+      "evidence": "Marked peripheral A-beta elevation confirms target engagement; CSF drug detectable confirms CNS penetration. However, PIB PET amyloid SUVR changes at Month 13 were numerically identical between PF-04360365 and placebo across all brain regions, indicating no amyloid plaque clearance. CSF A-beta, tau, and p-tau were not differentiated from placebo. The intended biology (amyloid plaque clearance) was not achieved."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Total N=36 across two active cohorts plus placebo (approximately 12 active per cohort, 6 placebo per cohort). This was a Phase 2 safety/PK/PD study not powered for cognitive endpoints. Cognitive endpoints (ADAS-cog, MMSE, DAD) were exploratory. The study was not designed to detect cognitive benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pf_04360365",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "pf_04360365_10_mg_kg",
+      "reasoning": "Marked elevation of plasma A-beta 1-x and A-beta 1-40 (>80,000\u2013150,000 pg/mL vs ~200\u20131500 pg/mL placebo) directly demonstrates peripheral binding of amyloid beta by PF-04360365. CSF drug detectable confirms CNS penetration. Per round-28 AFFECTS rule, confirmed target engagement warrants strong_support regardless of trial outcome."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pf_04360365",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "pf_04360365_7_5_mg_kg",
+      "reasoning": "Same target engagement evidence applies to the 7.5 mg/kg maintenance cohort \u2014 plasma A-beta markedly elevated throughout dosing period, CSF drug detectable. Per round-28 AFFECTS rule, confirmed target engagement warrants strong_support."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "R-HSA-8862803",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pf_04360365_10_mg_kg",
+      "reasoning": "Target was engaged (peripheral A-beta sequestration confirmed, CNS penetration confirmed) but the intended mechanism \u2014 amyloid plaque clearance via the CDK5/neurodegeneration pathway \u2014 did not activate. PIB PET SUVR changes were numerically identical to placebo. This is the target_engaged_biology_not_moved pattern: the target was hit but did not drive its intended mechanism. Per the modulates_via rule, this warrants moderate_contradict."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "R-HSA-8862803",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pf_04360365_7_5_mg_kg",
+      "reasoning": "Same pattern as 10 mg/kg arm \u2014 target engaged peripherally and CNS penetration confirmed, but PIB PET showed no amyloid plaque clearance and CSF biomarkers were not differentiated from placebo. Target hit but mechanism not activated."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "bio:7aa59236ec44",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pf_04360365_10_mg_kg",
+      "reasoning": "The mechanism (passive immunization / antibody binding of amyloid beta) failed to produce amyloid plaque clearance as measured by PIB PET SUVR. Despite CNS drug penetration, the mechanism did not translate to the intended biology. This is a clear mechanism_affects failure."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8862803",
+      "target_entity": "bio:7aa59236ec44",
+      "support": "moderate_contradict",
+      "affecting_arm_id": "pf_04360365_7_5_mg_kg",
+      "reasoning": "Same as 10 mg/kg arm \u2014 the mechanism failed to produce amyloid plaque clearance in the monthly dosing cohort. PIB PET SUVR changes were numerically similar to placebo."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7aa59236ec44",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pf_04360365_10_mg_kg",
+      "reasoning": "Amyloid plaque clearance was not achieved, and cognitive endpoints (ADAS-cog at Month 18, p=0.0534 favoring placebo) did not improve. However, since the biology itself did not move, this is an indirect signal about the biology_drives link. The trial is underpowered and the biology was not cleared, so this is weak_contradict rather than stronger."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7aa59236ec44",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pf_04360365_7_5_mg_kg",
+      "reasoning": "No amyloid plaque clearance and no cognitive benefit (ADAS-cog p=0.7486, MMSE p=0.5132). The biology did not move and clinical endpoints did not improve. Weak_contradict given the underpowered design and failure of biology to engage."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_treatment_emergent_adverse_events",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was safety/tolerability and PK/PD. Safety was acceptable with AE rates similar between treatment and placebo, no ARIA-E, and comparable micro-hemorrhage rates. However, this is a safety endpoint for a Phase 2 study \u2014 it captures tolerability but not clinical benefit in Alzheimer's disease. The endpoint was appropriate for the study phase but does not capture disease-level benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hachinskiischemiascore_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (mild to moderate AD with low Hachinski score) showed no response to PF-04360365 across cognitive endpoints (ADAS-cog, MMSE, DAD) in either dosing cohort. All p-values were non-significant (p=0.0534 to p=0.7486), with the 10 mg/kg arm trending in the wrong direction. The trial was underpowered, but the consistent lack of signal across both cohorts and multiple endpoints supports moderate_contradict for this population."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial was primarily a Phase 2 safety/PK/PD study not powered for cognitive endpoints. The cognitive endpoint failures are exploratory and should be interpreted cautiously. The key mechanistic finding \u2014 peripheral target engagement without central amyloid plaque clearance by PIB PET \u2014 is the most informative signal, but the PIB PET data is reported as 'outcome=unknown' in the structured extraction despite narrative description of no difference. Expert review is needed to confirm whether the PIB PET null result reflects a true biology failure or insufficient dosing/duration for plaque clearance, and to assess whether the peripheral sequestration mechanism (sink hypothesis) was adequately tested at these doses and schedules."
+}

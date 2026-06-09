@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT01324518",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Plasma trough concentrations were measured at week 12 and confirmed drug exposure in both arms (low dose 18.4 ng/ml, high dose 61.0 ng/ml vs placebo 0 ng/ml). This confirms the drug was absorbed and circulating, providing PK evidence of systemic exposure. However, no direct receptor occupancy or downstream receptor-level biomarker was reported to confirm alpha-2C adrenoceptor engagement specifically. The PK data is consistent with target engagement but does not directly confirm it.\n\n2. PATHWAY MODULATION: No pharmacodynamic biomarkers of downstream pathway modulation (e.g., changes in noradrenergic/dopaminergic neurotransmitter levels, cAMP signaling, or neuroimaging markers of prefrontal cortical activity) were reported. The intended mechanism \u2014 adenylate cyclase-activating GPCR signaling pathway modulation leading to enhanced cortical catecholaminergic neurotransmission \u2014 was not directly assessed.\n\n3. CLINICAL TRANSLATION: The primary endpoint results are reported as raw scores (Quality of Episodic Memory: low dose 100.7, high dose 85.0 vs placebo 46.3; Quality of Memory: low dose 216.53, high dose 196.37 vs placebo 117.15) that appear numerically higher in both treatment arms compared to placebo. However, all outcomes are classified as 'unknown' and no p-values are reported. Without statistical analysis, it is impossible to determine whether these numerical differences represent a statistically significant or clinically meaningful treatment effect. The primary endpoint is listed as 'None' for being met. This is a critical information gap \u2014 the trial appears to have generated data but the statistical analysis results are not available in this extraction.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The trial enrolled Alzheimer's disease patients (n=100, ~33 per arm), which is a relatively small sample for a cognitive endpoint trial in AD.\n\n5. CONFOUNDERS: The trial is small (n=100 total, ~33 per arm), which raises underpowering concerns for cognitive endpoints in AD. The 3-month duration may be insufficient to detect meaningful cognitive changes in AD. The adverse event profile appears relatively balanced (18/33 low dose, 21/33 high dose, 21/33 placebo), suggesting no dose-limiting toxicity issue. One SAE of cholestasis in the high dose arm is noted but does not appear to have driven trial termination or dose reductions. The key issue is that no p-values are reported, making the trial outcome genuinely ambiguous \u2014 the numerical effect sizes suggest possible benefit (treatment arms score higher than placebo on memory measures) but without statistical testing this cannot be confirmed. This is classified as 'partial' because there is suggestive numerical signal but no statistical confirmation, and the trial may have been underpowered.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "No p-values reported for any endpoint; all outcomes classified as 'unknown'. While numerical effect sizes are available and suggest possible benefit (treatment arms appear higher than placebo on memory measures), the absence of statistical analysis prevents definitive classification of success or failure."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.5,
+      "evidence": "Sample size of ~33 per arm is small for cognitive endpoints in Alzheimer's disease. Three-month duration may also be insufficient to detect meaningful cognitive changes. These factors together may have prevented detection of a true treatment effect even if one exists."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "orm_12741",
+      "target_entity": "ENSG00000184160",
+      "support": "weak_support",
+      "affecting_arm_id": "low_dose_of_orm_12741",
+      "reasoning": "PK data confirms systemic exposure (18.4 ng/ml trough at week 12) consistent with target engagement, but no direct receptor occupancy or downstream receptor-level biomarker was measured. Per round-28 AFFECTS rule, PK exposure is suggestive but not definitive evidence of receptor binding \u2014 weak_support rather than strong_support."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "orm_12741",
+      "target_entity": "ENSG00000184160",
+      "support": "weak_support",
+      "affecting_arm_id": "high_dose_of_orm_12741",
+      "reasoning": "PK data confirms systemic exposure (61.0 ng/ml trough at week 12) consistent with target engagement at higher dose, but no direct receptor occupancy biomarker was measured. Dose-dependent PK exposure is consistent with target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000184160",
+      "target_entity": "GO:0007189",
+      "support": "ambiguous",
+      "affecting_arm_id": "low_dose_of_orm_12741",
+      "reasoning": "No pharmacodynamic biomarker of adenylate cyclase-activating GPCR signaling pathway was measured. PK exposure is present but pathway modulation was not assessed. Per the modulates_via rule, this is genuinely equivocal \u2014 exposure was confirmed but pathway engagement was not measured, making this ambiguous rather than a no-record case (PK was measured and is relevant to engagement)."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000184160",
+      "target_entity": "GO:0007189",
+      "support": "ambiguous",
+      "affecting_arm_id": "high_dose_of_orm_12741",
+      "reasoning": "No pharmacodynamic biomarker of adenylate cyclase-activating GPCR signaling pathway was measured at the higher dose either. PK exposure confirmed but pathway modulation not assessed."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007189",
+      "target_entity": "bio:80f96d974409",
+      "support": "weak_contradict",
+      "affecting_arm_id": "low_dose_of_orm_12741",
+      "reasoning": "No pathway biomarker data available. Primary endpoint outcome is unknown with no p-values. Numerical scores appear higher in treatment vs placebo but without statistical confirmation. Per round-14 rules, a missed/unknown primary endpoint with no PD data warrants weak_contradict on mechanism_affects."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007189",
+      "target_entity": "bio:80f96d974409",
+      "support": "weak_contradict",
+      "affecting_arm_id": "high_dose_of_orm_12741",
+      "reasoning": "No pathway biomarker data available. Primary endpoint outcome is unknown with no p-values. Without statistical confirmation of cognitive benefit, the mechanism-to-biology link cannot be confirmed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:80f96d974409",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "low_dose_of_orm_12741",
+      "reasoning": "No confirmed statistical benefit on cognitive endpoints. The biology (enhanced cortical neurotransmitter release) driving Alzheimer's disease symptom improvement was not statistically confirmed. Numerical trends are suggestive but insufficient without p-values."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:80f96d974409",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "high_dose_of_orm_12741",
+      "reasoning": "No confirmed statistical benefit on cognitive endpoints at high dose either. The biology driving AD symptom improvement was not statistically confirmed."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_adverse_events",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint included both cognitive function (CDR battery) and adverse events. The safety endpoint was measured and AE rates were similar across arms (18/33 low, 21/33 high, 21/33 placebo), suggesting acceptable tolerability. However, the cognitive endpoints \u2014 the clinically meaningful component \u2014 lack statistical analysis, making the overall endpoint_captures assessment ambiguous. The safety endpoint alone does not capture clinical benefit in AD."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No subgroup analyses were reported. The overall population response is ambiguous due to absence of p-values. Numerical trends suggest possible benefit but cannot be confirmed statistically. The mild severity population's response to alpha-2C antagonism in AD remains uncertain from this trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial reports numerical effect sizes that appear to favor treatment over placebo on cognitive measures (e.g., Quality of Episodic Memory: low dose 100.7, high dose 85.0 vs placebo 46.3; Quality of Memory: low dose 216.53, high dose 196.37 vs placebo 117.15), but no p-values or statistical analyses are available in this extraction. It is unclear whether the trial was completed and results are simply not reported here, or whether the trial was terminated early. The absence of statistical analysis prevents definitive classification. Expert review is needed to determine: (1) whether full statistical results exist but were not captured in this extraction, (2) whether the numerical differences are statistically significant, and (3) whether the trial was adequately powered. The CDR battery scores appear to be composite measures and their clinical interpretation requires domain expertise."
+}

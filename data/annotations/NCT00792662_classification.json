@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00792662",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No subjects were enrolled in this trial ('No Subjects enrolled' per investigator commentary). Therefore, there is no evidence of target engagement \u2014 methylphenidate never reached any patient, let alone its intended targets (DAT/NET). 2. PATHWAY MODULATION: Not assessable \u2014 no subjects enrolled, no PD/PK data, no biomarker data. 3. CLINICAL TRANSLATION: Not assessable \u2014 primary endpoint (HbA1c at 16 weeks) was never measured. Effect size and p-value are both null. 4. POPULATION EFFECTS: Not assessable \u2014 no subjects enrolled, no subgroup data. 5. CONFOUNDERS: The trial failed entirely due to a recruitment/accrual failure \u2014 zero subjects were enrolled. This is a pure operational failure: the mechanism was never tested. The trial provides no usable efficacy or safety readout. The failure mode is commercial_not_scientific or insufficient_information due to complete failure to accrue. Given the explicit statement 'No Subjects enrolled,' this is classified as insufficient_information with operational_failure=true. The causal chain was never tested, so no mechanistic inference can be drawn. Per the rules, since the primary endpoint was never reached (trial terminated before any readout), endpoint_captures and responds_differently should still be emitted per round-16 rules, but given zero enrollment and no efficacy readout, these are ambiguous at best.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.95,
+      "evidence": "Investigator commentary explicitly states 'No Subjects enrolled.' Sample size is 0. Primary endpoint result is null. Effect size and p-value are null. The trial was terminated before any efficacy readout was obtained."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hemoglobin_a1c_marker_glycemic_control",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial was terminated before any subjects were enrolled, so the endpoint was never measured. No information about whether HbA1c captures benefit in this indication can be drawn from this trial. Ambiguous is appropriate as there is no usable readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "aes_high__hba1c_high__mmse_low__severity_moderate",
+      "target_entity": "diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Zero subjects were enrolled; no population-level response data is available. The trial provides no evidence about whether this population responds differently to methylphenidate for glycemic control."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated with zero subjects enrolled. No mechanistic, pharmacodynamic, or clinical data was generated. The causal chain was never tested. Expert review is warranted to determine whether the recruitment failure was due to scientific, logistical, or commercial reasons, and whether the underlying hypothesis (methylphenidate improving glycemic control via increased physical activity in diabetic dementia patients with apathy) warrants further investigation in a properly conducted trial."
+}

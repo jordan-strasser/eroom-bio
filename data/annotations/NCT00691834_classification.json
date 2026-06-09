@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00691834",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial never received IRB approval and was never pursued, meaning no patients were enrolled and no data was collected. There is no evidence of target engagement. 2. PATHWAY MODULATION: With no enrollment and no data, there is no evidence of downstream biological changes (cellular engraftment, paracrine signaling, myocardial regeneration). 3. CLINICAL TRANSLATION: The primary endpoint (change in LVEF at 90 days; arrhythmia, heart failure, death at 1 year) was never measured. Primary endpoint met is null, effect size is null, p-value is null. 4. POPULATION EFFECTS: No subgroup analyses were conducted. 5. CONFOUNDERS: The investigator commentary explicitly states 'Study never received IRB approval. Study was never pursued.' This is a clear administrative/regulatory termination before any trial conduct occurred. The trial was stopped for operational/regulatory reasons entirely independent of the scientific mechanism. Sample size is 0. This is a classic operational failure \u2014 the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Investigator commentary states 'Study never received IRB approval. Study was never pursued.' The trial was terminated before enrollment due to regulatory/administrative failure, not scientific or mechanistic reasons. No patients were enrolled (sample size = 0), no data was collected, and no efficacy or safety readout was obtained."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "The trial provides no usable efficacy or safety readout. It was terminated before the primary endpoint was reached, with zero patients enrolled. Primary endpoint met, effect size, and p-value are all null. No biomarker, PD, or clinical data exists."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_difference_left_ventricular_ejection_fraction",
+      "target_entity": "acute_myocardial_infarction",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The endpoint was pre-specified (LVEF change at 90 days plus safety events at 1 year) and is a clinically relevant measure for acute MI with heart failure. However, the trial never generated any data, so the endpoint's ability to capture benefit in this indication cannot be assessed from this trial. Ambiguous is appropriate given zero data."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ejectionfraction_low",
+      "target_entity": "acute_myocardial_infarction",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled zero patients and generated no outcome data. No inference about whether this population responds differently to intracoronary bone marrow cell therapy can be drawn. Ambiguous is the only defensible bucket."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial never received IRB approval and was never conducted (sample size = 0, no data collected). This is a pure operational/regulatory failure with no scientific readout whatsoever. The causal chain was never tested. Expert review is warranted to confirm whether this trial should be excluded from evidence synthesis entirely, as it contributes no mechanistic information about intracoronary bone marrow cell therapy for acute MI."
+}

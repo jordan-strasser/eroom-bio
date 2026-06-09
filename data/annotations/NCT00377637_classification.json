@@ -1,0 +1,111 @@
+{
+  "nct_id": "NCT00377637",
+  "trial_outcome": "partial",
+  "reasoning": "This trial had two phases with distinct outcomes, requiring separate causal chain analysis.\n\n1. TARGET ENGAGEMENT: No direct PD/PK biomarker data confirming IMPDH inhibition by MMF is reported. However, biomarker changes (serum creatinine, urine protein, albumin) reflect downstream renal biology. The induction phase showed similar renal biomarker improvements in both MMF and IVC arms (urine protein: -2510.6 vs -2513.7 mg/day), suggesting both drugs engaged their respective targets sufficiently to produce biological effects. No explicit target engagement data for IMPDH is provided.\n\n2. PATHWAY MODULATION: The biomarker data shows renal function improvement in both induction arms, suggesting lymphocyte suppression (the intended biology) was occurring in both arms. The similar magnitude of renal biomarker improvement between MMF and IVC induction arms indicates the biology was moved comparably by both agents.\n\n3. CLINICAL TRANSLATION (Induction): Despite biological activity (renal biomarker improvement), the induction phase primary endpoint (treatment response at 24 weeks) was not met for MMF vs IVC (104 vs 98 responders, p=0.478). This is a non-inferiority/superiority comparison where MMF failed to demonstrate superiority over IVC. Both arms showed similar response rates (~56% each), suggesting the endpoint was met by both but the comparison was non-significant \u2014 this is more a 'no difference' finding than a failure of MMF per se. The induction phase was designed to show MMF superiority or non-inferiority to IVC; the result was equivalence without statistical significance for superiority.\n\n4. CLINICAL TRANSLATION (Maintenance): The maintenance phase primary endpoint was clearly met: MMF showed superior treatment-failure-free survival vs azathioprine (81.7% vs 58.6%, p=0.003). Secondary endpoints (renal flare-free survival, rescue-therapy-free survival, ESRD events, creatinine doubling, deaths) all favored MMF. This is a robust positive result.\n\n5. POPULATION EFFECTS: The trial enrolled patients with active lupus nephritis. No biomarker-defined subgroup analyses are reported. The maintenance phase success suggests the population was appropriate for MMF's mechanism in the maintenance setting.\n\n6. CONFOUNDERS: The induction phase 'failure' is nuanced \u2014 both arms showed similar response rates (~56%), suggesting the trial may have been designed to show superiority but was underpowered to detect a difference of this magnitude, or MMF is genuinely equivalent to IVC for induction. The overall trial outcome is 'partial' because one phase succeeded (maintenance) and one failed to show superiority (induction). Safety was broadly comparable with no dose-limiting toxicity pattern.\n\nOverall: The trial is classified as 'partial' \u2014 MMF succeeded in the maintenance phase (strong positive result vs AZA) but failed to demonstrate superiority over IVC in the induction phase. The induction failure is likely due to genuine equivalence between MMF and IVC rather than a mechanistic failure of MMF, as both arms showed similar biological and clinical responses.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "Induction phase: 104 MMF responders vs 98 IVC responders (p=0.478). The similar response rates (~56% each) suggest the trial may have been underpowered to detect a small difference, or the drugs are genuinely equivalent. The non-significant p-value with similar effect sizes is consistent with insufficient power to detect equivalence or small superiority."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.35,
+      "evidence": "Induction phase: renal biomarkers improved in both arms (urine protein reduction ~2510 mg/day in both), indicating biological activity, but the primary endpoint comparison between MMF and IVC was non-significant (p=0.478). However, this is more a 'no difference between active treatments' finding than a true biology-moved-endpoint-flat failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bc8e254260d",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "maintenance_phase_mycophenolate_mofetil",
+      "reasoning": "MMF maintenance arm showed strong superiority over AZA (81.7% vs 58.6% treatment-failure-free survival, p=0.003), with consistent secondary endpoint support (renal flare, rescue therapy, ESRD, creatinine doubling). T-cell mediated immune suppression driving lupus nephritis biology is supported."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bc8e254260d",
+      "target_entity": "lupus_nephritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "induction_phase_mycophenolate_mofetil",
+      "reasoning": "Induction phase failed to show superiority of MMF over IVC (p=0.478). Both arms showed similar response rates, providing weak contradict signal for the MMF-specific chain in induction, though both arms showed biological activity."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "lupus_nephritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "induction_phase_cyclophosphamide",
+      "reasoning": "Induction phase cyclophosphamide arm also failed to show superiority (p=0.478 comparison), though both arms showed similar response rates. The comparison was non-significant, providing weak contradict for the cyclophosphamide chain's superiority claim."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1bc8e254260d",
+      "target_entity": "lupus_nephritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "maintenance_phase_azathioprine",
+      "reasoning": "Azathioprine maintenance arm failed vs MMF (58.6% vs 81.7%, p=0.003), indicating the azathioprine-mediated T-cell suppression chain was less effective than MMF in maintaining remission."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6798695",
+      "target_entity": "bio:1bc8e254260d",
+      "support": "moderate_support",
+      "affecting_arm_id": "maintenance_phase_mycophenolate_mofetil",
+      "reasoning": "MMF maintenance success (p=0.003) supports that IMPDH inhibition leading to T-cell mediated immune suppression is mechanistically active and clinically relevant in lupus nephritis maintenance."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6798695",
+      "target_entity": "bio:1bc8e254260d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "induction_phase_mycophenolate_mofetil",
+      "reasoning": "Induction phase failure to show superiority over IVC provides weak contradict for the MMF mechanism chain in the induction setting, though both arms showed similar biological activity."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-73817",
+      "target_entity": "bio:1bc8e254260d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "maintenance_phase_azathioprine",
+      "reasoning": "Azathioprine maintenance arm failed vs MMF, suggesting azathioprine's purine synthesis inhibition mechanism is less effective than MMF's IMPDH inhibition for maintaining T-cell suppression in lupus nephritis."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "induction_phase_cyclophosphamide",
+      "reasoning": "Cyclophosphamide induction arm showed similar response rate to MMF (98 vs 104 responders, p=0.478), with no superiority demonstrated. Weak contradict for the cyclophosphamide DNA damage mechanism chain in this comparison."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0c3298be64d8",
+      "target_entity": "lupus_nephritis",
+      "support": "weak_support",
+      "affecting_arm_id": "maintenance_phase_mycophenolate_mofetil",
+      "reasoning": "Corticosteroid co-administration in the successful MMF maintenance arm provides weak support for broad immunosuppression biology driving lupus nephritis, though the corticosteroid contribution cannot be isolated from MMF's effect."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR",
+      "target_entity": "lupus_nephritis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The treatment response endpoint at 24 weeks (induction) showed similar rates in both arms (~56%) with p=0.478, making it ambiguous as a discriminating endpoint. The maintenance endpoint (treatment-failure-free survival) was more informative and showed a clear difference. The ORR-type endpoint in induction did not discriminate between active treatments."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The maintenance phase showed a strong positive result (p=0.003) for MMF vs AZA in patients with active lupus nephritis who completed induction, supporting that this population responds to MMF-based maintenance. The induction phase showed equivalent response in both arms (~56%), indicating the active lupus nephritis population responds to immunosuppressive induction therapy generally."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial has a complex two-phase design with divergent outcomes: induction phase failed to show MMF superiority over IVC (p=0.478, both arms ~56% response), while maintenance phase showed clear MMF superiority over AZA (p=0.003). The induction 'failure' is ambiguous \u2014 it may reflect genuine equivalence between MMF and IVC rather than a mechanistic failure of MMF. The resolved graph entities map MMF to 'islet_cell_transplantation' as the compound id, which appears to be a data quality issue (MMF is not islet cell transplantation). Additionally, the endpoint id 'ORR' may not perfectly capture the 'treatment response at 24 weeks' or 'treatment-failure-free survival' endpoints used in this trial. Expert review is needed to assess whether the induction phase non-inferiority design was adequately powered and whether the partial outcome classification is appropriate given the two-phase structure."
+}

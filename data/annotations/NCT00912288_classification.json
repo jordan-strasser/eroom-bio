@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00912288",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that Dimebon engaged its claimed targets (mitochondria, NMDA receptor, histamine receptor). The mechanism of action for Dimebon was already considered weak/uncertain at the time of the trial, and no target engagement evidence was collected or reported. Per the round-28 AFFECTS rule, without direct target engagement evidence, no affects record should be emitted.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers were measured or reported. There is no evidence that mitochondrial stabilization, NMDA antagonism, or histamine receptor modulation occurred. The biology (neuronal survival and cognitive preservation) cannot be confirmed as having been modulated.\n\n3. CLINICAL TRANSLATION: Both primary endpoints (SIB score change and ADCS-ADLsev score change at Week 26) failed. No effect sizes or p-values are reported, suggesting the results were either null or not meaningfully different from placebo. The trial was terminated early after enrolling only 86 of a planned larger sample, which raises underpowering concerns.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population was moderate-to-severe Alzheimer's disease patients, which is a reasonable target for cognitive/functional endpoints, but no differential response was identified.\n\n5. CONFOUNDERS: The trial was terminated early (86 enrolled vs. a planned larger sample), which introduces underpowering as a significant confounder. The small sample size (44 dimebon vs. 42 placebo) substantially limits statistical power to detect a treatment effect. Additionally, the rationale strength was rated 'weak' \u2014 Dimebon's mechanism was poorly characterized and its efficacy in a prior Russian trial (which motivated this program) was not replicated in larger Western trials. The AE profile shows higher overall AE rate in the dimebon arm (61% vs. 43%) but the SAEs are scattered and not clearly dose-limiting \u2014 no dose reductions or MTD issues are documented. The primary failure modes are underpowering due to early termination and likely wrong/weak mechanism (the drug's mechanism was never well-established). Given the early termination and small N, operational_failure is set to true as the mechanism was not given a fair test.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Trial enrolled only 86 of a planned larger sample before early termination. With 44 dimebon and 42 placebo participants, the study was substantially underpowered to detect a clinically meaningful difference on SIB and ADCS-ADLsev endpoints. No effect sizes or p-values are reported, consistent with a null or inconclusive result in a small sample."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "Dimebon's prior positive signal was in mild-to-moderate AD (Russian trial); this trial targeted moderate-to-severe AD. The mechanism of neuroprotection via mitochondrial stabilization may be less relevant in advanced disease where neurodegeneration is already extensive. However, this is speculative given no biomarker data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:745412c6478c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dimebon",
+      "reasoning": "Both primary endpoints failed with no biomarker evidence of pathway modulation. The mechanism (mitochondrial stabilization and receptor antagonism) did not translate to measurable neuronal survival or cognitive preservation in this population. However, the trial was underpowered and terminated early, so the contradict signal is weak rather than moderate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:745412c6478c",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "dimebon",
+      "reasoning": "The biology of neuronal survival and cognitive preservation did not translate to clinical benefit on SIB or ADCS-ADLsev endpoints. However, the trial was underpowered and terminated early, limiting the strength of this contradict signal."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_severe_impairment_battery_sib_score_week_26",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The SIB is a validated and accepted endpoint for moderate-to-severe Alzheimer's disease, but the trial was terminated early and underpowered, so the endpoint's failure to show benefit cannot be cleanly attributed to the endpoint's inadequacy vs. the drug's lack of efficacy. The endpoint itself is appropriate for this indication, but the trial's early termination means we cannot fully assess whether the endpoint would have captured a real effect."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__mmse_low__severity_moderate",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The moderate-to-severe Alzheimer's disease population did not respond to Dimebon treatment on either primary endpoint. The trial was underpowered and terminated early, limiting confidence, but the directional signal is negative for this population subgroup."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early after enrolling only 86 of a planned larger sample, making it substantially underpowered. No effect sizes or p-values are reported, making it difficult to distinguish a true null result from an inconclusive one due to insufficient power. Additionally, Dimebon's mechanism of action was poorly characterized (multiple claimed targets: mitochondria, NMDA receptor, histamine receptor), and the rationale strength was rated 'weak.' The relationship between early termination and the failure classification warrants expert review to determine whether this should be classified primarily as operational failure (underpowered/terminated) or as a true mechanistic failure consistent with the broader Dimebon development program failures."
+}

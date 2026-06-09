@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT00391846",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This trial tests a biomarker-guided treatment strategy (NT-proBNP-guided titration) rather than a single drug. The 'target engagement' question here is whether NT-proBNP levels were actually modulated differently between arms. The data shows NT-proBNP geometric mean at 9 months was 2332.1 ng/L in the guided arm vs. 2063 ng/L in the not-guided arm \u2014 paradoxically, the guided arm had HIGHER NT-proBNP levels, suggesting the biomarker-guided strategy did not achieve superior neurohormonal suppression compared to clinical guidance alone. This is a critical finding: the strategy intended to optimize therapy to lower NT-proBNP did not result in lower NT-proBNP levels. 2. PATHWAY MODULATION: Both arms received the same classes of medications (ACE inhibitors, beta-blockers, MRAs, diuretics). The titration steps were similar (517 guided vs. 485 not-guided), suggesting the NT-proBNP guidance did not meaningfully change the intensity of therapy. The underlying neurohormonal blockade biology was presumably engaged in both arms similarly, as both received guideline-directed medical therapy. 3. CLINICAL TRANSLATION: The primary composite endpoint (rank score of CV death, CV hospitalization days, KCCQ symptoms at 9 months) was not met. The guided arm had a mean rank score of 118.6 vs. 128.4 in the not-guided arm (lower score = worse outcome), meaning the guided arm actually trended numerically worse, though no p-value was reported suggesting the difference was not statistically significant. The clinical endpoint did not improve with NT-proBNP guidance. 4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population was heart failure patients with LV dysfunction and elevated NT-proBNP (functional class II, low LVEF, high NT-proBNP) \u2014 a reasonable population for this strategy. 5. CONFOUNDERS: The trial was relatively small (N=252) and may have been underpowered to detect a modest difference in the composite endpoint. The 9-month duration may have been insufficient. Importantly, the control arm also received active guideline-directed therapy, creating a high-quality comparator that may have compressed the detectable treatment effect. The failure appears primarily to reflect that NT-proBNP-guided titration did not produce meaningfully different therapy intensification compared to clinical guidance alone in this population and timeframe \u2014 the strategy failed to differentiate the two arms in terms of actual treatment delivered or NT-proBNP achieved.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Both arms received active neurohormonal blockade therapy; NT-proBNP levels were measured but the guided arm paradoxically had higher NT-proBNP at 9 months (2332 vs 2063 ng/L), suggesting the biomarker-guided strategy did not achieve superior biological modulation. The composite clinical endpoint was not met."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "N=252 total (127 guided, 125 not-guided) is a relatively small sample for a composite endpoint trial in heart failure. No p-value was reported, and the numerical difference in rank scores (118.6 vs 128.4) was small. The trial may have lacked power to detect a clinically meaningful difference."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.3,
+      "evidence": "The NT-proBNP-guided strategy may require a population with more room for therapy optimization. If patients were already near-optimally treated at baseline, NT-proBNP guidance adds little incremental value over clinical assessment."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:13e632992f59",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "The NT-proBNP-guided arm failed to improve the composite clinical endpoint despite neurohormonal blockade therapy, providing weak contradict evidence that optimizing neurohormonal modulation/cardiac afterload reduction via biomarker guidance translates to clinical benefit in this population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:72bd2cf7fa56",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Sympathetic nervous system inhibition via beta-blockade, when titrated by NT-proBNP guidance, did not produce superior clinical outcomes vs. clinical guidance alone."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:05c8caa786eb",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Aldosterone blockade guided by NT-proBNP did not produce superior clinical outcomes vs. clinical guidance alone."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:57f4f5c49b82",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Decongestion via diuretics guided by NT-proBNP did not produce superior clinical outcomes vs. clinical guidance alone."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038166",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Angiotensin-activated signaling pathway modulation via ACE inhibition, when NT-proBNP-guided, did not translate to superior clinical outcomes, providing weak contradict evidence for this mechanism-biology link in the guided strategy context."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0010468",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Regulation of gene expression via ACE inhibition, when NT-proBNP-guided, did not translate to superior clinical outcomes."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0001996",
+      "target_entity": "bio:72bd2cf7fa56",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Beta-adrenergic regulation of heart rate, when NT-proBNP-guided, did not translate to superior clinical outcomes."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375276",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Peptide ligand-binding receptor modulation (ARBs) guided by NT-proBNP did not translate to superior clinical outcomes."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:13e632992f59",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "MRA-mediated intracellular receptor modulation guided by NT-proBNP did not translate to superior clinical outcomes."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:05c8caa786eb",
+      "support": "weak_contradict",
+      "affecting_arm_id": "guided_by_nt_probnp",
+      "reasoning": "Aldosterone antagonism guided by NT-proBNP did not translate to superior clinical outcomes."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "heart_failure",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The composite rank score (CV death, CV hospitalization days, KCCQ symptoms) is a clinically meaningful endpoint for heart failure, but no p-value was reported and the numerical difference was small. The endpoint's ability to capture the incremental benefit of biomarker-guided therapy over clinical guidance is uncertain \u2014 the endpoint may be valid for heart failure generally but may not be sensitive enough to detect the marginal benefit of a guidance strategy in an already well-treated population."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii__lvef_low__ntprobnp_high",
+      "target_entity": "heart_failure",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Heart failure patients with functional class II, low LVEF, and high NT-proBNP did not respond differently (better) to NT-proBNP-guided therapy vs. clinical guidance alone. The primary endpoint was not met and no p-value was reported, with the guided arm numerically trending worse."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial tests a biomarker-guided treatment strategy rather than a single drug, making the causal chain analysis non-standard. The paradoxical finding that the NT-proBNP-guided arm had higher NT-proBNP levels at 9 months than the control arm is clinically important and may indicate that the guidance algorithm led to more aggressive therapy that paradoxically worsened congestion, or that the strategy was not implemented as intended. No p-value was reported for the primary endpoint, making statistical interpretation difficult. The trial is also relatively small and the composite endpoint methodology (non-parametric rank score) is complex. Expert review is needed to assess whether the failure reflects the guidance strategy itself, the underlying biology, or trial design limitations."
+}

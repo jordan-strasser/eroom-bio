@@ -1,0 +1,79 @@
+{
+  "nct_id": "NCT00498602",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement in ACC-001+QS-21 arms. Anti-A\u03b2 IgG GMTs rose from baseline ~50 U/mL to ~7642 U/mL at Week 56 for the 30 \u03bcg+QS-21 arm (arm_id=1), demonstrating robust immunological response. ACC-001 alone (arm_id=4) produced modest but above-baseline responses (463.7 U/mL). QS-21 alone (arm_id=2) produced no antibody response (50 U/mL, flat). This confirms ACC-001+QS-21 successfully engaged the amyloid-beta target via active immunization.\n\n2. PATHWAY MODULATION: The downstream biology (amyloid plaque clearance) was not directly measured in this trial \u2014 no amyloid PET imaging or CSF biomarkers were reported. The antibody induction is a necessary but not sufficient step; whether these antibodies translated to amyloid clearance is unknown from this trial's data. This is a Phase 2 safety/immunogenicity study, not powered for clinical or amyloid-clearance endpoints.\n\n3. CLINICAL TRANSLATION: The primary endpoint was a safety endpoint (percentage of participants with treatment-emergent AEs or SAEs). This was not a traditional efficacy trial. The primary endpoint result is reported as 83.3% AE rate, but no formal statistical comparison or pass/fail determination is provided (p-value=null, primary_endpoint_met=null). The trial appears to be a safety/immunogenicity characterization study. No cognitive or functional endpoints were assessed.\n\n4. POPULATION EFFECTS: The ACC-001+QS-21 combination showed dose-dependent antibody responses, with 30 \u03bcg+QS-21 producing the highest titers. ACC-001 alone produced modest responses. QS-21 alone produced no response, confirming the adjuvant role of QS-21. Safety signals (vasogenic cerebral oedema, convulsion, cerebrovascular accident) were observed in active arms, particularly the ACC 30 \u03bcg alone arm (41.7% SAE rate), though overall SAE rates were comparable between treatment (16.7%) and control (17.6%) when aggregated.\n\n5. CONFOUNDERS: This is primarily a safety/immunogenicity Phase 2 trial, not powered for efficacy. The primary endpoint is safety, not clinical benefit. The trial successfully demonstrated immunogenicity of ACC-001+QS-21 but could not assess whether antibody induction translates to clinical benefit. The high SAE rate in the ACC 30 \u03bcg alone arm (41.7%) is notable but may reflect the underlying disease population (mild-to-moderate AD). The overall SAE rates between treatment and control are comparable (16.7% vs 17.6%), suggesting the safety profile is acceptable at the aggregate level, though individual serious events (vasogenic oedema, CVA) warrant attention. The trial is classified as 'partial' because it successfully demonstrated target engagement (immunogenicity) but did not assess downstream clinical efficacy, and the primary safety endpoint lacked a formal statistical determination.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "The primary endpoint was safety/AE incidence with no formal statistical comparison reported (p-value=null, primary_endpoint_met=null). No cognitive or amyloid-clearance endpoints were assessed. The trial was designed as a safety/immunogenicity study and cannot speak to whether the mechanism translates to clinical benefit in Alzheimer's disease."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "Anti-A\u03b2 IgG antibodies were robustly induced (target engagement confirmed), but no downstream amyloid clearance or cognitive endpoints were measured, so whether the biology (amyloid plaque clearance) moved in response to antibody induction is unknown. The trial design did not test the full causal chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "acc_001_qs_21",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "1",
+      "reasoning": "ACC-001+QS-21 (arm 1) produced robust anti-A\u03b2 IgG GMTs up to ~7642 U/mL at Week 56, directly demonstrating target engagement against amyloid-beta via active immunization. Per round-28 AFFECTS rule, confirmed target engagement warrants strong_support regardless of clinical outcome."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "acc_001",
+      "target_entity": "ENSG00000142192",
+      "support": "weak_support",
+      "affecting_arm_id": "4",
+      "reasoning": "ACC-001 alone (arm 4) produced modest but above-baseline anti-A\u03b2 IgG GMTs (463.7 U/mL at Week 56 for 30 \u03bcg), indicating partial target engagement without adjuvant. This is directionally positive but substantially weaker than the combination arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:7aa59236ec44",
+      "support": "ambiguous",
+      "affecting_arm_id": "1",
+      "reasoning": "While antibody induction was confirmed in ACC-001+QS-21 arms, no amyloid plaque clearance or amyloid burden biomarkers (PET, CSF) were measured. Whether the induced antibodies translated to amyloid clearance biology is unknown from this trial."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:1904646",
+      "target_entity": "bio:7aa59236ec44",
+      "support": "ambiguous",
+      "affecting_arm_id": "4",
+      "reasoning": "ACC-001 alone induced modest antibody responses, but no amyloid clearance biomarkers were measured. The cellular response to amyloid-beta pathway engagement cannot be confirmed or refuted from this safety/immunogenicity trial."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7aa59236ec44",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": "1",
+      "reasoning": "No clinical efficacy endpoints (cognitive function, disease progression) were assessed in this safety/immunogenicity trial. The link between amyloid plaque clearance and Alzheimer's disease clinical benefit cannot be evaluated from this trial's data."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_treatment_emergent_aes_serious",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/AE incidence measure, not a clinical efficacy endpoint. It captures safety tolerability but does not capture clinical benefit in Alzheimer's disease. No formal statistical comparison was reported (p-value=null). The endpoint is appropriate for a Phase 2 safety study but does not speak to disease-level benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled mild-to-moderate AD patients and demonstrated immunogenicity of ACC-001+QS-21, but no clinical efficacy endpoints were assessed. Whether this population responds differently in terms of clinical benefit cannot be determined from this safety/immunogenicity trial."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial was a safety/immunogenicity Phase 2 study with a safety primary endpoint and no formal statistical comparison reported (primary_endpoint_met=null, p-value=null). The trial successfully demonstrated robust antibody induction with ACC-001+QS-21 but did not assess amyloid clearance or cognitive endpoints. Expert review is needed to: (1) confirm whether the trial should be classified as 'partial' success (immunogenicity achieved) or 'insufficient_information' for the full causal chain; (2) assess whether the vasogenic cerebral oedema and CVA signals represent meaningful safety concerns that would affect dose selection in subsequent trials; (3) evaluate whether the ACC 30 \u03bcg alone arm's 41.7% SAE rate reflects drug toxicity or underlying disease burden in this population."
+}

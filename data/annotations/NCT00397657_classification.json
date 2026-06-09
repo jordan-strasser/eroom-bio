@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00397657",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is reported for either arm. There is no direct evidence of target engagement for either extended release niacin (HCAR2 agonism) or ezetimibe (NPC1L1 inhibition). However, both compounds have well-established pharmacological mechanisms and the doses used (niacin 1000-2000 mg, ezetimibe 10 mg) are standard therapeutic doses known to produce lipid changes. The absence of reported lipid biomarker data is a reporting gap, not evidence of non-engagement.\n\n2. PATHWAY MODULATION: No biomarker changes are reported. We cannot assess whether HDL elevation (niacin arm) or LDL reduction (ezetimibe arm) occurred. The trial was stopped early by the independent steering committee based on a prespecified blinded interim analysis, not for safety reasons. This suggests the interim analysis showed futility or lack of differentiation between arms.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change in carotid intima-media thickness between groups after 14 months) was not met. No effect size or p-value is reported, consistent with early termination at interim analysis. The trial was a head-to-head comparison of niacin+ezetimibe combo vs ezetimibe monotherapy, so the question was whether adding niacin to ezetimibe provided additional benefit on CIMT. The failure to show a between-group difference could reflect: (a) niacin not providing additional CIMT benefit beyond ezetimibe, (b) both arms performing similarly on CIMT, or (c) CIMT being an insensitive endpoint for this comparison over 14 months.\n\n4. POPULATION EFFECTS: No subgroup findings are reported. The population was enriched for cardiovascular risk (high coronary calcium score, high Framingham risk, low HDL, low LDL).\n\n5. CONFOUNDERS: The trial was stopped early at interim analysis for futility (not safety). This is an operational issue \u2014 the trial was terminated before the primary endpoint was fully measured, meaning the mechanism was not given a complete fair test. The early termination means we have no final efficacy readout with numeric results. This is a commercial/scientific decision based on interim futility. The 14-month duration may also be insufficient to detect CIMT changes. The comparison was niacin+ezetimibe vs ezetimibe alone, so the question was specifically about the incremental benefit of niacin \u2014 this is a narrow mechanistic question. The ARBITER 6-HALTS trial context is relevant here: niacin was shown to be superior to ezetimibe on CIMT in that trial, but this trial appears to be testing a different hypothesis (niacin+ezetimibe combo vs ezetimibe alone). The early termination for futility at interim analysis, with no numeric results reported, places this in the insufficient_information category for mechanistic inference, though the stopping decision itself is informative.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.65,
+      "evidence": "Trial was stopped early by independent steering committee based on prespecified blinded interim analysis. No effect size, p-value, or biomarker data reported. Per-arm outcomes are listed as 'unknown'. The primary endpoint was not reached with a full dataset, making mechanistic inference unreliable."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.35,
+      "evidence": "14 months may be insufficient to detect meaningful CIMT changes, particularly in a population already on background lipid therapy. CIMT trials typically require 2+ years for robust signal detection."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_primary_endpoint_carotid_intima_media_thickness",
+      "target_entity": "atherosclerosis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "CIMT is a validated surrogate endpoint for atherosclerosis progression, but the trial was stopped early at interim analysis with no numeric results reported. The endpoint's ability to capture benefit in this specific comparison (niacin+ezetimibe vs ezetimibe) cannot be assessed from the available data. CIMT is generally accepted as a surrogate but has shown inconsistent translation to clinical outcomes in lipid-modifying trials."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "coronarycalciumscore_high__framinghamriskscore_high__hdl_low__ldl_low",
+      "target_entity": "atherosclerosis",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial was stopped early at interim analysis with no numeric efficacy results reported. Cannot determine whether this high-risk population responded to either intervention on CIMT. The stopping for futility suggests the population did not show differential response between arms, but without numeric data this remains ambiguous."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-3296197",
+      "target_entity": "bio:3232e05dd638",
+      "support": "weak_contradict",
+      "affecting_arm_id": "extended_release_niacin",
+      "reasoning": "The trial was stopped for futility at interim analysis, suggesting niacin's mechanism (HCAR2 agonism via hydroxycarboxylic acid receptor signaling) did not provide incremental benefit on atherosclerotic plaque regression beyond ezetimibe alone. No biomarker data available to confirm or refute mechanism engagement, but the futility stopping is directionally negative for this mechanistic link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3232e05dd638",
+      "target_entity": "atherosclerosis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "extended_release_niacin",
+      "reasoning": "The trial stopped for futility suggests that HDL cholesterol elevation and atherosclerotic plaque regression biology (as targeted by niacin+ezetimibe combo) did not drive measurable CIMT benefit beyond ezetimibe alone. This is a weak contradict given the absence of numeric data and early termination."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030299",
+      "target_entity": "bio:3232e05dd638",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "Ezetimibe monotherapy arm also failed to show a differentiated CIMT benefit (the trial was stopped for futility of the between-group comparison). No numeric data available. The weak contradict reflects the overall futility signal for intestinal cholesterol absorption inhibition driving atherosclerotic plaque regression on CIMT."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3232e05dd638",
+      "target_entity": "atherosclerosis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ezetimibe",
+      "reasoning": "Ezetimibe monotherapy arm: the futility stopping suggests LDL reduction via cholesterol absorption inhibition did not drive measurable CIMT benefit in this population over 14 months. Weak contradict given absence of numeric results and early termination."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was stopped early at a prespecified blinded interim analysis for futility, with no numeric efficacy results (effect size, p-value) reported and all per-arm outcomes listed as 'unknown'. This makes mechanistic inference highly uncertain. The trial design (niacin+ezetimibe combo vs ezetimibe monotherapy) means the question was specifically about incremental niacin benefit, not ezetimibe efficacy per se. The ARBITER 6-HALTS trial context (where niacin was superior to ezetimibe on CIMT as monotherapy) may be relevant for interpreting this result. Expert review needed to determine whether the interim futility stopping reflects a true mechanistic failure or a design/power/timeframe issue, and to reconcile with other CIMT trials of these agents."
+}

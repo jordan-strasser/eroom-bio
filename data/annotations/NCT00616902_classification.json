@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00616902",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker (e.g., VDR activation assay) is reported. Paricalcitol is a known VDR agonist and its binding is established pharmacologically, but this trial does not provide direct PD evidence of VDR engagement. Some indirect biomarker signals (BNP reduction: -134.2 ng/L vs +572.8 ng/L placebo; IL-6 reduction: -0.2 vs +0.333 placebo) are directionally consistent with VDR-mediated anti-inflammatory and cardioprotective effects, suggesting some biological activity, though without statistical significance or formal target engagement confirmation. hsCRP moved in the wrong direction (+1.104 vs -0.762), which is inconsistent. T3 and Troponin-T changes are small and directionally mixed. 2. PATHWAY MODULATION: The BNP signal is directionally favorable and numerically large, suggesting possible cardiac stress reduction. IL-6 also trended favorably. However, hsCRP moved adversely in the paricalcitol arm. These mixed biomarker signals do not provide clear evidence of consistent downstream pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoint (LVMI change at 48 weeks by cardiac MRI) was never assessed \u2014 the trial was terminated early due to low enrollment (n=12), with no subject reaching Week 24 and follow-up only 4-16 weeks. The planned 48-week primary endpoint was never reached. 4. POPULATION EFFECTS: No subgroup analyses were conducted given the very small sample size and early termination. 5. CONFOUNDERS: The dominant failure mode is operational \u2014 the trial was prematurely terminated due to low enrollment (n=12 total, no subject reaching Week 24). This is a classic recruitment/accrual failure. The primary endpoint was never evaluable. The trial duration (4-16 weeks actual vs 48 weeks planned) was grossly insufficient for the LVMI endpoint. This is an operational failure where the mechanism was never given a fair test.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.95,
+      "evidence": "Trial enrolled only 12 subjects and was prematurely terminated due to low enrollment. No subject reached Week 24; actual follow-up was 4-16 weeks vs the planned 48 weeks. The primary endpoint (LVMI at 48 weeks) was never evaluable. This is a gross underpowering/accrual failure."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.75,
+      "evidence": "Even for subjects who completed follow-up, the maximum duration was 16 weeks vs the 48-week primary endpoint window. LVMI regression via VDR agonism likely requires sustained treatment over many months; 4-16 weeks is insufficient to detect structural cardiac remodeling."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_left_ventricular_mass_index_lvmi_48_weeks",
+      "target_entity": "chronic_kidney_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (LVMI at 48 weeks) was never reached due to early termination. No data on whether LVMI captures cardiac benefit in CKD-HD patients was generated. The endpoint is biologically plausible but untested here \u2014 ambiguous is appropriate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ipth_high__lvef_high__septalwallthickness_high__stage_iv",
+      "target_entity": "chronic_kidney_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial was terminated before the primary endpoint was reached. With only 12 subjects and 4-16 weeks of follow-up, no meaningful assessment of whether this CKD-HD population with LVH responds to paricalcitol can be made. Ambiguous is appropriate."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:2988504a7d60",
+      "support": "weak_contradict",
+      "affecting_arm_id": "paricalcitol_injection_4_mcg_ml",
+      "reasoning": "The primary endpoint (LVMI regression) was never evaluable due to early termination. Some directional biomarker signals (BNP, IL-6) are favorable but hsCRP moved adversely and no structural cardiac endpoint was assessed. Per round-14 rules, a missed/unevaluable primary endpoint in a failed trial requires at least weak_contradict on mechanism_affects, though the operational nature of the failure (accrual collapse) limits the mechanistic inference."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2988504a7d60",
+      "target_entity": "chronic_kidney_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "paricalcitol_injection_4_mcg_ml",
+      "reasoning": "No evidence that LVH regression biology translated to clinical benefit in CKD was generated. Per round-14 rules, the failed/unevaluable primary endpoint requires weak_contradict on biology_drives, though the operational failure (accrual collapse before primary endpoint) substantially limits the mechanistic inference."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated before the primary endpoint was reached due to low enrollment (n=12, max follow-up 16 weeks vs 48-week primary endpoint). The mechanistic chain was never adequately tested. The BNP signal (-134.2 ng/L paricalcitol vs +572.8 ng/L placebo) is directionally interesting but uninterpretable without statistical analysis and adequate sample size. Expert review needed to determine whether the BNP and IL-6 signals constitute meaningful biological activity evidence that should inform the modulates_via edge, and whether the operational failure classification should suppress downstream edge updates entirely."
+}

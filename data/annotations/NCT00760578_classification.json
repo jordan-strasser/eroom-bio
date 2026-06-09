@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00760578",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial targets the mitochondrial pyruvate carrier (MPC), but the resolved graph entities map MSDC-0160 to PPARG (ENSG00000132170) and GO:0051049 (regulation of transport). No direct MPC binding/engagement biomarker was reported. However, the 220 mg arm showed meaningful metabolic biomarker changes (reduced postprandial insulin -9.77 uIU/mL vs placebo -1.60, reduced FFAs, reduced triglycerides, increased HDL, reduced FPG -0.97 vs -0.04), suggesting some biological activity consistent with insulin sensitization. The 90 mg arm showed minimal or no benefit. This dose-dependent pattern suggests partial target engagement at the higher dose. 2. PATHWAY MODULATION: The 220 mg arm showed downstream biology moving in the expected direction across multiple metabolic markers (insulin, FFA, triglycerides, HDL, FPG), consistent with insulin sensitization. This suggests the mechanism (regulation of transport / insulin sensitization) was partially engaged at 220 mg. The 90 mg arm showed essentially no pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoint (postprandial glucose change at 28 days) was not met. The 220 mg arm showed a directional improvement (-0.44 mmol/L vs placebo +0.51 mmol/L), but this did not reach statistical significance (no p-value reported). Pioglitazone, the active comparator, showed substantially larger effects (-1.10 mmol/L postprandial glucose, -1.38 mmol/L FPG), confirming the endpoint and population were appropriate. MSDC-0160's effect was real but insufficient in magnitude and/or the trial was underpowered (N=86, 4 weeks) to demonstrate significance. 4. POPULATION EFFECTS: No subgroup analyses reported. The dose-response relationship (90 mg failure vs 220 mg partial) suggests dose was a key factor. 5. CONFOUNDERS: The trial was small (N=86) and short (4 weeks). The 4-week duration may be insufficient for full insulin sensitization effects to manifest (thiazolidinediones typically require 8-12 weeks for full effect). The lack of p-values makes formal significance assessment impossible. The trial appears underpowered and potentially too short for the mechanism. The primary failure mode is a combination of underpowering and potentially wrong timeframe, with the 220 mg arm showing directional biology movement but insufficient clinical translation at this dose/duration.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "N=86 across 4 arms over only 4 weeks; no p-values reported for MSDC-0160 arms; the 220 mg arm showed directional improvement on the primary endpoint (-0.44 vs +0.51 for placebo) and multiple secondary biomarkers moved, suggesting a real signal that was too small to reach significance in this sample size"
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.55,
+      "evidence": "4-week treatment duration is shorter than the typical 8-12 weeks needed for full insulin sensitization effects with thiazolidinedione-class mechanisms; pioglitazone's larger effect at 4 weeks may reflect its more potent PPAR-gamma agonism rather than a timeframe advantage, but MSDC-0160's partial effects may have been more pronounced with longer treatment"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.5,
+      "evidence": "At 220 mg, multiple metabolic biomarkers moved in the expected direction (postprandial insulin -9.77, FFAs -0.15, triglycerides -0.21, HDL +0.11, FPG -0.97) but the primary postprandial glucose endpoint did not reach significance, suggesting biology was partially engaged but clinical translation was insufficient"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051049",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "msdc_0160_90_mg",
+      "reasoning": "90 mg arm showed no meaningful effect on postprandial glucose (effect +0.16, wrong direction) or insulin (+0.74), suggesting the mechanism did not engage biology at this dose"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "msdc_0160_90_mg",
+      "reasoning": "90 mg arm failed on primary endpoint and showed no meaningful clinical benefit, providing weak contradict signal for this dose"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051049",
+      "target_entity": "bio:03b27f41914b",
+      "support": "weak_support",
+      "affecting_arm_id": "msdc_0160_220_mg",
+      "reasoning": "220 mg arm showed multiple metabolic biomarkers moving in expected direction (postprandial insulin -9.77, FFAs -0.15, triglycerides -0.21, HDL +0.11, FPG -0.97), consistent with partial mechanism engagement driving insulin sensitization biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": "msdc_0160_220_mg",
+      "reasoning": "220 mg arm showed directional improvement on primary endpoint (-0.44 vs +0.51 placebo) and multiple secondary metabolic endpoints, suggesting biology partially drives disease improvement even though primary endpoint was not formally met"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:03b27f41914b",
+      "support": "strong_support",
+      "affecting_arm_id": "pioglitazone",
+      "reasoning": "Pioglitazone arm succeeded on postprandial glucose (-1.10), FPG (-1.38), triglycerides (-0.49), and HDL (+0.09), confirming PPAR-gamma agonism drives insulin sensitization biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "pioglitazone",
+      "reasoning": "Pioglitazone arm demonstrated clear clinical benefit across all metabolic endpoints, confirming insulin sensitization biology drives type 2 diabetes mellitus improvement"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_averaged_postprandial_glucose_response_mmt_test",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The pioglitazone arm demonstrated that the postprandial glucose MMT endpoint can capture meaningful clinical benefit in T2DM (pioglitazone succeeded), validating the endpoint as a reasonable surrogate for this indication; the endpoint's failure for MSDC-0160 reflects drug effect size, not endpoint inadequacy"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Overall trial failed its primary endpoint for MSDC-0160 in first-line T2DM patients; the 220 mg arm showed directional but non-significant improvement, providing weak contradict signal for this population responding to MSDC-0160 MPC inhibition"
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values reported for MSDC-0160 arms, making formal significance assessment impossible. The 4-week duration may be insufficient for the mechanism (insulin sensitization typically requires longer treatment). The dose-response pattern (90 mg failure vs 220 mg partial) and multiple biomarker movements at 220 mg suggest a real but underpowered signal. Expert review needed to assess whether a longer, larger trial at 220 mg+ would be warranted, and to clarify the mechanistic mapping (MPC inhibition vs PPARG engagement) which appears inconsistent between the trial description and resolved graph entities."
+}

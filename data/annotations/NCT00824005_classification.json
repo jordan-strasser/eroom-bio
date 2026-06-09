@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00824005",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial provides no direct target engagement biomarker confirming that BM-MNCs engrafted, survived, or actively modulated the myocardial injection site. The 'target' here is the myocardial injection site itself, and there is no PD readout confirming cell retention or paracrine signaling activation. Target engagement is unmeasured.\n\n2. PATHWAY MODULATION: The proposed mechanism is cell-based regeneration/paracrine signaling leading to myocardial regeneration and perfusion restoration. Biomarker data (BNP, pro-BNP, LV diastolic dimension, fixed perfusion defect) all showed non-significant differences between arms. The BNP subgroup showed a numerically smaller increase in the BM-MNC arm (+28 vs +63 IU, p=0.55), but the pro-BNP subgroup showed the opposite direction (+497 vs +234 IU, p=0.55). LV diastolic dimension actually worsened in the BM-MNC arm (+0.9 mL vs -8.5 mL for placebo, p=0.198). None of these biomarker changes reached significance, and the directional inconsistency (BNP vs pro-BNP) suggests no coherent pathway modulation.\n\n3. CLINICAL TRANSLATION: All three primary endpoints failed: VO2max (mean difference 1.0 mL/kg/min, p=0.169), LVESV (mean difference 1.0 mL/m2, p=0.856), and reversible defect size (mean difference -1.2%, p=0.835). Effect sizes are small and p-values are far from significance. There is no clinical signal of benefit.\n\n4. POPULATION EFFECTS: Subgroup analyses (BNP and pro-BNP subgroups) showed inconsistent and non-significant results. No subgroup demonstrated a meaningful treatment effect. The enrolled population (chronic ischemic cardiomyopathy with LV dysfunction and angina) is the intended population for this mechanism, but the mechanism may not be effective in this chronic, established disease setting where myocardial scarring limits regenerative potential.\n\n5. CONFOUNDERS: The trial enrolled 92 patients (61 active, 31 placebo). This is a relatively small sample for detecting modest effects on functional endpoints like VO2max. The study may have been underpowered to detect small but real effects. However, the effect sizes observed are so small (VO2max difference of 1.0 mL/kg/min, LVESV difference of 1.0 mL/m2) that even with larger N, clinical significance would be questionable. Safety was acceptable with no excess SAEs in the active arm. The failure appears to reflect a genuine lack of biological activity of BM-MNCs in this chronic ischemic setting, consistent with the broader literature showing limited efficacy of bone marrow cell therapy in chronic heart disease.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.35,
+      "evidence": "Biomarker data (BNP, LV dimensions, perfusion defects) showed no significant movement, and clinical endpoints all missed. The failure appears to be at the level of biology not moving, but since target engagement is unmeasured, we cannot fully distinguish this from no_target_engagement."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "Chronic ischemic cardiomyopathy with established LV dysfunction represents a setting with significant myocardial fibrosis and scarring, which may limit the regenerative capacity of BM-MNCs. The mechanism of cell-based regeneration may be more applicable to acute or subacute ischemic injury rather than chronic disease."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.35,
+      "evidence": "N=92 (61 active, 31 placebo) is a relatively small sample for detecting modest functional improvements. However, the observed effect sizes are so small that underpowering alone does not explain the failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-449836",
+      "target_entity": "bio:24b6b2bea938",
+      "support": "weak_contradict",
+      "affecting_arm_id": "active_stem_cell_injections",
+      "reasoning": "No biomarker evidence of pathway modulation (BNP, pro-BNP, LV dimensions, perfusion defects all non-significant and directionally inconsistent). The interleukin signaling mechanism did not demonstrably drive myocardial regeneration and angiogenesis in this chronic ischemic population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:24b6b2bea938",
+      "target_entity": "chronic_ischemic_heart_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "active_stem_cell_injections",
+      "reasoning": "All primary clinical endpoints (VO2max, LVESV, reversible defect size) failed with small effect sizes and high p-values, providing no evidence that myocardial regeneration and angiogenesis drove clinical benefit in chronic ischemic heart disease in this trial."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_maximal_oxygen_consumption_vo2max",
+      "target_entity": "chronic_ischemic_heart_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "VO2max was measured and reported as a primary endpoint. It missed significance (p=0.169) with a small effect size (1.0 mL/kg/min). VO2max is a physiologically relevant endpoint for chronic ischemic cardiomyopathy with angina, but the failure to detect any signal across all endpoints (including LVESV and perfusion) suggests the drug did not engage the biology rather than the endpoint failing to capture benefit. Ambiguous because we cannot distinguish endpoint insensitivity from true lack of effect."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "anginaclass_high__functional_class_ii__lvef_low__lvwallthickness_low__myocardialviability_positive__nyhaclass_high__severity_severe",
+      "target_entity": "chronic_ischemic_heart_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoints all missed with p-values ranging from 0.169 to 0.856 and small effect sizes. The enrolled population (chronic ischemic cardiomyopathy with LV dysfunction and angina) did not respond to BM-MNC therapy. Adequate comparator arm present. Moderate contradict rather than strong because target engagement was not confirmed, leaving open the possibility of delivery or engraftment failure rather than population-specific non-response."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No direct target engagement or cell engraftment data is available, making it impossible to determine whether the failure occurred at the level of cell delivery/survival, paracrine signaling activation, or downstream biology. The inconsistent BNP vs pro-BNP subgroup findings (opposite directions) are unexplained. Expert review is needed to assess whether the dose (~100 million BM-MNCs via intramyocardial injection) was adequate for this indication and whether cell viability/engraftment was confirmed. The causal chain assignment (CSF1R/R-HSA-449836) for BM-MNCs is also mechanistically uncertain\u2014BM-MNCs are a heterogeneous cell population and CSF1R/interleukin signaling may not be the primary mechanism."
+}

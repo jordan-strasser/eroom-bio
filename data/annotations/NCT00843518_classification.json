@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00843518",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that LY451395 engaged the AMPA receptor (GRIA4) in vivo. The trial provides no target engagement evidence. Per the round-28 AFFECTS rule, since engagement was not measured, no affects record is emitted and no modulates_via record is emitted.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., measures of glutamatergic synaptic transmission enhancement) were reported. We cannot determine whether the intended biology was modulated.\n\n3. CLINICAL TRANSLATION: The primary endpoint (NPI-4 A/A) was not met. LY451395 showed a mean change of -5.4 vs. placebo -6.2, meaning the drug numerically underperformed placebo on the primary endpoint. No p-value was reported, but the direction is unfavorable. Secondary endpoints (NPI-10, ADAS-Cog14) also failed. Two secondary endpoints (CMAI-C, FrSBe Total T-Score) showed partial signals but these are insufficient to rescue the trial.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (AD patients with agitation/aggression, n=132) is a plausible target population for this mechanism, but the small sample size raises underpowering concerns.\n\n5. CONFOUNDERS: The placebo response appears substantial (-6.2 on NPI-4 A/A), which is a well-known challenge in AD agitation trials. The sample size of 132 is modest for this indication and endpoint. The drug numerically underperformed placebo, suggesting either high placebo response masking any drug effect, or the mechanism genuinely does not work in this population/indication. No dose-limiting toxicity issues were identified \u2014 SAE rates were low and balanced. The 12-week duration may be appropriate for agitation endpoints but is short for cognitive endpoints. The primary failure mode is most likely a combination of high placebo response and possible underpowering, with the underlying mechanistic hypothesis (AMPA potentiation for agitation in AD) remaining unvalidated. The drug actually performed worse than placebo on the primary endpoint, which is a clear failure signal.",
+  "failure_modes": [
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.65,
+      "evidence": "Placebo arm showed -6.2 LS mean change on NPI-4 A/A, which is a substantial improvement. AD agitation trials are well-known for high placebo response rates. The drug arm (-5.4) numerically underperformed placebo, consistent with placebo response masking or overwhelming any drug effect."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.55,
+      "evidence": "Total sample size of 132 (63 treatment, 69 placebo) is modest for an AD agitation trial. No p-value was reported for the primary endpoint, making it difficult to assess statistical power formally, but the small N is a recognized limitation for detecting effects in this heterogeneous population."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.3,
+      "evidence": "Two secondary endpoints (CMAI-C, FrSBe) showed partial signals, but the primary NPI-4 A/A endpoint failed and the drug underperformed placebo. Without biomarker data, it is unclear whether the biology was engaged at all."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:d72ea38f0db7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly451395",
+      "reasoning": "No biomarker data confirms pathway modulation. The primary endpoint failed and the drug underperformed placebo. Per round-14 rules, with no PD data and a missed endpoint, emit weak_contradict on mechanism_affects to signal the chain broke at some upstream step."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72ea38f0db7",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly451395",
+      "reasoning": "The primary endpoint failed and the drug numerically underperformed placebo. Even if the biology were engaged, this trial provides no evidence that glutamatergic synaptic transmission enhancement drives clinical benefit in AD agitation. Emit weak_contradict per round-14 rules for a missed endpoint with no PD data."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_4_item_agitation_aggression_subscale",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The NPI-4 A/A is a validated instrument for agitation in AD and is a reasonable endpoint for this indication. However, the drug underperformed placebo and no p-value was reported, making it impossible to determine whether the endpoint failed to capture a real drug effect or whether the drug simply had no effect. The high placebo response in this domain is a known issue. Ambiguous is appropriate given the mixed signals."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mmse_low__npi10_high__severity_active",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (AD patients with active agitation/aggression, high NPI-10, low MMSE) did not respond to LY451395 \u2014 the drug underperformed placebo on the primary endpoint. No subgroup showed differential benefit. Emit weak_contradict as the primary endpoint missed with a wrong-direction trend, though no p-value is available to confirm significance of the miss."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value was reported for the primary endpoint, making it impossible to formally assess statistical significance of the failure. The drug numerically underperformed placebo (-5.4 vs -6.2), which is an unusual pattern suggesting possible high placebo response or chance variation in a small sample. Expert review is needed to determine whether the absence of p-values reflects a reporting gap or whether the trial was underpowered to detect a difference. Additionally, the mechanism category in the resolved entities ('receptor_antagonism') appears inconsistent with the proposed mechanism ('positive allosteric modulation' / agonism) \u2014 this discrepancy should be reviewed."
+}

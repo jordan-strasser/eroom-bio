@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT01439555",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data for eNOS was reported. The trial relied on cerebral blood flow (ASL MRI) as the primary readout, but the MRI data files were corrupted and could not be analyzed. There is no PD/PK biomarker confirming eNOS modulation, NO production, or downstream vasodilation. 2. PATHWAY MODULATION: Without usable primary endpoint data and no eNOS/NO pathway biomarkers, we cannot assess whether the intended biology (cerebral endothelial function enhancement) was modulated. The cognitive measures (MMSE, CDR, ADAS-COG, CIBIC Plus) showed minimal or no meaningful change, but these are downstream clinical outcomes, not pathway biomarkers. 3. CLINICAL TRANSLATION: The primary endpoint (mean change in CBF by ASL MRI) could not be evaluated due to data corruption. The raw CBF numbers suggest a slight decrease from baseline (0.621 to 0.580 ml/110g/min at week 16), but no statistical analysis was possible. No p-value was reported. Cognitive endpoints showed no meaningful improvement. 4. POPULATION EFFECTS: No subgroup analyses were conducted. The study enrolled only 11 participants with Alzheimer's disease, making any subgroup analysis impossible. 5. CONFOUNDERS: This is a critically underpowered single-arm pilot study (N=11) with no control arm, making it impossible to distinguish drug effect from natural disease progression or regression to the mean. Most critically, the primary endpoint data was corrupted and unanalyzable \u2014 a manufacturing/delivery-adjacent operational failure at the data collection level. The combination of data corruption, absence of a comparator arm, and extreme underpowering means the mechanistic hypothesis was never given a fair test. The trial outcome is classified as failure due to manufacturing_or_delivery (data corruption preventing primary endpoint analysis) and underpowered design.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.85,
+      "evidence": "ASL MRI data files were corrupted and could not be analyzed, directly preventing evaluation of the primary endpoint (cerebral blood flow change). This is a data acquisition/delivery failure that rendered the primary readout unavailable."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Only 11 participants enrolled in a single-arm pilot study with no control arm. This sample size is grossly insufficient to detect a treatment effect on cerebral blood flow or cognitive endpoints, and the absence of a comparator makes any effect size uninterpretable."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Primary endpoint data corrupted and unanalyzable; no p-value reported; no control arm for comparison; no target engagement biomarkers (eNOS activity, NO levels) measured. The trial provides no usable efficacy readout for the primary endpoint."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_cerebral_blood_flow_magnetic_resonance_imaging",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (CBF by ASL MRI) was measured but data were corrupted and unanalyzable. The endpoint is theoretically relevant to cerebrovascular contributions to Alzheimer's disease, but this trial provides no usable evidence about whether it captures clinical benefit in this indication. Ambiguous is appropriate given the data corruption and absence of a comparator."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mmse_low__severity_mild",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population had mild Alzheimer's disease (baseline MMSE ~24, CDR ~0.9). No comparator arm exists and the primary endpoint was unanalyzable. Cognitive measures showed minimal change (MMSE slightly improved, CDR unchanged, ADAS-COG essentially flat). No meaningful inference about population response is possible from this single-arm corrupted-data study."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:37ccf3be7744",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "reasoning": "The intended biology (cerebral endothelial function enhancement and cerebrovascular perfusion improvement) did not translate to clinical benefit in Alzheimer's disease. CBF appeared to slightly decrease by week 16, and cognitive endpoints showed no meaningful improvement. However, the evidence is very weak due to data corruption, no control arm, and extreme underpowering \u2014 hence weak_contradict rather than stronger."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8f4d93e665bb",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "reasoning": "Endothelial nitric oxide production and vasodilation as a driver of Alzheimer's disease benefit was not supported. No NO pathway biomarkers were measured, and clinical outcomes were flat. Weak contradict given the severe data limitations."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6479a6e00cc5",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "reasoning": "Endothelial nitric oxide production and cerebrovascular perfusion improvement as a driver of Alzheimer's disease benefit was not supported by this trial. Primary endpoint unanalyzable; cognitive endpoints flat. Weak contradict given severe data limitations."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-1989781",
+      "target_entity": "bio:37ccf3be7744",
+      "support": "weak_contradict",
+      "affecting_arm_id": "simvastatin_l_arginine_tetrahydrobiopterin",
+      "reasoning": "No evidence that PPARA-mediated gene expression activation translated to cerebral endothelial function enhancement. No pathway biomarkers measured; primary endpoint unanalyzable. Weak contradict per round-14 rule for failed trials with no PD data."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The primary endpoint data were corrupted and unanalyzable, making this trial essentially uninformative about the mechanistic hypothesis. The trial is a single-arm pilot with N=11 and no control arm. The causal chain entities for L-Arginine and Tetrahydrobiopterin resolve to UNKNOWN targets and non-standard mechanisms (Phenylketonuria pathway for tetrahydrobiopterin), suggesting the graph entity resolution may not accurately reflect the intended eNOS cofactor mechanism. Expert review is needed to assess whether the resolved graph entities (PAH/Phenylketonuria for tetrahydrobiopterin; UNKNOWN for L-Arginine) are appropriate for this trial's mechanistic hypothesis, and whether any meaningful inference can be drawn from the corrupted dataset."
+}

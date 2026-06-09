@@ -1,0 +1,106 @@
+{
+  "nct_id": "NCT00437489",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both arms showed meaningful HbA1c reductions (-1.9% fixed dose, -2.0% weight-based) and substantial blood glucose reductions across fasting, pre-meal, and post-meal measurements. This confirms inhaled insulin engaged the insulin receptor and drove glycemic biology \u2014 target engagement is clearly demonstrated.\n\n2. PATHWAY MODULATION: Downstream biology clearly moved. Fasting plasma glucose dropped -1.8 mmol/L (fixed) and -2.9 mmol/L (weight-based); overall blood glucose dropped -2.5 and -4.3 mmol/L respectively; post-meal glucose dropped -4.1 and -5.5 mmol/L. The PI3K/AKT signaling pathway was engaged as evidenced by these glucose-lowering effects.\n\n3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change at week 16) was never formally assessed for statistical significance \u2014 the trial was terminated early for commercial/business reasons (Pfizer returned worldwide rights for Exubera to Nektar in October 2007), not for safety or efficacy failure. Both arms showed clinically meaningful HbA1c reductions (~2%), suggesting the drug was working biologically. The trial did not fail mechanistically.\n\n4. POPULATION EFFECTS: This was a dose-comparison trial (fixed 1mg TID vs weight-based TID) in T2DM patients. The weight-based arm showed numerically larger glucose reductions across all biomarkers, suggesting dose-response relationship. Hypoglycemia was more frequent in the weight-based arm early (8.3/month vs 3.3/month at week 4) but equalized by week 16 (2.5 vs 2.4/month).\n\n5. CONFOUNDERS: The trial was explicitly terminated for commercial reasons \u2014 Pfizer's business decision to return Exubera rights to Nektar. This is a pure commercial/strategic termination. The primary endpoint was never formally evaluated (p-value = null, primary_endpoint_met = null). The trial was small (n=49) and was a dose-comparison study without a placebo arm, making it impossible to assess absolute efficacy vs. no treatment. The biology clearly moved in both arms, suggesting the mechanism was working.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.95,
+      "evidence": "Trial explicitly terminated because Pfizer returned worldwide rights for Exubera to Nektar on 18 October 2007, not for safety or efficacy reasons. Primary endpoint was never formally evaluated (no p-value, no success/failure determination)."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "inhaled_human_insulin",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "control",
+      "reasoning": "HbA1c reductions of -1.9% and substantial blood glucose reductions (-2.5 mmol/L overall) in the fixed-dose arm confirm insulin receptor engagement. The glycemic response is a direct pharmacodynamic readout of insulin receptor agonism."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "inhaled_human_insulin",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "experimental",
+      "reasoning": "HbA1c reductions of -2.0% and larger blood glucose reductions (-4.3 mmol/L overall) in the weight-based arm confirm insulin receptor engagement with a dose-response relationship."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "R-HSA-6811558",
+      "support": "moderate_support",
+      "affecting_arm_id": "control",
+      "reasoning": "Downstream glucose regulation (fasting, pre-meal, post-meal glucose reductions) confirms that insulin receptor engagement activated downstream PI3K/AKT signaling pathway, driving glucose uptake. Signal is moderate rather than strong because no direct pathway biomarker (e.g., phospho-AKT) was measured."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "R-HSA-6811558",
+      "support": "moderate_support",
+      "affecting_arm_id": "experimental",
+      "reasoning": "Larger downstream glucose reductions in the weight-based arm confirm dose-dependent PI3K/AKT pathway activation via insulin receptor engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6811558",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "control",
+      "reasoning": "Glycemic control biology clearly moved (HbA1c -1.9%, glucose reductions across all timepoints), confirming the PI3K/AKT mechanism drove glycemic regulation biology. Moderate rather than strong because no formal statistical comparison vs. placebo was made."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-6811558",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "moderate_support",
+      "affecting_arm_id": "experimental",
+      "reasoning": "Larger glycemic improvements in the weight-based arm confirm dose-dependent mechanism-to-biology translation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "control",
+      "reasoning": "Both arms showed clinically meaningful HbA1c reductions (~2%), consistent with glycemic control biology driving T2DM disease modification. Trial terminated commercially before formal endpoint assessment, but the biological signal is directionally supportive."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": "experimental",
+      "reasoning": "Weight-based arm showed numerically larger glycemic improvements, supporting the biology-to-indication link."
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "biomarker_hba1c",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c tracked glycemic biology changes in both arms, showing -1.9% and -2.0% reductions consistent with the glucose-lowering pharmacodynamic effects observed across multiple blood glucose measures."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hba1c",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c was measured and moved in both arms, but the trial was terminated before formal statistical analysis of the primary endpoint. The endpoint itself is a well-validated surrogate for T2DM benefit, but the trial provides no comparative efficacy data (no placebo arm, no p-value) to confirm clinical translation. Ambiguous because the endpoint moved but we cannot assess whether it captured a treatment benefit vs. background glycemic management."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated commercially before primary endpoint assessment. Both arms showed similar HbA1c reductions (~2%), but no placebo comparison exists and no p-value was reported. Cannot determine whether this population responded differently from other T2DM populations."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated for commercial/business reasons (Pfizer returning Exubera rights to Nektar) before primary endpoint was formally evaluated. No p-values reported, no placebo arm, and primary_endpoint_met is null. The biological signal (HbA1c ~2% reduction, substantial glucose lowering) suggests the drug was working, but the trial provides no comparative efficacy data. This is a dose-comparison study (fixed vs. weight-based dosing) rather than a placebo-controlled efficacy trial, making it impossible to assess absolute treatment benefit. Expert review needed to determine whether the dose-comparison data provides any useful information about optimal dosing strategy for inhaled insulin in T2DM."
+}

@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT00768066",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a Phase 1/2 safety and feasibility trial (POSEIDON pilot) with a primary endpoint of TE-SAE incidence at 1 month. The primary endpoint was met (0 TE-SAEs in all arms). Scar mass reduction data serves as a proxy for target engagement: hMSC arm showed -18.9% (95% CI -30.4 to -7.4), hBMC -7.0% (CI crossing zero), placebo -5.2% (CI crossing zero). The hMSC arm's scar reduction is statistically distinguishable from zero and numerically superior to placebo, suggesting biological activity. Troponin and CK peaks were transient and similar across arms, consistent with catheterization procedure rather than cell-mediated injury. 2. PATHWAY MODULATION: The scar mass reduction in the hMSC arm (-18.9% vs -5.2% placebo) suggests downstream biological activity consistent with paracrine-mediated myocardial regeneration. The hBMC arm's scar reduction (-7.0%) was not clearly distinguishable from placebo (-5.2%). Functional endpoints (6MWD: +32.6m hMSC, +16.9m hBMC; MLHF: -6.3 hMSC, -8.2 hBMC) showed improvements in both treatment arms, though without formal statistical comparison to placebo these are exploratory. 3. CLINICAL TRANSLATION: The primary endpoint (safety) was met. Secondary/exploratory endpoints showed directional improvements in the hMSC arm (scar mass, 6MWD, MLHF) but no formal statistical comparisons to placebo are reported (p-values absent), and the trial was not powered for efficacy. This is a pilot safety trial, so the efficacy signals are hypothesis-generating only. 4. POPULATION EFFECTS: No formal subgroup analyses. MACE at 12 months was numerically lower in treatment arms (hMSC 1/19, hBMC 0/19) vs placebo (2/21), but sample sizes are too small for inference. 5. CONFOUNDERS: The trial is small (N=65 total, ~19-21 per arm) and explicitly designed as a safety/feasibility pilot, not powered for efficacy. The primary endpoint is safety, not efficacy. Secondary endpoints lack p-values and formal comparisons. The partial classification reflects that the primary safety endpoint succeeded, but efficacy signals are exploratory and inconclusive. The hMSC arm shows more promising biological signals than hBMC. No dose-limiting toxicity prevented adequate dosing. The trial was appropriately designed for its phase.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "N=65 total (~19-21 per arm) with no formal statistical comparisons for efficacy endpoints; trial explicitly designed as a safety/feasibility pilot, not powered to detect efficacy differences. P-values absent for all secondary endpoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:24b6b2bea938",
+      "support": "weak_support",
+      "affecting_arm_id": "1",
+      "reasoning": "hMSC arm showed -18.9% scar mass reduction (95% CI -30.4 to -7.4, CI excludes zero) vs -5.2% placebo, suggesting paracrine-mediated myocardial regeneration mechanism is biologically active. However, no formal p-value vs placebo reported and trial is underpowered for efficacy conclusions."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:24b6b2bea938",
+      "support": "ambiguous",
+      "affecting_arm_id": "2",
+      "reasoning": "hBMC arm showed -7.0% scar mass reduction (95% CI -15.7 to 1.7, CI crosses zero) vs -5.2% placebo, not clearly distinguishable from placebo. Functional endpoints showed some improvement but without statistical comparison. Signal is equivocal."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:24b6b2bea938",
+      "target_entity": "stem_cell_transplantation",
+      "support": "weak_support",
+      "affecting_arm_id": "1",
+      "reasoning": "hMSC arm showed directional improvements in scar mass, 6MWD, and MLHF score consistent with myocardial regeneration driving clinical benefit, but trial is underpowered and lacks formal statistical comparisons to placebo."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:24b6b2bea938",
+      "target_entity": "stem_cell_transplantation",
+      "support": "ambiguous",
+      "affecting_arm_id": "2",
+      "reasoning": "hBMC arm showed improvements in functional endpoints but scar mass reduction was not clearly superior to placebo. Evidence is equivocal for this arm."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_incidence_te_sae_define_composite_death_non",
+      "target_entity": "stem_cell_transplantation",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The TE-SAE composite safety endpoint was the pre-specified primary endpoint for this Phase 1/2 safety trial and was met (0 TE-SAEs in all arms at 1 month), demonstrating the endpoint appropriately captured the safety profile of the intervention in this indication context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ejectionfraction_low",
+      "target_entity": "stem_cell_transplantation",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Patients with ischemic heart failure and low ejection fraction showed directional improvements in scar mass and functional endpoints in the hMSC arm, suggesting this population may respond to cell therapy. However, the trial is underpowered and lacks formal statistical comparisons, limiting confidence."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a Phase 1/2 safety pilot trial where the primary endpoint is safety (TE-SAE), not efficacy. The trial outcome classification as 'partial' reflects that safety was demonstrated but efficacy signals are exploratory only. The scar mass reduction in the hMSC arm (CI excluding zero) is the strongest biological signal but lacks formal placebo comparison p-values. Expert review is warranted to assess whether the hMSC vs hBMC differential response (scar mass -18.9% vs -7.0%) represents a meaningful mechanistic distinction, and whether the absence of formal statistical testing for secondary endpoints should alter the edge update confidence levels. Additionally, the indication canonical ID 'stem_cell_transplantation' appears to be a procedure/intervention category rather than a disease indication (ischemic heart failure), which may affect graph routing."
+}

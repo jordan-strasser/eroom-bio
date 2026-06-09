@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00348283",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data is reported for TNF-alpha engagement. However, adalimumab is a well-characterized anti-TNF monoclonal antibody with established binding to TNF-alpha; the clinical responses observed (CDAI remission at Week 12 p=0.021, and multiple Week 52 endpoints at p=0.001) strongly imply the drug reached and modulated its target. The standard induction/maintenance dosing regimen (160/80/40 mg) is the approved Crohn's disease regimen, so adequate exposure is assumed.\n\n2. PATHWAY MODULATION: No direct pathway biomarkers (e.g., CRP, fecal calprotectin) are reported. However, the strong clinical remission signals at Week 52 (CDAI p=0.001, mucosal ulceration-free p=0.001) suggest that downstream suppression of intestinal inflammation did occur, particularly with sustained treatment.\n\n3. CLINICAL TRANSLATION: The primary endpoint \u2014 mucosal ulceration-free at Week 12 \u2014 was narrowly missed (p=0.056, effect size 17 vs 8 subjects). However, multiple secondary endpoints succeeded: clinical remission at Week 12 (p=0.021), mucosal ulceration-free at Week 52 (p=0.001), clinical remission at Week 52 (p=0.001), and clinical remission at both Week 12 and 52 (p=0.001). The primary endpoint failure appears to reflect a timing issue \u2014 mucosal healing at Week 12 is an early, stringent endoscopic endpoint that may require more time to manifest than clinical remission. The Week 52 mucosal healing endpoint succeeded strongly, suggesting the biology does translate but the 12-week timeframe was insufficient for full mucosal healing.\n\n4. POPULATION EFFECTS: No subgroup analyses are reported. The enrolled population (Crohn's disease involving the colon, active disease by SES-CD) is appropriate for the mechanism.\n\n5. CONFOUNDERS: The primary endpoint failure is best explained by wrong timeframe for the specific endpoint chosen (mucosal healing at Week 12 is a stringent early endoscopic endpoint). The drug clearly works in this population \u2014 clinical remission at Week 12 was achieved (p=0.021) and all Week 52 endpoints succeeded. The trial was adequately powered for the primary endpoint but the 12-week window for mucosal healing was likely too short. The combined endpoint (mucosal ulceration-free at both Week 12 AND Week 52) also failed (p=0.15), driven by the Week 12 component. This is a partial outcome: primary endpoint narrowly missed but multiple secondary endpoints succeeded, including the same mucosal endpoint at Week 52.",
+  "failure_modes": [
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.72,
+      "evidence": "The primary endpoint (mucosal ulceration-free at Week 12) was narrowly missed (p=0.056), but the identical mucosal endpoint at Week 52 succeeded strongly (p=0.001). Clinical remission at Week 12 was achieved (p=0.021), suggesting the drug was working clinically but mucosal healing required more time. This pattern is consistent with mucosal healing lagging behind clinical response \u2014 12 weeks was insufficient for full endoscopic healing in this population."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.35,
+      "evidence": "The primary endpoint p-value of 0.056 is marginally above the 0.05 threshold with n=135 subjects. A modestly larger sample might have achieved significance for the Week 12 mucosal endpoint, suggesting borderline underpowering for this specific stringent early endoscopic endpoint."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "moderate_support",
+      "affecting_arm_id": "double_blind",
+      "reasoning": "Multiple secondary endpoints succeeded (CDAI remission at Week 12 p=0.021, mucosal healing at Week 52 p=0.001, CDAI remission at Week 52 p=0.001), indicating the adaptive immune response mechanism did modulate intestinal inflammation biology, even though the primary Week 12 mucosal endpoint narrowly missed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "double_blind",
+      "reasoning": "Suppression of intestinal inflammation drove clinical benefit in Crohn's disease as evidenced by significant CDAI remission and mucosal healing at Week 52 (p=0.001). The biology-to-disease link is supported by multiple successful secondary endpoints."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_subjects_without_mucosal_ulceration_week_12",
+      "target_entity": "crohn_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (mucosal ulceration-free at Week 12) narrowly missed (p=0.056) while the same mucosal endpoint at Week 52 succeeded strongly (p=0.001) and clinical remission at Week 12 also succeeded (p=0.021). This suggests the Week 12 mucosal endpoint is a poor surrogate for the drug's actual benefit \u2014 it captures the biology but at too early a timepoint, making it a weak endpoint for this indication at this timeframe."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cdai_high__line_first__sescdulceratedsurfacesubscore_high__severity_active",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "This population (active Crohn's disease with high SES-CD ulcerated surface subscore) showed significant clinical benefit on multiple secondary endpoints (CDAI remission Week 12 p=0.021, mucosal healing Week 52 p=0.001, CDAI remission Week 52 p=0.001), indicating the population does respond to adalimumab, though the primary Week 12 mucosal endpoint narrowly missed."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial presents a complex partial outcome where the pre-specified primary endpoint (mucosal ulceration-free at Week 12) narrowly missed (p=0.056) while multiple secondary endpoints succeeded, including the same mucosal endpoint at Week 52 (p=0.001). The open-label arm's outcomes are not reported in the extraction, making it unclear whether the open-label extension data should inform edge updates. Additionally, the mechanism chain for the open_label arm uses GO:0009410 (response to xenobiotic stimulus) rather than GO:0002250 (adaptive immune response), which appears to be a populator artifact \u2014 expert review should confirm whether these are the correct mechanism nodes for adalimumab in Crohn's disease. The borderline primary endpoint failure may reflect endpoint selection (timing) rather than drug failure, and the appropriate trial_outcome classification (partial vs. failure) warrants expert judgment."
+}

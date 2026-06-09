@@ -1,0 +1,119 @@
+{
+  "nct_id": "NCT00379769",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of PPAR-gamma engagement by rosiglitazone. HOMA insulin sensitivity improved markedly in RSG arms (+42.57% RSG+MET vs -3.45% SU+MET; +42.07% RSG+SU vs +23.90% MET+SU). HbA1c, fasting plasma glucose, free fatty acids, and CRP all improved more in RSG arms. These are canonical downstream readouts of PPAR-gamma agonism, confirming robust target engagement.\n\n2. PATHWAY MODULATION: The intended biology (insulin sensitization and metabolic regulation) clearly moved. HOMA-IR improved dramatically, glycaemic failure rates were substantially lower in RSG arms (RSG+MET 281 vs SU+MET 451; RSG+SU 365 vs MET+SU 424), and insulin initiation was reduced. CRP reduction (-57% RSG+MET vs -29% SU+MET) suggests anti-inflammatory effects. However, rosiglitazone also caused weight gain (+3.93 to +4.72 kg) and increased waist circumference, and markedly increased CHF risk (61 vs 29 events), indicating that PPAR-gamma agonism drove both intended and unintended biology.\n\n3. CLINICAL TRANSLATION: The primary composite endpoint (CV death + CV hospitalisation) was met with HR 0.99 (95% CI 0.85-1.16), indicating non-inferiority to active comparators. However, this is a non-inferiority result against active comparators (SU+MET, MET+SU), not a superiority result vs placebo. The biology moved (glycaemic control improved) but the CV endpoint showed no benefit over comparators (HR essentially 1.0). Critically, rosiglitazone doubled CHF events (61 vs 29), which partially offset any potential CV benefit. MI rate was numerically higher (HR 1.13-1.15, CIs crossing 1.0). The glycaemic biology improvement did not translate to CV superiority.\n\n4. POPULATION EFFECTS: Bone fracture risk was markedly higher in women on rosiglitazone (156 vs 91 female fractures), representing a clear harm signal in a subgroup. Glycaemic benefit was consistent across both RSG combination arms. CHF risk was elevated in both RSG arms (RSG+MET: 25+16=41 CHF events vs SU+MET: 18+1=19; RSG+SU: 23+13=36 vs MET+SU: 13+8=21).\n\n5. CONFOUNDERS: This is an active-controlled non-inferiority trial, so the primary endpoint being 'met' means non-inferiority to active comparators, not superiority. The trial design was appropriate for the question asked. The key issue is that rosiglitazone's PPAR-gamma agonism improved insulin sensitivity and glycaemic control but did not translate this into CV benefit over comparators, while introducing significant safety signals (CHF doubling, bone fractures in women, numerically higher MI). This is a classic biology_moved_endpoint_flat pattern for the CV superiority hypothesis, combined with a safety failure (CHF) that partially explains why CV benefit was not observed. The trial is classified as 'partial' because the primary non-inferiority endpoint was technically met, but the drug showed net harm signals (CHF, fractures) and no CV benefit over comparators despite superior glycaemic control.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.75,
+      "evidence": "Rosiglitazone produced robust improvements in insulin sensitivity (HOMA +42.57% vs -3.45%), HbA1c, FPG, CRP, and glycaemic failure rates, but the primary CV composite endpoint showed HR 0.99 (essentially no difference from active comparators). The glycaemic biology improvement did not translate to CV benefit, and CHF events doubled (61 vs 29), suggesting the mechanism's off-target effects on fluid retention counteracted any potential CV benefit."
+    },
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.65,
+      "evidence": "Beyond biology-moved-endpoint-flat, there is a safety signal component: rosiglitazone doubled CHF hospitalizations (69 vs 36), which would be captured in the composite endpoint and could mask any potential CV benefit from glycaemic improvement. Additionally, bone fractures in women represent a distinct harm signal. The net result is a drug that improves the intended biology but causes sufficient off-target harm to negate CV benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "avandamet",
+      "target_entity": "ENSG00000132170",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_metformin",
+      "reasoning": "HOMA insulin sensitivity improved +42.57% in RSG+MET arm vs -3.45% in SU+MET, with concordant HbA1c, FPG, free fatty acid, and CRP improvements \u2014 all canonical PPAR-gamma downstream readouts confirming strong target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "avandamet",
+      "target_entity": "ENSG00000132170",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_sulfonylurea",
+      "reasoning": "HOMA insulin sensitivity improved +42.07% in RSG+SU arm vs +23.90% in MET+SU, with greater HbA1c and FPG reductions, confirming PPAR-gamma engagement in this arm as well."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "GO:0030518",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_metformin",
+      "reasoning": "The dramatic improvement in HOMA insulin sensitivity (+42.57%), reduction in free fatty acids (-16.46%), and CRP reduction (-57.40%) confirm that PPAR-gamma engagement activated the nuclear receptor-mediated steroid hormone signaling pathway as intended."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000132170",
+      "target_entity": "GO:0030518",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_sulfonylurea",
+      "reasoning": "HOMA insulin sensitivity +42.07%, FFA reduction -11.58%, CRP reduction -56.50% in RSG+SU arm confirm PPAR-gamma-mediated nuclear receptor signaling pathway activation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_metformin",
+      "reasoning": "Nuclear receptor agonism via PPAR-gamma clearly drove insulin sensitization and metabolic regulation: HOMA-IR improved markedly, glycaemic failure rates halved (281 vs 451), insulin initiation reduced (126 vs 276). The mechanism successfully affected the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0030518",
+      "target_entity": "bio:03b27f41914b",
+      "support": "strong_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_sulfonylurea",
+      "reasoning": "PPAR-gamma agonism drove insulin sensitization in RSG+SU arm: HOMA-IR +42.07%, glycaemic failure 365 vs 424, insulin initiation 168 vs 259. Mechanism clearly affected the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_metformin",
+      "reasoning": "Despite robust insulin sensitization and glycaemic improvement, the CV composite endpoint showed HR 0.99 \u2014 no benefit over active comparators. Insulin sensitization biology did not translate to CV disease benefit, and CHF events doubled. The biology drove glycaemic outcomes but not the CV disease endpoint."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:03b27f41914b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_sulfonylurea",
+      "reasoning": "Similarly, RSG+SU showed superior insulin sensitization but HR 0.99 on CV composite. Insulin sensitization biology did not drive CV benefit in T2DM patients."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "comparator_metformin_b_i_d",
+      "target_entity": "ENSG00000198695",
+      "support": "weak_support",
+      "affecting_arm_id": "rosiglitazone_in_addition_to_background_metformin",
+      "reasoning": "Metformin's target engagement via MT-ND6 is not directly measured; however, the comparator arms showed expected glycaemic effects (FPG reduction -0.29 mmol/L SU+MET), consistent with metformin activity. No direct MT-ND6 engagement data available."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "glyburide",
+      "target_entity": "ENSG00000187486",
+      "support": "weak_support",
+      "affecting_arm_id": "sulfonylurea_in_addition_to_background_metformin",
+      "reasoning": "Sulfonylurea arms showed expected glycaemic effects consistent with KATP channel blockade and insulin secretion stimulation, though direct KCNJ11 engagement was not measured."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_cardiovascular_death_cardiovascular",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CV death/CV hospitalisation composite endpoint was measured and showed HR 0.99 \u2014 non-inferiority to active comparators. However, the endpoint captured CHF hospitalizations (which were doubled by rosiglitazone) alongside CV death, creating a mixed signal: rosiglitazone caused more CHF events (which count against it in the composite) while potentially having neutral effects on other CV outcomes. The endpoint's ability to capture the true CV benefit of glycaemic improvement is ambiguous given the CHF confound."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high__line_second",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this second-line T2DM population with inadequate glycaemic control, rosiglitazone achieved non-inferiority (HR 0.99) but not superiority on the CV composite endpoint despite superior glycaemic control. The population responded to glycaemic improvement but not to CV benefit, and experienced net harm from CHF doubling and bone fractures. This is a weak contradict for the hypothesis that this population would benefit from PPAR-gamma agonism on CV outcomes."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial has a complex outcome: the primary endpoint was technically 'met' as non-inferiority to active comparators (HR 0.99), but rosiglitazone doubled CHF events and increased bone fractures in women. The trial outcome is classified as 'partial' because the drug showed superior glycaemic biology but no CV benefit and significant safety signals. Expert review is needed to determine: (1) whether the non-inferiority design means the primary endpoint should be classified as 'success' or 'partial' given the safety signals; (2) how to weight the CHF harm signal against the glycaemic benefit in the causal chain; (3) whether the CV composite endpoint is an appropriate surrogate for T2DM benefit given that it captured rosiglitazone-induced CHF hospitalizations as harm events, potentially masking any true CV benefit from glycaemic improvement."
+}

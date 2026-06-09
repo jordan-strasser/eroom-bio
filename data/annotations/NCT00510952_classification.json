@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00510952",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both insulin lispro protamine suspension and insulin glargine are well-established insulin receptor agonists. Both arms showed substantial HbA1c reductions (~1.46% and ~1.41% respectively) and improved SMBG values, confirming that both drugs engaged the insulin receptor and lowered blood glucose. Target engagement is clearly demonstrated by the biomarker data.\n\n2. PATHWAY MODULATION: Downstream biology (glycemic control) clearly moved in both arms \u2014 HbA1c dropped from ~8.70% to ~7.15% (lispro) and ~7.24% (glargine). SMBG values also improved. The insulin receptor signaling pathway was modulated as expected in both arms.\n\n3. CLINICAL TRANSLATION: The primary endpoint was the DIFFERENCE between the two arms (lispro vs. glargine), not absolute improvement from baseline. The mean difference was only -0.05% HbA1c (95% CI: -0.21 to 0.11), p=0.551. This is a non-inferiority/superiority comparison trial \u2014 both drugs worked, but lispro was not superior to glargine. The trial failed because it was designed to show a difference between two active treatments, and no meaningful difference existed. This is fundamentally a head-to-head comparison where both arms succeeded biologically but the comparative hypothesis failed.\n\n4. POPULATION EFFECTS: No subgroup showed differential response to lispro vs. glargine on efficacy. The safety profile differed: lispro had significantly higher nocturnal hypoglycemia (49.8% vs 38%, p=0.011) and severe hypoglycemia (3.9% vs 0.9%, p=0.036). This is a clinically meaningful safety difference favoring glargine, even though efficacy was equivalent.\n\n5. CONFOUNDERS: This is an active-controlled comparative trial. Both arms achieved clinically meaningful HbA1c reductions (~1.4%). The 'failure' is purely comparative \u2014 lispro did not demonstrate superiority over glargine. The safety signal (higher hypoglycemia with lispro) is a real finding. The trial was adequately powered (n=471) and 24 weeks is appropriate for HbA1c assessment. The failure mode is best characterized as the two drugs being equivalent in efficacy (biology_moved_endpoint_flat for the comparative hypothesis), with lispro having a worse safety profile.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.75,
+      "evidence": "Both arms showed substantial HbA1c reductions (~1.4-1.46%), confirming biology moved in both arms. However, the comparative primary endpoint (difference between arms) was flat at -0.05% (p=0.551), meaning the trial failed to demonstrate superiority of lispro over glargine. The biology worked for both drugs; the comparative clinical hypothesis did not hold."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_lispro_protamine_suspension",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "lispro",
+      "reasoning": "HbA1c decreased by ~1.46% and SMBG improved substantially in the lispro arm, confirming insulin receptor engagement and downstream glycemic effect."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "insulin_glargine",
+      "target_entity": "ENSG00000171105",
+      "support": "strong_support",
+      "affecting_arm_id": "glargine",
+      "reasoning": "HbA1c decreased by ~1.41% and SMBG improved substantially in the glargine arm, confirming insulin receptor engagement and downstream glycemic effect."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "lispro",
+      "reasoning": "Substantial HbA1c and SMBG reductions in the lispro arm confirm that insulin receptor engagement drove the insulin receptor signaling pathway as expected."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000171105",
+      "target_entity": "GO:0008286",
+      "support": "strong_support",
+      "affecting_arm_id": "glargine",
+      "reasoning": "Substantial HbA1c and SMBG reductions in the glargine arm confirm that insulin receptor engagement drove the insulin receptor signaling pathway as expected."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "lispro",
+      "reasoning": "Insulin receptor signaling pathway activation led to meaningful glycemic control (HbA1c -1.46%) in the lispro arm, confirming the mechanism drives the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0008286",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "strong_support",
+      "affecting_arm_id": "glargine",
+      "reasoning": "Insulin receptor signaling pathway activation led to meaningful glycemic control (HbA1c -1.41%) in the glargine arm, confirming the mechanism drives the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "lispro",
+      "reasoning": "Both arms achieved clinically meaningful HbA1c reductions (~1.4%), with ~43% of lispro patients reaching HbA1c <7.0%, confirming that glycemic control biology drives type 2 diabetes outcomes."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "strong_support",
+      "affecting_arm_id": "glargine",
+      "reasoning": "Both arms achieved clinically meaningful HbA1c reductions (~1.4%), with ~41% of glargine patients reaching HbA1c <7.0%, confirming that glycemic control biology drives type 2 diabetes outcomes."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_24_week_endpoint_hemoglobin_a1c_hba1c",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at 24 weeks is a well-validated surrogate endpoint for type 2 diabetes management. Both arms showed clinically meaningful reductions (~1.4%), confirming the endpoint captures the disease biology. The endpoint did not differentiate between the two active treatments, but this reflects equivalent efficacy rather than endpoint inadequacy."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_high__hba1c_high__line_second",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (adults with T2DM on anti-hyperglycemic medications, high baseline HbA1c ~8.70%) responded well to both insulin formulations with ~1.4% HbA1c reductions, but lispro did not differentiate from glargine (p=0.551). No subgroup showed differential response favoring lispro. The population responded to insulin therapy generally but not differentially to lispro vs glargine."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

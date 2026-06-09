@@ -1,0 +1,31 @@
+{
+  "nct_id": "NCT00809510",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm whether ABT-089 engaged the nicotinic acetylcholine receptor (alpha-4 beta-2). The trial was an open-label extension safety study with no efficacy readout and no target engagement measurements reported.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., cholinergic neurotransmission markers) were reported. There is no evidence of pathway modulation.\n\n3. CLINICAL TRANSLATION: The primary endpoint was safety assessments (ECG, labs, vitals, AEs, neurological exams). No results were reported for any endpoint \u2014 effect size and p-value are null, and the outcome is listed as 'unknown.' The trial was terminated with no stated reason.\n\n4. POPULATION EFFECTS: No subgroup analyses were conducted or reported.\n\n5. CONFOUNDERS: This was an open-label extension study (no comparator arm) with a primary safety endpoint only. The trial was terminated before completion with no stated reason and no efficacy readout. With 63 subjects, a 6-month duration, and no results reported, this trial provides essentially no usable mechanistic or efficacy information. The termination without stated reason and absence of any results suggests either a commercial/strategic decision or an administrative termination. Since the primary endpoint was safety-only and no results were reported, this qualifies as insufficient_information \u2014 the mechanism was never given a fair test with a measurable efficacy readout, and the termination reason is unknown.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Trial was terminated with no stated reason. Primary endpoint was safety-only (no efficacy endpoint). No results reported for any endpoint \u2014 effect size, p-value, and outcome are all null/unknown. No biomarker, PD, or target engagement data available. Open-label extension with no comparator arm provides no mechanistic inference."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.35,
+      "evidence": "Trial terminated with no stated reason. The absence of safety signals in the narrative and the open-label extension design suggest the termination may have been driven by commercial or strategic decisions rather than scientific failure, though this cannot be confirmed."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_safety_assessments_i_e_ecg_clinical_laboratory",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety assessment battery, not an efficacy endpoint. No results were reported due to trial termination. Safety endpoints do not directly capture clinical benefit in Alzheimer's disease, and no data was generated to assess translatability."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated with no stated reason and no results reported for any endpoint. It is unclear whether termination was due to commercial/strategic reasons, safety concerns identified outside this trial, or administrative issues. The absence of any efficacy readout and the open-label extension design mean the mechanistic causal chain was never tested. Expert review is needed to determine the actual reason for termination and whether any unpublished data exists from this study."
+}

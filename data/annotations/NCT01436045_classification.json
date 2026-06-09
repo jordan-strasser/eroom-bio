@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT01436045",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarker (e.g., CSF insulin receptor phosphorylation) was measured. The olfactory function SMT ratio (2.5 vs 2.33) is a very modest difference and serves as an indirect proxy for CNS delivery rather than receptor engagement per se. There is no explicit PD confirmation that intranasal insulin glulisine engaged brain insulin receptors. Per the round-28 AFFECTS rule, no affects record is emitted since target engagement was not directly measured.\n\n2. PATHWAY MODULATION: No direct pathway biomarker (e.g., IRS phosphorylation, downstream signaling markers) was reported. The mechanism of neuronal insulin signaling enhancement is assumed rather than demonstrated. The olfactory SMT ratio suggests some CNS delivery but does not confirm receptor-level pathway activation.\n\n3. CLINICAL TRANSLATION: The primary endpoint composite (RBANS battery, Trails B seconds, Trails B errors) showed a mixed picture. Trails B Errors reached p=0.05 (borderline significance), Trails B Seconds showed directional improvement (166.83 vs 177.25) but no reported p-value, and RBANS subtests showed inconsistent results \u2014 some favoring drug (Line Orientation: 14.25 vs 12.25), others essentially null (List Learning: 15.92 vs 16.67 favoring placebo; Story Memory: 8.58 vs 8.41 essentially null). The overall effect size of 0.92 on Trails B Errors is notable but the trial is extremely small (N=12), making the p=0.05 result fragile.\n\n4. POPULATION EFFECTS: The enrolled population is mild-to-moderate AD patients with low Hachinski Ischemia Score and low HbA1c. No subgroup analyses by biomarker-defined responders were conducted. The small N=12 precludes meaningful subgroup analysis.\n\n5. CONFOUNDERS: Critical confounders: (a) N=12 is extremely small \u2014 this is a pilot/proof-of-concept study, grossly underpowered for definitive conclusions; (b) single-dose acute design (20-minute assessment) is a very short timeframe that may not reflect clinically meaningful cognitive benefit; (c) p=0.05 is borderline and with N=12 is highly susceptible to Type I error; (d) multiple cognitive endpoints tested without correction for multiplicity inflates false positive risk; (e) the RBANS results are inconsistent \u2014 some subtests favor placebo. Overall, this is best classified as 'partial' \u2014 one endpoint reached nominal significance in a very small pilot, but the evidence is weak and inconsistent across the cognitive battery. The trial is underpowered and the single-dose acute design limits clinical translation.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "N=12 is extremely small for a cognitive endpoint trial. The p=0.05 result on Trails B Errors is borderline and unreliable at this sample size. Multiple cognitive subtests showed no benefit or favored placebo (List Learning 15.92 vs 16.67, Story Memory 8.58 vs 8.41), suggesting the positive signal may be a chance finding."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.6,
+      "evidence": "Single-dose assessment at 20 minutes post-administration is an acute pharmacodynamic paradigm, not a clinically meaningful treatment duration for Alzheimer's disease. While the design tests acute CNS insulin effects, it cannot establish whether sustained cognitive benefit would occur with repeated dosing."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-74713",
+      "target_entity": "bio:2e073a66893a",
+      "support": "weak_support",
+      "affecting_arm_id": "insulin_glulisine",
+      "reasoning": "Trails B Errors showed nominal improvement (p=0.05) suggesting some downstream biological effect on executive function, but results are inconsistent across the cognitive battery and the sample is N=12. Weak directional support for IRS activation affecting neuronal insulin signaling enhancement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:2e073a66893a",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "insulin_glulisine",
+      "reasoning": "One cognitive endpoint (Trails B Errors) showed nominal improvement at p=0.05 in a very small pilot (N=12), providing weak directional support that neuronal insulin signaling enhancement may drive some cognitive benefit in AD. However, inconsistent RBANS results and extreme underpowering limit confidence."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_cognitive_performance",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The cognitive performance battery (RBANS + Trails B) captured a nominal signal on Trails B Errors (p=0.05) but showed inconsistent results across subtests. The endpoint battery is clinically relevant for AD but the mixed results and acute single-dose design limit confidence in its translatability. Weak support \u2014 the endpoint trended in the right direction on one measure but not consistently."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hachinskiischemiascore_low__hba1c_low",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "This low-vascular-risk, non-diabetic AD population showed a nominal positive signal on Trails B Errors (p=0.05) with directional improvement on Trails B Seconds, suggesting this population may be responsive to intranasal insulin. However, N=12 and inconsistent RBANS results limit confidence to weak support."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is an extremely small pilot trial (N=12) with a single-dose acute design. The primary endpoint was met at exactly p=0.05 on one measure (Trails B Errors) but the broader cognitive battery showed inconsistent results with some subtests favoring placebo. Multiple cognitive endpoints were tested without multiplicity correction. The trial outcome sits between 'partial' and 'success' and expert judgment is needed on whether the nominal p=0.05 finding in N=12 constitutes meaningful evidence of efficacy. Additionally, the olfactory SMT ratio as a CNS delivery proxy is non-standard and its interpretation as target engagement evidence is uncertain."
+}

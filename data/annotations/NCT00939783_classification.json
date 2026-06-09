@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00939783",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a long-term safety extension study (NCT00939783) for Dimebon in Alzheimer's disease. The primary endpoint is purely a safety measure \u2014 percentage of participants with adverse events up to Week 65. There is no efficacy endpoint, no biomarker data, and no target engagement evidence reported. The trial cannot speak to whether Dimebon engaged its intended targets (mitochondria, NMDA receptor, histamine receptor). 2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers were reported. The trial was not designed to assess mechanism engagement. 3. CLINICAL TRANSLATION: The primary endpoint is a safety/tolerability measure, not an efficacy endpoint. The 73.1% AE rate is descriptive with no comparator arm and no p-value. The trial was terminated (referenced to the parent B1451027 protocol termination, which failed its primary efficacy endpoint). This extension study provides no efficacy readout. 4. POPULATION EFFECTS: Subgroup findings are all safety-related (QTcF prolongation, urinary abnormalities, BP changes). No efficacy subgroup analyses were conducted. 5. CONFOUNDERS: This is a single-arm safety extension study with no control arm, no efficacy endpoint, and no historical benchmark for the safety rate. The trial was terminated, likely due to the failure of the parent B1451027 efficacy trial. The primary endpoint (AE rate) is a pure safety measure \u2014 there is no efficacy readout at all from this trial. The safety signals noted (QTcF prolongation in 18.3%, cardiac SAEs, urinary abnormalities) are notable but without a comparator arm cannot be attributed to dose-limiting toxicity per the DLT criteria. This trial provides no usable efficacy readout \u2014 it is a safety extension that was terminated following the parent trial's failure, and the only data reported is descriptive safety data with no comparator.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "This is a single-arm long-term safety extension study with no efficacy endpoint, no comparator arm, and no historical benchmark. The primary endpoint is purely descriptive safety (73.1% AE rate). The trial was terminated following the parent B1451027 protocol termination. No efficacy readout is available from this trial, making it impossible to assess the mechanistic causal chain."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.5,
+      "evidence": "The trial was terminated with the termination reason referenced to the parent B1451027 protocol, suggesting the extension was stopped following the commercial/strategic decision to discontinue Dimebon development after the parent efficacy trial failed."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_adverse_events_aes",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint is a pure safety/tolerability measure (AE incidence), not an efficacy endpoint. It does not capture clinical benefit in Alzheimer's disease. The 73.1% AE rate is descriptive with no comparator, making it impossible to assess whether this endpoint translates to clinical benefit. Emitting ambiguous as the endpoint is a safety measure, not a clinical benefit surrogate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "This is a single-arm safety extension study with no efficacy readout and no comparator. The population response to Dimebon in Alzheimer's disease cannot be assessed from this trial's data alone. Ambiguous is appropriate given the absence of any efficacy signal."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This trial is a long-term safety extension study terminated following the parent B1451027 protocol failure. It has no efficacy endpoint, no comparator arm, and provides only descriptive safety data. The mechanistic causal chain was never tested in this trial. Expert review is needed to confirm whether the parent trial's efficacy failure (B1451027) should be the primary source of mechanistic chain evidence for Dimebon in Alzheimer's disease, and whether the safety signals observed here (QTcF prolongation, cardiac SAEs) are clinically meaningful without a control arm for comparison."
+}

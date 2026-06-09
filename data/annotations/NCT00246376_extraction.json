@@ -1,0 +1,445 @@
+{
+  "nct_id": "NCT00246376",
+  "therapeutic_hypothesis": {
+    "compound": "Niacin + Fenofibrate (with diet and exercise)",
+    "claimed_target": "lipid metabolism enzymes / PPAR-alpha / GPR109A",
+    "proposed_mechanism": "lipid-lowering via PPAR-alpha activation (fenofibrate) and niacin receptor agonism",
+    "intended_biology": "dyslipidemia correction and cardiovascular risk reduction",
+    "target_population": "HIV-infected individuals with lipodystrophy or dyslipidemia",
+    "primary_endpoint": "Triglycerides, Non-HDL-C, HDL-C, Total Cholesterol, Total Cholesterol:HDL-C Ratio at 24 weeks",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Triglycerides: 135.6 mg/dL (combo) vs 199 mg/dL (usual care); HDL-C: 44.8 mg/dL (combo) vs 37.1 mg/dL (usual care); TC:HDL ratio: 4.0 (combo) vs 5.2 (usual care)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Adiponectin highest in Diet/Exercise+Niacin arm (11.01 mcg/mL) vs usual care (7.12 mcg/mL)",
+      "HOMA-IR highest in Diet/Exercise+Niacin arm (2.76) vs usual care (1.92)",
+      "Insulin sensitivity index lowest in combo arms (2.38) vs usual care (3.54)",
+      "Body cell mass highest in combo arm (68.2 kg) vs usual care (59.6 kg)",
+      "Fat mass similar across arms (35.8\u201337.7 kg)"
+    ],
+    "subgroup_findings": [
+      "Niacin arms showed higher adiponectin but also higher HOMA-IR suggesting possible insulin resistance worsening",
+      "Diet/Exercise alone improved insulin sensitivity index (4.95) vs usual care (3.54)",
+      "Fenofibrate+Niacin combo achieved lowest triglycerides (135.6 mg/dL) and best TC:HDL ratio (4.0)"
+    ],
+    "safety_signals": [
+      "Elevated transaminases >3x ULN observed across arms including combo",
+      "Chest pain/angina reported in usual care, diet/exercise, fenofibrate, and niacin arms",
+      "Serum creatinine >1.5 mg/dL in usual care, fenofibrate, niacin, and combo arms",
+      "Triglycerides >1000 mg/dL in usual care (1/30), diet/exercise (3/38), and niacin (1/40) arms",
+      "Elevated bilirubin most common in usual care (3/30) and diet/exercise (5/38) arms"
+    ],
+    "dose_info": {
+      "dose": "Niacin: up to 2 grams/day; Fenofibrate: 120 mg/day",
+      "schedule": "Niacin titrated up to 2 g/day; Fenofibrate 120 mg/day",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Niacin titrated upward"
+    },
+    "adverse_events": [
+      {
+        "term": "Transaminases elevated >3 times upper normal limit",
+        "grade": "3",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.33,
+        "serious": true
+      },
+      {
+        "term": "Chest pain / angina",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.33,
+        "serious": true
+      },
+      {
+        "term": "Serum creatinine > 1.5 mg/dL",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.33,
+        "serious": true
+      },
+      {
+        "term": "Triglycerides > 1000 mg/dL",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.33,
+        "serious": true
+      },
+      {
+        "term": "Elevated Bilirubin",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 10.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "HIV-associated lipodystrophy or dyslipidemia",
+    "comparator": "Usual care (placebo only)",
+    "sample_size": 221,
+    "duration": "24 weeks",
+    "duration_weeks": 24.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "1",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "2",
+      "compounds": [
+        "diet",
+        "exercise",
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "3",
+      "compounds": [
+        "diet",
+        "exercise",
+        "niacin",
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "4",
+      "compounds": [
+        "diet",
+        "exercise",
+        "fenofibrate",
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "5",
+      "compounds": [
+        "diet",
+        "exercise",
+        "niacin",
+        "fenofibrate"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Fasting insulin",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "fasting_insulin",
+          "level": "unknown"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "HOMA-IR",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "homa_ir",
+          "level": "unknown"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Insulin sensitivity index",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "insulin_sensitivity_index",
+          "level": "unknown"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Adiponectin",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "adiponectin",
+          "level": "unknown"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Body cell mass",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "body_cell_mass",
+          "level": "unknown"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Fat mass",
+      "features": [
+        {
+          "axis": "biomarker",
+          "key": "fat_mass",
+          "level": "unknown"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "1",
+      "intervention": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 199.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "",
+      "biology_description": "",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia, usual care",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "2",
+      "intervention": "diet",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 216.9,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "dietary macronutrient modification",
+      "biology_description": "lipid metabolism modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving supervised diet and exercise",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "niacin",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 177.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "diet",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 177.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "dietary macronutrient modification",
+      "biology_description": "lipid metabolism modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "4",
+      "intervention": "fenofibrate",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 155.1,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "PPAR-alpha activation increasing lipoprotein lipase expression and fatty acid oxidation",
+      "biology_description": "dyslipidemia correction via triglyceride lowering and HDL raising",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "4",
+      "intervention": "diet",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 155.1,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "dietary macronutrient modification",
+      "biology_description": "lipid metabolism modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and fenofibrate",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "5",
+      "intervention": "niacin",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 135.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, niacin, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "5",
+      "intervention": "fenofibrate",
+      "subgroup_descriptor": null,
+      "endpoint": "Triglycerides",
+      "effect_size": 135.6,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "PPAR-alpha activation increasing lipoprotein lipase expression and fatty acid oxidation",
+      "biology_description": "dyslipidemia correction via triglyceride lowering and HDL raising",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, niacin, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "1",
+      "intervention": "placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "HDL-C",
+      "effect_size": 37.1,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "",
+      "biology_description": "",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia, usual care",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "niacin",
+      "subgroup_descriptor": null,
+      "endpoint": "HDL-C",
+      "effect_size": 41.8,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "4",
+      "intervention": "fenofibrate",
+      "subgroup_descriptor": null,
+      "endpoint": "HDL-C",
+      "effect_size": 40.7,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "PPAR-alpha activation increasing lipoprotein lipase expression and fatty acid oxidation",
+      "biology_description": "dyslipidemia correction via triglyceride lowering and HDL raising",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "5",
+      "intervention": "niacin",
+      "subgroup_descriptor": null,
+      "endpoint": "HDL-C",
+      "effect_size": 44.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, niacin, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "5",
+      "intervention": "fenofibrate",
+      "subgroup_descriptor": null,
+      "endpoint": "HDL-C",
+      "effect_size": 44.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "PPAR-alpha activation increasing lipoprotein lipase expression and fatty acid oxidation",
+      "biology_description": "dyslipidemia correction via triglyceride lowering and HDL raising",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, niacin, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "niacin",
+      "subgroup_descriptor": "Adiponectin",
+      "endpoint": "Adiponectin",
+      "effect_size": 11.01,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "5",
+      "intervention": "niacin",
+      "subgroup_descriptor": "Adiponectin",
+      "endpoint": "Adiponectin",
+      "effect_size": 10.34,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, niacin, and fenofibrate",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "niacin",
+      "subgroup_descriptor": "HOMA-IR",
+      "endpoint": "HOMA-IR",
+      "effect_size": 2.76,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "3",
+      "intervention": "niacin",
+      "subgroup_descriptor": "Insulin sensitivity index",
+      "endpoint": "Insulin sensitivity index",
+      "effect_size": 2.88,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor agonism at GPR109A reducing hepatic VLDL secretion and lipolysis",
+      "biology_description": "dyslipidemia correction via triglyceride and HDL modulation",
+      "population_description": "HIV-infected individuals with lipodystrophy or dyslipidemia receiving diet, exercise, and niacin",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "fenofibrate",
+      "primary_compound_id": "niacin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.72,
+      "hypothesis": "Fenofibrate's PPAR-alpha-mediated triglyceride lowering complements niacin's HDL-raising and VLDL-suppressing effects, producing additive dyslipidemia correction beyond either agent alone",
+      "citation": "Diet/Exercise + Fenofibrate + Niacin arm achieved lowest triglycerides (135.6 mg/dL) and best TC:HDL ratio (4.0) compared to either drug alone"
+    },
+    {
+      "modulator_compound_id": "diet",
+      "primary_compound_id": "fenofibrate",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "Dietary modification reduces substrate availability for hepatic lipid synthesis, amplifying fenofibrate's PPAR-alpha-mediated triglyceride lowering",
+      "citation": "Diet/Exercise + Fenofibrate arm achieved triglycerides of 155.1 mg/dL vs 199 mg/dL in usual care"
+    },
+    {
+      "modulator_compound_id": "diet",
+      "primary_compound_id": "niacin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "Dietary modification reduces lipid substrate load, amplifying niacin's ability to raise HDL and lower triglycerides",
+      "citation": "Diet/Exercise + Niacin arm achieved triglycerides of 177.6 mg/dL and HDL-C of 41.8 mg/dL vs 199 mg/dL and 37.1 mg/dL in usual care"
+    }
+  ]
+}

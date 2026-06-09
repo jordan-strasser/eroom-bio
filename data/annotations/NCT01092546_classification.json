@@ -1,0 +1,63 @@
+{
+  "nct_id": "NCT01092546",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: [18F]Flutemetamol is a radioligand designed to bind amyloid beta plaques. The trial directly measured target engagement by correlating PET SUVR values with immunohistochemical (IHC) amyloid quantification from cortical biopsies. The composite region correlation of r=0.81 (CER reference) and r=0.76 (Pons reference) demonstrates meaningful target engagement \u2014 the radioligand signal tracks histologically confirmed amyloid burden. This is direct evidence of radioligand binding to its intended target.\n\n2. PATHWAY MODULATION: For a diagnostic radioligand, 'pathway modulation' translates to whether the PET signal accurately reflects the underlying biology (amyloid plaque load). The correlation data confirms this: composite region SUVR correlates strongly with IHC amyloid (r=0.81), indicating the imaging signal does reflect the intended biology. The biopsy-site-specific correlation is lower (r=0.64), likely due to spatial mismatch between the small biopsy sample and the PET voxel resolution \u2014 a methodological limitation rather than a failure of the mechanism.\n\n3. CLINICAL TRANSLATION: The primary endpoint was the correlation coefficient between SUVR at the biopsy site and IHC amyloid levels using the cerebellum as reference. The biopsy-site correlation was r=0.64, which is moderate but not definitively meeting or missing a pre-specified threshold (no threshold or p-value was reported). The composite region performed better (r=0.81). The trial was terminated by the sponsor due to 'Changed focus of the program' \u2014 a commercial/strategic decision \u2014 before formal endpoint adjudication. The partial outcome classification reflects that the data shows meaningful signal but no formal success/failure determination was made.\n\n4. POPULATION EFFECTS: The trial enrolled only 12 patients with Normal Pressure Hydrocephalus (NPH) undergoing shunt placement \u2014 a small, specific population. NPH patients may have variable amyloid burden, and the biopsy provides only a small cortical sample. The spatial mismatch between biopsy site and PET resolution likely explains the lower biopsy-site correlation vs. composite region. No formal subgroup analyses by amyloid positivity status were reported.\n\n5. CONFOUNDERS: Key confounders include: (a) Very small sample size (N=12) \u2014 severely underpowered for definitive conclusions; (b) No pre-specified success threshold for the correlation coefficient; (c) No p-values reported; (d) Trial terminated for commercial reasons ('Changed focus of program'), not scientific failure; (e) Spatial mismatch between small cortical biopsy and PET voxel resolution inherently limits biopsy-site correlation; (f) The composite region correlation (r=0.81) suggests the mechanism works but the specific endpoint (biopsy-site correlation) is methodologically limited. The primary failure mode is commercial/strategic termination combined with underpowering, not mechanistic failure.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.75,
+      "evidence": "Trial was explicitly terminated due to 'Changed focus of the program' per sponsor GE Healthcare, not due to safety or efficacy concerns. The correlation data (composite r=0.81) suggests the mechanism was working."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Only 12 patients enrolled. No p-values reported. No pre-specified success threshold for the correlation coefficient. Insufficient sample to draw definitive conclusions about the primary endpoint."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "18f_flutemetamol",
+      "target_entity": "UNKNOWN",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "The trial directly measured target engagement via SUVR-IHC correlation. Composite region r=0.81 confirms the radioligand binds amyloid plaques as intended. The target node is listed as UNKNOWN in the resolved entities, but the binding evidence is real. Moderate rather than strong due to small N=12 and no p-values."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:5354d379bc6e",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "Radioligand binding mechanism demonstrably affects amyloid plaque detection via PET imaging \u2014 composite region SUVR correlates r=0.81 with IHC amyloid. The mechanism (radioligand binding \u2192 PET signal) works as intended. Moderate rather than strong due to small sample and missing p-values."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5354d379bc6e",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "weak_support",
+      "affecting_arm_id": "arm_1",
+      "reasoning": "Amyloid plaque detection via PET imaging is relevant to NPH insofar as amyloid co-pathology is present in some NPH patients. The trial demonstrates amyloid can be detected in this population, but the link between amyloid burden and NPH disease is not the primary hypothesis being tested here. Weak support as the trial shows amyloid is detectable in NPH patients but doesn't establish amyloid as a driver of NPH."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_standard_uptake_ratio_suvr_site_biopsy_based",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The SUVR biopsy-site correlation endpoint showed moderate correlation (r=0.64) with IHC amyloid, while the composite region performed better (r=0.81). No p-values or pre-specified thresholds were reported, and the trial was terminated commercially. The endpoint's ability to capture amyloid burden in NPH is plausible but not definitively established with this small sample and no formal statistical testing."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloid_positive",
+      "target_entity": "normal_pressure_hydrocephalus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled NPH patients undergoing shunt placement, some of whom had amyloid co-pathology detectable by IHC. The correlation data suggests amyloid-positive patients show meaningful SUVR signal, but with N=12 and no formal subgroup analysis by amyloid positivity status, the evidence is ambiguous. No formal comparison between amyloid-positive and amyloid-negative subgroups was reported."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated for commercial reasons ('Changed focus of program') with only N=12 patients and no pre-specified success threshold or p-values for the primary endpoint. The correlation data (composite r=0.81) suggests the mechanism works, but formal endpoint adjudication was never completed. Expert review needed to: (1) determine whether the composite region correlation (r=0.81) should be considered a success for the radioligand's diagnostic validity; (2) assess whether the biopsy-site spatial mismatch with PET resolution is a fundamental methodological limitation that invalidates the primary endpoint design; (3) clarify whether the commercial termination reflects a genuine scientific pivot or abandonment of a working diagnostic tool."
+}

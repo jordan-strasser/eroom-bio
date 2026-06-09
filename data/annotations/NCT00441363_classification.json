@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00441363",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data was collected to confirm that bromocriptine mesylate engaged the dopamine D2 receptor at the dose used (0.8 mg). No target engagement evidence is available. Per Round-28 AFFECTS rule, no affects edge is emitted since engagement was not measured or implied. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., insulin sensitivity markers, glucose metabolism readouts) were reported. The mechanism of CNS modulation of insulin resistance via dopamine receptor agonism cannot be assessed from this trial. 3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change from baseline at 24 weeks) was not met. The bromocriptine arm showed -0.4% HbA1c change vs. -0.5% in the placebo arm, meaning placebo actually performed slightly better numerically. No p-value was reported. However, the trial was terminated early due to failure to recruit in a timely manner, with only ~66 subjects enrolled (32 in the treatment arm), far below the pre-specified power calculation. This means the trial was grossly underpowered and the mechanistic hypothesis was never given a fair test. 4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population was adults with type 2 diabetes on metformin. 5. CONFOUNDERS: The primary failure mode is underpowering due to early termination for recruitment failure. The trial explicitly states it was terminated because too few subjects were enrolled to assess the outcome to pre-specified statistical power. With only ~32 subjects in the treatment arm and a placebo response of -0.5% (slightly larger than the drug effect of -0.4%), the trial cannot provide meaningful mechanistic inference. The high placebo response (-0.5% HbA1c) relative to the drug effect (-0.4%) also suggests potential high placebo response as a contributing factor, though this cannot be disentangled from the underpowering. The single SAE (unstable angina) in the treatment arm does not constitute dose-limiting toxicity per the structured criteria. The operational failure flag is set to true because the trial was terminated before reaching adequate enrollment, meaning the mechanism was never given a fair test.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Trial explicitly terminated due to failure to recruit in a timely manner. Only ~66 subjects enrolled (32 in treatment arm), explicitly stated as insufficient to assess outcome to pre-specified statistical power. No p-value could be computed."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.45,
+      "evidence": "Placebo arm showed -0.5% HbA1c change, numerically larger than the bromocriptine arm's -0.4%, suggesting a meaningful placebo response that could mask any true drug effect, though this cannot be reliably assessed given the small sample size."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:999869937e68",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bromocriptine_mesylate",
+      "reasoning": "The primary endpoint missed (placebo numerically outperformed drug), and no biomarker data is available. However, the trial was severely underpowered due to early termination, so this is only a weak contradict signal. The chain failure is directional but not reliable given the operational failure."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:999869937e68",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bromocriptine_mesylate",
+      "reasoning": "No PD biomarker data available and the endpoint missed. Per round-14 rules, a missed endpoint with no biomarker data warrants weak_contradict on mechanism_affects. Mitigated by severe underpowering."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_end_hba1c",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c is a well-established surrogate endpoint for type 2 diabetes and is regulator-accepted. However, the trial was terminated early and underpowered, so the endpoint's performance in this trial cannot be meaningfully assessed. The endpoint itself is appropriate for the indication, but the trial result is uninformative due to operational failure."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high__fastingplasmaglucose_high__hba1c_high__line_second",
+      "target_entity": "type_2_diabetes",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (type 2 diabetes on metformin, second-line) showed no differential response to bromocriptine vs. placebo (placebo numerically better). However, the trial was severely underpowered, limiting the strength of this signal to weak_contradict."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated early due to recruitment failure with only ~32 subjects in the treatment arm, far below pre-specified power. No p-value was computed. The placebo arm numerically outperformed the drug arm (-0.5% vs -0.4% HbA1c), but this cannot be interpreted reliably given the sample size. No target engagement or PD biomarker data was collected. The mechanistic hypothesis (dopamine D2 agonism \u2192 CNS modulation of insulin resistance \u2192 HbA1c reduction) was never adequately tested. Expert review is needed to determine whether the operational failure classification is appropriate and whether any mechanistic inference can be drawn from this trial."
+}

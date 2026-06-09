@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00777608",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that donepezil engaged acetylcholinesterase in this trial. However, donepezil is a well-established AChE inhibitor with extensive prior evidence of target engagement at the doses used (5\u201310 mg). The dose escalation protocol (5 mg for 14 days, then 10 mg) follows standard clinical practice. Per the round-28 AFFECTS rule, without direct engagement measurement we do not emit an affects record, but we do not contradict the curated binding evidence either.\n\n2. PATHWAY MODULATION: No biomarker data on cholinergic neurotransmission enhancement (e.g., CSF acetylcholine levels) was reported. We cannot confirm or deny pathway modulation from this trial's data.\n\n3. CLINICAL TRANSLATION: The primary endpoint (CogState Composite Score change at Week 4) was not met: effect size -0.07, p=0.231. Secondary cognitive endpoints (CogState at Weeks 8 and 12, ADAS-Cog at Weeks 4, 8, 12) were also not statistically significant. Notably, there was a statistically significant signal at Week 2 (p=0.041, effect size -0.2), but this was not the primary endpoint and was not sustained at later timepoints. The ADAS-Cog results at Weeks 4 and 8 even trended in the wrong direction (positive effect sizes indicating worsening relative to placebo). Overall, the clinical endpoint did not improve.\n\n4. POPULATION EFFECTS: The subgroup findings are primarily temporal (different timepoints) rather than biomarker-defined patient subgroups. The Week 2 signal is intriguing but may reflect early pharmacological effect that is not sustained, or could be a chance finding given multiple comparisons. No biomarker-defined subgroup showed consistent benefit.\n\n5. CONFOUNDERS: The trial enrolled only ~106 patients (53 per arm), which is relatively small for an Alzheimer's disease cognitive endpoint trial. This raises underpowering concerns. The 12-week duration is also relatively short for detecting cognitive benefit in Alzheimer's disease, though donepezil's mechanism is symptomatic and effects should be detectable within weeks. The primary endpoint (CogState Composite Score) is a computerized cognitive battery that may be less sensitive or validated than traditional endpoints like ADAS-Cog in this population. The transient Week 2 signal that disappears by Week 4 is puzzling and may suggest the endpoint or timeframe was suboptimal. The small sample size and short duration are the most likely contributors to the failure, alongside possible wrong timeframe for the primary endpoint assessment. The safety profile does not suggest dose-limiting toxicity prevented adequate dosing.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "N=106 total (53 per arm) is small for a cognitive endpoint trial in Alzheimer's disease. The effect sizes observed (-0.07 to -0.2) are modest, and the trial may have been insufficiently powered to detect a clinically meaningful difference at the pre-specified primary timepoint."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.5,
+      "evidence": "The primary endpoint was assessed at Week 4, when patients had only been on the full 10 mg dose for ~2 weeks (escalation occurred at Day 15). The transient significant signal at Week 2 (on 5 mg) that disappeared by Week 4 (on 10 mg) suggests the measurement timing may not have been optimal. Additionally, 12 weeks may be insufficient to demonstrate sustained cognitive benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-112311",
+      "target_entity": "bio:97ae9d9c975b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "donepezil_5_10_mg",
+      "reasoning": "No biomarker data on pathway modulation; primary and secondary cognitive endpoints failed across multiple timepoints, providing weak contradict signal for the mechanism-to-biology link. The transient Week 2 signal prevents stronger contradict."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:97ae9d9c975b",
+      "target_entity": "alzheimers_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "donepezil_5_10_mg",
+      "reasoning": "Cholinergic neurotransmission enhancement did not translate to measurable clinical benefit on cognitive endpoints in this trial. However, the small sample size and short duration limit the strength of this contradict signal."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_computer_based_cognitive_assessment_cogstate",
+      "target_entity": "alzheimers_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The CogState Composite Score showed a transient significant signal at Week 2 but not at the primary Week 4 timepoint or later. This mixed temporal pattern makes it unclear whether the endpoint failed to capture real biology or whether there was no biology to capture. The endpoint's validity as a surrogate for Alzheimer's disease benefit is uncertain in this context."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with p=0.231, and secondary endpoints across multiple timepoints also failed. The enrolled mild-to-moderate Alzheimer's disease population did not show consistent benefit from donepezil in this trial, though underpowering is a mitigating factor."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The transient statistically significant signal at Week 2 (p=0.041) that disappears at the primary Week 4 timepoint and all subsequent timepoints is unusual and may reflect a pharmacokinetic/pharmacodynamic phenomenon related to the dose escalation schedule (patients were on 5 mg at Week 2, transitioning to 10 mg at Day 15). This pattern warrants expert review to determine whether the primary endpoint timepoint was appropriately chosen relative to the dose escalation schedule, and whether the CogState battery is sufficiently validated for this indication and population. The small sample size also limits interpretability."
+}

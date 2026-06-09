@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00381810",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm CD20 target engagement by rituximab. The trial's primary endpoint was a safety measure (percentage of participants with at least 1 SAE), not an efficacy endpoint, so no efficacy readout exists. The trial was terminated early by the DMC based on safety concerns from related studies (U2970g and U2971g), not from this trial's own efficacy data. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., B-cell depletion counts) were reported. The mechanism of B-cell depletion via ADCC cannot be assessed from the available data. 3. CLINICAL TRANSLATION: The primary endpoint was a safety measure, not a clinical efficacy endpoint. There is no efficacy readout. The trial was terminated before any efficacy conclusion could be drawn. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The trial was terminated early following a DMC recommendation based on safety reviews of related studies, not due to this trial's own data. With only 31 participants and a safety-only primary endpoint, this is fundamentally a safety/extension study that was administratively terminated. The 35.5% SAE rate is notable but lacks a control arm comparator, making it impossible to attribute causally to rituximab vs. the underlying SLE disease burden. The termination was driven by external safety signals from sibling studies, representing a commercial/administrative decision rather than a mechanistic failure of this trial itself. This is classified as insufficient_information because the trial was terminated before any efficacy readout and the primary endpoint is purely a safety measure with no comparator arm.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "The trial's primary endpoint was a safety measure (% with SAE), not an efficacy endpoint. The trial was terminated early by DMC recommendation based on safety reviews of related studies (U2970g and U2971g), not this trial's own efficacy data. No efficacy readout was obtained, no control arm exists for comparison, and only 31 participants were enrolled. The outcome for the primary endpoint is listed as 'unknown'."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.55,
+      "evidence": "The DMC recommended termination based on safety review of OTHER studies (U2970g and U2971g), not based on this trial's own data. This is an administrative/external decision rather than a mechanistic failure of this specific trial."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_participants_least_1_serious_adverse_event",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint is a safety measure (SAE incidence), not an efficacy endpoint. It does not capture clinical benefit in SLE. The 35.5% SAE rate is reported but without a control arm comparator, it cannot be interpreted as evidence of benefit or harm attributable to rituximab vs. disease burden. The endpoint_captures relationship is ambiguous because this endpoint was not designed to capture clinical benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second__severity_active",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy data was collected. The trial was terminated early with only safety data available and no control arm. Population response to rituximab in active SLE retreatment cannot be assessed from this trial."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "systemic_lupus_erythematosus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rituximab_1000_mg",
+      "reasoning": "No efficacy readout was obtained and the trial was terminated early. While this is primarily due to administrative/external safety concerns rather than mechanistic failure, the absence of any efficacy signal from this SLE retreatment trial contributes weak contradict evidence for the B-cell mediated autoimmune suppression \u2192 SLE link. The signal is weak because the trial was not designed or powered to test efficacy."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rituximab_1000_mg",
+      "reasoning": "No PD biomarker data (e.g., B-cell depletion) was reported and no efficacy endpoint was measured. The trial provides no positive evidence that ADCC-mediated B-cell depletion translated to autoimmune suppression in this SLE retreatment population. Weak contradict is assigned per the round-14 rule for failed/uninformative trials with no biomarker data."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated early by DMC recommendation based on safety reviews of related studies (U2970g and U2971g), not this trial's own data. The primary endpoint is a safety measure with no control arm comparator, making it impossible to assess whether the 35.5% SAE rate represents excess risk attributable to rituximab vs. background SLE disease activity. No efficacy data was collected. Expert review is needed to determine whether the SAE rate in this retreatment extension study should be interpreted as a safety signal for rituximab in SLE, and to contextualize it against the sibling studies that triggered the DMC recommendation."
+}

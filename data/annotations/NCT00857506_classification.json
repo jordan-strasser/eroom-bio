@@ -1,0 +1,58 @@
+{
+  "nct_id": "NCT00857506",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Florbetapir F 18 is a PET radiotracer designed to bind amyloid-beta plaques. The trial demonstrates clear target engagement: baseline global average SUVR (a direct measure of radiotracer binding to amyloid plaques) correlated significantly with 36-month ADAS-Cog change across all diagnostic groups (r=0.502 MCI, r=0.364 AD, r=0.308 CN). The radiotracer successfully stratified subjects into A\u03b2+ and A\u03b2- groups, confirming it engaged its intended target. 2. PATHWAY MODULATION: The biology downstream of amyloid burden \u2014 cognitive decline \u2014 was clearly differentiated by amyloid status. A\u03b2+ MCI subjects showed greater decline across all psychometric measures (ADAS-Cog, DSS, CDR-SOB, MMSE) vs A\u03b2- MCI. A\u03b2+ AD subjects showed ADAS-Cog change of +8.879 vs +3.811 for A\u03b2- AD. This confirms that amyloid burden (as quantified by florbetapir) modulates downstream cognitive biology as predicted. 3. CLINICAL TRANSLATION: The primary endpoint was met: A\u03b2+ MCI subjects showed mean ADAS-Cog change of +5.664 vs -0.710 for A\u03b2- MCI (effect size 5.664+0.710 = ~6.4 point difference), a clinically meaningful difference. The endpoint appropriately captured the mechanism \u2014 amyloid burden predicts cognitive decline. Multiple secondary endpoints (CDR-SOB, MMSE, DSS, conversion rates) were concordant. 4. POPULATION EFFECTS: The trial is fundamentally a biomarker stratification study \u2014 it demonstrates that amyloid positivity (as detected by florbetapir) identifies a population at higher risk of cognitive decline. This is consistent across MCI, AD, and CN groups, though the effect is strongest in MCI (the primary endpoint population). A\u03b2- CN subjects showed essentially no decline (-0.094), while A\u03b2+ CN showed +3.237, further validating the biomarker's predictive value. 5. CONFOUNDERS: No p-value is reported, which is a limitation. The sample size is modest (N=152 total across 6 groups). The trial is observational/prognostic in nature \u2014 florbetapir was used as a diagnostic/stratification tool, not a therapeutic intervention. The 'arms' represent diagnostic subgroups rather than treatment arms. Safety was excellent (one unrelated SAE). The trial design is appropriate for its purpose: validating amyloid PET as a prognostic biomarker. Overall, this is a successful biomarker validation study demonstrating that florbetapir F 18 PET amyloid imaging predicts cognitive decline over 36 months.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "No p-value reported for the primary endpoint comparison, and total N=152 across 6 subgroups means individual group sizes are small (e.g., MCI A\u03b2+ n=36). This limits statistical precision, though the effect sizes are large and directionally consistent."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "florbetapir_f_18",
+      "target_entity": "UNKNOWN",
+      "support": "strong_support",
+      "affecting_arm_id": "florbetapir_f_18",
+      "reasoning": "Baseline SUVR from florbetapir F 18 PET directly quantified amyloid plaque burden and correlated with cognitive decline (r=0.502 in MCI), confirming the radiotracer engaged its intended target (amyloid-beta plaques)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:eaf74c5a69de",
+      "support": "strong_support",
+      "affecting_arm_id": "florbetapir_f_18",
+      "reasoning": "PET radiotracer binding mechanism successfully quantified amyloid burden, which in turn predicted cognitive decline across all diagnostic groups. The mechanism (amyloid burden quantification) directly affected the biology (cognitive decline prediction) as hypothesized."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:eaf74c5a69de",
+      "target_entity": "alzheimers_disease",
+      "support": "strong_support",
+      "affecting_arm_id": "florbetapir_f_18",
+      "reasoning": "Amyloid burden (as quantified by florbetapir SUVR) strongly predicted cognitive decline in MCI and AD subjects. A\u03b2+ MCI showed 5.664 point ADAS-Cog worsening vs -0.710 for A\u03b2- MCI; A\u03b2+ AD showed 8.879 vs 3.811. This confirms amyloid burden biology drives Alzheimer's disease progression."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_adas_cog_mci_subjects",
+      "target_entity": "alzheimers_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "ADAS-Cog change at 36 months successfully captured clinically meaningful cognitive decline differences between A\u03b2+ and A\u03b2- groups across MCI, AD, and CN populations. The endpoint was concordant with multiple secondary measures (CDR-SOB, MMSE, DSS, conversion rates), confirming it captures disease-relevant biology."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "alzheimers_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Amyloid-positive subjects across all diagnostic groups showed substantially greater cognitive decline than amyloid-negative subjects. The differential response is consistent and clinically meaningful (e.g., 6.4-point ADAS-Cog difference in MCI, 5.1-point difference in AD), confirming that amyloid-positive populations respond differently (worse prognosis) in Alzheimer's disease."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint comparison, making formal statistical significance assessment impossible. The trial is a prognostic biomarker validation study rather than a therapeutic intervention trial, which is an unusual design for this classification framework. The 'arms' represent diagnostic subgroups (A\u03b2+/A\u03b2- within MCI/AD/CN) rather than treatment arms, and the single valid arm_id 'florbetapir_f_18' does not map cleanly to the 6 reported outcome groups. Expert review is needed to confirm appropriate edge routing given this non-standard trial design."
+}

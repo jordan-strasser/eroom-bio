@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT00353522",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. CETP activity decreased by -56.5% in the dalcetrapib arm vs -5.69% in placebo at 48 weeks. CETP mass increased by 86.45% vs -4.93% in placebo at 24 weeks (compensatory upregulation consistent with enzyme inhibition). This confirms dalcetrapib engaged CETP as intended.\n\n2. PATHWAY MODULATION: Downstream biology moved as predicted. HDL-C increased by +33.4% (absolute +12.76 mg/dL) vs +3.59% in placebo at Week 24, and +33.76% vs +3.69% at 48 weeks. ApoA1 increased by +16.43% vs +8.15%. Total cholesterol rose modestly (+10.17% vs +2.67%), LDL-C was minimally affected (+4.75% vs +2.97%), and triglycerides were essentially unchanged (+0.94% vs +4.11%). The lipid profile changes are consistent with CETP inhibition driving HDL-C elevation via cholesterol ester transfer inhibition.\n\n3. CLINICAL TRANSLATION: The primary endpoint (absolute and percent change from baseline in HDL-C at Week 24) was met. The effect size is clinically meaningful (+12.76 mg/dL absolute, +33.4% relative). No p-value is reported, but the magnitude of difference vs placebo (+3.59%) is substantial. Note: this is a Phase 2 biomarker/surrogate endpoint trial \u2014 HDL-C elevation is the intended biological readout, not a cardiovascular outcomes endpoint. The trial was designed to demonstrate target engagement and pathway modulation, not clinical cardiovascular benefit.\n\n4. POPULATION EFFECTS: No biomarker-defined subgroup analyses for efficacy were reported. Mesenteric lymph node volume changes were tracked as a safety signal (4 increased vs 11 in placebo; 6 decreased vs 18 in placebo), suggesting no excess lymphadenopathy with dalcetrapib. The enrolled population (CHD or CHD risk equivalent) is appropriate for the mechanism.\n\n5. CONFOUNDERS: The trial is relatively small (N=135) and uses a surrogate endpoint (HDL-C) rather than cardiovascular outcomes. No p-value is reported, which limits statistical interpretation, but the effect size is large and consistent across multiple timepoints. Safety signals (atrial fibrillation in 2/89 dalcetrapib patients) are noted but did not prevent adequate dosing. The trial was not terminated early. Importantly, while this Phase 2 trial succeeded on its surrogate endpoint, the broader dalcetrapib program ultimately failed in the Phase 3 dal-OUTCOMES trial (cardiovascular outcomes), suggesting that HDL-C elevation via CETP inhibition with dalcetrapib does not translate to cardiovascular benefit \u2014 but that is outside the scope of this trial's classification.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "Small sample size (N=135) and no p-value reported for primary endpoint. The trial was designed as a Phase 2 proof-of-concept study for a surrogate biomarker endpoint, not powered for cardiovascular outcomes. This is a minor caveat for this trial's stated objectives, which were met."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dalcetrapib",
+      "target_entity": "ENSG00000087237",
+      "support": "strong_support",
+      "affecting_arm_id": "dalcetrapib",
+      "reasoning": "CETP activity decreased by -56.5% vs -5.69% placebo at 48 weeks, and CETP mass increased by 86.45% vs -4.93% placebo \u2014 direct pharmacodynamic evidence of target engagement by dalcetrapib."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000087237",
+      "target_entity": "R-HSA-8964041",
+      "support": "strong_support",
+      "affecting_arm_id": "dalcetrapib",
+      "reasoning": "CETP inhibition (confirmed by -56.5% activity reduction) drove the intended downstream pathway: HDL-C elevated +33.4%, ApoA1 +16.43%, with minimal LDL-C or triglyceride changes \u2014 consistent with LDL remodeling pathway modulation via CETP inhibition."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-8964041",
+      "target_entity": "bio:55c47dbf62b6",
+      "support": "strong_support",
+      "affecting_arm_id": "dalcetrapib",
+      "reasoning": "LDL remodeling pathway inhibition via CETP produced robust HDL-C elevation (+33.4% vs +3.59% placebo), directly demonstrating that the mechanism drives the intended biology of HDL-C elevation via cholesterol ester transfer inhibition."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:55c47dbf62b6",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_support",
+      "affecting_arm_id": "dalcetrapib",
+      "reasoning": "HDL-C elevation was achieved robustly, but this trial only measured the surrogate biomarker endpoint, not cardiovascular outcomes. The link between HDL-C elevation via CETP inhibition and coronary heart disease benefit remains unproven at this stage; weak support reflects the biological plausibility without clinical outcomes evidence from this trial."
+    },
+    {
+      "edge_type": "reflects_biology",
+      "source_entity": "bio:55c47dbf62b6",
+      "target_entity": "biomarker_hdl_c",
+      "support": "strong_support",
+      "affecting_arm_id": "dalcetrapib",
+      "reasoning": "HDL-C as a biomarker directly and robustly reflected the intended biology of HDL-C elevation via cholesterol ester transfer inhibition \u2014 +33.4% change vs +3.59% placebo, consistent across 24 and 48 week timepoints."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_hdl_c",
+      "target_entity": "coronary_heart_disease",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "HDL-C change was measured and hit cleanly as a surrogate endpoint. However, HDL-C elevation as a surrogate for cardiovascular benefit in CHD is not firmly established \u2014 it captures the biology but its translation to clinical benefit in coronary heart disease is uncertain, warranting only weak support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "coronary_heart_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled CHD/CHD-risk-equivalent population showed a clear and consistent response to dalcetrapib on the primary surrogate endpoint (HDL-C +33.4% vs +3.59% placebo), supporting that this population responds to CETP inhibition on the biomarker level. Moderate rather than strong support because no p-value is reported and the endpoint is a surrogate."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

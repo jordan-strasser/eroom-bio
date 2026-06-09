@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00308581",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. CRP decreased from median 9.5 mg/L at baseline to 4.2 mg/L at Week 2 and remained suppressed (~3.8-4.2 mg/L) through Week 6, and near/below 5 mg/L through maintenance. This confirms certolizumab pegol engaged TNF-alpha and modulated downstream inflammation markers. 2. PATHWAY MODULATION: The CRP suppression confirms downstream biology moved \u2014 TNF neutralization reduced systemic inflammatory markers consistent with suppression of intestinal inflammation. The mechanism (cytokine neutralization \u2192 adaptive immune response modulation \u2192 intestinal inflammation suppression) appears to have functioned. 3. CLINICAL TRANSLATION: The primary endpoint (\u2265100-point CDAI decrease at Week 6) was met \u2014 334/539 (62%) achieved response. This is a clear induction success. However, the trial's design compared two maintenance dosing regimens (Q4W vs Q2W) rather than drug vs placebo in maintenance. At Week 26, response rates were 37.4% (Q4W) and 35.5% (Q2W) with OR 1.1 (95% CI 0.7\u20131.7), p=0.696 \u2014 no significant difference between regimens. Remission rates were ~27-28% in both arms. The maintenance comparison was essentially a dosing-schedule question, not an efficacy-vs-placebo question. 4. POPULATION EFFECTS: The population was infliximab-experienced (loss of response or intolerance), a second-line population. Both dosing arms performed similarly, suggesting no differential response by schedule. No biomarker-defined subgroup analysis was reported. 5. CONFOUNDERS: The key design issue is the absence of a placebo comparator in the maintenance phase \u2014 the trial was designed to compare two active dosing regimens, not to establish superiority over placebo. The primary endpoint (Week 6 induction) was met without a placebo control, making it a single-arm induction success. The maintenance phase comparison answered a dosing question (Q4W vs Q2W equivalence), not an efficacy question. This is a partial outcome: induction succeeded, maintenance dosing comparison showed equivalence (not superiority of either schedule), and no placebo-controlled maintenance efficacy was established in this trial.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "The maintenance phase compared two active dosing regimens without a placebo arm, limiting the ability to draw conclusions about long-term efficacy vs. no treatment. The p=0.696 for the Q4W vs Q2W comparison reflects equivalence between schedules, not a powered test of drug vs. placebo."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "active_1",
+      "reasoning": "CRP suppression from 9.5 mg/L to ~4.2 mg/L at Week 2 and sustained through maintenance confirms target engagement of TNF-alpha by certolizumab pegol in the Q4W arm."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "certolizumab_pegol",
+      "target_entity": "ENSG00000232810",
+      "support": "strong_support",
+      "affecting_arm_id": "active_2",
+      "reasoning": "CRP suppression from 9.5 mg/L to ~4.2 mg/L at Week 2 and sustained through maintenance confirms target engagement of TNF-alpha by certolizumab pegol in the Q2W arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_1",
+      "reasoning": "CRP reduction confirms TNF neutralization modulated downstream inflammatory pathway (adaptive immune response), consistent with the proposed mechanism. Moderate rather than strong because CRP is a systemic marker and direct adaptive immune pathway readout was not measured."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000232810",
+      "target_entity": "GO:0002250",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_2",
+      "reasoning": "CRP reduction confirms TNF neutralization modulated downstream inflammatory pathway (adaptive immune response) in the Q2W arm as well."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_1",
+      "reasoning": "62% induction response rate and sustained CRP suppression indicate the adaptive immune response modulation translated to suppression of intestinal inflammation. Moderate rather than strong because no placebo comparator was used in maintenance and the long-term durability is uncertain."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0002250",
+      "target_entity": "bio:7d91f5b29dfd",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_2",
+      "reasoning": "Similar induction response and CRP suppression in Q2W arm supports mechanism translating to intestinal inflammation suppression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_1",
+      "reasoning": "62% CDAI response at Week 6 and ~37% sustained response at Week 26 in a second-line infliximab-experienced population supports that suppression of intestinal inflammation drives Crohn's disease activity. Moderate because no placebo arm in maintenance limits causal attribution."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7d91f5b29dfd",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "active_2",
+      "reasoning": "Similar response rates in Q2W arm support the biology_drives link for Crohn's disease."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_response",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The CDAI \u2265100-point decrease endpoint captured clinically meaningful induction response (62% at Week 6) and maintenance response (~37% at Week 26). CDAI is a validated endpoint for Crohn's disease. Moderate rather than strong because no placebo comparator was used and the maintenance phase only compared dosing schedules."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second",
+      "target_entity": "crohn_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "In this second-line (infliximab-experienced) population, 62% achieved induction response and ~37% maintained response at Week 26, suggesting this population does respond to certolizumab pegol despite prior anti-TNF exposure. Moderate support because no placebo comparator limits definitive attribution."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial lacks a placebo comparator in the maintenance phase, making it impossible to distinguish drug effect from natural disease course or regression to the mean in the maintenance period. The primary endpoint was met in a single-arm induction design (62% response), but the maintenance comparison only addressed dosing schedule equivalence (Q4W vs Q2W), not drug vs. placebo. Expert review is warranted to assess whether the induction response rate (62%) meaningfully exceeds historical placebo rates in this infliximab-experienced population, and to determine the appropriate classification of the maintenance phase outcomes."
+}

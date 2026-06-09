@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT01181921",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial enrolled only 1 patient (one screening failure and one early withdrawal), meaning the study was effectively terminated before any meaningful data could be collected. There is no evidence of target engagement with acetylcholinesterase. 2. PATHWAY MODULATION: With a sample size of 1 and no biomarker data, there is no information on whether cholinergic neurotransmission was enhanced. 3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in sleep/wake patterns by actigraph at 12 weeks) has no reported result \u2014 effect size and p-value are both null. The outcome is listed as 'unknown.' 4. POPULATION EFFECTS: No subgroup analyses were possible given the near-zero enrollment. 5. CONFOUNDERS: The investigator commentary explicitly states 'The recruitment rate was very low (one screening failure and one early withdrawal patient).' With a sample size of 1, the trial was terminated before the primary endpoint was reached. This is a clear operational failure \u2014 the causal chain was never given a fair test due to recruitment collapse. The failure mode is commercial/operational: the trial failed to accrue, not because of any mechanistic issue. This qualifies as 'insufficient_information' because there is no usable efficacy readout, and also reflects gross underpowering due to recruitment failure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.95,
+      "evidence": "Sample size of 1 patient with one screening failure and one early withdrawal. No primary endpoint data reported (effect size null, p-value null, outcome unknown). The trial was terminated before any meaningful efficacy readout was obtained."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Enrolled only 1 patient against what would be a standard Phase 2 sample size requirement. Investigator commentary confirms very low recruitment rate as the reason for failure to generate results."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_sleep_wake_patterns_actigraph_12_weeks",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The endpoint was pre-specified but never measured due to recruitment failure. No data exists to assess whether actigraphic sleep/wake patterns capture clinical benefit in Alzheimer's disease. The endpoint's translatability remains untested."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_moderate",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy data was generated for the mild-to-moderate Alzheimer's disease population due to recruitment collapse. Cannot assess population response."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial enrolled only 1 patient and was effectively terminated before any primary endpoint data was collected. This is a pure recruitment/operational failure with no mechanistic information. The causal chain (galantamine \u2192 ACHE \u2192 neurotransmitter clearance \u2192 cholinergic enhancement \u2192 sleep/wake improvement in Alzheimer's) was never tested. No upstream causal-chain edge updates are emitted because there is zero efficacy or biomarker readout \u2014 this is one of the rare legitimate cases for insufficient_information. Expert review should confirm whether any partial data exists that was not captured in this extraction."
+}

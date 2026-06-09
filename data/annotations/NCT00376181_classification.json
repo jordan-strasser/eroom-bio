@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00376181",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial was terminated early due to combination formulation concerns, meaning no efficacy readout was obtained. There is no evidence of target engagement for either pioglitazone (PPARG) or azilsartan (AGTR1/AT1R). 2. PATHWAY MODULATION: No downstream pathway biomarkers were reported. Insulin sensitization (PPAR-gamma pathway) and renin-angiotensin system suppression could not be assessed. 3. CLINICAL TRANSLATION: All arm outcomes are listed as 'unknown.' The primary endpoint (HbA1c change at Week 24) was not met/reported because the trial was terminated before completion. No effect sizes or p-values are available. 4. POPULATION EFFECTS: No subgroup analyses were conducted or reported. 5. CONFOUNDERS: The investigator commentary explicitly states the trial was terminated due to 'combination formulation concerns.' This is a manufacturing/delivery/formulation issue that prevented the trial from completing. With only 96 participants enrolled and no efficacy data generated, the causal chain was never given a fair test. This is an operational failure driven by a manufacturing/formulation problem, not a scientific failure of the mechanism.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states: 'Trial was terminated due to combination formulation concerns.' No efficacy data was reported for any arm, and all outcomes are listed as unknown, consistent with early termination before the primary endpoint could be assessed."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "All arm outcomes are 'unknown,' no effect sizes or p-values are reported, no biomarker data is available, and no safety signals were reported. The trial provides no usable efficacy or safety readout due to early termination."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (HbA1c change) was pre-specified and is a well-established surrogate for glycemic control in type 2 diabetes, but the trial was terminated before any efficacy readout was obtained. The endpoint's translatability was not tested in this trial. Emitting ambiguous as the endpoint is appropriate for the indication but was never measured."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "hba1c_high",
+      "target_entity": "type_2_diabetes",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled adults with type 2 diabetes (HbA1c-high population) but was terminated before any efficacy data was generated. No population-level response can be assessed. Emitting ambiguous as required by round-16 rules for any trial with a known outcome, but the signal is uninformative due to early termination."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated due to 'combination formulation concerns' \u2014 the exact nature of these concerns is not specified. It is unclear whether this was a pharmaceutical incompatibility between pioglitazone and azilsartan in the fixed-dose combination formulation, a regulatory/manufacturing quality issue, or a commercial decision framed as a formulation concern. Expert review is needed to determine whether the formulation issue is specific to the combination product or has implications for the individual compounds' development programs. Additionally, no efficacy or safety data was generated, making mechanistic inference impossible."
+}

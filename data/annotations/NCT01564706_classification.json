@@ -1,0 +1,20 @@
+{
+  "nct_id": "NCT01564706",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a dosimetry/safety characterization study of florbetapir F 18 (a PET radiotracer) in healthy volunteers. The primary endpoint was whole body radiation dosimetry, not therapeutic efficacy. The study measured radiation dose distribution across organs following a single IV injection of 370 MBq. The 'target' here is amyloid beta plaques for imaging purposes, but this trial was not designed to assess amyloid binding \u2014 it was designed to characterize radiation exposure. The effective dose of 0.0186 mSv/MBq was successfully characterized. 2. PATHWAY MODULATION: Not applicable in the traditional therapeutic sense. The biodistribution data (gallbladder wall highest at 0.143 mSv/MBq, brain at 0.01 mSv/MBq) characterizes the radiotracer's pharmacokinetics and radiation dosimetry profile. 3. CLINICAL TRANSLATION: The primary endpoint (whole body radiation dosimetry) was met. This is a regulatory/safety characterization study, not a therapeutic efficacy trial. The dosimetry data supports safe use of the radiotracer in clinical PET imaging. 4. POPULATION EFFECTS: Healthy volunteers only; no subgroup analyses. 5. CONFOUNDERS: No confounders \u2014 this is a straightforward dosimetry study with a clear, measurable primary endpoint. The study was small (n=9) but appropriate for dosimetry characterization. The primary endpoint is a safety/PK measure (radiation dosimetry), not a clinical efficacy endpoint. Therefore, endpoint_captures and biology_drives edges are not meaningfully applicable to alzheimer_disease as a therapeutic indication. This trial provides dosimetry characterization data only.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_whole_body_radiation_dosimetry",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint is a radiation dosimetry/safety measure, not a clinical efficacy endpoint for Alzheimer's disease. It characterizes radiotracer safety for PET imaging use but does not capture therapeutic benefit in Alzheimer's disease. The endpoint is appropriate for its stated purpose (dosimetry characterization) but is not an efficacy endpoint for the indication."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial is a dosimetry characterization study in healthy volunteers, not a therapeutic efficacy trial. The primary endpoint is a safety/PK measure (radiation dosimetry), not a clinical efficacy endpoint. Standard causal chain analysis (target engagement \u2192 pathway modulation \u2192 clinical translation) does not apply in the traditional sense. The resolved graph entities include an Alzheimer's disease indication and a dosimetry endpoint, but the mechanistic chain for a PET radiotracer dosimetry study is fundamentally different from a therapeutic intervention trial. Expert review is needed to determine whether this trial should contribute evidence to the Alzheimer's disease indication graph at all, or whether it should be classified as a regulatory/safety characterization study outside the standard mechanistic framework."
+}

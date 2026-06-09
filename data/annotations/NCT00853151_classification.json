@@ -1,0 +1,100 @@
+{
+  "nct_id": "NCT00853151",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The targets for both LY2428757 and TT223 are not disclosed (mapped to CANX/ENSG00000127022 and UNKNOWN respectively in the graph). PK data for TT223 shows Cmax ~8.5 ng/mL on first dose, suggesting systemic exposure. LY2428757 PK had insufficient timepoints for modeling. There is no direct target engagement biomarker confirming the drug reached and modulated its intended target. However, early glycemic biomarkers (HbA1c at 4 weeks: -0.81% to -0.97% in combo arms vs -0.19% placebo; FBG reductions; MMTT glucose AUC improvements; HOMA-B increases) suggest some biological activity in the short term, implying the compounds were pharmacologically active.\n\n2. PATHWAY MODULATION: Early biomarker data (weeks 3-4) shows clear pharmacodynamic activity: all active arms showed meaningful HbA1c reductions, FBG reductions, improved MMTT glucose AUC, and increased HOMA-B (beta-cell function marker). This suggests the mechanism was engaged early. However, these effects were not sustained to 6 months \u2014 the primary endpoint timepoint. The short treatment duration (LY2428757 x5 weeks, TT223 x4 weeks) relative to the 6-month follow-up assessment is a critical issue: the drug was administered for only 4-5 weeks but the primary endpoint was measured at 6 months. The early biological signal dissipated after treatment stopped.\n\n3. CLINICAL TRANSLATION: The primary endpoint (HbA1c change at 6 months) was clearly missed: -0.08% (3mg combo, p=0.623), +0.06% (2mg combo, p=0.809), -0.15% (LY2428757+placebo) vs +0.04% (placebo). These are clinically negligible differences. The early biological activity (weeks 3-4) did not translate to sustained 6-month HbA1c improvement. This is a classic 'wrong timeframe' pattern: treatment was administered for 4-5 weeks but the endpoint was assessed at 6 months, long after treatment cessation. The biology moved early but the endpoint measurement was too late relative to the treatment window.\n\n4. POPULATION EFFECTS: Subgroup analyses show directionally interesting signals: patients with diabetes duration <3 years showed -0.87% (3mg) and -0.77% (2mg) HbA1c reductions vs +0.18% for LY2428757+placebo. Elevated C-peptide subgroup showed -0.78% (2mg). These suggest patients with more preserved beta-cell function (shorter disease duration, higher C-peptide) may respond better, consistent with a mechanism involving beta-cell enhancement (incretin pathway). However, no statistically significant subgroup interactions were found, and these are post-hoc observations.\n\n5. CONFOUNDERS: The primary confounders are: (a) Wrong timeframe \u2014 treatment was only 4-5 weeks but the primary endpoint was at 6 months, creating a mismatch between pharmacological activity window and measurement timing. The early biomarker data confirms the drug was active during treatment but effects waned after cessation. (b) The LY2428757+placebo arm also showed -0.15% HbA1c at 6 months (vs +0.04% placebo), suggesting LY2428757 monotherapy had a marginal signal that also didn't reach significance. (c) The combination showed no additive benefit over monotherapy at 6 months, suggesting TT223 did not provide durable complementary activity. (d) Sample size of 131 across 4 arms (~33/arm) is small. The dominant failure mode is wrong_timeframe: the treatment duration was too short relative to the endpoint measurement window, and the early biological activity was not sustained.",
+  "failure_modes": [
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.75,
+      "evidence": "Treatment was administered for only 4-5 weeks (LY2428757 x5 weeks SC, TT223 x4 weeks SC) but the primary endpoint was HbA1c change at 6 months. Early biomarker data at 3-4 weeks shows clear pharmacodynamic activity (HbA1c -0.81% to -0.97% in combo arms vs -0.19% placebo; FBG reductions; HOMA-B increases), but these effects were not sustained to 6 months after treatment cessation. The mismatch between treatment window and endpoint measurement timing is the primary driver of failure."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Early biological markers (HbA1c at 4 weeks, FBG, MMTT glucose AUC, HOMA-B) all moved in the expected direction during treatment, confirming pharmacological activity. However, the 6-month HbA1c endpoint showed no meaningful difference from placebo (-0.08% vs +0.04%), indicating the biological effect was transient and did not translate to sustained clinical benefit."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "Total sample size of 131 across 4 arms (~33 per arm) is small for a 6-month HbA1c endpoint in T2DM. The subgroup showing potential benefit (diabetes duration <3 years) would have very few patients per arm, limiting statistical power to detect meaningful differences."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_tt223_3_milligrams_mg",
+      "reasoning": "The combination of LY2428757+TT223 3mg failed to sustain glycemic control improvement at 6 months despite early biological activity. The mechanism did not produce durable downstream biology changes, warranting weak contradict. The early signal prevents stronger contradict."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_tt223_2mg",
+      "reasoning": "The combination of LY2428757+TT223 2mg also failed at 6 months. Same reasoning as 3mg arm \u2014 early signal present but not sustained."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:01172ed8a93b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_placebo",
+      "reasoning": "LY2428757 monotherapy also failed to show sustained HbA1c improvement at 6 months (-0.15% vs +0.04% placebo, not significant). Early activity was present but not durable."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_tt223_3_milligrams_mg",
+      "reasoning": "Glycemic control via incretin enhancement did not translate to sustained HbA1c improvement at 6 months in the overall T2DM population, providing weak contradict evidence for this biology driving the indication in a durable manner."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_tt223_2mg",
+      "reasoning": "Same as 3mg arm \u2014 no sustained glycemic benefit at 6 months."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:01172ed8a93b",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ly2428757_plus_placebo",
+      "reasoning": "LY2428757 monotherapy also failed to sustain glycemic improvement at 6 months."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_glycosylated_hemoglobin_hba1c_6_month_endpoint",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "HbA1c at 6 months is a well-validated, regulator-accepted surrogate endpoint for T2DM glycemic control. The endpoint was measured and reported clearly. The fact that the drug failed does not undermine the endpoint's validity as a capture of T2DM benefit \u2014 HbA1c is a standard regulatory endpoint for this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpeptide_high",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The elevated C-peptide subgroup showed greater HbA1c reduction (-0.78% for 2mg combo) compared to the overall population, suggesting patients with preserved beta-cell function (high C-peptide) may respond differently. However, no statistically significant subgroup interaction was found, limiting this to weak support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bmi_high__hba1c_high__line_first",
+      "target_entity": "type_2_diabetes_mellitus",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The overall enrolled population (T2DM on metformin or diet/exercise, first-line) did not respond to treatment at 6 months, with p=0.623 for the primary endpoint. This is a clear miss in the overall population."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The targets for both LY2428757 and TT223 are undisclosed, making it impossible to fully assess target engagement or mechanism. The graph maps LY2428757 to CANX (calnexin) which is an unusual target for a diabetes drug \u2014 this mapping may be incorrect and warrants expert review. Additionally, the treatment duration (4-5 weeks) vs. endpoint measurement (6 months) mismatch is a critical design issue that may represent a wrong_timeframe failure rather than a true mechanistic failure, but without knowing the intended pharmacological duration of action this cannot be definitively classified. The subgroup signals in patients with shorter diabetes duration and elevated C-peptide are directionally interesting but lack statistical significance."
+}
