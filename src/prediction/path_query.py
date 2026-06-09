@@ -1285,6 +1285,32 @@ def _resolve_endpoint_for_indication(
     return max(candidates, key=candidates.get)
 
 
+def _stated_chains_for(
+    graph: GraphStore, compound_id: str, indication_id: str,
+) -> list[CausalChain]:
+    """The trial's OWN decomposed chains for this (compound, indication) — the
+    faithful decomposition populate produced, preferred over
+    ``_resolve_chain_via_topology`` (which re-resolves by strongest-evidenced
+    neighbor and lands on generic, heavily-pooled biology like DNA-damage
+    apoptosis instead of the drug's actual mechanism — "chain-walking optimism").
+    Deduped by backbone signature; empty for a novel hypothesis (compound +
+    indication not co-occurring in any built chain) → caller falls back to
+    topology."""
+    out: list[CausalChain] = []
+    seen: set[tuple] = set()
+    for ts in graph.trial_subgraphs.values():
+        for ch in ts.chains:
+            if ch.compound_id != compound_id or ch.indication_id != indication_id:
+                continue
+            key = (ch.target_id, ch.mechanism_id, ch.biology_id,
+                   ch.endpoint_id, ch.subgroup_population_id)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(ch)
+    return out
+
+
 def predict_clinical_hypothesis(
     graph: GraphStore,
     compound_id: str | None,
@@ -1327,6 +1353,28 @@ def predict_clinical_hypothesis(
     compound_in_graph = (
         compound_id is not None and compound_id in graph._graph
     )
+
+    # Faithful-decomposition preference: when the graph already holds this
+    # (compound, indication)'s OWN chain(s) and the caller hasn't pinned an
+    # intermediate node, predict those STATED chains rather than re-resolving by
+    # topology — which free-walks to the generic, most-evidenced biology
+    # ("enzyme inhibition → DNA-damage apoptosis") instead of the drug's actual
+    # mechanism (the chain-walking-optimism bug). Return the most-decisive
+    # (lowest-overall) stated chain. Novel hypotheses (no matching chain) fall
+    # through to topology resolution below.
+    if (
+        compound_in_graph and target_id is None and mechanism_id is None
+        and biology_id is None and endpoint_id is None and population_id is None
+    ):
+        stated = _stated_chains_for(graph, compound_id, indication_id)
+        if stated:
+            engine = PredictionEngine(graph)
+            stated_results = [
+                r for r in (engine.predict(c, n_samples=n_samples) for c in stated)
+                if r.edge_contributions
+            ]
+            if stated_results:
+                return min(stated_results, key=lambda r: r.overall_probability)
 
     # Combo regimens: compose the CONSTITUENTS' chains rather than walk the
     # combo's weak combo_inherit AFFECTS edge to a single target. Skipped when

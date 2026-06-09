@@ -686,6 +686,81 @@ class TestPredictClinicalHypothesis:
         assert result.safety_risks == []
 
 
+class TestStatedChainPreference:
+    """predict_clinical_hypothesis must predict the trial's OWN decomposed chain
+    when the graph holds it — NOT re-resolve to the generic strongest-evidenced
+    biology (the chain-walking-optimism bug fixed 2026-06-09)."""
+
+    def _graph(self):
+        from src.graph.models import (
+            BiologyNode, CausalChain, CompoundNode, EdgeBeliefState, EdgeType,
+            EndpointNode, EndpointType, GraphEdge, IndicationNode, MechanismNode,
+            Modality, RegulatoryStatus, TargetNode, TrialSubgraph,
+        )
+        g = GraphStore()
+        g.add_node(CompoundNode(id="c1", name="DrugA", modality=Modality.SMALL_MOLECULE))
+        g.add_node(CompoundNode(id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE))
+        g.add_node(TargetNode(id="t1", name="T", gene_symbol="T"))
+        g.add_node(MechanismNode(id="mech_generic", name="enzyme inhibition"))
+        g.add_node(MechanismNode(id="mech_stated", name="hormone signaling"))
+        g.add_node(BiologyNode(id="bio_generic", name="DNA-damage apoptosis"))
+        g.add_node(BiologyNode(id="bio_stated", name="estrogen deprivation"))
+        g.add_node(IndicationNode(id="i1", name="Disease"))
+        g.add_node(EndpointNode(id="OS", name="OS", endpoint_type=EndpointType.PRIMARY,
+                                regulatory_status=RegulatoryStatus.ACCEPTED))
+
+        def E(s, t, et, a=8.0, b=2.0):
+            g.add_edge(GraphEdge(source_id=s, target_id=t, edge_type=et,
+                                 belief=EdgeBeliefState(alpha=a, beta=b)))
+        E("c1", "t1", EdgeType.AFFECTS); E("c2", "t1", EdgeType.AFFECTS)
+        # generic path = HIGH evidence (topology would free-walk to it)
+        E("t1", "mech_generic", EdgeType.MODULATES_VIA, 30, 2)
+        E("mech_generic", "bio_generic", EdgeType.MECHANISM_AFFECTS, 30, 2)
+        E("bio_generic", "i1", EdgeType.BIOLOGY_DRIVES, 30, 2)
+        # stated path = LOWER evidence (topology would NOT pick it)
+        E("t1", "mech_stated", EdgeType.MODULATES_VIA, 5, 2)
+        E("mech_stated", "bio_stated", EdgeType.MECHANISM_AFFECTS, 5, 2)
+        E("bio_stated", "i1", EdgeType.BIOLOGY_DRIVES, 5, 2)
+        E("bio_stated", "OS", EdgeType.REFLECTS_BIOLOGY, 5, 2)
+        E("OS", "i1", EdgeType.ENDPOINT_CAPTURES, 5, 2)
+        # the trial's STATED chain for c1 uses the specific (non-generic) path
+        g.set_trial_subgraph(TrialSubgraph(
+            trial_id="NCT1", parent_population_id="UNKNOWN", chains=[CausalChain(
+                arm_id="a", compound_id="c1", subgroup_population_id="UNKNOWN",
+                target_id="t1", mechanism_id="mech_stated", biology_id="bio_stated",
+                indication_id="i1", endpoint_id="OS")]))
+        return g
+
+    def test_uses_stated_chain_over_generic_topology(self):
+        from src.prediction.path_query import predict_clinical_hypothesis
+        g = self._graph()
+        r = predict_clinical_hypothesis(g, "c1", "i1", n_samples=1000)
+        nodes = ({ec.source_id for ec in r.edge_contributions}
+                 | {ec.target_id for ec in r.edge_contributions})
+        assert "bio_stated" in nodes          # used the trial's real biology
+        assert "bio_generic" not in nodes     # NOT the generic high-evidence one
+        assert "mech_generic" not in nodes
+
+    def test_falls_back_to_topology_for_novel_compound(self):
+        from src.prediction.path_query import predict_clinical_hypothesis
+        g = self._graph()
+        # c2 has no trial_subgraph chain → topology resolves the strongest path
+        r = predict_clinical_hypothesis(g, "c2", "i1", n_samples=1000)
+        nodes = ({ec.source_id for ec in r.edge_contributions}
+                 | {ec.target_id for ec in r.edge_contributions})
+        assert "bio_generic" in nodes         # topology picked the high-evidence path
+
+    def test_pinned_intermediate_bypasses_stated_preference(self):
+        from src.prediction.path_query import predict_clinical_hypothesis
+        g = self._graph()
+        # caller explicitly pins the generic biology → must honor it, not the stated chain
+        r = predict_clinical_hypothesis(g, "c1", "i1", biology_id="bio_generic",
+                                        mechanism_id="mech_generic", n_samples=1000)
+        nodes = ({ec.source_id for ec in r.edge_contributions}
+                 | {ec.target_id for ec in r.edge_contributions})
+        assert "bio_generic" in nodes
+
+
 # ============================================================
 # Round-20: safety penalty
 # ============================================================
