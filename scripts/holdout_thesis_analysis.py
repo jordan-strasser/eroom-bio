@@ -67,6 +67,7 @@ from src.prediction.provenance import (
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from scripts.eval_holdout_compose import _resolve_label  # noqa: E402
+from scripts.cross_indication_census import edge_census, node_census  # noqa: E402
 
 ANN_DIR = Path("data/annotations")
 
@@ -196,23 +197,29 @@ def analyze_trial(store, nct, nct_index, n_samples, threshold) -> dict:
 
 def axis1(store) -> None:
     print("\n" + "=" * 78)
-    print("AXIS 1 — CROSS-INDICATION LEARNING (structural; the substrate)")
+    print("AXIS 1 — CROSS-INDICATION LEARNING (ALL tiers; the substrate)")
     print("=" * 78)
-    bio = find_biology_bridges(store)
-    mech = find_mechanism_bridges(store)
-    bio_cross = [b for b in bio if b.spans_oncology_and_other]
-    mech_cross = [m for m in mech if m.spans_oncology_and_other]
-    print(f"BiologyNode bridges (one biology drives ≥2 indications): {len(bio)} "
-          f"({len(bio_cross)} span oncology AND a non-onco disease)")
-    for b in sorted(bio_cross, key=lambda x: -x.belief_spread)[:6]:
+    nc = node_census(store)
+    ec = edge_census(store)
+    print("nodes shared across ≥2 indications (via chains):")
+    for t in ("MechanismNode", "TargetNode", "InterventionNode",
+              "BiologyNode", "EndpointNode", "PopulationNode"):
+        d = nc.get(t)
+        if d:
+            print(f"   {t:16s} shared={d['shared']:4d}  cross-area={d['cross_area']:4d}")
+    print("edges whose belief is co-updated by ≥2 indications (the transfer a prediction rides):")
+    for et, (_tot, ci, ca) in sorted(ec.items(), key=lambda x: -x[1][1]):
+        if ci:
+            print(f"   {et:22s} cross-indication={ci:4d}  cross-area={ca:4d}")
+    bx = [b for b in find_biology_bridges(store) if b.spans_oncology_and_other]
+    print(f"biology fan-out bridges (onco↔non-onco): {len(bx)} — e.g.:")
+    for b in sorted(bx, key=lambda x: -x.belief_spread)[:4]:
         s, w = b.strongest, b.weakest
         if s and w:
-            print(f"   {b.biology_name[:42]:42s} {s.indication_id}={s.expected_probability:.2f} "
-                  f"↔ {w.indication_id}={w.expected_probability:.2f} (spread {b.belief_spread:.2f})")
-    print(f"MechanismNode bridges (one belief co-updated by trials from ≥2 indications): "
-          f"{len(mech)} ({len(mech_cross)} cross-area)")
-    for m in sorted(mech_cross, key=lambda x: -len(x.indications))[:6]:
-        print(f"   {m.mechanism_name[:42]:42s} {', '.join(m.indications[:4])}")
+            print(f"   {b.biology_name[:36]:36s} {s.indication_id}={s.expected_probability:.2f} "
+                  f"↔ {w.indication_id}={w.expected_probability:.2f}")
+    print("note: the densest channel is modulates_via / mechanism_affects (target→mechanism→biology);"
+          " biology_drives is single-indication per edge, so the biology fan-out understates transfer.")
 
 
 def axis2(records, threshold) -> None:
