@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT03651128",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial reports no target engagement evidence for bb2121 (anti-BCMA CAR-T) or any of the standard regimen comparators. The primary endpoint result is null/unknown for all arms, indicating no efficacy readout was produced. 2. PATHWAY MODULATION: No pathway biomarker data is available. Cannot assess whether CAR-T cell-mediated cytotoxicity or any downstream biology was modulated. 3. CLINICAL TRANSLATION: The primary endpoint (PFS) has outcome=unknown for all arms. No effect size or p-value is reported. This trial produced no usable efficacy readout despite a planned duration of ~5 years (260.7 weeks) and 381 enrolled patients. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial appears to have been terminated or not yet reported before the primary endpoint was reached, or results were not disclosed. With all outcomes listed as 'unknown' and no numeric results, this is a case of insufficient information \u2014 the causal chain was never given a fair test in terms of producing a reportable outcome. This is classified as insufficient_information / commercial_not_scientific (possible administrative/strategic non-reporting). The operational_failure flag is set to true because no efficacy readout was produced, meaning the mechanism was never tested in a reportable sense. Note: bb2121 (ide-cel) was subsequently approved based on the KarMMa trial, so the compound is known to work \u2014 this trial's lack of results is likely an administrative/reporting issue rather than a scientific failure.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "All arms report outcome=unknown for PFS with null effect size and null p-value. No biomarker, safety, or efficacy data is reported despite 381 enrolled patients and a planned 5-year follow-up. The trial produced no usable efficacy readout."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.4,
+      "evidence": "Given that ide-cel (bb2121) received FDA approval based on KarMMa data, the absence of results from this trial (NCT03651128, the KarMMa-3 phase 3 trial) may reflect a reporting lag, data embargo, or strategic non-disclosure rather than a scientific failure. However, without explicit confirmation, this is speculative."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "multiple_myeloma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was the pre-specified primary endpoint for this trial in relapsed/refractory multiple myeloma, but no result was reported (outcome=unknown). Cannot assess whether the endpoint captured clinical benefit. PFS is a regulator-accepted surrogate in myeloma, so the endpoint choice is appropriate, but the lack of any readout leaves the edge ambiguous for this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii__line_third_plus__mprotein_positive__severity_active",
+      "target_entity": "multiple_myeloma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy readout was produced for this heavily pre-treated relapsed/refractory myeloma population. Cannot assess differential response. Ambiguous due to complete absence of results."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "All primary endpoint outcomes are listed as 'unknown' with no numeric results despite 381 enrolled patients and a planned 5-year follow-up. This may represent a data embargo, trial still ongoing at time of extraction, or administrative non-reporting. Expert review needed to determine whether results exist but were not captured in this extraction, or whether the trial was terminated/suspended. Note that bb2121 (ide-cel) is FDA-approved based on KarMMa data, suggesting this may be the KarMMa-3 comparative effectiveness trial whose results may be available elsewhere."
+}

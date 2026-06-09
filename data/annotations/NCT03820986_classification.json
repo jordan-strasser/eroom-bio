@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT03820986",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm target engagement for either pembrolizumab (PD-1 blockade) or lenvatinib (VEGFR/multi-kinase inhibition). However, both compounds are well-characterized with established mechanisms, and the trial ran for up to ~46 months with adequate sample size (n=674), so exposure is presumed adequate. Per Round-28 AFFECTS rule, without direct engagement evidence, no affects record is emitted.\n\n2. PATHWAY MODULATION: No pathway biomarker data is reported. We cannot confirm whether PD-1 blockade led to T-cell activation or whether lenvatinib modulated angiogenesis in this population. The absence of biomarker data means we cannot distinguish target-engaged-biology-not-moved from biology-moved-endpoint-flat.\n\n3. CLINICAL TRANSLATION: The primary endpoints were PFS and OS. PFS showed a modest improvement (HR=0.81, p=0.0176) in the combo arm vs pembrolizumab+placebo, which is a partial signal. However, OS \u2014 the more clinically meaningful co-primary endpoint \u2014 showed no benefit and actually trended in the wrong direction (HR=1.20, p=0.9521), with median OS 25.8 months for combo vs 39.5 months for pembrolizumab alone. This is a clear failure on the primary OS endpoint. The PFS benefit did not translate to OS benefit, suggesting the PFS improvement may reflect disease stabilization without meaningful survival extension, or that toxicity-related harm offset any efficacy gain.\n\n4. POPULATION EFFECTS: No subgroup analyses are reported. The enrolled population was first-line advanced/metastatic melanoma, which is an appropriate population for pembrolizumab (established efficacy). The addition of lenvatinib did not improve outcomes in this population.\n\n5. CONFOUNDERS: The safety profile is notably worse in the combo arm: 104/332 (31%) discontinued due to AEs vs 68/338 (20%) in the monotherapy arm. QoL deteriorated faster and more severely in the combo arm (GHS/QoL TTD: 5.62 vs 24.58 months, HR=1.58; physical function TTD: 5.55 months vs not reached, HR=1.95). Higher rates of cardiac SAEs (AMI, ACS, pulmonary embolism, hypertension) in the combo arm. This toxicity burden likely contributed to the OS harm \u2014 patients on the combo arm may have discontinued effective pembrolizumab therapy earlier, received fewer subsequent treatments, or experienced direct toxicity-related mortality. The OS HR>1.0 is consistent with net harm from lenvatinib addition. The primary failure mode is biology_moved_endpoint_flat for PFS (PFS improved but OS did not), combined with potential dose-limiting toxicity effects on OS. The dominant mechanistic interpretation is that adding lenvatinib to pembrolizumab did not augment the anti-tumor immune response in a way that translated to survival benefit, and the toxicity burden may have actively harmed OS.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.72,
+      "evidence": "PFS HR=0.81 (p=0.0176) suggests some biological activity (disease progression delayed), but OS HR=1.20 (p=0.9521) shows no survival benefit and a trend toward harm. The PFS signal did not translate to the clinically meaningful OS endpoint, indicating the biology modulated by the combination did not drive survival benefit."
+    },
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.6,
+      "evidence": "104/332 (31%) in combo arm discontinued due to AEs vs 68/338 (20%) in monotherapy arm. QoL deteriorated significantly faster in combo arm (TTD GHS/QoL: 5.62 vs 24.58 months). Higher cardiac SAE rates including AMI (4 vs 0), pulmonary embolism (5 vs 0), hypertension (3 vs 0). The toxicity burden likely offset any efficacy benefit and may have contributed to the OS HR>1.0, suggesting lenvatinib's toxicity prevented adequate or sustained dosing of the combination."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:1fab3055d7c9",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_lenvatinib",
+      "reasoning": "No biomarker data to confirm pathway modulation. OS failed (HR=1.20, p=0.9521) despite PFS partial signal. The combination's checkpoint blockade component did not drive sufficient anti-tumor immunity to improve OS. Weak contradict because PFS showed some signal but OS did not."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1fab3055d7c9",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_lenvatinib",
+      "reasoning": "The combination arm failed on OS (HR=1.20, p=0.9521). Even if T-cell immunity was partially engaged (PFS HR=0.81), it did not translate to survival benefit in this first-line melanoma population when combined with lenvatinib. Weak contradict because the PFS partial signal suggests some biology was engaged."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0043406",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_lenvatinib",
+      "reasoning": "No biomarker data to confirm angiogenesis inhibition. The addition of lenvatinib (multi-kinase inhibitor) did not improve OS and may have caused net harm (OS HR=1.20). The MAP kinase/angiogenesis pathway modulation did not translate to clinical benefit."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_lenvatinib",
+      "reasoning": "Angiogenesis inhibition via lenvatinib did not drive survival benefit in first-line advanced melanoma when added to pembrolizumab. OS HR=1.20 (p=0.9521) indicates no benefit and possible harm from this biology."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PFS showed a statistically significant improvement (HR=0.81, p=0.0176) in the combo arm, but OS \u2014 the co-primary endpoint \u2014 showed no benefit (HR=1.20, p=0.9521). This dissociation suggests PFS did not capture meaningful clinical benefit in this trial context; PFS improvement did not translate to OS benefit, indicating PFS is a weak surrogate for OS in this combination setting."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_unresectable__line_first",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "First-line advanced/unresectable melanoma patients did not benefit from pembrolizumab+lenvatinib vs pembrolizumab alone. OS HR=1.20 (p=0.9521) with adequate power (n=674, ~46 months follow-up) represents a clear failure in this population. Moderate contradict because the trial was adequately powered and the OS result was clearly negative, though PFS showed a marginal signal."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The OS HR>1.0 (HR=1.20) in the combo arm raises the question of whether lenvatinib's toxicity burden actively harmed survival by causing early discontinuation of pembrolizumab or by direct cardiovascular/other toxicity. The dissociation between PFS benefit (HR=0.81, p=0.0176) and OS harm (HR=1.20, p=0.9521) is unusual and warrants expert review to determine whether the failure is primarily mechanistic (lenvatinib does not augment pembrolizumab in melanoma) or toxicity-driven (lenvatinib's AE burden offset efficacy). No biomarker data is available to distinguish these hypotheses. Additionally, the pembrolizumab_placebo arm has unknown PFS/OS outcomes reported, which limits the ability to fully characterize the comparator arm's performance."
+}

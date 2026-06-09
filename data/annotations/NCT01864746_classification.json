@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT01864746",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm CDK4/6 target engagement. Palbociclib was dosed at 125 mg (the standard approved dose) on a 3/1 schedule for 13 cycles, which is the established pharmacologically active dose in metastatic HR+/HER2- breast cancer. Target engagement is assumed based on the known pharmacology and approved dose, but not directly measured in this trial.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., Ki-67, Rb phosphorylation, cell cycle markers) was reported. We cannot confirm whether cell-cycle arrest was achieved in the adjuvant setting. The absence of PD data means we cannot distinguish between target-engaged-biology-not-moved vs. biology-moved-endpoint-flat.\n\n3. CLINICAL TRANSLATION: The primary endpoint (iDFS) was not met. At 3 years, palbociclib showed a modest numerical advantage (81.2% vs 77.7%), but by 5 years the curves crossed and palbociclib was numerically inferior (63.6% vs 67.9%). Similarly, 5-year DDFS (65.8% vs 69.9%) and 5-year OS (79.6% vs 84.6%) all favored placebo. This pattern of early apparent benefit followed by late convergence/crossing suggests the drug may have delayed rather than prevented recurrence, or that the population was not the right one for this mechanism in the adjuvant setting.\n\n4. POPULATION EFFECTS: The enrolled population had residual disease after neoadjuvant chemotherapy (high CPS-EG score), representing a high-risk HR+/HER2- group. This population may have had more aggressive, potentially CDK4/6-independent disease biology. The crossing of survival curves at 5 years is particularly concerning and suggests the mechanism may not be durable in this post-neoadjuvant residual disease setting. In contrast, palbociclib and other CDK4/6 inhibitors have shown benefit in the metastatic setting and in other adjuvant trials (e.g., monarchE with abemaciclib). The residual-disease-after-neoadjuvant-chemo population may represent a biologically distinct subset where CDK4/6 inhibition is insufficient or where chemotherapy-resistant clones dominate.\n\n5. CONFOUNDERS: The trial was adequately powered (N=1250) and had long follow-up (~6.5 years). No dose-limiting toxicity issues are apparent \u2014 the SAE profile is balanced and does not suggest toxicity-driven dose reductions prevented adequate exposure. The 13-cycle (approximately 1 year) treatment duration may have been insufficient for durable disease control in this high-risk population, though this is speculative. The primary failure mode appears to be wrong_population: the residual-disease post-neoadjuvant setting may select for tumors with biology less dependent on CDK4/6 (e.g., more genomically unstable, less Rb-pathway dependent), making this population suboptimal for CDK4/6 inhibition in the adjuvant context.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.65,
+      "evidence": "The enrolled population had residual disease after neoadjuvant chemotherapy, suggesting chemotherapy-resistant disease that may be less dependent on CDK4/6-driven cell cycle progression. The 5-year curves crossing (palbociclib 63.6% vs placebo 67.9% iDFS; 79.6% vs 84.6% OS) suggests the mechanism did not provide durable benefit in this specific high-risk post-neoadjuvant residual disease setting, in contrast to CDK4/6 inhibitor success in metastatic and other adjuvant settings."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.35,
+      "evidence": "No biomarker data available to confirm whether cell-cycle arrest was achieved. If CDK4/6 inhibition did engage the target and arrest cell cycling, the lack of iDFS benefit (and numerically worse 5-year outcomes) would suggest the biology did not translate to clinical benefit in this setting. However, this cannot be confirmed without PD data."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9754119",
+      "target_entity": "bio:87391ce1f9c4",
+      "support": "weak_contradict",
+      "affecting_arm_id": "palbociclib",
+      "reasoning": "No biomarker data to confirm cell-cycle arrest was achieved. The primary endpoint was missed and 5-year outcomes were numerically worse for palbociclib, suggesting the mechanism did not translate to meaningful biology change in this population. Without PD data, weak_contradict is appropriate per round-14 rules."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:87391ce1f9c4",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "palbociclib",
+      "reasoning": "Cell-cycle arrest via CDK4/6 inhibition did not drive improved iDFS, DDFS, or OS in this HR+/HER2- residual disease adjuvant population. The 5-year outcomes were numerically worse for palbociclib across all endpoints, suggesting cell-cycle arrest biology does not drive disease control in this specific population context."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "iDFS is a well-established, regulator-accepted endpoint for adjuvant breast cancer trials. The endpoint was measured and reported with long follow-up. The endpoint itself is appropriate for capturing disease-free survival benefit in this indication, even though the drug failed to improve it."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cpsegscore_high__line_adjuvant",
+      "target_entity": "breast_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The high CPS-EG score adjuvant population with residual disease after neoadjuvant chemotherapy did not respond to palbociclib. The primary endpoint was missed, and 5-year outcomes were numerically worse for palbociclib vs placebo across iDFS, DDFS, and OS. This is an adequately powered trial with no responding subgroup signal reported, supporting moderate_contradict for this population-indication pair."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The crossing of survival curves at 5 years (palbociclib numerically worse than placebo for iDFS, DDFS, and OS) is an unusual pattern that may suggest a late detrimental effect or simply reflects the natural history of this high-risk population. No biomarker or PD data is available to determine whether CDK4/6 target engagement or cell-cycle arrest was achieved in this adjuvant setting. Expert review is warranted to assess whether the 13-cycle treatment duration was appropriate, whether the post-neoadjuvant residual disease population represents a biologically distinct entity from the metastatic setting where CDK4/6 inhibitors succeed, and whether the late curve crossing has mechanistic implications for CDK4/6 inhibition in the adjuvant setting."
+}

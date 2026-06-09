@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT03374085",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial reported no target engagement evidence for CC-92480 against IKZF1/IKZF3 via CRBN-mediated protein degradation. The investigator commentary explicitly states 'Business objectives have changed,' indicating a commercial/strategic termination rather than a scientific readout. 2. PATHWAY MODULATION: No pathway biomarker data is available. Without target engagement data, we cannot assess whether downstream myeloma cell apoptosis via transcription factor depletion was achieved. 3. CLINICAL TRANSLATION: Primary endpoints (AEs, PK, MTD, ORR) show null results \u2014 all outcomes are listed as 'unknown.' No efficacy or safety data was reported. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial was terminated for commercial/strategic reasons ('Business objectives have changed'), not for scientific failure. The trial ran for approximately 156 weeks (3 years) with 200 patients enrolled, but produced no usable efficacy or safety readout. This is a commercial_not_scientific termination. Because the mechanism was never given a fair scientific test with a reported readout, this is an operational failure. The primary failure mode is commercial_not_scientific. Since no efficacy endpoint was reported (all outcomes unknown), the insufficient_information mode also applies. No upstream causal chain edges can be meaningfully updated from mechanistic evidence, but per the rules, I must still emit the mandatory edges. Given no efficacy readout at all (outcomes all unknown), the endpoint_captures and responds_differently edges must be emitted at ambiguous level, and the causal chain edges at ambiguous/no-emit per the rules for no PD data and no efficacy readout.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states 'Business objectives have changed,' indicating the trial was stopped for strategic/commercial reasons rather than scientific failure or safety concerns."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "All per-arm ORR outcomes are listed as 'unknown,' no effect sizes or p-values are reported, no biomarker or safety data is available, and no primary endpoint was met or reported. The trial produced no usable efficacy readout."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_adverse_events_aes",
+      "target_entity": "multiple_myeloma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary safety/AE endpoint was listed but no results were reported (all outcomes unknown). The endpoint's ability to capture clinical benefit in multiple myeloma cannot be assessed from this trial."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_third_plus__severity_active",
+      "target_entity": "multiple_myeloma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy readout was produced for this population. The trial was terminated for commercial reasons before a meaningful result was obtained, so no population-level response signal can be extracted."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated for stated commercial/business reasons with no efficacy or safety readout. All outcomes are unknown. It is unclear whether any patients were actually treated and whether any interim data exists that was not reported. Expert review needed to determine if any unpublished data exists that could inform the causal chain, and to confirm whether the commercial termination was driven by any underlying scientific signals not captured in this extraction."
+}

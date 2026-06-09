@@ -1,0 +1,114 @@
+{
+  "nct_id": "NCT03155997",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Abemaciclib Cmin,ss geometric mean of 143 ng/mL confirms adequate drug exposure consistent with CDK4/6 inhibition at the 150 mg dose. This PK readout supports that the drug reached its target at therapeutically relevant concentrations. Standard adjuvant endocrine therapy engages ESR1 by established mechanism. 2. PATHWAY MODULATION: CDK4/6 inhibition by abemaciclib is expected to drive cell-cycle arrest (R-HSA-9754119 \u2192 bio:87391ce1f9c4). While no direct pathway biomarker (e.g., Ki-67 reduction) is reported in this extraction, the PK data and the known mechanism of CDK4/6 inhibitors strongly support pathway modulation. Endocrine therapy modulates ESR1/GO:0032355 \u2192 bio:30a01b9237a8 (hormone-driven tumor proliferation suppression), which is well-established. 3. CLINICAL TRANSLATION: The primary endpoint IDFS was met with HR=0.747 (95% CI: 0.598\u20130.932), p=0.00957. This is a statistically significant and clinically meaningful improvement in invasive disease-free survival. The DRFS secondary endpoint also showed benefit (HR=0.717), providing concordant evidence. The combination arm outperformed endocrine therapy alone. 4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population (HR+/HER2- early breast cancer, high-risk adjuvant setting with lymph node involvement, high tumor grade/stage) is well-matched to the CDK4/6 inhibition mechanism. 5. CONFOUNDERS: The trial is large (N=5,637), adequately powered, and randomized. SAE rates in the abemaciclib arm are higher (neutropenia, diarrhea, pulmonary embolism, DVT) but these are known class effects and did not prevent the trial from demonstrating efficacy \u2014 the trial was not terminated for safety and the primary endpoint was met. The SAE incidences are low in absolute terms (<1% for most events) and do not meet DLT criteria (no MTD below target-engaging dose, no trial termination for safety). Overall, the causal chain from CDK4/6 inhibition \u2192 cell-cycle arrest \u2192 improved IDFS in HR+/HER2- early breast cancer is validated by this trial.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.2,
+      "evidence": "SAEs including neutropenia, febrile neutropenia, pulmonary embolism, and DVT were more frequent in the abemaciclib arm, but absolute rates are low (<1%) and the trial was not terminated for safety nor were dose reductions mandated at a level that prevented target engagement. This is a minor caveat, not a primary failure mode."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "abemaciclib",
+      "target_entity": "ENSG00000105810",
+      "support": "strong_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Abemaciclib Cmin,ss of 143 ng/mL confirms adequate drug exposure at the CDK4/6 target-engaging dose, and the trial's clinical success is consistent with CDK4/6 engagement driving the observed benefit."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000105810",
+      "target_entity": "R-HSA-9754119",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "PK data confirms target-level exposure; clinical benefit (IDFS HR=0.747) is consistent with CDK4/6 inhibition driving cell-cycle arrest via R-HSA-9754119. No direct pathway biomarker (e.g., Rb phosphorylation) was reported, so moderate rather than strong support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9754119",
+      "target_entity": "bio:87391ce1f9c4",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "The clinical success of abemaciclib in this adjuvant setting supports that CDK4/6 inhibition-mediated cell-cycle arrest translates to meaningful disease control. No direct cell-cycle biomarker reported, hence moderate support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:87391ce1f9c4",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Improved IDFS (HR=0.747, p=0.00957) in HR+/HER2- early breast cancer supports that cell-cycle arrest biology drives disease control in this indication. Moderate rather than strong because no direct biomarker of cell-cycle arrest was reported."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "standard_adjuvant_endocrine_therapy",
+      "target_entity": "ENSG00000091831",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Standard adjuvant endocrine therapy engages ESR1 by established mechanism; its contribution to the combination arm's success is consistent with ESR1 engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000091831",
+      "target_entity": "GO:0032355",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Endocrine therapy's engagement of ESR1 modulating estradiol response is well-established; the combination arm's success is consistent with this pathway being active."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0032355",
+      "target_entity": "bio:30a01b9237a8",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Endocrine therapy suppressing hormone-driven tumor proliferation is a validated mechanism in HR+ breast cancer; the combination arm's IDFS benefit is consistent with this biology being modulated."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30a01b9237a8",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "reasoning": "Hormone-driven tumor proliferation suppression driving breast cancer disease control is supported by the combination arm's IDFS benefit in HR+/HER2- patients."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "standard_adjuvant_endocrine_therapy",
+      "target_entity": "ENSG00000091831",
+      "support": "weak_contradict",
+      "affecting_arm_id": "endocrine_therapy",
+      "reasoning": "The endocrine therapy monotherapy arm failed to meet the primary IDFS endpoint as a standalone comparator (it was the control arm that was outperformed), suggesting endocrine therapy alone is insufficient in this high-risk population, though this is a relative comparison rather than absolute failure of target engagement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:30a01b9237a8",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "endocrine_therapy",
+      "reasoning": "Endocrine therapy monotherapy arm showed inferior IDFS compared to the combination, suggesting hormone-driven proliferation suppression alone is insufficient to fully control disease in this high-risk HR+/HER2- adjuvant population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS",
+      "target_entity": "breast_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "IDFS (mapped to DFS) was the pre-specified primary endpoint, was met at p=0.00957 with HR=0.747, and was concordantly supported by DRFS (HR=0.717), confirming that DFS captures clinical benefit in early breast cancer adjuvant setting."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "grade_high__line_adjuvant__lymphnodeinvolvement_positive__stage_iii__tumorsize_high",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The high-risk HR+/HER2- adjuvant population (high grade, lymph node positive, stage III, high tumor size) responded to abemaciclib + endocrine therapy with IDFS HR=0.747, p=0.00957, confirming this population benefits from CDK4/6 inhibition added to endocrine therapy."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

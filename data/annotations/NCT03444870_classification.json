@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT03444870",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Gantenerumab robustly engaged its intended target. Amyloid PET centiloid change showed a massive -66.44 centiloid difference (p<0.0001), confirming profound amyloid plaque clearance. CSF biomarkers corroborated this: pTau-181 -25.2% vs +1.1% placebo (p<0.001), tTau -16.6% vs +3.2% (p<0.001), neurogranin -22.3% vs -0.6% (p<0.001). Target engagement is unambiguous and strong.\n\n2. PATHWAY MODULATION: The downstream biology showed a mixed picture. Amyloid clearance was definitively achieved (the intended mechanism). CSF tau markers (pTau-181, tTau) improved significantly, suggesting some downstream neurodegeneration attenuation. However, tau PET SUVR across all brain regions (temporal composite, medial temporal, frontal, parietal) showed no significant change (all p>0.6), indicating that despite amyloid clearance and CSF tau reduction, tau tangle burden as measured by PET did not change. CSF NFL (neurodegeneration marker) showed a non-significant trend (p=0.396). This suggests the biology moved partially \u2014 amyloid was cleared and soluble tau markers improved, but structural tau pathology (PET) was not reversed.\n\n3. CLINICAL TRANSLATION: The primary endpoint CDR-SB missed: difference -0.31 (95% CI: -0.66 to 0.05), p=0.0954. Despite dramatic amyloid clearance and partial downstream biomarker improvement, clinical cognition/function did not improve significantly. This is the classic 'biology moved, endpoint flat' pattern \u2014 amyloid clearance did not translate to clinical benefit in this population. Secondary endpoints were largely non-significant, with only FAQ showing nominal significance (p=0.0425) and ADAS-Cog13 trending (p=0.0544).\n\n4. POPULATION EFFECTS: The trial enrolled early (prodromal/mild) AD patients confirmed by amyloid positivity. No clear biomarker-defined subgroup showed differential response. The tau PET data suggests that even in this early population, tau pathology was already established and not reversed by amyloid clearance, which may explain the clinical miss. The failure of tau PET to move despite amyloid clearance is a key mechanistic signal \u2014 the amyloid-tau cascade may not be reversible at this stage, or the timeframe was insufficient.\n\n5. CONFOUNDERS: The trial was adequately powered (N=1053), ran for 116 weeks, and had a placebo comparator. ARIA-E occurred in 20.87% of gantenerumab vs 1.04% placebo \u2014 a substantial safety signal that may have led to dose modifications or discontinuations, potentially limiting exposure. However, the structured AE table does not show Grade 3+ AEs exceeding control by a margin that clearly prevented target engagement (which was demonstrably achieved). The trial was terminated following pre-planned analysis showing lack of efficacy \u2014 this is a scientific/efficacy-based termination, not a commercial one. The primary failure mode is biology_moved_endpoint_flat: amyloid was cleared, some downstream biomarkers moved, but clinical endpoints did not improve. A secondary consideration is that tau pathology (PET) did not respond, suggesting the amyloid-tau-neurodegeneration cascade may not be fully reversible in this population/timeframe, contributing to the clinical miss.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.82,
+      "evidence": "Amyloid PET showed -66.44 centiloid difference (p<0.0001), CSF pTau-181 -25.2% vs +1.1% (p<0.001), CSF tTau -16.6% vs +3.2% (p<0.001), yet CDR-SB difference was only -0.31 (p=0.0954), missing the primary endpoint. Biology (amyloid clearance, soluble tau reduction) clearly moved but clinical cognition/function did not improve significantly."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.35,
+      "evidence": "Tau PET SUVR did not change across any brain region despite amyloid clearance, suggesting that 116 weeks may be insufficient for amyloid clearance to translate to tau tangle reduction and subsequent clinical benefit. The amyloid-tau-neurodegeneration cascade may require longer treatment duration or earlier intervention."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "gantenerumab",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "gantenerumab",
+      "reasoning": "Amyloid PET showed -66.44 centiloid difference (p<0.0001) and CSF amyloid-related biomarkers moved significantly, directly demonstrating that gantenerumab engaged and cleared amyloid-beta (APP-derived). Target engagement is unambiguous."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "R-HSA-933542",
+      "support": "moderate_support",
+      "affecting_arm_id": "gantenerumab",
+      "reasoning": "Amyloid clearance was demonstrated (PET, CSF biomarkers), and downstream CSF tau markers (pTau-181, tTau, neurogranin) moved significantly, indicating the mechanism of amyloid clearance was engaged. However, tau PET (structural tau) did not change, suggesting only partial pathway modulation. Moderate support reflects the partial downstream engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-933542",
+      "target_entity": "bio:0e8337bb1711",
+      "support": "weak_contradict",
+      "affecting_arm_id": "gantenerumab",
+      "reasoning": "Despite robust amyloid clearance (mechanism engaged), tau PET SUVR did not change across any brain region (all p>0.6), and CSF NFL was non-significantly different. The mechanism of amyloid clearance did not translate to measurable slowing of neurodegeneration as captured by tau PET or NFL, suggesting the mechanism-to-biology link is weaker than hypothesized."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0e8337bb1711",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "gantenerumab",
+      "reasoning": "Even with substantial amyloid burden reduction and partial CSF tau improvement, the clinical endpoint CDR-SB did not improve significantly (p=0.0954). This suggests that amyloid burden reduction and neurodegeneration attenuation, as achieved here, do not reliably drive clinical benefit in early AD, at least within this timeframe and population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_dbt_period_week_116_global_outcome_cdr_sb",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "CDR-SB missed the primary endpoint (p=0.0954) despite robust amyloid biomarker movement. The biology (amyloid clearance, CSF tau reduction) moved but CDR-SB did not capture clinical benefit, suggesting CDR-SB may not be sufficiently sensitive to detect early-stage clinical benefit from amyloid clearance within 116 weeks, or that amyloid clearance does not translate to CDR-SB improvement."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "abeta42csf_low__amyloidpet_positive__cdrgs_low__mmse_high__severity_mild__taucsf_high",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this amyloid-confirmed early AD population (prodromal/mild), gantenerumab failed to meet the primary CDR-SB endpoint (p=0.0954) despite robust amyloid clearance. The population did not respond clinically to amyloid immunotherapy, providing weak contradict evidence that this biomarker-selected early AD population responds to this mechanism."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The dissociation between robust amyloid clearance (and partial CSF tau improvement) and absent tau PET change raises a mechanistic question about whether the amyloid-tau cascade is reversible at this disease stage within 116 weeks. The ARIA-E rate (20.87% vs 1.04%) may have led to dose modifications that are not fully captured in the structured data, potentially limiting exposure in a subset of patients. Expert review is warranted to assess whether dose modifications due to ARIA contributed to the clinical miss, and whether the wrong_timeframe failure mode should be weighted more heavily given the tau PET findings."
+}

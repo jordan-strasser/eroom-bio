@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT04221477",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. CD19 B-cell depletion was monitored, and anti-dsDNA titers were significantly reduced in the obinutuzumab arm vs placebo (adjusted difference -0.36 log IU/mL, p=0.0006). Complement C3 increased significantly more in the obinutuzumab arm (adjusted difference +0.14 g/L, p<0.0001). These are canonical biomarkers of B-cell depletion and autoimmune suppression in lupus nephritis, confirming that obinutuzumab engaged its CD20 target and depleted autoreactive B cells. 2. PATHWAY MODULATION: Downstream biology moved as predicted. Anti-dsDNA reduction and C3 normalization confirm that B-cell mediated autoimmune inflammation was suppressed. The eGFR change trended favorably (+2.31 vs -1.54, adjusted difference 3.84) though not statistically significant (p=0.1842), and SLEDAI-2K change was similar between arms (-5.63 vs -5.51, p=0.9384), suggesting the renal-specific pathway was the primary driver of benefit rather than global disease activity. 3. CLINICAL TRANSLATION: The primary endpoint was met. CRR at Week 76 was 46.4% (obinutuzumab) vs 33.1% (placebo), adjusted difference 13.4% (95% CI: 1.95\u201324.84), p=0.0232. Multiple secondary endpoints were concordant: proteinuric response (55.5% vs 41.9%, p=0.0227), death or renal-related events (18.9% vs 35.6%, p=0.0026), and CRR with serum creatinine criteria (46.4% vs 33.1%, p=0.0237). The clinical translation is robust across multiple renal endpoints. 4. POPULATION EFFECTS: No formal subgroup analyses by biomarker-defined populations were reported. The enrolled population (ISN/RPS Class III/IV lupus nephritis) is the appropriate mechanistic target population for B-cell depletion therapy. 5. CONFOUNDERS: The placebo response rate (33.1% CRR) is notable but not unusually high for this indication given background MMF+prednisone. The effect size (13.4%) is modest but clinically meaningful. Safety signals (Grade 3-5 infections 15.4% vs 6.8%; drug-related neutropenia 12.5% vs 3.8%) are elevated in the obinutuzumab arm but did not prevent adequate dosing or require protocol-level dose reductions per the reported data. The trial was adequately powered (n=271) and the 76-week duration is appropriate for lupus nephritis CRR assessment. Overall: a successful trial with clear mechanistic validation across the full causal chain.",
+  "failure_modes": [
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.4,
+      "evidence": "Weak points to surface for future trial designers: (1) modest absolute effect size of 13.4% with CI barely excluding zero (1.95\u201324.84), suggesting limited margin; (2) elevated infection and neutropenia rates in the treatment arm may limit broader use or require prophylactic strategies; (3) SLEDAI-2K did not differ between arms (p=0.9384), suggesting global disease activity was not differentially suppressed, and the benefit appears renal-specific; (4) eGFR improvement was not statistically significant (p=0.1842), raising questions about long-term renal preservation."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "obinutuzumab",
+      "target_entity": "ENSG00000156738",
+      "support": "strong_support",
+      "affecting_arm_id": "obinutuzumab",
+      "reasoning": "Anti-dsDNA titer reduction (p=0.0006) and complement C3 increase (p<0.0001) are downstream PD biomarkers confirming that obinutuzumab engaged its CD20 target and depleted autoreactive B cells. Per round-28 AFFECTS rule, demonstrated target engagement via PD biomarkers warrants strong_support."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000156738",
+      "target_entity": "antibody_dependent_cytotoxicity",
+      "support": "strong_support",
+      "affecting_arm_id": "obinutuzumab",
+      "reasoning": "B-cell depletion (evidenced by anti-dsDNA reduction and C3 normalization) confirms that engaging CD20 (MS4A1) drove the antibody-dependent cytotoxicity mechanism as intended. The PD biomarkers directly reflect the mechanism's downstream pathway activating."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "bio:878b8e9fbb20",
+      "support": "strong_support",
+      "affecting_arm_id": "obinutuzumab",
+      "reasoning": "Anti-dsDNA titer reduction and complement C3 normalization confirm that B-cell depletion via ADCC suppressed B-cell mediated autoimmune inflammation. The mechanism drove the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:878b8e9fbb20",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_support",
+      "affecting_arm_id": "obinutuzumab",
+      "reasoning": "CRR at Week 76 was significantly improved (46.4% vs 33.1%, p=0.0232), and death/renal-related events were significantly reduced (18.9% vs 35.6%, p=0.0026), confirming that suppressing B-cell mediated autoimmune inflammation drives lupus nephritis outcomes. Moderate rather than strong because eGFR improvement was not statistically significant and SLEDAI-2K did not differ."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "lupus_nephritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (CRR at Week 76) was met (p=0.0232) and was concordant with multiple secondary endpoints including proteinuric response (p=0.0227) and death/renal-related events (p=0.0026), confirming that CRR captures clinical benefit in lupus nephritis."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active__stage_iii__urineproteintocreatinineratio_high",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (ISN/RPS Class III/IV lupus nephritis with active disease and high urine protein-to-creatinine ratio) responded to obinutuzumab+MMF+prednisone vs placebo+MMF+prednisone with a statistically significant CRR difference (p=0.0232). Moderate rather than strong due to the modest absolute effect size (13.4%) and CI barely excluding zero."
+    }
+  ],
+  "confidence_overall": 0.78,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

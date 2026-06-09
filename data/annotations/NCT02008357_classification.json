@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT02008357",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Solanezumab clearly engaged its intended target. CSF A\u03b2 1-40 increased by +12,738 ng/L (p<0.001) and CSF A\u03b2 1-42 increased by +996 ng/L (p<0.001) in the solanezumab arm vs placebo, consistent with antibody-mediated sequestration of soluble amyloid beta pulling A\u03b2 from tissue into CSF/plasma. This is strong, direct evidence of target engagement.\n\n2. PATHWAY MODULATION: The downstream biology showed mixed results. Tau PET (flortaucipir SUVr) showed a statistically significant reduction in tau accumulation rate (LS mean difference -0.042, p<0.001), suggesting some downstream pathway modulation \u2014 solanezumab-treated participants accumulated tau more slowly. However, CSF total tau (p=0.922) and CSF phosphorylated tau (p=0.717) showed no significant differences. Structural MRI endpoints (hippocampal volume, lateral ventricular volume) also showed no significant differences. The tau PET signal is encouraging but the overall pathway modulation picture is incomplete \u2014 tau PET improved but other neurodegeneration markers did not move. This suggests partial pathway modulation at best.\n\n3. CLINICAL TRANSLATION: The primary endpoint (PACC score change at Week 240) was not met: LS mean difference = -0.30 (95% CI: -0.816 to 0.220), p=0.26. The effect was in the wrong direction (solanezumab arm performed slightly worse). Secondary cognitive/functional endpoints (CFI p=0.10, ADCS-ADL-Prevention p=0.082) also missed significance, though they trended in a more favorable direction. Despite confirmed target engagement and partial pathway modulation (tau PET), the clinical endpoint did not improve. This is a biology_moved_endpoint_flat / biology_drives failure pattern \u2014 the amyloid sequestration mechanism did not translate to cognitive benefit in this preclinical population.\n\n4. POPULATION EFFECTS: The trial enrolled cognitively normal older individuals at elevated risk (preclinical AD). No subgroup analyses with differential responses were reported. The population was amyloid-positive by design (enriched). The failure may partly reflect a wrong_population issue \u2014 intervening at the preclinical stage with a soluble A\u03b2-targeting antibody (rather than plaque-clearing) may be insufficient to prevent cognitive decline, or the population may have been too early or too late in the amyloid cascade for this mechanism to work.\n\n5. CONFOUNDERS: The trial was adequately powered (n=1169, 240-week duration). Safety was balanced \u2014 no dose-limiting toxicity. The tau PET signal (reduced tau accumulation) suggests some biological activity but this did not translate to cognitive benefit. The primary failure mode is that amyloid sequestration (soluble A\u03b2 neutralization) did not drive sufficient downstream neurodegeneration prevention to produce cognitive benefit in this preclinical population. The biology_moved (partially) but the endpoint was flat \u2014 the amyloid hypothesis as implemented here (soluble A\u03b2 sequestration without plaque clearance) did not translate to clinical benefit.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.72,
+      "evidence": "Target engagement confirmed (CSF A\u03b2 1-40 and 1-42 significantly elevated, p<0.001). Tau PET showed significantly reduced tau accumulation (p<0.001). However, primary PACC endpoint missed (effect -0.30, p=0.26), and all secondary cognitive/functional endpoints also missed. Biology partially moved (tau PET) but clinical endpoint did not improve."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "The trial enrolled cognitively normal individuals at preclinical AD stage. Solanezumab targets soluble A\u03b2 rather than clearing plaques. The preclinical population may have had insufficient amyloid burden or the mechanism (soluble A\u03b2 sequestration) may be insufficient to prevent cognitive decline at this stage. Prior solanezumab trials in mild-to-moderate AD also failed, suggesting the mechanism may not work in any AD population."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "solanezumab",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "solanezumab_solanezumab",
+      "reasoning": "CSF A\u03b2 1-40 and A\u03b2 1-42 increased significantly (p<0.001) in the solanezumab arm, directly demonstrating antibody-mediated sequestration of amyloid beta \u2014 strong evidence of target engagement per the round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "GO:1904646",
+      "support": "moderate_support",
+      "affecting_arm_id": "solanezumab_solanezumab",
+      "reasoning": "Target engagement was confirmed (CSF A\u03b2 elevated significantly). Tau PET showed reduced tau accumulation (p<0.001), suggesting partial downstream pathway modulation. However, CSF tau and phospho-tau did not change significantly, and structural MRI markers were flat. The mechanism was partially engaged but not fully \u2014 moderate support for the target modulating the cellular response to amyloid-beta pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:1904646",
+      "target_entity": "bio:0e8337bb1711",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab_solanezumab",
+      "reasoning": "Despite target engagement and partial tau PET signal, the overall amyloid burden reduction and neurodegeneration slowing biology did not translate to clinical benefit. CSF tau, phospho-tau, hippocampal volume, and ventricular volume were all unchanged. The mechanism (cellular response to amyloid-beta) did not sufficiently drive the intended biology of neurodegeneration slowing."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0e8337bb1711",
+      "target_entity": "cognition_disorders",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab_solanezumab",
+      "reasoning": "Even with partial pathway modulation (tau PET), the primary cognitive endpoint (PACC) missed significantly (p=0.26, effect -0.30). The amyloid burden reduction biology as achieved by solanezumab did not drive improvement in cognition disorders in this preclinical population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_preclinical_alzheimer_cognitive_composite_pacc",
+      "target_entity": "cognition_disorders",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The PACC was the pre-specified primary endpoint for preclinical AD. It was measured over 240 weeks in a large adequately-powered trial. The endpoint missed, but this may reflect the drug not working rather than the endpoint being a poor surrogate \u2014 the PACC is a validated composite for preclinical AD. However, since the drug did show some biological activity (tau PET) without PACC movement, there is some question about whether PACC captures the relevant biology at this disease stage. Ambiguous overall."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloidpet_positive__cdr_low__logicalmemoryii_low__mmse_high__severity_mild",
+      "target_entity": "cognition_disorders",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint missed (p=0.26) in this amyloid-positive preclinical AD population with adequate power (n=1169, 240 weeks). No responding subgroup was identified. The population was enriched for amyloid positivity, yet the drug failed to show cognitive benefit, indicating this population does not respond to solanezumab-mediated soluble A\u03b2 sequestration."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The tau PET signal (reduced tau accumulation, p<0.001) is a potentially important intermediate biomarker that moved in the right direction despite the primary endpoint failing. This creates an ambiguous biology_moved_endpoint_flat vs. insufficient_biology_modulation picture. Expert review is warranted to assess: (1) whether the tau PET effect size is clinically meaningful and whether it represents true disease modification or a statistical artifact; (2) whether the PACC is sufficiently sensitive to detect early cognitive changes in preclinical AD over 240 weeks; (3) whether the wrong_population hypothesis (soluble A\u03b2 targeting insufficient at preclinical stage) is the primary explanation vs. the biology_moved_endpoint_flat explanation."
+}

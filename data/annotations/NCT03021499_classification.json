@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT03021499",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Voclosporin is a calcineurin inhibitor (CNI). Direct target engagement biomarkers (e.g., calcineurin activity assay) were not reported, but the drug's mechanism is well-established pharmacologically. The clinical PD signal (UPCR reduction, renal response) is consistent with calcineurin inhibition reducing T-cell-driven glomerular inflammation. The modest eGFR reduction is a known class effect of CNIs via afferent arteriolar vasoconstriction, which itself is indirect evidence of calcineurin pathway engagement in vascular smooth muscle. Target engagement is assumed based on class pharmacology and consistent with observed effects.\n\n2. PATHWAY MODULATION: The intended biology is immunosuppression/T-cell activation suppression via calcineurin-NFAT pathway inhibition. UPCR reduction (a downstream marker of glomerular inflammation and proteinuria) was significantly greater in the voclosporin arm at all timepoints through Week 52, consistent with pathway modulation. However, SELENA-SLEDAI (systemic lupus disease activity) did not differ significantly between arms (p=0.277), suggesting the systemic immunosuppressive effect may be limited or that the benefit is primarily renal/local rather than systemic. The UPCR signal is strong evidence that the renal biology moved.\n\n3. CLINICAL TRANSLATION: The primary endpoint (adjudicated renal response at Week 52) was met: OR 2.65 (95% CI 1.64\u20134.27), p=0.001. Voclosporin 40.8% vs placebo 22.5% achieved renal response. Multiple secondary endpoints also met: UPCR \u22640.5 mg/mg (HR 2.02, p<0.001), time to 50% UPCR reduction (HR 2.05, p<0.001), and early renal response at Week 24 (OR 2.23, p=0.002). The clinical translation is robust for renal endpoints. The eGFR change was slightly negative in the voclosporin arm (\u22121.5 vs +1.5 mL/min/1.73m\u00b2), a known CNI hemodynamic effect, but the between-group difference did not reach significance (p=0.055). QoL endpoints (SF-36, LupusPRO) did not differ significantly.\n\n4. POPULATION EFFECTS: The enrolled population (adults with active lupus nephritis on background MMF and low-dose steroids) is the appropriate target population for this mechanism. No formal subgroup analyses by biomarker status were reported. The renal response benefit was consistent across multiple renal endpoints. The lack of SELENA-SLEDAI benefit suggests the drug's effect is primarily renal rather than systemic, which is consistent with the indication.\n\n5. CONFOUNDERS: The trial was adequately powered (n=358, 179 per arm). The comparator was placebo plus background MMF and steroids, which is appropriate. The modest eGFR reduction is a known CNI class effect and was anticipated; it did not prevent the primary endpoint from being met. Safety profile was acceptable with no dose-limiting toxicity pattern. The trial duration of 52 weeks is appropriate for lupus nephritis. Overall, this is a clean positive trial with robust renal endpoint results and an acceptable safety profile.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "SELENA-SLEDAI (systemic disease activity) did not improve significantly vs placebo (LS mean diff \u22120.5, p=0.277), and QoL endpoints (SF-36, LupusPRO) were similar between arms. This suggests the calcineurin inhibition mechanism drives renal-specific benefit but does not translate to broader systemic lupus disease control or patient-reported outcomes. This is a caveat for trial designers: the mechanism appears renal-compartment-specific in this setting."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "voclosporin",
+      "target_entity": "ENSG00000138814",
+      "support": "strong_support",
+      "affecting_arm_id": "voclosporin",
+      "reasoning": "The robust UPCR reduction and renal response benefit, combined with the known CNI class eGFR effect (afferent arteriolar vasoconstriction), are consistent with calcineurin engagement. The drug's pharmacological class and the observed PD signals (UPCR reduction, eGFR class effect) confirm target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000138814",
+      "target_entity": "R-HSA-2025928",
+      "support": "moderate_support",
+      "affecting_arm_id": "voclosporin",
+      "reasoning": "UPCR reduction significantly greater in voclosporin arm at all timepoints is consistent with calcineurin-NFAT pathway suppression reducing T-cell-driven glomerular inflammation. No direct NFAT activity assay was reported, so moderate rather than strong support. The SELENA-SLEDAI non-significance introduces some uncertainty about systemic pathway modulation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-2025928",
+      "target_entity": "bio:0d7415157acd",
+      "support": "moderate_support",
+      "affecting_arm_id": "voclosporin",
+      "reasoning": "UPCR reduction and renal response improvement are consistent with T-cell activation suppression reducing autoimmune glomerular inflammation. However, SELENA-SLEDAI non-significance suggests systemic T-cell suppression may be incomplete or that the benefit is compartmentalized to the kidney, warranting moderate rather than strong support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0d7415157acd",
+      "target_entity": "lupus_nephritis",
+      "support": "strong_support",
+      "affecting_arm_id": "voclosporin",
+      "reasoning": "The primary endpoint was met with OR 2.65 (p=0.001) and multiple secondary renal endpoints also met, demonstrating that suppressing T-cell-driven autoimmune inflammation drives clinical benefit in lupus nephritis. This is strong evidence that the biology drives the disease."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_participants_adjudicated_renal_response_week_52",
+      "target_entity": "lupus_nephritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (adjudicated renal response at Week 52) was met at p=0.001 with OR 2.65, and was concordantly supported by multiple secondary renal endpoints (UPCR \u22640.5 mg/mg, time to 50% UPCR reduction, early renal response at Week 24). This composite renal response endpoint robustly captures clinical benefit in lupus nephritis."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "egfr_low__severity_active__upcr_high",
+      "target_entity": "lupus_nephritis",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (active lupus nephritis with high UPCR at baseline, mean ~4 mg/mg) responded strongly to voclosporin with OR 2.65 (p=0.001) on the primary endpoint, meeting the strong_support threshold (p<0.01 with clinically meaningful effect size)."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,76 @@
+{
+  "nct_id": "NCT01714817",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Abatacept achieved sustained trough serum concentrations (geometric mean Cmin 13.62\u201390.46 \u00b5g/mL across timepoints; Cmax Day 1: 527.43 \u00b5g/mL), confirming adequate systemic exposure throughout the dosing period. The lymphocyte count change at Day 729 (abatacept +0.141 vs placebo -0.149 x10^9 cells/L) provides a pharmacodynamic signal consistent with T-cell modulation, supporting that the drug reached its target. Target engagement is considered demonstrated.\n\n2. PATHWAY MODULATION: Despite confirmed exposure, downstream biology did not move differentially. UPCR change at Day 365 was nearly identical between arms (abatacept -2.99 vs placebo -2.90 mg/mg overall; -83.77% vs -84.12% median percent change). eGFR improvement was marginal and similar (abatacept +6.85 vs placebo +5.85 mL/min/1.73m\u00b2). BILAG 2004 score change was also nearly identical (-8.22 vs -7.60). These biomarkers of renal and systemic lupus activity moved similarly in both arms, indicating that costimulation blockade added on top of MMF+prednisone did not produce meaningful additional suppression of the autoimmune biology driving lupus nephritis.\n\n3. CLINICAL TRANSLATION: The primary endpoint (CR at Day 365) was 35.1% (abatacept) vs 33.5% (placebo), OR 1.08 (95% CI 0.71\u20131.64), p=0.7264 \u2014 a near-null result. The effect size is trivially small and the p-value is far from significance. The trial was terminated early due to inability to meet protocol objectives. At Day 729, CR rates were 61.9% vs 52.7%, suggesting a possible delayed signal, but this was not the pre-specified primary endpoint and the trial was stopped.\n\n4. POPULATION EFFECTS: No meaningful subgroup differentiation was observed. The nephrotic subgroup showed CR at Day 729 of 50.0% vs 49.0% \u2014 essentially identical. Median time to CR was faster with abatacept (170 vs 282 days), which is an intriguing signal but did not translate to the binary CR endpoint at Day 365. No biomarker-defined subgroup showed a clear differential response.\n\n5. CONFOUNDERS: The placebo arm achieved a 33.5% CR rate at Day 365, which is substantial given the background MMF+prednisone standard of care \u2014 this high background response rate compressed the detectable treatment effect. The trial was adequately powered (N=695) and duration was appropriate (up to 729 days). The primary failure mode is that the biology did not move differentially (biology_moved_endpoint_flat / target_engaged_biology_not_moved hybrid), with the high background response from SOC being a major confounder. The costimulation blockade mechanism may not add meaningfully on top of MMF+prednisone in an unselected lupus nephritis population. The trial was terminated for inability to meet protocol objectives (commercial/strategic element), but the efficacy readout was obtained and is informative.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Both arms showed substantial and nearly identical improvements in UPCR, eGFR, and BILAG scores, indicating the background MMF+prednisone drove the biology. Abatacept added no differential biological signal. CR at Day 365: 35.1% vs 33.5%, OR 1.08, p=0.7264."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.7,
+      "evidence": "The placebo arm (MMF+prednisone) achieved 33.5% CR at Day 365 and 52.7% at Day 729, representing a high background response rate from standard-of-care that compressed the detectable treatment effect of abatacept."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "The unselected lupus nephritis population on background MMF+prednisone may not be the right population for costimulation blockade \u2014 a biomarker-selected population (e.g., high T-cell activation markers, specific nephritis class) might show differential benefit. The nephrotic subgroup showed no advantage either."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "abatacept",
+      "target_entity": "ENSG00000121594",
+      "support": "strong_support",
+      "affecting_arm_id": "bms_188667_mycophenolate_mofetil_prednisone",
+      "reasoning": "Sustained trough serum concentrations confirmed throughout dosing period, and lymphocyte count differential (abatacept +0.141 vs placebo -0.149 x10^9 cells/L) provides PD evidence of target engagement consistent with CD80/CD86 blockade."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000121594",
+      "target_entity": "R-HSA-389356",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bms_188667_mycophenolate_mofetil_prednisone",
+      "reasoning": "Despite confirmed target engagement (adequate exposure, lymphocyte count signal), the downstream pathway biomarkers (UPCR, eGFR, BILAG) showed no differential modulation versus placebo, suggesting CD80 engagement did not meaningfully drive the co-stimulation blockade pathway in this setting."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389356",
+      "target_entity": "bio:0d7415157acd",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bms_188667_mycophenolate_mofetil_prednisone",
+      "reasoning": "Costimulation blockade via CD28 co-stimulation pathway did not produce differential T-cell activation suppression or autoimmune inflammation reduction compared to placebo, as evidenced by near-identical UPCR, eGFR, and BILAG changes between arms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0d7415157acd",
+      "target_entity": "lupus_nephritis",
+      "support": "weak_contradict",
+      "affecting_arm_id": "bms_188667_mycophenolate_mofetil_prednisone",
+      "reasoning": "Adding costimulation blockade on top of MMF+prednisone did not improve CR rates, suggesting that T-cell activation suppression via this mechanism does not meaningfully drive additional disease control in lupus nephritis beyond standard SOC."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The CR endpoint at Day 365 was measured and missed (35.1% vs 33.5%, p=0.7264). Both arms showed substantial improvement, suggesting the endpoint is sensitive to background SOC but may not capture the incremental benefit of add-on immunotherapy. The Day 729 CR rates (61.9% vs 52.7%) suggest the 365-day timeframe may have been too early to capture the full treatment effect, raising questions about whether this endpoint adequately captures the biology at this timepoint."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "activeurinesediment_positive__serumcreatinine_low__severity_active__stage_iii__upcr_high",
+      "target_entity": "lupus_nephritis",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this active lupus nephritis population on background MMF+prednisone, abatacept showed no differential response (OR 1.08, p=0.7264). The population did not respond differently to the addition of costimulation blockade, with near-identical outcomes across all measured biomarkers and the primary endpoint."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated early ('inability to meet protocol objectives') but had obtained a full primary endpoint readout at Day 365 with adequate N=695. The Day 729 data showing 61.9% vs 52.7% CR and faster median time to CR (170 vs 282 days) raises the question of whether the 365-day primary endpoint was too early for this mechanism, potentially misclassifying a 'wrong_timeframe' failure as a biology failure. Expert review is warranted to assess whether the time-to-CR signal represents a real delayed treatment effect and whether a longer primary endpoint would have yielded a different conclusion. Additionally, the lymphocyte count differential is an unusual PD signal that warrants mechanistic interpretation."
+}

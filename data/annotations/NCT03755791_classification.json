@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT03755791",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm target engagement for either cabozantinib (VEGFR2/MET/AXL) or atezolizumab (PD-L1). The trial does not report target engagement evidence. We must infer from clinical outcomes only.\n\n2. PATHWAY MODULATION: No pathway biomarker data is reported. There is no evidence of downstream biology changes (e.g., angiogenesis markers, T-cell activation markers). The absence of biomarker data means we cannot confirm whether the intended biology was modulated.\n\n3. CLINICAL TRANSLATION: The primary endpoints were PFS and OS. PFS showed a partial signal (HR=0.63, p=0.0012) for the experimental arm, suggesting some anti-tumor activity. However, OS \u2014 the co-primary endpoint \u2014 completely failed (HR=0.99, p=0.9056), indicating no survival benefit over sorafenib. The PFS improvement did not translate to OS benefit, which is the critical endpoint. The single-agent cabozantinib arm also showed partial PFS benefit. The combination failed to demonstrate superiority over sorafenib on OS.\n\n4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population was treatment-naive adults with advanced HCC, which is an appropriate population for first-line therapy. No biomarker-defined subgroups were identified.\n\n5. CONFOUNDERS: The trial was adequately powered (N=837). The PFS improvement without OS benefit is a classic 'biology moved, endpoint flat' pattern at the OS level \u2014 PFS moved but OS did not follow. This could reflect: (a) the PFS benefit being real but insufficient to translate to OS due to effective post-progression therapies in the sorafenib arm; (b) the combination not providing meaningful additional benefit over sorafenib despite PFS improvement; (c) the immunotherapy component (atezolizumab) not adding meaningful benefit in this HCC population when combined with cabozantinib vs. sorafenib. The OS HR of 0.99 is essentially null, suggesting the combination provided no survival advantage. The AE profile shows higher rates of several SAEs in the experimental arm (hepatic encephalopathy 2.8% vs 0.5%, sepsis 2.6% vs 1.0%, pyrexia 2.6% vs 0.5%), but these do not meet DLT criteria as defined \u2014 no MTD was below target-engaging dose, and the trial was not terminated for safety. The primary failure mode is biology_moved_endpoint_flat: PFS improved (biology moved at the tumor growth level) but OS did not improve (the ultimate clinical endpoint was flat). A secondary consideration is that the combination may not have provided meaningful additive benefit over sorafenib in this population.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.75,
+      "evidence": "PFS HR=0.63 (p=0.0012) indicates tumor growth suppression was achieved, but OS HR=0.99 (p=0.9056) shows no survival benefit. The biology (tumor progression delay) moved but the critical clinical endpoint (OS) did not improve, suggesting PFS is a poor surrogate for OS in this HCC setting or that post-progression therapies equalized survival."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "HCC is known to be immunologically complex with high rates of immune tolerance. The lack of biomarker selection (e.g., PD-L1 expression, tumor mutational burden) may have diluted any immunotherapy benefit. The combination of cabozantinib+atezolizumab may work in a biomarker-selected subgroup not identified here."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "cabozantinib",
+      "target_entity": "ENSG00000105976",
+      "support": "weak_support",
+      "affecting_arm_id": "experimental_arm",
+      "reasoning": "PFS improvement (HR=0.63, p=0.0012) in the experimental arm suggests cabozantinib engaged its kinase targets sufficiently to delay progression, providing indirect evidence of target engagement. No direct PD biomarker data available, so only weak support per round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cabozantinib",
+      "target_entity": "ENSG00000105976",
+      "support": "weak_support",
+      "affecting_arm_id": "single_agent_cabozantinib_arm",
+      "reasoning": "Single-agent cabozantinib arm also showed partial PFS benefit, providing additional indirect evidence of target engagement via kinase inhibition."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "weak_support",
+      "affecting_arm_id": "experimental_arm",
+      "reasoning": "PFS improvement suggests the kinase inhibition mechanism did affect angiogenesis inhibition and tumor growth suppression to some degree, but without biomarker confirmation this is only weak support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "weak_support",
+      "affecting_arm_id": "single_agent_cabozantinib_arm",
+      "reasoning": "Single-agent cabozantinib partial PFS benefit supports that kinase inhibition mechanism affects angiogenesis biology, though without biomarker data only weak support is warranted."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_support",
+      "affecting_arm_id": "experimental_arm",
+      "reasoning": "PFS improvement (HR=0.63) suggests angiogenesis inhibition and tumor growth suppression biology does drive HCC disease to some extent, but the failure to translate to OS benefit limits this to weak support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_support",
+      "affecting_arm_id": "single_agent_cabozantinib_arm",
+      "reasoning": "Partial PFS benefit from single-agent cabozantinib provides weak support that angiogenesis inhibition biology drives HCC."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9909620",
+      "target_entity": "bio:1fab3055d7c9",
+      "support": "weak_contradict",
+      "affecting_arm_id": "experimental_arm",
+      "reasoning": "OS HR=0.99 (p=0.9056) indicates the checkpoint blockade mechanism via PD-L1 regulation did not translate to meaningful anti-tumor immunity benefit in this HCC population. No biomarker data to confirm engagement, so weak contradict rather than moderate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1fab3055d7c9",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "experimental_arm",
+      "reasoning": "The null OS result (HR=0.99) provides weak contradict evidence that NK/T-cell mediated anti-tumor immunity drives meaningful clinical benefit in unselected first-line HCC when combined with cabozantinib vs. sorafenib."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PFS improved (HR=0.63, p=0.0012) but OS showed no benefit (HR=0.99, p=0.9056). This dissociation suggests PFS is a poor surrogate for OS benefit in first-line HCC in this trial context \u2014 the endpoint captured tumor growth delay but not survival benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_unresectable__line_first",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary OS endpoint missed with p=0.9056 (HR=0.99) in an adequately powered trial (N=837). The treatment-naive unresectable HCC population did not respond to cabozantinib+atezolizumab vs. sorafenib on the survival endpoint, despite PFS improvement. Adequate power and clear null OS result support moderate contradict."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The dissociation between PFS benefit (HR=0.63, p=0.0012) and null OS (HR=0.99, p=0.9056) is unusual and may reflect post-progression treatment effects, crossover, or the specific dynamics of HCC. Expert review is warranted to assess whether the PFS signal represents genuine biological activity that was masked at the OS level by subsequent therapies, and whether biomarker-selected subgroups (e.g., PD-L1 high, MET amplified) might show differential benefit. The single-agent cabozantinib arm's partial PFS outcome also warrants interpretation in context of the full trial design."
+}

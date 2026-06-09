@@ -1,0 +1,114 @@
+{
+  "nct_id": "NCT04487080",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data is reported for EGFR/MET target engagement. However, the clinical mechanism of amivantamab (bispecific EGFR/MET antibody) and lazertinib (EGFR TKI) is well-established, and the strong clinical efficacy signal (HR 0.70, p=0.0002) is consistent with on-target activity. Per the round-28 AFFECTS rule, no explicit target engagement biomarker was measured, so we rely on the clinical outcome as indirect evidence.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., phospho-EGFR, downstream signaling markers) is reported. The combination of bispecific antibody-mediated receptor blockade/degradation with kinase inhibition is mechanistically complementary \u2014 amivantamab blocks both EGFR and MET extracellular domains and promotes receptor degradation, while lazertinib inhibits EGFR kinase activity intracellularly. The superior PFS of the combination vs. osimertinib monotherapy (23.72 vs. 16.59 months) supports that the dual-mechanism approach modulated the pathway more effectively.\n\n3. CLINICAL TRANSLATION: The primary endpoint (PFS by BICR) was met with HR 0.70 (95% CI 0.58\u20130.85), p=0.0002. Median PFS was 23.72 months for amivantamab+lazertinib vs. 16.59 months for osimertinib. This is a clinically meaningful improvement (~7 months) over the current standard of care (osimertinib) in treatment-naive EGFR-mutated NSCLC. The effect size is statistically robust and clinically significant.\n\n4. POPULATION EFFECTS: No subgroup findings are reported. The trial enrolled treatment-naive locally advanced or metastatic EGFR-mutated NSCLC patients \u2014 a well-defined biomarker-selected population appropriate for EGFR-targeted therapy. The lazertinib monotherapy arm (Arm C) showed median PFS of 18.46 months, suggesting lazertinib alone has meaningful activity, and the combination provides incremental benefit.\n\n5. CONFOUNDERS: The main safety concern in Arm A is a notably higher rate of thromboembolic events (pulmonary embolism 6.2% vs. 2.3% for osimertinib; deep vein thrombosis 2.9% vs. 0.5%), infusion-related reactions (2.1% vs. 0%), and fractures (femoral neck 1.0%, hip 0.7% vs. 0% for osimertinib). These are clinically meaningful toxicities but did not prevent the trial from demonstrating efficacy \u2014 the trial was not terminated for safety, and the primary endpoint was met. The DLT criteria are not met per the structured AE table: no evidence that MTD was below target-engaging dose, and the trial completed with a positive efficacy readout. The open-label design of Arm A vs. double-blind comparator arms is a minor limitation but unlikely to bias PFS by BICR. Overall, this is a successful trial with a meaningful efficacy signal and a manageable but notable safety profile.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.3,
+      "evidence": "Arm A showed notably higher rates of thromboembolic SAEs (pulmonary embolism 6.2% vs. 2.3%; DVT 2.9% vs. 0.5%), infusion-related reactions (2.1% vs. 0%), and fractures compared to osimertinib. While these are clinically meaningful and may affect real-world tolerability and dose modifications, they did not prevent the trial from completing or demonstrating efficacy. This is a weak caveat rather than a true failure mode \u2014 the trial succeeded despite these signals."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "amivantamab",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_arm_a_open_label_amivantamab_and_lazertinib",
+      "reasoning": "The combination arm met the primary endpoint with HR 0.70, p=0.0002, demonstrating clinical activity consistent with EGFR/MET target engagement by amivantamab. Per round-28 AFFECTS rule, strong clinical response in a biomarker-selected (EGFR-mutated) population supports target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "lazertinib",
+      "target_entity": "ENSG00000146648",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_arm_a_open_label_amivantamab_and_lazertinib",
+      "reasoning": "Lazertinib as part of the combination arm contributed to the successful PFS outcome in EGFR-mutated NSCLC, consistent with EGFR kinase inhibition. Clinical activity in biomarker-selected population supports target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "lazertinib",
+      "target_entity": "ENSG00000146648",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_c_double_blind_lazertinib_placebo_osimertinib",
+      "reasoning": "Lazertinib monotherapy (Arm C) showed median PFS of 18.46 months in treatment-naive EGFR-mutated NSCLC, demonstrating meaningful single-agent activity consistent with EGFR target engagement, though this arm was not the primary comparison."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "osimertinib",
+      "target_entity": "ENSG00000146648",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_b_double_blind_osimertinib_placebo_lazertinib",
+      "reasoning": "Osimertinib (Arm B) showed median PFS of 16.59 months, consistent with established EGFR kinase inhibition activity in this population, though it was outperformed by the combination arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038134",
+      "target_entity": "bio:3987413efb20",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_arm_a_open_label_amivantamab_and_lazertinib",
+      "reasoning": "The combination arm's superior PFS (23.72 months, HR 0.70, p=0.0002) vs. osimertinib supports that modulation of the ERBB2-EGFR signaling pathway drives EGFR-mediated tumor cell proliferation suppression in this population."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038134",
+      "target_entity": "bio:3987413efb20",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_b_double_blind_osimertinib_placebo_lazertinib",
+      "reasoning": "Osimertinib monotherapy achieved 16.59 months median PFS, supporting that EGFR pathway modulation drives tumor proliferation suppression, though the effect was less than the combination."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038134",
+      "target_entity": "bio:3987413efb20",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_c_double_blind_lazertinib_placebo_osimertinib",
+      "reasoning": "Lazertinib monotherapy achieved 18.46 months median PFS, supporting EGFR pathway modulation driving tumor proliferation suppression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3987413efb20",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "treatment_arm_a_open_label_amivantamab_and_lazertinib",
+      "reasoning": "The combination arm's significant PFS improvement (HR 0.70, p=0.0002) over osimertinib in EGFR-mutated NSCLC strongly supports that EGFR-driven tumor cell proliferation suppression drives disease outcomes in this indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3987413efb20",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_b_double_blind_osimertinib_placebo_lazertinib",
+      "reasoning": "Osimertinib's 16.59 months median PFS supports EGFR-driven biology as a driver of NSCLC disease outcomes."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3987413efb20",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "treatment_arm_c_double_blind_lazertinib_placebo_osimertinib",
+      "reasoning": "Lazertinib monotherapy's 18.46 months median PFS supports EGFR-driven biology as a driver of NSCLC disease outcomes."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS by BICR per RECIST v1.1 was the pre-specified primary endpoint and was met with HR 0.70, p=0.0002, with a clinically meaningful 7-month improvement in median PFS. PFS is a regulator-accepted endpoint for NSCLC and the result is supported by the magnitude of effect."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_locally_advanced__line_first",
+      "target_entity": "non_small_cell_lung_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Treatment-naive locally advanced/metastatic EGFR-mutated NSCLC patients responded strongly to amivantamab+lazertinib combination (HR 0.70, p=0.0002 vs. osimertinib), confirming this biomarker-selected first-line population responds to EGFR/MET-targeted combination therapy."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial succeeded but Arm A showed a notably higher rate of thromboembolic events (PE 6.2%, DVT 2.9%) and infusion-related reactions compared to osimertinib. While these did not prevent efficacy demonstration, expert review is warranted to assess whether these safety signals represent a clinically meaningful risk-benefit trade-off that could affect regulatory labeling, real-world adoption, or whether prophylactic anticoagulation should be standard. Additionally, the open-label design of Arm A vs. double-blind comparator arms is a minor methodological caveat worth expert consideration for bias assessment."
+}

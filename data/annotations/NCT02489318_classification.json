@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT02489318",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming AR engagement is reported. However, apalutamide is a well-characterized AR antagonist and the clinical results strongly imply target engagement. ADT is known to suppress testosterone/androgen production, engaging AR indirectly by reducing ligand availability. The combination's superior efficacy over ADT alone is mechanistically consistent with apalutamide blocking residual AR signaling. 2. PATHWAY MODULATION: No explicit pathway biomarkers (e.g., PSA kinetics, testosterone levels) are reported in the structured extraction. However, the mechanism of AR antagonism suppressing androgen-driven tumor proliferation is well-established, and the large effect sizes (rPFS HR=0.484, OS HR=0.651) are consistent with meaningful pathway modulation. 3. CLINICAL TRANSLATION: Both co-primary endpoints were met with highly significant p-values (<0.0001). rPFS HR=0.484 represents a ~52% reduction in risk of radiographic progression or death; OS HR=0.651 represents a ~35% reduction in risk of death. These are clinically meaningful effect sizes in mHSPC. The trial enrolled 1052 patients with up to 57 months follow-up, providing robust evidence. 4. POPULATION EFFECTS: No subgroup analyses are reported in the extraction. The enrolled population (mHSPC, first-line, metastatic) is the appropriate population for this mechanism \u2014 hormone-sensitive disease retains AR dependency, making AR antagonism on top of ADT biologically rational. 5. CONFOUNDERS: No major confounders identified. The trial is adequately powered (N=1052), has a placebo-controlled comparator, appropriate duration (~57 months), and the safety profile does not indicate dose-limiting toxicity that would have compromised the efficacy readout. SAE rates are generally low and comparable or lower in the apalutamide arm for many events. The trial is a clean Phase 3 success.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "apalutamide",
+      "target_entity": "ENSG00000169083",
+      "support": "strong_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "Apalutamide is a direct AR antagonist; the large clinical benefit (rPFS HR=0.484, OS HR=0.651, p<0.0001) in a hormone-sensitive population where AR is the primary driver is mechanistically consistent with target engagement. Per round-28 AFFECTS rule, clinical response in a mechanism-dependent indication implies target engagement."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "androgen_deprivation_therapy",
+      "target_entity": "ENSG00000169083",
+      "support": "strong_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "ADT reduces androgen ligand availability, engaging AR indirectly. The combination arm's success confirms ADT's contribution to AR pathway suppression in mHSPC."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169083",
+      "target_entity": "R-HSA-4090294",
+      "support": "moderate_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "The strong clinical efficacy of apalutamide (AR antagonist) in mHSPC supports that AR modulates downstream signaling pathways including SUMOylation of intracellular receptors. No direct PD biomarker data is available, so moderate rather than strong support is assigned."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:7af8d35716b5",
+      "support": "moderate_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "The clinical success of apalutamide supports that AR antagonism via this mechanism suppresses androgen-driven tumor proliferation. No direct pathway biomarker data available, hence moderate support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7af8d35716b5",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "The large, statistically significant improvement in both rPFS (HR=0.484) and OS (HR=0.651) with AR antagonism on top of ADT in mHSPC strongly supports that androgen-driven tumor proliferation biology drives prostate cancer progression."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169083",
+      "target_entity": "GO:0006693",
+      "support": "moderate_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "ADT's contribution to the successful combination arm supports AR modulation via this pathway. No direct PD data available."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0006693",
+      "target_entity": "bio:cddfdcf9887a",
+      "support": "moderate_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "The combination arm success supports that ADT-mediated androgen suppression contributes to clinical benefit in mHSPC."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cddfdcf9887a",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "apalutamide_plus_adt",
+      "reasoning": "Androgen suppression biology driving prostate cancer is strongly supported by the combination arm's OS and rPFS benefit."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "rPFS was a co-primary endpoint and was met (HR=0.484, p<0.0001), and OS was also met (HR=0.651, p<0.0001), confirming that rPFS captures clinical benefit in mHSPC. Concordance between rPFS and OS provides strong support for this endpoint's validity in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_metastatic__functional_class_ii__line_first",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The mHSPC first-line metastatic population showed a large, statistically significant benefit from AR antagonism plus ADT (rPFS HR=0.484, OS HR=0.651, both p<0.0001), confirming this population responds strongly to this mechanism."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

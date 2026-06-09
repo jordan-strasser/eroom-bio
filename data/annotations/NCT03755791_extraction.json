@@ -1,0 +1,209 @@
+{
+  "nct_id": "NCT03755791",
+  "therapeutic_hypothesis": {
+    "compound": "Cabozantinib + Atezolizumab",
+    "claimed_target": "VEGFR2, MET, AXL (cabozantinib); PD-L1 (atezolizumab)",
+    "proposed_mechanism": "kinase inhibition (cabozantinib); checkpoint blockade (atezolizumab)",
+    "intended_biology": "angiogenesis inhibition and immune microenvironment modulation combined with T-cell mediated anti-tumor immunity",
+    "target_population": "Adults with advanced hepatocellular carcinoma who have not received previous systemic anticancer therapy",
+    "primary_endpoint": "Progression-Free Survival (PFS) and Overall Survival (OS)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS HR=0.63 (99% CI: 0.44\u20130.91); OS HR=0.99 (96% CI: 0.78\u20131.24)",
+    "p_value": 0.9056,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Serious adverse events included anaemia, disseminated intravascular coagulation, thrombocytopenia, acute coronary syndrome, acute myocardial infarction, arrhythmia, atrial fibrillation, atrial flutter, cardiac arrest, and cardiac failure across arms."
+    ],
+    "dose_info": {
+      "dose": "Cabozantinib 40 mg (experimental arm) or 60 mg (single-agent arm); Atezolizumab 1200 mg; Sorafenib 400 mg",
+      "schedule": "Cabozantinib once daily; Atezolizumab q3w IV; Sorafenib twice daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 1.4,
+        "incidence_control_pct": 1.93,
+        "serious": true
+      },
+      {
+        "term": "Disseminated intravascular coagulation (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 0.23,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 1.17,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute coronary syndrome (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 0.23,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 0.23,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Arrhythmia (serious)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.48,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 0.23,
+        "incidence_control_pct": 0.48,
+        "serious": true
+      },
+      {
+        "term": "Atrial flutter (serious)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac arrest (serious)",
+        "grade": "",
+        "incidence_treatment_pct": 0.23,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac failure (serious)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.48,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Advanced hepatocellular carcinoma",
+    "comparator": "Sorafenib",
+    "sample_size": 837,
+    "duration": "Up to 36 months follow-up",
+    "duration_weeks": 156.42,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "experimental_arm",
+      "compounds": [
+        "Cabozantinib",
+        "Atezolizumab"
+      ]
+    },
+    {
+      "arm_id": "control_arm",
+      "compounds": [
+        "Sorafenib"
+      ]
+    },
+    {
+      "arm_id": "single_agent_cabozantinib_arm",
+      "compounds": [
+        "Cabozantinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "experimental_arm",
+      "intervention": "Cabozantinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 0.63,
+      "p_value": 0.0012,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "Treatment-naive adults with advanced hepatocellular carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "experimental_arm",
+      "intervention": "Atezolizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 0.99,
+      "p_value": 0.9056,
+      "outcome": "failure",
+      "mechanism_description": "checkpoint blockade",
+      "biology_description": "T-cell mediated anti-tumor immunity",
+      "population_description": "Treatment-naive adults with advanced hepatocellular carcinoma",
+      "mechanism_category": "checkpoint_blockade"
+    },
+    {
+      "arm_id": "control_arm",
+      "intervention": "Sorafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "Treatment-naive adults with advanced hepatocellular carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "control_arm",
+      "intervention": "Sorafenib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "Treatment-naive adults with advanced hepatocellular carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "single_agent_cabozantinib_arm",
+      "intervention": "Cabozantinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "Treatment-naive adults with advanced hepatocellular carcinoma",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "Cabozantinib",
+      "primary_compound_id": "Atezolizumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Cabozantinib-mediated VEGFR inhibition and immunosuppressive microenvironment remodeling was hypothesized to enhance atezolizumab-driven T-cell anti-tumor immunity, but the combination failed to improve OS over sorafenib.",
+      "citation": "OS HR=0.99 (96% CI: 0.78\u20131.24), p=0.9056"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT04576455",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Plasma giredestrant geometric mean concentrations of 117\u2013268 ng/mL were measured at multiple timepoints, confirming systemic exposure. This is PK evidence of drug exposure, and given giredestrant's known mechanism as an oral SERD, this confirms the drug reached systemic circulation. Target engagement is reasonably inferred from adequate exposure, though no direct ESR1 occupancy biomarker was reported.\n\n2. PATHWAY MODULATION: The ESR1 mutation subgroup analysis provides indirect evidence of pathway modulation. In patients with ESR1 mutations at baseline (who have constitutively active, ligand-independent ER signaling), giredestrant showed HR 0.60 (p=0.0610), suggesting the drug's mechanism of degrading/antagonizing ESR1 is more relevant in this population. In ESR1 wild-type patients, HR was 0.88 (p=0.5947), suggesting minimal differential benefit. This pattern is consistent with the drug engaging its target (ESR1) but the biology being more relevant in the ESR1-mutant subset.\n\n3. CLINICAL TRANSLATION: The primary endpoint (PFS) was not met: HR 0.81 (95% CI 0.60\u20131.10), p=0.1757. Median PFS was 5.55 vs 5.36 months \u2014 a clinically negligible difference. OS also failed: HR not specified but p=0.3446. The overall population did not benefit meaningfully from giredestrant over physician's choice of endocrine monotherapy.\n\n4. POPULATION EFFECTS: The ESR1-mutant subgroup showed a more favorable trend (HR 0.60, p=0.0610) compared to the ESR1 wild-type subgroup (HR 0.88, p=0.5947). This differential response pattern suggests the mechanism may be more relevant in ESR1-mutant patients, who have acquired resistance mutations that make them less responsive to standard endocrine therapies but potentially more sensitive to a next-generation SERD that can degrade mutant ESR1. The overall population was a mix of ESR1-mutant and wild-type patients, diluting the potential benefit. This is a classic 'wrong population' or 'efficacy in subgroup only' pattern.\n\n5. CONFOUNDERS: The trial enrolled 303 patients, which may be underpowered to detect a modest HR of 0.81. The comparator was physician's choice (fulvestrant or aromatase inhibitor), introducing heterogeneity. The ESR1 wild-type subgroup actually had longer median PFS on physician's choice (6.60 months) than the giredestrant arm (7.20 months), suggesting the unselected population was not the right target. The trial was not enriched for ESR1 mutations, which diluted the signal. No dose-limiting toxicity issues were identified \u2014 SAE rates were low and comparable between arms. The failure appears primarily driven by enrolling an unselected population where the mechanism's advantage is diluted by the ESR1 wild-type patients who respond similarly to standard endocrine therapy.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.72,
+      "evidence": "The overall unselected ER+/HER2- population showed HR 0.81 (p=0.1757), while the ESR1-mutant subgroup showed HR 0.60 (p=0.0610). The ESR1 wild-type subgroup showed HR 0.88 (p=0.5947), suggesting no benefit in that group. Giredestrant's advantage as a next-generation SERD that degrades mutant ESR1 is most relevant in patients with ESR1 mutations, who have acquired resistance to prior endocrine therapy. Enrolling an unselected population diluted the signal."
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.65,
+      "evidence": "ESR1-mutant subgroup: HR 0.60 (95% CI 0.35\u20131.03, p=0.0610) \u2014 a clinically meaningful trend favoring giredestrant with 1.84 months median PFS gain (5.32 vs 3.48 months). ESR1 wild-type subgroup: HR 0.88 (p=0.5947) \u2014 no meaningful benefit. The differential response pattern suggests the drug works in the ESR1-mutant subset but not in the broader unselected population."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.45,
+      "evidence": "N=303 total. With HR 0.81 and p=0.1757, the trial may have been underpowered to detect this modest effect in the overall population. The ESR1-mutant subgroup analysis (p=0.0610) was also not powered as a primary endpoint, limiting conclusions."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "giredestrant",
+      "target_entity": "ENSG00000091831",
+      "support": "moderate_support",
+      "affecting_arm_id": "giredestrant",
+      "reasoning": "Plasma concentrations of 117\u2013268 ng/mL confirm systemic exposure. The differential response in ESR1-mutant vs wild-type subgroups is consistent with on-target engagement of ESR1. Per round-28 AFFECTS rule, adequate PK exposure plus subgroup biology consistent with target engagement supports this edge."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000091831",
+      "target_entity": "R-HSA-4090294",
+      "support": "weak_support",
+      "affecting_arm_id": "giredestrant",
+      "reasoning": "The differential PFS benefit in ESR1-mutant patients (HR 0.60) vs wild-type (HR 0.88) is consistent with giredestrant modulating ESR1-dependent signaling pathways. However, no direct pathway biomarker (e.g., Ki67, ER target gene expression) was reported, so this is indirect evidence only."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:1f3701708fbc",
+      "support": "weak_contradict",
+      "affecting_arm_id": "giredestrant",
+      "reasoning": "The overall population showed no significant PFS benefit (HR 0.81, p=0.1757), suggesting that even if ESR1 SUMOylation/degradation occurs, it does not translate to meaningful estrogen deprivation-driven disease control in the unselected population. The mechanism's downstream biology did not translate to clinical benefit at the population level."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1f3701708fbc",
+      "target_entity": "hr_positive_her2_negative_breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "giredestrant",
+      "reasoning": "The primary endpoint missed (HR 0.81, p=0.1757) in the overall population. While estrogen deprivation is a validated mechanism in ER+ breast cancer, giredestrant's approach did not demonstrate superiority over standard endocrine therapy in this unselected population, providing weak contradict evidence for this specific chain."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "hr_positive_her2_negative_breast_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was the primary endpoint and was clearly missed (HR 0.81, p=0.1757) with adequate sample size. OS also missed (p=0.3446). The endpoint was measured and reported but did not capture a treatment benefit, suggesting either the drug didn't work in this population or PFS in this setting is a reasonable but not perfectly sensitive endpoint for this mechanism."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_locally_advanced__extent_metastatic__line_second",
+      "target_entity": "hr_positive_her2_negative_breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The overall previously-treated ER+/HER2- locally advanced/metastatic population did not respond to giredestrant vs physician's choice (HR 0.81, p=0.1757). This is a weak contradict for the unselected second-line population responding to this specific intervention."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "esr1_mutant",
+      "target_entity": "hr_positive_her2_negative_breast_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "ESR1-mutant subgroup showed HR 0.60 (95% CI 0.35\u20131.03, p=0.0610) with median PFS 5.32 vs 3.48 months \u2014 a clinically meaningful trend. While not statistically significant at p<0.05, the effect size and direction strongly suggest this subgroup responds differently (more favorably) to giredestrant than the overall population."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "esr1_wildtype",
+      "target_entity": "hr_positive_her2_negative_breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "ESR1 wild-type subgroup showed HR 0.88 (p=0.5947) with median PFS 7.20 vs 6.60 months \u2014 no meaningful benefit. This subgroup does not respond differently (favorably) to giredestrant vs standard endocrine therapy."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The ESR1-mutant subgroup showed a clinically meaningful trend (HR 0.60, p=0.0610) that narrowly missed conventional significance. This trial may represent a population enrichment failure rather than a mechanistic failure \u2014 the drug may work in ESR1-mutant patients but the unselected enrollment diluted the signal. Expert review is warranted to assess whether the ESR1-mutant subgroup finding is sufficiently robust to inform future trial design with biomarker-selected enrollment. Additionally, the modulates_via edge for giredestrant \u2192 ESR1 \u2192 SUMOylation pathway is uncertain as no direct pathway biomarker was reported."
+}

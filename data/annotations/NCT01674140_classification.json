@@ -1,0 +1,79 @@
+{
+  "nct_id": "NCT01674140",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm mTORC1 engagement by everolimus in this trial. However, the well-documented class effects of everolimus (hyperglycemia, hypertriglyceridemia, mucositis, pneumonitis, lymphopenia) are all consistent with on-target mTORC1 inhibition and immunosuppression, providing indirect evidence that the drug was pharmacologically active. The safety profile strongly suggests the drug was biologically active at the doses used. 2. PATHWAY MODULATION: No direct pathway biomarkers (e.g., p-S6K1, p-4EBP1) were reported. The metabolic AEs (hyperglycemia 33% vs 1%, hypertriglyceridemia 35% vs 4%) are consistent with mTORC1 inhibition affecting metabolic regulation, suggesting the pathway was modulated. However, no formal PD confirmation is available. 3. CLINICAL TRANSLATION: The primary endpoint (IDFS at 5 years) was clearly missed: HR=0.94 (95% CI 0.77-1.14), p=0.52. The 5-year IDFS rates were virtually identical: 74.9% (everolimus) vs 74.4% (placebo). OS (88.1% vs 85.8%, p=0.84) and DRFS (76.9% vs 75.7%, p=0.32) were also not improved. The effect size is essentially null (HR~1.0), indicating no clinical benefit from adding everolimus to adjuvant hormone therapy. 4. POPULATION EFFECTS: No subgroup findings were reported. The trial enrolled HR+/HER2- early breast cancer patients in the adjuvant setting. This is a key consideration: everolimus has shown benefit in the metastatic/endocrine-resistant setting (BOLERO-2), but the adjuvant early-stage setting may represent a different disease context where mTOR pathway dependence is less pronounced, or where the baseline recurrence risk is low enough that the absolute benefit would be minimal even if the mechanism were active. The wrong_population hypothesis is plausible \u2014 early-stage patients with lower tumor burden and less established endocrine resistance may not benefit from mTOR inhibition the way metastatic patients do. 5. CONFOUNDERS: The trial was adequately powered (N=1939), had a long follow-up (up to 10 years), and used an appropriate comparator. The placebo arm performed well (74.4% IDFS), which is consistent with the early-stage adjuvant setting where hormone therapy alone is highly effective. The high baseline efficacy of hormone therapy in early-stage disease may have left little room for improvement (ceiling effect). The safety burden of everolimus was substantial, with markedly higher rates of mucositis, metabolic disturbances, pneumonitis, and serious cardiac events, but the structured AE data does not show evidence that dose-limiting toxicity prevented adequate dosing \u2014 the trial ran its full course. The primary failure mode is biology_moved_endpoint_flat / wrong_population: the mTOR pathway may have been engaged (indirect evidence from metabolic AEs), but mTOR inhibition did not translate to improved IDFS in this early-stage adjuvant population, likely because the mechanism of endocrine resistance reversal is not relevant in treatment-naive early-stage disease.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Indirect evidence of mTOR pathway engagement (metabolic AEs consistent with on-target effects: hyperglycemia 33% vs 1%, hypertriglyceridemia 35% vs 4%, lymphopenia, pneumonitis), yet IDFS HR=0.94, p=0.52 \u2014 essentially no clinical benefit. The biology was likely modulated but did not translate to improved disease-free survival in this setting."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.6,
+      "evidence": "Everolimus showed benefit in metastatic HR+ breast cancer with endocrine resistance (BOLERO-2). In the adjuvant early-stage setting, patients have not yet developed endocrine resistance, and the mTOR pathway may not be the dominant driver of recurrence. The mechanism of 'endocrine resistance reversal' is not applicable to treatment-naive early-stage patients, making this population wrong for the proposed mechanism."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-3656535",
+      "target_entity": "bio:454c78aae6d6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_ii",
+      "reasoning": "No biomarker data to confirm pathway modulation; the clinical endpoint missed completely (HR=0.94, p=0.52), suggesting the mTOR pathway suppression mechanism did not translate to meaningful tumor growth inhibition in this early-stage adjuvant population."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:454c78aae6d6",
+      "target_entity": "breast_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_ii",
+      "reasoning": "mTOR pathway suppression and tumor growth inhibition did not drive improved IDFS in early-stage HR+/HER2- breast cancer (HR=0.94, p=0.52, all endpoints missed). The biology did not translate to clinical benefit in this indication/setting."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "IDFS is a well-established and regulator-accepted endpoint for early breast cancer adjuvant trials. The endpoint was measured cleanly and the control arm performed as expected (~74% at 5 years), confirming the endpoint is appropriate for this indication. The drug simply did not improve it."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_adjuvant__stage_iii",
+      "target_entity": "breast_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The adjuvant early-stage HR+/HER2- population did not respond to everolimus + hormone therapy vs hormone therapy alone (HR=0.94, p=0.52, adequate power, N=1939). This is a clear negative result in this specific population, with no responding subgroup identified."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1f3701708fbc",
+      "target_entity": "breast_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "The hormone therapy control arm (arm_i) achieved 74.4% IDFS and 85.8% OS at 5 years, consistent with the established efficacy of estrogen deprivation in HR+/HER2- early breast cancer, supporting that estrogen-driven biology drives this disease."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0032355",
+      "target_entity": "bio:1f3701708fbc",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Tamoxifen's ER antagonism mechanism (response to estradiol modulation) translating to estrogen deprivation biology is supported by the strong clinical outcomes in arm_i (74.4% IDFS, 85.8% OS)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-193144",
+      "target_entity": "bio:1f3701708fbc",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i",
+      "reasoning": "Aromatase inhibitor mechanisms (estrogen biosynthesis inhibition via CYP19A1) contributing to estrogen deprivation biology is supported by the strong clinical outcomes in arm_i."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial lacks any formal PD/biomarker data to confirm mTORC1 engagement, making it impossible to definitively place the failure at a specific causal chain step. The indirect evidence from metabolic AEs suggests on-target activity, but without p-S6K1 or similar biomarkers, the distinction between 'biology_moved_endpoint_flat' and 'target_engaged_biology_not_moved' cannot be made with confidence. Additionally, the wrong_population hypothesis (early-stage vs. endocrine-resistant metastatic) is a plausible alternative explanation that warrants expert assessment of whether the mechanism was ever expected to work in treatment-naive adjuvant patients."
+}

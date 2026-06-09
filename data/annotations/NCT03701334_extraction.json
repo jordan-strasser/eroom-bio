@@ -1,0 +1,104 @@
+{
+  "nct_id": "NCT03701334",
+  "therapeutic_hypothesis": {
+    "compound": "Ribociclib + Endocrine Therapy",
+    "claimed_target": "CDK4/6",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "cell cycle arrest",
+    "target_population": "HR+/HER2- early breast cancer patients",
+    "primary_endpoint": "Invasive Disease-Free Survival (iDFS)",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": null,
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "days 1-21 of a 28-day cycle",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "HR+/HER2- early breast cancer",
+    "comparator": "Endocrine Therapy alone",
+    "sample_size": 5101,
+    "duration": "Up to approximately 139 months",
+    "duration_weeks": 604.9,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "ribociclib_endocrine_therapy_et",
+      "compounds": [
+        "Ribociclib",
+        "Endocrine Therapy (ET)"
+      ]
+    },
+    {
+      "arm_id": "endocrine_therapy_et",
+      "compounds": [
+        "Endocrine Therapy (ET)"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "ribociclib_endocrine_therapy_et",
+      "intervention": "Ribociclib",
+      "subgroup_descriptor": null,
+      "endpoint": "iDFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "cell cycle arrest",
+      "population_description": "HR+/HER2- early breast cancer patients",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "ribociclib_endocrine_therapy_et",
+      "intervention": "Endocrine Therapy (ET)",
+      "subgroup_descriptor": null,
+      "endpoint": "iDFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "hormone receptor antagonism / estrogen deprivation",
+      "biology_description": "hormone-driven tumor proliferation suppression",
+      "population_description": "HR+/HER2- early breast cancer patients",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "endocrine_therapy_et",
+      "intervention": "Endocrine Therapy (ET)",
+      "subgroup_descriptor": null,
+      "endpoint": "iDFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "hormone receptor antagonism / estrogen deprivation",
+      "biology_description": "hormone-driven tumor proliferation suppression",
+      "population_description": "HR+/HER2- early breast cancer patients",
+      "mechanism_category": "hormone_modulation"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "Ribociclib",
+      "primary_compound_id": "Endocrine Therapy (ET)",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "CDK4/6 inhibition by ribociclib arrests cell cycle progression, potentially amplifying the anti-proliferative effect of endocrine therapy by blocking compensatory cell cycle re-entry driven by residual estrogen signaling",
+      "citation": "Ribociclib orally taken at 400 mg on days 1 to 21 of a 28-day cycle; Endocrine Therapy (ET) will be administered according to the local clinical guidelines and current local prescribing information"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT04437511",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Donanemab demonstrated robust target engagement. Amyloid PET showed a -87.03 centiloid change from baseline in the donanemab arm vs -0.67 in placebo (difference -86.37 CL, p<0.0001), confirming near-complete amyloid plaque clearance. Serum concentrations at steady state (63 \u00b5g/mL geometric mean) confirm adequate drug exposure. This is unambiguous target engagement evidence.\n\n2. PATHWAY MODULATION: The intended biology was amyloid burden reduction and slowing of neurodegeneration. Amyloid clearance was definitively achieved. Tau PET (flortaucipir SUVR) did NOT show significant change (difference -0.0041, p=0.4522), suggesting tau pathology was not meaningfully modulated by amyloid clearance within the 76-week timeframe. Brain volume changes were mixed: hippocampal volume loss was slightly attenuated (donanemab -0.20 vs placebo -0.22 cm3, p=0.002, favorable), but whole brain volume loss was greater in donanemab (-27.46 vs -20.79 cm3, p<0.001) and ventricular enlargement was greater (+10.07 vs +7.05 cm3, p<0.001), likely reflecting ARIA-related fluid shifts and amyloid removal rather than accelerated neurodegeneration. Overall, the pathway modulation is partial \u2014 amyloid was cleared but downstream neurodegeneration markers showed mixed signals.\n\n3. CLINICAL TRANSLATION: The primary endpoint (iADRS change from baseline at Week 76) was met: LS mean difference 2.92 (p=0.001) in the overall population, and 3.25 (p<0.001) in the intermediate tau subgroup. Multiple secondary cognitive and functional endpoints also met significance: CDR-SB (p=0.001), ADAS-Cog13 (p=0.0006), MMSE (p=0.012), ADCS-iADL (p=0.0001). The clinical effect size is modest (approximately 35% slowing of decline) but statistically robust and consistent across multiple instruments. Clinical translation is confirmed.\n\n4. POPULATION EFFECTS: The intermediate (low-medium) tau subgroup showed a slightly larger benefit (3.25 vs 2.92 on iADRS), suggesting patients with less advanced tau pathology benefit more. This is consistent with the amyloid hypothesis \u2014 earlier intervention before tau spread is more effective. The overall population also benefited, so this is not a subgroup-only effect.\n\n5. CONFOUNDERS: Safety signals include ARIA-oedema/effusion (13/853 donanemab vs 0/874 placebo as SAEs), ARIA-microhaemorrhages (4/853 vs 0/874), greater whole brain volume loss and ventricular enlargement in the donanemab arm (likely ARIA-related), and a higher rate of acute MI (5 vs 0). High ADA formation (693/853) is notable but did not appear to prevent efficacy. These safety signals are real but did not prevent the trial from demonstrating efficacy \u2014 dosing was not truncated below target-engaging levels. The trial was adequately powered (N=1736) and placebo response was consistent with natural disease progression. No operational confounders undermine the result.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.4,
+      "evidence": "Tau PET did not show significant change despite robust amyloid clearance (p=0.4522), and whole brain volume loss was paradoxically greater in the donanemab arm. These suggest amyloid clearance does not fully translate to downstream neurodegeneration arrest within 76 weeks \u2014 a partial chain break that is masked by the overall clinical success. This is a caveat, not a trial failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "donanemab",
+      "target_entity": "ENSG00000142192",
+      "support": "strong_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Amyloid PET demonstrated -86.37 centiloid difference (p<0.0001), directly confirming donanemab engaged and cleared amyloid beta plaques (APP-derived). This is unambiguous target engagement evidence per the round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "R-HSA-933542",
+      "support": "moderate_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Amyloid clearance was robustly demonstrated, confirming the target (APP/amyloid) was engaged and the mechanism (antibody-mediated plaque clearance via immune effector pathways including NF-kB/TRAF6 signaling) was activated. However, tau PET did not move significantly, suggesting downstream pathway modulation is partial, warranting moderate rather than strong support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-933542",
+      "target_entity": "bio:0e8337bb1711",
+      "support": "moderate_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Amyloid burden was dramatically reduced (primary mechanism achieved). Clinical cognitive and functional endpoints improved across multiple instruments. However, tau pathology was not significantly reduced and whole brain volume loss was paradoxically greater in the donanemab arm, indicating the mechanism's effect on the full neurodegeneration biology is partial. Moderate support is appropriate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0e8337bb1711",
+      "target_entity": "alzheimer_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": "donanemab",
+      "reasoning": "Amyloid burden reduction translated to statistically significant and consistent slowing of cognitive and functional decline across multiple endpoints (iADRS, CDR-SB, ADAS-Cog13, MMSE, ADCS-iADL), supporting that this biology drives Alzheimer's disease progression. Effect sizes are modest (~35% slowing), warranting moderate rather than strong support."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_integrated_alzheimer_s_disease_rating_scale",
+      "target_entity": "alzheimer_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The iADRS primary endpoint was met (p=0.001) and was concordantly supported by multiple secondary endpoints (CDR-SB, ADAS-Cog13, MMSE, ADCS-iADL all significant), confirming the iADRS captures clinically meaningful benefit in Alzheimer's disease."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "amyloidpet_positive__mmse_high__severity_mild__taupet_positive",
+      "target_entity": "alzheimer_disease",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was met at p=0.001 with a clinically meaningful effect size (2.92 on iADRS, ~35% slowing of decline) in this amyloid-PET positive, mild severity, tau-PET positive population. The intermediate tau subgroup showed an even larger benefit (3.25, p<0.001). This population responded robustly to donanemab, meeting the strong_support threshold (p<0.01, clinically meaningful effect)."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The paradoxical greater whole brain volume loss and ventricular enlargement in the donanemab arm (likely ARIA-related) raises questions about whether these structural changes represent true accelerated neurodegeneration or are artifacts of amyloid/fluid removal. The non-significant tau PET result despite robust amyloid clearance is a notable chain break that warrants expert interpretation regarding the amyloid-tau cascade hypothesis. Additionally, the high ADA formation rate (693/853) and its potential long-term implications for sustained efficacy deserve expert assessment. The cardiac safety signal (5 acute MIs vs 0 in placebo) is also an unlisted confounder that may warrant regulatory scrutiny."
+}

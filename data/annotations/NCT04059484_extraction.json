@@ -1,0 +1,261 @@
+{
+  "nct_id": "NCT04059484",
+  "therapeutic_hypothesis": {
+    "compound": "Amcenestrant (SAR439859)",
+    "claimed_target": "estrogen receptor alpha (ESR1/ER\u03b1)",
+    "proposed_mechanism": "selective estrogen receptor degradation",
+    "intended_biology": "estrogen receptor signaling suppression",
+    "target_population": "locally advanced or metastatic ER-positive breast cancer patients previously treated with endocrine therapy",
+    "primary_endpoint": "Progression Free Survival (PFS)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Median PFS: amcenestrant 3.6 months vs PCEM 3.7 months; HR=1.051 (95% CI: 0.789\u20131.4)",
+    "p_value": 0.6437,
+    "target_engagement_evidence": "Plasma concentrations of amcenestrant confirmed systemic exposure; mean steady-state Ctrough 491.35 ng/mL (main cohort)",
+    "biomarker_changes": [
+      "ESR1 mutation status (wild type vs mutant) assessed by multiplex ddPCR; ESR1-mutant patients on PCEM had median PFS 2.0 months vs 3.7 months on amcenestrant (main cohort); ESR1 wild-type patients had median PFS 3.9 months on PCEM vs 3.5 months on amcenestrant (main cohort)"
+    ],
+    "subgroup_findings": [
+      "ESR1-mutant subgroup (main cohort): amcenestrant median PFS 3.7 months vs PCEM 2.0 months",
+      "ESR1 wild-type subgroup (main cohort): amcenestrant median PFS 3.5 months vs PCEM 3.9 months",
+      "Chinese cohort: amcenestrant median PFS 7.2 months vs PCEM not estimable",
+      "Objective response rate: amcenestrant 11.9% vs PCEM 8.8% (main cohort)",
+      "Disease control rate: amcenestrant 54.5% vs PCEM 53.7% (main cohort)",
+      "Clinical benefit rate: amcenestrant 27.3% vs PCEM 29.3% (main cohort)"
+    ],
+    "safety_signals": [
+      "More TEAEs in amcenestrant arm (118/143) vs PCEM (113/147) in main cohort",
+      "More TESAEs in amcenestrant arm (25/143) vs PCEM (16/147) in main cohort",
+      "Study terminated due to sponsor decision, not linked to any safety concern"
+    ],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "once daily (oral capsule)",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Any TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 82.5,
+        "incidence_control_pct": 76.9,
+        "serious": false
+      },
+      {
+        "term": "Any TESAE",
+        "grade": "",
+        "incidence_treatment_pct": 17.5,
+        "incidence_control_pct": 10.9,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 1.4,
+        "incidence_control_pct": 0.68,
+        "serious": true
+      },
+      {
+        "term": "Covid-19",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 2.04,
+        "serious": true
+      },
+      {
+        "term": "Urinary Tract Infection",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.36,
+        "serious": true
+      },
+      {
+        "term": "Appendicitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.68,
+        "serious": true
+      },
+      {
+        "term": "Peritonitis Bacterial",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.68,
+        "serious": true
+      },
+      {
+        "term": "Pyelonephritis Acute",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.68,
+        "serious": true
+      },
+      {
+        "term": "Contrast Media Allergy",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.68,
+        "serious": true
+      },
+      {
+        "term": "Breast Abscess",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Decreased Appetite",
+        "grade": "",
+        "incidence_treatment_pct": 0.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "locally advanced or metastatic ER-positive breast cancer",
+    "comparator": "physician's choice endocrine monotherapy (fulvestrant, anastrozole, letrozole, exemestane, or tamoxifen)",
+    "sample_size": 367,
+    "duration": "maximum 116 weeks (main cohort); maximum 121 weeks (Chinese cohort primary completion)",
+    "duration_weeks": 116.0,
+    "investigator_commentary": "Sponsor decision to prematurely stop the study, not linked to any safety concern."
+  },
+  "arms": [
+    {
+      "arm_id": "amcenestrant",
+      "compounds": [
+        "amcenestrant"
+      ]
+    },
+    {
+      "arm_id": "fulvestrant_aromatase_inhibitors_estrogen_receptor_modulator",
+      "compounds": [
+        "fulvestrant",
+        "anastrozole",
+        "letrozole",
+        "exemestane",
+        "tamoxifen"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Mutated",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ESR1",
+          "level": "mutant"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Wild type",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ESR1",
+          "level": "wildtype"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "amcenestrant",
+      "intervention": "amcenestrant",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.6,
+      "p_value": 0.6437,
+      "outcome": "failure",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients previously treated with endocrine therapy",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "fulvestrant_aromatase_inhibitors_estrogen_receptor_modulator",
+      "intervention": "fulvestrant",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.7,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients previously treated with endocrine therapy",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "fulvestrant_aromatase_inhibitors_estrogen_receptor_modulator",
+      "intervention": "anastrozole",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "aromatase enzyme inhibition",
+      "biology_description": "estrogen biosynthesis suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients previously treated with endocrine therapy",
+      "mechanism_category": "enzyme_inhibition"
+    },
+    {
+      "arm_id": "amcenestrant",
+      "intervention": "amcenestrant",
+      "subgroup_descriptor": "Mutated",
+      "endpoint": "PFS",
+      "effect_size": 3.7,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients with ESR1-mutant tumors",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "fulvestrant_aromatase_inhibitors_estrogen_receptor_modulator",
+      "intervention": "fulvestrant",
+      "subgroup_descriptor": "Mutated",
+      "endpoint": "PFS",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients with ESR1-mutant tumors",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "amcenestrant",
+      "intervention": "amcenestrant",
+      "subgroup_descriptor": "Wild type",
+      "endpoint": "PFS",
+      "effect_size": 3.5,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients with ESR1 wild-type tumors",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "fulvestrant_aromatase_inhibitors_estrogen_receptor_modulator",
+      "intervention": "fulvestrant",
+      "subgroup_descriptor": "Wild type",
+      "endpoint": "PFS",
+      "effect_size": 3.9,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor signaling suppression",
+      "population_description": "locally advanced or metastatic ER-positive breast cancer patients with ESR1 wild-type tumors",
+      "mechanism_category": "hormone_modulation"
+    }
+  ],
+  "modulation_entries": []
+}

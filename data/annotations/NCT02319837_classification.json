@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT02319837",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. PSA is a well-established downstream biomarker of AR activity in prostate cancer. 97.3% of enzalutamide+leuprolide patients achieved undetectable PSA (<0.2 ng/mL) at Week 36 vs 71.4% in placebo+leuprolide, and 90.2% in enzalutamide monotherapy. PSA progression HR was 0.068 for combo vs placebo+leuprolide and 0.331 for monotherapy vs placebo+leuprolide, both p<0.0001. This confirms robust AR engagement by enzalutamide and androgen suppression by leuprolide. 2. PATHWAY MODULATION: The downstream biology (androgen-driven tumor proliferation suppression) was clearly modulated. PSA suppression rates and time-to-PSA-progression data confirm that the androgen signaling pathway was effectively suppressed in both treatment arms. The combination arm showed superior pathway suppression compared to monotherapy. 3. CLINICAL TRANSLATION: The primary endpoint (MFS) was met with HR 0.424 (95% CI 0.296-0.607), p<0.0001 for enzalutamide+leuprolide vs placebo+leuprolide. Enzalutamide monotherapy also met MFS with HR 0.631, p=0.0049. Multiple secondary endpoints (time to PSA progression, time to castration resistance, time to symptomatic progression, time to first SSE) all showed significant benefit. The biology clearly translated to clinical benefit. 4. POPULATION EFFECTS: No subgroup analyses were reported. Both treatment arms succeeded, with the combination showing stronger effects than monotherapy, consistent with the mechanistic hypothesis that leuprolide amplifies enzalutamide's efficacy by reducing circulating androgens. 5. CONFOUNDERS: No major confounders identified. The trial was large (N=1068), well-powered, and had a long follow-up (~425 weeks). Safety signals (cardiovascular events, seizures) are consistent with known enzalutamide and ADT class effects but did not prevent adequate dosing or require trial termination. The dose-modification protocol (treatment suspension at Week 37 for undetectable PSA) reflects an adaptive design feature, not a safety-driven dose reduction. No dose-limiting toxicity prevented adequate target engagement.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "enzalutamide",
+      "target_entity": "ENSG00000169083",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "97.3% undetectable PSA rate and HR 0.068 for PSA progression confirm robust AR engagement by enzalutamide in the combination arm."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "enzalutamide",
+      "target_entity": "ENSG00000169083",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_monotherapy",
+      "reasoning": "90.2% undetectable PSA rate and HR 0.331 for PSA progression confirm robust AR engagement by enzalutamide monotherapy."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "leuprolide_acetate",
+      "target_entity": "ENSG00000109163",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "Leuprolide's GnRH receptor agonism leading to testosterone suppression is confirmed by the superior PSA suppression in the combination arm (97.3% undetectable PSA) vs enzalutamide monotherapy (90.2%), consistent with additive androgen deprivation."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169083",
+      "target_entity": "R-HSA-4090294",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "PSA suppression and downstream MFS benefit confirm that AR engagement modulated the SUMOylation/intracellular receptor pathway in the combination arm."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000169083",
+      "target_entity": "R-HSA-4090294",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_monotherapy",
+      "reasoning": "PSA suppression and MFS benefit in the monotherapy arm confirm AR modulation of the intracellular receptor pathway."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000109163",
+      "target_entity": "R-HSA-375281",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "Leuprolide's GnRH receptor agonism driving hormone ligand-binding receptor pathway is confirmed by the additive PSA suppression observed in the combination arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:7af8d35716b5",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "The combination arm showed HR 0.424 for MFS and HR 0.068 for PSA progression, confirming that AR SUMOylation pathway modulation suppressed androgen-driven tumor proliferation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-4090294",
+      "target_entity": "bio:7af8d35716b5",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_monotherapy",
+      "reasoning": "Enzalutamide monotherapy showed HR 0.631 for MFS and HR 0.331 for PSA progression, confirming mechanism-to-biology translation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-375281",
+      "target_entity": "bio:cddfdcf9887a",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "Leuprolide's hormone receptor pathway modulation drove androgen suppression, evidenced by superior PSA suppression in the combination arm vs monotherapy."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7af8d35716b5",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "Suppression of androgen-driven tumor proliferation translated to significant MFS benefit (HR 0.424, p<0.0001), confirming this biology drives prostate cancer progression."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7af8d35716b5",
+      "target_entity": "prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "enzalutamide_monotherapy",
+      "reasoning": "Enzalutamide monotherapy also showed significant MFS benefit (HR 0.631, p=0.0049), supporting that androgen-driven tumor proliferation biology drives prostate cancer, though with a smaller effect than the combination."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:cddfdcf9887a",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": "enzalutamide_plus_leuprolide",
+      "reasoning": "Androgen suppression via leuprolide contributed to the combination arm's superior MFS benefit, confirming androgen suppression biology drives prostate cancer."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DMFS",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "MFS (metastasis-free survival) was met as the primary endpoint (HR 0.424, p<0.0001) and was concordantly supported by multiple secondary endpoints (PSA progression, castration resistance, symptomatic progression, SSE), confirming MFS captures clinical benefit in nonmetastatic hormone-sensitive prostate cancer."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__psa_high__psadoublingtime_high__testosterone_high",
+      "target_entity": "prostate_cancer",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of nonmetastatic hormone-sensitive prostate cancer patients with rising PSA showed strong, statistically significant benefit from enzalutamide-based therapy (HR 0.424, p<0.0001 for combination; HR 0.631, p=0.0049 for monotherapy), confirming this population responds to AR-targeted therapy."
+    }
+  ],
+  "confidence_overall": 0.92,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

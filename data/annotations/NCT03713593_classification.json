@@ -1,0 +1,87 @@
+{
+  "nct_id": "NCT03713593",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm target engagement for either lenvatinib (VEGFR/FGFR/PDGFR) or pembrolizumab (PD-1). However, both agents are well-characterized with established mechanisms, and the trial used standard approved doses (weight-based lenvatinib QD; pembrolizumab 200mg Q3W), making target engagement plausible but unconfirmed in this trial. The immune-related AE rate was modestly higher in the combo arm (53.2% vs 46.6%), which is consistent with some PD-1 blockade activity, but this is indirect evidence only.\n\n2. PATHWAY MODULATION: No pathway biomarkers (e.g., VEGF levels, T-cell activation markers, tumor infiltrating lymphocytes) were reported. The ORR was 26.1% vs 17.5% for combo vs lenvatinib+placebo, suggesting some incremental anti-tumor activity, which is consistent with partial pathway modulation. However, this is a modest difference and no formal statistical test is reported for ORR.\n\n3. CLINICAL TRANSLATION: The primary endpoints were PFS and OS. PFS HR=0.834 (95% CI: 0.712-0.978) and OS HR=0.840 (95% CI: 0.708-0.997), p=0.0227. The pre-specified significance threshold was not met (likely requiring p<0.0185 or similar for multiplicity-adjusted co-primary endpoints). The OS p-value of 0.0227 is nominally significant but did not cross the pre-specified boundary. Median OS was 21.2 vs 19.0 months \u2014 a modest 2.2-month improvement. The effect size is real but small and did not meet the pre-specified bar. The PFS improvement was similarly marginal (8.2 vs 8.1 months). The combination showed a directional but clinically modest benefit that failed to reach statistical significance thresholds.\n\n4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population was first-line advanced HCC with Child-Pugh A (low score), ECOG PS 0-1, which is the appropriate population for this mechanism. No biomarker-defined subgroups were identified.\n\n5. CONFOUNDERS: The trial was adequately powered (N=794, large Phase 3). The comparator arm (lenvatinib+placebo) performed well \u2014 median OS 19.0 months \u2014 reflecting the strong activity of lenvatinib monotherapy in first-line HCC (consistent with the REFLECT trial). This high control arm performance compressed the detectable treatment effect. The combination showed a real but small incremental benefit over an already-active backbone, suggesting the biology of adding PD-1 blockade to lenvatinib in unselected HCC does not produce a large enough incremental effect to meet pre-specified thresholds. This is primarily a biology_moved_endpoint_flat / wrong_population (unselected) pattern \u2014 the combination works to some degree but not enough in the unselected population to meet the bar. The failure is best characterized as the combination producing insufficient incremental benefit over an active comparator in an unselected population, with the biology partially moving (ORR improvement) but the survival endpoints not meeting significance.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "ORR improved from 17.5% to 26.1% with the combination, suggesting some anti-tumor biological activity. However, PFS (8.2 vs 8.1 months, HR=0.834) and OS (21.2 vs 19.0 months, HR=0.840, p=0.0227) did not meet pre-specified significance thresholds, indicating the biological signal did not translate to a clinically meaningful survival benefit."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "The trial enrolled an unselected first-line HCC population without biomarker stratification (e.g., PD-L1, TMB, AFP). The modest incremental benefit (2.2 months OS) over an already-active lenvatinib backbone suggests that a biomarker-selected subpopulation might have shown a larger benefit, while the unselected population diluted the signal."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0043406",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lenvatinib_plus_pembrolizumab",
+      "reasoning": "The combination arm failed to meet PFS and OS primary endpoints despite lenvatinib's kinase inhibition mechanism. No biomarker data confirms pathway modulation. The marginal PFS improvement (8.2 vs 8.1 months) suggests the angiogenesis inhibition mechanism did not drive meaningful additional clinical benefit in this combination context."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lenvatinib_plus_pembrolizumab",
+      "reasoning": "Angiogenesis inhibition combined with checkpoint blockade did not produce a statistically significant survival benefit in first-line HCC. The biology partially drove disease control (ORR improvement) but did not translate to meaningful PFS or OS gains meeting pre-specified thresholds."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "bio:1fab3055d7c9",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lenvatinib_plus_pembrolizumab",
+      "reasoning": "PD-1 checkpoint blockade via pembrolizumab did not produce a statistically significant improvement in PFS or OS over lenvatinib alone. No biomarker data confirms T-cell activation. The modest ORR improvement is consistent with partial mechanism engagement but insufficient to drive survival benefit."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1fab3055d7c9",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lenvatinib_plus_pembrolizumab",
+      "reasoning": "T-cell mediated anti-tumor immunity via PD-1 blockade added to lenvatinib did not drive a statistically significant survival benefit in unselected first-line HCC. The combination failed both co-primary endpoints."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0043406",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lenvatinib_plus_placebo",
+      "reasoning": "The lenvatinib monotherapy arm showed PFS of 8.1 months and OS of 19.0 months, which while consistent with known lenvatinib activity in HCC, serves as the comparator baseline. The mechanism is established but the incremental benefit of the combination over this arm was insufficient."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_support",
+      "affecting_arm_id": "lenvatinib_plus_placebo",
+      "reasoning": "Lenvatinib monotherapy achieved median OS of 19.0 months and ORR of 17.5%, consistent with established activity in first-line HCC (REFLECT trial). This supports that angiogenesis inhibition drives some disease control in HCC, though the combination arm failed to improve upon this."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "PFS HR=0.834 showed a directional improvement but did not meet the pre-specified significance threshold, and the median PFS was nearly identical (8.2 vs 8.1 months). PFS appears to be a poor surrogate for OS benefit in this HCC combination trial \u2014 the ORR improved modestly but PFS barely moved, suggesting PFS may not fully capture the biology in this setting."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "childpughscore_low__extent_locally_advanced__functional_class_i__line_first__lvef_high",
+      "target_entity": "hepatocellular_carcinoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The first-line advanced HCC population with Child-Pugh A/low score did not respond to the lenvatinib+pembrolizumab combination with a statistically significant survival benefit. OS HR=0.840, p=0.0227 missed the pre-specified threshold. The population-level response was insufficient to demonstrate superiority over lenvatinib alone."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The OS p-value of 0.0227 is nominally significant but missed the pre-specified alpha boundary (likely adjusted for multiplicity with PFS as co-primary). The trial is borderline \u2014 it shows a real but small effect that failed a statistical threshold rather than a clear mechanistic failure. Expert review is warranted to assess: (1) the exact pre-specified significance boundary for OS given the co-primary design; (2) whether the high control arm performance (lenvatinib monotherapy OS 19.0 months) compressed the detectable effect; (3) whether a biomarker-selected subpopulation analysis was pre-specified or could be informative; (4) the clinical significance of the 2.2-month OS difference in the context of HCC treatment landscape."
+}

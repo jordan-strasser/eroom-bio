@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT05198934",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial reports no target engagement evidence for sotorasib (KRAS G12C covalent inhibition) or panitumumab (EGFR blockade). The dose and schedule are consistent with known pharmacology, but no direct confirmation is provided in this extraction.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., pERK, pMEK, EGFR signaling readouts) is reported. We cannot assess whether RAS/MAPK suppression or EGFR pathway inhibition occurred.\n\n3. CLINICAL TRANSLATION: All three arms show outcome=unknown for PFS. The primary endpoint result (PFS) is null, with no effect size or p-value reported. This means no efficacy readout is available from this extraction.\n\n4. POPULATION EFFECTS: No subgroup findings are reported.\n\n5. CONFOUNDERS: The trial has a comparator arm (investigator's choice), a sample size of 160, and a duration of ~3 years (~156 weeks). The trial appears to have been designed and run, but no results have been posted. This is consistent with a trial that either has not yet reported results, was terminated before primary analysis, or results are pending. Given that all outcomes are 'unknown' and no primary endpoint data is available, this constitutes an insufficient information scenario \u2014 the trial has not provided a usable efficacy readout. This is NOT a case of a missed endpoint with absent biomarker data; it is a case where no endpoint result at all has been reported. The operational failure flag is set to true because the trial appears to have not completed its primary analysis or results were not posted, meaning the mechanism was not given a fair test with a reportable outcome. However, the trial did run for ~3 years with 160 patients, so it may simply be awaiting results publication. Given the complete absence of any efficacy data, the primary failure mode is insufficient_information.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "All per-arm PFS outcomes are 'unknown'; primary_endpoint_met is null; effect_size is null; p_value is null. No biomarker, safety, or efficacy data has been reported. The trial cannot be classified mechanistically without any readout."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "colorectal_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was the pre-specified primary endpoint for this KRAS G12C mutant colorectal cancer trial, which is a regulator-accepted endpoint for this indication. However, no result was reported, so we cannot assess whether it captured benefit. Ambiguous is appropriate given the absence of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_metastatic__line_third_plus",
+      "target_entity": "colorectal_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy results were reported for any arm. The population response cannot be assessed. Ambiguous is the appropriate bucket when no outcome data is available."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "All primary endpoint outcomes are reported as 'unknown' with null effect sizes and p-values. It is unclear whether the trial was terminated early, is still ongoing, or simply has not posted results. No efficacy, biomarker, or safety data is available. Expert review is needed to determine the actual trial status and whether results exist but were not captured in this extraction. The CodeBreaK 300 trial (NCT05198934) is known to have reported results in 2023 (NEJM), suggesting this extraction may be incomplete."
+}

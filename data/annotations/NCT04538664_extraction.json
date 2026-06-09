@@ -1,0 +1,215 @@
+{
+  "nct_id": "NCT04538664",
+  "therapeutic_hypothesis": {
+    "compound": "Amivantamab + Carboplatin + Pemetrexed",
+    "claimed_target": "EGFR / MET",
+    "proposed_mechanism": "bispecific antibody-mediated receptor blockade and antibody-dependent cytotoxicity",
+    "intended_biology": "inhibition of EGFR/MET-driven tumor proliferation and survival combined with immune-mediated tumor cell killing",
+    "target_population": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+    "primary_endpoint": "Progression-Free Survival (PFS) by BICR per RECIST v1.1",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Median PFS 11.37 months (amivantamab + chemo) vs 6.70 months (chemo alone); HR 0.395 (95% CI 0.296\u20130.528)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Serious adverse events including pneumonia, rash pustular, skin infection, and cellulitis were more frequent in the amivantamab + chemotherapy arm",
+      "Infusion-related reactions are a known class effect of amivantamab"
+    ],
+    "dose_info": {
+      "dose": "Amivantamab 1400 mg (1750 mg if \u226580 kg) escalating to 1750 mg (2100 mg if \u226580 kg) from Cycle 3; Pemetrexed 500 mg/m\u00b2; Carboplatin AUC 5",
+      "schedule": "Amivantamab weekly up to Cycle 2 Day 1, then Day 1 of each 21-day cycle; Pemetrexed Day 1 of each 21-day cycle then maintenance; Carboplatin Day 1 of each 21-day cycle for up to 4 cycles",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 3.97,
+        "incidence_control_pct": 2.58,
+        "serious": true
+      },
+      {
+        "term": "Covid-19",
+        "grade": "",
+        "incidence_treatment_pct": 1.99,
+        "incidence_control_pct": 0.65,
+        "serious": true
+      },
+      {
+        "term": "Cellulitis",
+        "grade": "",
+        "incidence_treatment_pct": 1.32,
+        "incidence_control_pct": 0.65,
+        "serious": true
+      },
+      {
+        "term": "Rash Pustular",
+        "grade": "",
+        "incidence_treatment_pct": 1.32,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Skin Infection",
+        "grade": "",
+        "incidence_treatment_pct": 1.32,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Covid-19 Pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Pneumonia Viral",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "Postoperative Wound Infection",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": 0.65,
+        "serious": true
+      },
+      {
+        "term": "Sepsis",
+        "grade": "",
+        "incidence_treatment_pct": 0.66,
+        "incidence_control_pct": 0.65,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Advanced or metastatic non-small cell lung cancer with EGFR exon 20 insertions",
+    "comparator": "Carboplatin + Pemetrexed (chemotherapy alone)",
+    "sample_size": 308,
+    "duration": "Up to 29 months for primary endpoint; up to 5 years 3 months for secondary endpoints",
+    "duration_weeks": 125.9,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_amivantamab_chemotherapy",
+      "compounds": [
+        "amivantamab",
+        "carboplatin",
+        "pemetrexed"
+      ]
+    },
+    {
+      "arm_id": "arm_b_chemotherapy_alone",
+      "compounds": [
+        "carboplatin",
+        "pemetrexed"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_amivantamab_chemotherapy",
+      "intervention": "amivantamab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.37,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "bispecific antibody-mediated receptor blockade and antibody-dependent cellular cytotoxicity",
+      "biology_description": "inhibition of oncogenic receptor signaling and immune-mediated tumor cell killing",
+      "population_description": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+      "mechanism_category": "antibody_dependent_cytotoxicity"
+    },
+    {
+      "arm_id": "arm_a_amivantamab_chemotherapy",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.37,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_a_amivantamab_chemotherapy",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.37,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "folate pathway enzyme inhibition",
+      "biology_description": "inhibition of nucleotide synthesis and tumor cell proliferation",
+      "population_description": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "arm_b_chemotherapy_alone",
+      "intervention": "carboplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "arm_b_chemotherapy_alone",
+      "intervention": "pemetrexed",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "folate pathway enzyme inhibition",
+      "biology_description": "inhibition of nucleotide synthesis and tumor cell proliferation",
+      "population_description": "Adults with advanced or metastatic NSCLC harboring EGFR exon 20 insertion mutations",
+      "mechanism_category": "antimetabolite"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "amivantamab",
+      "primary_compound_id": "carboplatin",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.87,
+      "hypothesis": "Amivantamab-mediated EGFR/MET blockade and ADCC may sensitize tumor cells to DNA damage and enhance apoptotic response to platinum-based chemotherapy, improving overall anti-tumor efficacy",
+      "citation": "HR 0.395 (95% CI: 0.296\u20130.528), p = <0.0001 for PFS of amivantamab + chemotherapy vs chemotherapy alone"
+    },
+    {
+      "modulator_compound_id": "amivantamab",
+      "primary_compound_id": "pemetrexed",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.87,
+      "hypothesis": "Amivantamab-mediated EGFR/MET blockade may enhance anti-proliferative effects of pemetrexed by suppressing survival signaling that could otherwise compensate for nucleotide synthesis inhibition",
+      "citation": "HR 0.395 (95% CI: 0.296\u20130.528), p = <0.0001 for PFS of amivantamab + chemotherapy vs chemotherapy alone"
+    }
+  ]
+}

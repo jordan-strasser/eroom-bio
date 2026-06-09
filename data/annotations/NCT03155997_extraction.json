@@ -1,0 +1,190 @@
+{
+  "nct_id": "NCT03155997",
+  "therapeutic_hypothesis": {
+    "compound": "Abemaciclib + Standard Adjuvant Endocrine Therapy",
+    "claimed_target": "CDK4/6",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "cell-cycle arrest",
+    "target_population": "HR+/HER2- early breast cancer patients following surgery",
+    "primary_endpoint": "Invasive Disease Free Survival (IDFS)",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.747 (95% CI: 0.598\u20130.932)",
+    "p_value": 0.00957,
+    "target_engagement_evidence": "Abemaciclib Cmin,ss geometric mean 143 ng/mL",
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Serious adverse events more frequent in abemaciclib arm including anaemia, febrile neutropenia, leukopenia, neutropenia, thrombocytopenia"
+    ],
+    "dose_info": {
+      "dose": "150 mg",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.29,
+        "incidence_control_pct": 0.07,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.14,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.14,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.11,
+        "incidence_control_pct": 0.04,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.14,
+        "incidence_control_pct": 0.04,
+        "serious": true
+      },
+      {
+        "term": "Pancytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.04,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Disseminated intravascular coagulation",
+        "grade": "",
+        "incidence_treatment_pct": 0.04,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Bone marrow oedema",
+        "grade": "",
+        "incidence_treatment_pct": 0.04,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Acute left ventricular failure",
+        "grade": "",
+        "incidence_treatment_pct": 0.04,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenopathy mediastinal",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.04,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "HR+/HER2- early breast cancer (adjuvant setting post-surgery)",
+    "comparator": "Standard Adjuvant Endocrine Therapy alone",
+    "sample_size": 5637,
+    "duration": "Up to 32 months (primary); approximately 10 years (final)",
+    "duration_weeks": 139.04,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "compounds": [
+        "abemaciclib",
+        "standard adjuvant endocrine therapy"
+      ]
+    },
+    {
+      "arm_id": "endocrine_therapy",
+      "compounds": [
+        "standard adjuvant endocrine therapy"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "intervention": "abemaciclib",
+      "subgroup_descriptor": null,
+      "endpoint": "IDFS",
+      "effect_size": 0.747,
+      "p_value": 0.00957,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "cell-cycle arrest",
+      "population_description": "HR+/HER2- early breast cancer patients following surgery",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "intervention": "standard adjuvant endocrine therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "IDFS",
+      "effect_size": 0.747,
+      "p_value": 0.00957,
+      "outcome": "success",
+      "mechanism_description": "hormone receptor antagonism / estrogen deprivation",
+      "biology_description": "hormone-driven tumor proliferation suppression",
+      "population_description": "HR+/HER2- early breast cancer patients following surgery",
+      "mechanism_category": "hormone_modulation"
+    },
+    {
+      "arm_id": "150_mg_abemaciclib_endocrine_therapy",
+      "intervention": "abemaciclib",
+      "subgroup_descriptor": null,
+      "endpoint": "DRFS",
+      "effect_size": 0.717,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "cell-cycle arrest",
+      "population_description": "HR+/HER2- early breast cancer patients following surgery",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "endocrine_therapy",
+      "intervention": "standard adjuvant endocrine therapy",
+      "subgroup_descriptor": null,
+      "endpoint": "IDFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "hormone receptor antagonism / estrogen deprivation",
+      "biology_description": "hormone-driven tumor proliferation suppression",
+      "population_description": "HR+/HER2- early breast cancer patients following surgery",
+      "mechanism_category": "hormone_modulation"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "abemaciclib",
+      "primary_compound_id": "standard adjuvant endocrine therapy",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.87,
+      "hypothesis": "CDK4/6 inhibition by abemaciclib arrests cell-cycle progression, complementing estrogen-deprivation-mediated suppression of hormone-driven proliferation and enhancing disease-free survival beyond endocrine therapy alone",
+      "citation": "Hazard Ratio (HR) = 0.747 (95% CI: 0.598\u20130.932), p = 0.00957"
+    }
+  ]
+}

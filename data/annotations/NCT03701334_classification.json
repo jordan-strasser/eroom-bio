@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT03701334",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm CDK4/6 engagement. The dose (400 mg days 1-21 of 28-day cycle) is the standard approved ribociclib dose, consistent with known PK/PD profiles from metastatic trials, so target engagement is presumed but not demonstrated here. 2. PATHWAY MODULATION: No pathway biomarker data (e.g., Ki67 suppression, Rb phosphorylation) is reported. Cell cycle arrest cannot be confirmed from this extraction. 3. CLINICAL TRANSLATION: The primary endpoint (iDFS) result is listed as 'unknown' with null effect size and null p-value. This trial has a very long planned duration (~139 months / ~11.5 years) and a large sample size (5101 patients), suggesting it is still ongoing or results have not yet been reported in this extraction. The outcome is therefore unknown rather than a clear success or failure. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial appears to be ongoing or results are not yet available \u2014 the duration of ~604.9 weeks (~11.6 years) and null primary endpoint results suggest this is an active long-term adjuvant trial (NATALEE trial) that had not reached its primary analysis at the time of this extraction. This is classified as 'partial' because the trial is large, well-designed, and ongoing \u2014 not a failure, but no efficacy readout is available. Given the null results across all endpoints and the very long planned follow-up, this falls into insufficient_information territory for mechanistic classification.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Primary endpoint iDFS result is null (unknown) for both arms. Effect size and p-value are null. No biomarker data, no safety signals, no subgroup findings. The trial has a planned duration of ~139 months suggesting it is still ongoing. No efficacy readout is available to classify the mechanistic chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS",
+      "target_entity": "breast_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "iDFS (mapped to DFS) is the primary endpoint for this adjuvant HR+/HER2- early breast cancer trial. The endpoint is a well-established regulatory endpoint for adjuvant breast cancer trials and is expected to capture clinical benefit, but no result has been reported yet \u2014 the trial appears ongoing. Ambiguous is appropriate as the endpoint's performance in this trial cannot be assessed."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_locally_advanced__ki67_high__line_adjuvant",
+      "target_entity": "breast_cancer",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No primary endpoint result is available. The population (HR+/HER2- early breast cancer, adjuvant setting, ki67-high, locally advanced) cannot be assessed for differential response without an efficacy readout. Ambiguous is the appropriate bucket."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Trial appears to be ongoing (NATALEE trial, NCT03701334) with no primary endpoint results available in this extraction. The very long planned duration (~139 months) and large sample size (5101) are consistent with an active adjuvant trial. Expert review is needed to confirm whether results have since been published (the NATALEE trial did report positive iDFS results in 2023), which would change the classification from partial/insufficient_information to success with strong mechanistic support edges."
+}

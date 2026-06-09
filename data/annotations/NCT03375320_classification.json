@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT03375320",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming VEGFR2/MET/RET engagement is reported. However, the strong PFS benefit (epNET: 8.4 vs 3.9 months, HR implied by p<0.0001; pNET: 13.8 vs 4.4 months, p<0.0001) and radiographic response rates (12 vs 0 in pNET, p=0.01; 7 vs 0 in epNET, p=0.05) are consistent with on-target kinase inhibition. Per the round-28 AFFECTS rule, without direct PD/PK binding evidence, no affects record is emitted \u2014 the curated OT/ChEMBL record carries the molecular fact.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., phospho-MET, VEGF levels) is reported. The clinical activity (tumor shrinkage, PFS prolongation) is consistent with angiogenesis inhibition and tumor growth suppression via kinase inhibition, but this is inferred rather than directly measured. Per the modulates_via rule, no modulates_via record is emitted since engagement was not directly measured.\n\n3. CLINICAL TRANSLATION: The primary endpoint (PFS) was met in both cohorts with highly significant p-values (p<0.0001). PFS improvement was clinically meaningful: epNET doubled from 3.9 to 8.4 months; pNET tripled from 4.4 to 13.8 months. Radiographic response rates also favored cabozantinib. However, OS did not improve significantly in either cohort (epNET: 21.9 vs 19.7 months, p=0.2438; pNET: 40.0 vs 31.1 months, p=0.4426), suggesting PFS benefit did not translate to survival benefit \u2014 a known limitation of PFS as a surrogate in NETs, possibly due to post-progression crossover or the indolent nature of the disease.\n\n4. POPULATION EFFECTS: Both epNET and pNET cohorts showed significant PFS benefit, suggesting the mechanism is broadly active across NET subtypes. The pNET cohort showed a larger absolute PFS gain (9.4 months) vs epNET (4.5 months), consistent with known VEGFR/MET biology in pNET. No biomarker-defined subgroup analysis was reported.\n\n5. CONFOUNDERS: Grade 3+ AE rates were high in both treatment arms (epNET: 77.6% vs 68.1% placebo; pNET: 76.6% vs 71.0% placebo), but the difference vs placebo is modest and the trial was not terminated for safety. The OS miss may reflect post-progression crossover, long natural history of NETs, or inadequate OS follow-up power. The trial is classified as partial/success: PFS primary endpoint met, OS secondary missed.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "PFS improved significantly in both cohorts (p<0.0001), indicating biological activity (tumor growth suppression), but OS did not improve significantly in either cohort (epNET p=0.2438, pNET p=0.4426). This suggests PFS benefit did not translate to OS benefit, possibly due to post-progression crossover, long natural history of NETs, or PFS being an imperfect surrogate for OS in this indication."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5673001",
+      "target_entity": "bio:0fdcb0521dab",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i_cabozantinib_s_malate",
+      "reasoning": "Significant PFS benefit and radiographic responses in both cohorts support that kinase inhibition via the RAF/MAP kinase cascade drove angiogenesis inhibition and tumor growth suppression, though no direct pathway biomarker data is available."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0fdcb0521dab",
+      "target_entity": "functioning_pancreatic_neuroendocrine_tumor",
+      "support": "moderate_support",
+      "affecting_arm_id": "arm_i_cabozantinib_s_malate",
+      "reasoning": "PFS was significantly improved in both pNET and epNET cohorts (p<0.0001), supporting that angiogenesis inhibition and tumor growth suppression drives disease control in neuroendocrine tumors. OS did not improve, limiting this to moderate rather than strong support."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "functioning_pancreatic_neuroendocrine_tumor",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was met with high significance in both cohorts, but OS did not improve significantly in either cohort. This suggests PFS is an imperfect surrogate for clinical benefit (OS) in this indication, warranting only weak support for endpoint_captures. The endpoint captured tumor growth control but not survival benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "extent_locally_advanced__line_second",
+      "target_entity": "functioning_pancreatic_neuroendocrine_tumor",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Both epNET and pNET cohorts showed highly significant PFS benefit (p<0.0001) with clinically meaningful effect sizes, supporting that this population responds to cabozantinib in this indication."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial met its primary PFS endpoint with high significance in both cohorts but failed to show OS benefit. The disconnect between PFS and OS in NETs may reflect post-progression crossover, the indolent natural history of NETs, or inadequate OS power. Expert review is warranted to assess whether PFS is an appropriate primary endpoint for regulatory purposes in this indication, and whether the OS miss should be weighted more heavily in the overall classification. Additionally, the resolved indication ID 'functioning_pancreatic_neuroendocrine_tumor' may not fully capture the epNET cohort (carcinoid/extra-pancreatic NETs), which could affect edge routing accuracy."
+}

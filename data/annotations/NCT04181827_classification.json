@@ -1,0 +1,84 @@
+{
+  "nct_id": "NCT04181827",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: CAR-T cell expansion, persistence, and activation markers were monitored as secondary endpoints in Arm B (cilta-cel). Changes from baseline in CAR-T cell activation markers and T cell expansion/proliferation were measured, providing direct evidence that cilta-cel engaged its BCMA target and expanded in vivo. This constitutes strong target engagement evidence.\n\n2. PATHWAY MODULATION: Systemic cytokine concentration changes from baseline were measured in Arm B, consistent with CAR-T cell activation and cytotoxic activity (including CRS signals). The biology of adoptive T-cell cytotoxicity against BCMA-expressing myeloma cells was demonstrably engaged, as evidenced by cytokine release syndrome events (7/208 SAEs in Arm B vs 1/208 in Arm A) and the cytokine biomarker data.\n\n3. CLINICAL TRANSLATION: The primary endpoint (PFS) was met. Cilta-cel achieved a median PFS that was not reached (lower bound 34.5 months) versus 11.79 months for standard therapy (PVd/DPd), representing a clinically meaningful and statistically significant improvement. The effect size is dramatic \u2014 more than a tripling of the PFS lower bound compared to control.\n\n4. POPULATION EFFECTS: No subgroup findings were reported. The enrolled population was relapsed and lenalidomide-refractory multiple myeloma patients, which is the appropriate population for this mechanism given BCMA expression on myeloma cells.\n\n5. CONFOUNDERS: No major confounders identified. The trial was adequately powered (n=419), had an active comparator arm, and the effect size was large. Safety profile was manageable \u2014 SAE rates were broadly comparable between arms, with cilta-cel showing expected CAR-T-related events (CRS, cytopenias, facial paralysis) but no dose-limiting toxicity that prevented adequate dosing. The standard therapy arm (Arm A) showed a PFS of 11.79 months, consistent with historical benchmarks for this population, validating the comparator. The trial outcome is a clear success for cilta-cel.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pom_dex_pomalidomide_plus_low_dose_dexamethasone",
+      "target_entity": "ENSG00000113851",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "The standard therapy arm (PVd/DPd) achieved only 11.79 months median PFS in lenalidomide-refractory patients, suggesting limited efficacy of pomalidomide-based regimens in this population. However, this is a relative failure vs cilta-cel, not absolute non-engagement. Weak contradict reflects the limited clinical benefit in this refractory setting."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bortezomib",
+      "target_entity": "ENSG00000100804",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "Bortezomib as part of PVd achieved only 11.79 months PFS in this lenalidomide-refractory population, indicating limited benefit. No direct target engagement biomarker data for bortezomib was reported."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "daratumumab",
+      "target_entity": "ENSG00000004468",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "Daratumumab as part of DPd achieved only 11.79 months PFS in this lenalidomide-refractory population. No direct CD38 target engagement biomarker was reported; the clinical outcome in this refractory setting was limited."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9679191",
+      "target_entity": "bio:60bb0fb9212d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "The pomalidomide/dexamethasone mechanism did not produce durable disease control in lenalidomide-refractory myeloma (11.79 months PFS), suggesting limited downstream biology modulation in this refractory population."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-9907900",
+      "target_entity": "bio:ea9c6f22ca8a",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "Proteasome inhibition via bortezomib did not produce durable disease control in this lenalidomide-refractory population (11.79 months PFS), suggesting limited translation of proteasome inhibition to sustained apoptosis in this setting."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:60bb0fb9212d",
+      "target_entity": "multiple_myeloma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "The biology of immune-mediated tumor cell killing via pomalidomide/daratumumab/dexamethasone did not drive sufficient disease control in lenalidomide-refractory myeloma (11.79 months PFS), suggesting this biology is insufficient in this refractory context."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:ea9c6f22ca8a",
+      "target_entity": "multiple_myeloma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_a_pvd_or_dpd_standard_therapy",
+      "reasoning": "Unfolded protein response-induced apoptosis via bortezomib did not drive durable disease control in this lenalidomide-refractory population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS",
+      "target_entity": "multiple_myeloma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS was the pre-specified primary endpoint and was clearly met by cilta-cel (NR, lower bound 34.5 months vs 11.79 months for standard therapy), with a clinically meaningful and large effect size. PFS is a well-established regulatory endpoint for multiple myeloma and the dramatic separation of curves confirms it captures clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "freelightchain_high__line_third_plus__mprotein_high__severity_active",
+      "target_entity": "multiple_myeloma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of relapsed and lenalidomide-refractory multiple myeloma patients (third-line plus, active disease) responded strongly to cilta-cel with median PFS not reached (lower bound 34.5 months) vs 11.79 months for standard therapy, demonstrating that this population responds meaningfully to BCMA-directed CAR-T therapy."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

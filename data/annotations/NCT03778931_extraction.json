@@ -1,0 +1,238 @@
+{
+  "nct_id": "NCT03778931",
+  "therapeutic_hypothesis": {
+    "compound": "elacestrant",
+    "claimed_target": "ESR1 (estrogen receptor alpha)",
+    "proposed_mechanism": "selective estrogen receptor degradation",
+    "intended_biology": "estrogen receptor-driven tumor cell proliferation suppression",
+    "target_population": "ER+/HER2- advanced breast cancer patients with prior endocrine therapy and CDK4/6 inhibitor treatment",
+    "primary_endpoint": "Progression-free survival in ESR1-mutant participants and all participants",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.546 (ESR1-mut); HR 0.697 (all participants)",
+    "p_value": 0.0005,
+    "target_engagement_evidence": "ESR1-mutant subgroup showed greater benefit (HR 0.546) vs overall population (HR 0.697), consistent with on-target activity against ESR1 mutations",
+    "biomarker_changes": [
+      "ESR1 mutation status associated with differential PFS benefit: HR 0.546 in ESR1-mut vs HR 0.697 in all participants"
+    ],
+    "subgroup_findings": [
+      "ESR1-mutant participants: median PFS 3.78 months (elacestrant) vs 1.87 months (SoC), HR 0.546, p=0.0005",
+      "All participants: median PFS 2.79 months (elacestrant) vs 1.91 months (SoC), HR 0.697, p=0.0018",
+      "ESR1-mut OS: HR 0.592, p=0.0325 (elacestrant median OS not reached vs 16.95 months SoC)",
+      "All participants OS: HR 0.742, p=0.0697 (both medians not reached)"
+    ],
+    "safety_signals": [
+      "Nausea was the most common serious AE in elacestrant arm (3/237)",
+      "Vomiting and small intestinal obstruction each occurred in 2/237 elacestrant patients",
+      "Abdominal pain occurred in 2/230 SoC patients as serious AE"
+    ],
+    "dose_info": {
+      "dose": "400 mg",
+      "schedule": "once daily oral",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Antiphospholipid syndrome",
+        "grade": "",
+        "incidence_treatment_pct": 0.42,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Nausea",
+        "grade": "",
+        "incidence_treatment_pct": 1.27,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Vomiting",
+        "grade": "",
+        "incidence_treatment_pct": 0.84,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Small intestinal obstruction",
+        "grade": "",
+        "incidence_treatment_pct": 0.84,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.87,
+        "serious": true
+      },
+      {
+        "term": "Colitis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.43,
+        "serious": true
+      },
+      {
+        "term": "Diarrhoea",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.43,
+        "serious": true
+      },
+      {
+        "term": "Enteritis",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.43,
+        "serious": true
+      },
+      {
+        "term": "Ileus",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.43,
+        "serious": true
+      },
+      {
+        "term": "General physical health deterioration",
+        "grade": "",
+        "incidence_treatment_pct": 0.42,
+        "incidence_control_pct": 0.43,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "ER+/HER2- advanced breast cancer",
+    "comparator": "Standard of care (fulvestrant, anastrozole, letrozole, or exemestane)",
+    "sample_size": 478,
+    "duration": "Up to 24 months follow-up",
+    "duration_weeks": 104.28,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "elacestrant",
+      "compounds": [
+        "elacestrant"
+      ]
+    },
+    {
+      "arm_id": "standard_of_care_soc",
+      "compounds": [
+        "fulvestrant",
+        "anastrozole",
+        "letrozole",
+        "exemestane"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "ESR1-mutant participants",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ESR1",
+          "level": "mutant"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "All participants (ESR1-mut and ESR1-wt)",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "ESR1",
+          "level": "unselected"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "elacestrant",
+      "intervention": "elacestrant",
+      "subgroup_descriptor": "ESR1-mutant participants",
+      "endpoint": "PFS",
+      "effect_size": 0.546,
+      "p_value": 0.0005,
+      "outcome": "success",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor-driven tumor cell proliferation suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients with ESR1 mutation and prior endocrine therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "elacestrant",
+      "intervention": "elacestrant",
+      "subgroup_descriptor": "All participants (ESR1-mut and ESR1-wt)",
+      "endpoint": "PFS",
+      "effect_size": 0.697,
+      "p_value": 0.0018,
+      "outcome": "success",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor-driven tumor cell proliferation suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients (ESR1-mutant and ESR1-wildtype) with prior endocrine therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "elacestrant",
+      "intervention": "elacestrant",
+      "subgroup_descriptor": "ESR1-mutant participants",
+      "endpoint": "OS",
+      "effect_size": 0.592,
+      "p_value": 0.0325,
+      "outcome": "success",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor-driven tumor cell proliferation suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients with ESR1 mutation and prior endocrine therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "elacestrant",
+      "intervention": "elacestrant",
+      "subgroup_descriptor": "All participants (ESR1-mut and ESR1-wt)",
+      "endpoint": "OS",
+      "effect_size": 0.742,
+      "p_value": 0.0697,
+      "outcome": "failure",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor-driven tumor cell proliferation suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients (ESR1-mutant and ESR1-wildtype) with prior endocrine therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "standard_of_care_soc",
+      "intervention": "fulvestrant",
+      "subgroup_descriptor": "ESR1-mutant participants",
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "selective estrogen receptor degradation",
+      "biology_description": "estrogen receptor-driven tumor cell proliferation suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients with ESR1 mutation receiving standard endocrine therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "standard_of_care_soc",
+      "intervention": "anastrozole",
+      "subgroup_descriptor": "ESR1-mutant participants",
+      "endpoint": "PFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "aromatase inhibition",
+      "biology_description": "estrogen biosynthesis suppression",
+      "population_description": "ER+/HER2- advanced breast cancer patients with ESR1 mutation receiving standard endocrine therapy",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}
