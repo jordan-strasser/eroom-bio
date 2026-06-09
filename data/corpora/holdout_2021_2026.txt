@@ -1,0 +1,59 @@
+# 2021-2026 holdout — well-documented readouts, coverage-✓ vs multi_500 pre-2021 train graph
+# Demo build: re-attribute multi_500 initial.json (+ any not already present via --add-corpus),
+# with --exclude-from-attribution = ALL NCTs below → chains resolve but contribute zero evidence (out-of-sample).
+# format: NCT  # drug — primary-endpoint outcome — target class
+
+# --- CDK4/6 adjuvant (MARQUEE: same class, opposite primary outcome) ---
+NCT03155997  # abemaciclib monarchE — SUCCESS — CDK4/6
+NCT03701334  # ribociclib NATALEE — SUCCESS — CDK4/6
+NCT02513394  # palbociclib PALLAS — FAILURE — CDK4/6
+NCT01864746  # palbociclib PENELOPE-B — FAILURE — CDK4/6
+NCT01958021  # ribociclib MONALEESA-2 — SUCCESS — CDK4/6 (metastatic)
+# --- ESR1 / SERD (success vs failure) ---
+NCT03778931  # elacestrant EMERALD — SUCCESS — ESR1
+NCT04214288  # camizestrant SERENA-2 — SUCCESS — ESR1
+NCT04059484  # amcenestrant AMEERA-3 — FAILURE — ESR1
+NCT04576455  # giredestrant acelERA — FAILURE — ESR1
+# --- AR / androgen (prostate) ---
+NCT02799602  # darolutamide ARASENS — SUCCESS — AR
+NCT02319837  # enzalutamide EMBARK — SUCCESS — AR
+NCT02489318  # apalutamide TITAN — SUCCESS — AR
+# --- FGFR ---
+NCT02052778  # futibatinib FOENIX-CCA2 — SUCCESS — FGFR2
+NCT03390504  # erdafitinib THOR — SUCCESS — FGFR (urothelial)
+# --- EGFR (onco) ---
+NCT02928224  # encorafenib+cetuximab BEACON — SUCCESS — EGFR/BRAF
+NCT05198934  # sotorasib+panitumumab CodeBreaK-300 — SUCCESS — EGFR
+NCT04035486  # osimertinib FLAURA2 — SUCCESS — EGFR
+NCT04487080  # amivantamab MARIPOSA — SUCCESS — EGFR
+NCT04538664  # amivantamab PAPILLON — SUCCESS — EGFR
+# --- VEGFR / anti-angiogenic (LEAP failures = gold) ---
+NCT03713593  # lenvatinib+pembro LEAP-002 — FAILURE — VEGFR
+NCT03820986  # lenvatinib+pembro LEAP-003 — FAILURE — VEGFR
+NCT03375320  # cabozantinib CABINET — SUCCESS — VEGFR
+NCT03755791  # cabozantinib+atezo COSMIC-312 — MIXED — VEGFR
+# --- mTOR (cross-area: cancer↔tuberous sclerosis) ---
+NCT01120249  # everolimus EVEREST RCC — FAILURE — mTOR
+NCT01674140  # everolimus SWOG-S1207 breast — FAILURE — mTOR
+# --- CD20 (cross-area: onco-lymphoma → neuro/renal) ---
+NCT03277261  # ublituximab ULTIMATE-I MS — SUCCESS — CD20
+NCT03277248  # ublituximab ULTIMATE-II MS — SUCCESS — CD20
+NCT04221477  # obinutuzumab REGENCY lupus — SUCCESS — CD20
+# --- immune-modulation / autoimmune (cross-area bridges) ---
+NCT02446899  # anifrolumab TULIP-2 SLE — SUCCESS — IFNAR1
+NCT03021499  # voclosporin AURORA lupus — SUCCESS — calcineurin
+NCT01714817  # abatacept ALLURE lupus — FAILURE — CD80 (gold cross-area failure)
+# --- CRBN / IMiD (cross-area: MM ↔ autoimmune) ---
+NCT03374085  # mezigdomide MM — SUCCESS — CRBN
+# --- BCMA myeloma ---
+NCT04181827  # cilta-cel CARTITUDE-4 — SUCCESS — BCMA
+NCT03651128  # ide-cel KarMMa-3 — SUCCESS — BCMA
+NCT04557098  # teclistamab MajesTEC-1 — SUCCESS — BCMA
+NCT04649359  # elranatamab MagnetisMM-3 — SUCCESS — BCMA
+NCT04162210  # belantamab mafodotin DREAMM-3 — FAILURE — BCMA
+# --- amyloid (cross-trial: gantenerumab ← solanezumab in train) ---
+NCT03444870  # gantenerumab GRADUATE-I — FAILURE — amyloid
+NCT03443973  # gantenerumab GRADUATE-II — FAILURE — amyloid
+NCT03887455  # lecanemab CLARITY-AD — SUCCESS — amyloid
+NCT04437511  # donanemab TRAILBLAZER-ALZ2 — SUCCESS — amyloid
+NCT02008357  # solanezumab A4 — FAILURE — amyloid (compound in train; MUST --exclude)
