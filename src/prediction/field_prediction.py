@@ -82,16 +82,19 @@ _BACKBONE = [
 def build_st_desc_map(
     graph, nct: str, *, annotations_dir: str = "data/annotations",
 ) -> dict[tuple[str, str, str], tuple[str, str]]:
-    """Per-edge ``(source, target, edge_type) -> (s_desc, t_desc)`` for a trial,
-    read from the graph's OWN node descriptions via each chain's node ids.
+    """Per-edge ``(source, target, edge_type) -> (s_desc, t_desc)`` query
+    coordinate for a trial, at the chain's PRE-MERGE node identity.
 
-    The (s,t) coordinate of an edge is its source/target NODE descriptions. The
-    chain already points to its per-drug nodes — the populator resolves a combo
-    arm's constituents to DISTINCT nodes (paclitaxel → "mitotic arrest", not its
-    neighbor's "angiogenesis inhibition") — so reading those nodes is combo-safe
-    AND graph-native. This replaces the prior per-arm annotation re-derivation
-    (``chain_descriptions_by_arm``), which stamped a combo arm's first-listed
-    drug's description onto every chain in the arm (28% mis-attributed at n=50).
+    The (s,t) of an edge endpoint is each chain's own typed description
+    (``mechanism``/``biology``/``population`` per :data:`_BACKBONE`) — the
+    trial's phrasing BEFORE merge bucketed it into a canonical node — so a query
+    lands in the SAME space its predecessors were anchored in by
+    ``materialize_belief_field`` (the decay kernel can only localize if anchor
+    and query share coordinates). Endpoints with no typed description
+    (compound/target/endpoint/indication, marked ``node``) fall back to the
+    post-merge node description, which is canonical and combo-safe there. The
+    typed descriptions are combo-safe — the populator stamps each chain its own
+    per-drug description (paclitaxel → "mitotic arrest", not its neighbor's).
     ``annotations_dir`` is retained for signature compatibility but unused."""
     del annotations_dir  # no longer re-derives from annotations — reads the graph
     ts = graph.trial_subgraphs.get(nct)
@@ -106,13 +109,27 @@ def build_st_desc_map(
             return ""
         return (nd.get("description") or nd.get("name") or "").strip()
 
+    _typed = {"mechanism": "mechanism_description",
+              "biology": "biology_description",
+              "population": "population_description"}
+
+    def edesc(ch, nid: str, desc_source: str) -> str:
+        fld = _typed.get(desc_source)
+        if fld:
+            d = (getattr(ch, fld, "") or "").strip()
+            if d:
+                return d
+        return ndesc(nid)
+
     for ch in ts.chains:
-        for s_attr, t_attr, et, _s_src, _t_src in _BACKBONE:
+        for s_attr, t_attr, et, s_src, t_src in _BACKBONE:
             s_id, t_id = getattr(ch, s_attr, None), getattr(ch, t_attr, None)
             if not s_id or not t_id or s_id == "UNKNOWN" or t_id == "UNKNOWN":
                 continue
-            s_desc, t_desc = ndesc(s_id), ndesc(t_id)
-            if s_desc and t_desc:
+            s_desc, t_desc = edesc(ch, s_id, s_src), edesc(ch, t_id, t_src)
+            # first-non-empty per edge: deterministic when a trial has multiple
+            # chains on the same merged edge with differing sub-descriptions.
+            if s_desc and t_desc and (s_id, t_id, et) not in out:
                 out[(s_id, t_id, et)] = (s_desc, t_desc)
     return out
 

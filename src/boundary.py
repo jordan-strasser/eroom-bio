@@ -38,9 +38,16 @@ stripped. A declared-but-``None`` private field is therefore always safe.
 Manifold → boundary mapping (see ``future_ideas/manifold_learning.md``):
   * Manifold 1 geometry — fine-tuned embeddings, trained boxes  → private value
   * Manifold 2 — scalar ``Beta(alpha, beta)`` marginal           → PUBLIC
-  *            — full per-region belief field                    → private value
+  *            — full per-region belief field                    → PUBLIC
   * Manifold 3 — outcome-conditioned learner + its snapshots     → private (lives
                  entirely in the enterprise repo, never imported here)
+
+The open core is meant to be a top-shelf predictor, so the manifold-2 per-region
+belief field (the ``(s,t)`` localized refinement of the scalar marginal) ships in
+the PUBLIC snapshot as of the field-public move. The enterprise moat is private
+DATA integration (pharma deals), NOT the prediction math — so the field's anchors
+and the shared ``_belief_field_vectors`` table are public, while manifold-1 node
+embeddings / trained boxes and the manifold-3 outcome learner stay private.
 """
 
 from __future__ import annotations
@@ -62,6 +69,7 @@ __all__ = [
     "require_under_private_root",
     "PRIVATE_FIELD_NAMES",
     "PRIVATE_FIELD_SUFFIXES",
+    "PUBLIC_FIELD_NAMES",
 ]
 
 
@@ -85,7 +93,6 @@ PRIVATE_FIELD_NAMES: frozenset[str] = frozenset(
     {
         "embedding",
         "embeddings",
-        "belief_field",
         "region_anchors",
         "anchors",
         "box",
@@ -99,14 +106,26 @@ PRIVATE_FIELD_NAMES: frozenset[str] = frozenset(
     }
 )
 
+# Field names that are PUBLIC even though they'd otherwise match a private name
+# or suffix. ``belief_field`` ends in the private ``_field`` suffix and contains a
+# (privately-named) ``anchors`` list, but the manifold-2 field is open-core (see
+# the module docstring): its whole subtree is kept and NOT recursed into, so the
+# inner ``anchors`` survive while ``anchors``/``region_anchors`` stay private
+# everywhere else. The shared ``_belief_field_vectors`` table is a top-level key
+# that matches no private convention, so it passes through unstripped.
+PUBLIC_FIELD_NAMES: frozenset[str] = frozenset({"belief_field"})
+
 
 def is_private_field(name: str) -> bool:
     """True if a field with this name carries a private (enterprise) value.
 
-    Driven by :data:`PRIVATE_FIELD_NAMES` and :data:`PRIVATE_FIELD_SUFFIXES`
-    so that new fields following the naming convention are protected without
-    touching this module.
+    :data:`PUBLIC_FIELD_NAMES` wins first (an explicit open-core override), then
+    :data:`PRIVATE_FIELD_NAMES` / :data:`PRIVATE_FIELD_SUFFIXES` so that new
+    fields following the naming convention are protected without touching this
+    module.
     """
+    if name in PUBLIC_FIELD_NAMES:
+        return False
     return name in PRIVATE_FIELD_NAMES or name.endswith(PRIVATE_FIELD_SUFFIXES)
 
 
@@ -146,7 +165,9 @@ def strip_private(obj: Any) -> Any:
     """
     if isinstance(obj, dict):
         return {
-            k: strip_private(v)
+            # Keep a public-override subtree (belief_field) WHOLE — don't recurse,
+            # so its inner (privately-named) ``anchors`` survive.
+            k: (v if k in PUBLIC_FIELD_NAMES else strip_private(v))
             for k, v in obj.items()
             if not is_private_field(k)
         }
@@ -167,6 +188,8 @@ def find_private_fields(obj: Any, _path: str = "") -> list[str]:
             here = f"{_path}.{k}" if _path else str(k)
             if is_private_field(k) and not _is_empty(v):
                 hits.append(here)
+            if k in PUBLIC_FIELD_NAMES:
+                continue  # open-core subtree (inner `anchors` is public) — don't scan
             hits.extend(find_private_fields(v, here))
     elif isinstance(obj, list):
         for i, v in enumerate(obj):

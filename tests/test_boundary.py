@@ -30,7 +30,6 @@ from src.graph.store import GraphStore
     "name",
     [
         "embedding",
-        "belief_field",
         "source_embedding",  # suffix convention
         "target_embedding",
         "box_min",
@@ -45,7 +44,8 @@ def test_private_names_are_private(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["alpha", "beta", "evidence", "description", "id", "node_type", "metadata"],
+    ["alpha", "beta", "evidence", "description", "id", "node_type", "metadata",
+     "belief_field"],  # manifold-2 field is open-core (PUBLIC) as of the field-public move
 )
 def test_public_names_are_public(name):
     assert not is_private_field(name)
@@ -72,7 +72,10 @@ def test_strip_private_is_recursive_and_keeps_public():
     cleaned = strip_private(payload)
     node = cleaned["graph"]["nodes"][0]
     assert node == {"id": "VEGF", "description": "VEGF signaling"}
-    assert cleaned["graph"]["links"][0]["belief"] == {"alpha": 3.0, "beta": 1.0}
+    # belief_field is PUBLIC now (open-core predictor) — kept WHOLE, not stripped.
+    assert cleaned["graph"]["links"][0]["belief"] == {
+        "alpha": 3.0, "beta": 1.0, "belief_field": {"x": 1},
+    }
 
 
 def test_empty_private_fields_do_not_count_as_leaks():
@@ -128,10 +131,11 @@ def test_export_snapshot_strips_private_and_keeps_scalar(tmp_path):
     store.export_snapshot(str(out))
 
     raw = json.loads(out.read_text())
-    # No private values anywhere in the committed artifact.
+    # No PRIVATE values (manifold-1 embeddings) anywhere in the committed artifact.
     assert find_private_fields(raw) == []
     assert "embedding" not in out.read_text()
-    assert "belief_field" not in out.read_text()
+    # ...but the manifold-2 belief field is PUBLIC now — it SHIPS in the open snapshot.
+    assert "belief_field" in out.read_text()
     # Public scalar belief survived untouched (node_link_data names the edge
     # list "links" or "edges" depending on the NetworkX version).
     edges = raw["graph"].get("links") or raw["graph"].get("edges") or []
@@ -152,10 +156,12 @@ def test_export_private_snapshot_keeps_private_under_root(tmp_path, monkeypatch)
     store.export_private_snapshot(str(out))
 
     raw = json.loads(out.read_text())
-    # Private values ARE present in the enterprise artifact.
+    # Private (manifold-1) values ARE present in the enterprise artifact.
     hits = find_private_fields(raw)
     assert any(h.endswith("embedding") for h in hits)
-    assert any("belief_field" in h for h in hits)
+    # belief_field is open-core now: present in the snapshot, but NOT a private leak.
+    assert "belief_field" in out.read_text()
+    assert not any("belief_field" in h for h in hits)
 
 
 def test_export_private_snapshot_refuses_outside_private_root(tmp_path, monkeypatch):

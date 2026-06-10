@@ -223,8 +223,9 @@ def test_private_snapshot_vector_dedup_roundtrip(tmp_path, monkeypatch):
     assert fields[key1].anchors[0].s is fields[key2].anchors[0].s
 
 
-def test_belief_field_is_stripped_from_public_snapshot(tmp_path):
-    """A.3 moat: a populated per-region field never reaches a public snapshot."""
+def test_belief_field_ships_in_public_snapshot(tmp_path):
+    """Field-public move: the manifold-2 per-region field is open-core — it SHIPS
+    in the public snapshot (deduped into _belief_field_vectors) and round-trips."""
     from src.graph.models import EdgeBeliefState, EdgeType, GraphEdge
     from src.graph.store import GraphStore
 
@@ -238,14 +239,18 @@ def test_belief_field_is_stripped_from_public_snapshot(tmp_path):
     out = tmp_path / "pub.json"
     store.export_snapshot(str(out))
     text = out.read_text()
-    assert "belief_field" not in text
-    assert "anchors" not in text
-    # scalar marginal survives and round-trips
+    # The field is PUBLIC now (open-core predictor), deduped into a shared table.
+    assert "belief_field" in text
+    assert "_belief_field_vectors" in text
+    # scalar marginal AND the field round-trip through import.
     reloaded = GraphStore()
     reloaded.import_snapshot(str(out))
     b = reloaded.get_edge_belief("VEGF", "ANGIO", EdgeType.MECHANISM_AFFECTS)
     assert (b.alpha, b.beta) == (4.0, 2.0)
-    assert b.belief_field is None
+    assert b.belief_field is not None
+    rt = BeliefField.from_dict(b.belief_field)
+    assert len(rt.anchors) == 1
+    assert list(rt.anchors[0].s) == [1.0, 0.0]
 
 
 def test_localize_record_sets_descriptions_and_embeddings():

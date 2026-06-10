@@ -469,18 +469,25 @@ def _replay_records(records: list, edge_type_value: str) -> EdgeBeliefState:
     out = EdgeBeliefState(alpha=1.0, beta=1.0)
     cluster_seen: dict[str, int] = {}
     for ev in records:
-        eff_key = ev.cluster_key or ev.source_id
-        prior_same = cluster_seen.get(eff_key, 0)
-        n_eff = effective_n_for_evidence(
-            ev.source_type,
-            ev.quality_score,
-            n_obs=ev.n_obs,
-            edge_type=edge_type_value,
-        ) * redundancy_factor(prior_same)
-        cluster_seen[eff_key] = prior_same + 1
-        out = apply_virtual_evidence(
-            out, n_eff=n_eff, p_obs=p_obs_for_bucket(SupportBucket(ev.support))
-        )
+        if ev.applied_n_eff is not None:
+            # Faithful replay: the EXACT weights this record applied to the
+            # scalar (incl. the explaining-away split + redundancy). A nominal
+            # recompute would over-count, so the delta-adjusted LOO would
+            # over-remove a high-belief edge's contribution.
+            n_eff = ev.applied_n_eff
+            p_obs = (ev.applied_p_obs if ev.applied_p_obs is not None
+                     else p_obs_for_bucket(SupportBucket(ev.support)))
+        else:
+            # Legacy record (pre-persistence): recompute nominal × redundancy.
+            eff_key = ev.cluster_key or ev.source_id
+            prior_same = cluster_seen.get(eff_key, 0)
+            n_eff = effective_n_for_evidence(
+                ev.source_type, ev.quality_score, n_obs=ev.n_obs,
+                edge_type=edge_type_value,
+            ) * redundancy_factor(prior_same)
+            cluster_seen[eff_key] = prior_same + 1
+            p_obs = p_obs_for_bucket(SupportBucket(ev.support))
+        out = apply_virtual_evidence(out, n_eff=n_eff, p_obs=p_obs)
     return out
 
 

@@ -242,7 +242,17 @@ async def build_bottomup(
     )
     # Incremental: restrict the O(n²) geometric tiers to pairs touching a just-added
     # node (existing↔existing are already merged) — O(new × total), not O(total²).
+    #
+    # Wire the BATCH encoders so each geometric tier embeds ALL its node
+    # descriptions in one ``model.encode(list)`` + one cache round-trip, instead of
+    # one model call per node. The per-node-only path here made the n=500 bottom-up
+    # merge take HOURS (the standalone ``assemble_v2`` already batched via
+    # ``embed_texts``; this DEFAULT build path silently fell back to per-node).
+    from src.graph.biolord_embeddings import embed_texts as _biolord_batch
+    from src.graph.sapbert_embeddings import embed_compound_names as _sapbert_batch
     report = assemble(merged, cfg, embed_fn=embed_fn,
+                      batch_embed_fn=_biolord_batch,
+                      batch_sapbert_embed_fn=_sapbert_batch,
                       new_ids=new_ids if incremental else None)
     renamed = _canonicalize_ids(merged)
     pruned_bio = _prune_orphan_biology(merged)

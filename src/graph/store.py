@@ -231,6 +231,14 @@ class GraphStore:
             )
             belief.belief_field = bf.to_dict()
 
+        # Persist the EXACT weights this record contributed (incl. the
+        # explaining-away override and the redundancy discount above) so any
+        # replay — the (s,t) field materializer, the LOO self-exclusion —
+        # reconstructs this scalar update faithfully instead of recomputing a
+        # nominal n_eff that ignores the split. See EvidenceRecord.applied_n_eff.
+        evidence.applied_n_eff = n_eff
+        evidence.applied_p_obs = p_obs
+
         belief.evidence.append(evidence)
         data["belief"] = belief.model_dump(mode="json")
         return belief
@@ -355,10 +363,28 @@ class GraphStore:
         ``import_snapshot`` for backwards compatibility.
         """
         public_payload = strip_private(self._build_snapshot_payload())
+        # The manifold-2 belief field is now PUBLIC (open-core predictor). Dedup
+        # its anchor (s,t) BioLORD vectors into a shared ``_belief_field_vectors``
+        # table — the same compaction the private snapshot used — since the same
+        # description embedding recurs across thousands of anchors. ``index_anchor_
+        # vectors`` rewrites only fresh belief dicts, so the live graph is untouched.
+        graph_data = public_payload.get("graph", {})
+        links = graph_data.get("links") or graph_data.get("edges") or []
+        table = index_anchor_vectors(links)
+        if table:
+            public_payload["_belief_field_vectors"] = table
         assert_public_safe(public_payload, source=filepath)
-        Path(filepath).write_text(
-            json.dumps(public_payload, indent=2, default=str)
-        )
+        # Compact when a field is present: its vector table dominates, and at scale
+        # ``indent=2`` put every float on its own line (~330 MB of whitespace at
+        # n=252). Fieldless snapshots stay pretty for human readability.
+        if table:
+            Path(filepath).write_text(
+                json.dumps(public_payload, separators=(",", ":"), default=str)
+            )
+        else:
+            Path(filepath).write_text(
+                json.dumps(public_payload, indent=2, default=str)
+            )
 
     def export_private_snapshot(self, filepath: str) -> None:
         """Serialize the **full** payload (public + private values) for the

@@ -794,6 +794,19 @@ class EvidenceRecord(BaseModel):
     source_embedding: list[float] | None = None
     target_embedding: list[float] | None = None
 
+    # ── Applied conjugate weights (the EXACT (n_eff, p_obs) used in THIS record's
+    # scalar Beta update). Persisted so any REPLAY — the (s,t) field materializer,
+    # the LOO self-exclusion — reconstructs the scalar exactly. A nominal
+    # ``effective_n_for_evidence`` recompute does NOT: it ignores the attributor's
+    # explaining-away split (a failure's mass is divided across the chain so a
+    # high-belief binding edge self-protects) and the redundancy discount. Without
+    # these, the field re-applies the full contradiction the scalar split away and
+    # over-penalizes exactly the high-belief edges (the `affects` 0.90→0.65 bug).
+    # Default None ⇒ legacy records/snapshots replay via the nominal recompute,
+    # so loading is unchanged until a rebuild repopulates them.
+    applied_n_eff: float | None = None
+    applied_p_obs: float | None = None
+
 
 class EdgeBeliefState(BaseModel):
     alpha: float = Field(default=1.0, ge=0.0)

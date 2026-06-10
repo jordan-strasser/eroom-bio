@@ -808,9 +808,14 @@ async def main(
     # stale unless regenerated on every build (this is exactly how the field fell
     # behind at 2/7 while the code already did 7). Wiring the two former scripts
     # (assemble_v2 + materialize_belief_field) in here keeps the field in lockstep
-    # with the graph. Off by default: adds BioLORD embedding compute and needs
-    # EROOM_PRIVATE_ROOT. Node-merge stays a separate, re-runnable projection
-    # (assemble_v2 --merge), deliberately NOT baked in here.
+    # with the graph. ON by default (--assemble); adds BioLORD embedding compute
+    # and writes the field/geometry to EROOM_PRIVATE_ROOT (default ~/.eroom/private,
+    # outside the repo). Pass --no-assemble to skip. NOTE: the field is a PRIVATE
+    # artifact (boundary strips `belief_field` from the public snapshot), so a
+    # public-snapshot prediction does NOT see it unless the private field is
+    # loaded alongside — the public/private seam, not a default-off gate.
+    # Node-merge stays a separate, re-runnable projection (assemble_v2 --merge),
+    # deliberately NOT baked in here.
     if assemble:
         console.rule("[bold]Step 5: assemble geometry + materialize (s,t) field[/bold]")
         # Best-effort: steps 1-4 (incl. paid extractions) are already done and
@@ -830,9 +835,9 @@ async def main(
             fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
             console.print(
                 f"  (s,t) field: {fld['edges_localized']} edges localized, "
-                f"{fld['anchors_total']} anchors"
+                f"{fld['anchors_total']} anchors → PUBLIC snapshot (open-core predictor)"
             )
-            console.print(f"  private artifacts -> {geo['private_root']}")
+            console.print(f"  private geometry (boxes / is-a) -> {geo['private_root']}")
         except Exception as exc:  # noqa: BLE001 — field is regenerable; don't lose the build
             console.print(
                 f"  [red]Step 5 (geometry + (s,t) field) FAILED:[/red] {exc}\n"

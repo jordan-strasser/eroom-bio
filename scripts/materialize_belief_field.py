@@ -34,7 +34,6 @@ import glob
 import json
 from pathlib import Path
 
-from src.boundary import private_root
 from src.graph.models import EdgeBeliefState, EdgeType
 from src.graph.store import GraphStore
 from src.inference.belief_field import (
@@ -92,24 +91,52 @@ def _node_desc(g, node_id: str) -> str:
     return (nd.get("description") or nd.get("name") or "").strip()
 
 
+def _desc_for(ch, node_id: str, desc_source: str, g) -> str:
+    """Coordinate text for one edge endpoint.
+
+    The (s,t) of an anchor is the PRE-MERGE node identity — each chain's own
+    typed description (``mechanism``/``biology``/``population``), which is the
+    trial's phrasing BEFORE it was bucketed into a merged canonical node. So a
+    merged edge keeps its constituents' distinct sub-coordinates: "(s,t) is
+    preserved when nodes merge into higher categories" (owner's design). These
+    typed descriptions are combo-SAFE — ``populate_chain_descriptions`` stamps
+    each chain its own per-drug description (paclitaxel keeps "mitotic arrest",
+    not its neighbor's). Endpoints with no typed description (compound/target/
+    endpoint/indication, marked ``node`` in EDGE_SPECS) fall back to the
+    post-merge node description, which is already canonical/combo-safe there."""
+    typed = {
+        "mechanism": "mechanism_description",
+        "biology": "biology_description",
+        "population": "population_description",
+    }.get(desc_source)
+    if typed:
+        d = (getattr(ch, typed, "") or "").strip()
+        if d:
+            return d
+    return _node_desc(g, node_id)
+
+
 def _chain_st_pairs(g, et, src_id, tgt_id) -> dict[str, list[tuple[str, str]]]:
-    """``nct -> [(s_desc, t_desc)]`` for the trials whose chains traverse this
-    edge. The (s,t) coordinate is the edge's source/target NODE descriptions
-    (read from the graph) — so every trial on the edge localizes at the same
-    concept point, which is combo-SAFE: the chain points to its per-drug nodes
-    (paclitaxel → "mitotic arrest"), so a combo arm's neighbor can't lend its
-    description. Replaces the prior per-arm A.0b lookup, which stamped a combo
-    arm's first-listed drug onto every chain in the arm (28% mis-attributed)."""
-    s_attr, t_attr, _s_src, _t_src = EDGE_SPECS[et]
-    s_desc, t_desc = _node_desc(g, src_id), _node_desc(g, tgt_id)
-    if not s_desc or not t_desc:
-        return {}
+    """``nct -> [distinct (s_desc, t_desc)]`` for trials whose chains traverse
+    this edge, each at its PRE-MERGE coordinate (see :func:`_desc_for`). A trial
+    with K distinct sub-coordinates on the edge contributes K anchors and its
+    record's ``n_eff`` is split K-ways upstream, so the field's marginal still
+    equals the scalar while distinct sub-edges stay separable for the decay
+    kernel. This restores localization: the prior version stamped the single
+    post-merge node description on every anchor, collapsing them to one point
+    (bandwidth perfectly inert)."""
+    s_attr, t_attr, s_src, t_src = EDGE_SPECS[et]
     out: dict[str, list[tuple[str, str]]] = {}
     for nct, ts in g.trial_subgraphs.items():
+        pairs: list[tuple[str, str]] = []
         for ch in ts.chains:
             if getattr(ch, s_attr) == src_id and getattr(ch, t_attr) == tgt_id:
-                out[nct] = [(s_desc, t_desc)]
-                break
+                s_desc = _desc_for(ch, src_id, s_src, g)
+                t_desc = _desc_for(ch, tgt_id, t_src, g)
+                if s_desc and t_desc and (s_desc, t_desc) not in pairs:
+                    pairs.append((s_desc, t_desc))
+        if pairs:
+            out[nct] = pairs
     return out
 
 
@@ -178,11 +205,22 @@ def materialize_field(
                 pairs = pairs_by_nct.get(ev.source_id) or ([node_pair] if node_pair else None)
                 if not pairs:
                     continue
-                n_eff = effective_n_for_evidence(
-                    ev.source_type, ev.quality_score, n_obs=ev.n_obs,
-                    edge_type=et.value,
-                )
-                p_obs = p_obs_for_bucket(SupportBucket(ev.support))
+                # Use the EXACT weights the scalar update applied (incl. the
+                # attributor's explaining-away split + redundancy discount),
+                # persisted on the record — NOT a nominal recompute, which would
+                # re-apply the contradiction the scalar self-protected against and
+                # over-penalize high-belief edges. Legacy records (no applied_*)
+                # fall back to the nominal recompute.
+                if ev.applied_n_eff is not None:
+                    n_eff = ev.applied_n_eff
+                    p_obs = (ev.applied_p_obs if ev.applied_p_obs is not None
+                             else p_obs_for_bucket(SupportBucket(ev.support)))
+                else:
+                    n_eff = effective_n_for_evidence(
+                        ev.source_type, ev.quality_score, n_obs=ev.n_obs,
+                        edge_type=et.value,
+                    )
+                    p_obs = p_obs_for_bucket(SupportBucket(ev.support))
                 share = n_eff / len(pairs)  # split keeps the field marginal == scalar
                 for s_desc, t_desc in pairs:
                     apply_virtual_evidence_local(
@@ -205,13 +243,15 @@ def materialize_field(
                 if sample is None and len(field.anchors) >= 2:
                     sample = (e["source_id"], e["target_id"], et, field)
 
-    root = private_root(create=True)
-    out = root / (Path(graph_path).stem + "_belief_field.json")
-    g.export_private_snapshot(str(out))
+    # The belief field is PUBLIC (open-core predictor): write it INTO the public
+    # annotated snapshot so prediction loads it with the graph — no private root,
+    # no detached field file. boundary.strip_private keeps belief_field; the anchor
+    # (s,t) vectors dedup into the snapshot's _belief_field_vectors table.
+    g.export_snapshot(graph_path)
     result: dict = {
         "edges_localized": edges_localized,
         "anchors_total": anchors_total,
-        "out": str(out),
+        "out": graph_path,
     }
     if sample is not None:
         sid, tid, et, field = sample
