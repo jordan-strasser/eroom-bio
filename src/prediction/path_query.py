@@ -20,6 +20,7 @@ from src.graph.models import (
     EdgeType,
     TrialOutcome,
 )
+from src.inference.beliefs import pool_hierarchical
 from src.graph.store import GraphStore
 
 logger = logging.getLogger(__name__)
@@ -374,11 +375,16 @@ def _resolve_responds_differently(
     """Most-specific *evidenced* ``responds_differently`` belief for a chain's
     population, walking the population hierarchy (specific → coarser ancestors).
 
-    Borrow-strength backoff: if the specific population's edge to this
-    indication carries no evidence, fall back to its coarser ancestor (e.g.
-    ``line_first__stage_iii`` → ``line_first``), which pools first-line evidence
-    across diseases. Returns ``(resolved_population_id, belief)`` or ``None``
-    when no level in the hierarchy has evidence."""
+    Borrow-strength backoff via hierarchical PARTIAL POOLING: the specific
+    population's belief is pooled with its coarser ancestors (e.g.
+    ``line_first__stage_iii`` ← ``line_first``), each coarser level acting as a
+    concentration-capped prior for the finer one. A sparse specific population is
+    dominated by a rich (capped) ancestor; a well-evidenced specific population
+    overrides it. Returns ``(most_specific_evidenced_population_id, pooled_belief)``
+    or ``None`` when no level in the hierarchy has evidence. (Earlier behavior
+    returned the FIRST evidenced level outright, so one specific trial shadowed a
+    cross-disease-pooled ancestor — see ``pool_hierarchical``.)"""
+    levels: list[tuple[str, EdgeBeliefState]] = []
     for ancestor in _population_ancestors(pop_id):
         try:
             belief = graph.get_edge_belief(
@@ -387,8 +393,11 @@ def _resolve_responds_differently(
         except KeyError:
             continue
         if belief.evidence_strength > 0.0:
-            return ancestor, belief
-    return None
+            levels.append((ancestor, belief))
+    if not levels:
+        return None
+    pooled = pool_hierarchical([b for _id, b in levels])
+    return levels[0][0], pooled
 
 
 def _indication_ancestors(
@@ -423,17 +432,27 @@ def _resolve_indication_edge(
 
     Phase-4 indication backoff (symmetric with the population backoff): with
     chains leaf-anchored, a sparse leaf (uveal_melanoma) borrows its parent's
-    (melanoma) cross-trial evidence — e.g. biology→melanoma when
-    biology→uveal_melanoma is unobserved. Returns (resolved_indication, belief)
-    or None."""
+    (melanoma) cross-trial evidence via hierarchical PARTIAL POOLING — each
+    coarser SUBTYPE_OF ancestor acts as a concentration-capped prior for the
+    finer level. When the leaf edge is unobserved the result is purely the
+    ancestor (full backoff); when the leaf is sparse-but-present it is shrunk
+    toward the (capped) parent rather than shadowing it; when the leaf is
+    well-evidenced it dominates. Returns ``(most_specific_evidenced_indication,
+    pooled_belief)`` or ``None``. (Earlier behavior returned the FIRST evidenced
+    level outright — one uveal_melanoma trial overrode the 50-trial melanoma
+    belief; see ``pool_hierarchical``.)"""
+    levels: list[tuple[str, EdgeBeliefState]] = []
     for ancestor in _indication_ancestors(graph, indication_id):
         try:
             belief = graph.get_edge_belief(src_id, ancestor, edge_type)
         except KeyError:
             continue
         if belief.evidence_strength > 0.0:
-            return ancestor, belief
-    return None
+            levels.append((ancestor, belief))
+    if not levels:
+        return None
+    pooled = pool_hierarchical([b for _id, b in levels])
+    return levels[0][0], pooled
 
 
 class EdgeContribution(BaseModel):

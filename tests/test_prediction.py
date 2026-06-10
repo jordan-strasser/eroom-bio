@@ -1156,3 +1156,35 @@ class TestIndicationBackoff:
         assert resolved is not None
         anc, belief = resolved
         assert anc == "melanoma" and belief.evidence_strength > 0
+
+    def test_sparse_present_leaf_pools_with_parent_not_shadows_it(self):
+        """The actual Phase-A bug: a leaf indication edge with a WHISPER of
+        evidence used to be returned outright, shadowing a rich parent. Now the
+        sparse leaf is pooled toward the parent. Mirrors the n=500
+        her2_positive_breast (≈empty) ← breast_cancer (strength 94) case."""
+        from src.graph.store import GraphStore
+        from src.graph.models import (
+            IndicationNode, BiologyNode, GraphEdge, EdgeType, EdgeBeliefState,
+        )
+        from src.prediction.path_query import _resolve_indication_edge
+        g = GraphStore()
+        for i in ("uveal_melanoma", "melanoma"):
+            g.add_node(IndicationNode(id=i, name=i))
+        g.add_node(BiologyNode(id="GO:0001525", name="angiogenesis"))
+        g.add_edge(GraphEdge(source_id="uveal_melanoma", target_id="melanoma",
+                             edge_type=EdgeType.SUBTYPE_OF))
+        # leaf PRESENT but sparse (mean ~0.6, strength ~0.5); parent rich (mean ~0.8)
+        leaf_b = EdgeBeliefState(alpha=1.3, beta=0.9)
+        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="uveal_melanoma",
+                             edge_type=EdgeType.BIOLOGY_DRIVES, belief=leaf_b))
+        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="melanoma",
+                             edge_type=EdgeType.BIOLOGY_DRIVES,
+                             belief=EdgeBeliefState(alpha=72, beta=20)))
+        anc, belief = _resolve_indication_edge(
+            g, "GO:0001525", "uveal_melanoma", EdgeType.BIOLOGY_DRIVES
+        )
+        # Resolved id is the most-specific evidenced level (the leaf)...
+        assert anc == "uveal_melanoma"
+        # ...but the belief is pulled toward the parent's ~0.78, NOT the leaf's raw mean.
+        assert belief.expected_probability > 0.7
+        assert belief.expected_probability > leaf_b.expected_probability + 0.1

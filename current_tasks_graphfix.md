@@ -308,6 +308,33 @@ evidence updates it (1 leaf trial barely moves a rich parent; 20 leaf trials dom
 Applies to indication + population NOW; prereq for any hierarchy backoff. Files:
 `src/prediction/path_query.py` (_resolve_indication_edge + population backoff),
 `src/inference/beliefs.py` (combine util). Cheap, testable w/o rebuild.
+
+### PHASE A RESULT (2026-06-10) — DONE; 1379 tests green; cross-indication borrow MEASURED
+Added `beliefs.pool_hierarchical` (+ `_cap_concentration`, `_POOL_PRIOR_STRENGTH=20` τ, env
+`EROOM_POOL_PRIOR_STRENGTH`): fixed-concentration hierarchical Beta-Binomial partial pooling.
+Coarsest evidenced level seeds the prior; each finer level updates a τ-CAPPED copy of the running
+pool with its own evidence mass (α−1, β−1). Both resolvers (`_resolve_indication_edge`,
+`_resolve_responds_differently`) now collect ALL evidenced levels and pool, returning
+(most-specific-evidenced-id, pooled_belief) instead of the first-evidenced level outright.
+- DISJOINTNESS verified: leaf-anchored chains attribute each trial to its leaf indication / own
+  population slug; SUBTYPE_OF + axis-subset parents are structural (roll-up deferred to predict) →
+  pooling does NOT double-count.
+- SELF-EXCLUSION: pooled belief carries the LEAF level's evidence (leaf enters UNCAPPED), so
+  `provenance._belief_excluding`'s delta-adjust removes a held-out trial's leaf contribution
+  EXACTLY while the capped ancestor mass is a constant prior offset. When the held-out trial is the
+  leaf's only evidence, self-excluding it now LEAVES the parent borrow (instead of dropping the
+  edge) → the honest holdout MEASURES cross-indication transfer. Fixed the 2 test_provenance
+  regressions this surfaced. Single-level pooling = exact no-op.
+- τ=20 calibrated by SCALE not holdout (n=500 parent biology_drives strength p90 ~22) — see
+  memory `tuning_pool_prior_strength`.
+- AUDIT (`scripts/backoff_pooling_diagnostic.py`, deterministic, no rebuild, multi_500_annotated):
+  128 firing indication pairs (biology_drives 73; +deeper ancestors & endpoint_captures = 128);
+  responds_differently 0 (all evidenced pop edges single-axis → population backoff inert NOW).
+  Prediction shift OLD leaf-only → NEW pooled: |Δmean| mean 0.048 / median 0.025 / p90 0.104 /
+  max 0.279; 45/128 > 0.05. her2_positive_breast 0.51→0.79, type_1_diabetes 0.49→0.70,
+  st_elevation_MI 0.54→0.35 (parent more pessimistic — correct). Full note:
+  `data/dev/phase_a_backoff_pooling_findings.md`. Honest AUROC delta → Phase C (needs rebuild).
+  Tests: `tests/test_beliefs.py::TestPoolHierarchical` (8) + resolver/self-exclusion regressions.
 **Phase B — mechanism = pathway fan-out (revert T4b identity, CLEAN).** In
 `populate._populate_trial_mechanisms`: mechanism node id = R-HSA pathway (from `_resolve_gene_pathways`
 CURATED membership + relevance floor), fan out one chain per pathway; stated action +

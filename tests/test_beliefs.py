@@ -15,6 +15,7 @@ from src.inference.beliefs import (
     flip_bucket,
     modulation_bucket,
     p_obs_for_bucket,
+    pool_hierarchical,
 )
 from src.graph.models import EvidenceDirection
 
@@ -307,3 +308,98 @@ class TestModulationBucket:
             amp = modulation_bucket("amplifies", conf)
             sup = modulation_bucket("suppresses", conf)
             assert flip_bucket(amp) == sup
+
+
+class TestPoolHierarchical:
+    """Fixed-concentration hierarchical Beta-Binomial partial pooling — the
+    cross-indication / cross-population backoff substrate (Phase A). A specific
+    (leaf) belief borrows strength from a coarser ancestor acting as a capped
+    prior; a well-evidenced leaf reclaims specificity."""
+
+    def test_empty_returns_none(self):
+        assert pool_hierarchical([]) is None
+
+    def test_single_level_is_unchanged(self):
+        b = EdgeBeliefState(alpha=8.0, beta=2.0)
+        pooled = pool_hierarchical([b])
+        assert pooled.alpha == 8.0 and pooled.beta == 2.0
+
+    def test_carries_leaf_evidence_for_faithful_self_exclusion(self):
+        """The pooled belief must carry the LEAF level's evidence records (not the
+        ancestor's), so provenance self-exclusion can linearly remove a held-out
+        trial's leaf contribution while the capped ancestor mass stays a constant
+        prior. Without this, backoff edges silently survive self-exclusion."""
+        from datetime import datetime, timezone
+        from src.graph.models import EvidenceRecord, EvidenceType
+
+        rec = EvidenceRecord(
+            source_id="NCT00000001",
+            source_type=EvidenceType.CLINICAL_PHASE3,
+            support=SupportBucket.STRONG_SUPPORT.value,
+            timestamp=datetime(2020, 1, 1, tzinfo=timezone.utc),
+        )
+        leaf = EdgeBeliefState(alpha=4.0, beta=2.0, evidence=[rec])
+        parent = EdgeBeliefState(alpha=70.0, beta=20.0)  # other-indication evidence
+        pooled = pool_hierarchical([leaf, parent], prior_strength=20.0)
+        assert pooled.evidence == [rec]  # leaf records carried, ancestor not unioned
+        # The ancestor mass is a real prior offset (strength grew past the leaf's).
+        assert pooled.evidence_strength > leaf.evidence_strength
+
+    def test_sparse_leaf_shrinks_toward_rich_parent(self):
+        """One whisper of leaf evidence barely moves a rich (capped) parent —
+        the her2_positive_breast (≈empty) ← breast_cancer (strength 94) case.
+        Before the fix the leaf shadowed the parent; now it borrows it."""
+        leaf = EdgeBeliefState(alpha=1.5, beta=1.0)      # strength ~0.5, mean 0.6
+        parent = EdgeBeliefState(alpha=75.0, beta=20.0)  # strength ~93, mean ~0.79
+        pooled = pool_hierarchical([leaf, parent], prior_strength=20.0)
+        # Pulled close to the parent's mean, NOT the leaf's raw mean.
+        assert abs(pooled.expected_probability - parent.expected_probability) < 0.05
+        assert pooled.expected_probability > leaf.expected_probability + 0.1
+
+    def test_rich_leaf_retains_specificity_over_weak_parent(self):
+        """A well-evidenced leaf (rheumatoid_arthritis, strength 16) is not
+        dragged back to a weak arthritis parent (strength 1)."""
+        leaf = EdgeBeliefState(alpha=14.0, beta=4.0)     # strength 16, mean ~0.78
+        parent = EdgeBeliefState(alpha=1.6, beta=1.4)    # strength 1, mean ~0.53
+        pooled = pool_hierarchical([leaf, parent], prior_strength=20.0)
+        assert abs(pooled.expected_probability - leaf.expected_probability) < 0.05
+
+    def test_parent_prior_is_capped(self):
+        """A huge parent cannot steamroll a moderately-evidenced leaf forever —
+        beyond ~prior_strength of its own evidence, the leaf dominates."""
+        # leaf: ~30 obs at mean 0.4; parent: 400 obs at mean 0.9
+        leaf = EdgeBeliefState(alpha=13.0, beta=19.0)
+        parent = EdgeBeliefState(alpha=360.0, beta=40.0)
+        capped = pool_hierarchical([leaf, parent], prior_strength=20.0)
+        # With the cap the leaf (30 own obs) outweighs the 20-capped parent,
+        # pulling the blend well below the parent's 0.9 (≈0.6 precision-weighted).
+        assert capped.expected_probability < 0.7
+        # Without a cap (huge prior_strength) the parent dominates instead —
+        # proves the cap is what lets specificity win.
+        uncapped = pool_hierarchical([leaf, parent], prior_strength=10_000.0)
+        assert uncapped.expected_probability > 0.82
+
+    def test_more_leaf_evidence_monotonically_shifts_toward_leaf(self):
+        """As the leaf accumulates its own evidence, the pooled mean moves
+        monotonically from the parent's mean toward the leaf's mean."""
+        parent = EdgeBeliefState(alpha=40.0, beta=10.0)  # mean 0.8
+        prev = None
+        for n in (1, 5, 20, 100):
+            leaf = EdgeBeliefState(alpha=1.0 + 0.3 * n, beta=1.0 + 0.7 * n)  # mean→0.3
+            pooled = pool_hierarchical([leaf, parent], prior_strength=20.0)
+            if prev is not None:
+                assert pooled.expected_probability <= prev + 1e-9
+            prev = pooled.expected_probability
+
+    def test_env_override_changes_cap(self, monkeypatch):
+        # Leaf leans LOW (mean 0.25, 6 own obs); parent leans high (mean 0.9).
+        leaf = EdgeBeliefState(alpha=2.0, beta=6.0)
+        parent = EdgeBeliefState(alpha=90.0, beta=10.0)
+        monkeypatch.setenv("EROOM_POOL_PRIOR_STRENGTH", "2.0")
+        tight = pool_hierarchical([leaf, parent])
+        monkeypatch.setenv("EROOM_POOL_PRIOR_STRENGTH", "200.0")
+        loose = pool_hierarchical([leaf, parent])
+        # A looser (larger) cap lets more of the rich high-mean parent through,
+        # so the low-leaning leaf is overridden and the blend sits higher; a
+        # tight cap lets the leaf pull it down.
+        assert loose.expected_probability > tight.expected_probability + 0.2

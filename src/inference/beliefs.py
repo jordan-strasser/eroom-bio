@@ -443,6 +443,101 @@ def modulation_bucket(
     return SupportBucket.AMBIGUOUS
 
 
+# ── Hierarchical partial pooling (cross-indication / cross-population backoff) ──
+#
+# A specific (leaf) edge belief borrows strength from its coarser ancestor: the
+# ancestor acts as a PRIOR whose concentration is capped at ``prior_strength``
+# virtual observations, preserving its mean. So a sparse leaf is dominated by a
+# rich-but-capped parent (the backoff borrows cross-trial / cross-INDICATION
+# evidence — the literal north-star: a mechanism learned in melanoma informs
+# uveal_melanoma), while a leaf that amasses ≳ prior_strength of its OWN evidence
+# overrides the parent (specificity is reclaimed once earned). The cap encodes
+# that a broader population is only a PROXY for the specific edge — its transfer
+# credit saturates regardless of how many trials it pooled, so one HER2+ trial
+# can't be steamrolled forever by a 94-strength breast_cancer parent, and a
+# 16-strength rheumatoid_arthritis leaf isn't dragged back to a weak arthritis
+# parent.
+#
+# Hierarchy levels are DISJOINT in evidence (each trial is attributed to its leaf
+# indication / own population slug; SUBTYPE_OF / axis-subset parents exist for
+# structure, with roll-up deferred to here), so summing evidence across levels
+# does not double-count. This is fixed-concentration hierarchical Beta-Binomial
+# partial pooling.
+#
+# ``prior_strength`` (τ) defaults to 20 — ≈ the p90 of observed n=500 parent-edge
+# strengths, so the cap bites only the richest proxies, not the typical one. It
+# is calibrated by the evidence-strength SCALE, NOT tuned against any holdout
+# AUROC, and is env-overridable (``EROOM_POOL_PRIOR_STRENGTH``) for sweeps. See
+# /tuning-log.
+_POOL_PRIOR_STRENGTH = 20.0
+
+
+def _pool_prior_strength() -> float:
+    raw = os.environ.get("EROOM_POOL_PRIOR_STRENGTH", "").strip()
+    if not raw:
+        return _POOL_PRIOR_STRENGTH
+    try:
+        val = float(raw)
+    except ValueError:
+        return _POOL_PRIOR_STRENGTH
+    return val if val >= 0.0 else _POOL_PRIOR_STRENGTH
+
+
+def _cap_concentration(
+    alpha: float, beta: float, cap: float
+) -> tuple[float, float]:
+    """Scale ``(alpha, beta)`` down to total concentration ``cap`` (preserving the
+    mean) when it exceeds ``cap``; otherwise return it unchanged. Bounds a parent
+    belief's influence when it stands in as a prior for a finer level."""
+    conc = alpha + beta
+    if conc <= cap or conc <= 0.0:
+        return alpha, beta
+    scale = cap / conc
+    return alpha * scale, beta * scale
+
+
+def pool_hierarchical(
+    beliefs_specific_to_general: list[EdgeBeliefState],
+    *,
+    prior_strength: float | None = None,
+) -> EdgeBeliefState | None:
+    """Partial-pool an edge belief with its coarser-ancestor beliefs.
+
+    ``beliefs_specific_to_general`` lists the EVIDENCED hierarchy levels
+    most-specific first (the order ``_indication_ancestors`` /
+    ``_population_ancestors`` yield), filtered to those carrying evidence. The
+    coarsest level seeds the running pool; each finer level then updates a
+    concentration-capped copy of that pool with its OWN evidence mass (``α−1``,
+    ``β−1`` beyond the Beta(1,1) base).
+
+    The returned belief carries the MOST-SPECIFIC (leaf) level's ``evidence``
+    records, not the union. This is exactly what makes self-exclusion faithful:
+    the leaf enters the pool UNCAPPED, so the held-out trial's leaf records are
+    linearly removable by ``provenance._belief_excluding``'s delta-adjust, while
+    the (capped) ancestor mass is a constant prior offset. When the held-out
+    trial is the leaf's only evidence, self-excluding it leaves that capped
+    ancestor prior — so the honest holdout MEASURES cross-indication transfer
+    (does the parent's evidence predict the leaf trial?) rather than dropping the
+    edge. Single-level pooling is therefore an exact no-op (same α, β, evidence,
+    field as the input). Returns ``None`` for an empty input.
+    """
+    if not beliefs_specific_to_general:
+        return None
+    leaf = beliefs_specific_to_general[0]
+    cap = _pool_prior_strength() if prior_strength is None else prior_strength
+    levels = list(reversed(beliefs_specific_to_general))  # general → specific
+    alpha, beta = levels[0].alpha, levels[0].beta
+    for belief in levels[1:]:
+        prior_a, prior_b = _cap_concentration(alpha, beta, cap)
+        own_a = max(0.0, belief.alpha - 1.0)
+        own_b = max(0.0, belief.beta - 1.0)
+        alpha, beta = prior_a + own_a, prior_b + own_b
+    return EdgeBeliefState(
+        alpha=alpha, beta=beta,
+        evidence=leaf.evidence, belief_field=leaf.belief_field,
+    )
+
+
 def apply_virtual_evidence(
     belief: EdgeBeliefState,
     *,
