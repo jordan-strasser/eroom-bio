@@ -341,6 +341,30 @@ CURATED membership + relevance floor), fan out one chain per pathway; stated act
 MechanismCategory → node metadata. Merge cfg: MechanismNode → id-merge only (REMOVE from BioLORD/
 SapBERT tiers in `populate_bottomup` MergeConfig). Re-instrument; rebuild. Migrate tests
 (the 5 T4b description-identity tests flip back toward pathway-identity + metadata-action).
+
+### PHASE B RESULT (2026-06-10) — DONE; committed `991a25b` + `ade0fac`; 1381 tests green
+Implemented exactly as specced. `_populate_trial_mechanisms` fans out one MechanismNode +
+one chain per curated Reactome/GO pathway (id = stable_id; `_resolve_gene_pathways` re-rank
+ORDERS the fan-out instead of picking one; GO relevance floor active). `_ensure_mechanism`
+accumulates stated action + category as node metadata (`stated_actions` /
+`mechanism_categories`). MergeConfig: MechanismNode → id-merge only (removed from BioLORD).
+Tests: `git checkout 10a622f^ -- tests/test_populate.py` restored the 5 pathway-identity tests
+(T4b only touched those; nothing since), updated the merge-tier test for id-only, added a
+metadata-accumulation test. Model docstring refreshed.
+- AUDIT (phaseb_n50, 50 trials multi_500 head): 50→500 chains (fan-out); 148/155 mech nodes are
+  real R-HSA/GO pathways (7 enum-slug fallback, inflated by 26 Reactome rate-limit failures);
+  17 pathways converge across ≥2 targets (RAF/MAP, PI3K/AKT, DNA replication); cross-trial
+  pooling works (RAF/MAP referenced by 4 trials → 1 node). `test_shared_pathway_is_unambiguous`
+  confirms EGFR(inhibitor)+IL2RA(agonist) → 1 RAF/MAP node, drug-agnostic, per-drug direction.
+- HONEST: mechanism→biology evidence/edge **2.77** (fan-out) vs **3.06** (t4b_n50 ref, n=37) —
+  does NOT reproduce the memory's predicted 3.07-vs-1.02 pooling gap (different trial sets +
+  metric counts LINCS/DB records). The fan-out's value is cross-target SHARING; whether it LIFTS
+  prediction is **Phase C** (learning curve was FLAT — MEASURE, don't assume). Full note:
+  `data/dev/phase_b_pathway_fanout_findings.md`.
+- BUG FOUND + FIXED (`ade0fac`): 2/155 mech nodes kept `#NCT` scope — Option 2's R-HSA namespace
+  collides with the BiologyNode Reactome fallback; a transient orphan biology node blocked
+  `_canonicalize_ids` then got pruned. Fix: prune orphan biology BEFORE canonicalize in
+  `build_bottomup`. Regression test + source-order guard.
 **Phase C — predictor credit-assignment over the fan-out + MEASURE.** softmin/aggregate over the
 fan-out's pathway→biology edges (marginalize over multiple pathways for the PRODUCT). Measure
 holdout AUROC + learning curve clean-vs-noisy: did the fan-out accumulation LIFT prediction?
@@ -349,6 +373,22 @@ actually sort them — MEASURE, don't assume.)
 NOTE new prediction math + identity change = architecture-level (CLAUDE.md): branch + green +
 rebuild before merge. T4b committed `10a622f`. Same-corpus noisy-vs-clean comparison DONE
 (mechanism_affects evidence/edge: noisy fan-out 3.07/max23 vs clean-T4b 1.02/max2).
+
+### PHASE C measure-first RESULT (2026-06-10) — marginalize NOT needed; honest AUROC + curve remain
+`predict_clinical_hypothesis` returns the `min` overall_probability over a compound's stated chains.
+The fan-out makes that a min over MANY pathway-chains (mean 11.3/trial, max 49), so the Phase-C
+hypothesis was "min penalizes broad footprints → marginalize over pathways." MEASURED first
+(`scripts/phasec_aggregation_diagnostic.py`, phaseb_n50b, 33 trials, IN-SAMPLE so relative ranking
+is the signal): **min 0.952 > mean 0.913 > median 0.861 > max 0.826 > best_evid 0.817**. `min` is
+the BEST separator; every marginalization alternative is WORSE (a failing trial reliably has ≥1 weak
+pathway-chain `min` catches). **DECISION: keep `min`; do NOT implement the speculative marginalize
+change** (committed `d38efd1` diagnostic; finding `data/dev/phase_c_aggregation_findings.md`).
+REMAINING (heavy compute, focused follow-up): (1) HONEST out-of-sample AUROC via an
+exclude-from-attribution / kfold re-attribution fan-out build (the n=50 number is in-sample),
+compared to the historical ~0.567 kfold / ~0.51 forward; (2) learning curve clean-vs-noisy across
+n=10/50/100/250/500 (prior FLAT n=5→472 — MEASURE). GOTCHAS: `--keep-annotations` loads cache (0
+re-extract cost); NCT00282308 has corrupt cache (non-fatal skip); merged-graph chains can reference
+pruned compound nodes → `engine.predict` KeyError (skip).
 
 ## TASK 5 — Full merge verification: generalized noise checker (owner: VERIFY, don't assume) ⭐
 The 4a/AE SapBERT tiers (Indication / Population / Endpoint / **AdverseEvent**, added
