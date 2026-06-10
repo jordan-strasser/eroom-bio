@@ -232,21 +232,26 @@ async def build_bottomup(
         enable_id=True, enable_name_id=False,
         # Merge-tier redesign (T4): the embedding model matches what the node IS.
         # BioLORD (definition/DESCRIPTION embedder) for the description nodes —
-        # Mechanism + Biology (action/process phrases). SapBERT (biomedical
-        # ENTITY-LINKER / UMLS synonym normalization) for the clinical ENTITY nodes
-        # — Indication, Population, Endpoint (standardizes "NSCLC"≡"non-small-cell
-        # lung cancer" while keeping breast≠ovarian, which BioLORD would conflate).
-        # The old SapBERT-on-mechanism-pathway-NAME over-merged 65% of multi-desc
-        # nodes (scripts/instrument_mechanism_merge.py); mechanism identity is moving
-        # to its DESCRIPTION (T4b, see populate._ensure_mechanism). Sibling
-        # over-merge (PD-1 vs CTLA4 blockade) is acceptable here — the TARGET node
-        # separates them upstream; tune biolord_threshold if it over-pools.
+        # Biology (process phrases). SapBERT (biomedical ENTITY-LINKER / UMLS
+        # synonym normalization) for the clinical ENTITY nodes — Indication,
+        # Population, Endpoint (standardizes "NSCLC"≡"non-small-cell lung cancer"
+        # while keeping breast≠ovarian, which BioLORD would conflate).
+        #
+        # MechanismNode is INTENTIONALLY in NEITHER geometric tier — it merges by
+        # ID only (Option 2). A mechanism node IS a curated Reactome pathway the
+        # target gene drives (id = R-HSA / GO stable_id), fanned out one chain per
+        # pathway in populate._populate_trial_mechanisms. Shared pathways across
+        # targets (EGFR+BRAF+MEK → the SAME RAF/MAP-cascade stable_id) collapse
+        # DETERMINISTICALLY at the Tier-1 id merge — that shared edge is the
+        # cross-trial credit-assignment substrate. SapBERT-on-pathway-NAME
+        # over-merged 65-72% (T3) and BioLORD-on-name has the same failure mode;
+        # the id IS the canonical key, so no embedding merge is needed or wanted.
         enable_sapbert=True,
         sapbert_node_types=(
             "IndicationNode", "PopulationNode", "EndpointNode", "AdverseEventNode",
         ),
         enable_biolord=True,
-        biolord_node_types=("MechanismNode", "BiologyNode"),
+        biolord_node_types=("BiologyNode",),
     )
     # Incremental: restrict the O(n²) geometric tiers to pairs touching a just-added
     # node (existing↔existing are already merged) — O(new × total), not O(total²).
