@@ -1,0 +1,249 @@
+# Current graph-fix tasks (2026-06-09) — compaction-proof handoff
+
+Purpose: durable task list so a fresh/compacted session can pick up the
+graph-fundamentals work. Branch **`fix/st-field-faithfulness`**. North-star lens:
+the n=10→N AUROC should rise; if not, it localizes to one of the 6 causes
+(ingestion / data→node mapping / per-trial edge-assignment / **merging** /
+graph structure / predictor query). The work below targets **merging (#4)** and
+**per-trial edge-assignment (#3)** — the two most likely roots of current noise.
+
+## Session status snapshot
+- **Committed `db4736f`** (branch `fix/st-field-faithfulness`, 1370 tests green):
+  Bug B (`applied_n_eff` persistence → field/LOO replay faithful, affects gap
+  118→0), #2 pre-merge-coordinate (s,t) localization, **field→PUBLIC** (open-core),
+  bottom-up merge **batch-encoder** perf fix (n=500 merge no longer hangs).
+- **#1 line-of-therapy**: diagnosed INERT (structured re-test); no cosmetic fix.
+- **Running in background**: full n=500 rebuild (`build_graph --corpus multi_500
+  --area multi_500 --max-trials 500 --keep-annotations`) to restore the clobbered
+  `multi_500_annotated.json` + get the comparable faithful-field AUROC. Populate
+  is network-bound (~460/497 when this was written). NOTE the build gotcha:
+  `--max-trials` defaults to **10** — always pass `--max-trials 500`.
+- **Re-attribution harness**: `data/exports/neff100_initial.json` is the n=100
+  **merged, pre-attribution** graph (0 applied_attribution_trial_ids, DB-only edge
+  evidence). It can be re-attributed N ways cheaply (no re-populate/re-merge) via
+  `attributor._main(annotations_dir, graph_path, output_path, ...)`.
+
+---
+
+## TASK 1 — Merge faithfulness fixes (CONFIRMED bugs; START HERE) ⭐
+Edge merge lives in `node_merge._merge_belief_data` → `biology_merge._replay_belief`
+(`src/graph/biology_merge.py:177-187`) + `_merge_belief_data` (node_merge.py ~329 /
+biology_merge ~190) + `_redirect_edges` (node_merge ~362). Three confirmed defects:
+
+**1a. Dedup over-counts replicated DATABASE facts.** Dedup key is
+`(source_id, timestamp)`. Each trial resolved in isolation (bottom-up Phase 1)
+stamps its OWN copy of an OT/DB fact with its OWN `datetime.now()`, so copies have
+DIFFERENT timestamps → NOT deduped. CONFIRMED on `neff100_initial`:
+`paclitaxel → ENSG00000188229` = Beta(80.8, 5.2), E[p]=0.940, from **7 records all
+`opentargets:CHEMBL428647`** (7 timestamps, 1 source). One binding fact (n_eff 12,
+p_obs 0.95) should give Beta(12.4,1.6) E[p]≈0.886; replicated 7× → E[p] 0.94 with
+evidence_strength ~85 vs ~14 — spuriously near-certain. **The more trials reference
+a compound, the more its `affects` belief inflates** → this is the handoff's
+unexplained "affects beliefs uniformly ~0.9, undifferentiated" = SATURATION, and
+it's REPLICATION not biology. (`placebo→target` rows compound this with the
+wrong-ChEMBL mis-resolution, CHEMBL521=ibuprofen on placebo → 24 copies.)
+
+**1b. `_replay_belief` re-derives with NOMINAL n_eff only.** It calls
+`effective_n_for_evidence(source_type, quality_score)` and `BUCKET_TO_P_OBS[support]`
+— dropping (a) **`applied_n_eff`** (the explaining-away split — THIRD instance of
+Bug B, missed when fixing the field+LOO paths), (b) **`n_obs`/√N precision**, (c)
+the **redundancy/cluster discount** (the exact mechanism meant to stop 1a — never
+called). Consequences: fresh build (merge is PRE-attribution → DB-only) gets the 1a
+over-count; **re-merge over ATTRIBUTED beliefs** (incremental `--add-trials`,
+`biology_merge` on an existing graph, `assemble_v2 --merge`) re-derives the
+trial-outcome records nominally too → **UNDOES explaining-away self-protection**.
+Latent now (fresh builds), bites the moment the n→N loop goes incremental.
+
+**1c. Dedup key is type-wrong.** Idempotent DB facts SHOULD collapse to one;
+per-arm trial-outcome records (same NCT, maybe same timestamp) must NOT — but the
+`(source_id, timestamp)` key does the opposite on both.
+
+### Fix plan (cheapest first)
+1. **Content-dedup idempotent DB records at merge**: key DATABASE_* records by
+   `(source_id, support, edge)` WITHOUT timestamp so replicas collapse to one; keep
+   CLINICAL/trial records keyed to include `arm_id` (context["arm_id"]) so distinct
+   arms survive. In `_merge_belief_data` (biology_merge ~190 + node_merge ~329).
+2. **Make `_replay_belief` faithful**: use a shared `applied_weights(record)` helper
+   (prefers `applied_n_eff`/`applied_p_obs`, else nominal) + apply `redundancy_factor`
+   over the deduped set. Fixes both the over-count AND the explaining-away-undo, and
+   FINISHES Bug B (its 4th replay site). `src/inference/beliefs.py` already has the
+   building blocks; consider adding `applied_weights` there and reusing in
+   `provenance._replay_records`, `holdout_thesis_analysis`, `materialize_belief_field`.
+3. **[Architectural, later]** Attach DB/molecular facts to the canonical edge ONCE
+   (a property of the (compound,target) pair), separating the molecular manifold from
+   the outcome manifold.
+
+### Measurement
+Re-attribute (or re-merge) `neff100`, expect `affects` E[p] ~0.94 → ~0.87 and —
+more important — **regain SPREAD across compounds (de-saturation)**. Then LOO/forward
+AUROC delta. Tools: `scripts/compound_target_merge_audit.py`, `scalar_vs_field_auroc.py`.
+
+Files: `src/graph/biology_merge.py`, `src/graph/node_merge.py`, `src/inference/beliefs.py`.
+
+### T1 RESULT (2026-06-10) — DONE + 1370 tests green; hypothesis partly WRONG
+Implemented: `beliefs.applied_weights()` helper; `_replay_belief` uses it (4th Bug-B
+site faithful); `_evidence_dedup_key = (source_id, support, arm_id)` content-dedup in
+BOTH `_merge_belief_data` (biology_merge + node_merge). Verified on neff100:
+paclitaxel→ENSG **7→1** records, E[p] 0.940→0.886, **evidence_strength 86→14**;
+placebo 24→1, strength 290→14. **BUT de-saturation hypothesis was WRONG**: affects
+E[p] MEAN 0.727→0.721 (barely moves), std 0.164→0.159 (slightly DROPS). The over-count
+inflated CONFIDENCE, not the MEAN — one OT binding (p_obs 0.95) already gives E[p]
+0.886, so `affects` is inherently ~0.89 (validated-target ≠ trial-success ceiling).
+Real value: correctness; **LEARNABILITY** (over-counted Beta(290,15) edges were FROZEN
+to new evidence → likely contributor to the flat learning curve #3); faithful
+explaining-away on re-merge/incremental; removes spurious popularity-correlated spread.
+NOT the static-AUROC lever. OPEN: does un-freezing edges lift the LEARNING CURVE?
+(rebuild + `scripts/evidence_learning_curve.py`). NOTE: the running n=500 build predates
+this fix → its graph still over-counts (minor); a T1-clean rebuild would be needed to
+test the learning-curve hypothesis.
+
+---
+
+## TASK 2 — Per-edge success/failure update-math experimentation
+Site: `attributor._condition_chain_on_outcomes` (`src/annotation/attributor.py`
+~820-878). Current (asymmetric): SUCCESS conjunctive → every edge `frac=1.0` at
+`p_obs=0.80`; FAILURE/PARTIAL → explaining-away `frac_i=(1-E[p_i])/Σ` at
+`p_obs=0.20/0.35`. Weight `n_eff_i = w_base·frac_i`, `w_base =
+effective_n_for_evidence(phase,quality) × f_N(√N from n_obs) × gate_weight`.
+
+**2a. Symmetry experiment** (owner wants to SEE how it changes the graph). Add env
+flag `EROOM_EDGE_ATTR` with modes: `explain_away` (default, current) |
+`symmetric_full` (every edge full w_base both directions = pure per-edge frequency) |
+`symmetric_uniform` (split 1/L both directions) | `symmetric_explain` (explaining-away
+weighting for BOTH success and failure). Re-attribute `neff100_initial` each mode,
+compare resultant edge-belief distributions (mean, SPREAD/differentiation) + LOO
+softmin AUROC. The asymmetry rationale = conjunctive noisy-AND (success ⟹ all links
+true; failure ⟹ ≥1 weak, unknown which) — principled but worth testing vs symmetric.
+
+**2b. Incorporate effect_size + p_value into the weights (owner: "def need this").**
+Today `effect_size`/`p_value` are RECORDED on the EvidenceRecord but the BACKBONE
+update uses only the coarse 3-way outcome → fixed `p_obs` (0.80/0.35/0.20); `n_eff`
+uses sample size (f_N) but not effect/p. PARTIAL machinery already exists:
+`_hr_support_bucket` (attributor ~380) maps HR + CI → support bucket with a
+significance gate (CI spanning 1.0 → AMBIGUOUS), and `_ae_support_bucket` for AEs.
+EXTEND it: effect MAGNITUDE → finer support bucket / continuous p_obs (large-effect
+success → STRONG_SUPPORT 0.95; marginal → WEAK 0.65); p_value/precision → n_eff
+scaling. CAVEAT: needs sign/direction normalization (HR<1 good for survival, OR>1
+good for response, etc.) — the extractor's effect_size isn't consistently normalized.
+
+Files: `src/annotation/attributor.py`, `src/inference/beliefs.py` (BUCKET_TO_P_OBS,
+effective_n_for_evidence). Harness: `attributor._main` on copies of
+`neff100_initial.json` per mode → compare.
+
+---
+
+## TASK 3 — Instrument the merge (MechanismNode chain-description divergence)
+Quantify the #2 (mapping) + #4 (merge) noise directly. SapBERT-NAME cosine merges
+MechanismNodes (config: `enable_sapbert`, `sapbert_node_types=("MechanismNode",)`);
+the Reactome pathway-ranker LABELS them. Observed noise: chains with
+`mechanism_description="DNA cross-linking"` sit on node `R-HSA-512988` labeled
+"receptor agonism".
+
+Build `scripts/instrument_mechanism_merge.py`: for each MechanismNode, dump
+{node id, node name/description (the Reactome label), set of DISTINCT chain
+`mechanism_description`s that landed on it (from `graph.trial_subgraphs[*].chains`
+where `chain.mechanism_id == node`), count}. Then quantify:
+- **Over-merge**: nodes carrying ≥2 SEMANTICALLY DISTINCT chain-descriptions
+  (BioLORD cosine between chain-descs low) → SapBERT-name merged unlike things.
+- **Under-merge**: the same/near chain-description split across multiple nodes.
+- **Label divergence**: cosine(node description, chain descriptions) — how often the
+  canonical Reactome label diverges from the trial's stated mechanism.
+Output a ranked report + summary rates. (Also worth: same instrument for BiologyNode
+[BioLORD-description merge] and a check of whether Population/Indication SHOULD use
+geometric merge — current recommendation: NO by default, over-merge risk: sibling
+diseases / adjacent axis levels are cosine-close; measure fragmentation first.)
+
+Files: read `data/exports/<area>_annotated.json` + trial_subgraphs; new script.
+
+### T3 RESULT (2026-06-10) — DONE; MAJOR FINDING (likely the dominant AUROC noise)
+`scripts/instrument_mechanism_merge.py` on neff100. **MechanismNode merge is BROKEN;
+BiologyNode is CLEAN — the contrast names the fix.**
+- MECHANISM (SapBERT on pathway NAME): 244 nodes, 81 multi-desc. OVER-MERGE **53/81
+  (65%)** min intra-node cosine <0.5 — e.g. `R-HSA-416476 "G alpha (q) signalling"`
+  carries "B-cell depletion" + "HDL elevation via niacin" + "beta-adrenergic blockade"
+  + "calcium sensitization". UNDER-MERGE: **"receptor antagonism" on 33 nodes**,
+  "enzyme inhibition" 29, "microtubule stabilization" 26, "kinase inhibition" 26,
+  "DNA synthesis inhibition" 25. The mechanism nodes are garbage buckets.
+- BIOLOGY (BioLORD on DESCRIPTION): 67 nodes, 10 multi-desc, only 2/10 borderline
+  over-merge; label-divergence mean **0.967**; merges PARAPHRASES correctly
+  ("incretin hormone regulation"≈"...stabilization" 0.89).
+- ROOT: mechanism IDENTITY = the noisy Reactome/GO **pathway-ranker** (same desc →
+  different pathways = under-merge; distinct desc → same generic pathway = over-merge)
+  + merge via SapBERT on the GENERIC pathway NAME. Biology uses the trial's
+  DESCRIPTION embedding for identity+merge → clean.
+- **FIX (high priority, likely biggest lever found): make MechanismNode like
+  BiologyNode** — identity + merge by the trial's mechanism DESCRIPTION embedding
+  (tuned threshold to keep PD-1-blockade ≠ CTLA4-blockade), with Reactome/GO as
+  METADATA only, not identity. `mechanism_affects` + `modulates_via` are built on
+  these garbage nodes → explains flat chain AUROC; the (s,t) field helping
+  `modulates_via` confirms it's routing around the wrong node identity.
+  CONFIRMED AT n=500 (multi_500): OVER-MERGE **193/268 (72%)** — WORSE than n=100's
+  65%; `R-HSA-416476 "G alpha (q) signalling"` carries **37** distinct mechanisms;
+  "enzyme inhibition" on **71 nodes**, "kinase inhibition" 67. The mechanism noise
+  GROWS with n (relevant to the n→N AUROC-rise diagnostic — it's actively dragging).
+  Files: `src/graph/pathway_ranker.py` (the ranker), `src/graph/populate*.py`
+  (mechanism node id assignment), `src/graph/node_merge.py` (cfg:
+  sapbert_node_types MechanismNode → switch to description-embedding tier).
+
+---
+
+## TASK 4 — Merge-tier redesign by node semantics (owner-directed, HIGH leverage) ⭐
+Principle (owner): embedding model should match what the node IS. SapBERT = biomedical
+ENTITY-LINKER (UMLS synonym normalization); BioLORD = definition/DESCRIPTION embedder.
+Current `MergeConfig` (populate_bottomup ~230): `sapbert_node_types=("MechanismNode",)`,
+`biolord_node_types=("BiologyNode",)`, everything else id-only. T3 proved this is
+backwards for mechanism. Redesign:
+
+| node | identity | geometric merge |
+|---|---|---|
+| Compound | ChEMBL id | id/chembl |
+| Target | Ensembl/gene id | id |
+| Indication | id | **SapBERT** (disease synonyms; entity-linker keeps breast≠ovarian) |
+| Population | axes id | **SapBERT** |
+| Endpoint | id | **SapBERT** (endpoint-term synonyms; also helps the over-collapse) |
+| **Mechanism** | **→ DESCRIPTION content-address** (revert pathway-identity) | **BioLORD** |
+| Biology | description | BioLORD (already correct) |
+
+### 4a. Config change (lower risk): MergeConfig in `populate_bottomup` ~230 →
+`biolord_node_types=("MechanismNode","BiologyNode")`,
+`sapbert_node_types=("IndicationNode","PopulationNode","EndpointNode")`. Needs a
+rebuild to take effect. NOTE: mechanism BioLORD-merge is only effective WITH 4b (the
+node description must BE the trial's mechanism, not the pathway desc).
+
+### 4b. Mechanism identity flip (the real fix; bigger, test-heavy):
+`populate._ensure_mechanism` (~2672) currently sets MechanismNode id+name = the
+Reactome pathway (from `_resolve_gene_pathways` + pathway_ranker), fanning out ONE
+chain per pathway (~2743). The content-address fn `_mechanism_id_from_description`
+(populate:654) is SUPERSEDED but kept. FLIP: id = `_mechanism_id_from_description(desc)`,
+name/description = the trial's mechanism_description, Reactome pathway → node.metadata
+(interpretability only). Collapses the pathway fan-out to one mechanism per stated
+action (matches the stated-chain eval, removes the over-merge). BROAD test impact
+(many tests assert R-HSA mechanism ids) + needs rebuild + re-instrument
+(`scripts/instrument_mechanism_merge.py`) to confirm over-merge 65%→low.
+Files: `src/graph/populate.py` (_ensure_mechanism, the gene-pathway fan-out,
+mechanism node creation), `src/graph/pathway_ranker.py` (demote to metadata),
+`src/graph/node_merge.py` cfg.
+BioLORD-vs-SapBERT for mechanism (owner): BioLORD — descriptions are the substrate;
+sibling over-merge (PD-1 vs CTLA4 blockade) is mitigated because the TARGET node already
+separates them upstream + a tuned biolord_threshold.
+
+## Deferred / context threads (don't lose)
+- **n=500 field measurement**: when the rebuild finishes, run
+  `scalar_vs_field_auroc --graph multi_500_annotated.json --field multi_500_annotated.json
+  --bandwidth 0.25` (field is now IN the public snapshot). Compare to pre-Bug-B
+  (softmin 0.648/field 0.550). Expect field ≈ scalar (faithful), modulates_via +~0.16.
+- **Populations/indications geometric merge** (owner question): recommend NOT by
+  default (over-merge risk); the id+EFO-SUBTYPE_OF-hierarchy backoff is safer.
+  Measure synonym fragmentation first (Task 3 extension).
+- **Prediction architecture** (discussed, not yet actioned): topology-completion for
+  bare hypotheses is greedy-argmax (fragile to one strong-wrong edge) — marginalize
+  over paths for the PRODUCT; not in the current holdout eval (which uses stated
+  chains, so it doesn't pin current AUROC). MC sampling is for CI + non-linear softmin
+  uncertainty propagation — principled, second-order for AUROC.
+
+## Reproduction quick-refs
+- venv: `source .venv/bin/activate`
+- merge over-count check: load `data/exports/neff100_initial.json`, inspect an
+  `affects` edge's evidence records (same source_id × N timestamps).
+- re-attribute a mode: copy `neff100_initial.json` → tmp, `EROOM_EDGE_ATTR=<mode>`,
+  run `python -m scripts.build_graph`-style attribution OR `attributor._main`.

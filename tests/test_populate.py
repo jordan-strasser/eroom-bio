@@ -3319,18 +3319,18 @@ async def test_mechanism_falls_back_to_enum_slug_without_resolvable_pathway(tmp_
 
 
 def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
-    """Phase C merge wiring: the default bottom-up MergeConfig routes
-    MechanismNode through the SapBERT precision tier (content-address action
-    siblings like PD-1- vs CTLA4-blockade have BioLORD cosine ≈ 1.0 and would
-    over-merge), while BiologyNode stays on the BioLORD semantic tier."""
+    """Merge-tier redesign (T4): the default bottom-up MergeConfig routes the
+    DESCRIPTION nodes (Mechanism + Biology) through BioLORD and the clinical ENTITY
+    nodes (Indication + Population + Endpoint) through the SapBERT entity-linker —
+    the embedding matches what the node is."""
     import inspect
 
     from src.graph import populate_bottomup
 
     src = inspect.getsource(populate_bottomup.build_bottomup)
     assert "enable_sapbert=True" in src
-    assert 'sapbert_node_types=("MechanismNode",)' in src
-    assert 'biolord_node_types=("BiologyNode",)' in src
+    assert 'sapbert_node_types=("IndicationNode", "PopulationNode", "EndpointNode")' in src
+    assert 'biolord_node_types=("MechanismNode", "BiologyNode")' in src
 
 
 def test_noncanonical_compound_name_guards_chembl_tier():

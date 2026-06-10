@@ -230,15 +230,21 @@ async def build_bottomup(
     cfg = merge_config or MergeConfig(
         node_types=DEFAULT_NODE_TYPES + ("AdverseEventNode", "BiomarkerNode"),
         enable_id=True, enable_name_id=False,
-        # Mechanism-identity flip (Phase C): mechanism node ids are now
-        # content-addresses of the specific molecular-action description
-        # (PD-1-blockade ≠ CTLA4-blockade). BioLORD over-merges those siblings
-        # (their description cosine ≈ 1.0), so route MechanismNode through the
-        # SapBERT precision tier instead, which keeps distinct actions apart.
-        # BiologyNode stays on BioLORD (sibling-merge is correct at the biology
-        # scale). The SapBERT tier lazy-loads its embedder inside node_merge.
-        enable_sapbert=True, sapbert_node_types=("MechanismNode",),
-        enable_biolord=True, biolord_node_types=("BiologyNode",),
+        # Merge-tier redesign (T4): the embedding model matches what the node IS.
+        # BioLORD (definition/DESCRIPTION embedder) for the description nodes —
+        # Mechanism + Biology (action/process phrases). SapBERT (biomedical
+        # ENTITY-LINKER / UMLS synonym normalization) for the clinical ENTITY nodes
+        # — Indication, Population, Endpoint (standardizes "NSCLC"≡"non-small-cell
+        # lung cancer" while keeping breast≠ovarian, which BioLORD would conflate).
+        # The old SapBERT-on-mechanism-pathway-NAME over-merged 65% of multi-desc
+        # nodes (scripts/instrument_mechanism_merge.py); mechanism identity is moving
+        # to its DESCRIPTION (T4b, see populate._ensure_mechanism). Sibling
+        # over-merge (PD-1 vs CTLA4 blockade) is acceptable here — the TARGET node
+        # separates them upstream; tune biolord_threshold if it over-pools.
+        enable_sapbert=True,
+        sapbert_node_types=("IndicationNode", "PopulationNode", "EndpointNode"),
+        enable_biolord=True,
+        biolord_node_types=("MechanismNode", "BiologyNode"),
     )
     # Incremental: restrict the O(n²) geometric tiers to pairs touching a just-added
     # node (existing↔existing are already merged) — O(new × total), not O(total²).
