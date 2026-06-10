@@ -38,6 +38,7 @@ from src.graph.models import EvidenceRecord, EdgeBeliefState
 from src.inference.beliefs import (
     BUCKET_TO_P_OBS,
     SupportBucket,
+    applied_weights,
     apply_virtual_evidence,
     effective_n_for_evidence,
 )
@@ -174,15 +175,28 @@ def pick_winner(
     return min(class_, key=lambda n: (-score(n), n))
 
 
+def _evidence_dedup_key(r: EvidenceRecord):
+    """Content identity for merge dedup. Replicated idempotent DATABASE facts — the
+    SAME OT/ChEMBL fact stamped once per trial-scoped copy, each with its own
+    ``datetime.now()`` — collapse to ONE, keyed by ``(source_id, support)``; per-arm
+    trial-outcome records stay distinct via ``arm_id``. Replaces the old
+    ``(source_id, timestamp)`` key, which OVER-COUNTED database facts (timestamp
+    varies across copies → not deduped) and could wrongly merge two arms sharing a
+    timestamp."""
+    arm = (r.context or {}).get("arm_id")
+    return (r.source_id, r.support, arm)
+
+
 def _replay_belief(records: list[EvidenceRecord]) -> EdgeBeliefState:
-    """Re-derive a Beta(α,β) by replaying evidence records from prior(1,1)."""
+    """Re-derive a Beta(α,β) by replaying records from prior(1,1), each at the EXACT
+    weight it applied (``applied_weights``) — NOT a nominal recompute, which drops the
+    explaining-away split and re-counts replicated facts at full weight."""
     belief = EdgeBeliefState(alpha=1.0, beta=1.0)
     for r in sorted(records, key=lambda x: x.timestamp):
         try:
-            p_obs = BUCKET_TO_P_OBS[SupportBucket(r.support)]
+            n_eff, p_obs = applied_weights(r)
         except (KeyError, ValueError):
             continue
-        n_eff = effective_n_for_evidence(r.source_type, r.quality_score)
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
     return belief
 
@@ -197,13 +211,11 @@ def _merge_belief_data(
             return []
         return [EvidenceRecord.model_validate(r) for r in (b.get("evidence") or [])]
 
-    combined: dict[tuple[str, str], EvidenceRecord] = {}
+    combined: dict = {}
     for r in _records(existing_belief) + _records(incoming_belief):
-        # Dedup key: source + timestamp. Two records with the same key represent
-        # the same observation reaching this edge twice (e.g., once via each
-        # branch before merge); keep the first.
-        k = (r.source_id, r.timestamp.isoformat() if r.timestamp else "")
-        combined.setdefault(k, r)
+        # Content dedup (see _evidence_dedup_key): collapse replicated idempotent
+        # database facts to one; keep per-arm trial records distinct.
+        combined.setdefault(_evidence_dedup_key(r), r)
     deduped = list(combined.values())
     replayed = _replay_belief(deduped)
     replayed.evidence = deduped

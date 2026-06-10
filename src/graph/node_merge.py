@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Callable
 
 from pydantic import BaseModel
 
-from src.graph.biology_merge import _replay_belief
+from src.graph.biology_merge import _evidence_dedup_key, _replay_belief
 from src.graph.models import EdgeType, EvidenceRecord, GraphEdge
 
 if TYPE_CHECKING:
@@ -335,10 +335,13 @@ def _merge_belief_data(existing: dict | None, incoming: dict | None) -> dict:
             return []
         return [EvidenceRecord.model_validate(r) for r in (b.get("evidence") or [])]
 
-    combined: dict[tuple[str, str], EvidenceRecord] = {}
+    combined: dict = {}
     for r in records(existing) + records(incoming):
-        k = (r.source_id, r.timestamp.isoformat() if r.timestamp else "")
-        combined.setdefault(k, r)
+        # Content dedup (_evidence_dedup_key): collapse replicated idempotent
+        # database facts to one; keep per-arm trial records distinct. The old
+        # (source_id, timestamp) key over-counted DB facts (one per trial-scoped
+        # copy, each with a distinct timestamp) — inflating affects toward 0.95.
+        combined.setdefault(_evidence_dedup_key(r), r)
     deduped = list(combined.values())
     replayed = _replay_belief(deduped)
     replayed.evidence = deduped

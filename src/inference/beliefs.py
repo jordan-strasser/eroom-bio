@@ -315,6 +315,33 @@ def redundancy_factor(prior_same_cluster: int) -> float:
     return 1.0 / (1.0 + prior_same_cluster * _REDUNDANCY_RHO)
 
 
+def applied_weights(record) -> tuple[float, float]:
+    """The EXACT ``(n_eff, p_obs)`` this record contributed to its edge's Beta — the
+    faithful replay weight for ANY re-derivation: the (s,t) field materializer, LOO
+    self-exclusion, AND the node-MERGE belief replay.
+
+    Prefers the persisted ``applied_n_eff`` / ``applied_p_obs`` (which capture the
+    attributor's explaining-away split and any redundancy discount applied at
+    attribution time); falls back to the nominal ``effective_n_for_evidence`` /
+    bucket ``p_obs`` for legacy records written before persistence. Recomputing
+    nominal weights in a replay is the Bug-B family of defects — it re-applies the
+    full contradiction the explaining-away split away (over-penalizing high-belief
+    edges) and, in the merge, re-counts replicated database facts at full weight.
+    """
+    p_obs = (
+        record.applied_p_obs if getattr(record, "applied_p_obs", None) is not None
+        else p_obs_for_bucket(SupportBucket(record.support))
+    )
+    n_eff = (
+        record.applied_n_eff if getattr(record, "applied_n_eff", None) is not None
+        else effective_n_for_evidence(
+            record.source_type, record.quality_score,
+            n_obs=getattr(record, "n_obs", None),
+        )
+    )
+    return n_eff, p_obs
+
+
 def bucket_to_direction(bucket: SupportBucket) -> EvidenceDirection:
     """Coarse projection of a bucket onto the legacy 3-way direction.
 
