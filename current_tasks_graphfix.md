@@ -269,6 +269,60 @@ accumulation (evidence_learning_curve.py + honest holdout). Add pathway-converge
 ONLY if it adds signal beyond biology, and then as a pooling fn over metadata / the (s,t)
 field, NEVER as off-chain nodes.
 
+## TASK 6 — Clean pathway fan-out as its own rung (owner-directed ARCHITECTURE) ⭐⭐
+Owner decision (2026-06-10): T4b cleaned the mechanism noise but REMOVED the
+multi-candidate credit-assignment substrate the fan-out provided. Data confirms
+(same-corpus n=50, mechanism_affects evidence/edge): NOISY fan-out 3.07/edge
+(max 23) vs CLEAN T4b 1.02/edge (max 2) — the fan-out pooled ~3× more cross-trial
+evidence on mechanism→biology edges (the "success/failure up/down-votes shared
+mechanistic edges" substrate), but much of it was over-merged garbage (65-72%).
+KEY INSIGHT: the noise was NOT the fan-out — it was (1) the pathway RANKER mapping
+stated-action→one pathway under weak context, (2) SapBERT merge on generic pathway
+NAME. A fan-out from CURATED Reactome membership + R-HSA id-merge (deterministic) is
+clean: hubs self-neutralize (in everything → belief ~0.5 → softmin ignores),
+discriminative pathways carry signal.
+
+**CHOSEN ARCHITECTURE (owner, 2026-06-10) — OPTION 2: clean pathway fan-out AS the mechanism.**
+`Compound → Target → Mechanism(= curated Reactome pathway, FAN-OUT) → Biology → Indication/Pop/Endpoint`
+- The mechanism node IS the target's downstream Reactome pathway (RAF/MAP cascade, PI3K/AKT),
+  from CURATED membership (NOT the ranker), one target → its footprint (capped, + BioLORD
+  `semantic_relevance_floor` to drop off-context leaves like the TUBB4B "flagellated sperm
+  motility" problem). MERGE BY R-HSA ID (deterministic Tier-1) — NOT SapBERT-on-name, NOT BioLORD.
+- Pathways SHARED across targets (EGFR+BRAF+MEK → RAF/MAP cascade) ⇒ outcomes up/down-vote the
+  shared pathway→biology edges = cross-trial credit assignment. Hubs (in everything) self-
+  neutralize (belief→0.5 → softmin ignores); discriminative pathways carry signal.
+- This REVERTS T4b's stated-action identity (mechanism = pathway again) but fixes the ORIGINAL
+  noise (membership not ranker; id-merge not name). Stated action + MechanismCategory → queryable
+  node/edge METADATA (keeps polypharmacology / mutation-specific / off-target info). Over/under-
+  merge metrics MOOT (drugs sharing a pathway is the point). Why NOT the 4-rung (action rung +
+  pathway): action ≈ target×direction×pathway (redundant; direction already on modulates_via),
+  extra rung adds empty Beta(1,1) edges that drag the weakest-link softmin, and "action
+  constrains fan-out" needs the ranker. Full discussion: [[project_t4b_mechanism_identity_flip]].
+
+### Phased plan (each phase: branch + tests green + audit before next) — see NEXT_SESSION.md
+**Phase A — backoff RULE fix (prereq; precision-weighted, not "any leaf evidence wins").**
+`path_query._resolve_indication_edge` (line 434) returns the FIRST ancestor with
+`evidence_strength > 0` → ONE uveal_melanoma trial OVERRIDES 50-trial melanoma (no combine,
+no precision weight). Fix = hierarchical partial pooling: parent belief as PRIOR, leaf
+evidence updates it (1 leaf trial barely moves a rich parent; 20 leaf trials dominate).
+Applies to indication + population NOW; prereq for any hierarchy backoff. Files:
+`src/prediction/path_query.py` (_resolve_indication_edge + population backoff),
+`src/inference/beliefs.py` (combine util). Cheap, testable w/o rebuild.
+**Phase B — mechanism = pathway fan-out (revert T4b identity, CLEAN).** In
+`populate._populate_trial_mechanisms`: mechanism node id = R-HSA pathway (from `_resolve_gene_pathways`
+CURATED membership + relevance floor), fan out one chain per pathway; stated action +
+MechanismCategory → node metadata. Merge cfg: MechanismNode → id-merge only (REMOVE from BioLORD/
+SapBERT tiers in `populate_bottomup` MergeConfig). Re-instrument; rebuild. Migrate tests
+(the 5 T4b description-identity tests flip back toward pathway-identity + metadata-action).
+**Phase C — predictor credit-assignment over the fan-out + MEASURE.** softmin/aggregate over the
+fan-out's pathway→biology edges (marginalize over multiple pathways for the PRODUCT). Measure
+holdout AUROC + learning curve clean-vs-noisy: did the fan-out accumulation LIFT prediction?
+(Prior: learning curve FLAT n=5→472 ⇒ don't assume more candidates = signal; the corpus must
+actually sort them — MEASURE, don't assume.)
+NOTE new prediction math + identity change = architecture-level (CLAUDE.md): branch + green +
+rebuild before merge. T4b committed `10a622f`. Same-corpus noisy-vs-clean comparison DONE
+(mechanism_affects evidence/edge: noisy fan-out 3.07/max23 vs clean-T4b 1.02/max2).
+
 ## TASK 5 — Full merge verification: generalized noise checker (owner: VERIFY, don't assume) ⭐
 The 4a/AE SapBERT tiers (Indication / Population / Endpoint / **AdverseEvent**, added
 2026-06-10) are **config-only and UNVERIFIED** — SapBERT could over-merge related-but-
