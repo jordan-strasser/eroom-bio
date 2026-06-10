@@ -475,14 +475,17 @@ class MechanismNode(BaseModel):
     #                   bucket), or None.
     direction: str | None = None
     category: str | None = None
-    # T4b (2026-06-10) mechanism description-identity flip: the MechanismNode
-    # IDENTITY is now a content-address of the trial's stated mechanism
-    # description (``mech:<hash>``), mirroring BiologyNode — NOT a Reactome
-    # pathway id. The gene's resolved Reactome/GO signaling pathways are demoted
-    # to interpretability METADATA here (``pathway_ids`` + names/source under
-    # ``metadata``); they no longer drive identity, so the noisy pathway-ranker
-    # can't over/under-merge the node. Empty for the no-description fallback
-    # (a coarse drug-class enum-slug node) and for legacy snapshots.
+    # Option 2 (2026-06-10) — the MechanismNode IDENTITY is the curated Reactome /
+    # GO pathway the target gene drives (id = ``R-HSA-…`` / ``GO:…`` stable_id),
+    # fanned out one node per pathway and merged DETERMINISTICALLY by id (shared
+    # pathways across targets collapse → the cross-trial credit-assignment
+    # substrate). ``pathway_ids`` carries the node's own stable_id; ``metadata``
+    # accumulates the trials' stated actions + drug-class categories
+    # (``stated_actions`` / ``mechanism_categories``) as queryable polypharmacology
+    # provenance, NOT identity. (T4b briefly made identity a ``mech:<hash>``
+    # content-address of the stated action; Option 2 reverted that — the pathway
+    # is the shared substrate, the action is metadata.) ``id`` is the coarse
+    # drug-class enum slug only in the no-resolvable-pathway fallback.
     pathway_ids: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
     # A.0: rich free-text description preserved from the trial's therapeutic

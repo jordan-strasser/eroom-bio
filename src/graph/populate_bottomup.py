@@ -267,8 +267,16 @@ async def build_bottomup(
                       batch_embed_fn=_biolord_batch,
                       batch_sapbert_embed_fn=_sapbert_batch,
                       new_ids=new_ids if incremental else None)
-    renamed = _canonicalize_ids(merged)
+    # Prune orphan biology BEFORE canonicalizing ids. Option 2 puts MechanismNode
+    # ids in the R-HSA / GO namespace that the BiologyNode Reactome FALLBACK also
+    # uses, so a transient orphan biology pathway node can occupy the canonical id
+    # and block the mechanism node's scope-strip in ``_canonicalize_ids`` (its
+    # ``oid not in g._graph`` guard) — the mechanism then stays ``R-HSA-…#NCT``
+    # forever, defeating the deterministic cross-trial id-merge. Pruning is a pure
+    # chain-reference check (scoping-consistent, canonicalize-independent), so
+    # running it first frees those ids with no other effect.
     pruned_bio = _prune_orphan_biology(merged)
+    renamed = _canonicalize_ids(merged)
     logger.info("bottom-up Phase 2: assembled -> %d nodes (by_type=%s, canonicalized %d ids, "
                 "pruned %d orphan biology%s)",
                 merged._graph.number_of_nodes(), report.by_type, renamed, pruned_bio,  # noqa: SLF001

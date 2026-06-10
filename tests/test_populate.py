@@ -3344,6 +3344,65 @@ def test_bottomup_mergeconfig_merge_tiers_by_node_semantics():
     assert "MechanismNode" not in biolord_block
 
 
+def test_mechanism_pathway_canonicalizes_past_orphan_biology_collision():
+    """Option 2 puts MechanismNode ids in the R-HSA / GO namespace that the
+    BiologyNode Reactome FALLBACK also uses, so a transient orphan biology pathway
+    node can occupy the canonical id and block the scoped mechanism node's
+    scope-strip in ``_canonicalize_ids`` — leaving it ``R-HSA-…#NCT`` forever and
+    defeating the deterministic cross-trial id-merge. ``build_bottomup`` must prune
+    orphan biology BEFORE canonicalizing so the id is free."""
+    import inspect
+
+    from src.graph import populate_bottomup
+    from src.graph.populate_bottomup import (
+        _canonicalize_ids, _prune_orphan_biology,
+    )
+    from src.graph.models import (
+        BiologyNode, CausalChain, MechanismNode, TrialOutcome, TrialSubgraph,
+    )
+    from src.graph.store import GraphStore
+
+    def _scenario() -> GraphStore:
+        g = GraphStore()
+        # Scoped mechanism node whose canonical id is R-HSA-5673001.
+        g.add_node(MechanismNode(id="R-HSA-5673001#NCT_a", name="RAF/MAP cascade"))
+        g._graph.nodes["R-HSA-5673001#NCT_a"]["ontology_id"] = "R-HSA-5673001"  # noqa: SLF001
+        # Transient ORPHAN biology node occupying the canonical id (no chain uses it).
+        g.add_node(BiologyNode(id="R-HSA-5673001", name="RAF/MAP signaling"))
+        g.set_trial_subgraph(TrialSubgraph(
+            trial_id="NCT_a", parent_population_id="i__unselected",
+            chains=[CausalChain(
+                arm_id="a", compound_id="c", target_id="t",
+                mechanism_id="R-HSA-5673001#NCT_a", biology_id="bio:x",
+                indication_id="i", endpoint_id="e",
+                subgroup_population_id="i__unselected",
+                outcome=TrialOutcome.PARTIAL,
+            )],
+        ))
+        return g
+
+    # WRONG order (canonicalize first): the orphan biology blocks the rename, so
+    # the mechanism node stays scoped — the bug.
+    g_bug = _scenario()
+    _canonicalize_ids(g_bug)
+    assert "R-HSA-5673001#NCT_a" in g_bug._graph.nodes  # still scoped  # noqa: SLF001
+
+    # RIGHT order (prune orphan biology, then canonicalize): the id is freed and
+    # the mechanism node canonicalizes; the chain ref follows.
+    g_fix = _scenario()
+    _prune_orphan_biology(g_fix)
+    _canonicalize_ids(g_fix)
+    assert "R-HSA-5673001" in g_fix._graph.nodes  # noqa: SLF001
+    assert "R-HSA-5673001#NCT_a" not in g_fix._graph.nodes  # noqa: SLF001
+    assert g_fix.get_node("R-HSA-5673001")["node_type"] == "MechanismNode"
+    ch = g_fix.get_trial_subgraph_by_id("NCT_a").chains[0]
+    assert ch.mechanism_id == "R-HSA-5673001"
+
+    # Guard the order in the actual build path.
+    src = inspect.getsource(populate_bottomup.build_bottomup)
+    assert src.index("_prune_orphan_biology(merged)") < src.index("_canonicalize_ids(merged)")
+
+
 def test_noncanonical_compound_name_guards_chembl_tier():
     """Withhold a ChEMBL stable_id from any name that isn't a single molecule, so
     the node_merge chembl tier can't false-merge it onto a real drug. Single
