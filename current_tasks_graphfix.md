@@ -7,17 +7,21 @@ the n=10→N AUROC should rise; if not, it localizes to one of the 6 causes
 graph structure / predictor query). The work below targets **merging (#4)** and
 **per-trial edge-assignment (#3)** — the two most likely roots of current noise.
 
-## Session status snapshot
-- **Committed `db4736f`** (branch `fix/st-field-faithfulness`, 1370 tests green):
-  Bug B (`applied_n_eff` persistence → field/LOO replay faithful, affects gap
-  118→0), #2 pre-merge-coordinate (s,t) localization, **field→PUBLIC** (open-core),
+## Session status snapshot (branch `fix/st-field-faithfulness`, 1370 tests green)
+COMMITTED (3 commits):
+- `db4736f` — Bug B (`applied_n_eff` persistence → field/LOO replay faithful, affects
+  gap 118→0), #2 pre-merge-coordinate (s,t) localization, **field→PUBLIC** (open-core),
   bottom-up merge **batch-encoder** perf fix (n=500 merge no longer hangs).
-- **#1 line-of-therapy**: diagnosed INERT (structured re-test); no cosmetic fix.
-- **Running in background**: full n=500 rebuild (`build_graph --corpus multi_500
-  --area multi_500 --max-trials 500 --keep-annotations`) to restore the clobbered
-  `multi_500_annotated.json` + get the comparable faithful-field AUROC. Populate
-  is network-bound (~460/497 when this was written). NOTE the build gotcha:
-  `--max-trials` defaults to **10** — always pass `--max-trials 500`.
+- `6d0656b` — **T1** merge faithfulness: content-dedup + `applied_weights` replay.
+- `34c6a28` — **T4a** merge-tier config (BioLORD mech/bio, SapBERT indication/pop/endpoint).
+- `#1` line-of-therapy: diagnosed INERT (structured re-test); no cosmetic fix.
+
+NEXT LEVER = **T4b** (mechanism description-identity flip) — the #1 lever; not yet
+started (deferred for a focused pass). **multi_500 is REBUILT** (multi_500_annotated.json,
+3851 nodes/497 trials, Bug B + public field; predates T1/T4a so it still over-counts +
+has the broken mechanism merge). Build gotcha: `--max-trials` defaults to **10** — always
+pass `--max-trials 500`. Field measurement on multi_500 (scalar_vs_field) still un-run
+(lower priority — the field is a band-aid over the mechanism noise T3 exposed).
 - **Re-attribution harness**: `data/exports/neff100_initial.json` is the n=100
   **merged, pre-attribution** graph (0 applied_attribution_trial_ids, DB-only edge
   evidence). It can be re-attributed N ways cheaply (no re-populate/re-merge) via
