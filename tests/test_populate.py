@@ -3329,7 +3329,10 @@ def test_bottomup_mergeconfig_enables_sapbert_for_mechanism():
 
     src = inspect.getsource(populate_bottomup.build_bottomup)
     assert "enable_sapbert=True" in src
-    assert 'sapbert_node_types=("IndicationNode", "PopulationNode", "EndpointNode")' in src
+    # SapBERT entity-linker tier: clinical ENTITY nodes (incl. AdverseEvent).
+    sapbert_block = src.split("sapbert_node_types=")[1].split("biolord_node_types=")[0]
+    for nt in ("IndicationNode", "PopulationNode", "EndpointNode", "AdverseEventNode"):
+        assert f'"{nt}"' in sapbert_block, f"{nt} should be in the SapBERT tier"
     assert 'biolord_node_types=("MechanismNode", "BiologyNode")' in src
 
 

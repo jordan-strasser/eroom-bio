@@ -242,7 +242,9 @@ async def build_bottomup(
         # over-merge (PD-1 vs CTLA4 blockade) is acceptable here — the TARGET node
         # separates them upstream; tune biolord_threshold if it over-pools.
         enable_sapbert=True,
-        sapbert_node_types=("IndicationNode", "PopulationNode", "EndpointNode"),
+        sapbert_node_types=(
+            "IndicationNode", "PopulationNode", "EndpointNode", "AdverseEventNode",
+        ),
         enable_biolord=True,
         biolord_node_types=("MechanismNode", "BiologyNode"),
     )

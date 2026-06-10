@@ -231,6 +231,24 @@ BioLORD-vs-SapBERT for mechanism (owner): BioLORD — descriptions are the subst
 sibling over-merge (PD-1 vs CTLA4 blockade) is mitigated because the TARGET node already
 separates them upstream + a tuned biolord_threshold.
 
+## TASK 5 — Full merge verification: generalized noise checker (owner: VERIFY, don't assume) ⭐
+The 4a/AE SapBERT tiers (Indication / Population / Endpoint / **AdverseEvent**, added
+2026-06-10) are **config-only and UNVERIFIED** — SapBERT could over-merge related-but-
+distinct entities or mis-threshold. Build the verification BEFORE trusting it.
+`scripts/instrument_mechanism_merge.py` checks DESCRIPTION nodes (chain-descriptions on a
+node). GENERALIZE for ENTITY nodes:
+- **UNDER-merge**: pairs of entity nodes (Indication/Population/Endpoint/AE/Compound/Target)
+  whose NAME/aliases are SapBERT-synonyms (cosine > threshold) but are SEPARATE nodes ⇒
+  should have merged ("NSCLC" vs "non-small-cell lung cancer"; "MI" vs "myocardial infarction").
+- **OVER-merge**: a node whose accumulated names / `metadata.merged_from` aliases span LOW
+  SapBERT cosine ⇒ merged DISTINCT entities (breast vs ovarian; a MedDRA term swallowing
+  unrelated PTs).
+Run the FULL sweep (ALL node types) on a 4a+AE rebuild → per-type under/over-merge rates.
+This is the gate that answers the owner's question: "is SapBERT working for indication/
+population/endpoint/AE?" (Right now: unknown — current multi_500 predates 4a, so those are
+still id-only merged.) Files: extend `scripts/instrument_mechanism_merge.py` or sibling
+`scripts/instrument_entity_merge.py`; REQUIRES a rebuild with 4a+AE first.
+
 ## Deferred / context threads (don't lose)
 - **n=500 field measurement**: when the rebuild finishes, run
   `scalar_vs_field_auroc --graph multi_500_annotated.json --field multi_500_annotated.json
