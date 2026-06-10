@@ -235,7 +235,20 @@ async def build_bottomup(
         # Biology (process phrases). SapBERT (biomedical ENTITY-LINKER / UMLS
         # synonym normalization) for the clinical ENTITY nodes — Indication,
         # Population, Endpoint (standardizes "NSCLC"≡"non-small-cell lung cancer"
-        # while keeping breast≠ovarian, which BioLORD would conflate).
+        # while keeping breast≠ovarian, which BioLORD would conflate). VERIFIED
+        # working + safe at threshold 0.80 by scripts/instrument_entity_merge.py
+        # (T5): 0 synonym misses, siblings correctly separated.
+        #
+        # AdverseEventNode is DELIBERATELY NOT in the SapBERT tier (T5 verdict).
+        # AE nodes are created during attribution (attributor._main), AFTER this
+        # merge pass, so the tier was INERT on fresh builds — and a re-merge
+        # (incremental append / assemble) WOULD then over-merge: SapBERT name
+        # cosine can't separate true AE synonyms ("Cardiac"/"Myocardial ischaemia"
+        # 0.94, SHOULD merge) from clinically-distinct siblings ("Alanine"/
+        # "Aspartate aminotransferase increased" 0.90; "Lymphopenia"/"Leukopenia"
+        # 0.89, must NOT) at any single threshold. AE canonicalization is MedDRA's
+        # job (ae_node_id PT normalization); genuine synonym misses belong in a
+        # MedDRA synonym table, not geometric name-merge.
         #
         # MechanismNode is INTENTIONALLY in NEITHER geometric tier — it merges by
         # ID only (Option 2). A mechanism node IS a curated Reactome pathway the
@@ -248,7 +261,7 @@ async def build_bottomup(
         # the id IS the canonical key, so no embedding merge is needed or wanted.
         enable_sapbert=True,
         sapbert_node_types=(
-            "IndicationNode", "PopulationNode", "EndpointNode", "AdverseEventNode",
+            "IndicationNode", "PopulationNode", "EndpointNode",
         ),
         enable_biolord=True,
         biolord_node_types=("BiologyNode",),

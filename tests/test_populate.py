@@ -3320,23 +3320,32 @@ async def test_mechanism_falls_back_to_enum_slug_without_resolvable_pathway(tmp_
 
 def test_bottomup_mergeconfig_merge_tiers_by_node_semantics():
     """Merge-tier redesign: the default bottom-up MergeConfig routes the clinical
-    ENTITY nodes (Indication + Population + Endpoint + AdverseEvent) through the
-    SapBERT entity-linker and the BiologyNode DESCRIPTION through BioLORD — the
-    embedding matches what the node is. MechanismNode is in NEITHER geometric tier
+    ENTITY nodes (Indication + Population + Endpoint) through the SapBERT
+    entity-linker and the BiologyNode DESCRIPTION through BioLORD — the embedding
+    matches what the node is. MechanismNode is in NEITHER geometric tier
     (Option 2): its id IS a curated Reactome / GO pathway stable_id, so it merges
     DETERMINISTICALLY by id (shared pathways across targets collapse onto one
     node — the cross-trial credit-assignment substrate). SapBERT/BioLORD-on-
-    pathway-NAME over-merged 65-72% (T3), so no embedding tier touches it."""
+    pathway-NAME over-merged 65-72% (T3), so no embedding tier touches it.
+
+    AdverseEventNode is DELIBERATELY EXCLUDED from the SapBERT tier (T5 verdict,
+    scripts/instrument_entity_merge.py): AE nodes are created during attribution
+    AFTER this merge pass (tier inert on fresh builds), and a re-merge would
+    over-merge clinically-distinct siblings (ALT vs AST increased 0.90,
+    Lymphopenia vs Leukopenia 0.89). AE canonicalization is MedDRA's job."""
     import inspect
 
     from src.graph import populate_bottomup
 
     src = inspect.getsource(populate_bottomup.build_bottomup)
     assert "enable_sapbert=True" in src
-    # SapBERT entity-linker tier: clinical ENTITY nodes (incl. AdverseEvent).
+    # SapBERT entity-linker tier: clinical ENTITY nodes that exist AT merge time.
     sapbert_block = src.split("sapbert_node_types=")[1].split("biolord_node_types=")[0]
-    for nt in ("IndicationNode", "PopulationNode", "EndpointNode", "AdverseEventNode"):
+    for nt in ("IndicationNode", "PopulationNode", "EndpointNode"):
         assert f'"{nt}"' in sapbert_block, f"{nt} should be in the SapBERT tier"
+    # AdverseEventNode is created post-merge (MedDRA-canonicalized) → NOT a SapBERT
+    # tier member; including it is inert + a re-merge over-merge footgun (T5).
+    assert "AdverseEventNode" not in sapbert_block
     # MechanismNode is in neither geometric tier — id-merge only (Option 2).
     assert "MechanismNode" not in sapbert_block
     biolord_block = src.split("biolord_node_types=")[1].split(")")[0]
