@@ -1,0 +1,84 @@
+{
+  "nct_id": "NCT01127633",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The plasma A\u03b2 1-40 and A\u03b2 1-42 levels show virtually no difference between solanezumab and placebo arms at Week 52 (e.g., A\u03b2 1-40 mild AD: 173065 vs 176412 pg/mL; A\u03b2 1-42 mild AD: 19723 vs 19854 pg/mL). Solanezumab is designed to bind soluble A\u03b2 monomers and shift the equilibrium toward soluble forms \u2014 notably, in other solanezumab trials (EXPEDITION 1/2), plasma A\u03b2 levels actually INCREASED substantially (reflecting antibody-bound A\u03b2 redistribution from CNS to plasma), which is the expected PD signature. The absence of this plasma A\u03b2 elevation here is a critical finding: it suggests either inadequate CNS penetration, insufficient dose, or that the drug did not meaningfully engage its target in this population. The Florbetapir PET SUVr change was essentially identical (-0.01 solanezumab vs 0.00 placebo), confirming no amyloid plaque reduction. Hippocampal volumes were also nearly identical between arms. Taken together, there is no convincing evidence of meaningful target engagement or downstream biology modulation. 2. PATHWAY MODULATION: No downstream pathway biomarkers moved. Amyloid plaque burden (PET), hippocampal volume, and plasma A\u03b2 levels all showed no meaningful difference between arms. The biology (amyloid clearance/reduction) was not modulated. 3. CLINICAL TRANSLATION: All cognitive and functional endpoints (ADAS-Cog14 p=0.974, MMSE, CDR-SB, ADCS-ADL) failed completely. The ADAS-Cog14 LS mean difference was -0.02 \u2014 essentially zero. No clinical benefit was observed. 4. POPULATION EFFECTS: NPI in moderate AD showed a partial signal (8.10 solanezumab vs 11.90 placebo), but this is a single secondary endpoint in a subgroup and does not constitute meaningful evidence of efficacy. All primary and key secondary endpoints failed in both mild and moderate subgroups. 5. CONFOUNDERS: The primary endpoint of this trial was actually a safety endpoint (number of participants with drug-related AEs or SAEs), which was not met in the sense that solanezumab did not show a safety advantage \u2014 SAEs were 299/734 vs 308/723 (comparable). The trial was terminated because solanezumab failed in the companion study H8A-MC-LZAX. The safety profile was broadly comparable between arms with no dose-limiting toxicity pattern. The core failure is the absence of target engagement/biology modulation leading to complete clinical failure. This is primarily a 'target_engaged_biology_not_moved' / 'biology_moved_endpoint_flat' failure, but more precisely the plasma A\u03b2 data suggests the drug did not meaningfully engage its target in the way expected (no plasma A\u03b2 elevation), pointing toward no meaningful target engagement in this context, combined with the downstream biology not moving.",
+  "failure_modes": [
+    {
+      "mode": "no_target_engagement",
+      "confidence": 0.65,
+      "evidence": "Plasma A\u03b2 1-40 and A\u03b2 1-42 levels showed minimal differences between solanezumab and placebo arms (e.g., A\u03b2 1-40 mild AD: 173065 vs 176412 pg/mL). In successful solanezumab PD studies, plasma A\u03b2 levels rise substantially due to antibody-bound A\u03b2 redistribution \u2014 the absence of this signature here suggests inadequate target engagement. Florbetapir PET SUVr change was -0.01 vs 0.00, confirming no amyloid plaque reduction."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.25,
+      "evidence": "Even if minimal biology modulation occurred (slight hippocampal volume trends in left hippocampus: -244 vs -257 mm3 in mild AD), all cognitive and functional endpoints failed completely (ADAS-Cog14 p=0.974, MMSE, CDR-SB, ADCS-ADL all failed), suggesting the biology-to-endpoint translation also did not occur."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "The trial enrolled mild-to-moderate AD patients without amyloid confirmation by PET or CSF. Subsequent solanezumab trials (EXPEDITION3) restricted to amyloid-confirmed mild AD and still failed, but the mixed mild/moderate population without biomarker selection may have diluted any potential signal. The moderate AD subgroup may have had too much irreversible neurodegeneration for amyloid-targeting to be effective."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "solanezumab",
+      "target_entity": "ENSG00000142192",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab",
+      "reasoning": "Plasma A\u03b2 levels showed no meaningful change from solanezumab vs placebo \u2014 the expected PD signature of solanezumab (plasma A\u03b2 elevation due to antibody-bound A\u03b2 redistribution) was absent. This is weak contradict rather than strong because the plasma A\u03b2 assay measures total A\u03b2 and the expected signal in this trial design may differ from other trials; the absence is suggestive but not definitive proof of non-binding."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000142192",
+      "target_entity": "mech:0acd3384fa40",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab",
+      "reasoning": "The intended mechanism (monoclonal antibody binding/neutralization of A\u03b2) showed no PD evidence of activation \u2014 plasma A\u03b2 levels did not rise as expected, Florbetapir PET showed no plaque reduction. The target was engaged at best minimally, and the mechanism did not activate as intended."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mech:0acd3384fa40",
+      "target_entity": "bio:545a63fb4cd6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab",
+      "reasoning": "Amyloid clearance/reduction of amyloid plaque burden did not occur \u2014 Florbetapir PET SUVr change was -0.01 vs 0.00 (no difference), hippocampal volumes were essentially identical between arms. The mechanism did not translate to the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:545a63fb4cd6",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "solanezumab",
+      "reasoning": "No amyloid clearance was achieved and no clinical benefit was observed across all cognitive/functional endpoints. While this trial cannot definitively rule out the amyloid hypothesis (due to possible inadequate target engagement), the complete failure of all endpoints in a large adequately-powered trial provides weak contradict evidence for the amyloid clearance \u2192 AD benefit link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_assess_participants_one_more_drug_related",
+      "target_entity": "alzheimer_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety endpoint (number of participants with drug-related AEs or SAEs), not a clinical efficacy endpoint. SAEs were comparable between arms (299/734 vs 308/723). This safety endpoint does not capture clinical benefit in Alzheimer's disease \u2014 it is not an appropriate surrogate for disease modification. The endpoint result is ambiguous for indication-level benefit assessment."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_mild",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Mild AD subgroup showed no benefit on ADAS-Cog14 (p=0.974), NPI (5.41 vs 4.49, numerically worse), plasma A\u03b2 (no change), or hippocampal volume. The mild AD population did not respond differently in a positive direction."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_moderate",
+      "target_entity": "alzheimer_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Moderate AD subgroup showed no benefit on primary cognitive/functional endpoints. The NPI partial signal (8.10 vs 11.90) is a single secondary endpoint without statistical significance reported and does not constitute meaningful evidence of differential response."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The primary endpoint of this trial was a safety endpoint, not a cognitive/functional efficacy endpoint \u2014 the trial was primarily a safety study with efficacy as secondary. The 'primary endpoint not met' designation refers to the safety endpoint (comparable SAE rates), which is unusual. The cognitive endpoints were secondary. Additionally, the absence of the expected plasma A\u03b2 elevation (the canonical solanezumab PD signature seen in EXPEDITION 1/2) is a critical mechanistic signal that warrants expert interpretation \u2014 it may indicate inadequate dosing, different assay methodology, or population differences. The partial NPI signal in moderate AD (without p-value) also warrants expert review. The trial was terminated due to failure in a companion study (H8A-MC-LZAX), raising questions about whether this trial's own data would have been conclusive independently."
+}

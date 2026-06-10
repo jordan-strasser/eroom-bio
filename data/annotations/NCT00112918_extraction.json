@@ -1,0 +1,268 @@
+{
+  "nct_id": "NCT00112918",
+  "therapeutic_hypothesis": {
+    "compound": "Bevacizumab + FOLFOX4 / XELOX",
+    "claimed_target": "VEGF",
+    "proposed_mechanism": "ligand neutralization",
+    "intended_biology": "angiogenesis inhibition",
+    "target_population": "High-risk stage II or stage III colon cancer patients post-surgery",
+    "primary_endpoint": "Disease-free survival (DFS) in stage III patients",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR not estimable; DFS events: FOLFOX4=237, FOLFOX4+Bv=280, XELOX+Bv=253",
+    "p_value": 0.2024,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "More DFS events in bevacizumab arms than control: FOLFOX4=237, FOLFOX4+Bv=280, XELOX+Bv=253",
+      "More OS events in bevacizumab arms than control at interim: FOLFOX4=115, FOLFOX4+Bv=151, XELOX+Bv=145",
+      "More OS events in bevacizumab arms than control at final analysis: FOLFOX4=161, FOLFOX4+Bv=202, XELOX+Bv=182"
+    ],
+    "safety_signals": [
+      "Higher rate of serious diarrhoea in XELOX+Bv arm (62/1135) vs FOLFOX4 (28/1126) and FOLFOX4+Bv (28/1145)",
+      "Rectal haemorrhage numerically higher in FOLFOX4+Bv arm"
+    ],
+    "dose_info": {
+      "dose": "Bevacizumab 7.5 mg/kg (XELOX) or 5 mg/kg (FOLFOX4); Oxaliplatin 85 mg/m2 (FOLFOX4) or 130 mg/m2 (XELOX); 5-FU bolus/infusion; Leucovorin 200 mg/m2; Capecitabine tablets",
+      "schedule": "q2w (FOLFOX4 arms) or q3w (XELOX arm) for 6 months",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Serious diarrhoea",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.46,
+        "incidence_control_pct": 2.49,
+        "serious": true
+      },
+      {
+        "term": "Serious abdominal pain",
+        "grade": "3-4",
+        "incidence_treatment_pct": 1.22,
+        "incidence_control_pct": 0.98,
+        "serious": true
+      },
+      {
+        "term": "Serious vomiting",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.96,
+        "incidence_control_pct": 0.62,
+        "serious": true
+      },
+      {
+        "term": "Serious intestinal obstruction",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.79,
+        "incidence_control_pct": 0.53,
+        "serious": true
+      },
+      {
+        "term": "Serious nausea",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.35,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Serious rectal haemorrhage",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.61,
+        "incidence_control_pct": 0.09,
+        "serious": true
+      },
+      {
+        "term": "Serious enteritis",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.44,
+        "incidence_control_pct": 0.27,
+        "serious": true
+      },
+      {
+        "term": "Serious small intestinal obstruction",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.35,
+        "incidence_control_pct": 0.18,
+        "serious": true
+      },
+      {
+        "term": "Serious constipation",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.35,
+        "incidence_control_pct": 0.09,
+        "serious": true
+      },
+      {
+        "term": "Serious subileus",
+        "grade": "3-4",
+        "incidence_treatment_pct": 0.35,
+        "incidence_control_pct": 0.09,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "High-risk stage II or stage III colon cancer (adjuvant setting post-surgery)",
+    "comparator": "FOLFOX4 alone",
+    "sample_size": 3451,
+    "duration": "6 months treatment; 36 months follow-up (primary analysis), 5 years (final analysis)",
+    "duration_weeks": 260.7,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "folfox4",
+      "compounds": [
+        "5-Fluorouracil",
+        "Leucovorin calcium",
+        "Oxaliplatin"
+      ]
+    },
+    {
+      "arm_id": "folfox4_bv",
+      "compounds": [
+        "Bevacizumab",
+        "5-Fluorouracil",
+        "Leucovorin calcium",
+        "Oxaliplatin"
+      ]
+    },
+    {
+      "arm_id": "xelox_bv",
+      "compounds": [
+        "Bevacizumab",
+        "Capecitabine",
+        "Oxaliplatin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "folfox4",
+      "intervention": "5-Fluorouracil",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "thymidylate synthase inhibition / DNA strand incorporation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "folfox4",
+      "intervention": "Oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "folfox4_bv",
+      "intervention": "5-Fluorouracil",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "thymidylate synthase inhibition / DNA strand incorporation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "folfox4_bv",
+      "intervention": "Oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "folfox4_bv",
+      "intervention": "Bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "ligand neutralization",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "angiogenesis_inhibition"
+    },
+    {
+      "arm_id": "xelox_bv",
+      "intervention": "Capecitabine",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "thymidylate synthase inhibition / DNA strand incorporation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "antimetabolite"
+    },
+    {
+      "arm_id": "xelox_bv",
+      "intervention": "Oxaliplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "xelox_bv",
+      "intervention": "Bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "DFS",
+      "effect_size": null,
+      "p_value": 0.2024,
+      "outcome": "failure",
+      "mechanism_description": "ligand neutralization",
+      "biology_description": "angiogenesis inhibition",
+      "population_description": "High-risk stage II or stage III colon cancer patients post-surgery",
+      "mechanism_category": "angiogenesis_inhibition"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "Bevacizumab",
+      "primary_compound_id": "Oxaliplatin",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Bevacizumab was hypothesized to enhance chemotherapy efficacy by normalizing tumor vasculature and improving drug delivery, but the combination failed to improve DFS over chemotherapy alone",
+      "citation": "Closed test procedure\u2014 = , p = 0.2024"
+    },
+    {
+      "modulator_compound_id": "Bevacizumab",
+      "primary_compound_id": "5-Fluorouracil",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "Bevacizumab was hypothesized to potentiate 5-FU cytotoxicity via anti-angiogenic vascular normalization, but the combination failed to improve DFS over chemotherapy alone",
+      "citation": "Closed test procedure\u2014 = , p = 0.2024"
+    }
+  ]
+}

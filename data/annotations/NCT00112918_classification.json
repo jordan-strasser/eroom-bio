@@ -1,0 +1,87 @@
+{
+  "nct_id": "NCT00112918",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm bevacizumab engaged VEGF in the adjuvant colon cancer setting. Bevacizumab is a well-characterized anti-VEGF antibody with established binding (curated molecular fact), but this trial provides no direct engagement readout. Per Round-28 AFFECTS rule, no affects record is emitted for bevacizumab since engagement was not measured or implied by PD data. 2. PATHWAY MODULATION: No biomarker data on angiogenesis inhibition (e.g., circulating VEGF levels, microvessel density) was reported. We cannot confirm whether the intended biology (angiogenesis inhibition) was modulated. Per the modulates_via rule, no modulates_via record is emitted since engagement was unmeasured. 3. CLINICAL TRANSLATION: The primary endpoint (DFS in stage III patients) was not met (p=0.2024). Critically, the bevacizumab arms actually had MORE DFS events than the control arm (FOLFOX4=237, FOLFOX4+Bv=280, XELOX+Bv=253), suggesting a numerically worse outcome with bevacizumab addition. OS events were also higher in bevacizumab arms at both interim and final analysis. This is a clear failure of the bevacizumab addition to improve outcomes. 4. POPULATION EFFECTS: No formal subgroup analyses with differential responses are reported. The numerically worse outcomes in bevacizumab arms were consistent across both bevacizumab-containing regimens (FOLFOX4+Bv and XELOX+Bv). No biomarker-defined subgroup showed benefit. 5. CONFOUNDERS: The trial was large (N=3451) and adequately powered. The failure mode is most consistent with 'wrong_population' \u2014 bevacizumab works in metastatic colorectal cancer but the adjuvant setting (post-surgery, micrometastatic disease) may not have the same angiogenesis dependency. The biology of established metastatic disease (where bevacizumab has proven benefit) differs from the adjuvant micrometastatic setting. The AE profile shows some increase in serious diarrhea in XELOX+Bv (5.46% vs 2.49% control) and some vascular events, but these are not at a level that would constitute dose-limiting toxicity preventing adequate dosing \u2014 the trial completed with full enrollment and follow-up. The primary failure is that bevacizumab added to adjuvant chemotherapy did not improve DFS and may have numerically worsened outcomes, suggesting the anti-angiogenic mechanism does not translate to benefit in the adjuvant colon cancer setting.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.65,
+      "evidence": "Bevacizumab has demonstrated efficacy in metastatic colorectal cancer but failed in the adjuvant post-surgical setting. The adjuvant micrometastatic disease context may lack the established tumor vasculature that bevacizumab targets. More DFS events occurred in bevacizumab arms (280, 253) vs control (237), suggesting the mechanism is not operative in this population."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.35,
+      "evidence": "No biomarker data available to confirm whether angiogenesis inhibition occurred. However, even if VEGF was neutralized, the biology of angiogenesis inhibition may not translate to DFS benefit in the adjuvant setting where micrometastatic disease dynamics differ from established metastatic disease."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mech:bcaa1aa6ab2f",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_contradict",
+      "affecting_arm_id": "folfox4_bv",
+      "reasoning": "Bevacizumab's ligand neutralization mechanism failed to produce DFS benefit in adjuvant colon cancer. No PD data available to confirm pathway engagement, but the clinical failure (numerically more events in treatment arm) provides weak contradict signal for the mechanism\u2192biology link in this setting."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mech:bcaa1aa6ab2f",
+      "target_entity": "bio:29764fcd7fed",
+      "support": "weak_contradict",
+      "affecting_arm_id": "xelox_bv",
+      "reasoning": "Same bevacizumab mechanism failure in the XELOX+Bv arm \u2014 more DFS events than control, p=0.2024. Weak contradict on mechanism\u2192biology link in adjuvant colon cancer."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "colon_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "folfox4_bv",
+      "reasoning": "Angiogenesis inhibition biology did not drive clinical benefit (DFS improvement) in adjuvant stage III colon cancer. The bevacizumab arms had numerically more DFS events than control, providing weak contradict signal that angiogenesis inhibition drives colon cancer outcomes in the adjuvant setting."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:29764fcd7fed",
+      "target_entity": "colon_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "xelox_bv",
+      "reasoning": "Same signal from XELOX+Bv arm \u2014 angiogenesis inhibition did not drive DFS benefit in adjuvant colon cancer."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "DFS",
+      "target_entity": "colon_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "DFS is a well-established and regulator-accepted endpoint for adjuvant colon cancer trials. The endpoint was measured and reported cleanly. The failure was the drug not working, not the endpoint failing to capture disease biology \u2014 DFS is an appropriate surrogate for OS in adjuvant colon cancer."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cea_low__line_adjuvant__stage_iii",
+      "target_entity": "colon_cancer",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The adjuvant stage III colon cancer population did not respond to bevacizumab addition. Primary endpoint missed at p=0.2024 with adequate power (N=3451), and bevacizumab arms had numerically more DFS events than control. No responding subgroup identified."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "mech:ac8b19a25dcf",
+      "target_entity": "bio:3de92c5f913e",
+      "support": "weak_support",
+      "affecting_arm_id": "folfox4",
+      "reasoning": "FOLFOX4 control arm showed partial outcome (DFS events=237), consistent with established efficacy of 5-FU/oxaliplatin in adjuvant colon cancer. The thymidylate synthase inhibition mechanism is supported as contributing to DNA-damage-induced apoptosis in this setting."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3de92c5f913e",
+      "target_entity": "colon_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "folfox4",
+      "reasoning": "FOLFOX4 control arm had partial outcome (fewer DFS events than bevacizumab arms), consistent with established adjuvant benefit of FOLFOX4 in stage III colon cancer. DNA-damage-induced apoptosis biology drives colon cancer outcomes in this setting."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

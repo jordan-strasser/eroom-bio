@@ -1,0 +1,153 @@
+{
+  "nct_id": "NCT00970359",
+  "therapeutic_hypothesis": {
+    "compound": "AZD6244",
+    "claimed_target": "MEK",
+    "proposed_mechanism": "kinase inhibition",
+    "intended_biology": "redifferentiation of thyroid cancer cells to restore radioiodine uptake",
+    "target_population": "patients with RAI-refractory metastatic thyroid cancer, with and without BRAF mutation",
+    "primary_endpoint": "number of patients whose tumors acquire increased iodine uptake on iodine-124 PET scan; tumor response (CR or PR) by RECIST v1.1",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "12/20 evaluable patients showed new and/or increased iodine uptake; 5 partial responses and 3 stable disease among those treated with 131I",
+    "p_value": null,
+    "target_engagement_evidence": "MEK inhibition by AZD6244 led to reacquisition of radioiodine uptake in 12 of 20 evaluable patients on iodine-124 PET",
+    "biomarker_changes": [
+      "Mean reduction in serum thyroglobulin at 2 months after 131I: 89% (95% CI: 74.4\u201399.9)",
+      "Mean reduction in serum thyroglobulin at 6 months after 131I: 80% (95% CI: 5.1\u2013100)"
+    ],
+    "subgroup_findings": [
+      "12 patients showed new and/or increased iodine uptake on iodine-124 PET",
+      "8 patients remained the same or showed less iodine uptake",
+      "5 patients achieved partial response by RECIST v1.1",
+      "3 patients had stable disease"
+    ],
+    "safety_signals": [
+      "Serious adverse events included 1 case of gastric ulcer and 1 case of myelodysplastic syndrome"
+    ],
+    "dose_info": {
+      "dose": "75 mg (3 \u00d7 25 mg capsules)",
+      "schedule": "twice daily for 4 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Gastric ulcer",
+        "grade": "",
+        "incidence_treatment_pct": 4.17,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myelodysplastic syndrome",
+        "grade": "",
+        "incidence_treatment_pct": 4.17,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "RAI-refractory metastatic thyroid cancer",
+    "comparator": "none (single-arm study)",
+    "sample_size": 24,
+    "duration": "4 weeks of AZD6244 treatment; follow-up up to 6 months after radioiodine administration",
+    "duration_weeks": 4.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
+      "compounds": [
+        "AZD6244"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "New and/or increase",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Remained the same or less",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "non_responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
+      "intervention": "AZD6244",
+      "subgroup_descriptor": null,
+      "endpoint": "Iodine-124 PET uptake reacquisition",
+      "effect_size": 12.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "redifferentiation of thyroid cancer cells restoring radioiodine uptake",
+      "population_description": "patients with RAI-refractory metastatic thyroid cancer, with and without BRAF mutation",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
+      "intervention": "AZD6244",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "Tumor response (CR or PR) by RECIST v1.1",
+      "effect_size": 5.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "redifferentiation of thyroid cancer cells restoring radioiodine uptake",
+      "population_description": "patients with RAI-refractory metastatic thyroid cancer achieving partial response after 131I treatment",
+      "mechanism_category": "kinase_inhibition"
+    },
+    {
+      "arm_id": "pts_with_thyroid_cancer_with_and_without_braf_mutation",
+      "intervention": "AZD6244",
+      "subgroup_descriptor": "Stable Disease",
+      "endpoint": "Tumor response (CR or PR) by RECIST v1.1",
+      "effect_size": 3.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "kinase inhibition",
+      "biology_description": "redifferentiation of thyroid cancer cells restoring radioiodine uptake",
+      "population_description": "patients with RAI-refractory metastatic thyroid cancer achieving stable disease after 131I treatment",
+      "mechanism_category": "kinase_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -231,6 +231,44 @@ BioLORD-vs-SapBERT for mechanism (owner): BioLORD — descriptions are the subst
 sibling over-merge (PD-1 vs CTLA4 blockade) is mitigated because the TARGET node already
 separates them upstream + a tuned biolord_threshold.
 
+### T4b RESULT (2026-06-10) — DONE; over-merge collapsed; fan-out → metadata (by design)
+Implemented the identity flip: `populate._populate_trial_mechanisms` now sets MechanismNode
+id = `_mechanism_id_from_description(mech_desc)` (content-address of the trial's STATED
+action), name/description = the action, and the gene's Reactome footprint → `pathway_ids` +
+`metadata.reactome_pathways` (interpretability only; ONE mechanism per action, NO pathway
+fan-out). Model: added `pathway_ids` + `metadata` to MechanismNode. Tests: rewrote the 5
+pathway-identity asserts in test_populate.py to description-identity; **1370 green**.
+INSTRUMENT (t4b_n50_initial, 37 trials): MechanismNodes **244→26**; OVER-MERGE
+**65-72% → 2 of 4** multi-desc nodes — and both residuals are the **enum-slug fallback**
+buckets (`enzyme_inhibition` swallowing CETP/HMG-CoA, `receptor agonism`), not the clean
+`mech:` description nodes. LABEL-DIVERGENCE mean 0.955.
+ROOT of the residual: identity-time `mech_desc` lookup did EXACT `(nct,arm,key)` only while
+the description-backfill (`_lookup_chain_intervention_desc`) had cross-arm + salt-form
+fallbacks → a specific action whose entry sat under another arm fell to the generic enum
+slug. FIXED: factored `_match_intervention_entry` (shared resolver) so identity == backfill.
+Re-build `t4b_n50b` in flight to confirm the 2/4 drops further.
+
+### T4b DESIGN DECISION (owner-raised) — Reactome breadth: METADATA, not nodes
+Owner asked: did we lose the Reactome fan-out (wanted breadth for cross-trial triangulation,
+less noise)? Reasoned from north star (cross-trial accumulation → prediction):
+- Prediction = softmin over the trial's STATED chain. A node helps ONLY if the chain walks
+  it. Pathway nodes hung off the mechanism (composed_of) are OFF-chain → feed P(success)
+  nothing without an added belief-pooling step → complexity w/o payoff. **Rejected new
+  pathway nodes.**
+- The breadth that MATTERS for prediction (cross-INDICATION mechanism transfer — the literal
+  north-star sentence) is what T4b REPAIRS: pathway-identity fragmented "kinase inhibition"
+  across 26 nodes AND polluted generic pathways with 37 unrelated actions; description-
+  identity makes it one clean node that pools across indications.
+- Cross-TARGET convergence (different targets → same downstream) already happens on-chain at
+  the clean BIOLOGY layer (label-match 0.967). Polypharmacology footprint is preserved as
+  node metadata (not lost, just not structural).
+- Empirical tell: fan-out breadth was present in every prior build; learning curve FLAT
+  n=5→472 while mechanism noise GREW with n. Breadth-as-implemented = noise, not accumulation.
+DECISION: keep footprint as metadata; **let PREDICTION arbitrate** — measure clean-vs-noisy
+accumulation (evidence_learning_curve.py + honest holdout). Add pathway-convergence pooling
+ONLY if it adds signal beyond biology, and then as a pooling fn over metadata / the (s,t)
+field, NEVER as off-chain nodes.
+
 ## TASK 5 — Full merge verification: generalized noise checker (owner: VERIFY, don't assume) ⭐
 The 4a/AE SapBERT tiers (Indication / Population / Endpoint / **AdverseEvent**, added
 2026-06-10) are **config-only and UNVERIFIED** — SapBERT could over-merge related-but-

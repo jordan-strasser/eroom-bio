@@ -1,0 +1,68 @@
+{
+  "nct_id": "NCT00134264",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No formal biomarker data is reported in this extraction, but from the broader ILLUMINATE/ILLUMINATE-related literature, torcetrapib is known to robustly inhibit CETP and raise HDL-C substantially (~70% increase) while lowering LDL-C. The safety narrative confirms off-target effects (BP increase of 5.4 mmHg, aldosterone/mineralocorticoid effects), which are consistent with the drug being pharmacologically active. Target engagement of CETP was almost certainly achieved, but the extraction provides no direct biomarker confirmation. 2. PATHWAY MODULATION: CETP inhibition by torcetrapib did modulate the intended biology (HDL elevation, LDL reduction) as established in the broader program, but this extraction lacks explicit biomarker data confirming it for this specific trial. The off-target pressor and mineralocorticoid effects are documented, indicating the drug was pharmacologically active. 3. CLINICAL TRANSLATION: The primary endpoint (time to first major cardiovascular event) was not met \u2014 the trial was terminated early due to increased mortality and cardiovascular events in the torcetrapib arm (death rate 1.23% vs 0.78% in control). The failure was driven by off-target harm (increased BP, aldosterone activation, increased mortality) rather than a failure of CETP inhibition per se. The biology may have moved (HDL up, LDL down) but the clinical endpoint worsened due to off-target toxicity. 4. POPULATION EFFECTS: No subgroup findings reported. The harm appeared consistent across the enrolled population. 5. CONFOUNDERS: The primary failure mode is dose-limiting/off-target toxicity \u2014 torcetrapib caused increased mortality and cardiovascular events independent of (or in addition to) its CETP inhibitory mechanism. The trial was terminated early for safety, not for futility or commercial reasons. The off-target mineralocorticoid/pressor effects are the mechanistic explanation for harm. This is a case where the drug engaged its target but caused net harm through off-target mechanisms, making this primarily a dose_limiting_toxicity / off-target toxicity failure. The biology_moved_endpoint_flat pattern partially applies (HDL was raised but CV events increased), but the dominant signal is off-target harm causing the endpoint to move in the wrong direction. Multiple factors are at play: off-target toxicity (pressor effect, aldosterone activation) and potentially biology_moved_endpoint_flat (CETP inhibition raised HDL but didn't reduce CV events, possibly because HDL functionality was not improved or because the harm outweighed benefit).",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.75,
+      "evidence": "Trial terminated early due to increased mortality (1.23% vs 0.78%) and cardiovascular events in the torcetrapib arm. Off-target pressor effect (+5.4 mmHg systolic BP) and mineralocorticoid activation (increased aldosterone, sodium, bicarbonate; decreased potassium) were documented. The ILLUMINATE trial also terminated for the same safety signal, leading to program-wide halt."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "CETP inhibition by torcetrapib is known to raise HDL-C substantially, but the cardiovascular endpoint did not improve \u2014 in fact it worsened. This suggests that HDL elevation via CETP inhibition does not translate to cardiovascular benefit, possibly because the HDL raised is dysfunctional or because off-target harm dominates. This is a secondary failure mode layered on top of the toxicity."
+    },
+    {
+      "mode": "multiple_factors",
+      "confidence": 0.7,
+      "evidence": "Both off-target toxicity (pressor/mineralocorticoid effects causing increased mortality) and potential failure of the CETP inhibition \u2192 HDL elevation \u2192 CV benefit hypothesis contribute to the trial failure. These are overlapping and not fully separable from this extraction."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "bio:586e0018efe4",
+      "support": "weak_contradict",
+      "affecting_arm_id": "torcetrapib_atorvastatin",
+      "reasoning": "CETP inhibition raised HDL-C (mechanism engaged) but the downstream biology did not translate to cardiovascular benefit \u2014 in fact harm occurred. The mechanism-to-biology link for cardiovascular protection is not supported. Weak rather than moderate contradict because the failure may be attributable to off-target toxicity rather than the CETP inhibition mechanism itself."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:586e0018efe4",
+      "target_entity": "coronary_disease",
+      "support": "weak_contradict",
+      "affecting_arm_id": "torcetrapib_atorvastatin",
+      "reasoning": "HDL elevation via CETP inhibition did not drive reduction in coronary disease events; the trial showed increased mortality and CV events. This weakly contradicts the hypothesis that HDL elevation via this pathway drives coronary disease reduction. Weak rather than moderate because off-target toxicity confounds the interpretation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:ca91026d21c9",
+      "target_entity": "coronary_disease",
+      "support": "ambiguous",
+      "affecting_arm_id": "atorvastatin",
+      "reasoning": "The atorvastatin monotherapy arm outcome is unknown (trial terminated early before readout). No informative signal about LDL reduction \u2192 coronary disease benefit from this trial specifically."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "composite_survival",
+      "target_entity": "coronary_disease",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The composite cardiovascular endpoint (time to first major CV event) is a well-validated, regulator-accepted endpoint for coronary disease trials. It captured the harm signal (increased mortality and CV events in the torcetrapib arm) clearly, demonstrating it is a sensitive and appropriate endpoint for this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "coronary_disease",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (high-risk coronary disease / diabetes patients) did not respond favorably to torcetrapib+atorvastatin vs atorvastatin alone \u2014 in fact outcomes were worse. The primary endpoint was not met and the trial was terminated for harm. Moderate contradict reflects the clear negative direction with adequate sample size (N=15,067), though off-target toxicity rather than wrong population is the primary driver."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The failure is ambiguous between two mechanistic interpretations: (1) pure off-target toxicity (torcetrapib's pressor/mineralocorticoid effects caused harm independent of CETP inhibition, meaning the CETP inhibition hypothesis was never fairly tested), and (2) biology_moved_endpoint_flat (CETP inhibition raised HDL but HDL raised via this mechanism does not protect against CV events, a hypothesis later supported by Mendelian randomization studies and failure of other CETP inhibitors on CV outcomes). Disentangling these requires external data (e.g., comparison with anacetrapib/evacetrapib outcomes, Mendelian randomization data on CETP variants). Additionally, no biomarker data confirming HDL/LDL changes in this specific trial is available in the extraction, limiting mechanistic inference. The operational_failure flag is set to false because the trial did produce a readout (harm signal), but the causal chain was confounded by off-target toxicity."
+}

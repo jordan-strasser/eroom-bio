@@ -475,6 +475,16 @@ class MechanismNode(BaseModel):
     #                   bucket), or None.
     direction: str | None = None
     category: str | None = None
+    # T4b (2026-06-10) mechanism description-identity flip: the MechanismNode
+    # IDENTITY is now a content-address of the trial's stated mechanism
+    # description (``mech:<hash>``), mirroring BiologyNode — NOT a Reactome
+    # pathway id. The gene's resolved Reactome/GO signaling pathways are demoted
+    # to interpretability METADATA here (``pathway_ids`` + names/source under
+    # ``metadata``); they no longer drive identity, so the noisy pathway-ranker
+    # can't over/under-merge the node. Empty for the no-description fallback
+    # (a coarse drug-class enum-slug node) and for legacy snapshots.
+    pathway_ids: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     # A.0: rich free-text description preserved from the trial's therapeutic
     # hypothesis (proposed_mechanism). The id is a routing tag; this is the
     # semantic substrate the BioLORD embedding work (A.1) consumes. First

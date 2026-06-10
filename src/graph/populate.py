@@ -652,19 +652,21 @@ def _biology_id_from_description(description: str) -> str:
 
 
 def _mechanism_id_from_description(description: str) -> str:
-    """Content-address handle for a description-defined MechanismNode. SUPERSEDED.
+    """Content-address handle for a description-defined MechanismNode.
 
-    Semantic-layers redesign: a Mechanism node's IDENTITY is now the localized
-    molecular SIGNALING PATHWAY the target gene drives (a Reactome pathway id —
-    see ``_populate_trial_mechanisms`` + ``_resolve_gene_pathways``), NOT a
-    content-address of the extracted action description. This helper (and the
-    ``mech:`` content-address path it backed) is retained only so the unit test
-    and any external callers don't break; the live populate flow no longer uses
-    it. The extracted action description still rides along as the node's
-    free-text substrate + the pathway re-rank context.
+    T4b (2026-06-10) mechanism description-identity flip: a Mechanism node's
+    IDENTITY is the trial's STATED mechanism action (this content-address),
+    mirroring :func:`_biology_id_from_description` — NOT the Reactome pathway the
+    target gene drives. The gene's pathway footprint is resolved only as
+    interpretability metadata (``MechanismNode.metadata['reactome_pathways']``).
+    This is the live identity used by ``_populate_trial_mechanisms``; the
+    pathway-identity path (one MechanismNode per Reactome pathway, fanning the
+    chain out per pathway) was the dominant over/under-merge noise T3 measured
+    and is retired.
 
-    Kept behavior: a stable content-address (git-blob-style hash) over the
-    normalized description text. Mirrors :func:`_biology_id_from_description`.
+    A stable content-address (git-blob-style hash) over the normalized
+    description text. Identical actions across trials collapse at the Tier-1 id
+    merge; paraphrases are pooled by the BioLORD description merge (T4a tier).
     """
     norm = " ".join(description.strip().lower().split())
     return "mech:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
@@ -2430,18 +2432,20 @@ class PopulationPipeline:
     ) -> int:
         """Resolve target + mechanism PER CONSTITUENT and rebuild chains.
 
-        Semantic-layers redesign: a Mechanism node IS the localized molecular
-        SIGNALING PATHWAY the target gene drives (a Reactome pathway — RAS/MAPK,
-        PI3K/AKT, "Co-inhibition by PD-1", …), NOT the drug-class action mode.
-        This is the layer where mechanistic knowledge COMPOUNDS across targets:
-        an EGFR inhibitor and a BRAF inhibitor both hit MAPK, so both resolve to
-        the SAME Reactome pathway id and the Tier-1 id merge collapses them onto
-        one MechanismNode.
+        T4b mechanism description-identity flip: a Mechanism node IS the trial's
+        STATED mechanism action (a content-address of the extracted
+        ``mechanism`` description — "PD-1 blockade", "DNA cross-linking",
+        "microtubule stabilization"), mirroring BiologyNode, NOT the Reactome
+        pathway the target gene drives. This is the layer where mechanistic
+        knowledge COMPOUNDS across trials: two trials stating the same action
+        collapse onto one MechanismNode (identical actions at the Tier-1 id
+        merge; paraphrases at the BioLORD description merge). The gene's Reactome
+        pathway footprint is resolved as interpretability METADATA only.
 
         A combo arm tests N mechanism paths simultaneously, so it produces at
-        least N chains—one per constituent compound. Each constituent further
-        fans out one chain PER resolved mechanism pathway (the gene's full
-        signaling footprint), all sharing the same downstream biology.
+        least N chains—one per constituent compound. Each constituent resolves to
+        exactly ONE mechanism (its stated action), all sharing the same
+        downstream biology.
 
         Per constituent we:
           1. Look up the constituent's primary target via OT-resolved
@@ -2454,19 +2458,22 @@ class PopulationPipeline:
              pathway) ``direction`` it derives to is written into each
              ``modulates_via`` edge's metadata. NONE of the three land on the
              (drug-agnostic, shared) Reactome MechanismNode.
-          3. Resolve the target GENE → Reactome pathway footprint via the shared
-             ``_resolve_gene_pathways`` core. The MechanismNode IDENTITY (id +
-             name) is the Reactome pathway; add the ``target → mechanism``
-             modulates_via edge (idempotent) for each pathway. When the gene has
-             no resolvable pathway, fall back to the category enum slug.
+          3. Resolve the MechanismNode IDENTITY (T4b) as a content-address of
+             the trial's STATED mechanism action (``mech:<hash>``), mirroring the
+             biology path — ONE mechanism per stated action, no pathway fan-out.
+             The target GENE → Reactome pathway footprint is still resolved via
+             the shared ``_resolve_gene_pathways`` core but only as
+             interpretability METADATA on the node (``metadata.reactome_pathways``
+             + ``pathway_ids``); add the ``target → mechanism`` modulates_via edge
+             (idempotent). When the extractor emitted no action description, fall
+             back to the coarse drug-class enum slug as the node id.
 
         ``annotations_dir`` (semantic-layers redesign): when the build extracted
         before populate, the per-(arm, intervention) ``mechanism_category`` the
         extractor emitted is preferred for the ``category`` metadata, and the
-        extracted ``mechanism`` action description (when present) rides along as
-        the node's free-text substrate + the pathway re-rank context. The
-        node IDENTITY is the Reactome pathway, not a content-address of the
-        description (that path is superseded).
+        extracted ``mechanism`` action description IS the node IDENTITY +
+        name + description (T4b content-address). The Reactome pathway is
+        metadata only.
 
         The chain list is then rebuilt: for every existing
         subgroup_population_id × arm cell, emit one chain per (constituent,
@@ -2596,27 +2603,28 @@ class PopulationPipeline:
                     # extractor didn't emit one.
                     enum_slug = normalize_entity(mech_value, "MechanismNode")
 
-                    # Mechanism-identity flip (Phase C). The extractor's
-                    # per-(arm, intervention) entry carries BOTH the specific
-                    # molecular-action ``mechanism`` description (the node's new
-                    # IDENTITY) AND the coarse ``mechanism_category`` bucket
-                    # (METADATA). Pull both from the SAME entry so id + category
-                    # stay consistent. Mirrors the biology path's lookup keys.
+                    # Mechanism-identity flip (T4b). The extractor's per-(arm,
+                    # intervention) entry carries BOTH the specific molecular-action
+                    # ``mechanism`` description (the node's IDENTITY) AND the coarse
+                    # ``mechanism_category`` bucket (METADATA). Pull both from the
+                    # SAME entry so id + category stay consistent. Use the SHARED
+                    # resolver (cross-arm + salt-form fallback) so identity-time
+                    # resolution matches the later description-backfill — otherwise a
+                    # specific action whose entry sits under another arm / a salt-form
+                    # variant would miss here and fall to the generic enum-slug node,
+                    # re-introducing over-merge.
                     mech_desc = ""
                     extracted_cat = ""
                     if cat_by_arm_iv:
-                        for k in self._mechanism_intervention_keys(cid):
-                            entry = cat_by_arm_iv.get((trial.nct_id, arm.arm_id, k))
-                            if not entry:
-                                continue
-                            if not mech_desc and (entry.get("mechanism") or "").strip():
+                        entry = _match_intervention_entry(
+                            cat_by_arm_iv, trial.nct_id, arm.arm_id,
+                            self._mechanism_intervention_keys(cid),
+                        )
+                        if entry:
+                            if (entry.get("mechanism") or "").strip():
                                 mech_desc = entry["mechanism"].strip()
-                            if not extracted_cat and (
-                                entry.get("mechanism_category") or ""
-                            ).strip():
+                            if (entry.get("mechanism_category") or "").strip():
                                 extracted_cat = entry["mechanism_category"].strip()
-                            if mech_desc and extracted_cat:
-                                break
 
                     # Drug-class category: prefer the extractor's
                     # ``mechanism_category`` when it's a valid MechanismCategory
@@ -2671,11 +2679,14 @@ class PopulationPipeline:
 
                     def _ensure_mechanism(
                         mech_id: str, mech_name: str, description: str,
-                        source: str,
+                        source: str, pathway_ids: list[str] | None = None,
+                        pathway_meta: dict | None = None,
                     ) -> None:
                         """Create (idempotently) the drug-agnostic MechanismNode
-                        (a Reactome signaling pathway — id + name + description ARE
-                        the pathway, no drug-class properties) + the
+                        (T4b: id + name + description ARE the trial's stated
+                        mechanism action — a content-address, mirroring
+                        BiologyNode; the resolved Reactome pathways ride as
+                        interpretability METADATA, not identity) + the
                         target→mechanism ``modulates_via`` edge (which carries
                         this drug's ``direction`` in its metadata), and append the
                         backbone entry."""
@@ -2687,6 +2698,8 @@ class PopulationPipeline:
                                 id=mech_id,
                                 name=mech_name,
                                 description=description,
+                                pathway_ids=list(pathway_ids or []),
+                                metadata=dict(pathway_meta or {}),
                             ))
 
                         if target_id and not self.graph._graph.has_edge(  # noqa: SLF001
@@ -2740,18 +2753,21 @@ class PopulationPipeline:
                             "mechanism_id": mech_id,
                         })
 
-                    # Mechanism = the localized molecular SIGNALING PATHWAY(S) the
-                    # target gene drives (semantic-layers redesign). Resolve the
-                    # gene → Reactome pathway footprint via the shared core; the
-                    # MechanismNode becomes each Reactome pathway (id + name) and
-                    # the chain fans out one chain per pathway. KEEP MULTIPLE
-                    # pathways (the gene's full footprint — the messy
-                    # polypharmacology vs the clean clinical hypothesis is desired
-                    # data); capped at ``_MECHANISM_PATHWAY_CAP`` only to bound the
-                    # combinatorial fan-out. The extracted drug-class category
-                    # lives on the InterventionNode + modulates_via edge (above),
-                    # not the pathway node; ``mech_desc`` is the pathway re-rank
-                    # context + the node's free-text substrate.
+                    # T4b mechanism description-identity flip. The MechanismNode
+                    # IDENTITY is the trial's STATED mechanism action (a
+                    # content-address of ``mech_desc``), exactly like BiologyNode —
+                    # NOT the gene's Reactome pathway. T3 proved pathway-identity
+                    # was the dominant AUROC noise: distinct actions collapsed onto
+                    # one generic pathway (over-merge) while one action split
+                    # across many pathways (under-merge). Collapsing to ONE
+                    # mechanism per stated action removes both, matches the
+                    # stated-chain eval, and lets the BioLORD description-merge
+                    # (T4a tier) pool paraphrases cleanly.
+                    #
+                    # The gene's Reactome/GO footprint is still resolved, but only
+                    # to ride as interpretability METADATA on the node (which
+                    # pathways this action engages); it no longer drives identity
+                    # or the chain fan-out.
                     pathways, mech_source, _mech_score = (
                         await self._resolve_gene_pathways(
                             target_id or _UNKNOWN,
@@ -2764,29 +2780,38 @@ class PopulationPipeline:
                             quickgo_client=quickgo_client,
                         )
                     )
+                    capped = pathways[: self._MECHANISM_PATHWAY_CAP]
+                    pathway_ids = [p.stable_id for p in capped]
+                    pathway_meta = {
+                        "reactome_pathways": pathway_ids,
+                        "reactome_names": [
+                            p.display_name or p.stable_id for p in capped
+                        ],
+                        "pathway_source": mech_source,
+                    }
 
-                    if pathways:
-                        for pathway in pathways[: self._MECHANISM_PATHWAY_CAP]:
-                            _ensure_mechanism(
-                                mech_id=pathway.stable_id,
-                                mech_name=pathway.display_name or pathway.stable_id,
-                                # The node identity is the pathway; the extracted
-                                # action description (when any) is preserved as the
-                                # node's free-text substrate for later embedding.
-                                description=mech_desc,
-                                source=mech_source,
-                            )
+                    if mech_desc:
+                        # Identity = the stated mechanism action (content-address),
+                        # mirroring the biology path. Pathways → metadata.
+                        _ensure_mechanism(
+                            mech_id=_mechanism_id_from_description(mech_desc),
+                            mech_name=mech_desc[:120],
+                            description=mech_desc,
+                            source="trial_mechanism_description",
+                            pathway_ids=pathway_ids,
+                            pathway_meta=pathway_meta,
+                        )
                     else:
-                        # No resolvable signaling pathway for the gene (target
-                        # UNKNOWN / non-ENSG / no gene symbol / Reactome+GO empty)
-                        # → fall back to the coarse drug-class enum slug so the
-                        # chain still has a mechanism backbone. NOT a content-
-                        # address: pathway identity supersedes that path.
+                        # No extracted action description → fall back to the coarse
+                        # drug-class enum slug so the chain still has a mechanism
+                        # backbone. Keeps the resolved pathways as metadata.
                         _ensure_mechanism(
                             mech_id=enum_slug,
                             mech_name=enum_slug.replace("_", " "),
                             description=mech_desc,
                             source="trial_inference",
+                            pathway_ids=pathway_ids,
+                            pathway_meta=pathway_meta,
                         )
                 backbones[arm.arm_id] = arm_entries
 
@@ -5012,6 +5037,44 @@ async def link_indication_subtypes_via_efo(
     return added
 
 
+def _match_intervention_entry(
+    desc_by_arm_iv: dict,
+    nct_id: str,
+    arm_id: str,
+    keys: set[str],
+) -> dict | None:
+    """Resolve a per-(arm, intervention) extraction entry for a given drug.
+
+    Shared by the mechanism-IDENTITY path (``_populate_trial_mechanisms``) and
+    the description-BACKFILL path (``_lookup_chain_intervention_desc``) so both
+    pick the SAME entry — otherwise the node id (set at identity time) and the
+    chain's backfilled ``mechanism_description`` can diverge, dropping a specific
+    stated action onto the generic enum-slug fallback node (re-introducing the
+    over-merge T4b removes).
+
+    Match this drug to its ``results_by_chain`` entry, most→least specific:
+      (1) exact in THIS arm; (2) exact in ANY arm — a drug's mechanism/biology is
+      arm-independent, and a combo arm is often another arm + one extra drug with
+      only one arm detailed by the extractor; (3) salt-form/stem in any arm
+      ("fludarabine" ~ "fludarabine_phosphate" — the LLM drops salt suffixes)."""
+    if not desc_by_arm_iv or not keys:
+        return None
+
+    def _stem_eq(a: str, b: str) -> bool:
+        return a == b or a.startswith(b + "_") or b.startswith(a + "_")
+
+    for k in keys:
+        entry = desc_by_arm_iv.get((nct_id, arm_id, k))
+        if entry:
+            return entry
+    for _match in ((lambda iv, k: iv == k), _stem_eq):
+        for k in keys:
+            for (_n, _arm, _iv), entry in desc_by_arm_iv.items():
+                if _n == nct_id and _match(_iv, k):
+                    return entry
+    return None
+
+
 def _lookup_chain_intervention_desc(
     graph: GraphStore,
     desc_by_arm_iv: dict,
@@ -5026,7 +5089,8 @@ def _lookup_chain_intervention_desc(
     ``intervention`` name. This matches the chain to its drug's entry by
     normalizing both the chain's ``compound_id`` and the compound node's
     ``name`` (the LLM names the drug, which canonicalizes to either) against the
-    keyed intervention slugs in ``desc_by_arm_iv``. Returns the
+    keyed intervention slugs in ``desc_by_arm_iv`` via the shared
+    :func:`_match_intervention_entry` resolver. Returns the
     ``{mechanism, biology, population}`` dict, or ``None`` when no per-drug
     description exists (caller falls back to per-arm / trial-level)."""
     from src.graph.box_embeddings import _intervention_key
@@ -5041,26 +5105,7 @@ def _lookup_chain_intervention_desc(
     if name:
         keys.add(_intervention_key(name))
     keys.discard("")
-    if not keys:
-        return None
-    # Match this drug to its results_by_chain entry, most→least specific:
-    #   (1) exact in THIS arm; (2) exact in ANY arm — a drug's biology is
-    #   arm-independent, and a combo arm is often another arm + one extra drug
-    #   with only one arm detailed by the extractor; (3) salt-form/stem in any
-    #   arm ("fludarabine" ~ "fludarabine_phosphate" — the LLM drops salt suffixes).
-    def _stem_eq(a: str, b: str) -> bool:
-        return a == b or a.startswith(b + "_") or b.startswith(a + "_")
-
-    for k in keys:
-        entry = desc_by_arm_iv.get((nct_id, chain.arm_id, k))
-        if entry:
-            return entry
-    for _match in ((lambda iv, k: iv == k), _stem_eq):
-        for k in keys:
-            for (_n, _arm, _iv), entry in desc_by_arm_iv.items():
-                if _n == nct_id and _match(_iv, k):
-                    return entry
-    return None
+    return _match_intervention_entry(desc_by_arm_iv, nct_id, chain.arm_id, keys)
 
 
 def _set_node_description(
