@@ -54,10 +54,12 @@ from pathlib import Path
 
 import numpy as np
 from sklearn.feature_extraction import DictVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import MaxAbsScaler
 
+from src.annotation.attributor import _chain_backbone_edges
+from src.graph.models import EdgeType
 from src.graph.store import GraphStore
 from src.prediction.calibration import (
     auc_ci,
@@ -92,6 +94,66 @@ MECH_KEYS = ("f_compound", "f_target", "f_mechanism", "f_biology",
 DESIGN_SAFE_KEYS = ("d_sample_size", "d_single_arm", "d_n_compounds", "d_rationale")
 DESIGN_KEYS = DESIGN_SAFE_KEYS + ("d_duration_weeks",)
 
+_LINE_GROUP = {  # coarse line-of-therapy (the fan-in / filter conditioner)
+    "first": "early", "neoadjuvant": "early", "adjuvant": "early",
+    "second": "late", "third_plus": "late", "later": "late",
+}
+
+
+def _line_group(graph: GraphStore, pid: str | None) -> str | None:
+    if not pid:
+        return None
+    try:
+        name = graph.get_node(pid).get("name") or ""
+    except KeyError:
+        return None
+    for part in name.split("·"):
+        part = part.strip()
+        if part.startswith("line:"):
+            return _LINE_GROUP.get(part.split(":", 1)[1].strip())
+    return None
+
+
+def _composition(graph: GraphStore, nct: str) -> dict:
+    """The trial's MAXIMAL COMPOSITION (owner's path def): the full fanned subgraph
+    over ALL the trial's chains. Returns the granular backbone edges, a COARSE variant
+    that collapses the mechanism-pathway fan-out (compound→target, target→biology,
+    biology→{indication,endpoint}, endpoint→indication), and the (biology, line)
+    fan-in cells for the conditional model. Empty when the trial isn't in this graph."""
+    try:
+        ts = graph.get_trial_subgraph_by_id(nct)
+    except KeyError:
+        return dict(edges=set(), coarse=set(), bios=set(), lines=set(), bio_lines=set())
+    edges: set[str] = set()
+    coarse: set[str] = set()
+    bios: set[str] = set()
+    lines: set[str] = set()
+    bio_lines: set[tuple[str, str]] = set()
+    for ch in ts.chains:
+        lg = _line_group(graph, getattr(ch, "subgroup_population_id", None))
+        if lg:
+            lines.add(lg)
+        for src, tgt, et in _chain_backbone_edges(ch):
+            edges.add(f"{et.value}|{src}->{tgt}")
+        c, t, b = ch.compound_id, ch.target_id, ch.biology_id
+        ind, ep = ch.indication_id, ch.endpoint_id
+        U = "UNKNOWN"
+        if c and t and t != U:
+            coarse.add(f"affects|{c}->{t}")
+        if t and b and t != U and b != U:  # target→biology, mechanism fan-out collapsed
+            coarse.add(f"t2b|{t}->{b}")
+        if b and ind and b != U and ind != U:
+            coarse.add(f"biology_drives|{b}->{ind}")
+        if b and ep and b != U and ep != U:
+            coarse.add(f"reflects_biology|{b}->{ep}")
+            if ind and ind != U:
+                coarse.add(f"endpoint_captures|{ep}->{ind}")
+        if b and b != U:
+            bios.add(b)
+            if lg:
+                bio_lines.add((b, lg))
+    return dict(edges=edges, coarse=coarse, bios=bios, lines=lines, bio_lines=bio_lines)
+
 
 @dataclass
 class Trial:
@@ -104,6 +166,12 @@ class Trial:
     feats: dict                 # all features, namespaced (MECH_KEYS + DESIGN_KEYS)
     chain: dict
     kwargs: dict = field(default_factory=dict)
+    # maximal-composition fields (from the graph trial-subgraph; see _composition)
+    comp_edges: set = field(default_factory=set)
+    coarse_edges: set = field(default_factory=set)
+    bios: set = field(default_factory=set)
+    lines: set = field(default_factory=set)
+    bio_lines: set = field(default_factory=set)
 
     def select(self, keys) -> dict:
         return {k: v for k, v in self.feats.items() if k in keys}
@@ -173,11 +241,14 @@ def build_trials(graph: GraphStore, corpus: str, holdout_corpus: str | None,
         kwargs = {k: chain[k] for k in
                   ("target_id", "mechanism_id", "biology_id", "endpoint_id", "population_id")
                   if chain[k] and chain[k] != "UNKNOWN"}
+        comp = _composition(graph, nct)
         trials.append(Trial(
             nct=nct, y=1 if label == "success" else 0, label=label,
             is_eval=(eval_ids is None or nct in eval_ids),
             target=chain["target_id"], indication=chain["indication_id"],
             feats=feats, chain=chain, kwargs=kwargs,
+            comp_edges=comp["edges"], coarse_edges=comp["coarse"],
+            bios=comp["bios"], lines=comp["lines"], bio_lines=comp["bio_lines"],
         ))
     return trials
 
@@ -233,6 +304,86 @@ def _ml_model(keys, kind):
     return model
 
 
+# ── Triangulation: outcome-driven edge-weight inference (NO LLM beliefs) ────
+# logit P(success) = Σ_{e ∈ maximal-composition} w_e, fit as L2-logistic — the
+# coefficients ARE the edge weights, triangulated jointly across overlapping paths.
+
+def _comp_feats(r) -> dict:        # granular maximal-composition edge incidence
+    return {f"E|{e}": 1.0 for e in r.comp_edges}
+
+
+def _comp_filter_feats(r) -> dict:  # + fan-in/filter: line + biology×line conditioners
+    f = {f"E|{e}": 1.0 for e in r.comp_edges}
+    f.update({f"L|{lg}": 1.0 for lg in r.lines})
+    f.update({f"BL|{b}|{lg}": 1.0 for (b, lg) in r.bio_lines})
+    return f
+
+
+def _coarse_feats(r) -> dict:      # mechanism-pathway fan-out collapsed (target→biology)
+    return {f"C|{e}": 1.0 for e in r.coarse_edges}
+
+
+def _edge_model(feat_fn):
+    """L2-logistic over a feature_fn(trial)->{feat:1.0} incidence, with C chosen by
+    INNER CV on the TRAINING fold only (never the test fold). Coefficients are the
+    inferred edge weights; rare/entangled edges shrink toward 0 (neutral)."""
+    def model(train, test, seed):
+        ytr = [r.y for r in train]
+        if len(set(ytr)) < 2:
+            return [float(np.mean(ytr))] * len(test)
+        Xtr = [feat_fn(r) for r in train]
+        Xte = [feat_fn(r) for r in test]
+        Cs = [0.01, 0.03, 0.1, 0.3, 1.0, 3.0]
+        try:
+            clf = make_pipeline(
+                DictVectorizer(sparse=True),
+                LogisticRegressionCV(Cs=Cs, cv=3, scoring="roc_auc", max_iter=4000),
+            )
+            clf.fit(Xtr, ytr)
+        except Exception:  # noqa: BLE001 — degenerate inner fold → fixed strong L2
+            clf = make_pipeline(
+                DictVectorizer(sparse=True),
+                LogisticRegression(C=0.1, max_iter=4000),
+            )
+            clf.fit(Xtr, ytr)
+        return clf.predict_proba(Xte)[:, 1].tolist()
+    return model
+
+
+def _cond_model(k_min: int = 2, prior_strength: float = 2.0):
+    """Conditional biology×line pooling (the case-based probe) as a train→test closure,
+    so its previously-optimistic same-corpus LOO number gets an HONEST k-fold /
+    leave-group-out score on identical folds."""
+    def model(train, test, seed):
+        base = float(np.mean([r.y for r in train])) if train else 0.5
+        a0, b0 = base * prior_strength, (1 - base) * prior_strength
+        bl: dict = defaultdict(dict)   # (bio,line) -> {nct: y}  distinct trials
+        bo: dict = defaultdict(dict)   # bio       -> {nct: y}
+        for r in train:
+            for b in r.bios:
+                bo[b][r.nct] = r.y
+            for (b, lg) in r.bio_lines:
+                bl[(b, lg)][r.nct] = r.y
+
+        def cell(idx, key):
+            d = idx.get(key, {})
+            return ((sum(d.values()) + a0) / (len(d) + a0 + b0)) if len(d) >= k_min else None
+
+        out = []
+        for r in test:
+            line_of = {b: lg for (b, lg) in r.bio_lines}
+            ps = []
+            for b in r.bios:
+                lg = line_of.get(b)
+                p = (cell(bl, (b, lg)) if lg else None)
+                if p is None:
+                    p = cell(bo, b)
+                ps.append(p if p is not None else base)
+            out.append(float(np.mean(ps)) if ps else base)
+        return out
+    return model
+
+
 def make_models():
     return {
         "base:marginal": m_marginal,
@@ -241,8 +392,12 @@ def make_models():
         "logreg:mech(b)": _ml_model(MECH_KEYS, "logreg"),
         "xgb:mech(b)": _ml_model(MECH_KEYS, "xgb"),
         "xgb:design(plan)": _ml_model(DESIGN_SAFE_KEYS, "xgb"),
-        "xgb:design(+dur)": _ml_model(DESIGN_KEYS, "xgb"),
         "xgb:all(safe)": _ml_model(MECH_KEYS + DESIGN_SAFE_KEYS, "xgb"),
+        # triangulation + conditional models (NO LLM beliefs):
+        "logreg:edges(comp)": _edge_model(_comp_feats),
+        "logreg:edges+filt": _edge_model(_comp_filter_feats),
+        "logreg:edges(coarse)": _edge_model(_coarse_feats),
+        "cond:bio×line": _cond_model(),
     }
 
 
