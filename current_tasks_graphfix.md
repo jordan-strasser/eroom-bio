@@ -134,6 +134,21 @@ Files: `src/annotation/attributor.py`, `src/inference/beliefs.py` (BUCKET_TO_P_O
 effective_n_for_evidence). Harness: `attributor._main` on copies of
 `neff100_initial.json` per mode → compare.
 
+### TASK 2 RESULT (2026-06-10) — DONE (`3fd9268`; 1389 green)
+Added `EROOM_EDGE_ATTR` (explain_away default | symmetric_full | symmetric_uniform |
+symmetric_explain) + `EROOM_EDGE_EFFECT`; default path byte-identical (8 new tests).
+`scripts/edge_attr_experiment.py` re-attributes neff100 efficacy-only per mode.
+- **2a: the split rule is SECOND-ORDER.** In-sample AUROC 0.943–0.970 (all in the ~0.95
+  leakage ceiling); `affects` spread unchanged (std 0.155–0.162). It shifts evidence-strength
+  accumulation + downstream failure absorption, not discrimination/spread. KEEP explain_away —
+  the only mode that honors failure≠falsification (symmetric_full's marginal edge = DROPPING
+  curated-edge self-protection).
+- **2b: effect_size is UNUSABLE as extracted** — one bare first-number parse conflating
+  `HR 0.56`/`41.3%`/`3.8 point`/`11 counts`, range −1e5…2.4e6. `_effect_modulation` uses
+  p_value ONLY (semantically uniform but 26% coverage → negligible: 0.956 vs 0.959). Real fix =
+  upstream extractor STRUCTURED effect ({metric_type, normalized magnitude, CI}). Kept OFF.
+  Findings: `data/dev/edge_attr_findings.md`.
+
 ---
 
 ## TASK 3 — Instrument the merge (MechanismNode chain-description divergence)
@@ -407,6 +422,22 @@ This is the gate that answers the owner's question: "is SapBERT working for indi
 population/endpoint/AE?" (Right now: unknown — current multi_500 predates 4a, so those are
 still id-only merged.) Files: extend `scripts/instrument_mechanism_merge.py` or sibling
 `scripts/instrument_entity_merge.py`; REQUIRES a rebuild with 4a+AE first.
+
+### TASK 5 RESULT (2026-06-10) — DONE (`20dcaf4`; 1389 green)
+`scripts/instrument_entity_merge.py` (under-merge = separate same-type nodes with SapBERT name
+cosine ≥0.80; over-merge = a node fusing low-cosine merged_from surface forms). Ran on
+phaseb_n50b (the 4a+AE config). VERDICT:
+- **Indication / Endpoint / Population: VERIFIED working + safe at 0.80** — 0 synonym misses,
+  siblings correctly separated (breast/ovarian 0.65 < 0.80). Trustworthy.
+- **Target: id-merge VALIDATED** — the 13 high-cosine flags are paralog siblings (FLT1/3/4,
+  TOP2A/B, CSF1R/3R) SapBERT WOULD wrongly fuse; id-merge is correct (no SapBERT on Target).
+- **AdverseEvent: tier was INERT + a re-merge over-merge FOOTGUN → FIXED.** AE nodes are created
+  during attribution AFTER the merge pass (proven: Cardiac disorder(s) sit separate at cos 0.996),
+  and SapBERT name-cosine can't separate true AE synonyms (Cardiac/Myocardial ischaemia 0.94) from
+  clinically-distinct siblings (ALT/AST 0.90, Lympho/Leuko 0.89) at any threshold. REMOVED
+  AdverseEventNode from `sapbert_node_types` (inert on fresh builds, kills the footgun); AE canon =
+  MedDRA. Genuine AE synonym misses → MedDRA synonym-table follow-up.
+  Findings: `data/dev/entity_merge_verification_findings.md`.
 
 ## Deferred / context threads (don't lose)
 - **n=500 field measurement**: when the rebuild finishes, run
