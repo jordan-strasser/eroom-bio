@@ -1,0 +1,180 @@
+{
+  "nct_id": "NCT02908672",
+  "therapeutic_hypothesis": {
+    "compound": "Atezolizumab + Cobimetinib + Vemurafenib",
+    "claimed_target": "PD-L1, MEK, BRAF",
+    "proposed_mechanism": "Triple combination of PD-L1 checkpoint inhibition with targeted BRAF/MEK inhibition",
+    "intended_biology": "Enhanced anti-tumor immunity through checkpoint blockade combined with targeted inhibition of MAPK pathway",
+    "target_population": "Previously untreated BRAFv600 mutation-positive patients with metastatic or unresectable locally advanced melanoma",
+    "primary_endpoint": "Progression-Free Survival (PFS) by investigator assessment using RECIST v1.1",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.79 (95% CI: 0.64-0.97), median PFS 15.1 vs 10.6 months",
+    "p_value": 0.0224,
+    "target_engagement_evidence": "Atezolizumab serum concentrations achieved expected levels",
+    "biomarker_changes": [
+      "13.3% of participants developed anti-drug antibodies to atezolizumab post-baseline"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "100% of participants in triple combination arm experienced AEs vs 99.6% in control",
+      "50.9% vs 43.0% experienced SAEs",
+      "Cardiac events including atrial fibrillation, cardiac arrest, and acute coronary syndrome reported"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Any adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 100.0,
+        "incidence_control_pct": 99.6,
+        "serious": false
+      },
+      {
+        "term": "Any serious adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 50.9,
+        "incidence_control_pct": 43.0,
+        "serious": true
+      },
+      {
+        "term": "Agranulocytosis",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Leukopenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Acute coronary syndrome",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Arrhythmia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 0.9,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      },
+      {
+        "term": "Bradycardia",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Cardiac arrest",
+        "grade": "",
+        "incidence_treatment_pct": 0.4,
+        "incidence_control_pct": 0.4,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Previously untreated BRAFv600 mutation-positive metastatic or unresectable locally advanced melanoma",
+    "comparator": "Placebo + Cobimetinib + Vemurafenib",
+    "sample_size": 514,
+    "duration": "up to approximately 85 months",
+    "duration_weeks": 369.1,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pbo_cobi_vem",
+      "compounds": [
+        "Atezolizumab Placebo",
+        "Cobimetinib",
+        "Vemurafenib"
+      ]
+    },
+    {
+      "arm_id": "atezo_cobi_vem",
+      "compounds": [
+        "Atezolizumab",
+        "Cobimetinib",
+        "Vemurafenib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "pbo_cobi_vem",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 10.6,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "atezo_cobi_vem",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 15.1,
+      "p_value": 0.0224,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "pbo_cobi_vem",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 25.8,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "atezo_cobi_vem",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 39.0,
+      "p_value": 0.1191,
+      "outcome": "success"
+    }
+  ]
+}

@@ -262,37 +262,6 @@ class ChainResult(BaseModel):
     effect_size: float | None = None
     p_value: float | None = None
     outcome: str = "unknown"  # success | failure | partial | unknown
-    # Combo-arm biology fix: a results_by_chain entry now describes ONE drug's
-    # causal chain within the arm, not the whole arm. ``intervention`` names
-    # that drug (a single compound name / slug, matching one of the arm's
-    # ``compounds`` entries) so the populator can attach this entry's
-    # mechanism/biology descriptions to the per-compound fanned-out chain
-    # (``CausalChain.compound_id``) rather than stamping one arm-level
-    # description onto every constituent. Default "" so (a) pre-fix cached
-    # extractions parse unchanged and (b) mono-arm entries that omit it fall
-    # back to per-arm keying. See feedback_simple_faithful / the combo-arm
-    # biology-fusion fix.
-    intervention: str = ""
-    # A.0b: per-chain *contextualized* free-text descriptions, emitted by the
-    # extractor for sharper manifold-2 (s,t) localization — the same edge gets
-    # distinct evidence points (e.g. "VEGFR2 inhibition in tumor vasculature"
-    # vs a different chain's framing). Default "" so pre-A.0b cached
-    # extractions parse unchanged; A.3 uses them (falling back to the
-    # trial-level descriptions) to place each evidence record on the edge
-    # belief surface. See future_ideas/manifold_learning.md.
-    mechanism_description: str = ""
-    biology_description: str = ""
-    population_description: str = ""
-    # Abstraction-ladder redesign: the drug-class functional ontology bucket
-    # for THIS entry's ``intervention`` drug — a free-text label the extractor
-    # maps to a ``MechanismCategory`` value (e.g. "checkpoint_blockade",
-    # "kinase_inhibition", "dna_crosslinking"). The MechanismNode's IDENTITY is
-    # the specific action (``mechanism_description``); this is the COARSE class
-    # it rolls up into, carried onto ``MechanismNode.category`` as metadata so
-    # audits + round-28 direction/type derivation keep a categorical handle.
-    # Default "" so (a) pre-redesign cached extractions parse unchanged and
-    # (b) entries that omit it simply contribute no category.
-    mechanism_category: str = ""
 
 
 class DoseInfo(BaseModel):
@@ -354,22 +323,6 @@ class StructuredAE(BaseModel):
     incidence_control_pct: float | None = None
     arm_incidences: list[ArmIncidence] = Field(default_factory=list)
     serious: bool = False
-    # Relative-effect fields for literature-derived AEs (PubMed enrichment).
-    # Abstracts report a hazard/risk ratio + 95% CI rather than per-arm
-    # incidences. When ``hazard_ratio`` is present the support bucket is graded
-    # by effect size GATED on the CI excluding 1.0 (significance), which captures
-    # rare-but-decisive endpoints (a trial-terminating mortality HR) that the
-    # absolute-rate-delta path under-grades because the incidence gap is tiny.
-    hazard_ratio: float | None = None
-    hr_ci_low: float | None = None
-    hr_ci_high: float | None = None
-    # Literature can state that an AE *caused* the trial's termination (e.g.
-    # torcetrapib's abstract: "terminated prematurely because of an increased
-    # risk of death and cardiac events"). When True, this AE's evidence is tagged
-    # failure_causing_tox so the round-30 DLT safety gate counts it fully rather
-    # than flooring it as mere occurrence — even when the structured failure-mode
-    # classification is insufficient_information (empty resultsSection).
-    failure_causing: bool = False
 
 
 class ModulationEntry(BaseModel):
@@ -422,9 +375,6 @@ class TrialExtraction(BaseModel):
     primary_endpoint_met: bool | None = None
     effect_size: float | None = None
     p_value: float | None = None
-    # Patient/observation count for the trial (LLM-extracted sample size;
-    # ~99% populated in practice). Feeds the precision-aware n_eff path.
-    sample_size: int | None = None
     biomarker_data: dict[str, Any] = Field(default_factory=dict)
     safety_signals: list[str] = Field(default_factory=list)
     subgroup_findings: list[str] = Field(default_factory=list)
@@ -445,45 +395,6 @@ class TrialExtraction(BaseModel):
     # modulator-affects-edge claim. Defaults to empty; trials with no
     # combination interactions simply emit []. See ``ModulationEntry``.
     modulation_entries: list[ModulationEntry] = Field(default_factory=list)
-    # A.0: trial-level rich free-text descriptions, preserved from the
-    # therapeutic hypothesis so the populator can attach them to the
-    # Mechanism / Biology / parent-Population nodes as the BioLORD embedding
-    # substrate (the canonical id is just a routing tag). Already present in
-    # every cached extraction's raw JSON, so backfilling them is a populate
-    # re-run with no new LLM call. See future_ideas/eroom_node_graph_kickoff.md.
-    mechanism_description: str = ""
-    biology_description: str = ""
-    target_population_description: str = ""
-
-
-# Soft gate weight applied to the trial's evidence when its outcome
-# conditions the whole causal chain (outcome-conditioning attributor). A
-# genuine TRIAL-CONDUCT failure (the chain was never properly tested:
-# recruitment collapse, dosing/manufacturing error, administrative/funding
-# termination, gross underpowering) should barely move the mechanistic
-# beliefs — the trial isn't evidence about the biology. A valid test
-# (whatever the outcome) gets full weight.
-#
-# CRUCIAL: wrong endpoint, wrong population SUBGROUP, wrong
-# target/mechanism/biology are CHAIN failures, NOT operational — they DO
-# condition the chain at full weight (gate 1.0). Only true trial-conduct
-# problems gate down. Default conservatively to a valid test when unsure.
-OPERATIONAL_GATE_WEIGHT: float = 0.2
-VALID_TEST_GATE_WEIGHT: float = 1.0
-
-
-def gate_weight_for(operational_failure: bool | None) -> float:
-    """Derive the chain-conditioning gate weight from the coarse signal.
-
-    ``True``  → the failure was operational (chain never properly tested)
-                → low weight, so the trial barely perturbs the mechanism beliefs.
-    ``False`` / ``None`` → valid test (or unknown) → full weight. Conservative
-                by design: we only down-weight when the classifier is positive
-                the failure was trial conduct, never on a guess.
-    """
-    if operational_failure is True:
-        return OPERATIONAL_GATE_WEIGHT
-    return VALID_TEST_GATE_WEIGHT
 
 
 class FailureClassification(BaseModel):
@@ -495,24 +406,6 @@ class FailureClassification(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     reasoning: str = ""
     evidence_quotes: list[str] = Field(default_factory=list)
-    # Coarse per-trial gate (outcome-conditioning redesign). True ⇒ the
-    # failure was a TRIAL-CONDUCT problem (the chain was never properly
-    # tested: recruitment collapse, dosing/manufacturing error,
-    # administrative/funding termination, gross underpowering) — the
-    # outcome-conditioning attributor then applies the trial's evidence at
-    # ``OPERATIONAL_GATE_WEIGHT`` so it barely moves the mechanism beliefs.
-    # False / None ⇒ a valid test (full weight), whatever the outcome.
-    # This is NOT edge attribution and NOT the 13-category failure mode —
-    # it's one coarse "was the chain actually tested?" bit. Default None so
-    # cached classifications written before this field parse unchanged and
-    # fall back to full weight (valid test). See ``gate_weight_for``.
-    operational_failure: bool | None = None
-
-    @property
-    def gate_weight(self) -> float:
-        """Chain-conditioning weight in (0, 1] derived from
-        ``operational_failure`` (see ``gate_weight_for``)."""
-        return gate_weight_for(self.operational_failure)
 
 
 class EdgeAttribution(BaseModel):

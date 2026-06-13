@@ -23,19 +23,6 @@ from src.inference.beliefs import (
     apply_virtual_evidence,
     effective_n_for_evidence,
     p_obs_for_bucket,
-    redundancy_factor,
-)
-from src.boundary import (
-    assert_public_safe,
-    require_under_private_root,
-    strip_private,
-)
-from src.inference.belief_field import (
-    BeliefField,
-    apply_virtual_evidence_local,
-    field_enabled,
-    index_anchor_vectors,
-    rehydrate_anchor_vectors,
 )
 
 
@@ -135,20 +122,15 @@ class GraphStore:
         # a different cellular context) but at reduced N_eff. Records
         # without a tissue tag are context-free and apply at full weight.
         belief = EdgeBeliefState(alpha=1.0, beta=1.0)
-        cluster_seen: dict[str, int] = {}
         for ev in stored.evidence:
             tissue = (ev.context or {}).get("tissue")
             if tissue is None or tissue in relevant_tissues:
                 tissue_weight = 1.0
             else:
                 tissue_weight = off_tissue_weight
-            eff_key = ev.cluster_key or ev.source_id
-            prior_same = cluster_seen.get(eff_key, 0)
             n_eff = effective_n_for_evidence(
-                ev.source_type, ev.quality_score,
-                n_obs=ev.n_obs, edge_type=edge_type.value,
-            ) * tissue_weight * redundancy_factor(prior_same)
-            cluster_seen[eff_key] = prior_same + 1
+                ev.source_type, ev.quality_score
+            ) * tissue_weight
             p_obs = p_obs_for_bucket(SupportBucket(ev.support))
             belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
         return EdgeBeliefState(
@@ -161,9 +143,6 @@ class GraphStore:
         tgt_id: str,
         edge_type: EdgeType,
         evidence: EvidenceRecord,
-        *,
-        n_eff_override: float | None = None,
-        p_obs_override: float | None = None,
     ) -> EdgeBeliefState:
         """Beta-Binomial conjugate update from one evidence record.
 
@@ -171,65 +150,15 @@ class GraphStore:
         owns the I/O (reads the edge belief, computes the update, writes
         it back, and appends the record to the replay log); the math
         itself lives in ``apply_virtual_evidence``.
-
-        ``n_eff_override`` / ``p_obs_override`` (outcome-conditioning
-        attributor): when supplied, the caller has already computed the
-        precise virtual sample size (and/or the implied p_obs) for this
-        record — e.g. the per-edge explaining-away split of one failed
-        trial's evidence across its chain — so the standard
-        ``effective_n_for_evidence`` × redundancy derivation is bypassed.
-        The EvidenceRecord is STILL appended to the replay log (with the
-        override stashed in ``context`` so the update stays replayable),
-        only the (n_eff, p_obs) used for THIS conjugate step changes.
         """
         data = self._get_edge_data(src_id, tgt_id, edge_type)
         belief = EdgeBeliefState.model_validate(data["belief"])
 
-        if n_eff_override is not None:
-            n_eff = n_eff_override
-        else:
-            # Independence/redundancy: existing records on this edge that
-            # share the incoming one's correlation cluster (explicit
-            # cluster_key, else the source/study id) make it a
-            # non-independent observation.
-            eff_key = evidence.cluster_key or evidence.source_id
-            prior_same = sum(
-                1 for e in belief.evidence
-                if (e.cluster_key or e.source_id) == eff_key
-            )
-            n_eff = effective_n_for_evidence(
-                evidence.source_type, evidence.quality_score,
-                n_obs=evidence.n_obs, edge_type=edge_type.value,
-            ) * redundancy_factor(prior_same)
-        if p_obs_override is not None:
-            if not 0.0 <= p_obs_override <= 1.0:
-                raise ValueError(
-                    f"p_obs_override must be in [0, 1], got {p_obs_override!r}"
-                )
-            p_obs = p_obs_override
-        else:
-            p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
+        n_eff = effective_n_for_evidence(
+            evidence.source_type, evidence.quality_score
+        )
+        p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
-
-        # A.3 (flag-gated, EROOM_BELIEF_FIELD): also localize this evidence on
-        # the per-region belief field when it carries (s, t) embeddings. The
-        # scalar update above is unchanged — default behavior and public
-        # predictions are byte-identical until the flag is on. The field is the
-        # private "edge weights" (stripped from public snapshots).
-        if (
-            field_enabled()
-            and evidence.source_embedding is not None
-            and evidence.target_embedding is not None
-        ):
-            bf = BeliefField.from_dict(belief.belief_field or {})
-            apply_virtual_evidence_local(
-                bf,
-                s=evidence.source_embedding,
-                t=evidence.target_embedding,
-                n_eff=n_eff,
-                p_obs=p_obs,
-            )
-            belief.belief_field = bf.to_dict()
 
         belief.evidence.append(evidence)
         data["belief"] = belief.model_dump(mode="json")
@@ -313,100 +242,37 @@ class GraphStore:
 
     # ── Persistence ──────────────────────────────────────────────────────
 
-    def _build_snapshot_payload(self) -> dict[str, Any]:
-        """Full serializable payload (public + any private values present).
+    def export_snapshot(self, filepath: str) -> None:
+        """Serialize graph + trial_subgraphs sidecar to a single JSON file.
 
         Format:
             {
               "graph": <node_link_data>,
-              "trial_subgraphs": {trial_id: TrialSubgraph.model_dump()},
-              "applied_attribution_trial_ids": [...]
+              "trial_subgraphs": {trial_id: TrialSubgraph.model_dump()}
             }
+
+        Old-format snapshots (bare node_link_data) are still readable by
+        ``import_snapshot`` for backwards compatibility with previously
+        exported graphs that pre-date the sidecar.
         """
         graph_data = nx.node_link_data(self._graph)
         trials_data = {
             tid: ts.model_dump(mode="json")
             for tid, ts in self.trial_subgraphs.items()
         }
-        return {
+        payload = {
             "graph": graph_data,
             "trial_subgraphs": trials_data,
             "applied_attribution_trial_ids": sorted(
                 self.applied_attribution_trial_ids
             ),
         }
-
-    def export_snapshot(self, filepath: str) -> None:
-        """Serialize the **public** projection of the graph to one JSON file.
-
-        Private values (fine-tuned embeddings, trained boxes, per-region
-        belief fields — anything matching ``src/boundary.py``'s convention)
-        are stripped before writing, so the committed ``data/exports/``
-        artifact is clean by construction even when the in-memory graph holds
-        them during a combined build. An ``assert_public_safe`` self-check
-        then turns any field that slips the convention into a loud failure
-        rather than a silent leak. See ``src/boundary.py`` for the contract.
-
-        The scalar ``Beta(alpha, beta)`` edge belief, evidence provenance, and
-        trial subgraphs are public and pass through unchanged — the public
-        snapshot stays exactly as marketed today.
-
-        Old-format snapshots (bare node_link_data) remain readable by
-        ``import_snapshot`` for backwards compatibility.
-        """
-        public_payload = strip_private(self._build_snapshot_payload())
-        assert_public_safe(public_payload, source=filepath)
-        Path(filepath).write_text(
-            json.dumps(public_payload, indent=2, default=str)
-        )
-
-    def export_private_snapshot(self, filepath: str) -> None:
-        """Serialize the **full** payload (public + private values) for the
-        enterprise tree.
-
-        Refuses any ``filepath`` outside ``boundary.private_root()`` so a
-        private snapshot can never be written into the tracked ``data/exports/``
-        directory by a slipped argument. Use this for the per-region belief
-        field and any other manifold-2/3 artifacts.
-        """
-        target = require_under_private_root(filepath)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        # Compact (no indent, tight separators): the belief-field snapshot is
-        # machine-read only, and at scale it's dominated by 768-dim anchor
-        # vectors — with ``indent=2`` every float got its own indented line
-        # (~330 MB of pure whitespace at n=252). json.loads reads this fine via
-        # both load paths (store.import_snapshot + field_prediction.load_edge_fields).
-        #
-        # Then dedup those vectors into a shared ``_belief_field_vectors`` table:
-        # anchor (s, t) are BioLORD embeddings of node/arm DESCRIPTIONS, which
-        # recur across thousands of anchors, so the unique-vector table is far
-        # smaller than the raw anchor count. ``index_anchor_vectors`` rewrites
-        # only fresh copies of the touched link beliefs, so the live in-memory
-        # graph (whose nested objects node_link_data shares) is untouched.
-        payload = self._build_snapshot_payload()
-        graph_data = payload.get("graph", {})
-        links = graph_data.get("links") or graph_data.get("edges") or []
-        table = index_anchor_vectors(links)
-        if table:
-            payload["_belief_field_vectors"] = table
-        target.write_text(
-            json.dumps(payload, default=str, separators=(",", ":"))
-        )
+        Path(filepath).write_text(json.dumps(payload, indent=2, default=str))
 
     def import_snapshot(self, filepath: str) -> None:
         raw = json.loads(Path(filepath).read_text())
         # New format has the wrapper; old format is bare node_link_data.
         if isinstance(raw, dict) and "graph" in raw and "trial_subgraphs" in raw:
-            # Private snapshots index anchor (s, t) into a shared dedup table
-            # (export_private_snapshot). Resolve indices back to shared list
-            # refs in the just-parsed payload — so the in-memory graph carries
-            # real vectors (and repeated vectors are one object, not N copies).
-            # No-op for public/old snapshots (no table → inline vectors stay).
-            table = raw.get("_belief_field_vectors")
-            graph_blob = raw["graph"]
-            rehydrate_anchor_vectors(
-                graph_blob.get("links") or graph_blob.get("edges") or [], table
-            )
             self._graph = nx.node_link_graph(
                 raw["graph"], directed=True, multigraph=True
             )

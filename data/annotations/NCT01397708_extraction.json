@@ -1,0 +1,109 @@
+{
+  "nct_id": "NCT01397708",
+  "therapeutic_hypothesis": {
+    "compound": "INXN-2001 + INXN-1001",
+    "claimed_target": "IL-12",
+    "proposed_mechanism": "Adenovirus vector delivers IL-12 gene intratumorally, activated by oral veledimex to induce local IL-12 expression",
+    "intended_biology": "Enhance anti-tumor immune response through IL-12-mediated T-cell activation and interferon-gamma production",
+    "target_population": "Melanoma patients",
+    "primary_endpoint": "Safety and tolerability (treatment-emergent adverse events)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD established at 160mg/day",
+    "p_value": null,
+    "target_engagement_evidence": "IL-12 mRNA expression increased up to 162,946-fold in tumors; vector copy numbers detected up to 140,000,000 copies per 100ng DNA",
+    "biomarker_changes": [
+      "IL-12 mRNA expression increased dramatically in tumors (up to 162,946-fold)",
+      "IFN-gamma mRNA expression increased up to 417-fold",
+      "CD8+ T-cell percentages modestly increased",
+      "Vector persistence demonstrated across multiple cycles"
+    ],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 3+ drug-related TEAEs in 53% of patients at higher doses",
+      "One death at 160mg QD dose level",
+      "Dose-limiting toxicities observed including pancytopenia, mental status changes"
+    ],
+    "dose_info": {
+      "dose": "INXN-2001: 1.0 x 10^12 viral particles; INXN-1001: 5-160 mg",
+      "schedule": "INXN-2001: one intratumoral injection per cycle; INXN-1001: daily x7 days per cycle",
+      "max_tolerated_dose": "160 mg/day",
+      "dose_modifications": "Phase II included QOD dosing at 160mg, 120mg, 80mg due to toxicity"
+    },
+    "adverse_events": [
+      {
+        "term": "Drug-related Grade 3 or higher TEAE",
+        "grade": "3-4",
+        "incidence_treatment_pct": 53.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pancytopenia",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Mental status changes",
+        "grade": "",
+        "incidence_treatment_pct": 11.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Pyrexia",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Melanoma",
+    "comparator": "None (single-arm dose escalation)",
+    "sample_size": 26,
+    "duration": "Up to 6 cycles (approximately 28 weeks)",
+    "duration_weeks": 28.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "inxn_combo",
+      "compounds": [
+        "INXN-2001",
+        "INXN-1001"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "inxn_combo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 64.0,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "inxn_combo",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 7.7,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

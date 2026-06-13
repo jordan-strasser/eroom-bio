@@ -16,9 +16,8 @@ cross-indication queries against the alternates remain answerable.
 
 from __future__ import annotations
 
-import math
 import re
-from typing import Callable, Iterable, Protocol, TypeVar
+from typing import Iterable, Protocol, TypeVar
 
 
 class BiologyCandidate(Protocol):
@@ -75,12 +74,6 @@ MECHANISM_PATHWAY_TOKENS: dict[str, set[str]] = {
     "protein_degradation": {"ubiquitin", "ubiquitination", "proteasome", "cullin", "ligase"},
     "gene_editing": {"homologous", "recombination", "repair"},
     "antibody_dependent_cytotoxicity": {"antibody", "complement", "natural", "killer"},
-    # Taxanes / vinca alkaloids. The target is the microtubule/tubulin, whose
-    # gene (TUBB*) annotates in GO to many off-mechanism processes (sperm
-    # motility, NK cytotoxicity). These tokens let the on-mechanism terms
-    # ("mitotic cell cycle", "microtubule-based process") score > 0 so the
-    # relevance floor keeps them even when the extracted description is sparse.
-    "microtubule_binding": {"microtubule", "mitotic", "spindle", "tubulin", "kinetochore"},
     "hormone_modulation": {"hormone", "estrogen", "androgen", "steroid"},
     "antimetabolite": {"nucleotide", "nucleoside", "purine", "pyrimidine"},
     "dna_damage": {"damage", "repair", "double-strand", "break"},
@@ -240,106 +233,3 @@ def rerank_pathways(
         return -_overlap_score(_tokenize(p.display_name), context)
 
     return sorted(items, key=key)
-
-
-def relevance_floor(
-    candidates: Iterable[_T],
-    *,
-    mechanism_name: str = "",
-    indication_name: str = "",
-    gene_symbol: str = "",
-) -> list[_T]:
-    """Re-rank, then keep only candidates whose context-overlap score is
-    strictly positive; if none clear the floor, keep the single top-ranked
-    candidate (never returns empty unless given nothing).
-
-    The mechanism fan-out keeps *every* term a gene maps to when there are
-    fewer than the cap — so a tubulin gene's full GO biological-process set
-    (TUBB4B → "mitotic cell cycle" AND "flagellated sperm motility") all
-    become MechanismNodes, the off-context leaves included. Flooring at
-    score > 0 drops the leaves that share no token with the chain context
-    while keeping the on-mechanism ones; the top-1 fallback guarantees the
-    chain still gets a mechanism. Intended for the GO-augmentation path,
-    where the candidate set is a gene's raw annotation list rather than
-    Reactome's curated signaling-pathway names.
-    """
-    ranked = rerank_pathways(
-        candidates,
-        mechanism_name=mechanism_name,
-        indication_name=indication_name,
-        gene_symbol=gene_symbol,
-    )
-    if not ranked:
-        return []
-    kept = [
-        c
-        for c in ranked
-        if score_candidate(
-            c,
-            mechanism_name=mechanism_name,
-            indication_name=indication_name,
-            gene_symbol=gene_symbol,
-        )
-        > 0.0
-    ]
-    return kept or ranked[:1]
-
-
-def _cosine(a: list[float], b: list[float]) -> float:
-    if len(a) != len(b):
-        return 0.0
-    na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(x * x for x in b))
-    if na == 0.0 or nb == 0.0:
-        return 0.0
-    return sum(x * y for x, y in zip(a, b)) / (na * nb)
-
-
-# Keep GO candidates scoring within this fraction of the top candidate's
-# semantic similarity. Tuned against the BioLORD validation (taxane/CRBN/SMO):
-# the on-mechanism terms score ~2-3x the off-context leaves, so a 0.55 margin
-# keeps the gene's relevant pathway footprint while dropping the developmental/
-# reproductive leaves. A knob; see /tuning-log.
-_SEMANTIC_FLOOR_REL = 0.55
-
-
-def semantic_relevance_floor(
-    candidates: Iterable[_T],
-    context_text: str,
-    embed_fn: Callable[[list[str]], list[list[float]]],
-    *,
-    min_relative: float = _SEMANTIC_FLOOR_REL,
-) -> list[_T]:
-    """Rank candidates by BioLORD semantic similarity to ``context_text`` and
-    keep those scoring within ``min_relative`` of the top; top-1 fallback.
-
-    This is the scalable, root-cause replacement for the token-overlap
-    ``relevance_floor`` on the GO-augmentation path: a gene's GO biological-
-    process set is full of real-but-off-mechanism leaves (TUBB4B →
-    "flagellated sperm motility", CRBN → "limb development") that lexical
-    overlap can't reliably reject (e.g. "natural killer CELL …" sneaks past a
-    "cell cycle" context). Semantic embeddings separate them cleanly and need
-    no hand-maintained mechanism vocabulary, so the prune generalizes to any
-    gene/mechanism as the corpus scales.
-
-    ``embed_fn`` maps a list of strings to their embeddings (the context text
-    is prepended); injected so this stays pure and unit-testable, and so the
-    caller controls the on-disk cache. Falls back to keeping all candidates
-    when ``context_text`` is empty (no signal to floor against).
-    """
-    items = list(candidates)
-    if len(items) <= 1 or not context_text.strip():
-        return items
-    names = [c.display_name for c in items]
-    vecs = embed_fn([context_text] + names)
-    ctx_vec, name_vecs = vecs[0], vecs[1:]
-    scored = sorted(
-        ((_cosine(nv, ctx_vec), c) for nv, c in zip(name_vecs, items)),
-        key=lambda sc: sc[0],
-        reverse=True,
-    )
-    top = scored[0][0]
-    if top <= 0.0:
-        return [scored[0][1]]
-    kept = [c for s, c in scored if s >= min_relative * top]
-    return kept or [scored[0][1]]

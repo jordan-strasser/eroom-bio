@@ -1,0 +1,57 @@
+{
+  "nct_id": "NCT00847522",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial achieved fluorescent visualization of lymphatic drainage, confirming that fluorescein reached and engaged lymphatic vessels as intended. 2. PATHWAY MODULATION: The fluorescent tracer successfully visualized lymphatic drainage pathways, demonstrating the expected biological activity. 3. CLINICAL TRANSLATION: Despite successful target engagement and pathway visualization, the primary endpoint failed - only 69.7% agreement in sentinel lymph node detection was achieved, which was below the threshold for clinical utility. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: This appears to be a diagnostic accuracy study comparing fluorescein to standard technetium-99m tracer. The failure represents inadequate diagnostic performance rather than a safety or dosing issue.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.8,
+      "evidence": "Target engagement was confirmed with fluorescent visualization of lymphatic drainage achieved, but the primary endpoint of sentinel lymph node detection agreement only reached 69.7%, indicating the biological activity did not translate to adequate clinical utility"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "fluorescein",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "all_patients",
+      "reasoning": "Target engagement was confirmed but in a failed trial, this doesn't constitute affirmative outcome evidence for the binding relationship"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "other__cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "all_patients",
+      "reasoning": "The fluorescent tracer mechanism successfully visualized lymphatic drainage but failed to provide adequate diagnostic accuracy for clinical utility"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "other__cancer",
+      "target_entity": "cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "all_patients",
+      "reasoning": "The lymphatic visualization biology was achieved but did not drive adequate clinical benefit in terms of diagnostic accuracy"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_cancer",
+      "target_entity": "cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The sentinel lymph node detection agreement endpoint is a clinically relevant measure for surgical guidance in cancer, though the specific threshold for clinical utility was not met"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cancer__prior_tx_surgery_treated",
+      "target_entity": "cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The surgical population showed inadequate response with only 69.7% diagnostic agreement, below the threshold for clinical utility"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": false,
+  "review_reason": null
+}

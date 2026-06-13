@@ -379,62 +379,38 @@ class TestGetDiseaseAssociations:
 
 
 class TestScoreToPrior:
-    """Round-25: score_to_prior now routes through DATABASE_CURATED
-    EvidenceRecord. Posterior reflects one curated record applied to
-    Beta(1, 1) — direction is preserved (high score → posterior > 0.5,
-    low score → posterior < 0.5) but the magnitude is smaller because
-    n_eff is fixed at 3.0 rather than scaling with evidence_count.
-    """
-
-    def test_uninformative_at_zero_count(self):
-        # No supporting evidence_count → uninformative Beta(1, 1).
+    def test_uninformative_at_zero(self):
         belief = score_to_prior(0.5, 0)
+        # strength = min(0, 20) = 0, so alpha=1, beta=1
         assert belief.alpha == 1.0
         assert belief.beta == 1.0
-        # And critically: no evidence records, so the prediction engine
-        # will drop this edge.
-        assert belief.evidence == []
 
-    def test_strong_positive_emits_strong_support(self):
+    def test_strong_positive(self):
         belief = score_to_prior(0.9, 10)
-        # bucket=strong_support (0.9 >= 0.75), quality=1.0 (count >= 5),
-        # source=DATABASE_OT_ASSOCIATION (n_eff=2.0).
-        # posterior: alpha = 1 + 2*0.95 = 2.9, beta = 1 + 2*0.05 = 1.1
-        assert belief.alpha == pytest.approx(2.9)
-        assert belief.beta == pytest.approx(1.1)
-        assert belief.expected_probability > 0.7
-        # Provenance preserved via evidence record.
-        assert len(belief.evidence) == 1
-        assert belief.evidence[0].support == "strong_support"
-        assert belief.evidence[0].source_type.value == "database_ot_association"
+        # strength=10, alpha=1+0.9*10=10, beta=1+0.1*10=2
+        assert belief.alpha == pytest.approx(10.0)
+        assert belief.beta == pytest.approx(2.0)
+        assert belief.expected_probability > 0.8
 
-    def test_strong_negative_emits_contradict(self):
-        belief = score_to_prior(0.04, 10)
-        # 0.04 < 0.05 → weak_contradict (p_obs=0.35), quality=1.0, n_eff=2
-        # alpha = 1 + 2*0.35 = 1.7, beta = 1 + 2*0.65 = 2.3
-        assert belief.alpha == pytest.approx(1.7)
-        assert belief.beta == pytest.approx(2.3)
-        assert belief.expected_probability < 0.5
-        assert belief.evidence[0].support == "weak_contradict"
+    def test_strong_negative(self):
+        belief = score_to_prior(0.1, 10)
+        # strength=10, alpha=1+0.1*10=2, beta=1+0.9*10=10
+        assert belief.alpha == pytest.approx(2.0)
+        assert belief.beta == pytest.approx(10.0)
+        assert belief.expected_probability < 0.2
 
-    def test_evidence_count_caps_quality_at_five(self):
-        # Beyond evidence_count=5, quality_score is already 1.0 and
-        # additional sources don't shift the posterior further.
-        b5 = score_to_prior(0.8, 5)
-        b100 = score_to_prior(0.8, 100)
-        assert b5.alpha == pytest.approx(b100.alpha)
-        assert b5.beta == pytest.approx(b100.beta)
+    def test_evidence_capped_at_20(self):
+        belief = score_to_prior(0.8, 100)
+        # strength = min(100, 20) = 20
+        assert belief.alpha == pytest.approx(1.0 + 0.8 * 20)
+        assert belief.beta == pytest.approx(1.0 + 0.2 * 20)
 
-    def test_balanced_score_emits_moderate_support(self):
-        # 0.5 is at the moderate_support boundary (>= 0.5) per
-        # ot_association_score_to_bucket. n_eff=2, p_obs=0.80.
+    def test_balanced_score(self):
         belief = score_to_prior(0.5, 10)
-        assert belief.alpha == pytest.approx(1.0 + 2 * 0.80)
-        assert belief.beta == pytest.approx(1.0 + 2 * 0.20)
-        # Posterior leans positive at score=0.5 — under DATABASE_OT_
-        # ASSOCIATION n_eff=2 with moderate_support (p_obs=0.80),
-        # alpha=2.6 / (alpha+beta=4) = 0.65.
-        assert belief.expected_probability == pytest.approx(0.65, abs=0.01)
+        # alpha = 1+5 = 6, beta = 1+5 = 6
+        assert belief.alpha == pytest.approx(6.0)
+        assert belief.beta == pytest.approx(6.0)
+        assert belief.expected_probability == pytest.approx(0.5)
 
 
 # ── Graph population tests ───────────────────────────────────────────────

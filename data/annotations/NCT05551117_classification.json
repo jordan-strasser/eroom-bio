@@ -1,0 +1,110 @@
+{
+  "nct_id": "NCT05551117",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement data for B7-H3 is reported. However, PSA biomarker responses (45.8% response rate at 2.0 mg, 38.0% at 2.7 mg, with mean PSA changes of -28.7% and -33.1% respectively) suggest some biological activity, though PSA is not a direct measure of B7-H3 engagement. 2. PATHWAY MODULATION: The PSA responses indicate downstream biological activity consistent with anti-tumor effects, suggesting the antibody-drug conjugate mechanism may be functioning to some degree. 3. CLINICAL TRANSLATION: Mixed results across arms and endpoints. Part 1 showed successful 6-month rPFS in both dose arms (69% and 70% vs 47% control), with the higher dose arm achieving successful ORR (30.6%). However, Part 2 showed complete failure with 0% ORR. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Significant cardiac toxicities were observed, particularly at the higher dose (5.8% pericardial effusion, 4.7% atrial fibrillation, 2.3% cardiac arrest in 2.7 mg arm), which may have limited dosing optimization. The trial was terminated for business reasons rather than safety or efficacy concerns.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.7,
+      "evidence": "Significant cardiac toxicities observed, particularly at higher dose: pericardial effusion 5.8%, atrial fibrillation 4.7%, cardiac arrest 2.3% in 2.7 mg arm. These serious adverse events likely limited dose escalation and optimization."
+    },
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.8,
+      "evidence": "Trial was terminated for 'business reasons' according to investigator commentary, not for safety or efficacy failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine_2_0_mg",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "PSA biomarker response suggests some target engagement but no direct B7-H3 engagement data available"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine_2_7_mg",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "PSA biomarker response suggests some target engagement but no direct B7-H3 engagement data available"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "vobramitamab_duocarmazine",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "part_2",
+      "reasoning": "Part 2 showed complete failure (0% ORR) suggesting limited target engagement in this setting"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "6-month rPFS success (69% vs 47% control) and PSA responses suggest mechanism had some biological activity"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "Both 6-month rPFS success (70%) and ORR success (30.6%) with stronger PSA responses at higher dose"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antibody_dependent_cytotoxicity",
+      "target_entity": "antibody_dependent_cytotoxicity__prostate_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2",
+      "reasoning": "Complete failure in Part 2 (0% ORR) suggests this mechanism was not effective in this setting"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "part_1_mgc018_2_0_mg_arm_a",
+      "reasoning": "6-month rPFS success suggests this biology can drive clinical benefit in prostate cancer"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": "part_1_mgc018_2_7_mg_arm_b",
+      "reasoning": "Both PFS and ORR success at higher dose demonstrates this biology can drive meaningful clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antibody_dependent_cytotoxicity__prostate_cancer",
+      "target_entity": "prostate_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_2",
+      "reasoning": "Complete failure in Part 2 suggests this biology did not drive clinical benefit"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_small_cell_carcinoma",
+      "target_entity": "prostate_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "6-month rPFS showed clear differentiation between treatment arms and control, demonstrating endpoint sensitivity"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prostate_cancer__extent_metastatic__line_second__prior_tx_anti_pd1_treated__prior_tx_anti_pdl1_treated__prior_tx_chemotherapy_treated__prior_tx_targeted_therapy_treated",
+      "target_entity": "prostate_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Mixed results across different parts of the trial suggest this heavily pre-treated population may respond differently to different dosing strategies"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Complex multi-part trial with mixed outcomes across different doses and study parts, terminated for business rather than scientific reasons, making mechanistic interpretation challenging"
+}

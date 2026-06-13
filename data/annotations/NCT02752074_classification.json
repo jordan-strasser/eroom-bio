@@ -1,0 +1,81 @@
+{
+  "nct_id": "NCT02752074",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether pembrolizumab engaged PD-1 or epacadostat engaged IDO1. Cannot determine if targets were hit. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether checkpoint blockade or tryptophan catabolism pathways were modulated. 3. CLINICAL TRANSLATION: Primary endpoints clearly failed - PFS HR 1.00 (p=0.51711) and OS rate at 6 months HR 1.13 (p=0.80666) showed no benefit for the combination vs pembrolizumab alone. Effect sizes indicate no improvement. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Large adequately powered trial (n=706) with appropriate duration (104 weeks). Safety profile similar between arms. No obvious confounders. The combination failed to show benefit over pembrolizumab monotherapy despite mechanistic rationale.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to determine where in the causal chain the failure occurred - could be lack of target engagement, pathway modulation failure, or biology not driving clinical benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pembrolizumab",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination arm failed but no target engagement data available - cannot determine if pembrolizumab engaged PD-1"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "epacadostat",
+      "target_entity": "ENSG00000131203",
+      "support": "ambiguous",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination arm failed but no target engagement data available - cannot determine if epacadostat engaged IDO1"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination failed to show benefit over pembrolizumab monotherapy, suggesting checkpoint blockade mechanism didn't provide additional benefit in combination"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-71240",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination failed to show benefit over pembrolizumab monotherapy, suggesting IDO1 enzyme inhibition mechanism didn't contribute to clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination arm failed on primary endpoints, suggesting enhanced PD-1 co-inhibition biology didn't drive clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-71240",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pembrolizumab_epacadostat",
+      "reasoning": "Combination arm failed on primary endpoints, suggesting tryptophan catabolism modulation didn't drive clinical benefit in melanoma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PFS is a well-established endpoint for melanoma trials and was measured appropriately, even though the treatment failed to improve it"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_unresectable__line_first__prior_tx_targeted_therapy_treated",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoints clearly missed with adequate power (n=706) and appropriate duration, indicating this population did not respond to the combination therapy"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

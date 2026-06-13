@@ -59,6 +59,7 @@ class TestGeneAxis:
         from src.graph.models import PopulationNode
         pop_ids = {
             PopulationNode.compose_id(
+                "melanoma",
                 [canonicalize_feature("gene", "CD274", level, desc)],
             )
             for level, desc in [
@@ -68,7 +69,7 @@ class TestGeneAxis:
                 ("positive", "PD-L1 positive"),
             ]
         }
-        assert pop_ids == {"cd274_positive"}
+        assert pop_ids == {"melanoma__cd274_positive"}
 
     def test_specific_variant_passes_through(self):
         f = canonicalize_feature("gene", "KRAS", "G12C")

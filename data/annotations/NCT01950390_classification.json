@@ -1,0 +1,89 @@
+{
+  "nct_id": "NCT01950390",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for either CTLA-4 or VEGF. Cannot determine if ipilimumab engaged CTLA-4 or if bevacizumab engaged VEGF. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes from checkpoint blockade or angiogenesis inhibition. 3. CLINICAL TRANSLATION: Primary endpoint (OS) failed with HR 0.94, p=0.383. The combination arm showed no benefit over monotherapy across all endpoints - OS (20.1 vs 20.4 months), PFS (4.4 vs 2.8 months), and response rate (15.5% vs 11.8%). 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: The trial appears adequately powered with 169 patients and 5-year follow-up. Higher toxicity in combination arm (58% vs 39% grade 3-5 AEs) but this did not appear to limit dosing based on the long duration. Without biomarker data, this represents a failure where we cannot determine which step in the causal chain broke.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker or target engagement data available to determine where in the causal chain the failure occurred. Cannot assess whether targets were engaged or pathways modulated."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_a_ipilimumab",
+      "reasoning": "Monotherapy arm outcome unknown, cannot assess target engagement without biomarker data"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "Combination arm failed but without biomarker data cannot determine if failure was due to lack of target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "bevacizumab",
+      "target_entity": "ENSG00000112715",
+      "support": "ambiguous",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "Combination arm failed but without biomarker data cannot determine if failure was due to lack of VEGF engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "Combination arm failed across all endpoints, suggesting checkpoint blockade mechanism did not effectively modulate downstream biology in this context"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "angiogenesis_inhibition",
+      "target_entity": "GO:0001525",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "Addition of bevacizumab provided no benefit, suggesting angiogenesis inhibition did not enhance anti-tumor biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "Combination arm failed to improve OS, PFS, or response rate, suggesting CTLA-4 co-inhibition biology did not drive clinical benefit"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0001525",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "reasoning": "No benefit from adding anti-angiogenic therapy suggests angiogenesis biology did not drive clinical benefit in this context"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "OS is a well-established endpoint for melanoma that captures clinical benefit when achieved"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__braf_mutant__braf_wildtype__extent_unresectable__histology_cutaneous__line_first__prior_tx_anti_ctla4_treated__prior_tx_chemotherapy_treated__prior_tx_radiation_treated__prior_tx_targeted_therapy_treated__stage_iii",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Combination therapy failed to show benefit in this heavily pre-treated population with prior anti-CTLA4 exposure"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

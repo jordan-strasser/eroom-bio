@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import math
-import os
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +11,6 @@ import networkx as nx
 import numpy as np
 from pydantic import BaseModel, Field
 from scipy import stats as sp_stats
-from scipy.special import logsumexp
 
 from src.graph.models import (
     CausalChain,
@@ -40,16 +38,6 @@ _AUXILIARY_EDGES: list[tuple[str, str, EdgeType]] = [
     ("subgroup_population_id", "indication_id", EdgeType.RESPONDS_DIFFERENTLY),
 ]
 
-# Every edge type the prediction CONSUMES along/around the chain. The populator
-# must PRODUCE each of these — a type consumed here but instantiated by no
-# producer is a phantom edge (the reflects_biology gap: defined + walked by the
-# attributor + in the field EDGE_SPECS, but created by no populate method, so it
-# never carried a belief). ``build_graph`` checks this set is non-empty per type
-# on every build so the gap can't silently reopen.
-CONSUMED_BACKBONE_EDGE_TYPES: frozenset[EdgeType] = frozenset(
-    {et for *_, et in _CAUSAL_CHAIN} | {et for *_, et in _AUXILIARY_EDGES}
-)
-
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
 
 
@@ -69,14 +57,6 @@ _SEVERITY_GRADE_TO_WEIGHT: dict[int, float] = {
 # Higher than grade 1-2 so a missing grade isn't free-pass safe; lower
 # than grade 3 so it doesn't over-penalize on absence of data.
 _UNKNOWN_GRADE_WEIGHT = 0.10
-# Round-29: when CTCAE grade is missing but the AE was flagged
-# ``serious=True`` by CT.gov (~90% of extractions), use this as a
-# coarse severity floor (= grade-3 weight). Deliberately not max
-# (grade 5 = 0.50): a Serious Adverse Event ≠ a fatal event, and we
-# preserve discrimination via belief_factor + trust_factor in the
-# three-gate math. When both grade and serious data are present, the
-# floor is just that — a floor; the grade-based weight wins if higher.
-_SERIOUS_FLOOR_WEIGHT = _SEVERITY_GRADE_TO_WEIGHT[3]
 
 
 def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
@@ -111,74 +91,12 @@ def _max_grade_from_severity_range(severity_range: str | None) -> int | None:
     return max_grade
 
 
-def _ae_severity_weight(
-    severity_range: str | None, *, serious: bool = False,
-) -> float:
-    """Lookup the per-AE penalty weight from its severity_range field.
-
-    Round-29: ``serious=True`` acts as a coarse severity floor at the
-    grade-3 weight. The corpus has CTCAE grade data on only ~11% of
-    extracted AEs (CT.gov rarely posts them), but the per-AE
-    ``serious`` flag is populated on ~90% — making it the primary
-    severity signal in practice. When grade IS present, the grade-based
-    weight wins if it exceeds the floor; an SAE flagged grade-5 still
-    gets the grade-5 weight.
-    """
+def _ae_severity_weight(severity_range: str | None) -> float:
+    """Lookup the per-AE penalty weight from its severity_range field."""
     grade = _max_grade_from_severity_range(severity_range)
     if grade is None:
-        grade_weight = _UNKNOWN_GRADE_WEIGHT
-    else:
-        grade_weight = _SEVERITY_GRADE_TO_WEIGHT.get(
-            grade, _UNKNOWN_GRADE_WEIGHT,
-        )
-    if serious:
-        return max(grade_weight, _SERIOUS_FLOOR_WEIGHT)
-    return grade_weight
-
-
-# Round-30: gate the safety penalty on FAILURE-CAUSING toxicity. causes_ae
-# measures AE *occurrence* (incidence) — but an effective drug with tolerated
-# toxicity (e.g. nivolumab irAEs in trials that SUCCEEDED) should not be
-# penalized like one whose toxicity was dose-limiting. Each AE's contribution
-# scales toward this floor when its evidence came from tolerated/successful
-# trials and toward full weight when it came from dose-limiting-toxicity
-# failures.
-#
-# Round-31 (benchmark, 2026-06-05): floor 0.15 -> 0.0. The 0.15 floor made
-# every *tolerated* AE still contribute 15% of its severity weight, and the
-# soft-or over ~10 AEs/trial compounded that into a ~0.40 penalty on drugs
-# whose toxicity was entirely manageable — the dominant source of the
-# prediction's systematic pessimism (mean P 0.49 vs 0.71 base rate; accuracy
-# BELOW base rate). The benchmark (scripts/tune_composition.py, n=129 holdout)
-# isolated it: floor 0.15->0.0 lifts holdout Brier 0.266->0.232, accuracy
-# 0.550->0.674, ECE 0.223->0.160, with NO loss of the safety thesis — a
-# failure-causing tox (e.g. torcetrapib, failure_causing_fraction~1) still
-# contributes fully; only tolerated AEs (fraction 0) now contribute nothing.
-# contribution = floor + (1-floor)*fraction = fraction, the clean DLT gate the
-# round-30 design intended. See memory project_benchmark_verdict / tuning-log.
-_SAFETY_DLT_FLOOR = 0.0
-
-
-def _safety_dlt_gate_enabled() -> bool:
-    # Default ON (round-30): penalize failure-causing toxicity, not occurrence.
-    # Set EROOM_SAFETY_DLT_GATE=0 to restore the round-29 occurrence behavior.
-    return os.environ.get("EROOM_SAFETY_DLT_GATE", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
-
-
-def _dlt_fraction(belief: EdgeBeliefState) -> float:
-    """Fraction of an AE edge's evidence tagged ``failure_causing_tox``.
-
-    Records are tagged at attribution from the source trial's failure mode
-    (DOSE_LIMITING_TOXICITY) — see ``attributor.attribute_adverse_events``.
-    Returns 1.0 when there are no records (no info -> don't gate).
-    """
-    recs = belief.evidence or []
-    if not recs:
-        return 1.0
-    fc = sum(1 for e in recs if (e.context or {}).get("failure_causing_tox"))
-    return fc / len(recs)
+        return _UNKNOWN_GRADE_WEIGHT
+    return _SEVERITY_GRADE_TO_WEIGHT.get(grade, _UNKNOWN_GRADE_WEIGHT)
 
 
 def _regimen_constituents(
@@ -240,41 +158,6 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
-_SOFTMIN_T = float(os.environ.get("EROOM_SOFTMIN_T", "0.10"))  # soft-min temperature; ->0 approaches hard min
-
-# Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
-# for a WEAK prior centered on a plausible base rate, so an under-evidenced /
-# unobserved chain edge defers to "probably operative" (~0.75) instead of
-# producing low samples that spuriously become the weakest link. Weak
-# (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
-_INFORMED_PRIOR_MEAN = float(os.environ.get("EROOM_PRIOR_MEAN", "0.75"))
-_INFORMED_PRIOR_STRENGTH = float(os.environ.get("EROOM_PRIOR_STRENGTH", "2.0"))
-_INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
-_INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
-
-
-def _informed_prior_enabled() -> bool:
-    # Default ON (round-30): under-evidenced edges defer to a plausible base
-    # rate. Set EROOM_INFORMED_PRIOR=0 to restore the Beta(1,1) coin-flip prior.
-    return os.environ.get("EROOM_INFORMED_PRIOR", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
-
-
-def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
-    """Sample an edge's Beta, optionally under a weak informed prior.
-
-    The stored belief is Beta(1+e_pos, 1+e_neg) (Beta(1,1) prior + evidence).
-    With EROOM_INFORMED_PRIOR we re-prior to Beta(a0+e_pos, b0+e_neg) where
-    Beta(a0,b0) has mean ~0.75 — so an unobserved edge samples around 0.75
-    (plausible) rather than uniform/low, and well-evidenced edges are
-    essentially unchanged (the weak prior is swamped).
-    """
-    a, b = belief.alpha, belief.beta
-    if _informed_prior_enabled():
-        a = _INFORMED_PRIOR_A + (belief.alpha - 1.0)
-        b = _INFORMED_PRIOR_B + (belief.beta - 1.0)
-    return rng.beta(max(a, 1e-6), max(b, 1e-6), size=n_samples)
 
 
 def _trust_weight(belief: EdgeBeliefState) -> float:
@@ -293,43 +176,15 @@ def _aggregate_samples(
     edge_samples: list[np.ndarray],
     weights: list[float],
 ) -> np.ndarray:
-    """Combine per-edge sample arrays into one chain-probability sample array.
+    """Combine per-edge sample arrays via trust-weighted geometric mean.
 
-    Default is weakest-link **softmin** (``EROOM_AGG``, round-30); the legacy
-    **trust-weighted geometric mean** is the ``EROOM_AGG=geomean`` branch below
-    (``product``/``min``/``harmonic`` also available). The softmin family runs
-    unweighted on purpose — don't down-weight a sparse-but-decisive edge; only
-    the geomean branch consumes ``weights``.
-
-    Callers drop zero-evidence edges upstream so every entry has positive
-    weight. The fallback branch (sum_w <= 0) is a safety net — an unweighted
-    geomean so we don't blow up if an empty chain ever slips through.
+    Callers are responsible for dropping zero-evidence edges upstream so
+    every entry here has positive weight. The fallback branch (sum_w <= 0)
+    survives only as a safety net — it produces an unweighted geomean so
+    we don't blow up if an empty chain ever slips through.
     """
     if not edge_samples:
         return np.array([])
-    # Experimental aggregation modes (EROOM_AGG). The default trust-weighted
-    # geomean dilutes a decisive weak link; these test true conditional-chain
-    # probability (product / noisy-AND) and weakest-link (min / softmin).
-    # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
-    # decisive edge. Default ("" / geomean) keeps the existing behavior.
-    # Default softmin (round-30): weakest-link P(success). Set EROOM_AGG=geomean
-    # to restore the legacy trust-weighted geometric mean.
-    mode = os.environ.get("EROOM_AGG", "softmin").strip().lower()
-    if mode in ("product", "min", "softmin", "harmonic"):
-        stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
-        if mode == "product":
-            return np.prod(stack, axis=0)
-        if mode == "min":
-            return stack.min(axis=0)
-        if mode == "harmonic":
-            # power mean p=-1: dominated by the smallest edge (weakest-link)
-            # but accumulates multiple weak links AND is length-normalized —
-            # the middle ground between min (no discrimination) and product
-            # (length-tanks).
-            return stack.shape[0] / np.sum(1.0 / stack, axis=0)
-        return -_SOFTMIN_T * (
-            logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
-        )
     n_samples = edge_samples[0].shape[0]
     sum_w = float(sum(w for w in weights if w > 0.0))
     log_sum = np.zeros(n_samples)
@@ -345,95 +200,6 @@ def _aggregate_samples(
 
 
 # ── Models ──────────────────────────────────────────────────────────────
-
-
-def _population_ancestors(pop_id: str) -> list[str]:
-    """Disease-agnostic population ids, most-specific-first: the id itself then
-    every coarser axis-subset down to single axes.
-
-    The hierarchy is implicit in the ``__``-joined slug (``compose_id`` sorts
-    axes), so a 3-axis population's ancestors are its 2-axis and 1-axis subsets
-    (e.g. ``line_first__stage_iii`` → ``line_first``, ``stage_iii``). Used for
-    the prediction backoff so a sparse specific population borrows its coarser
-    parent's (cross-disease-pooled) evidence."""
-    from itertools import combinations
-
-    axes = pop_id.split("__")
-    if len(axes) <= 1:
-        return [pop_id]
-    out = [pop_id]
-    for k in range(len(axes) - 1, 0, -1):
-        for combo in combinations(axes, k):
-            out.append("__".join(combo))
-    return out
-
-
-def _resolve_responds_differently(
-    graph: GraphStore, pop_id: str, indication_id: str
-) -> tuple[str, "EdgeBeliefState"] | None:
-    """Most-specific *evidenced* ``responds_differently`` belief for a chain's
-    population, walking the population hierarchy (specific → coarser ancestors).
-
-    Borrow-strength backoff: if the specific population's edge to this
-    indication carries no evidence, fall back to its coarser ancestor (e.g.
-    ``line_first__stage_iii`` → ``line_first``), which pools first-line evidence
-    across diseases. Returns ``(resolved_population_id, belief)`` or ``None``
-    when no level in the hierarchy has evidence."""
-    for ancestor in _population_ancestors(pop_id):
-        try:
-            belief = graph.get_edge_belief(
-                ancestor, indication_id, EdgeType.RESPONDS_DIFFERENTLY
-            )
-        except KeyError:
-            continue
-        if belief.evidence_strength > 0.0:
-            return ancestor, belief
-    return None
-
-
-def _indication_ancestors(
-    graph: GraphStore, indication_id: str, *, max_depth: int = 5
-) -> list[str]:
-    """A leaf indication and its SUBTYPE_OF ancestors, most-specific-first
-    (uveal_melanoma → melanoma → …). Walks SUBTYPE_OF out-edges (specific →
-    parent), bounded depth, cycle-guarded. The hierarchy is sourced from the
-    hand-curated map + EFO/MONDO (Phase 4)."""
-    out = [indication_id]
-    seen = {indication_id}
-    cur = indication_id
-    for _ in range(max_depth):
-        parents = [
-            v
-            for _u, v, key in graph._graph.out_edges(cur, keys=True)  # noqa: SLF001
-            if key == EdgeType.SUBTYPE_OF.value and v not in seen
-        ]
-        if not parents:
-            break
-        cur = parents[0]
-        seen.add(cur)
-        out.append(cur)
-    return out
-
-
-def _resolve_indication_edge(
-    graph: GraphStore, src_id: str, indication_id: str, edge_type: EdgeType
-) -> tuple[str, "EdgeBeliefState"] | None:
-    """Most-specific *evidenced* belief for an indication-targeted edge
-    (biology_drives / endpoint_captures), walking the SUBTYPE_OF hierarchy.
-
-    Phase-4 indication backoff (symmetric with the population backoff): with
-    chains leaf-anchored, a sparse leaf (uveal_melanoma) borrows its parent's
-    (melanoma) cross-trial evidence — e.g. biology→melanoma when
-    biology→uveal_melanoma is unobserved. Returns (resolved_indication, belief)
-    or None."""
-    for ancestor in _indication_ancestors(graph, indication_id):
-        try:
-            belief = graph.get_edge_belief(src_id, ancestor, edge_type)
-        except KeyError:
-            continue
-        if belief.evidence_strength > 0.0:
-            return ancestor, belief
-    return None
 
 
 class EdgeContribution(BaseModel):
@@ -457,14 +223,6 @@ class SafetyRisk(BaseModel):
     the same target have caused this AE—likely on-mechanism). The two
     travel together so the consumer can decide whether the risk is
     chemistry-related (changeable) or mechanism-related (intrinsic).
-
-    Round-29: ``severity_range`` carries the grade-token string used to
-    derive the severity weight. For ``causes_ae`` (compound source)
-    risks this comes from the PT-level AE node. For
-    ``target_associated_ae`` (target_class source) risks it comes from
-    the EDGE — target-scoped — because the SOC-tier AE node is shared
-    across targets and a global severity_range there would leak grade
-    data from one target class to another.
     """
 
     ae_id: str
@@ -472,18 +230,6 @@ class SafetyRisk(BaseModel):
     source: str  # "compound" | "target_class"
     belief_probability: float
     evidence_strength: float
-    severity_range: str = ""
-    # Round-29: did any contributing trial flag this AE as serious? For
-    # ``causes_ae`` risks this is the PT node's OR-merged ``serious``
-    # field. For ``target_associated_ae`` risks this is the per-target
-    # SOC-tier OR-aggregation stored on the edge. Acts as a grade-3
-    # severity floor in the safety-penalty math when CTCAE grade is
-    # missing (the majority case).
-    serious: bool = False
-    # Round-30 DLT-gate: fraction of this AE's evidence from trials whose
-    # failure was dose-limiting toxicity (vs AEs that merely occurred in
-    # tolerated/successful trials). 1.0 = no gating (default / back-compat).
-    failure_causing_fraction: float = 1.0
     contributing_compound_ids: list[str] = Field(default_factory=list)
 
 
@@ -538,52 +284,24 @@ class PredictionEngine:
     ) -> PredictionResult:
         """Compositional prediction via Monte Carlo sampling along one causal chain.
 
-        Aggregation: weakest-link softmin by default (``EROOM_AGG``, round-30;
-        ``geomean`` restores the legacy trust-weighted geometric mean). Edges
-        with no evidence beyond the prior are dropped upstream. Trial-level
-        prediction (across multiple arms × subgroups) is the caller's
-        responsibility—predict each chain and aggregate as appropriate (e.g.
-        per arm, per subgroup, or trial-wide).
+        Aggregation: trust-weighted geometric mean. Edges with no evidence
+        beyond the prior contribute little; edges with substantial evidence
+        dominate. Trial-level prediction (across multiple arms × subgroups)
+        is the caller's responsibility—predict each chain and aggregate
+        as appropriate (e.g. per arm, per subgroup, or trial-wide).
         """
         # 1. Collect edges and their beliefs
         edges = self._collect_edges(chain)
-        hypothesis = (
-            f"{chain.compound_id} -> {chain.target_id} -> "
-            f"{chain.mechanism_id} -> {chain.biology_id} -> "
-            f"{chain.indication_id}"
-        )
-        return self._result_from_edges(
-            edges,
-            n_samples=n_samples,
-            hypothesis=hypothesis,
-            safety_penalty=self._compute_safety_penalty(chain),
-            safety_risks=self._collect_safety_risks(chain),
-        )
 
-    def _result_from_edges(
-        self,
-        edges: list[tuple[str, str, EdgeType, EdgeBeliefState]],
-        *,
-        n_samples: int,
-        hypothesis: str,
-        safety_penalty: float,
-        safety_risks: list[SafetyRisk],
-    ) -> PredictionResult:
-        """Core: a collected edge set → PredictionResult. Shared by single-chain
-        ``predict`` and the combo composer ``predict_combo`` — the only thing
-        that differs is which edges + safety the caller pools. Aggregation and
-        the weakest-link bottleneck are identical, so a combo's prediction is
-        the same weakest-link softmin over the UNION of its constituents' chain
-        edges (not a single constituent picked via a weak combo_inherit edge)."""
         # 2. Sample from each edge's Beta and compute per-edge trust weights
         rng = np.random.default_rng()
         edge_samples: list[np.ndarray] = []
         trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
-            edge_samples.append(_sample_edge(rng, belief, n_samples))
+            edge_samples.append(rng.beta(belief.alpha, belief.beta, size=n_samples))
             trust_weights.append(_trust_weight(belief))
 
-        # 3. Aggregate samples (default softmin; EROOM_AGG=geomean for legacy)
+        # 3. Aggregate samples via trust-weighted geometric mean
         samples = _aggregate_samples(edge_samples, trust_weights)
 
         # 4. Compute statistics (mechanism-only — the "efficacy" view).
@@ -629,10 +347,19 @@ class PredictionEngine:
             else None
         )
 
-        # Round-20: integrate safety into the headline number. The caller
-        # supplies safety_penalty (stricter thresholds than the display list,
-        # so a single Beta(1.4, 1) display-grade AE won't move overall_prob)
-        # and the display risk list.
+        hypothesis = (
+            f"{chain.compound_id} -> {chain.target_id} -> "
+            f"{chain.mechanism_id} -> {chain.biology_id} -> "
+            f"{chain.indication_id}"
+        )
+
+        safety_risks = self._collect_safety_risks(chain)
+
+        # Round-20: integrate safety into the headline number. Penalty
+        # uses stricter thresholds than the display list, so a chain
+        # with a single Beta(1.4, 1) display-grade AE won't move
+        # overall_probability — only well-evidenced risks do.
+        safety_penalty = self._compute_safety_penalty(chain)
         safety_factor = 1.0 - safety_penalty
         overall_prob = efficacy_prob * safety_factor
         ci_lower = ci_lower * safety_factor
@@ -649,83 +376,6 @@ class PredictionEngine:
             weakest_link=weakest,
             n_samples=n_samples,
             safety_risks=safety_risks,
-        )
-
-    def predict_combo(
-        self,
-        constituent_chains: list[CausalChain],
-        combo_id: str,
-        *,
-        n_samples: int = 10_000,
-    ) -> PredictionResult:
-        """Compose a regimen's prediction from its CONSTITUENTS' chains.
-
-        A direct query on a synthesized combo InterventionNode would otherwise
-        walk one weak ``combo_inherit`` AFFECTS edge and predict a single
-        constituent's chain. Instead, pool every constituent chain's edges
-        (each constituent reached via its OWN curated AFFECTS edge), add the
-        inter-constituent ``MODULATES_EFFICACY_OF`` edges that live on the combo
-        node, and run the same weakest-link softmin over the union — so the
-        regimen's probability is set by the weakest edge across ALL its
-        mechanisms, and any synergy/antagonism modulation joins the aggregate.
-        Safety is the soft-or of the constituents' AE risks (deduped by AE).
-        """
-        seen: set[tuple[str, str, str]] = set()
-        edges: list[tuple[str, str, EdgeType, EdgeBeliefState]] = []
-        for ch in constituent_chains:
-            for e in self._collect_edges(ch):
-                key = (e[0], e[1], e[2].value)
-                if key not in seen:
-                    seen.add(key)
-                    edges.append(e)
-        # Inter-constituent modulation edges hang off the combo node, not the
-        # mono constituents — add them explicitly (each constituent's own
-        # _collect_edges sees no modulation pairs, being a single compound).
-        for me in _collect_modulation_edges(self.graph, combo_id):
-            key = (me[0], me[1], me[2].value)
-            if me[3].evidence_strength > 0.0 and key not in seen:
-                seen.add(key)
-                edges.append(me)
-
-        # Safety: union the constituents' AE risks (dedup by AE), then one
-        # soft-or — a combo inherits each constituent's toxicity.
-        def _union_risks(max_risks: int, mb: float, mev: float) -> list[SafetyRisk]:
-            out: list[SafetyRisk] = []
-            seen_ae: set[str] = set()
-            for ch in constituent_chains:
-                for r in self._collect_safety_risks(
-                    ch, min_belief=mb, min_evidence=mev, max_risks=max_risks,
-                ):
-                    if r.ae_id not in seen_ae:
-                        seen_ae.add(r.ae_id)
-                        out.append(r)
-            return out
-
-        penalty = self._penalty_from_risks(_union_risks(
-            10_000,
-            self._SAFETY_PENALTY_MIN_BELIEF,
-            self._SAFETY_PENALTY_MIN_EVIDENCE,
-        ))
-        display_risks = sorted(
-            _union_risks(10, 0.4, 1.0),
-            key=lambda r: r.belief_probability * r.evidence_strength,
-            reverse=True,
-        )[:10]
-
-        names = ", ".join(ch.compound_id for ch in constituent_chains)
-        indication = (
-            constituent_chains[0].indication_id if constituent_chains else "UNKNOWN"
-        )
-        hypothesis = (
-            f"{combo_id} [{len(constituent_chains)} constituents: {names}] "
-            f"-> {indication}"
-        )
-        return self._result_from_edges(
-            edges,
-            n_samples=n_samples,
-            hypothesis=hypothesis,
-            safety_penalty=penalty,
-            safety_risks=display_risks,
         )
 
     # Round-20: safety penalty thresholds. Stricter than the display
@@ -780,10 +430,9 @@ class PredictionEngine:
         events in 30% of patients" ≠ "this drug causes Grade 1 rash
         in 60% of patients."
 
-        Aggregation: MAX over per-AE contributions (round-31; was
-        soft-or, which double-counted correlated AEs in a failed trial);
-        capped at ``_SAFETY_PENALTY_CAP`` so the architecture stays
-        efficacy-led even under extreme AE tails.
+        Aggregation: soft-or so multiple AEs accumulate with
+        diminishing returns; capped at ``_SAFETY_PENALTY_CAP`` so the
+        architecture stays efficacy-led even under extreme AE tails.
 
         Reuses ``_collect_safety_risks`` retrieval (so both
         ``causes_ae`` compound-level edges AND ``target_associated_ae``
@@ -797,37 +446,18 @@ class PredictionEngine:
         risks = self._collect_safety_risks(
             chain, min_belief=mb, min_evidence=me, max_risks=10_000,
         )
-        return self._penalty_from_risks(risks)
-
-    def _penalty_from_risks(self, risks: list[SafetyRisk]) -> float:
-        """Max-over-AEs, severity-weighted safety drag over a precomputed risk
-        list — the shared core of the single-chain penalty (one compound's risks)
-        and the combo penalty (constituents' risks unioned by AE). Round-31
-        switched the aggregation from soft-or to max (see the inline note)."""
         if not risks:
             return 0.0
         contributions: list[float] = []
         for r in risks:
-            # Round-29: SafetyRisk now carries severity_range + the
-            # serious flag directly (target-scoped for
-            # target_associated_ae risks via edge metadata, PT-node-
-            # sourced for causes_ae). Both feed into the severity
-            # weight: an AE flagged serious=True floors the weight at
-            # the grade-3 tier even when CTCAE grade data is missing.
-            if r.severity_range or r.serious:
-                severity_weight = _ae_severity_weight(
-                    r.severity_range, serious=r.serious,
-                )
+            try:
+                ae_node = self.graph.get_node(r.ae_id)
+            except KeyError:
+                severity_weight = _UNKNOWN_GRADE_WEIGHT
             else:
-                try:
-                    ae_node = self.graph.get_node(r.ae_id)
-                except KeyError:
-                    severity_weight = _UNKNOWN_GRADE_WEIGHT
-                else:
-                    severity_weight = _ae_severity_weight(
-                        ae_node.get("severity_range"),
-                        serious=bool(ae_node.get("serious", False)),
-                    )
+                severity_weight = _ae_severity_weight(
+                    ae_node.get("severity_range")
+                )
             # Three-gate modulation. Severity sets the ceiling
             # (manageable rash vs fatal cardiac event); belief_factor
             # scales by how strongly the AE rate actually moved above
@@ -845,29 +475,11 @@ class PredictionEngine:
             trust_factor = min(
                 1.0, math.log(r.evidence_strength + 1) / math.log(50),
             )
-            contribution = severity_weight * belief_factor * trust_factor
-            if _safety_dlt_gate_enabled():
-                # Gate on failure-causing toxicity (see _dlt_fraction): an AE
-                # that merely occurred in tolerated/successful trials
-                # contributes only the floor share; toxicity that caused a
-                # dose-limiting failure contributes fully.
-                contribution *= (
-                    _SAFETY_DLT_FLOOR
-                    + (1.0 - _SAFETY_DLT_FLOOR) * r.failure_causing_fraction
-                )
-            contributions.append(contribution)
-        # Round-31 (benchmark): MAX over per-AE contributions, not soft-or.
-        # Soft-or (noisy-OR, 1-prod(1-c)) is the correct model for INDEPENDENT
-        # failure modes — but AEs reported in a failed trial are CORRELATED (the
-        # failure_causing attribution smears across co-occurring AEs), so soft-or
-        # double-counts and over-penalizes. A drug's safety risk is its WORST
-        # toxicity; max avoids the double-count. On the n=129 holdout this fixes
-        # the residual pessimism the floor fix left: the [0.2,0.3)-rated trials
-        # (71% actually succeeded) lift to a calibrated ~0.46 (obs 0.50);
-        # Brier 0.231->0.209, accuracy 0.674->0.713, ECE 0.160->0.116, torcetrapib
-        # still correctly failure. See memory tuning_safety_aggregation.
-        penalty = max(contributions) if contributions else 0.0
-        return min(self._SAFETY_PENALTY_CAP, penalty)
+            contributions.append(severity_weight * belief_factor * trust_factor)
+        penalty = 1.0
+        for c in contributions:
+            penalty *= (1.0 - c)
+        return min(self._SAFETY_PENALTY_CAP, 1.0 - penalty)
 
     def _collect_safety_risks(
         self,
@@ -913,12 +525,6 @@ class PredictionEngine:
                 source="compound",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
-                # causes_ae: severity comes from the PT-level AE node
-                # itself, which is uniquely the PT (not shared across
-                # targets). No edge-level override needed.
-                severity_range=ae_node.get("severity_range") or "",
-                serious=bool(ae_node.get("serious", False)),
-                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=[chain.compound_id],
             ))
             seen_ae_ids.add(ae_id)
@@ -947,27 +553,12 @@ class PredictionEngine:
             contributing = [
                 rec.source_id for rec in belief.evidence
             ]
-            # Round-29: prefer the EDGE's severity_range + serious flag
-            # (both target-scoped, written by the SOC propagation in
-            # ae_propagation._rebuild_target_ae_edge). Fall back to the
-            # AE node's severity_range / serious for PT-tier
-            # target_associated_ae edges (where the AE node IS specific)
-            # and for legacy snapshots predating round-29.
-            edge_severity = (edge.get("severity_range") or "")
-            if not edge_severity:
-                edge_severity = ae_node.get("severity_range") or ""
-            edge_serious = edge.get("serious")
-            if edge_serious is None:
-                edge_serious = bool(ae_node.get("serious", False))
             risks.append(SafetyRisk(
                 ae_id=ae_id,
                 ae_name=ae_node.get("name", ae_id),
                 source="target_class",
                 belief_probability=belief.expected_probability,
                 evidence_strength=belief.evidence_strength,
-                severity_range=edge_severity,
-                serious=bool(edge_serious),
-                failure_causing_fraction=_dlt_fraction(belief),
                 contributing_compound_ids=contributing,
             ))
 
@@ -1074,32 +665,6 @@ class PredictionEngine:
             tgt_id = getattr(chain, tgt_field)
 
             if src_id == "UNKNOWN" or tgt_id == "UNKNOWN":
-                continue
-
-            if edge_type == EdgeType.RESPONDS_DIFFERENTLY:
-                # Phase-3 hierarchical backoff: a sparse specific population
-                # (line_first__stage_iii) borrows its coarser ancestor's
-                # (line_first) cross-disease-pooled evidence. The resolved
-                # ancestor's belief stands in for the population edge.
-                resolved = _resolve_responds_differently(self.graph, src_id, tgt_id)
-                if resolved is not None:
-                    anc_id, belief = resolved
-                    edges.append((anc_id, tgt_id, edge_type, belief))
-                continue
-
-            if edge_type in (
-                EdgeType.BIOLOGY_DRIVES, EdgeType.ENDPOINT_CAPTURES
-            ):
-                # Phase-4 indication backoff: chains are leaf-anchored, so a
-                # sparse leaf indication (uveal_melanoma) borrows its SUBTYPE_OF
-                # parent's (melanoma) evidence for biology→indication /
-                # endpoint→indication.
-                resolved = _resolve_indication_edge(
-                    self.graph, src_id, tgt_id, edge_type
-                )
-                if resolved is not None:
-                    anc_ind, belief = resolved
-                    edges.append((src_id, anc_ind, edge_type, belief))
                 continue
 
             try:
@@ -1327,36 +892,6 @@ def predict_clinical_hypothesis(
     compound_in_graph = (
         compound_id is not None and compound_id in graph._graph
     )
-
-    # Combo regimens: compose the CONSTITUENTS' chains rather than walk the
-    # combo's weak combo_inherit AFFECTS edge to a single target. Skipped when
-    # the caller pinned an explicit target/mechanism (which means "predict this
-    # one path") — then fall through to the single-chain logic below.
-    constituents = (
-        _regimen_constituents(graph, compound_id) if compound_in_graph else []
-    )
-    if len(constituents) >= 2 and target_id is None and mechanism_id is None:
-        constituent_chains: list[CausalChain] = []
-        for cid in constituents:
-            c_tgt = _resolve_target_for_compound(graph, cid)
-            c_mech, c_bio = _resolve_chain_via_topology(graph, c_tgt, indication_id)
-            c_end = endpoint_id or _resolve_endpoint_for_indication(
-                graph, indication_id, c_bio,
-            )
-            constituent_chains.append(CausalChain(
-                arm_id="hypothesis",
-                compound_id=cid,
-                subgroup_population_id=population_id or "UNKNOWN",
-                target_id=c_tgt,
-                mechanism_id=c_mech,
-                biology_id=c_bio,
-                indication_id=indication_id,
-                endpoint_id=c_end,
-                outcome=TrialOutcome.UNKNOWN,
-            ))
-        return PredictionEngine(graph).predict_combo(
-            constituent_chains, compound_id, n_samples=n_samples,
-        )
 
     if target_id:
         resolved_target = target_id

@@ -1,0 +1,155 @@
+{
+  "nct_id": "NCT00636168",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab",
+    "claimed_target": "CTLA-4",
+    "proposed_mechanism": "CTLA-4 checkpoint blockade",
+    "intended_biology": "T-cell activation and anti-tumor immune response",
+    "target_population": "high risk stage III melanoma patients after complete resection",
+    "primary_endpoint": "recurrence-free survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "HR 0.75 (95% CI: 0.64-0.90) for RFS",
+    "p_value": 0.0013,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "High rates of immune-related adverse events",
+      "Grade 3-4 immune-mediated adverse reactions in 194/471 patients",
+      "4 drug-related deaths in ipilimumab arm"
+    ],
+    "dose_info": {
+      "dose": "10 mg/kg",
+      "schedule": "IV every 21 days x4, then every 12 weeks until week 156",
+      "max_tolerated_dose": "",
+      "dose_modifications": "247/471 patients discontinued due to adverse events"
+    },
+    "adverse_events": [
+      {
+        "term": "AE leading to discontinuation",
+        "grade": "",
+        "incidence_treatment_pct": 52.4,
+        "incidence_control_pct": 9.1,
+        "serious": false
+      },
+      {
+        "term": "Serious adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 54.6,
+        "incidence_control_pct": 27.0,
+        "serious": true
+      },
+      {
+        "term": "Drug-related serious adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 46.1,
+        "incidence_control_pct": 2.1,
+        "serious": true
+      },
+      {
+        "term": "Immune-related adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 90.4,
+        "incidence_control_pct": 39.7,
+        "serious": false
+      },
+      {
+        "term": "Immune-mediated adverse reactions",
+        "grade": "3-4",
+        "incidence_treatment_pct": 41.2,
+        "incidence_control_pct": 3.4,
+        "serious": true
+      },
+      {
+        "term": "Enterocolitis immune-mediated adverse reaction",
+        "grade": "3-4",
+        "incidence_treatment_pct": 16.1,
+        "incidence_control_pct": 0.8,
+        "serious": true
+      },
+      {
+        "term": "Hepatitis immune-mediated adverse reaction",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.8,
+        "incidence_control_pct": 0.2,
+        "serious": true
+      },
+      {
+        "term": "Drug-related deaths",
+        "grade": "5",
+        "incidence_treatment_pct": 0.8,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "high risk stage III melanoma after complete resection",
+    "comparator": "placebo",
+    "sample_size": 1211,
+    "duration": "up to 3 years treatment, median follow-up 2.7 years",
+    "duration_weeks": 156.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "a",
+      "compounds": [
+        "ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "b",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "a",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": 26.09,
+      "p_value": 0.0013,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "b",
+      "subgroup_descriptor": null,
+      "endpoint": "RFS",
+      "effect_size": 17.05,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "a",
+      "subgroup_descriptor": null,
+      "endpoint": "DMFS",
+      "effect_size": 48.3,
+      "p_value": 0.0024,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "b",
+      "subgroup_descriptor": null,
+      "endpoint": "DMFS",
+      "effect_size": 27.47,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "a",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 86.6,
+      "p_value": 0.0013,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

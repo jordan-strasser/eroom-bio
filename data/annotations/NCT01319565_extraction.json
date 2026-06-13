@@ -1,0 +1,240 @@
+{
+  "nct_id": "NCT01319565",
+  "therapeutic_hypothesis": {
+    "compound": "TIL + IL-2 + lymphodepleting chemotherapy \u00b1 TBI",
+    "claimed_target": "tumor-infiltrating lymphocytes",
+    "proposed_mechanism": "adoptive cell transfer of ex vivo expanded tumor-infiltrating lymphocytes following lymphodepletion",
+    "intended_biology": "enhanced anti-tumor immune response through adoptive T cell therapy",
+    "target_population": "metastatic melanoma patients",
+    "primary_endpoint": "objective tumor regression rate and overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "Response rate: 47.1% (Arm 1) vs 64.6% (Arm 2); median OS: 36.2 months (Arm 1) vs 37.3 months (Arm 2)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Complete response: 27.5% (Arm 1) vs 27.1% (Arm 2)",
+      "Partial response: 19.6% (Arm 1) vs 37.5% (Arm 2)",
+      "Progressive disease: 52.9% (Arm 1) vs 35.4% (Arm 2)"
+    ],
+    "safety_signals": [
+      "Grade 3-4 febrile neutropenia common with fludarabine/cyclophosphamide",
+      "Grade 3-4 thrombotic microangiopathy associated with TBI",
+      "IL-2 related hypotension, dyspnea, and hypoxia",
+      "Severe lymphopenia and neutropenia from conditioning regimen"
+    ],
+    "dose_info": {
+      "dose": "IL-2: 720,000 IU/kg; Cyclophosphamide: 60 mg/kg/day x2; Fludarabine: 25 mg/m\u00b2/day x5; TBI: 12 Gy total",
+      "schedule": "IL-2 q8h x15 doses; Cyclophosphamide days -7,-6; Fludarabine days -7 to -3; TBI 2 Gy BID x3 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3 febrile neutropenia",
+        "grade": "3",
+        "incidence_treatment_pct": 45.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 lymphopenia",
+        "grade": "4",
+        "incidence_treatment_pct": 98.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 neutropenia",
+        "grade": "4",
+        "incidence_treatment_pct": 94.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 4 thrombocytopenia",
+        "grade": "4",
+        "incidence_treatment_pct": 76.5,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 3 thrombotic microangiopathy",
+        "grade": "3",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Grade 3 dyspnea",
+        "grade": "3",
+        "incidence_treatment_pct": 27.5,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "Grade 3 hypoxia",
+        "grade": "3",
+        "incidence_treatment_pct": 20.6,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "TIL + IL-2 + chemotherapy alone vs with TBI",
+    "sample_size": 102,
+    "duration": "median follow-up 91.8 months",
+    "duration_weeks": 399.4,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "til_il2_chemo",
+      "compounds": [
+        "Young TIL",
+        "Aldesleukin",
+        "Cyclophosphamide",
+        "Fludarabine"
+      ]
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "compounds": [
+        "Young TIL",
+        "Aldesleukin",
+        "Cyclophosphamide",
+        "Fludarabine",
+        "Total Body Irradiation"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "til_il2_chemo",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "Response Rate",
+      "effect_size": 27.5,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "Response Rate",
+      "effect_size": 27.1,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "Response Rate",
+      "effect_size": 19.6,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "Response Rate",
+      "effect_size": 37.5,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo",
+      "subgroup_descriptor": "Progressive Disease",
+      "endpoint": "Response Rate",
+      "effect_size": 52.9,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "subgroup_descriptor": "Progressive Disease",
+      "endpoint": "Response Rate",
+      "effect_size": 35.4,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "til_il2_chemo",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 36.2,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 37.3,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "til_il2_chemo",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.8,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "til_il2_chemo_tbi",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 9.3,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ]
+}

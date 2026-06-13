@@ -1,0 +1,166 @@
+{
+  "nct_id": "NCT00121225",
+  "therapeutic_hypothesis": {
+    "compound": "vorinostat",
+    "claimed_target": "HDAC",
+    "proposed_mechanism": "histone deacetylase inhibition",
+    "intended_biology": "chromatin remodeling and gene expression modulation",
+    "target_population": "patients with metastatic or unresectable melanoma",
+    "primary_endpoint": "objective response rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "2/32 patients (6.25%) objective response rate",
+    "p_value": null,
+    "target_engagement_evidence": "HP1 and MacroH2A nuclear foci expression changes observed",
+    "biomarker_changes": [
+      "MacroH2A1.1 log fold change: 0.149",
+      "MacroH2A1.2 log fold change: -0.748",
+      "HP1 log fold change: -0.077",
+      "VEGF serum levels mean: 203 pg (p=0.029)"
+    ],
+    "subgroup_findings": [
+      "p53 wild type: 20 patients",
+      "p53 mutant: 11 patients"
+    ],
+    "safety_signals": [
+      "Multiple serious adverse events including hematologic toxicity (anemia, thrombocytopenia), constitutional symptoms (fatigue, anorexia), and musculoskeletal effects"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "once daily for 4 weeks, repeated every 4 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Dry mouth",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dizziness",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Back pain",
+        "grade": "",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Platelet count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnea",
+        "grade": "",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Myalgia",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 6.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Generalized muscle weakness",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Anorexia",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Tumor pain",
+        "grade": "",
+        "incidence_treatment_pct": 3.1,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic or unresectable melanoma",
+    "comparator": "none",
+    "sample_size": 32,
+    "duration": "up to 5 years",
+    "duration_weeks": 260.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i",
+      "compounds": [
+        "vorinostat"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Wild Type",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "TP53",
+          "level": "wildtype"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Mutant",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "TP53",
+          "level": "mutant"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i",
+      "subgroup_descriptor": null,
+      "endpoint": "objective response rate",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_i",
+      "subgroup_descriptor": null,
+      "endpoint": "time to progression",
+      "effect_size": 4.0,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": []
+}

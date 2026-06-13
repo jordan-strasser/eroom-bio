@@ -1,0 +1,86 @@
+{
+  "nct_id": "NCT03068455",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement for either PD-1 or CTLA-4. Cannot assess whether nivolumab engaged PDCD1 or ipilimumab engaged CTLA4.\n\n2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether checkpoint blockade pathways were modulated downstream of target engagement.\n\n3. CLINICAL TRANSLATION: Primary endpoint (RFS) failed for the combination arm with HR 0.90 (95% CI: 0.78-1.04), indicating no significant improvement over nivolumab monotherapy. OS also failed with HR 1.03. The combination did not translate to clinical benefit.\n\n4. POPULATION EFFECTS: PD-L1 <1% subgroup showed numerical benefit (33.18 vs 25.33 months median RFS) but still failed statistically with HR 0.92 (95% CI: 0.75-1.14). PD-L1 \u22651% subgroup showed no median RFS reached in either arm, suggesting potential differential response by PD-L1 status.\n\n5. CONFOUNDERS: The trial appears adequately powered (n=1844) with appropriate duration (195.3 weeks). Higher toxicity in combination arm may have limited optimal dosing or compliance, but no specific dose-limiting toxicity threshold was crossed.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No biomarker data available to assess target engagement or pathway modulation. Cannot determine where in the causal chain the failure occurred without PD/PK or pharmacodynamic readouts."
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.6,
+      "evidence": "PD-L1 <1% subgroup showed numerical benefit (33.18 vs 25.33 months median RFS) while overall population failed, suggesting the combination may work in a biomarker-defined subset."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination arm failed but no target engagement data available to assess whether nivolumab bound PDCD1"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination arm failed but no target engagement data available to assess whether ipilimumab bound CTLA4"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination failed to improve RFS, suggesting checkpoint blockade mechanism did not effectively modulate PD-1 co-inhibition pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "Combination failed to improve RFS, suggesting checkpoint blockade mechanism did not effectively modulate CTLA4 co-inhibition pathway"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "PD-1 co-inhibition biology did not drive clinical benefit in adjuvant melanoma setting"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_ipilimumab",
+      "reasoning": "CTLA4 co-inhibition biology did not drive clinical benefit in adjuvant melanoma setting"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "RFS_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "RFS is a well-established endpoint for adjuvant melanoma trials and was measured appropriately"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__line_adjuvant__prior_tx_radiation_treated__prior_tx_surgery_treated__stage_iii",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Adjuvant stage III melanoma population did not respond to combination therapy with adequate power and appropriate endpoint measurement"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to determine mechanism of failure. Subgroup analysis suggests potential efficacy in PD-L1 low patients but statistical significance not reached."
+}

@@ -29,7 +29,6 @@ sorted stable-id order so the result is deterministic across rebuilds.
 from __future__ import annotations
 
 import logging
-import os
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -334,141 +333,6 @@ def _update_chain_references(
     return rewrites
 
 
-def embedding_merge_enabled() -> bool:
-    """A.4 feature flag (``EROOM_EMBEDDING_MERGE``). Default off — the build
-    path stays crosswalk-only until the embedding merger is threshold-validated
-    on the gold set (A.5)."""
-    return os.environ.get("EROOM_EMBEDDING_MERGE", "").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
-
-
-def embedding_merge_pairs(
-    graph: "GraphStore",
-    *,
-    embed_fn=None,
-    threshold: float = 0.95,
-) -> list[tuple[str, str]]:
-    """Biology-node pairs the embedding merger judges equivalent — semantic
-    twins the Reactome↔GO crosswalk missed (e.g. a slug node vs its Reactome
-    pathway, or two pathways with no shared GO term but near-identical
-    descriptions).
-
-    Cosine ≥ ``threshold`` on BioLORD embeddings of each node's A.0 description
-    (falling back to its name). PUBLIC code (open methods); the merge DECISION
-    is flag-gated (``EROOM_EMBEDDING_MERGE``, default off).
-
-    **Gold-set validation (2026-05-24, scripts/eval_merge_threshold.py):** raw
-    cosine is a WEAK merge discriminator — best F1 only ~0.53 because `sibling`
-    (mean 0.63, max 0.98) and `parent_of`/`child_of` (max ~0.99) pairs often
-    score as high as true `merge` pairs (mean 0.95). At the old 0.92 default,
-    precision was ~0.35 (would over-merge distinct biology, irreversibly). The
-    default is raised to 0.95 (precision-leaning) and the flag stays OFF; the
-    recommended upgrade is to gate the decision on the manifold-1 **box
-    relation** (`box_embeddings.relation == "merge"`), which uses learned
-    containment to separate merge from is-a/sibling — needs a graph-node-pair
-    eval to validate before enabling. ``embed_fn`` is injectable for tests.
-    """
-    bio = [
-        (n["id"], (n.get("description") or n.get("name") or "").strip())
-        for n in graph.get_nodes_by_type("BiologyNode")
-    ]
-    bio = [(i, t) for i, t in bio if t]
-    if len(bio) < 2:
-        return []
-    if embed_fn is None:
-        from src.graph.biolord_embeddings import embed_text as embed_fn  # noqa
-    from src.graph.biolord_embeddings import cosine_similarity
-
-    vecs = {i: embed_fn(t) for i, t in bio}
-    ids = [i for i, _ in bio]
-    pairs: list[tuple[str, str]] = []
-    for a in range(len(ids)):
-        for b in range(a + 1, len(ids)):
-            if cosine_similarity(vecs[ids[a]], vecs[ids[b]]) >= threshold:
-                pairs.append((ids[a], ids[b]))
-    return pairs
-
-
-def box_merge_pairs(
-    graph: "GraphStore",
-    boxes: dict,
-    *,
-    node_type: str = "BiologyNode",
-) -> list[tuple[str, str]]:
-    """Biology-node pairs the manifold-1 **box relation** judges `merge`.
-
-    Where ``embedding_merge_pairs`` thresholds raw cosine (which the gold set
-    showed conflates merge with sibling/parent — F1 ~0.53), this uses the
-    trained box geometry: ``relation == "merge"`` requires the two boxes to be
-    near-coincident (mutually contained). A parent/child pair — one box
-    contained in the other — is classified `parent_of`/`child_of` and is NOT
-    merged, which is the precision raw cosine lacked. ``boxes`` maps node_id ->
-    ``box_embeddings.Box`` (load from the private ``manifold1_boxes.json``).
-    Only nodes that have a fitted box participate.
-
-    **Validation (52-graph, 2026-05-24): still NOT safe to enable.** This does
-    respect hierarchy (0 Reactome ancestor-pairs merged, unlike cosine), but it
-    still over-merges biologically-distinct pairs whose *descriptions* are
-    near-identical — e.g. "Co-inhibition by PD-1" vs "Co-inhibition by CTLA4"
-    (distinct checkpoints), and templated slug nodes ("antimetabolite biology"
-    vs "interleukin signaling"). Embedding-of-description can't see the
-    gene-level distinction (PD-1 != CTLA4), so no box-size calibration fixes it.
-    Conclusion: the ontology crosswalk remains the more reliable merger; an
-    embedding merger needs a gene/target-aware signal (or a node-pair gold set
-    to set a high-precision operating point) before it's worth enabling. The
-    flag (``EROOM_EMBEDDING_MERGE``) stays OFF.
-    """
-    from src.graph.box_embeddings import relation
-
-    ids = [
-        n["id"]
-        for n in graph.get_nodes_by_type(node_type)
-        if n["id"] in boxes
-    ]
-    pairs: list[tuple[str, str]] = []
-    for i in range(len(ids)):
-        for j in range(i + 1, len(ids)):
-            if relation(boxes[ids[i]], boxes[ids[j]]) == "merge":
-                pairs.append((ids[i], ids[j]))
-    return pairs
-
-
-def augment_classes_with_pairs(
-    classes: list[set[str]], pairs: list[tuple[str, str]],
-) -> list[set[str]]:
-    """Union crosswalk equivalence classes that an embedding-merge pair bridges.
-
-    Pairs between two nodes the crosswalk left as singletons still merge them.
-    Returns only classes with ≥2 members (singletons are no-op merges).
-    """
-    parent: dict[str, str] = {}
-
-    def find(x: str) -> str:
-        parent.setdefault(x, x)
-        root = x
-        while parent[root] != root:
-            root = parent[root]
-        while parent[x] != root:
-            parent[x], x = root, parent[x]
-        return root
-
-    def union(a: str, b: str) -> None:
-        parent[find(a)] = find(b)
-
-    for cls in classes:
-        members = list(cls)
-        for m in members[1:]:
-            union(members[0], m)
-    for a, b in pairs:
-        union(a, b)
-
-    groups: dict[str, set[str]] = {}
-    for node in list(parent):
-        groups.setdefault(find(node), set()).add(node)
-    return [g for g in groups.values() if len(g) >= 2]
-
-
 async def merge_equivalent_biology_nodes(
     graph: "GraphStore",
     lincs_client: "LINCSClient",
@@ -490,15 +354,6 @@ async def merge_equivalent_biology_nodes(
     reactome_ids = [b for b in bio_nodes if b.startswith("R-")]
     crosswalk = await fetch_reactome_to_go_crosswalk(reactome_ids, lincs_client)
     classes = find_equivalence_classes(bio_nodes, crosswalk)
-
-    # A.4 (flag-gated, EROOM_EMBEDDING_MERGE): catch semantic equivalence the
-    # ontology crosswalk missed, via BioLORD cosine on node descriptions. Off
-    # by default so the crosswalk-only build path is unchanged until validated.
-    if embedding_merge_enabled():
-        emb_pairs = embedding_merge_pairs(graph)
-        if emb_pairs:
-            classes = augment_classes_with_pairs(classes, emb_pairs)
-            logger.info("A.4 embedding merger added %d pairs", len(emb_pairs))
 
     nodes_removed: list[str] = []
     winner_by_loser: dict[str, str] = {}

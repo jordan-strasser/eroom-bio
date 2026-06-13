@@ -1,35 +1,46 @@
 {
   "nct_id": "NCT01831726",
   "trial_outcome": "failure",
-  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged FGFR3/VEGFR/PDGFR targets. Target engagement cannot be assessed from the available data. 2. PATHWAY MODULATION: No pathway biomarkers or downstream signaling data reported to confirm kinase inhibition or angiogenesis pathway modulation. 3. CLINICAL TRANSLATION: Primary endpoint (clinical benefit rate at 16 weeks) clearly failed - only 11/80 patients (13.8%) achieved clinical benefit, with just 1 partial response and 10 stable disease. PFS was also poor at 2.4 months. 4. POPULATION EFFECTS: No subgroup analyses reported that identified responding populations. The broad 'tumor pathway activations inhibited by dovitinib' population appears too heterogeneous. 5. CONFOUNDERS: Single-arm design with historical control limits interpretation, but the very low response rate (13.8% CBR, 1.25% ORR) suggests genuine lack of efficacy rather than trial design issues.",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm dovitinib engaged its multiple RTK targets (FGFR3, VEGFR, etc.). 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether kinase inhibition affected downstream PI3K cascade signaling. 3. CLINICAL TRANSLATION: Primary endpoint CBR at 16 weeks was 13.8% (11/80 patients), which appears low for clinical benefit. No p-value reported but effect size suggests limited efficacy. Secondary endpoints also showed minimal activity: ORR 1.25%, PFS 2.4 months, OS 13.5 months. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Single-arm Phase 2 design with no control group makes interpretation challenging. However, the low response rates across multiple endpoints suggest genuine lack of efficacy rather than trial design issues. The 13.8% CBR is below typical thresholds for clinical benefit in oncology.",
   "failure_modes": [
     {
-      "mode": "wrong_population",
-      "confidence": 0.7,
-      "evidence": "Enrolled population was broadly defined as 'patients with tumor pathway activations inhibited by dovitinib' without specific biomarker selection for FGFR/VEGFR pathway activation. Very low response rate (1.25% ORR) suggests most patients lacked the molecular features where dovitinib mechanism would be active."
-    },
-    {
       "mode": "insufficient_information",
-      "confidence": 0.6,
-      "evidence": "No target engagement biomarkers, no pathway modulation data, and single-arm design with historical control limits mechanistic interpretation of where the causal chain broke."
+      "confidence": 0.8,
+      "evidence": "Single-arm trial with no p-values reported, no biomarker data, and no historical benchmark provided for comparison. Effect sizes appear low but cannot definitively assess statistical significance or clinical meaningfulness without comparator."
     }
   ],
   "edges_to_update": [
     {
+      "edge_type": "affects",
+      "source_entity": "dovitinib",
+      "target_entity": "ENSG00000068078",
+      "support": "ambiguous",
+      "affecting_arm_id": "tki258",
+      "reasoning": "No target engagement biomarker data reported to confirm dovitinib binding to FGFR3"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000068078",
+      "target_entity": "kinase_inhibition",
+      "support": "ambiguous",
+      "affecting_arm_id": "tki258",
+      "reasoning": "No pathway biomarker data to confirm FGFR3 inhibition occurred via kinase inhibition mechanism"
+    },
+    {
       "edge_type": "mechanism_affects",
-      "source_entity": "R-HSA-2033515",
-      "target_entity": "bio:29764fcd7fed",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-109704",
       "support": "weak_contradict",
       "affecting_arm_id": "tki258",
-      "reasoning": "FGFR3 translocation mechanism failed to produce angiogenesis inhibition that translated to clinical benefit, as evidenced by very low response rate"
+      "reasoning": "Low clinical response rates suggest kinase inhibition did not effectively modulate PI3K cascade biology"
     },
     {
       "edge_type": "biology_drives",
-      "source_entity": "bio:29764fcd7fed",
+      "source_entity": "R-HSA-109704",
       "target_entity": "tumor",
       "support": "weak_contradict",
       "affecting_arm_id": "tki258",
-      "reasoning": "Angiogenesis inhibition biology failed to drive tumor control, with only 13.8% clinical benefit rate and 1.25% objective response rate"
+      "reasoning": "CBR 13.8% and ORR 1.25% suggest PI3K cascade modulation did not drive meaningful tumor response"
     },
     {
       "edge_type": "endpoint_captures",
@@ -37,19 +48,18 @@
       "target_entity": "tumor",
       "support": "moderate_support",
       "affecting_arm_id": null,
-      "reasoning": "Clinical benefit rate at 16 weeks is an appropriate endpoint for tumor control and was clearly measured, though the result was negative"
+      "reasoning": "CBR at 16 weeks is a standard oncology endpoint that captures clinical benefit, though the low rate achieved suggests limited drug efficacy rather than poor endpoint design"
     },
     {
       "edge_type": "responds_differently",
-      "source_entity": "tumor__extent_locally_advanced",
+      "source_entity": "tumor__csf1r_mutation__extent_locally_advanced__fgfr1_amplificationormutation__fgfr2_amplificationormutation__fgfr3_amplificationormutation__flt3_amplificationormutation__kit_amplificationormutation__ntrk1_mutation__pdgfra_mutation__pdgfrb_mutation__ret_mutation__vegfr1_mutation__vegfr2_mutation",
       "target_entity": "tumor",
-      "support": "moderate_contradict",
+      "support": "weak_contradict",
       "affecting_arm_id": null,
-      "reasoning": "This population showed very poor response to dovitinib with adequate sample size (N=80), suggesting this population does not respond to this mechanism"
+      "reasoning": "Despite biomarker-selected population with multiple RTK alterations, response rates were low (CBR 13.8%, ORR 1.25%), suggesting this population does not respond well to dovitinib"
     }
   ],
-  "confidence_overall": 0.6,
-  "operational_failure": false,
+  "confidence_overall": 0.4,
   "needs_expert_review": true,
-  "review_reason": "Single-arm design with no biomarker stratification makes it difficult to determine whether failure was due to wrong population selection, inadequate target engagement, or genuine mechanism failure. The very low response rate suggests mechanism issues but lack of PD data prevents definitive classification."
+  "review_reason": "Single-arm design with no statistical testing or historical benchmarks provided makes it difficult to definitively classify as failure versus insufficient information. Low response rates suggest failure but lack of comparator limits confidence."
 }

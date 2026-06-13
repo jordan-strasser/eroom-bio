@@ -121,62 +121,25 @@ def _seed_combo_trial_graph() -> tuple[GraphStore, TrialSubgraph]:
     return g, ts
 
 
-def _make_classification(
-    raw_edges: list[dict],
-    *,
-    trial_outcome: str | None = None,
-    operational_failure: bool | None = None,
-    confidence: float = 0.7,
-) -> FailureClassification:
+def _make_classification(raw_edges: list[dict]) -> FailureClassification:
     clf = FailureClassification(
         trial_id="NCT_TEST",
         primary_failure_mode=FailureMode.EFFICACY_IN_SUBGROUP_ONLY,
-        confidence=confidence,
+        confidence=0.7,
         evidence_quotes=["test"],
-        operational_failure=operational_failure,
     )
-    raw: dict = {"edges_to_update": raw_edges}
-    if trial_outcome is not None:
-        raw["trial_outcome"] = trial_outcome
-    clf._raw = raw  # type: ignore[attr-defined]
+    clf._raw = {"edges_to_update": raw_edges}  # type: ignore[attr-defined]
     return clf
 
 
-def _outcome_extraction(
-    arm_outcomes: dict[str, str],
-    *,
-    sample_size: int | None = 100,
-    arm_compounds: dict[str, list[str]] | None = None,
-) -> TrialExtraction:
-    """Build a TrialExtraction whose results_by_chain + arms drive the
-    outcome-conditioning attributor.
-
-    ``arm_outcomes`` maps the (LLM) arm_id → outcome string. ``arm_compounds``
-    maps the same arm_id → its constituent compound names so
-    ``_map_extraction_arms_to_graph`` can match the extraction arm onto the
-    graph arm by compound set. Defaults to the CheckMate-067 fixture arms.
+@pytest.fixture(autouse=True)
+def _isolated_unrouted_log(tmp_path, monkeypatch):
+    """Redirect the unrouted-attribution audit log to a per-test tmp
+    file so tests never read or unlink the real `data/dev/...jsonl`.
     """
-    if arm_compounds is None:
-        arm_compounds = {
-            "nivo_only": ["nivolumab"],
-            "ipi_only": ["ipilimumab"],
-            "ipi_mono": ["ipilimumab"],
-            "combo": ["nivolumab", "ipilimumab"],
-        }
-    arms = [
-        ExtractedArm(arm_id=arm_id, compounds=arm_compounds.get(arm_id, []))
-        for arm_id in arm_outcomes
-    ]
-    results = [
-        ChainResult(arm_id=arm_id, outcome=outcome, endpoint="PFS")
-        for arm_id, outcome in arm_outcomes.items()
-    ]
-    return TrialExtraction(
-        trial_id="NCT_TEST",
-        sample_size=sample_size,
-        arms=arms,
-        results_by_chain=results,
-    )
+    log_path = tmp_path / "unrouted_attribution_updates.jsonl"
+    monkeypatch.setattr(_attributor_module, "_UNROUTED_LOG_PATH", log_path)
+    yield log_path
 
 
 @pytest.fixture(autouse=True)
@@ -218,185 +181,135 @@ class TestNameNormalization:
         assert _norm_name("") == ""
 
 
-# ── Outcome-conditions-the-chain backbone (replaces name-matched routing) ──
-#
-# Under the outcome-conditioning redesign the backbone is no longer
-# attributed by name-matching a classifier-emitted failing edge to a chain
-# edge. The trial's per-arm OUTCOME conditions the WHOLE chain by edge id.
-# These tests replace the old TestChainAwareRouting / TestAffectingArmIdRouting
-# name-match coverage with the outcome-conditioning semantics that supersede
-# it. (Off-trial-entity hallucination + sparse-chain unrouted logging only
-# applied to the deleted name-match path and no longer have a backbone analog;
-# the modulation paths still guard their own entity resolution and keep their
-# unrouted-log tests below.)
+# ── Chain-aware routing ─────────────────────────────────────────────────
 
 
-class TestOutcomeConditioning:
-    def test_failure_conditions_each_arms_own_chain(self):
-        """A per-arm FAILURE conditions every live backbone edge of that
-        arm's chain — by edge id, with no name-matching. Nivolumab's chain
-        (nivo_only arm) gets contradict evidence on its AFFECTS edge."""
+class TestChainAwareRouting:
+    def test_nivo_pd1_update_routes_to_nivo_chain(self):
         g, ts = _seed_combo_trial_graph()
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction({"nivo_only": "failure"})
-        updates = Attributor(g).attribute(clf, ts, ext)
-        affects = [
-            u for u in updates
-            if u.edge_type == EdgeType.AFFECTS
-            and u.source_id == "nivolumab"
-            and u.target_id == "ENSG00000188389"
-        ]
-        assert len(affects) == 1
-        # Failure → the edge belief moved DOWN (contradict mass).
-        assert affects[0].probability_change < 0
-        # Every record is tagged outcome-conditioned for provenance.
-        assert affects[0].evidence.context.get("outcome_conditioned") is True
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        assert len(updates) == 1
+        assert updates[0].source_id == "nivolumab"
+        assert updates[0].target_id == "ENSG00000188389"
 
-    def test_success_moves_every_backbone_edge_up(self):
-        """SUCCESS is conjunctive: every backbone edge on the arm's chain
-        gets a SUPPORT update. No edge moves DOWN; edges that start below the
-        support p_obs (0.80) move strictly UP."""
+    def test_ipi_ctla4_update_routes_to_ipi_chain_not_pd1(self):
+        """The original misrouting bug: Ipilimumab→CTLA-4 must NOT land on
+        the nivolumab→PD-1 binds_to edge in a multi-arm trial."""
         g, ts = _seed_combo_trial_graph()
-        # Seed the rest of the backbone edges (all fresh α=1,β=1 → E[p]=0.5)
-        # so the whole chain is live.
-        _seed_full_backbone(g)
-        clf = _make_classification([], trial_outcome="success")
-        ext = _outcome_extraction({"nivo_only": "success"})
-        updates = Attributor(g).attribute(clf, ts, ext)
-        nivo_updates = [u for u in updates if u.evidence.context.get("arm_id") == "nivo_only"]
-        # AFFECTS, MODULATES_VIA, MECHANISM_AFFECTS, BIOLOGY_DRIVES,
-        # REFLECTS_BIOLOGY, ENDPOINT_CAPTURES = 6 live edges.
-        assert len(nivo_updates) == 6
-        # Whole chain starts fresh (Beta(1,1)); a success support update
-        # moves every backbone edge strictly UP.
-        assert all(u.probability_change > 0 for u in nivo_updates)
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        assert len(updates) == 1
+        assert updates[0].source_id == "ipilimumab"
+        assert updates[0].target_id == "ENSG00000163599"
 
-    def test_each_arm_conditions_independently(self):
-        """In a combo trial the nivo_only and ipi_only arms condition their
-        OWN per-constituent AFFECTS edges — ipi failure lands on ipi→CTLA4,
-        not nivo→PD-1 (the old misrouting bug, now structural)."""
+    def test_both_binds_updates_route_independently(self):
         g, ts = _seed_combo_trial_graph()
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction(
-            {"nivo_only": "failure", "ipi_only": "failure"}
-        )
-        updates = Attributor(g).attribute(clf, ts, ext)
-        routes = {
-            (u.source_id, u.target_id)
-            for u in updates if u.edge_type == EdgeType.AFFECTS
-        }
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        routes = {(u.source_id, u.target_id) for u in updates}
         assert ("nivolumab", "ENSG00000188389") in routes
         assert ("ipilimumab", "ENSG00000163599") in routes
 
-    def test_no_outcome_at_all_conditions_nothing(self):
-        """When NEITHER a per-arm NOR a trial-level outcome is known
-        (extraction empty AND trial_outcome unknown/absent), the backbone
-        gets no conditioning evidence."""
+    def test_off_trial_entity_is_dropped_as_hallucination(self):
+        """Classifier emits an entity (Pembrolizumab) that is nowhere in
+        the trial subgraph. Candidate (compound, target) pairs exist but
+        none match the classifier names—graph-build trusts only
+        trial-derived entities, so this is rejected as a hallucination
+        rather than misrouted to whichever pair happened to be present.
+        """
         g, ts = _seed_combo_trial_graph()
-        clf = _make_classification([])  # no trial_outcome, no extraction
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Pembrolizumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+        ])
         updates = Attributor(g).attribute(clf, ts)
-        backbone = [
-            u for u in updates
-            if u.edge_type in (
-                EdgeType.AFFECTS, EdgeType.MODULATES_VIA,
-                EdgeType.MECHANISM_AFFECTS, EdgeType.BIOLOGY_DRIVES,
+        assert updates == []
+        assert _attributor_module._UNROUTED_LOG_PATH.exists()
+        records = [
+            json.loads(line)
+            for line in _attributor_module._UNROUTED_LOG_PATH.read_text().splitlines()
+        ]
+        hallucinations = [r for r in records if r["source_entity"] == "Pembrolizumab"]
+        assert hallucinations, "expected the off-trial entity to be logged"
+        assert all(r["reason"] == "entity_not_in_trial" for r in hallucinations)
+
+    def test_sparse_chain_logs_no_chain_match_not_hallucination(self):
+        """When the trial subgraph has UNKNOWN placeholders so no
+        candidate (src, tgt) pairs can be formed for the requested edge
+        type, the update is still dropped—but logged as
+        ``no_chain_match`` (chain too sparse to verify) rather than
+        ``entity_not_in_trial`` (classifier hallucinated). The
+        distinction matters: hallucination is a model-quality signal,
+        sparse chains are an ingestion-coverage signal.
+        """
+        g = GraphStore()
+        g.add_node(CompoundNode(id="nivolumab", name="Nivolumab", modality=Modality.ANTIBODY))
+        g.add_node(IndicationNode(id="melanoma", name="Melanoma"))
+        g.add_node(PopulationNode(id="melanoma__unselected", name="All patients"))
+        # Note: NO TargetNode and NO mechanism_affects-relevant nodes —
+        # the trial chain will reference "UNKNOWN" for those.
+
+        arms = [TrialArm(arm_id="solo", compound_ids=["nivolumab"],
+                         regimen_compound_id="nivolumab")]
+        chains = [
+            CausalChain(
+                arm_id="solo", compound_id="nivolumab",
+                subgroup_population_id="melanoma__unselected",
+                target_id="UNKNOWN", mechanism_id="UNKNOWN",
+                biology_id="UNKNOWN", indication_id="melanoma",
+                endpoint_id="UNKNOWN", outcome=TrialOutcome.UNKNOWN,
             )
         ]
-        assert backbone == []
-
-    def test_trial_level_outcome_conditions_when_per_arm_missing(self):
-        """When per-arm outcomes don't resolve but the classifier reports a
-        TRIAL-LEVEL outcome, it conditions every arm's chain (the coarsest
-        valid signal — recovers chains per-arm conditioning would skip)."""
-        g, ts = _seed_combo_trial_graph()
-        # trial_outcome=failure, but NO extraction → per-arm unresolved.
-        clf = _make_classification([], trial_outcome="failure")
-        updates = Attributor(g).attribute(clf, ts)
-        affects = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
-        # Both per-constituent AFFECTS edges conditioned (nivo + ipi arms).
-        routes = {(u.source_id, u.target_id) for u in affects}
-        assert ("nivolumab", "ENSG00000188389") in routes
-        assert ("ipilimumab", "ENSG00000163599") in routes
-        assert all(u.probability_change < 0 for u in affects)  # failure → down
-
-    def test_curated_affects_edge_barely_moves_on_failure(self):
-        """Explaining-away: a high-E[p] curated AFFECTS edge (α≫β) absorbs
-        almost none of one trial's failure mass, while a near-0.5 uncertain
-        mechanism_affects edge absorbs most. The |Δp| ordering proves the
-        weak link takes the blame."""
-        g, ts = _seed_combo_trial_graph()
-        # Curated, near-certain AFFECTS edge (already α≫β in the fixture:
-        # alpha=4, beta=1 → E[p]=0.8). Push it higher to make the contrast
-        # stark.
-        g.add_edge(GraphEdge(
-            source_id="checkpoint_blockade", target_id="R-HSA-389948",
-            edge_type=EdgeType.MECHANISM_AFFECTS,
-            belief=EdgeBeliefState(alpha=1.0, beta=1.0),  # E[p]=0.5, uncertain
-        ))
-        # Strengthen the AFFECTS edge to near-certainty.
-        g._graph.edges["nivolumab", "ENSG00000188389", "affects"]["belief"] = (
-            EdgeBeliefState(alpha=50.0, beta=1.0).model_dump(mode="json")
+        ts = TrialSubgraph(
+            trial_id="NCT_SPARSE", phase="3", arms=arms, chains=chains,
+            parent_population_id="melanoma__unselected",
         )
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction({"nivo_only": "failure"})
-        updates = Attributor(g).attribute(clf, ts, ext)
-        by_edge = {u.edge_type: u for u in updates if u.evidence.context.get("arm_id") == "nivo_only"}
-        affects_delta = abs(by_edge[EdgeType.AFFECTS].probability_change)
-        mech_delta = abs(by_edge[EdgeType.MECHANISM_AFFECTS].probability_change)
-        # The uncertain mechanism edge absorbs MORE of the failure than the
-        # curated near-certain binding edge.
-        assert mech_delta > affects_delta
+        g.set_trial_subgraph(ts)
 
-    def test_one_trial_cannot_collapse_an_edge(self):
-        """The total failure mass w_base is SPLIT across the chain, so a
-        single trial can never drive any edge to a degenerate belief."""
+        clf = FailureClassification(
+            trial_id="NCT_SPARSE",
+            primary_failure_mode=FailureMode.EFFICACY_IN_SUBGROUP_ONLY,
+            confidence=0.7, evidence_quotes=["test"],
+        )
+        clf._raw = {"edges_to_update": [
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+        ]}  # type: ignore[attr-defined]
+
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
+        records = [
+            json.loads(line)
+            for line in _attributor_module._UNROUTED_LOG_PATH.read_text().splitlines()
+        ]
+        assert records
+        assert all(r["reason"] == "no_chain_match" for r in records)
+
+    def test_composed_of_updates_skipped(self):
         g, ts = _seed_combo_trial_graph()
-        _seed_full_backbone(g)
-        clf = _make_classification([], trial_outcome="failure", confidence=1.0)
-        ext = _outcome_extraction({"nivo_only": "failure"}, sample_size=3500)
-        updates = Attributor(g).attribute(clf, ts, ext)
-        for u in updates:
-            post = u.post_update_belief
-            assert post.expected_probability > 0.02
-            assert post.expected_probability < 0.98
+        clf = _make_classification([
+            {"edge_type": "composed_of", "source_entity": "ipi+nivo",
+             "target_entity": "Nivolumab", "support": "moderate_support"},
+        ])
+        # composed_of is a structural edge—classifier-driven updates on it
+        # are dropped silently (not applied, not logged as unrouted).
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
 
 
-def _seed_full_backbone(g: GraphStore, *, reset_affects: bool = True) -> None:
-    """Add the MODULATES_VIA / MECHANISM_AFFECTS / BIOLOGY_DRIVES /
-    REFLECTS_BIOLOGY / ENDPOINT_CAPTURES edges that complete the
-    CheckMate-067 fixture chain (the fixture only seeds the two AFFECTS
-    edges).
-
-    ``reset_affects`` (default) resets the two fixture AFFECTS edges to a
-    fresh Beta(1, 1) so the WHOLE chain starts uncertain — handy for tests
-    that assert every backbone edge moves on a clean outcome (the fixture
-    seeds them at α=4, β=1 = E[p]=0.8, which a 0.80-p_obs support update
-    leaves unmoved)."""
-    if reset_affects:
-        for src, tgt in [
-            ("nivolumab", "ENSG00000188389"),
-            ("ipilimumab", "ENSG00000163599"),
-        ]:
-            if g._graph.has_edge(src, tgt, key=EdgeType.AFFECTS.value):
-                g._graph.edges[src, tgt, EdgeType.AFFECTS.value]["belief"] = (
-                    EdgeBeliefState(alpha=1.0, beta=1.0).model_dump(mode="json")
-                )
-    for src, tgt, et in [
-        ("ENSG00000188389", "checkpoint_blockade", EdgeType.MODULATES_VIA),
-        ("ENSG00000163599", "checkpoint_blockade", EdgeType.MODULATES_VIA),
-        ("checkpoint_blockade", "R-HSA-389948", EdgeType.MECHANISM_AFFECTS),
-        ("R-HSA-389948", "melanoma", EdgeType.BIOLOGY_DRIVES),
-        ("R-HSA-389948", "PFS_melanoma", EdgeType.REFLECTS_BIOLOGY),
-        ("PFS_melanoma", "melanoma", EdgeType.ENDPOINT_CAPTURES),
-    ]:
-        if not g._graph.has_edge(src, tgt, key=et.value):
-            g.add_edge(GraphEdge(
-                source_id=src, target_id=tgt, edge_type=et,
-                belief=EdgeBeliefState(alpha=1.0, beta=1.0),
-            ))
-
-
-# ── Phase B: per-arm outcome conditioning (replaces name-match arm routing) ──
+# ── Phase B: affecting_arm_id routing + dedupe ──────────────────────────
 
 
 def _seed_per_constituent_combo_graph() -> tuple[GraphStore, TrialSubgraph]:
@@ -446,94 +359,133 @@ def _seed_per_constituent_combo_graph() -> tuple[GraphStore, TrialSubgraph]:
 
 
 class TestAffectingArmIdRouting:
-    def test_unmappable_extraction_arm_falls_back_to_per_arm_skip(self):
-        """An extraction arm whose id/compounds match no graph arm yields no
-        per-arm mapping. With NO trial-level outcome either, the backbone
-        gets no conditioning (the outcome-conditioning analog of the old
-        invalid-arm-slug drop)."""
+    def test_two_arms_share_constituent_produces_two_evidence_records(self):
+        """Phase B: ipilimumab has chains in BOTH the ipi_mono arm and
+        the combo arm. With per-arm tagging, two edge updates on the same
+        (source, target) but different arm_ids produce two evidence
+        records (not one — the pre-v1 dedupe would collapse them)."""
         g, ts = _seed_per_constituent_combo_graph()
-        clf = _make_classification([])  # no trial-level outcome
-        ext = _outcome_extraction(
-            {"phantom_arm": "failure"},
-            arm_compounds={"phantom_arm": ["not_a_real_compound"]},
-        )
-        updates = Attributor(g).attribute(clf, ts, ext)
-        backbone = [
-            u for u in updates
-            if u.edge_type in (
-                EdgeType.AFFECTS, EdgeType.MODULATES_VIA,
-                EdgeType.MECHANISM_AFFECTS, EdgeType.BIOLOGY_DRIVES,
-            )
-        ]
-        assert backbone == []
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support",
+             "affecting_arm_id": "ipi_mono"},
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "weak_support",
+             "affecting_arm_id": "combo"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds_updates = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        # Both updates applied — same edge, two evidence records
+        assert len(binds_updates) == 2
+        assert all(u.source_id == "ipilimumab" for u in binds_updates)
+        assert all(u.target_id == "ENSG00000163599" for u in binds_updates)
+        # Different buckets (one from each arm)
+        buckets = {u.evidence.support for u in binds_updates}
+        assert buckets == {"moderate_support", "weak_support"}
 
-    def test_per_arm_outcomes_condition_their_own_chains(self):
-        """Per-constituent combo graph: ipilimumab has chains in BOTH the
-        ipi_mono arm and the combo arm. Conditioning the ipi_mono and combo
-        arms separately produces TWO evidence records on the
-        ipilimumab→CTLA4 AFFECTS edge (one per arm), keyed by arm_id."""
-        g, ts = _seed_per_constituent_combo_graph()
-        clf = _make_classification([], trial_outcome="partial")
-        ext = _outcome_extraction(
-            {"ipi_mono": "failure", "combo": "success"},
-            arm_compounds={
-                "ipi_mono": ["ipilimumab"],
-                "combo": ["nivolumab", "ipilimumab"],
-            },
-        )
-        updates = Attributor(g).attribute(clf, ts, ext)
-        ctla4 = [
+    def test_invented_arm_slug_is_dropped_and_logged(self, _isolated_unrouted_log):
+        """Both extractor and classifier prompts now require the LLM to
+        emit `arm_id` verbatim from the CT.gov `group_id` menu, so any
+        invented slug indicates a prompt regression. The resolver is a
+        strict exact-match: invented slugs drop and surface in the
+        unrouted log rather than being fuzzy-matched into the wrong arm
+        (which silently corrupted evidence routing pre-round-9)."""
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            # Pre-round-9 the LLM would emit `ipilimumab_alone` and the
+            # fuzzy resolver would route it to ipi_only. Now: dropped.
+            {"edge_type": "binds_to", "source_entity": "Ipilimumab",
+             "target_entity": "CTLA-4", "support": "moderate_support",
+             "affecting_arm_id": "ipilimumab_alone"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        # No CTLA-4 affects update should land — the slug is invalid.
+        ctla4_updates = [
             u for u in updates
             if u.edge_type == EdgeType.AFFECTS
-            and u.source_id == "ipilimumab"
             and u.target_id == "ENSG00000163599"
         ]
-        # Two records — one per arm (dedupe key includes arm_id).
-        assert len(ctla4) == 2
-        arms = {u.evidence.context.get("arm_id") for u in ctla4}
-        assert arms == {"ipi_mono", "combo"}
-
-    def test_same_arm_two_chains_dont_double_apply(self):
-        """Two chains of the SAME arm that share a backbone edge condition
-        it only once (the applied_edges dedupe keyed by
-        (edge_type, src, tgt, arm_id))."""
-        g, ts = _seed_per_constituent_combo_graph()
-        # The combo arm has two chains (nivo + ipi constituents) that share
-        # the same MECHANISM_AFFECTS edge (checkpoint_blockade → R-HSA-389948).
-        g.add_edge(GraphEdge(
-            source_id="checkpoint_blockade", target_id="R-HSA-389948",
-            edge_type=EdgeType.MECHANISM_AFFECTS,
-            belief=EdgeBeliefState(alpha=1.0, beta=1.0),
-        ))
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction(
-            {"combo": "failure"},
-            arm_compounds={"combo": ["nivolumab", "ipilimumab"]},
-        )
-        updates = Attributor(g).attribute(clf, ts, ext)
-        mech = [
-            u for u in updates
-            if u.edge_type == EdgeType.MECHANISM_AFFECTS
-            and u.evidence.context.get("arm_id") == "combo"
+        assert ctla4_updates == []
+        # Surfaced in the unrouted log for prompt-regression triage.
+        records = [
+            json.loads(line)
+            for line in _isolated_unrouted_log.read_text().splitlines()
+            if line.strip()
         ]
-        # Shared edge conditioned once for the combo arm, not twice.
-        assert len(mech) == 1
+        assert any(
+            r["reason"] == "unknown_arm_id:ipilimumab_alone" for r in records
+        )
+
+    def test_unknown_arm_id_logs_unrouted(self, _isolated_unrouted_log):
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support",
+             "affecting_arm_id": "an_arm_that_doesnt_exist"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        # Update dropped
+        assert all(u.evidence.support != "moderate_support" or u.target_id != "ENSG00000188389" for u in updates)
+        # Logged as unrouted
+        records = [
+            json.loads(line)
+            for line in _isolated_unrouted_log.read_text().splitlines()
+            if line.strip()
+        ]
+        assert any(
+            r["reason"].startswith("unknown_arm_id:") for r in records
+        )
+
+    def test_back_compat_null_arm_id_uses_entity_match(self):
+        """When the classifier output predates the affecting_arm_id field
+        (i.e. arm_id missing from the JSON), routing falls back to the
+        pre-v1 entity-name match against all chains."""
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support"},
+            # NO affecting_arm_id field at all
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        assert len(binds) == 1  # back-compat dedupe collapses across arms
+        assert binds[0].source_id == "nivolumab"
+
+    def test_arm_tag_constrains_to_that_arm_only(self):
+        """Even when entity names match multiple arms' chains, the
+        arm_id tag pins routing to that specific arm — disambiguating
+        the historical 'first match wins' behavior."""
+        g, ts = _seed_combo_trial_graph()
+        clf = _make_classification([
+            {"edge_type": "binds_to", "source_entity": "Nivolumab",
+             "target_entity": "PD-1", "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        updates = Attributor(g).attribute(clf, ts)
+        binds = [u for u in updates if u.edge_type == EdgeType.AFFECTS]
+        assert len(binds) == 1
+        # Routed to nivo_only's chain — the source / target match
+        # nivolumab→PD-1 in any chain, but arm_id pins it to nivo_only.
+        # We verify the evidence record exists; chain-arm linkage is via
+        # the trial subgraph (the chain whose arm_id == 'nivo_only').
+        assert binds[0].source_id == "nivolumab"
+        assert binds[0].target_id == "ENSG00000188389"
 
 
-# ── Failure-trial: outcome-conditioning replaces the round-14 backstop ──────
+# ── Failure-trial backstop ──────────────────────────────────────────────
 
 
-class TestFailureNeverSilent:
-    """The round-14 failure-trial backstop (auto-emit a default
-    biology_drives weak_contradict when the classifier returned zero edges)
-    is removed under the outcome-conditioning redesign: a failure trial with
-    a known arm outcome ALWAYS conditions every live backbone edge of its
-    chain, so it can never be silent. These tests pin that guarantee."""
+class TestFailureBackstop:
+    """When a classifier returns zero `biology_drives` on a failure trial,
+    the attributor auto-emits a default weak_contradict on the parent
+    chain so the failure isn't completely silent. The classifier prompt
+    rule says this is mandatory, but the LLM ignores it at low confidence;
+    this is the defensive code-side enforcement."""
 
     def _seed_with_biology_drives(self):
         g, ts = _seed_combo_trial_graph()
         # Production graphs always have this edge (populate.py builds it).
-        # The combo-trial fixture omits it, so add it here.
+        # The combo-trial fixture omits it, so add it here for backstop tests.
         g.add_edge(GraphEdge(
             source_id="R-HSA-389948", target_id="melanoma",
             edge_type=EdgeType.BIOLOGY_DRIVES,
@@ -541,62 +493,60 @@ class TestFailureNeverSilent:
         ))
         return g, ts
 
-    def test_failure_conditions_biology_drives_among_others(self):
-        """A failure trial conditions the chain's biology_drives edge (the
-        structural guarantee the old backstop hand-rolled) plus every other
-        live backbone edge — all with contradict mass."""
+    def test_zero_edges_on_failure_emits_backstop_biology_drives(self):
         g, ts = self._seed_with_biology_drives()
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction({"nivo_only": "failure"})
-        updates = Attributor(g).attribute(clf, ts, ext)
-        bio = [
-            u for u in updates
-            if u.edge_type == EdgeType.BIOLOGY_DRIVES
-            and u.source_id == "R-HSA-389948"
-            and u.target_id == "melanoma"
-        ]
-        assert len(bio) == 1
-        assert bio[0].probability_change < 0  # contradict moves it down
+        clf = _make_classification([])  # zero edges
+        clf._raw["trial_outcome"] = "failure"
+        updates = Attributor(g).attribute(clf, ts)
+        assert len(updates) == 1
+        u = updates[0]
+        assert u.edge_type == EdgeType.BIOLOGY_DRIVES
+        # Should target the parent chain's biology→indication edge.
+        parent_chain = ts.chains[0]
+        assert u.source_id == parent_chain.biology_id
+        assert u.target_id == parent_chain.indication_id
+        assert u.evidence.support == SupportBucket.WEAK_CONTRADICT.value
+        assert "backstop" in u.evidence.notes.lower()
 
-    def test_trial_level_failure_conditions_without_extraction(self):
-        """A trial-level failure conditions the chain even with no extraction
-        (per-arm outcomes unresolved) — the trial-level-outcome fallback is
-        the redesign's replacement for the round-14 backstop: a failure is
-        never silent as long as SOME outcome (per-arm or trial-level) is
-        known."""
+    def test_backstop_not_emitted_when_classifier_already_emitted_biology_drives(self):
+        """If the classifier did its job, the backstop must NOT fire — the
+        graph would otherwise get two contradict updates on the same edge
+        from one trial."""
         g, ts = self._seed_with_biology_drives()
-        clf = _make_classification([], trial_outcome="failure")
-        updates = Attributor(g).attribute(clf, ts)  # no extraction
-        bio = [
+        parent = ts.chains[0]
+        clf = _make_classification([{
+            "edge_type": "biology_drives",
+            "source_entity": parent.biology_id,
+            "target_entity": parent.indication_id,
+            "support": "moderate_contradict",
+        }])
+        clf._raw["trial_outcome"] = "failure"
+        updates = Attributor(g).attribute(clf, ts)
+        # Exactly one biology_drives update — the classifier's emission,
+        # not the backstop. Bucket is moderate (not the backstop's weak).
+        biology_drives_updates = [
             u for u in updates if u.edge_type == EdgeType.BIOLOGY_DRIVES
         ]
-        # The shared biology_drives edge is conditioned once per arm (the
-        # combo fixture has 3 arms; the trial-level outcome applies to all).
-        assert len(bio) >= 1
-        assert all(u.probability_change < 0 for u in bio)  # failure → down
+        assert len(biology_drives_updates) == 1
+        assert biology_drives_updates[0].evidence.support == SupportBucket.MODERATE_CONTRADICT.value
 
-    def test_no_outcome_anywhere_is_silent(self):
-        """Genuine silence: no per-arm outcome AND no trial-level outcome.
-        The redesign deliberately doesn't manufacture a signal when no
-        outcome is known at all."""
+    def test_backstop_not_emitted_on_success(self):
+        """A success trial returning zero edges is suspect but not the
+        backstop's problem — only failure trials get the rule."""
         g, ts = self._seed_with_biology_drives()
-        clf = _make_classification([])  # no trial_outcome, no extraction
+        clf = _make_classification([])
+        clf._raw["trial_outcome"] = "success"
         updates = Attributor(g).attribute(clf, ts)
         assert updates == []
 
-    def test_success_conditions_support_not_contradict(self):
-        """A success trial conditions biology_drives UP (support), the
-        mirror of the failure case."""
+    def test_backstop_not_emitted_on_partial(self):
+        """Partial-outcome trials don't get the backstop either — the
+        failure signal is too ambiguous to justify a structural default."""
         g, ts = self._seed_with_biology_drives()
-        clf = _make_classification([], trial_outcome="success")
-        ext = _outcome_extraction({"nivo_only": "success"})
-        updates = Attributor(g).attribute(clf, ts, ext)
-        bio = [
-            u for u in updates
-            if u.edge_type == EdgeType.BIOLOGY_DRIVES
-        ]
-        assert len(bio) == 1
-        assert bio[0].probability_change > 0
+        clf = _make_classification([])
+        clf._raw["trial_outcome"] = "partial"
+        updates = Attributor(g).attribute(clf, ts)
+        assert updates == []
 
 
 # ── Arm-differential modulation emission (round 8 v0.2.0) ───────────────
@@ -1304,157 +1254,102 @@ class TestLLMModulationEmission:
 
 
 class TestDropCounters:
-    """Round-16 observability: the Attributor exposes
+    """Round-16 observability: the Attributor must expose
     `last_attempted_updates` and `last_dropped_updates` after each
-    attribute() call.
+    attribute() call so the build orchestrator can enforce a drop-rate
+    threshold. Without this, the only signal that the classifier is
+    silently hallucinating off-trial entities is `WARNING` log lines,
+    which the orchestrator doesn't see."""
 
-    Outcome-conditioning redesign: the backbone is conditioned by edge id
-    (no name-match step that can miss), so backbone conditioning never
-    increments the drop counter. ``last_attempted_updates`` still reflects
-    the classifier's raw ``edges_to_update`` length (kept for back-compat
-    observability), and the counters still reset per call."""
-
-    def test_attempted_counter_reflects_raw_edges_length(self):
+    def test_counters_zero_on_clean_attribution(self):
         graph, ts = _seed_combo_trial_graph()
         attributor = Attributor(graph)
-        clf = _make_classification(
-            [
-                {"edge_type": "affects", "source_entity": "x",
-                 "target_entity": "y", "support": "moderate_support"},
-                {"edge_type": "affects", "source_entity": "p",
-                 "target_entity": "q", "support": "weak_support"},
-            ],
-            trial_outcome="failure",
-        )
-        ext = _outcome_extraction({"nivo_only": "failure"})
-        attributor.attribute(clf, ts, ext)
-        assert attributor.last_attempted_updates == 2
-
-    def test_outcome_conditioning_does_not_increment_drops(self):
-        """Conditioning the chain by id never 'drops' — there is no
-        name-match that can miss. The drop counter stays 0 even though the
-        classifier's raw edges are no longer used for the backbone."""
-        graph, ts = _seed_combo_trial_graph()
-        attributor = Attributor(graph)
-        clf = _make_classification([], trial_outcome="failure")
-        ext = _outcome_extraction({"nivo_only": "failure"})
-        attributor.attribute(clf, ts, ext)
-        assert attributor.last_attempted_updates == 0
+        # One valid edge that routes cleanly.
+        clf = _make_classification([
+            {
+                "edge_type": "affects",
+                "source_entity": "nivolumab",
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 1
         assert attributor.last_dropped_updates == 0
+
+    def test_counters_track_hallucinated_entity_drops(self):
+        """When the LLM emits an edge whose source/target isn't in the
+        trial subgraph (hallucinated drug, off-trial target), it gets
+        dropped. The counter must reflect that."""
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+        clf = _make_classification([
+            {
+                "edge_type": "affects",
+                "source_entity": "imaginary_compound",  # not in trial
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+            {
+                "edge_type": "affects",
+                "source_entity": "nivolumab",  # this one routes
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 2
+        assert attributor.last_dropped_updates == 1
+
+    def test_counters_track_unknown_edge_type_drops(self):
+        graph, ts = _seed_combo_trial_graph()
+        attributor = Attributor(graph)
+        clf = _make_classification([
+            {
+                "edge_type": "fictional_edge_type",  # invalid enum
+                "source_entity": "nivolumab",
+                "target_entity": "ENSG00000188389",
+                "support": "moderate_support",
+                "affecting_arm_id": "nivo_only",
+            },
+        ])
+        attributor.attribute(clf, ts)
+        assert attributor.last_attempted_updates == 1
+        assert attributor.last_dropped_updates == 1
 
     def test_counters_reset_per_call(self):
         """Counters reflect the most recent attribute() call only."""
         graph, ts = _seed_combo_trial_graph()
         attributor = Attributor(graph)
-        ext = _outcome_extraction({"nivo_only": "failure"})
 
-        # First call: 2 raw edges.
-        clf_first = _make_classification(
-            [
-                {"edge_type": "affects", "source_entity": "x",
-                 "target_entity": "y", "support": "ambiguous"},
-                {"edge_type": "affects", "source_entity": "nivolumab",
-                 "target_entity": "ENSG00000188389",
-                 "support": "moderate_support"},
-            ],
-            trial_outcome="failure",
-        )
-        attributor.attribute(clf_first, ts, ext)
-        assert attributor.last_attempted_updates == 2
+        # First call: 2 attempts, 1 drop
+        clf_first = _make_classification([
+            {"edge_type": "fictional", "source_entity": "x",
+             "target_entity": "y", "support": "ambiguous"},
+            {"edge_type": "affects", "source_entity": "nivolumab",
+             "target_entity": "ENSG00000188389",
+             "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        attributor.attribute(clf_first, ts)
+        assert attributor.last_dropped_updates == 1
 
-        # Second call: 0 raw edges — counters reset.
-        clf_second = _make_classification([], trial_outcome="failure")
-        attributor.attribute(clf_second, ts, ext)
-        assert attributor.last_attempted_updates == 0
+        # Second call: 1 attempt, 0 drops — counters reset
+        clf_second = _make_classification([
+            {"edge_type": "affects", "source_entity": "nivolumab",
+             "target_entity": "ENSG00000188389",
+             "support": "moderate_support",
+             "affecting_arm_id": "nivo_only"},
+        ])
+        attributor.attribute(clf_second, ts)
+        assert attributor.last_attempted_updates == 1
         assert attributor.last_dropped_updates == 0
 
 
 # ── Round-19: attribution idempotency ───────────────────────────────────
-
-
-class TestAENodeHierarchyWiring:
-    """Round-28: ``_ensure_ae_node`` looks up MedDRA hierarchy parents
-    when creating an AdverseEventNode and populates the round-28
-    soc_id / soc_name / hlt_id / hlgt_id fields. SOC fallback via the
-    free-text SOC string keeps unknown PTs from losing their parent."""
-
-    def _new_attributor(self) -> tuple[Attributor, GraphStore]:
-        g = GraphStore()
-        return Attributor(g), g
-
-    def test_known_pt_gets_soc_from_hierarchy(self):
-        attr, g = self._new_attributor()
-        attr._ensure_ae_node(
-            "AE:atrial_fibrillation", "Atrial fibrillation",
-            "Cardiac disorders", "grade_3",
-        )
-        node = g.get_node("AE:atrial_fibrillation")
-        assert node["soc_id"] == "cardiac_disorders"
-        assert node["soc_name"] == "Cardiac disorders"
-
-    def test_pt_outside_curated_table_falls_back_via_soc_name(self):
-        attr, g = self._new_attributor()
-        # A made-up cardiac AE the LLM tagged as Cardiac disorders but
-        # which isn't in the curated PT→SOC map.
-        attr._ensure_ae_node(
-            "AE:fictional_arrhythmia", "Fictional arrhythmia",
-            "Cardiac disorders", "grade_2",
-        )
-        node = g.get_node("AE:fictional_arrhythmia")
-        # Fallback via the LLM-emitted SOC name lands the AE under
-        # cardiac_disorders so target-class roll-up still aggregates.
-        assert node["soc_id"] == "cardiac_disorders"
-        assert node["soc_name"] == "Cardiac disorders"
-
-    def test_unknown_pt_unknown_soc_keeps_empty(self):
-        attr, g = self._new_attributor()
-        attr._ensure_ae_node(
-            "AE:thoroughly_unknown", "Thoroughly Unknown",
-            "Not a real SOC", "",
-        )
-        node = g.get_node("AE:thoroughly_unknown")
-        assert node["soc_id"] == ""
-        # soc_name falls back to the LLM's free-text string so renderers
-        # have something to show even when the hierarchy can't resolve it.
-        assert node["soc_name"] == "Not a real SOC"
-
-    def test_repeated_call_doesnt_clobber_existing_soc(self):
-        attr, g = self._new_attributor()
-        attr._ensure_ae_node(
-            "AE:atrial_fibrillation", "Atrial fibrillation",
-            "Cardiac disorders", "grade_2",
-        )
-        # Second call with a different "grade" should extend severity_range
-        # without resetting hierarchy fields.
-        attr._ensure_ae_node(
-            "AE:atrial_fibrillation", "Atrial fibrillation",
-            "Cardiac disorders", "grade_3",
-        )
-        node = g.get_node("AE:atrial_fibrillation")
-        assert "grade_2" in node["severity_range"]
-        assert "grade_3" in node["severity_range"]
-        assert node["soc_id"] == "cardiac_disorders"
-
-    def test_legacy_node_without_hierarchy_gets_backfilled(self):
-        from src.graph.models import AdverseEventNode
-        attr, g = self._new_attributor()
-        # Simulate a node created by a pre-round-28 snapshot (no SOC ids).
-        g.add_node(AdverseEventNode(
-            id="AE:atrial_fibrillation",
-            name="Atrial fibrillation",
-            system_organ_class="Cardiac disorders",
-            severity_range="grade_2",
-        ))
-        node = g.get_node("AE:atrial_fibrillation")
-        assert node["soc_id"] == ""
-        # Now _ensure_ae_node should backfill on re-attribution.
-        attr._ensure_ae_node(
-            "AE:atrial_fibrillation", "Atrial fibrillation",
-            "Cardiac disorders", "grade_3",
-        )
-        node = g.get_node("AE:atrial_fibrillation")
-        assert node["soc_id"] == "cardiac_disorders"
-        assert node["soc_name"] == "Cardiac disorders"
 
 
 class TestAttributionIdempotency:
@@ -1471,10 +1366,9 @@ class TestAttributionIdempotency:
         seeded combo-trial graph."""
         extraction = {
             "nct_id": nct_id,
-            "trial_outcome": "failure",
+            "trial_outcome": "partial",
             "title": "Test",
             "phase": "3",
-            "sample_size": 100,
             "compounds": ["Nivolumab"],
             "arms": [
                 {
@@ -1484,13 +1378,7 @@ class TestAttributionIdempotency:
                     "n": 100,
                 },
             ],
-            # Outcome-conditioning needs a per-arm outcome to fold onto the
-            # chain. A failure conditions nivolumab→PD-1 (the edge these
-            # idempotency tests assert on).
-            "results_by_chain": [
-                {"arm_id": "nivo_only", "outcome": "failure",
-                 "endpoint": "PFS"},
-            ],
+            "results_by_chain": [],
             "adverse_events": [],
             "modulation_entries": [],
             "primary_endpoint_met": False,
@@ -1610,8 +1498,8 @@ class TestAttributionIdempotency:
         self._write_annotation_pair(annotations_dir, "NCT_TEST")
         # NCT_NEW classification uses its own arm_id.
         new_ext = {
-            "nct_id": "NCT_NEW", "trial_outcome": "failure",
-            "title": "Test", "phase": "3", "sample_size": 100,
+            "nct_id": "NCT_NEW", "trial_outcome": "partial",
+            "title": "Test", "phase": "3",
             "compounds": ["Nivolumab"],
             "arms": [{
                 "arm_id": "nivo_only_new",
@@ -1619,11 +1507,7 @@ class TestAttributionIdempotency:
                 "label": "nivo monotherapy",
                 "n": 100,
             }],
-            "results_by_chain": [
-                {"arm_id": "nivo_only_new", "outcome": "failure",
-                 "endpoint": "PFS"},
-            ],
-            "adverse_events": [],
+            "results_by_chain": [], "adverse_events": [],
             "modulation_entries": [], "primary_endpoint_met": False,
         }
         new_clf = {
@@ -1663,52 +1547,3 @@ class TestAttributionIdempotency:
         ev_sources = [e.source_id for e in belief.evidence]
         assert "NCT_NEW" in ev_sources
         assert "NCT_TEST" not in ev_sources
-
-    @pytest.mark.asyncio
-    async def test_exclude_from_attribution_skips_holdout_evidence(
-        self, tmp_path,
-    ):
-        """Round-26: NCTs passed in exclude_from_attribution have their
-        subgraph populated but their evidence is NOT folded into edge
-        beliefs. This is what makes a true holdout possible — the
-        chain structure is available for prediction, but the holdout's
-        own trial outcomes don't leak into the graph it's being scored
-        against.
-        """
-        from src.annotation.attributor import _main as attributor_main
-
-        graph, ts = _seed_combo_trial_graph()
-        graph_path = tmp_path / "graph_initial.json"
-        annotations_dir = tmp_path / "annotations"
-        annotations_dir.mkdir()
-        out_path = tmp_path / "graph_annotated.json"
-
-        graph.export_snapshot(str(graph_path))
-        self._write_annotation_pair(annotations_dir, "NCT_TEST")
-
-        # NCT_TEST is in the annotations dir but listed as excluded.
-        # Subgraph stays in the graph (chain prediction can still run
-        # on it); evidence is never folded into the AFFECTS edge.
-        await attributor_main(
-            str(annotations_dir), str(graph_path), str(out_path),
-            exclude_from_attribution=["NCT_TEST"],
-        )
-
-        result = GraphStore()
-        result.import_snapshot(str(out_path))
-
-        # The excluded NCT is marked attributed (so future re-runs of
-        # attribute also skip it), but no evidence record landed on the
-        # edge.
-        assert "NCT_TEST" in result.applied_attribution_trial_ids
-        belief = result.get_edge_belief(
-            "nivolumab", "ENSG00000188389", EdgeType.AFFECTS,
-        )
-        ev_sources = [e.source_id for e in belief.evidence]
-        assert "NCT_TEST" not in ev_sources, (
-            "Holdout NCT must not appear in any edge's evidence list"
-        )
-        # Subgraph still present for prediction.
-        assert "NCT_TEST" in {
-            ts.trial_id for ts in result.trial_subgraphs.values()
-        }

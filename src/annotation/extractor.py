@@ -22,7 +22,6 @@ from src.annotation.taxonomy import (
     StructuredAE,
     TrialExtraction,
 )
-from src.annotation.pubmed_safety import maybe_enrich_from_cache
 from src.ingestion.clinicaltrials import TrialRecord
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _ANNOTATIONS_DIR = Path("data/annotations")
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-sonnet-4-20250514"
 MAX_TOKENS = 4096
 MAX_TOKENS_DOCUMENT = 16384  # medical reviews emit many trials per call
 MAX_DOCUMENT_CHARS = 500_000  # ~125k tokens; truncate over this
@@ -51,24 +50,7 @@ async def _call_messages_with_backoff(
     Honors the ``retry-after`` response header when present; otherwise waits
     ``RATE_LIMIT_BASE_WAIT * 2**attempt`` seconds. Up to ``RATE_LIMIT_MAX_RETRIES``
     attempts before re-raising.
-
-    Prompt caching: a string ``system`` kwarg is promoted to a single
-    cache-controlled text block (ephemeral breakpoint), so the large, identical
-    per-trial system prompts (extraction ~4k tok, classification ~9.8k tok) bill
-    cached reads at ~10% of input price after the first call within the 5-min
-    TTL. GA — no beta header. Callers that already pass ``system`` as a block
-    list (or omit it) are left untouched.
     """
-    system = kwargs.get("system")
-    if isinstance(system, str) and system:
-        kwargs["system"] = [
-            {
-                "type": "text",
-                "text": system,
-                "cache_control": {"type": "ephemeral"},
-            }
-        ]
-
     _transient = (
         anthropic.RateLimitError,
         anthropic.APITimeoutError,
@@ -244,21 +226,6 @@ def _safe_float(value: Any) -> float | None:
         return None
     try:
         return float(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def _safe_int(value: Any) -> int | None:
-    """Coerce an extracted sample-size-like value to int, or None.
-
-    Tolerant of the occasional float ("250.0") or numeric string the LLM
-    emits; non-numeric junk becomes None so a malformed value never breaks
-    extraction parsing (the precision n_eff path treats None as "no N").
-    """
-    if value is None:
-        return None
-    try:
-        return int(float(value))
     except (TypeError, ValueError):
         return None
 
@@ -498,19 +465,6 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
             effect_size=es_value,
             p_value=cr.get("p_value"),
             outcome=(cr.get("outcome") or "unknown").lower(),
-            # Combo-arm biology fix: which single drug in the arm this entry
-            # describes (absent in pre-fix cached extractions → default "",
-            # keyed per-arm as before).
-            intervention=(cr.get("intervention") or "").strip(),
-            # A.0b per-chain contextualized descriptions (absent in pre-A.0b
-            # cached extractions → default "").
-            mechanism_description=(cr.get("mechanism_description") or "").strip(),
-            biology_description=(cr.get("biology_description") or "").strip(),
-            population_description=(cr.get("population_description") or "").strip(),
-            # Abstraction-ladder redesign: drug-class functional ontology
-            # bucket for this entry's intervention (absent in pre-redesign
-            # cached extractions → default "").
-            mechanism_category=(cr.get("mechanism_category") or "").strip(),
         ))
 
     # Structured dose_info supersedes the legacy results.dose_information
@@ -532,7 +486,6 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         primary_endpoint_met=results.get("primary_endpoint_met"),
         effect_size=effect_size,
         p_value=results.get("p_value"),
-        sample_size=_safe_int(context.get("sample_size")),
         biomarker_data={
             "target_engagement": results.get("target_engagement_evidence"),
             "biomarker_changes": results.get("biomarker_changes", []),
@@ -547,12 +500,6 @@ def _parse_extraction_response(raw_json: dict[str, Any], trial_id: str) -> Trial
         dose_info=dose_info,
         adverse_events=adverse_events,
         modulation_entries=modulation_entries,
-        # A.0: preserve the trial's rich free-text hypothesis descriptions so
-        # the populator can attach them to Mechanism / Biology / Population
-        # nodes (the embedding substrate). Already in raw_json — no new call.
-        mechanism_description=hypothesis.get("proposed_mechanism", "") or "",
-        biology_description=hypothesis.get("intended_biology", "") or "",
-        target_population_description=hypothesis.get("target_population", "") or "",
     )
 
 
@@ -593,7 +540,6 @@ def _parse_document_response(
                 primary_endpoint_met=trial.get("primary_endpoint_met"),
                 effect_size=effect_size,
                 p_value=trial.get("p_value"),
-                sample_size=_safe_int(trial.get("sample_size")),
                 biomarker_data={
                     "target_engagement": trial.get("target_engagement_evidence"),
                     "biomarker_changes": trial.get("biomarker_changes", []),
@@ -637,23 +583,10 @@ def _overlay_structured_aes(
 
 
 class Extractor:
-    def __init__(
-        self, client: anthropic.AsyncAnthropic, *,
-        enrich_pubmed: bool = False, pubmed_client: Any = None,
-    ) -> None:
+    def __init__(self, client: anthropic.AsyncAnthropic) -> None:
         self._client = client
         self._system_prompt = _load_prompt("extraction_system.txt")
         self._document_system_prompt = _load_prompt("extraction_document_system.txt")
-        # Scale producer (the in-build 3rd call). When enabled, terminated trials
-        # with no posted AEs but >=1 reference PMID get their safety signal
-        # extracted from the linked abstract(s) via NCBI + a focused Anthropic
-        # call, written to the <nct>_pubmed_safety.json cache that attribution
-        # merges. Off by default (network + an extra LLM call, for the subset).
-        self._enrich_pubmed = enrich_pubmed
-        self._pubmed_client = pubmed_client
-        if enrich_pubmed and pubmed_client is None:
-            from src.ingestion.pubmed import PubMedClient
-            self._pubmed_client = PubMedClient()
 
     async def extract(
         self, trial: TrialRecord, abstract: str | None = None
@@ -664,9 +597,7 @@ class Extractor:
             try:
                 cached_raw = json.loads(cache_path.read_text())
                 extraction = _parse_extraction_response(cached_raw, trial.nct_id)
-                await self._maybe_produce_pubmed_cache(trial, extraction)
-                return _overlay_structured_aes(
-                    maybe_enrich_from_cache(extraction, trial), trial)
+                return _overlay_structured_aes(extraction, trial)
             except (json.JSONDecodeError, KeyError) as exc:
                 logger.warning(
                     "Cached extraction for %s unreadable (%s); re-extracting",
@@ -684,44 +615,7 @@ class Extractor:
         ):
             extraction = await self._reask_endpoint_met(trial, extraction, raw_json)
         self._save_annotation(trial.nct_id, raw_json)
-        await self._maybe_produce_pubmed_cache(trial, extraction)
-        return _overlay_structured_aes(
-            maybe_enrich_from_cache(extraction, trial), trial)
-
-    async def _maybe_produce_pubmed_cache(
-        self, trial: TrialRecord, extraction: TrialExtraction
-    ) -> None:
-        """Scale producer: if enabled and this is a terminated/empty-AE trial with
-        reference PMIDs and no existing cache, fetch the abstract(s) + run the
-        focused 3rd call, writing the <nct>_pubmed_safety.json that the
-        attribution step merges. No-op otherwise (incl. on any fetch/LLM error)."""
-        if not self._enrich_pubmed:
-            return
-        from src.annotation.pubmed_safety import (
-            load_pubmed_safety,
-            needs_pubmed_enrichment,
-            produce_pubmed_safety,
-            write_pubmed_safety,
-        )
-        if not needs_pubmed_enrichment(trial, extraction):
-            return
-        if load_pubmed_safety(trial.nct_id) is not None:
-            return  # already curated / produced on a prior run
-        try:
-            safety = await produce_pubmed_safety(
-                self._client, self._pubmed_client, trial,
-            )
-        except Exception:  # noqa: BLE001
-            logger.warning(
-                "PubMed safety enrichment failed for %s", trial.nct_id, exc_info=True,
-            )
-            return
-        if safety is not None:
-            path = write_pubmed_safety(safety)
-            logger.info(
-                "PubMed-enriched %s: %d AEs, %d signals -> %s", trial.nct_id,
-                len(safety.adverse_events), len(safety.safety_signals), path,
-            )
+        return _overlay_structured_aes(extraction, trial)
 
     async def _reask_endpoint_met(
         self,

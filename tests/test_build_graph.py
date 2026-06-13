@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -53,7 +53,7 @@ class TestClassifySuccessRateAbort:
         (tmp_path / "annotations").mkdir()
         (tmp_path / "corpora").mkdir()
 
-        # Stub every heavy step. populate_trials / seed / attribute /
+        # Stub every heavy step. populate_oncology / seed / attribute /
         # the GraphStore.import_snapshot at the end are all bypassed —
         # the only path we care about is fetch → extract → classify and
         # the abort check that fires immediately after.
@@ -74,7 +74,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -87,9 +87,6 @@ class TestClassifySuccessRateAbort:
                     # Bypass the round-20.5 subgraph-success check so
                     # this test exercises ONLY the classify-rate path.
                     allow_partial_subgraphs=True,
-                    # Orchestration (classify-abort) is mode-independent; mock the
-                    # top-down PopulationPipeline path (bottom-up is now default).
-                    bottom_up=False,
                 )
 
     @pytest.mark.asyncio
@@ -128,7 +125,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -145,7 +142,6 @@ class TestClassifySuccessRateAbort:
                 # graph.trial_subgraphs. Bypass since this test is
                 # about the classify-rate path only.
                 allow_partial_subgraphs=True,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # If we got here without SystemExit, the abort didn't fire.
             attributor_mock.assert_awaited_once()
@@ -183,7 +179,7 @@ class TestClassifySuccessRateAbort:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
             mock_pop.graph = type("FakeGraph", (), {
                 "export_snapshot": lambda self, p: None,
             })()
@@ -195,7 +191,6 @@ class TestClassifySuccessRateAbort:
                 min_classify_success_rate=0.80,
                 allow_partial_classify=True,
                 allow_partial_subgraphs=True,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # Attribution should have been called despite the low rate.
             attributor_mock.assert_awaited_once()
@@ -313,79 +308,6 @@ class TestIncrementalBuildValidation:
 
 
 class TestIncrementalBuildOrchestration:
-    @pytest.fixture(autouse=True)
-    def _stub_step3b5_descriptions(self):
-        # Step 3b.5 (generate_node_descriptions) makes a real Haiku call. These
-        # orchestration tests drive build_graph.main with a MagicMock client and
-        # a non-empty base graph, so the awaited client call would hit the
-        # MagicMock. Stub it. (Sibling tests with an empty graph never reach it —
-        # no nodes to describe.)
-        with patch("src.graph.descriptions.generate_node_descriptions",
-                   new=AsyncMock(return_value=0)):
-            yield
-
-    @pytest.mark.asyncio
-    async def test_assemble_flag_runs_step5(self, tmp_path, monkeypatch):
-        """--assemble runs Step 5 (box/is-a geometry + (s,t) field) after
-        attribution, against the freshly-attributed annotated snapshot. The
-        skip-when-off path is covered by the sibling tests: they never patch
-        assemble_geometry yet stay fast, so Step 5 is correctly not entered."""
-        monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
-        monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
-        monkeypatch.setattr(build_graph, "CORPORA_DIR", tmp_path / "corpora")
-        (tmp_path / "exports").mkdir()
-        (tmp_path / "annotations").mkdir()
-        (tmp_path / "corpora").mkdir()
-
-        base = tmp_path / "base.json"
-        _write_minimal_snapshot(base, ["NCT00000001"])
-        (tmp_path / "exports" / "oncology_annotated.json").write_text(base.read_text())
-
-        from src.ingestion.clinicaltrials import TrialRecord
-        new_trial = TrialRecord(
-            nct_id="NCT00000002", title="new trial", phase="2",
-            status="COMPLETED", conditions=["melanoma"], interventions=[],
-            primary_outcomes=[], enrollment=100, has_results=True, arm_groups=[],
-        )
-        asm_mock = MagicMock(return_value={
-            "boxes": 5, "subtype_before": 0, "subtype_after": 2,
-            "subtype_added": 2, "private_root": "/tmp/priv",
-        })
-        fld_mock = MagicMock(return_value={
-            "edges_localized": 7, "anchors_total": 20, "out": "/tmp/priv/f.json",
-        })
-        with (
-            patch.object(build_graph, "fetch_trials_by_ids",
-                         new=AsyncMock(return_value=[new_trial])),
-            patch.object(build_graph, "wipe_outputs"),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
-            patch.object(build_graph, "Extractor"),
-            patch.object(build_graph, "Classifier"),
-            patch.object(build_graph, "extract_all",
-                         new=AsyncMock(return_value=[new_trial])),
-            patch.object(build_graph, "classify_all", new=AsyncMock(return_value=1)),
-            patch.object(build_graph, "seed_responds_differently_from_extractions",
-                         new=AsyncMock(return_value=(0, 0))),
-            patch.object(build_graph, "attributor_main", new=AsyncMock()),
-            patch("scripts.assemble_v2.assemble_geometry", new=asm_mock),
-            patch("scripts.materialize_belief_field.materialize_field", new=fld_mock),
-            patch("anthropic.AsyncAnthropic"),
-        ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
-            await build_graph.main(
-                condition="melanoma", max_trials=10, include_terminated=False,
-                concurrency=2, area="oncology", base_snapshot=str(base),
-                add_trials=["NCT00000002"], allow_partial_subgraphs=True,
-                assemble=True,
-            )
-
-        asm_mock.assert_called_once()
-        fld_mock.assert_called_once()
-        # both run against the freshly-attributed annotated snapshot
-        assert asm_mock.call_args.args[0].endswith("oncology_annotated.json")
-        assert fld_mock.call_args.args[0].endswith("oncology_annotated.json")
-
     @pytest.mark.asyncio
     async def test_base_snapshot_skips_wipe(self, tmp_path, monkeypatch):
         """The Step 0 wipe must NOT fire when --base-snapshot is set —
@@ -435,7 +357,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,
@@ -457,7 +379,7 @@ class TestIncrementalBuildOrchestration:
     ):
         """If --add-trials lists an NCT already in the base snapshot,
         the orchestrator must filter it out before handing the list to
-        populate_trials — otherwise the populator runs LLM-cost
+        populate_oncology — otherwise the populator runs LLM-cost
         canonicalization on already-known trials."""
         monkeypatch.setattr(build_graph, "EXPORTS_DIR", tmp_path / "exports")
         monkeypatch.setattr(build_graph, "ANNOTATIONS_DIR", tmp_path / "annotations")
@@ -504,7 +426,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = populate_mock
+            mock_pop.populate_oncology = populate_mock
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,
@@ -515,9 +437,6 @@ class TestIncrementalBuildOrchestration:
                 # populate is mocked so trial_subgraphs stays empty —
                 # bypass the round-20.5 subgraph-rate guard.
                 allow_partial_subgraphs=True,
-                # Top-down incremental: asserts the shared already-present filter
-                # via the populate_trials mock (bottom-up append is covered e2e).
-                bottom_up=False,
             )
 
         # The populator should have been called with ONLY the new trial.
@@ -560,7 +479,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = populate_mock
+            mock_pop.populate_oncology = populate_mock
 
             with pytest.raises(SystemExit, match="trial subgraph build success rate"):
                 await build_graph.main(
@@ -657,7 +576,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
             # 2 built of 10 input = 20% raw, but 8 are legitimate
             # drops so eligible_count = 2 and rate = 2/2 = 100%.
             # The 75% threshold should PASS.
@@ -666,7 +585,6 @@ class TestIncrementalBuildOrchestration:
                 include_terminated=False, concurrency=2,
                 area="oncology",
                 min_subgraph_success_rate=0.75,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
         # Build proceeded past the subgraph guard → attribution ran.
         attributor_mock.assert_awaited_once()
@@ -713,7 +631,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
             # 0 built, 8 bug-indicating drops, 2 unknown drops →
             # eligible_count = 10 - 0 (no legitimate) = 10; rate = 0%.
             with pytest.raises(SystemExit, match="success rate"):
@@ -762,7 +680,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
+            mock_pop.populate_oncology = AsyncMock(return_value=None)
 
             # Should NOT raise SystemExit despite 0% subgraph success.
             await build_graph.main(
@@ -808,7 +726,7 @@ class TestIncrementalBuildOrchestration:
             patch("anthropic.AsyncAnthropic"),
         ):
             mock_pop = MockPop.return_value
-            mock_pop.populate_trials = populate_mock
+            mock_pop.populate_oncology = populate_mock
 
             await build_graph.main(
                 condition="melanoma", max_trials=10,

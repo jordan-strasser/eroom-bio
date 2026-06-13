@@ -720,9 +720,6 @@ async def populate_lincs_signatures(
                             mechanism_type=_category_to_mechanism_type(
                                 MechanismCategory(mech_id)
                             ),
-                            direction=_category_to_direction(
-                                MechanismCategory(mech_id)
-                            ),
                         )
                     )
                     mechanism_lookup[mech_id] = mech_id
@@ -926,51 +923,6 @@ _CATEGORY_TO_MECHANISM_TYPE: dict[MechanismCategory, MechanismType] = {
 
 def _category_to_mechanism_type(category: MechanismCategory) -> MechanismType:
     return _CATEGORY_TO_MECHANISM_TYPE.get(category, MechanismType.OTHER)
-
-
-# Round-28 direction-of-effect metadata.
-#
-# Surfaces "does this mechanism increase or decrease its target's
-# activity?" so audits and graphguard can distinguish "edge operativity"
-# (which is what the chain math reflects) from "patient-benefit
-# direction" (which is what a reader naturally interprets P(success)
-# as).
-#
-# Values:
-#   "inhibiting" — mechanism reduces target activity / downstream
-#                  process. Most oncology cytotoxics and ICIs fall here.
-#   "activating" — mechanism increases target activity / downstream
-#                  process. Immune costimulation, antigen-directed
-#                  cytotoxicity.
-#   "modulating" — bidirectional / context-dependent. Hormone
-#                  modulation and gene editing.
-#   None         — unknown / OTHER. Unmapped values default to None
-#                  via the helper.
-_MECHANISM_DIRECTION: dict[MechanismCategory, str] = {
-    MechanismCategory.CHECKPOINT_BLOCKADE: "inhibiting",
-    MechanismCategory.KINASE_INHIBITION: "inhibiting",
-    MechanismCategory.RECEPTOR_ANTAGONISM: "inhibiting",
-    MechanismCategory.RECEPTOR_AGONISM: "activating",
-    MechanismCategory.ENZYME_INHIBITION: "inhibiting",
-    MechanismCategory.PROTEIN_DEGRADATION: "inhibiting",
-    MechanismCategory.ANGIOGENESIS_INHIBITION: "inhibiting",
-    MechanismCategory.ANTIMETABOLITE: "inhibiting",
-    MechanismCategory.DNA_DAMAGE: "inhibiting",
-    MechanismCategory.DNA_CROSSLINKING: "inhibiting",
-    MechanismCategory.MICROTUBULE_BINDING: "inhibiting",
-    MechanismCategory.IMMUNE_COSTIMULATION: "activating",
-    MechanismCategory.ANTIBODY_DEPENDENT_CYTOTOXICITY: "activating",
-    MechanismCategory.ANTIGEN_DIRECTED_CYTOTOXICITY: "activating",
-    MechanismCategory.HORMONE_MODULATION: "modulating",
-    MechanismCategory.GENE_EDITING: "modulating",
-    MechanismCategory.OTHER: None,
-}
-
-
-def _category_to_direction(category: MechanismCategory) -> str | None:
-    """Return ``MechanismNode.direction`` for a canonical category, or
-    ``None`` if the mechanism is OTHER / not classified."""
-    return _MECHANISM_DIRECTION.get(category)
 
 
 def _ensure_edge(graph: GraphStore, src_id: str, tgt_id: str) -> None:

@@ -1,0 +1,227 @@
+{
+  "nct_id": "NCT01844505",
+  "therapeutic_hypothesis": {
+    "compound": "Nivolumab + Ipilimumab combination",
+    "claimed_target": "PD-1 and CTLA-4",
+    "proposed_mechanism": "Dual checkpoint inhibition blocking PD-1 and CTLA-4 pathways",
+    "intended_biology": "Enhanced T-cell activation and anti-tumor immune response",
+    "target_population": "Previously untreated advanced melanoma patients",
+    "primary_endpoint": "Progression-free survival and overall survival",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "PFS: 11.50 months (combo) vs 6.87 months (nivo) vs 2.89 months (ipi); OS: 71.92 months (combo) vs 36.93 months (nivo) vs 19.94 months (ipi)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": "PD-L1 expression stratification showed differential responses across expression levels",
+    "biomarker_changes": [
+      "PD-L1 expression levels correlated with treatment response",
+      "Quality of life measures showed differential patterns across arms"
+    ],
+    "subgroup_findings": [
+      "PD-L1 \u22651% patients showed superior PFS with nivolumab monotherapy",
+      "PD-L1 <1% patients benefited more from combination therapy",
+      "Combination therapy showed consistent benefit across PD-L1 expression levels"
+    ],
+    "safety_signals": [
+      "Combination arm showed increased toxicity profile",
+      "Quality of life scores generally declined more in combination arm early in treatment"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 1.6,
+        "incidence_control_pct": 1.6,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Haemolytic anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenitis",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Unresectable or metastatic melanoma",
+    "comparator": "Ipilimumab monotherapy",
+    "sample_size": 945,
+    "duration": "Up to approximately 128 months",
+    "duration_weeks": 556.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "compounds": [
+        "Nivolumab"
+      ]
+    },
+    {
+      "arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "compounds": [
+        "Nivolumab",
+        "Ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "compounds": [
+        "Ipilimumab"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "PD-L1 < 1%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 1%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 < 5%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 5%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "positive"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 < 10%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "negative"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "PD-L1 >= 10%",
+      "features": [
+        {
+          "axis": "gene",
+          "key": "CD274",
+          "level": "positive"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 6.93,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 11.5,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.86,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_a_nivolumab_placebo_for_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 36.93,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 71.92,
+      "p_value": 0.0001,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_c_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 19.94,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_b_nivolumab_ipilimumab_placebo_for_nivolumab",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 58.3,
+      "p_value": 0.0001,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ipilimumab",
+      "primary_compound_id": "nivolumab",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.9,
+      "hypothesis": "CTLA-4 blockade enhances T-cell priming and activation to amplify PD-1 blockade anti-tumor immune response",
+      "citation": "Nivolumab + Ipilimumab: 11.50 months PFS vs Nivolumab: 6.93 months PFS; OS 71.92 months vs 36.93 months; ORR 58.3% vs 44.9%"
+    }
+  ]
+}

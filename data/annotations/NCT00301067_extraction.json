@@ -1,0 +1,209 @@
+{
+  "nct_id": "NCT00301067",
+  "therapeutic_hypothesis": {
+    "compound": "calcitriol + temozolomide",
+    "claimed_target": "vitamin D receptor + DNA alkylation",
+    "proposed_mechanism": "vitamin D receptor activation combined with DNA alkylating agent",
+    "intended_biology": "enhanced cytotoxicity through vitamin D receptor signaling and DNA damage",
+    "target_population": "patients with metastatic melanoma",
+    "primary_endpoint": "dose limiting toxicities and safety",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "MTD established at 0.5 mcg/kg calcitriol",
+    "p_value": null,
+    "target_engagement_evidence": "VDR gene polymorphism analysis completed",
+    "biomarker_changes": [
+      "VDR genotype analysis showed differential survival outcomes"
+    ],
+    "subgroup_findings": [
+      "VDR genotype (tt+/-ff) had shorter OS (3.8 months) vs non tt+/-ff genotype (7.4 months)"
+    ],
+    "safety_signals": [
+      "Grade 3-4 toxicities included thrombocytopenia, nausea/vomiting, hyperglycemia, confusion, pneumonia, pulmonary embolus"
+    ],
+    "dose_info": {
+      "dose": "0.2-0.5 mcg/kg calcitriol, temozolomide standard dosing",
+      "schedule": "calcitriol on days 1 and 15, temozolomide on days 2-8 and 16-22 of 28-day cycles",
+      "max_tolerated_dose": "0.5 mcg/kg calcitriol",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "thrombocytopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "nausea",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "vomiting",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "leukopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "anemia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "lymphopenia",
+        "grade": "3-4",
+        "incidence_treatment_pct": 10.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "fatigue",
+        "grade": "3-4",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": false
+      },
+      {
+        "term": "hyperglycemia",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "confusion",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pneumonia",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "pulmonary embolus",
+        "grade": "",
+        "incidence_treatment_pct": 5.0,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 20,
+    "duration": "up to 12 cycles of 28 days each",
+    "duration_weeks": 48.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "cohort_1_temozolomide_and_calcitriol",
+      "compounds": [
+        "calcitriol",
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "cohort_2_temozolomide_and_calcitriol",
+      "compounds": [
+        "calcitriol",
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "cohort_3_temozolomide_and_calcitriol",
+      "compounds": [
+        "calcitriol",
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "expansion_temozolomide_and_calcitriol",
+      "compounds": [
+        "calcitriol",
+        "temozolomide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "VDR genotype (tt+/-ff)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "vdr_tt_ff"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "non tt+/-ff VDR genotype",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "vdr_non_tt_ff"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "cohort_1_temozolomide_and_calcitriol",
+      "subgroup_descriptor": null,
+      "endpoint": "overall survival",
+      "effect_size": 5.5,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "cohort_1_temozolomide_and_calcitriol",
+      "subgroup_descriptor": "VDR genotype (tt+/-ff)",
+      "endpoint": "overall survival",
+      "effect_size": 3.8,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "cohort_1_temozolomide_and_calcitriol",
+      "subgroup_descriptor": "non tt+/-ff VDR genotype",
+      "endpoint": "overall survival",
+      "effect_size": 7.4,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "calcitriol",
+      "primary_compound_id": "temozolomide",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.75,
+      "hypothesis": "calcitriol enhances temozolomide cytotoxicity through vitamin D receptor signaling pathways",
+      "citation": "VDR gene polymorphism analysis showed differential survival outcomes with VDR genotype (tt+/-ff) having shorter OS vs non tt+/-ff genotype"
+    }
+  ]
+}

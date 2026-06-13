@@ -39,29 +39,6 @@ class TestFeaturesFromLLMResponse:
         axes = {f.axis for f in feats}
         assert axes == {"line", "extent", "prior_tx", "gene"}
 
-    def test_list_valued_scalar_fields_are_tolerated(self):
-        """The LLM sometimes returns disease_stage / line_of_therapy as a LIST
-        (surfaced at n=500). Each valid value adds a feature; no crash."""
-        raw = {
-            "disease_stage": ["iii", "metastatic"],  # was: AttributeError on .strip()
-            "line_of_therapy": ["first"],
-        }
-        feats = _features_from_llm_response(raw)
-        axes = {(f.axis, f.level) for f in feats}
-        assert ("stage", "iii") in axes
-        assert ("extent", "metastatic") in axes
-        assert ("line", "first") in axes
-
-    def test_non_dict_items_in_object_lists_are_skipped(self):
-        """required_mutations / biomarker_selection items that come back as bare
-        strings (not objects) are skipped rather than crashing on .get()."""
-        raw = {
-            "required_mutations": ["BRAF V600E", {"gene": "KRAS", "variant": "G12C"}],
-            "biomarker_selection": ["nonsense"],
-        }
-        feats = _features_from_llm_response(raw)
-        assert [(f.key, f.level) for f in feats] == [("KRAS", "g12c")]
-
     def test_empty_response_produces_nothing(self):
         raw = {
             "line_of_therapy": None,
@@ -110,17 +87,6 @@ class TestFeaturesFromLLMResponse:
         raw_stage = {"disease_stage": "iv"}
         assert _features_from_llm_response(raw_extent)[0].axis == "extent"
         assert _features_from_llm_response(raw_stage)[0].axis == "stage"
-
-    def test_demographics_axes(self):
-        """Round-31: age/sex/race extracted as subgroup stratifiers."""
-        raw = {"age_group": "elderly", "sex": "female", "race_ethnicity": "asian"}
-        got = {(f.axis, f.level) for f in _features_from_llm_response(raw)}
-        assert got == {("age", "elderly"), ("sex", "female"), ("race", "asian")}
-
-    def test_invalid_demographics_dropped(self):
-        """Out-of-vocabulary demographic values don't create junk features."""
-        raw = {"age_group": "middle_aged", "sex": "other", "race_ethnicity": "martian"}
-        assert _features_from_llm_response(raw) == []
 
 
 # ── JSON parser ─────────────────────────────────────────────────────────
@@ -235,12 +201,9 @@ class TestExtractPopulationFeaturesWithLLM:
             client=client, cache_path=cache_path,
         )
         assert feats == []
-        # Cache stores the {features, eligibility_labs} entry so we don't retry the
-        # same broken response. Key is version-namespaced (prompt-version prefix) so
-        # a prompt bump regenerates instead of returning stale features.
-        from src.graph.population_features import _PROMPT_VERSION
+        # Cache stores empty list so we don't retry the same broken response.
         cached = json.loads(cache_path.read_text())
-        assert cached[f"{_PROMPT_VERSION}:NCT_TEST"] == {"features": [], "eligibility_labs": []}
+        assert cached["NCT_TEST"] == []
 
 
 # ── Integration: composing into PopulationNode.compose_id ───────────────
@@ -267,7 +230,7 @@ class TestComposeWithExistingQualifiers:
                 merged.append(f)
                 seen.add(f.slug())
 
-        pop_id = PopulationNode.compose_id(merged)
+        pop_id = PopulationNode.compose_id("melanoma", merged)
         # The slug should include both regex- and LLM-derived axes.
         assert "extent_metastatic" in pop_id
         assert "stage_iv" in pop_id

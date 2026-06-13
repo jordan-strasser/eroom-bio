@@ -1,0 +1,217 @@
+{
+  "nct_id": "NCT00661622",
+  "therapeutic_hypothesis": {
+    "compound": "GM-CSF with embolization",
+    "claimed_target": "GM-CSF receptor",
+    "proposed_mechanism": "immune activation via granulocyte-macrophage colony stimulating factor",
+    "intended_biology": "enhanced anti-tumor immune response in combination with vascular disruption",
+    "target_population": "uveal melanoma patients with liver metastases",
+    "primary_endpoint": "response of liver metastases",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "ORR 21.2% vs 16.7% (immunoembolization vs plain embolization)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "CR: 0% both arms",
+      "PR: 19.2% immunoembolization vs 11.1% plain embolization",
+      "SD: 46.2% immunoembolization vs 70.4% plain embolization"
+    ],
+    "safety_signals": [
+      "elevated liver enzymes",
+      "abdominal pain",
+      "fever",
+      "aneurysms",
+      "death"
+    ],
+    "dose_info": {
+      "dose": "2,000 mcg",
+      "schedule": "every 4 weeks alternating between right or left lobe",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      },
+      {
+        "term": "aneurysms",
+        "grade": "",
+        "incidence_treatment_pct": 3.8,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "death",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      },
+      {
+        "term": "diarrhea",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      },
+      {
+        "term": "elevated liver enzymes",
+        "grade": "",
+        "incidence_treatment_pct": 7.7,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      },
+      {
+        "term": "fever",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      },
+      {
+        "term": "liver pain",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "uveal melanoma with liver metastases",
+    "comparator": "plain embolization",
+    "sample_size": 53,
+    "duration": "",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "immunoembolization",
+      "compounds": [
+        "GM-CSF"
+      ]
+    },
+    {
+      "arm_id": "plain_embolization",
+      "compounds": []
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete response (CR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial response (PR)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable disease (SD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progression (PD)",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "immunoembolization",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 21.2,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "plain_embolization",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 16.7,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "immunoembolization",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 21.5,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "plain_embolization",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 17.2,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "immunoembolization",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 3.9,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "plain_embolization",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.9,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "immunoembolization",
+      "subgroup_descriptor": null,
+      "endpoint": "systemic PFS",
+      "effect_size": 10.4,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "plain_embolization",
+      "subgroup_descriptor": null,
+      "endpoint": "systemic PFS",
+      "effect_size": 7.1,
+      "p_value": null,
+      "outcome": "partial"
+    }
+  ],
+  "modulation_entries": []
+}

@@ -10,7 +10,6 @@ from src.ingestion.clinicaltrials import (
     TrialRecord,
     _guess_modality,
     _parse_study,
-    is_processable_drug_trial,
     map_trial_to_graph_nodes,
 )
 
@@ -208,41 +207,6 @@ class TestModalityGuess:
         assert _guess_modality(iv) == Modality.SMALL_MOLECULE
 
 
-class TestProcessableDrugTrial:
-    """Corpus-quality gate for multi-indication: keep drug/biologic trials with a
-    primary outcome; drop the structural mismatches the drug-centric pipeline
-    can't use (the non-onco n=10 smoke surfaced all four)."""
-
-    def _rec(self, itypes, n_primary):
-        return TrialRecord(
-            nct_id="NCT", title="t",
-            interventions=[Intervention(name=f"x{i}", type=t)
-                           for i, t in enumerate(itypes)],
-            primary_outcomes=[OutcomeMeasure(measure=f"m{i}", timeframe="")
-                              for i in range(n_primary)],
-        )
-
-    def test_keeps_drug_with_primary(self):
-        assert is_processable_drug_trial(self._rec(["DRUG"], 1))
-
-    def test_keeps_biologic_and_drug_plus_procedure_combo(self):
-        # a cancer drug+surgery combo still passes — it has ≥1 drug
-        assert is_processable_drug_trial(self._rec(["BIOLOGICAL", "DRUG", "PROCEDURE"], 2))
-
-    def test_drops_behavioral_only(self):
-        assert not is_processable_drug_trial(self._rec(["BEHAVIORAL"], 1))
-
-    def test_drops_procedure_only(self):
-        assert not is_processable_drug_trial(self._rec(["PROCEDURE"], 2))
-
-    def test_drops_observational_no_interventions(self):
-        assert not is_processable_drug_trial(self._rec([], 1))
-
-    def test_drops_drug_without_primary_outcome(self):
-        # sparse record (e.g. the AN-1792 Alzheimer's trial: BIOLOGICAL, 0 primary)
-        assert not is_processable_drug_trial(self._rec(["BIOLOGICAL"], 0))
-
-
 # ── Graph node mapping ───────────────────────────────────────────────────
 
 
@@ -276,97 +240,6 @@ class TestMapTrialToNodes:
     def test_canonical_indication_id(self, trial_record):
         nodes = map_trial_to_graph_nodes(trial_record)
         assert nodes["indications"][0].id == "chronic_myeloid_leukemia"
-
-
-# ── Round-27 dose-suffix stripping ───────────────────────────────────────
-
-
-class TestCodenameINNParenthetical:
-    """Biologic-resolution fix: 'BMS 188667 (Abatacept)' must resolve to the INN
-    (abatacept, ChEMBL/OT-resolvable), not the codename bms_188667 (unresolvable
-    → diagnostic-filtered → empty arm → trial dropped). Surfaced by the n=10
-    multi-indication smoke (autoimmune trials are biologic-heavy)."""
-
-    def test_codename_paren_inn_prefers_inn(self):
-        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
-        assert s("BMS 188667 (Abatacept)") == "Abatacept"
-        assert s("AMG 510 (Sotorasib)") == "Sotorasib"
-        assert s("MK-3475 (Pembrolizumab)") == "Pembrolizumab"
-
-    def test_inn_main_with_brand_paren_unchanged(self):
-        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
-        # main token is already the INN → strip the brand paren as before
-        assert s("Sorafenib (Nexavar; BAY43-9006)") == "Sorafenib"
-        assert s("Imatinib (Gleevec)") == "Imatinib"
-
-    def test_combo_paren_still_none(self):
-        from src.ingestion.clinicaltrials import strip_parenthetical_brand as s
-        assert s("Drug X (with Y)") is None
-
-
-class TestStripDoseSuffix:
-    """Round 27 fix for the round-26 bevacizumab AVANT regression: CT.gov
-    intervention names often embed dose info. Without stripping, OT /
-    ChEMBL lookup fails, SapBERT keeps the dose-laden slug canonical,
-    and the cross-reference name-match heuristic creates phantom edges.
-    """
-
-    def test_strips_mass_per_kg_dose(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Bevacizumab 7.5 mg/kg") == "Bevacizumab"
-        assert strip_dose_suffix("Bevacizumab 7.5mg/kg") == "Bevacizumab"
-
-    def test_strips_mass_per_m2_dose(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Capecitabine 1000 mg/m^2") == "Capecitabine"
-        assert strip_dose_suffix("Capecitabine 1000 mg/m2") == "Capecitabine"
-
-    def test_strips_simple_mg_dose(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Aspirin 81 mg") == "Aspirin"
-        assert strip_dose_suffix("Donepezil 10 mg") == "Donepezil"
-
-    def test_strips_biologic_iu(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Insulin 100 IU") == "Insulin"
-        assert strip_dose_suffix("Interferon 5 MIU") == "Interferon"
-
-    def test_strips_route_frequency(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Atorvastatin 10 mg PO") == "Atorvastatin"
-        assert strip_dose_suffix("Furosemide 40 mg BID") == "Furosemide"
-        assert strip_dose_suffix("Omeprazole 20 mg q12h") == "Omeprazole"
-
-    def test_preserves_leading_chemical_prefix(self):
-        """Critical: '5-Fluorouracil' must NOT lose its leading 5 (part
-        of the chemical name, not a dose). Dose pattern requires
-        whitespace BEFORE the number."""
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("5-Fluorouracil") == "5-Fluorouracil"
-        assert strip_dose_suffix("5_fluorouracil") == "5_fluorouracil"
-
-    def test_idempotent_on_clean_name(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        assert strip_dose_suffix("Bevacizumab") == "Bevacizumab"
-        assert strip_dose_suffix("imatinib") == "imatinib"
-
-    def test_empty_after_strip_returns_original(self):
-        from src.ingestion.clinicaltrials import strip_dose_suffix
-        # Pathological: name is JUST a dose. Return original so the
-        # downstream populator at least keeps something to attempt.
-        assert strip_dose_suffix("10 mg/kg") == "10 mg/kg"
-
-    def test_canonical_compound_names_strips_dose(self):
-        """The integration: canonical_compound_names is what the
-        populator actually calls. It must produce dose-free names."""
-        from src.ingestion.clinicaltrials import canonical_compound_names
-        assert canonical_compound_names("Bevacizumab 7.5 mg/kg") == ["Bevacizumab"]
-        assert canonical_compound_names("Capecitabine 1000 mg/m^2") == ["Capecitabine"]
-        # Combo with dose-laden constituents
-        result = canonical_compound_names(
-            "Oxaliplatin + Capecitabine 1000 mg/m^2 + Bevacizumab 7.5 mg/kg"
-        )
-        assert set(result) == {"Oxaliplatin", "Capecitabine", "Bevacizumab"}
 
 
 # ── Integration test ─────────────────────────────────────────────────────

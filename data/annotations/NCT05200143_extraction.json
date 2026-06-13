@@ -3,8 +3,8 @@
   "therapeutic_hypothesis": {
     "compound": "ipilimumab + nivolumab + cabozantinib",
     "claimed_target": "CTLA-4, PD-1, VEGFR2/MET/KIT",
-    "proposed_mechanism": "checkpoint blockade and kinase inhibition",
-    "intended_biology": "T-cell mediated anti-tumor immunity and angiogenesis inhibition",
+    "proposed_mechanism": "dual checkpoint blockade with anti-angiogenic/kinase inhibition",
+    "intended_biology": "T cell activation and proliferation with tumor vasculature disruption",
     "target_population": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
     "primary_endpoint": "progression free survival",
     "rationale_strength": "moderate"
@@ -17,7 +17,7 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "2/4 patients experienced grade \u22653 treatment related adverse events",
+      "50% of patients experienced grade \u22653 treatment related adverse events",
       "Multiple serious immune-related adverse events including hypophysitis, hepatitis, adrenal insufficiency"
     ],
     "dose_info": {
@@ -27,6 +27,13 @@
       "dose_modifications": ""
     },
     "adverse_events": [
+      {
+        "term": "Grade \u22653 treatment related adverse events",
+        "grade": "\u22653",
+        "incidence_treatment_pct": 50.0,
+        "incidence_control_pct": null,
+        "serious": true
+      },
       {
         "term": "Hypophysitis",
         "grade": "",
@@ -54,13 +61,6 @@
         "incidence_treatment_pct": 25.0,
         "incidence_control_pct": null,
         "serious": true
-      },
-      {
-        "term": "Grade \u22653 treatment related adverse events",
-        "grade": "3+",
-        "incidence_treatment_pct": 50.0,
-        "incidence_control_pct": null,
-        "serious": false
       }
     ]
   },
@@ -76,9 +76,9 @@
     {
       "arm_id": "cabozantinib_ipilimumab_nivolumab",
       "compounds": [
+        "cabozantinib",
         "ipilimumab",
-        "nivolumab",
-        "cabozantinib"
+        "nivolumab"
       ]
     }
   ],
@@ -86,42 +86,19 @@
   "results_by_chain": [
     {
       "arm_id": "cabozantinib_ipilimumab_nivolumab",
-      "intervention": "ipilimumab",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 6.24,
       "p_value": null,
-      "outcome": "unknown",
-      "mechanism_description": "checkpoint blockade",
-      "biology_description": "T-cell mediated anti-tumor immunity",
-      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
-      "mechanism_category": "checkpoint_blockade"
+      "outcome": "unknown"
     },
     {
       "arm_id": "cabozantinib_ipilimumab_nivolumab",
-      "intervention": "nivolumab",
       "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 6.24,
+      "endpoint": "OS",
+      "effect_size": 0.0,
       "p_value": null,
-      "outcome": "unknown",
-      "mechanism_description": "checkpoint blockade",
-      "biology_description": "T-cell mediated anti-tumor immunity",
-      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
-      "mechanism_category": "checkpoint_blockade"
-    },
-    {
-      "arm_id": "cabozantinib_ipilimumab_nivolumab",
-      "intervention": "cabozantinib",
-      "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 6.24,
-      "p_value": null,
-      "outcome": "unknown",
-      "mechanism_description": "kinase inhibition",
-      "biology_description": "angiogenesis inhibition",
-      "population_description": "anti-PD-1/PD-L1 refractory metastatic cutaneous melanoma",
-      "mechanism_category": "kinase_inhibition"
+      "outcome": "failure"
     }
   ],
   "modulation_entries": [
@@ -131,8 +108,8 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "Cabozantinib-mediated angiogenesis inhibition and immune microenvironment modulation may enhance checkpoint blockade efficacy",
-      "citation": "Withdrawn support from BMS."
+      "hypothesis": "anti-angiogenic kinase inhibition enhances immune checkpoint blockade efficacy",
+      "citation": "Cabozantinib is a potent small molecule inhibitor of multiple receptor tyrosine kinases. Cabozantinib inhibits VEGFR2, MER, KIT, and MET at single digit nanomolar IC50 concentrations."
     }
   ]
 }

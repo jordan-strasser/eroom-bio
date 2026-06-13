@@ -2,26 +2,26 @@
   "nct_id": "NCT00671918",
   "therapeutic_hypothesis": {
     "compound": "Lymphoseek",
-    "claimed_target": "mannose receptor",
-    "proposed_mechanism": "receptor-mediated endocytosis",
-    "intended_biology": "lymphatic drainage mapping",
-    "target_population": "patients with breast cancer or melanoma requiring sentinel lymph node biopsy",
-    "primary_endpoint": "concordance of blue dye and Lymphoseek detection",
+    "claimed_target": "CD206 (mannose receptor)",
+    "proposed_mechanism": "Selective binding to mannose receptors on macrophages in lymph nodes",
+    "intended_biology": "Lymphatic mapping and sentinel lymph node identification",
+    "target_population": "Patients with breast cancer or melanoma requiring sentinel lymph node biopsy",
+    "primary_endpoint": "Concordance of Blue Dye and Lymphoseek detection",
     "rationale_strength": "moderate"
   },
   "results": {
     "primary_endpoint_met": true,
     "effect_size": "97.67% concordance (95% CI: 94.66-99.24%)",
     "p_value": null,
-    "target_engagement_evidence": null,
+    "target_engagement_evidence": "High concordance with blue dye standard demonstrates lymph node targeting",
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
       "5 serious adverse events in 179 patients including myocardial infarction, nausea, vomiting, cellulitis, and modified radical mastectomy"
     ],
     "dose_info": {
-      "dose": "0.2-0.4 mL (breast cancer), 0.2-4.0 mL depending on injection site",
-      "schedule": "single injection intraoperatively",
+      "dose": "0.2-0.4 mL (breast cancer intradermal/periareolar/subareolar), 2.0-4.0 mL (breast cancer peritumor), 0.2-0.4 mL (melanoma intradermal)",
+      "schedule": "single injection or multiple divided injections at surgery",
       "max_tolerated_dose": "",
       "dose_modifications": ""
     },
@@ -64,8 +64,8 @@
     ]
   },
   "context": {
-    "indication": "breast cancer and melanoma",
-    "comparator": "blue dye",
+    "indication": "Breast cancer and melanoma requiring sentinel lymph node biopsy",
+    "comparator": "blue dye standard",
     "sample_size": 186,
     "duration": "single surgical procedure",
     "duration_weeks": null,
@@ -83,16 +83,19 @@
   "results_by_chain": [
     {
       "arm_id": "lymphoseek_lymphatic_mapping_injection",
-      "intervention": "Lymphoseek",
       "subgroup_descriptor": null,
-      "endpoint": "concordance with blue dye",
+      "endpoint": "Concordance with blue dye",
       "effect_size": 0.9767,
       "p_value": null,
-      "outcome": "success",
-      "mechanism_description": "receptor-mediated endocytosis",
-      "biology_description": "lymphatic drainage mapping",
-      "population_description": "patients with breast cancer or melanoma requiring sentinel lymph node biopsy",
-      "mechanism_category": "other"
+      "outcome": "success"
+    },
+    {
+      "arm_id": "lymphoseek_lymphatic_mapping_injection",
+      "subgroup_descriptor": null,
+      "endpoint": "Reverse concordance with blue dye",
+      "effect_size": 0.6863,
+      "p_value": null,
+      "outcome": "partial"
     }
   ],
   "modulation_entries": []

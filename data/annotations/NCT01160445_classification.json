@@ -1,0 +1,118 @@
+{
+  "nct_id": "NCT01160445",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm whether zanolimumab engaged CD4 or aldesleukin engaged IL-2 receptor. However, both compounds have established mechanisms and the doses used (zanolimumab 14 mg/kg, aldesleukin 720,000 IU/kg) are within therapeutic ranges. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess whether CD4 T cell depletion or IL-2 signaling occurred as intended. 3. CLINICAL TRANSLATION: Complete failure - 0% objective response rate across all 9 patients (7 melanoma, 2 renal cell). All patients experienced progressive disease with no complete responses, partial responses, or stable disease. 4. POPULATION EFFECTS: No differential response observed - both melanoma (7/7) and renal cell (2/2) patients had progressive disease. 5. CONFOUNDERS: Very small sample size (N=9) raises underpowering concerns. However, the complete lack of any response (0/9) suggests the failure is not simply due to statistical power. The trial was terminated due to inability to obtain study drug, but efficacy data was collected.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Only 9 patients enrolled (7 melanoma, 2 renal cell) which is extremely small for detecting treatment effects, especially in a combination therapy trial"
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Without biomarker data, cannot definitively rule out target engagement, but the complete lack of any clinical response (0% ORR, 100% progressive disease) suggests the biological hypothesis failed to translate"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "zanolimumab",
+      "target_entity": "ENSG00000010610",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No biomarker data to confirm CD4 engagement, but dose was within therapeutic range"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "No biomarker data to confirm IL-2 receptor engagement, but dose was within therapeutic range"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "zanolimumab",
+      "target_entity": "ENSG00000010610",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No biomarker data to confirm CD4 engagement, but dose was within therapeutic range"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "aldesleukin",
+      "target_entity": "ENSG00000134460",
+      "support": "ambiguous",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "No biomarker data to confirm IL-2 receptor engagement, but dose was within therapeutic range"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "GO:0050852",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "Complete failure with 0% response rate suggests the CD4 antagonism mechanism did not produce beneficial downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "R-HSA-912526",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "Complete failure with 0% response rate suggests the IL-2 agonism mechanism did not produce beneficial downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "GO:0050852",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "Complete failure with 0% response rate suggests the CD4 antagonism mechanism did not produce beneficial downstream biology"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "R-HSA-912526",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_renal_cell",
+      "reasoning": "Complete failure with 0% response rate suggests the IL-2 agonism mechanism did not produce beneficial downstream biology"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0050852",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "T cell receptor signaling pathway modulation did not drive clinical benefit in melanoma (0/7 responses)"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-912526",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "hd_il_2_zanolimumab_melanoma",
+      "reasoning": "Interleukin receptor signaling did not drive clinical benefit in melanoma (0/7 responses)"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_renal_cancer",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Tumor regression by RECIST was clearly measured and reported, providing definitive readout of treatment effect"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_metastatic__prior_tx_anti_ctla4_treated__prior_tx_il2_treated",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "This heavily pre-treated population showed complete lack of response (0/7 melanoma patients), suggesting poor response in this specific population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Very small sample size (N=9) makes it difficult to distinguish between underpowering and true biological failure. The complete lack of any response (0% ORR) is striking but could be due to inadequate sample size or wrong population selection."
+}

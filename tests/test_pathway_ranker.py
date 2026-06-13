@@ -7,28 +7,12 @@ in these tests is drawn from the live Reactome cache under
 ``data/cache/lincs/reactome/`` so the regression assertions mirror reality.
 """
 
-from src.graph.pathway_ranker import (
-    relevance_floor,
-    rerank_pathways,
-    semantic_relevance_floor,
-)
+from src.graph.pathway_ranker import rerank_pathways
 from src.ingestion.lincs import ReactomePathway
 
 
 def _p(stable_id: str, display_name: str) -> ReactomePathway:
     return ReactomePathway(stable_id=stable_id, display_name=display_name)
-
-
-# TUBB4B's actual 5 GO biological-process terms (UniProt P68371) — the taxane
-# noise cluster. The on-mechanism terms are mitotic cell cycle + microtubule-
-# based process; the rest are real-but-off-context leaves.
-_TUBB4B_GO = [
-    _p("GO:0030317", "flagellated sperm motility"),
-    _p("GO:0042267", "natural killer cell mediated cytotoxicity"),
-    _p("GO:0000278", "mitotic cell cycle"),
-    _p("GO:0007010", "cytoskeleton organization"),
-    _p("GO:0007017", "microtubule-based process"),
-]
 
 
 # ── Core behavior ────────────────────────────────────────────────────────
@@ -258,84 +242,3 @@ def test_metadata_order_reflects_reranking():
     ranked = rerank_pathways(pathways, gene_symbol="VEGFA")
     pathway_ids = [p.stable_id for p in ranked]
     assert pathway_ids == ["R-ON", "R-OFF"]
-
-
-# ── Relevance floor (GO-augmentation noise prune) ────────────────────────
-
-
-def test_relevance_floor_drops_off_context_go_leaves_via_description():
-    """With the extracted action description as context, the floor keeps the
-    on-mechanism GO terms and drops the off-context tubulin leaves."""
-    kept = relevance_floor(
-        _TUBB4B_GO,
-        mechanism_name="microtubule stabilization mitotic spindle arrest",
-        gene_symbol="TUBB4B",
-    )
-    names = {p.display_name for p in kept}
-    assert "mitotic cell cycle" in names
-    assert "microtubule-based process" in names
-    assert "flagellated sperm motility" not in names
-    assert "natural killer cell mediated cytotoxicity" not in names
-    assert "cytoskeleton organization" not in names
-
-
-def test_relevance_floor_uses_microtubule_binding_vocab():
-    """Even with only the drug-class slug (no description), the new
-    microtubule_binding vocab lets the on-mechanism terms clear the floor."""
-    kept = relevance_floor(
-        _TUBB4B_GO, mechanism_name="microtubule_binding", gene_symbol="TUBB4B"
-    )
-    names = {p.display_name for p in kept}
-    assert "microtubule-based process" in names
-    assert "mitotic cell cycle" in names  # via {mitotic} in the vocab
-    assert "flagellated sperm motility" not in names
-
-
-def test_relevance_floor_falls_back_to_top1_when_no_signal():
-    """No context signal → everything ties at 0.0 → keep exactly the top-1
-    (never drop the chain), never the whole noisy set."""
-    kept = relevance_floor(_TUBB4B_GO, mechanism_name="other")
-    assert len(kept) == 1
-
-
-def test_relevance_floor_empty_input():
-    assert relevance_floor([], mechanism_name="microtubule_binding") == []
-
-
-# ── Semantic relevance floor (BioLORD-backed GO prune) ───────────────────
-
-
-def _fake_embed(mapping):
-    """Build an embed_fn returning the mapped vector per text (default orthogonal
-    low-similarity vector), so floor behavior is deterministic in tests."""
-    def _embed(texts):
-        return [mapping.get(t, [0.0, 0.0, 1.0]) for t in texts]
-    return _embed
-
-
-def test_semantic_floor_keeps_on_mechanism_drops_leaves():
-    # context aligns with the two on-mechanism terms; leaves are orthogonal.
-    embed = _fake_embed({
-        "antimitotic microtubule": [1.0, 0.0, 0.0],
-        "mitotic cell cycle": [0.98, 0.10, 0.0],
-        "microtubule-based process": [0.95, 0.20, 0.0],
-        "flagellated sperm motility": [0.0, 1.0, 0.0],
-        "natural killer cell mediated cytotoxicity": [0.1, 0.97, 0.0],
-    })
-    kept = semantic_relevance_floor(_TUBB4B_GO, "antimitotic microtubule", embed)
-    names = {p.display_name for p in kept}
-    assert "mitotic cell cycle" in names
-    assert "microtubule-based process" in names
-    assert "flagellated sperm motility" not in names
-    assert "natural killer cell mediated cytotoxicity" not in names
-
-
-def test_semantic_floor_top1_fallback_when_all_orthogonal():
-    embed = _fake_embed({"unrelated context": [1.0, 0.0, 0.0]})  # all terms → default orthogonal
-    kept = semantic_relevance_floor(_TUBB4B_GO, "unrelated context", embed)
-    assert len(kept) == 1  # top-1 fallback, never the whole noisy set
-
-
-def test_semantic_floor_empty_context_keeps_all():
-    kept = semantic_relevance_floor(_TUBB4B_GO, "", _fake_embed({}))
-    assert len(kept) == len(_TUBB4B_GO)  # no signal → don't prune

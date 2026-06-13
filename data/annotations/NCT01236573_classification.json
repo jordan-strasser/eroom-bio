@@ -1,0 +1,102 @@
+{
+  "nct_id": "NCT01236573",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess whether IL-12 transduced TIL cells engaged their intended targets or whether IL-12 was successfully expressed and secreted. The trial design assumes the genetic modification worked but provides no pharmacodynamic confirmation. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream immune activation or IL-12 signaling. Cannot assess whether the intended T-cell mediated anti-tumor immunity was enhanced. 3. CLINICAL TRANSLATION: Mixed clinical results - overall response rate was 14.7% (5/34 patients), with primary endpoint not met. However, there was clear dose-response relationship with higher cell doses showing better responses: Group 10 (3x10^9 cells) achieved 1 CR + 3 PR, while lower doses showed minimal activity. 4. POPULATION EFFECTS: The trial demonstrates dose-dependent efficacy, suggesting the mechanism may work at higher cell doses. The bulk TIL preparations at higher doses (1x10^9 and 3x10^9) showed responses while CD8+ TIL at lower doses failed. 5. CONFOUNDERS: Significant safety concerns with dose-limiting toxicities including thrombotic microangiopathy, pneumonitis, and hypoxia. MTD was established at 1x10^9 cells, but the highest responding dose (3x10^9) exceeded this, suggesting optimal efficacy dose may not be safely achievable in all patients.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Multiple serious adverse events (25-33.3% incidence) including thrombotic microangiopathy, pneumonitis, hypoxia, and thrombosis. MTD established at 1x10^9 cells while best responses occurred at 3x10^9 cells, indicating optimal efficacy dose exceeds safety threshold."
+    },
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.7,
+      "evidence": "Clear dose-response relationship with bulk TIL at higher doses (1x10^9 and 3x10^9 cells) showing responses while lower doses and CD8+ TIL preparations failed. Suggests mechanism works but only at specific cell doses and preparation types."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "fludarabine",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "Fludarabine used as conditioning agent in the most successful arm, but no direct evidence of target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cyclophosphamide",
+      "target_entity": "CHEBI:16991",
+      "support": "ambiguous",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "Cyclophosphamide used as conditioning agent in the most successful arm, but no direct evidence of target engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antimetabolite",
+      "target_entity": "antimetabolite__skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "Conditioning regimen contributed to successful TIL expansion and response in highest dose group"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "dna_damage",
+      "target_entity": "dna_damage__skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "DNA damage from cyclophosphamide conditioning contributed to lymphodepletion enabling TIL expansion"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antimetabolite__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "Conditioning regimen enabled clinical responses in highest dose group"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": "group_10_bulk_til_expressing_il12_3x10_9",
+      "reasoning": "DNA damage conditioning enabled clinical responses in highest dose group"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antimetabolite__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_1_cd8_til_expressing_il_12_1x10_6",
+      "reasoning": "Conditioning regimen failed to enable responses in lowest dose CD8+ TIL group"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "dna_damage__skin_cancer",
+      "target_entity": "skin_cancer",
+      "support": "weak_contradict",
+      "affecting_arm_id": "group_1_cd8_til_expressing_il_12_1x10_6",
+      "reasoning": "DNA damage conditioning failed to enable responses in lowest dose CD8+ TIL group"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_melanoma",
+      "target_entity": "skin_cancer",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint clearly captured dose-limiting toxicities and established MTD, providing clinically relevant safety information"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "skin_cancer__extent_metastatic",
+      "target_entity": "skin_cancer",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Dose-dependent responses suggest this metastatic melanoma population can respond to IL-12 TIL therapy at higher cell doses, though with significant toxicity"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "Complex multi-arm dose-escalation trial with mixed outcomes and significant safety concerns. The dose-response relationship suggests efficacy at higher doses but with prohibitive toxicity. Expert review needed to assess whether the risk-benefit profile supports further development."
+}

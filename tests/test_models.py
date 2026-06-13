@@ -69,26 +69,6 @@ class TestCompoundNode:
         with pytest.raises(ValidationError):
             CompoundNode(id="", name="Test", modality=Modality.OTHER)
 
-    def test_drug_class_properties_default_none(self):
-        """Semantic-layers redesign: the drug-class ``category`` +
-        ``mechanism_type`` live on the InterventionNode (the drug), not the
-        shared signaling-pathway MechanismNode. Both default None so existing
-        snapshots load unchanged."""
-        node = CompoundNode(id="C1", name="Test")
-        assert node.category is None
-        assert node.mechanism_type is None
-
-    def test_carries_category_and_mechanism_type(self):
-        """A drug's intrinsic class (category) and the MechanismType it derives
-        to are stored on the drug node."""
-        node = CompoundNode(
-            id="pembrolizumab", name="Pembrolizumab",
-            category="checkpoint_blockade",
-            mechanism_type=MechanismType.ANTAGONISM,
-        )
-        assert node.category == "checkpoint_blockade"
-        assert node.mechanism_type == MechanismType.ANTAGONISM
-
 
 class TestTargetNode:
     def test_create(self):
@@ -156,30 +136,6 @@ class TestMechanismNode:
         node = MechanismNode(id="M1", name="Test", mechanism_type=MechanismType.OTHER)
         assert node.selectivity is None
 
-    def test_mechanism_type_defaults_none(self):
-        """Semantic-layers redesign: the MechanismNode is a shared,
-        drug-agnostic Reactome pathway, so ``mechanism_type`` (a drug-class
-        property) is now Optional + defaults None. Existing snapshots that set
-        it still load."""
-        node = MechanismNode(id="R-HSA-5673001", name="RAF/MAP kinase cascade")
-        assert node.mechanism_type is None
-
-    def test_category_defaults_none(self):
-        # Abstraction-ladder redesign: category (the coarse drug-class bucket)
-        # is optional + defaults None so existing snapshots / cached graphs load
-        # unchanged. The node identity/scale is the specific action; category is
-        # the bucket it rolls up into.
-        node = MechanismNode(id="M1", name="Test", mechanism_type=MechanismType.OTHER)
-        assert node.category is None
-
-    def test_category_set(self):
-        node = MechanismNode(
-            id="checkpoint_blockade", name="checkpoint blockade",
-            mechanism_type=MechanismType.ANTAGONISM,
-            category="checkpoint_blockade",
-        )
-        assert node.category == "checkpoint_blockade"
-
 
 class TestBiologyNode:
     def test_create(self):
@@ -227,20 +183,18 @@ class TestPopulationNode:
             SubgroupFeature(axis="gene", key="EGFR", level="mutant"),
             SubgroupFeature(axis="line", level="first"),
         ]
-        pop_id = PopulationNode.compose_id(feats)
+        pop_id = PopulationNode.compose_id("nsclc", feats)
         node = PopulationNode(
             id=pop_id,
-            name="EGFR-mutant first-line",
+            name="EGFR-mutant first-line NSCLC",
             defining_features=feats,
             estimated_size=50000,
         )
         assert node.estimated_size == 50000
-        # disease-agnostic: axes only, no indication prefix
-        assert pop_id == "egfr_mutant__line_first"
+        assert pop_id == "nsclc__egfr_mutant__line_first"
 
-    def test_compose_id_all_comers_is_none(self):
-        # all-comers (no axes) gets NO population node
-        assert PopulationNode.compose_id([]) is None
+    def test_compose_id_parent_population(self):
+        assert PopulationNode.compose_id("melanoma", []) == "melanoma__unselected"
 
     def test_compose_id_is_order_independent(self):
         from src.graph.models import SubgroupFeature
@@ -253,47 +207,9 @@ class TestPopulationNode:
             SubgroupFeature(axis="gene", key="CD274", level="high"),
         ]
         assert (
-            PopulationNode.compose_id(feats_a)
-            == PopulationNode.compose_id(feats_b)
+            PopulationNode.compose_id("nsclc", feats_a)
+            == PopulationNode.compose_id("nsclc", feats_b)
         )
-
-    def test_describe_is_disease_agnostic_natural_language(self):
-        from src.graph.models import SubgroupFeature
-        # The axes render to a clinical-state sentence — never a disease (the
-        # BioLORD substrate for a node shared across indications).
-        assert PopulationNode.describe([
-            SubgroupFeature(axis="line", level="first"),
-            SubgroupFeature(axis="stage", level="iii"),
-        ]) == "Patients with first-line therapy, stage III disease."
-        assert PopulationNode.describe([
-            SubgroupFeature(axis="extent", level="locally_advanced"),
-            SubgroupFeature(axis="line", level="adjuvant"),
-        ]) == "Patients with locally advanced disease, adjuvant treatment."
-        assert PopulationNode.describe([
-            SubgroupFeature(axis="gene", key="CD274", level="positive"),
-        ]) == "Patients with CD274 positive."
-
-    def test_describe_order_independent_and_empty(self):
-        from src.graph.models import SubgroupFeature
-        a = [SubgroupFeature(axis="stage", level="iv"),
-             SubgroupFeature(axis="line", level="second")]
-        b = [SubgroupFeature(axis="line", level="second"),
-             SubgroupFeature(axis="stage", level="iv")]
-        assert PopulationNode.describe(a) == PopulationNode.describe(b)
-        assert PopulationNode.describe([]) == ""  # all-comers ⇒ no node, no text
-
-    def test_describe_never_contains_a_disease_name(self):
-        # Regression guard for the stuck-description bug: a population built from
-        # axes alone must not embed a disease (it's shared across indications).
-        from src.graph.models import SubgroupFeature
-        feats = [
-            SubgroupFeature(axis="extent", level="metastatic",
-                            raw_descriptor="metastatic breast cancer"),
-            SubgroupFeature(axis="line", level="first"),
-        ]
-        desc = PopulationNode.describe(feats).lower()
-        for disease_word in ("breast", "cancer", "melanoma", "nsclc", "carcinoma"):
-            assert disease_word not in desc
 
 
 class TestEndpointNode:
@@ -621,19 +537,22 @@ class TestNormalizeEntity:
         assert normalize_entity("PD-L1", "BiomarkerNode") == "PD_L1"
         assert normalize_entity("EGFR mutation", "BiomarkerNode") == "EGFR_MUTATION"
 
-    def test_population_id_is_disease_agnostic_axes(self):
+    def test_population_requires_indication_double_underscore_features(self):
         from src.graph.models import normalize_entity
 
-        # Disease-agnostic redesign: population ids are '__'-joined axis slugs,
-        # no indication. Multi-axis composed id passes through.
+        # Composed-id form passes through as-is.
         assert (
-            normalize_entity("cd274_high__line_first", "PopulationNode")
-            == "cd274_high__line_first"
+            normalize_entity("melanoma__cd274_high__line_first", "PopulationNode")
+            == "melanoma__cd274_high__line_first"
         )
-        # Single-axis id is valid (no '__' required).
-        assert normalize_entity("line_first", "PopulationNode") == "line_first"
-        # Case + whitespace normalized.
-        assert normalize_entity("Line First", "PopulationNode") == "line_first"
+        # Parent population (no subgroup features) is "{indication}__unselected".
+        assert (
+            normalize_entity("melanoma__unselected", "PopulationNode")
+            == "melanoma__unselected"
+        )
+        # Bare indication slug (no "__feature" tail) is invalid.
+        with pytest.raises(ValueError):
+            normalize_entity("melanoma", "PopulationNode")
 
     def test_endpoint_requires_class_and_indication(self):
         from src.graph.models import normalize_entity

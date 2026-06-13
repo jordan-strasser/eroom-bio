@@ -271,62 +271,6 @@ class EvidenceType(str, Enum):
     GENETIC_GWAS = "genetic_gwas"
     PRECLINICAL_IN_VIVO = "preclinical_in_vivo"
     PRECLINICAL_IN_VITRO = "preclinical_in_vitro"
-    # ── Round-25: per-source curated-database evidence types ───────────
-    #
-    # The populator no longer hand-sets non-Beta(1, 1) priors. Each
-    # curated-source emission carries one of these source types so the
-    # evidence-strength accounting and trust weighting reflect WHAT the
-    # source is, not just THAT it's curated.
-    #
-    # n_eff values (see EVIDENCE_TYPE_N_EFF) are picked from the
-    # CHARACTER of each source — curation depth, primary-vs-aggregate,
-    # known replication behavior — NOT tuned against the holdout audit.
-    # All are flagged as starting defaults pending real calibration on
-    # a ≥50-trial labeled set (via a future calibration pass).
-
-    # Drug→target binding curated by Open Targets (aggregates ChEMBL,
-    # IUPHAR, DGIdb, drug labels). Primary assertion, multi-source
-    # cross-referenced.
-    DATABASE_OT_DIRECT = "database_ot_direct"
-    # Drug→target inferred from ChEMBL's structured action_type field.
-    # Single primary source but well-curated.
-    DATABASE_CHEMBL = "database_chembl"
-    # Hand-curated antibody→target table (round-24 mAb resolver).
-    # Backed by primary literature; each entry vetted by us.
-    DATABASE_MAB_TABLE = "database_mab_table"
-    # OT target-disease association score. Aggregated across multiple
-    # evidence types (clinical, genetic, somatic, literature) but the
-    # score itself is a heuristic combination — weaker per-source than
-    # the primary entries.
-    DATABASE_OT_ASSOCIATION = "database_ot_association"
-    # Reactome / GO pathway-membership assertions. Curated by pathway
-    # database curators; a single curator's interpretive call per
-    # entry.
-    DATABASE_REACTOME_GO = "database_reactome_go"
-    # LINCS L1000 perturbation signature. Real in-vitro experiment;
-    # weighted same as PRECLINICAL_IN_VITRO (which is what it is).
-    DATABASE_LINCS = "database_lincs"
-    # Endpoint-class regulatory prior (OS / DFS / PFS / etc.). FDA /
-    # ICH consensus on what endpoints capture clinical benefit per
-    # disease class. Aggregate but well-established.
-    DATABASE_ENDPOINT_PRIOR = "database_endpoint_prior"
-    # Indication-taxonomy structural relationship (e.g. "metastatic
-    # melanoma" rolls up to "melanoma"). Structural, not measurement
-    # — weaker.
-    DATABASE_INDICATION_TAXONOMY = "database_indication_taxonomy"
-    # Cross-reference name-match (gene symbol or target name found in
-    # intervention text). Heuristic, not really curation; lowest tier.
-    DATABASE_CROSS_REFERENCE = "database_cross_reference"
-    # Synthesized fallback edges (trial_biology_fallback synthetic
-    # biology slug, combo_inherit AFFECTS). Derived from existing
-    # curated facts but one inferential step removed.
-    DATABASE_FALLBACK = "database_fallback"
-    # LLM-inferred compound→target gene, for compounds OT/ChEMBL/mAb couldn't
-    # resolve. The inferred gene is VALIDATED against a real Ensembl gene (OT
-    # search_target) before use, but the BINDING claim itself is inferred, not
-    # curated — so it sits well below the curated DB binding tiers.
-    DATABASE_LLM_INFERENCE = "database_llm_inference"
-
     COMPUTATIONAL = "computational"
     LITERATURE = "literature"
 
@@ -392,24 +336,6 @@ class InterventionNode(BaseModel):
     # therapies, vaccines, novel agents that aren't in ChEMBL but
     # SapBERT can still embed by name).
     embedding: list[float] | None = None
-    # Drug-class properties (semantic-layers redesign, 2026-06-02). These
-    # are intrinsic to the DRUG, not to the shared signaling-pathway
-    # MechanismNode — a Reactome pathway (e.g. R-HSA-5673001 "RAF/MAP
-    # kinase cascade") is engaged by drugs of different classes (a kinase
-    # inhibitor AND aldesleukin), so a single ``category``/``mechanism_type``
-    # scalar on the pathway node would be wrong for one of them. They live
-    # here instead, keyed to the drug.
-    #   ``category``        the coarse drug-class functional bucket — a
-    #                       ``MechanismCategory`` value (checkpoint_blockade,
-    #                       kinase_inhibition, …). Stored as a string for
-    #                       loader/back-compat tolerance; ``None`` when no
-    #                       category was classified.
-    #   ``mechanism_type``  the broader ``MechanismType`` enum the category
-    #                       maps to (see ``_CATEGORY_TO_MECHANISM_TYPE`` in
-    #                       src/ingestion/lincs.py). ``None`` when unknown.
-    # Back-compat: both default ``None`` so existing snapshots load unchanged.
-    category: str | None = None
-    mechanism_type: MechanismType | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -450,39 +376,8 @@ class TargetNode(BaseModel):
 class MechanismNode(BaseModel):
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
-    # Semantic-layers redesign (2026-06-02): the MechanismNode IS a shared,
-    # drug-agnostic Reactome signaling pathway (id = ``R-HSA-…``), engaged by
-    # many drugs across classes. Drug-class properties no longer live here —
-    # ``mechanism_type`` is the drug's, so it moved to ``InterventionNode``;
-    # ``direction`` is per-(drug, pathway), so it moved to the ``modulates_via``
-    # edge ``metadata["direction"]``. ``mechanism_type`` is kept on the model
-    # (now Optional + ``None`` default) for back-compat: existing snapshots that
-    # stamped it still load, and the legacy LINCS category-id path
-    # (``populate_lincs_signatures``) — where the node id IS a single
-    # MechanismCategory so the type is unambiguous — still sets it.
-    mechanism_type: MechanismType | None = None
+    mechanism_type: MechanismType
     selectivity: str | None = None
-    # ── Vestigial on a drug-agnostic pathway node (kept for back-compat) ──
-    # ``direction`` and ``category`` are DRUG/edge properties, not pathway
-    # properties — a single Reactome pathway hit by drugs of different classes
-    # has no single direction/category. New trial-population builds no longer
-    # stamp these here (``populate._populate_trial_mechanisms`` writes
-    # ``category`` to the chain's InterventionNode and ``direction`` to the
-    # ``modulates_via`` edge instead). Fields retained with ``None`` defaults so
-    # existing snapshots that carry a value continue to load unchanged.
-    #   ``direction`` — "inhibiting" / "activating" / "modulating" / None.
-    #   ``category``  — a ``MechanismCategory`` value (the coarse drug-class
-    #                   bucket), or None.
-    direction: str | None = None
-    category: str | None = None
-    # A.0: rich free-text description preserved from the trial's therapeutic
-    # hypothesis (proposed_mechanism). The id is a routing tag; this is the
-    # semantic substrate the BioLORD embedding work (A.1) consumes. First
-    # non-empty contributor wins (see populate._set_node_description);
-    # per-trial provenance is a later (A.2) refinement. Stripped from public
-    # snapshots only once it holds a *fine-tuned* vector — the text itself is
-    # public. See future_ideas/eroom_node_graph_kickoff.md (A.0).
-    description: str = ""
 
 
 class BiologyNode(BaseModel):
@@ -492,9 +387,6 @@ class BiologyNode(BaseModel):
     tissue_specificity: list[str] = Field(default_factory=list)
     known_redundancies: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
-    # A.0: rich free-text description from the trial's intended_biology.
-    # See MechanismNode.description.
-    description: str = ""
 
 
 class BiomarkerNode(BaseModel):
@@ -527,10 +419,7 @@ class SubgroupFeature(BaseModel):
         non-gene → "{axis}_{level}" (e.g. "line_first")
         other → "other_{slugified(raw_descriptor)}"
         """
-        if self.axis in ("gene", "biomarker"):
-            # biomarker = non-gene markers (RF, anti-CCP, LVEF, HbA1c, amyloid):
-            # same key_level slug as gene so "rf_positive" / "lvef_low" are
-            # disease-agnostic shared nodes.
+        if self.axis == "gene":
             key = re.sub(r"[^a-z0-9]+", "", self.key.lower())
             level = re.sub(r"[^a-z0-9]+", "", self.level.lower())
             return f"{key}_{level}"
@@ -541,112 +430,25 @@ class SubgroupFeature(BaseModel):
             return f"other_{cleaned or 'unmapped'}"
         return f"{self.axis.lower()}_{self.level.lower()}"
 
-    def describe(self) -> str:
-        """DISEASE-AGNOSTIC natural-language phrase for this axis — the BioLORD
-        embedding substrate for population nodes. Mirrors :meth:`slug` but
-        human/embedding facing. NEVER names a disease: a population node is
-        shared across indications, so its description must carry the
-        clinical-state axis ONLY (the disease lives on the
-        ``responds_differently`` edge's indication target)."""
-        axis, level = self.axis.lower(), self.level.strip().lower()
-        lv = level.replace("_", " ")
-        if axis == "line":
-            if level in {"adjuvant", "neoadjuvant", "maintenance", "perioperative"}:
-                return f"{lv} treatment"
-            if level in {"first", "second", "third", "fourth", "later"}:
-                return f"{lv}-line therapy"
-            return f"{lv} line of therapy"
-        if axis == "stage":
-            return f"stage {level.replace('_', '-').upper()} disease"
-        if axis == "extent":
-            return {
-                "locally_advanced": "locally advanced disease",
-                "metastatic": "metastatic disease",
-                "unresectable": "unresectable disease",
-                "resectable": "resectable disease",
-                "advanced": "advanced disease",
-                "early": "early-stage disease",
-            }.get(level, f"{lv} disease")
-        if axis in ("gene", "biomarker"):
-            return f"{self.key or 'biomarker'} {lv}".strip()
-        if axis == "severity":
-            return f"{lv} disease activity"
-        if axis == "functional_class":
-            return f"functional class {self.level.strip().upper()}"
-        if axis == "performance":
-            return f"ECOG performance status {level.replace('_', '-')}"
-        if axis in {"prior_tx", "prior_therapy"}:
-            return {
-                "naive": "no prior systemic therapy",
-                "treated": "prior systemic therapy",
-            }.get(level, f"{lv} prior therapy")
-        if axis == "age":
-            return f"{lv} age group"
-        if axis == "histology":
-            return f"{lv} histology"
-        if axis == "other":
-            return (self.raw_descriptor or lv).strip()
-        return f"{axis.replace('_', ' ')} {lv}".strip()
-
 
 class PopulationNode(BaseModel):
     id: str = Field(min_length=1)
     name: str = Field(min_length=1)
     defining_features: list[SubgroupFeature] = Field(default_factory=list)
     estimated_size: int | None = None
-    # A.0: rich free-text description — the subgroup's raw descriptor, or the
-    # trial's target_population for the parent enrollment cohort. The embedding
-    # substrate for mechanism-conditioned population sub-regions (the named
-    # structural fix for the bevacizumab AVANT holdout miss). See
-    # MechanismNode.description.
-    description: str = ""
 
     @staticmethod
-    def compose_id(features: list[SubgroupFeature]) -> str | None:
-        """Disease-AGNOSTIC population id from sorted axis slugs, or ``None``
-        when there are no subgroup-defining features.
+    def compose_id(indication_id: str, features: list[SubgroupFeature]) -> str:
+        """Build a deterministic id from indication + sorted feature slugs.
 
-        Population nodes carry patient-SELECTION axes (line/stage/extent/
-        biomarker), not the disease — so the id is just the sorted feature
-        slugs (e.g. ``line_first__stage_iii``), shared across indications; the
-        per-disease binding lives on the ``responds_differently`` edge. An
-        all-comers cohort (no features) gets NO node (returns ``None``): it
-        carries no information beyond the indication, so the chain has no
-        population dimension and ``responds_differently`` is skipped.
+        With no features → ``{indication}__unselected`` (the parent
+        enrollment population). The sorted-slug rule means the same set of
+        features always produces the same id regardless of input order.
         """
         if not features:
-            return None
-        return "__".join(sorted(f.slug() for f in features))
-
-    @staticmethod
-    def display_name(features: list[SubgroupFeature]) -> str:
-        """Readable, disease-agnostic name from the axes (e.g.
-        'line: first · stage: iii'). Falls back to the slug when empty."""
-        if not features:
-            return "all comers"
-        parts = []
-        for f in sorted(features, key=lambda f: f.slug()):
-            label = f.key or f.axis
-            parts.append(f"{label}: {f.level}" if f.level else label)
-        return " · ".join(parts)
-
-    @staticmethod
-    def describe(features: list[SubgroupFeature]) -> str:
-        """Deterministic DISEASE-AGNOSTIC description from the selection axes —
-        the stable BioLORD substrate for a population node (and its (s,t) field
-        coordinate). Because population nodes are SHARED across indications
-        (``compose_id`` is the disease-agnostic ``{axes}``), this describes the
-        clinical-state axes ONLY; the disease binding lives on the
-        ``responds_differently`` edge's indication target. Empty for the
-        no-feature (all-comers) case, which gets no node at all."""
-        if not features:
-            return ""
-        phrases = [
-            p for p in (f.describe() for f in sorted(features, key=lambda f: f.slug())) if p
-        ]
-        if not phrases:
-            return ""
-        return "Patients with " + ", ".join(phrases) + "."
+            return f"{indication_id}__unselected"
+        slugs = sorted(f.slug() for f in features)
+        return f"{indication_id}__" + "__".join(slugs)
 
 
 class EndpointNode(BaseModel):
@@ -688,30 +490,6 @@ class AdverseEventNode(BaseModel):
     # Observed CTCAE grade range across trials feeding this node, e.g.
     # "grade_1_3" or "grade_3_4". Updated when new evidence arrives.
     severity_range: str = ""
-    # Round-29: did any trial report this AE as a Serious Adverse Event?
-    # CT.gov's `serious=True` flag is populated for ~90% of extracted
-    # AEs even when CTCAE grade is missing (CT.gov rarely posts grades).
-    # The safety-penalty math uses this as a COARSE severity floor
-    # (≈ grade-3 weight) so an ungraded cardiac SAE doesn't fall to
-    # `_UNKNOWN_GRADE_WEIGHT=0.10`. OR-merged across trials reporting
-    # the same AE — any "serious=true" trial wins.
-    serious: bool = False
-    # Round-28 MedDRA hierarchy parents. Populated by
-    # src/annotation/meddra_hierarchy.py at AE-node creation time.
-    # Used by the SOC-tier `target_associated_ae` propagation so sibling
-    # compounds binding the same target aggregate at the SOC level even
-    # when their per-trial PT extractions land at disjoint terms.
-    #   - ``soc_id`` is a slug like "cardiac_disorders" (lower-snake).
-    #   - ``soc_name`` mirrors ``system_organ_class`` (the original
-    #     MedDRA string) for human-readable rendering.
-    #   - ``hlt_id`` / ``hlgt_id`` are intermediate hierarchy tiers;
-    #     populated only when the curated hierarchy file has them.
-    # All four default to empty strings for backward compat with
-    # pre-round-28 snapshots.
-    hlt_id: str = ""
-    hlgt_id: str = ""
-    soc_id: str = ""
-    soc_name: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -765,48 +543,11 @@ class EvidenceRecord(BaseModel):
     # context-free evidence (the default for everything except LINCS sigs).
     context: dict[str, Any] = Field(default_factory=dict)
 
-    # ── Principled-N_eff inputs (optional; default None = back-compat) ─────
-    # Quantitative properties of the evidence, consumed by the precision-
-    # aware n_eff path in ``src/inference/beliefs.py`` when the
-    # ``EROOM_NEFF_PRECISION`` flag is enabled. All default None so existing
-    # records and serialized snapshots load unchanged and reproduce the
-    # legacy type-constant n_eff exactly.
-    #   ``n_obs``      patient/observation count (trial enrollment / N)
-    #   ``effect``     reported point-estimate effect size (HR/OR/Δ), if any
-    #   ``p_value``    reported p-value, if any
-    #   ``cluster_key`` correlation-cluster id for the independence/redundancy
-    #                   discount at aggregation; records sharing a key are
-    #                   treated as non-independent (None = its own cluster)
-    n_obs: int | None = None
-    effect: float | None = None
-    p_value: float | None = None
-    cluster_key: str | None = None
-
-    # ── A.3 manifold-2 localization (optional; default = scalar-only path) ──
-    # The trial-specific source/target descriptions (A.0b per-chain, else the
-    # trial-level A.0a text) whose BioLORD embeddings place this record at a
-    # point (s, t) on the edge belief surface. Descriptions are public text;
-    # the embeddings are the private localization — stripped from public
-    # snapshots via the ``*_embedding`` suffix (src/boundary.py). Absent ⇒ the
-    # record updates only the scalar marginal, exactly as today.
-    source_description_in_trial: str = ""
-    target_description_in_trial: str = ""
-    source_embedding: list[float] | None = None
-    target_embedding: list[float] | None = None
-
 
 class EdgeBeliefState(BaseModel):
     alpha: float = Field(default=1.0, ge=0.0)
     beta: float = Field(default=1.0, ge=0.0)
     evidence: list[EvidenceRecord] = Field(default_factory=list)
-    # A.3: optional per-region belief field (manifold 2). The scalar (alpha,
-    # beta) above stays the PUBLIC marginal; this holds the (s,t)-localized
-    # anchor surface — the private "edge weights" (statements 2 & 4). Serialized
-    # as an opaque dict (``belief_field.BeliefField.to_dict``); the
-    # ``belief_field`` field name is private (src/boundary.py), so it is
-    # stripped from public snapshots and written only to private ones. None ⇒
-    # scalar-only (back-compat).
-    belief_field: dict[str, Any] | None = None
 
     @property
     def expected_probability(self) -> float:
@@ -890,16 +631,6 @@ class CausalChain(BaseModel):
     outcome: TrialOutcome = TrialOutcome.UNKNOWN
     effect_size: float | None = None
     p_value: float | None = None
-    # PROVENANCE (not field math): this chain's OWN per-(arm, drug) free-text
-    # descriptions, stamped once at build by ``populate_chain_descriptions`` via
-    # the per-(arm, intervention) index — so a combo arm's paclitaxel chain keeps
-    # "mitotic arrest", not its neighbor's "angiogenesis inhibition". The
-    # edge-view / debug UI reads these from the graph to show per-contributor
-    # (s,t) without re-deriving from annotations. The (s,t) FIELD localizes by
-    # node concept (``field_prediction.build_st_desc_map``), independent of these.
-    mechanism_description: str = ""
-    biology_description: str = ""
-    population_description: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -937,11 +668,7 @@ _CL_PATTERN = re.compile(r"^CL:\d{7}$")
 # {indication}__{feature_slug}[__{feature_slug}...]
 # Feature slugs may contain single underscores (e.g. "pdcd1_high",
 # "line_first"); the trivial parent population is "{indication}__unselected".
-# Disease-agnostic population ids are '__'-joined axis slugs (each slug is
-# itself 'axis_level', e.g. 'line_first'). A single axis has no '__'
-# ('line_first'); multiple axes do ('line_first__stage_iii'). So zero-or-more
-# '__' groups, not one-or-more.
-_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)*$")
+_POPULATION_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(__[a-z0-9_]+)+$")
 
 
 def _slugify_lower(text: str) -> str:
@@ -1071,22 +798,26 @@ def normalize_entity(name: str, node_type: str) -> str:
         return candidate
 
     if node_type == "EndpointNode":
-        # Disease-AGNOSTIC (node-orthogonality redesign): a standardized class
-        # collapses to one shared node ``{class}`` (OS/PFS/ORR/...); catch-all
-        # classes are sub-keyed by measure as ``{class}_{measure}``. The
-        # per-disease binding lives on the endpoint_captures edge, NOT the id —
-        # so there is no indication suffix. Match EndpointClass values
-        # longest-first since some (composite_response) contain underscores.
+        # Expect {EndpointClass}_{indication_id}. Multi-word class values
+        # like 'composite_response' contain underscores, so split on the
+        # *first* '_' is wrong—match against EndpointClass values
+        # longest-first instead.
+        if "_" not in raw:
+            raise ValueError(
+                f"EndpointNode id '{name}' must be '{{class}}_{{indication}}'"
+            )
         for cls in sorted(EndpointClass, key=lambda c: -len(c.value)):
-            if raw == cls.value:
-                return cls.value
             prefix = f"{cls.value}_"
             if raw.startswith(prefix):
-                measure = _slugify_lower(raw[len(prefix):])
-                return f"{cls.value}_{measure}" if measure else cls.value
+                ind = _slugify_lower(raw[len(prefix):])
+                if not ind:
+                    raise ValueError(
+                        f"EndpointNode '{name}': missing indication suffix"
+                    )
+                return f"{cls.value}_{ind}"
+        cls_part = raw.split("_", 1)[0]
         raise ValueError(
-            f"EndpointNode id '{name}': must start with an EndpointClass "
-            f"(got {raw!r})"
+            f"EndpointNode '{name}': '{cls_part}' is not an EndpointClass"
         )
 
     if node_type == "IndicationNode":

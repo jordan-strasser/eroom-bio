@@ -1,29 +1,23 @@
 {
   "nct_id": "NCT01831726",
   "therapeutic_hypothesis": {
-    "compound": "dovitinib",
-    "claimed_target": "FGFR, VEGFR, PDGFR",
-    "proposed_mechanism": "kinase inhibition",
-    "intended_biology": "angiogenesis inhibition",
-    "target_population": "patients with tumor pathway activations inhibited by dovitinib",
-    "primary_endpoint": "clinical benefit rate at 16 weeks",
+    "compound": "Dovitinib (TKI258)",
+    "claimed_target": "Multiple receptor tyrosine kinases",
+    "proposed_mechanism": "Multi-targeted tyrosine kinase inhibition",
+    "intended_biology": "Inhibition of tumor pathway activations",
+    "target_population": "Patients with tumor pathway activations inhibited by dovitinib",
+    "primary_endpoint": "Clinical Benefit Rate (CBR) at 16 weeks",
     "rationale_strength": "moderate"
   },
   "results": {
-    "primary_endpoint_met": false,
-    "effect_size": "CBR 11/80 (13.8%)",
+    "primary_endpoint_met": null,
+    "effect_size": "CBR: 11/80 (13.8%)",
     "p_value": null,
     "target_engagement_evidence": null,
     "biomarker_changes": [],
-    "subgroup_findings": [
-      "1 partial response",
-      "10 stable disease",
-      "0 complete responses"
-    ],
+    "subgroup_findings": [],
     "safety_signals": [
-      "hematologic toxicity",
-      "gastrointestinal toxicity",
-      "cardiac arrest"
+      "Serious adverse events included hematologic toxicities (anemia, neutropenia, thrombocytopenia), gastrointestinal events (diarrhea, nausea, abdominal pain), and one cardiac arrest"
     ],
     "dose_info": {
       "dose": "500 mg",
@@ -33,70 +27,70 @@
     },
     "adverse_events": [
       {
-        "term": "anaemia",
+        "term": "Anaemia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "febrile neutropenia",
+        "term": "Febrile neutropenia",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "neutropenia",
+        "term": "Neutropenia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "thrombocytopenia",
+        "term": "Thrombocytopenia",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "cardiac arrest",
+        "term": "Cardiac arrest",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "abdominal pain",
+        "term": "Abdominal pain",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "diarrhoea",
+        "term": "Diarrhoea",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "dysphagia",
+        "term": "Dysphagia",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "gastrointestinal haemorrhage",
+        "term": "Gastrointestinal haemorrhage",
         "grade": "",
         "incidence_treatment_pct": 1.25,
         "incidence_control_pct": null,
         "serious": true
       },
       {
-        "term": "nausea",
+        "term": "Nausea",
         "grade": "",
         "incidence_treatment_pct": 2.5,
         "incidence_control_pct": null,
@@ -105,8 +99,8 @@
     ]
   },
   "context": {
-    "indication": "tumor pathway activations inhibited by dovitinib",
-    "comparator": "historical control",
+    "indication": "Tumor pathway activations inhibited by dovitinib",
+    "comparator": "",
     "sample_size": 80,
     "duration": "36 months",
     "duration_weeks": 156.42,
@@ -116,82 +110,43 @@
     {
       "arm_id": "tki258",
       "compounds": [
-        "dovitinib"
+        "Dovitinib (TKI258)"
       ]
     }
   ],
-  "subgroups": [
-    {
-      "raw_descriptor": "Complete response (CR)",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "complete_response"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Partial response (PR)",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "partial_response"
-        }
-      ]
-    },
-    {
-      "raw_descriptor": "Stable disease (SD)",
-      "features": [
-        {
-          "axis": "response",
-          "key": "",
-          "level": "stable_disease"
-        }
-      ]
-    }
-  ],
+  "subgroups": [],
   "results_by_chain": [
     {
       "arm_id": "tki258",
-      "intervention": "dovitinib",
       "subgroup_descriptor": null,
       "endpoint": "CBR",
       "effect_size": 13.8,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "kinase inhibition",
-      "biology_description": "angiogenesis inhibition",
-      "population_description": "patients with tumor pathway activations inhibited by dovitinib",
-      "mechanism_category": "kinase_inhibition"
+      "outcome": "unknown"
     },
     {
       "arm_id": "tki258",
-      "intervention": "dovitinib",
+      "subgroup_descriptor": null,
+      "endpoint": "ORR",
+      "effect_size": 1.25,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "tki258",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 2.4,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "kinase inhibition",
-      "biology_description": "angiogenesis inhibition",
-      "population_description": "patients with tumor pathway activations inhibited by dovitinib",
-      "mechanism_category": "kinase_inhibition"
+      "outcome": "unknown"
     },
     {
       "arm_id": "tki258",
-      "intervention": "dovitinib",
       "subgroup_descriptor": null,
       "endpoint": "OS",
       "effect_size": 13.5,
       "p_value": null,
-      "outcome": "unknown",
-      "mechanism_description": "kinase inhibition",
-      "biology_description": "angiogenesis inhibition",
-      "population_description": "patients with tumor pathway activations inhibited by dovitinib",
-      "mechanism_category": "kinase_inhibition"
+      "outcome": "unknown"
     }
-  ],
-  "modulation_entries": []
+  ]
 }

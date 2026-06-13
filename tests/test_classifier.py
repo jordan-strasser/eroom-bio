@@ -267,35 +267,6 @@ class TestParseClassification:
         assert hasattr(clf, "_raw")
         assert clf._raw["trial_outcome"] == "success"
 
-    def test_operational_failure_field_parsed(self):
-        """The coarse trial-conduct gate (outcome-conditioning redesign)
-        parses from the raw JSON when present and drives gate_weight."""
-        raw = {
-            **VALID_CLASSIFICATION_JSON,
-            "trial_outcome": "failure",
-            "operational_failure": True,
-        }
-        ext = _make_extraction()
-        clf = _parse_classification(raw, "NCT00000001", ext)
-        assert clf.operational_failure is True
-        assert clf.gate_weight < 1.0
-
-    def test_operational_failure_absent_defaults_to_full_weight(self):
-        """Cached classifications written before the gate field parse with
-        operational_failure=None → conservative full weight (valid test)."""
-        raw = {**VALID_CLASSIFICATION_JSON}
-        raw.pop("operational_failure", None)
-        ext = _make_extraction()
-        clf = _parse_classification(raw, "NCT00000001", ext)
-        assert clf.operational_failure is None
-        assert clf.gate_weight == 1.0
-
-    def test_operational_failure_non_bool_coerced_to_none(self):
-        raw = {**VALID_CLASSIFICATION_JSON, "operational_failure": "maybe"}
-        ext = _make_extraction()
-        clf = _parse_classification(raw, "NCT00000001", ext)
-        assert clf.operational_failure is None
-
 
 # ── Classifier class ─────────────────────────────────────────────────────
 

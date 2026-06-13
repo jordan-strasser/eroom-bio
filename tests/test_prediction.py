@@ -400,26 +400,18 @@ class TestAggregateSamples:
         out = _aggregate_samples([s1, s2], [0.0, 0.0])
         assert np.allclose(out, [0.5, 0.5])
 
-    def test_full_trust_recovers_geomean(self, monkeypatch):
-        monkeypatch.setenv("EROOM_AGG", "geomean")  # geomean is opt-in (default softmin)
+    def test_full_trust_recovers_geomean(self):
         s1 = np.full(1000, 0.6)
         s2 = np.full(1000, 0.4)
         out = _aggregate_samples([s1, s2], [1.0, 1.0])
         expected = np.exp(0.5 * np.log(0.6) + 0.5 * np.log(0.4))
         assert np.allclose(out, expected)
 
-    def test_zero_weight_edges_dont_drag(self, monkeypatch):
-        monkeypatch.setenv("EROOM_AGG", "geomean")  # trust-weighting is the geomean path (now opt-in)
+    def test_zero_weight_edges_dont_drag(self):
         strong = np.full(100, 0.9)
         weak_samples = [np.full(100, 0.5) for _ in range(6)]
         out = _aggregate_samples([strong] + weak_samples, [1.0] + [0.0] * 6)
         assert np.allclose(out, 0.9)
-
-    def test_default_is_weakest_link_softmin(self):
-        # Round-30: default aggregation is softmin (weakest-link), not geomean.
-        out = _aggregate_samples([np.full(200, 0.9), np.full(200, 0.3)], [1.0, 1.0])
-        # dominated by the weak 0.3 link, well below geomean(0.9, 0.3) = 0.52
-        assert out.mean() < 0.45
 
 
 class TestWeightedGeomeanPredict:
@@ -812,12 +804,9 @@ class TestSafetyPenalty:
         # contribution ≈ 0.50 × 0.12 × 0.613 ≈ 0.037
         assert 0.01 < result.safety_penalty < 0.08
 
-    def test_safety_penalty_is_max_not_accumulated(self):
-        """Round-31: MAX aggregation. Piling on identical grade-5 AEs must NOT
-        accumulate — the penalty equals a SINGLE worst-AE contribution (soft-or
-        would have summed them toward the 0.6 cap). A drug's safety risk is its
-        worst toxicity, not the count of correlated AEs. Stays under the cap so
-        the chain still contributes."""
+    def test_safety_penalty_caps_at_0_6(self):
+        """Pile on multiple grade-5 AEs — the penalty must not exceed
+        the 0.6 cap so the chain still contributes the final 40%."""
         graph, chain = _make_chain_only_graph()
         for i in range(8):
             graph.add_node(AdverseEventNode(
@@ -830,11 +819,7 @@ class TestSafetyPenalty:
                 belief=EdgeBeliefState(alpha=50.0, beta=1.0),
             ))
         result = PredictionEngine(graph).predict(chain, n_samples=5_000)
-        # one grade-5 AE: severity 0.50 × belief_factor ~0.96 × trust ~1.0 ×
-        # failure_causing_fraction 1.0 ≈ 0.48 — and max over 8 identical AEs is
-        # the SAME ~0.48 (soft-or would have piled to the 0.60 cap).
-        assert result.safety_penalty == pytest.approx(0.48, abs=0.02)
-        assert result.safety_penalty <= 0.60 + 1e-9
+        assert result.safety_penalty == pytest.approx(0.60, abs=1e-9)
         assert result.overall_probability >= 0.4 * result.efficacy_probability - 1e-9
 
     def test_below_threshold_ae_does_not_move_penalty(self):
@@ -890,194 +875,3 @@ class TestSafetyPenalty:
         assert _max_grade_from_severity_range("garbage,abc") is None
 
 
-# ============================================================
-# Combo-level compositional prediction (NEXT_SESSION #2)
-# ============================================================
-
-
-def _build_two_chain_combo() -> GraphStore:
-    """Combo ``c1+c2`` where EACH constituent has its OWN full chain to the
-    shared indication i1, plus a weak ``combo_inherit`` AFFECTS edge on the
-    combo node (to t1 only) — the pre-fix path would have walked that and
-    predicted c1's chain alone."""
-    strong = (20.0, 1.0)
-    g = _make_graph(
-        binds_to=strong, modulates_via=strong, mechanism_affects=strong,
-        biology_drives=strong, reflects_biology=strong, endpoint_captures=strong,
-    )
-    # second constituent's own chain into the same indication / endpoint
-    g.add_node(CompoundNode(id="c2", name="DrugB", modality=Modality.SMALL_MOLECULE))
-    g.add_node(TargetNode(id="t2", name="TargetB", gene_symbol="TGTB"))
-    g.add_node(MechanismNode(id="m2", name="MechB", mechanism_type=MechanismType.INHIBITION))
-    g.add_node(BiologyNode(id="b2", name="BioB"))
-    for s, t, et in [
-        ("c2", "t2", EdgeType.AFFECTS),
-        ("t2", "m2", EdgeType.MODULATES_VIA),
-        ("m2", "b2", EdgeType.MECHANISM_AFFECTS),
-        ("b2", "i1", EdgeType.BIOLOGY_DRIVES),
-        ("b2", "e1", EdgeType.REFLECTS_BIOLOGY),
-    ]:
-        g.add_edge(GraphEdge(source_id=s, target_id=t, edge_type=et,
-                             belief=EdgeBeliefState(alpha=20.0, beta=1.0)))
-    # combo node + composed_of + a WEAK combo_inherit AFFECTS (to c1's target only)
-    g.add_node(CompoundNode(
-        id="c1+c2", name="DrugA + DrugB", modality=Modality.OTHER,
-        metadata={"synthesized": "combo", "constituents": ["c1", "c2"]},
-    ))
-    for cid in ("c1", "c2"):
-        g.add_edge(GraphEdge(source_id="c1+c2", target_id=cid,
-                             edge_type=EdgeType.COMPOSED_OF, belief=EdgeBeliefState()))
-    g.add_edge(GraphEdge(
-        source_id="c1+c2", target_id="t1", edge_type=EdgeType.AFFECTS,
-        belief=EdgeBeliefState(alpha=3.0, beta=1.5),
-        metadata={"source": "combo_inherit"},
-    ))
-    return g
-
-
-class TestComboComposition:
-    def test_combo_query_composes_both_constituent_chains(self):
-        g = _build_two_chain_combo()
-        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
-        aff = {c.target_id for c in res.edge_contributions
-               if c.edge_type == EdgeType.AFFECTS}
-        mech = {c.target_id for c in res.edge_contributions
-                if c.edge_type == EdgeType.MODULATES_VIA}
-        assert {"t1", "t2"} <= aff   # BOTH constituents' targets, not one
-        assert {"m1", "m2"} <= mech  # BOTH mechanisms (modulates_via target)
-
-    def test_combo_uses_constituents_real_affects_not_combo_inherit(self):
-        g = _build_two_chain_combo()
-        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
-        srcs = {c.source_id for c in res.edge_contributions
-                if c.edge_type == EdgeType.AFFECTS}
-        assert srcs == {"c1", "c2"}     # constituents
-        assert "c1+c2" not in srcs      # NOT the weak combo_inherit edge
-
-    def test_single_constituent_query_has_only_its_own_chain(self):
-        g = _build_two_chain_combo()
-        res = predict_clinical_hypothesis(g, "c1", "i1", n_samples=3000)
-        aff = {c.target_id for c in res.edge_contributions
-               if c.edge_type == EdgeType.AFFECTS}
-        assert aff == {"t1"}
-
-    def test_explicit_target_pins_one_path_skips_composition(self):
-        """Passing target_id means 'predict this path' — composition is skipped."""
-        g = _build_two_chain_combo()
-        res = predict_clinical_hypothesis(g, "c1+c2", "i1", target_id="t1",
-                                          n_samples=3000)
-        aff = {c.target_id for c in res.edge_contributions
-               if c.edge_type == EdgeType.AFFECTS}
-        assert "t2" not in aff
-
-    def test_combo_modulation_edge_joins_the_aggregate(self):
-        g = _build_two_chain_combo()
-        g.add_edge(GraphEdge(
-            source_id="c1", target_id="c2",
-            edge_type=EdgeType.MODULATES_EFFICACY_OF,
-            belief=EdgeBeliefState(alpha=8.0, beta=2.0),
-        ))
-        res = predict_clinical_hypothesis(g, "c1+c2", "i1", n_samples=3000)
-        mods = [c for c in res.edge_contributions
-                if c.edge_type == EdgeType.MODULATES_EFFICACY_OF]
-        assert len(mods) == 1
-
-
-
-
-class TestPopulationBackoff:
-    """Phase-3 hierarchical backoff: a sparse specific population borrows its
-    coarser ancestor's (cross-disease-pooled) responds_differently evidence."""
-
-    def test_ancestors_most_specific_first(self):
-        from src.prediction.path_query import _population_ancestors
-        anc = _population_ancestors("extent_metastatic__line_first__stage_iii")
-        assert anc[0] == "extent_metastatic__line_first__stage_iii"
-        # all coarser subsets present; single-axis ancestors at the end
-        assert "line_first" in anc and "stage_iii" in anc and "extent_metastatic" in anc
-        assert "extent_metastatic__line_first" in anc
-
-    def test_single_axis_has_no_ancestors(self):
-        from src.prediction.path_query import _population_ancestors
-        assert _population_ancestors("line_first") == ["line_first"]
-
-    def test_sparse_specific_backs_off_to_coarse(self):
-        from src.graph.store import GraphStore
-        from src.graph.models import (
-            IndicationNode, PopulationNode, GraphEdge, EdgeType, EdgeBeliefState,
-        )
-        from src.prediction.path_query import _resolve_responds_differently
-        g = GraphStore()
-        g.add_node(IndicationNode(id="melanoma", name="melanoma"))
-        g.add_node(PopulationNode(id="line_first__stage_iii", name="x"))
-        g.add_node(PopulationNode(id="line_first", name="first"))
-        # specific edge unobserved (Beta(1,1)); coarse edge has evidence
-        g.add_edge(GraphEdge(source_id="line_first__stage_iii", target_id="melanoma",
-                             edge_type=EdgeType.RESPONDS_DIFFERENTLY, belief=EdgeBeliefState()))
-        g.add_edge(GraphEdge(source_id="line_first", target_id="melanoma",
-                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                             belief=EdgeBeliefState(alpha=5, beta=2)))
-        resolved = _resolve_responds_differently(g, "line_first__stage_iii", "melanoma")
-        assert resolved is not None
-        anc_id, belief = resolved
-        assert anc_id == "line_first"  # backed off to the coarse ancestor
-        assert belief.evidence_strength > 0
-
-    def test_specific_evidence_preferred(self):
-        from src.graph.store import GraphStore
-        from src.graph.models import (
-            IndicationNode, PopulationNode, GraphEdge, EdgeType, EdgeBeliefState,
-        )
-        from src.prediction.path_query import _resolve_responds_differently
-        g = GraphStore()
-        g.add_node(IndicationNode(id="melanoma", name="melanoma"))
-        g.add_node(PopulationNode(id="line_first__stage_iii", name="x"))
-        g.add_node(PopulationNode(id="line_first", name="first"))
-        g.add_edge(GraphEdge(source_id="line_first__stage_iii", target_id="melanoma",
-                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                             belief=EdgeBeliefState(alpha=8, beta=2)))
-        g.add_edge(GraphEdge(source_id="line_first", target_id="melanoma",
-                             edge_type=EdgeType.RESPONDS_DIFFERENTLY,
-                             belief=EdgeBeliefState(alpha=3, beta=3)))
-        anc_id, _belief = _resolve_responds_differently(g, "line_first__stage_iii", "melanoma")
-        assert anc_id == "line_first__stage_iii"  # specific wins when evidenced
-
-
-class TestIndicationBackoff:
-    """Phase-4: leaf-anchored chains borrow a SUBTYPE_OF parent's evidence for
-    indication-targeted edges (biology_drives / endpoint_captures)."""
-
-    def test_indication_ancestors_walks_subtype_of(self):
-        from src.graph.store import GraphStore
-        from src.graph.models import IndicationNode, GraphEdge, EdgeType
-        from src.prediction.path_query import _indication_ancestors
-        g = GraphStore()
-        for i in ("uveal_melanoma", "melanoma"):
-            g.add_node(IndicationNode(id=i, name=i))
-        g.add_edge(GraphEdge(source_id="uveal_melanoma", target_id="melanoma",
-                             edge_type=EdgeType.SUBTYPE_OF))
-        assert _indication_ancestors(g, "uveal_melanoma") == ["uveal_melanoma", "melanoma"]
-        assert _indication_ancestors(g, "melanoma") == ["melanoma"]
-
-    def test_sparse_leaf_backs_off_to_parent(self):
-        from src.graph.store import GraphStore
-        from src.graph.models import (
-            IndicationNode, BiologyNode, GraphEdge, EdgeType, EdgeBeliefState,
-        )
-        from src.prediction.path_query import _resolve_indication_edge
-        g = GraphStore()
-        for i in ("uveal_melanoma", "melanoma"):
-            g.add_node(IndicationNode(id=i, name=i))
-        g.add_node(BiologyNode(id="GO:0001525", name="angiogenesis"))
-        g.add_edge(GraphEdge(source_id="uveal_melanoma", target_id="melanoma",
-                             edge_type=EdgeType.SUBTYPE_OF))
-        # leaf biology->uveal edge unobserved; parent biology->melanoma evidenced
-        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="uveal_melanoma",
-                             edge_type=EdgeType.BIOLOGY_DRIVES, belief=EdgeBeliefState()))
-        g.add_edge(GraphEdge(source_id="GO:0001525", target_id="melanoma",
-                             edge_type=EdgeType.BIOLOGY_DRIVES,
-                             belief=EdgeBeliefState(alpha=6, beta=2)))
-        resolved = _resolve_indication_edge(g, "GO:0001525", "uveal_melanoma", EdgeType.BIOLOGY_DRIVES)
-        assert resolved is not None
-        anc, belief = resolved
-        assert anc == "melanoma" and belief.evidence_strength > 0

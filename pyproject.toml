@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eroom"
-version = "0.2.0"
+version = "0.1.0"
 description = "Open knowledge system that learns from clinical trials"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -36,15 +36,6 @@ dev = [
 # embedding fields stay None and canonicalization falls back to the
 # curated CODENAME_TO_INN + slug-based behavior.
 sapbert = [
-    "sentence-transformers>=2.5",
-]
-# A.1: BioLORD node embeddings (the semantic substrate, manifold 1). Same
-# sentence-transformers stack as [sapbert]; the FremyCompany/BioLORD-2023
-# weights download to ~/.cache/huggingface on first use. Without this extra,
-# node `description` fields stay un-embedded and the box geometry (A.2) falls
-# back to id-only. NB: BioLORD is UMLS/SNOMED-trained — clear that licensing
-# before shipping *fine-tuned* weights commercially (see BOUNDARY.md).
-biolord = [
     "sentence-transformers>=2.5",
 ]
 

@@ -1,0 +1,187 @@
+{
+  "nct_id": "NCT02039947",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm target engagement, but the trial used established doses (dabrafenib 150mg BID, trametinib 2mg QD) that are known to engage BRAF and MEK targets based on prior studies. 2. PATHWAY MODULATION: No pathway biomarker data reported to confirm MAPK pathway inhibition. 3. CLINICAL TRANSLATION: Strong clinical translation - primary endpoint (intracranial response rate) was met with 59% response rate (p=0.0001) in cohort A. Secondary endpoints also positive with PFS and OS benefits across multiple cohorts. 4. POPULATION EFFECTS: Trial enrolled BRAF-mutant melanoma patients with brain metastases, which is the appropriate population for this mechanism. Different cohorts showed varying responses - cohort A (asymptomatic, no prior local therapy) had the strongest response, while cohort C (symptomatic) showed only partial PFS benefit. 5. CONFOUNDERS: No major confounders identified. Sample size adequate (127 patients), duration appropriate (104.6 weeks), and safety profile manageable despite cardiac and retinal events.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Cohort A achieved 59% intracranial response rate with strong statistical significance, supporting dabrafenib target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Cohort A achieved 59% intracranial response rate with strong statistical significance, supporting trametinib target engagement"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000157764",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Strong clinical response in cohort A supports BRAF acting via kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000126934",
+      "target_entity": "kinase_inhibition",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Strong clinical response in cohort A supports MEK acting via kinase inhibition mechanism"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "GO:0006468",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Clinical efficacy in cohort A supports kinase inhibition affecting protein phosphorylation"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "kinase_inhibition",
+      "target_entity": "R-HSA-5674135",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Clinical efficacy in cohort A supports kinase inhibition affecting MAP2K and MAPK activation"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Strong intracranial response rate in cohort A supports protein phosphorylation driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Strong intracranial response rate in cohort A supports MAP2K/MAPK activation driving melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Cohort B showed PFS 7.2 months and OS 24.3 months, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Cohort B showed PFS 7.2 months and OS 24.3 months, supporting target engagement"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Cohort B clinical benefits support protein phosphorylation driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Cohort B clinical benefits support MAP2K/MAPK activation driving melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_c",
+      "reasoning": "Cohort C showed partial PFS benefit (3.7 months) but positive OS (10.1 months), suggesting weaker but present target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_c",
+      "reasoning": "Cohort C showed partial PFS benefit (3.7 months) but positive OS (10.1 months), suggesting weaker but present target engagement"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_c",
+      "reasoning": "Cohort C mixed results (partial PFS, positive OS) provide weak support for biology driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "cohort_c",
+      "reasoning": "Cohort C mixed results (partial PFS, positive OS) provide weak support for biology driving melanoma"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "dabrafenib",
+      "target_entity": "ENSG00000157764",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_d",
+      "reasoning": "Cohort D showed PFS 5.5 months and OS 11.5 months, supporting target engagement"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "trametinib",
+      "target_entity": "ENSG00000126934",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_d",
+      "reasoning": "Cohort D showed PFS 5.5 months and OS 11.5 months, supporting target engagement"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "GO:0006468",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_d",
+      "reasoning": "Cohort D clinical benefits support protein phosphorylation driving melanoma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-5674135",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "cohort_d",
+      "reasoning": "Cohort D clinical benefits support MAP2K/MAPK activation driving melanoma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint (intracranial response rate) was met with statistical significance and supported by concordant PFS and OS benefits across cohorts"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__braf_v600d__braf_v600e__braf_v600k__braf_v600r__extent_metastatic__line_second",
+      "target_entity": "melanoma",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint met with p<0.01 and clinically meaningful 59% intracranial response rate in this BRAF-mutant brain metastases population"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": false,
+  "review_reason": null
+}

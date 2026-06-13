@@ -1,0 +1,86 @@
+{
+  "nct_id": "NCT00256282",
+  "therapeutic_hypothesis": {
+    "compound": "docetaxel + vinorelbine + sargramostim",
+    "claimed_target": "microtubules + GM-CSF receptor",
+    "proposed_mechanism": "microtubule disruption + immune stimulation",
+    "intended_biology": "cell cycle arrest and immune activation",
+    "target_population": "patients with AJCC Stage IV metastatic melanoma",
+    "primary_endpoint": "six-month progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "median PFS 134 days (95% CI: 91-214)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "febrile neutropenia in 6/52 patients"
+    ],
+    "dose_info": {
+      "dose": "docetaxel 40 mg/m2, vinorelbine 30 mg/m2, sargramostim 250 mcg/m2",
+      "schedule": "docetaxel and vinorelbine every 14 days, sargramostim daily x 10 days",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": 11.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic melanoma",
+    "comparator": "none",
+    "sample_size": 52,
+    "duration": "six months",
+    "duration_weeks": 26.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "docetaxel_vinorelbine_sargramostim",
+      "compounds": [
+        "docetaxel",
+        "vinorelbine",
+        "sargramostim"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "docetaxel_vinorelbine_sargramostim",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 134.0,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "docetaxel_vinorelbine_sargramostim",
+      "subgroup_descriptor": null,
+      "endpoint": "OS at 1 year",
+      "effect_size": 25.0,
+      "p_value": null,
+      "outcome": "unknown"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sargramostim",
+      "primary_compound_id": "docetaxel",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "GM-CSF stimulation enhances immune response to complement chemotherapy-induced tumor cell death",
+      "citation": "Docetaxel and Vinorelbine Plus Sargramostim in Metastatic Malignant Melanoma"
+    }
+  ]
+}

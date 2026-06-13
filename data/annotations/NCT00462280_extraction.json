@@ -1,0 +1,179 @@
+{
+  "nct_id": "NCT00462280",
+  "therapeutic_hypothesis": {
+    "compound": "lovastatin",
+    "claimed_target": "HMG-CoA reductase",
+    "proposed_mechanism": "inhibition of cholesterol synthesis and mevalonate pathway",
+    "intended_biology": "reduction of cellular proliferation and angiogenesis in atypical nevi",
+    "target_population": "patients at high risk of melanoma with atypical nevi",
+    "primary_endpoint": "histopathologic regression of target atypical nevi",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "0.50 vs -0.12 (pathologist 1), 0.17 vs 0.04 (pathologist 2) change in atypia score",
+    "p_value": null,
+    "target_engagement_evidence": "significant reduction in cholesterol (-27.25 mg/dL) and LDL (-25.28 mg/dL)",
+    "biomarker_changes": [
+      "HIF1alpha: +0.05% vs -0.32% (pathologist 3)",
+      "e-cadherin: +0.67% vs -7.37% (pathologist 3)",
+      "n-cadherin: +5.91% vs -9.17% (pathologist 3)",
+      "VEGF: +4.81% vs -0.63% (pathologist 3)",
+      "RelA: +0.83% vs -1.25% (pathologist 3)",
+      "p21: +1.00% vs +1.18% (pathologist 3)",
+      "Ki-67: +0.73% vs +0.50% (pathologist 3)"
+    ],
+    "subgroup_findings": [
+      "Fewer patients had increased nevi count with lovastatin (1 vs 7 with placebo)",
+      "Similar proportions had same nevus count (64 lovastatin vs 67 placebo)"
+    ],
+    "safety_signals": [
+      "14/41 lovastatin patients had study-related adverse events vs 11/39 placebo patients",
+      "Elevated CPK in 1 lovastatin patient (serious)",
+      "Generally well tolerated"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "elevated CPK",
+        "grade": "",
+        "incidence_treatment_pct": 2.9,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "study-related adverse events",
+        "grade": "",
+        "incidence_treatment_pct": 34.1,
+        "incidence_control_pct": 28.2,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "atypical nevi in patients at high risk of melanoma",
+    "comparator": "placebo",
+    "sample_size": 80,
+    "duration": "24 weeks treatment",
+    "duration_weeks": 24.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "two_matched_nevi_group_lovastatin",
+      "compounds": [
+        "lovastatin"
+      ]
+    },
+    {
+      "arm_id": "two_matched_nevi_group_placebo",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "one_large_nevi_group_lovastatin",
+      "compounds": [
+        "lovastatin"
+      ]
+    },
+    {
+      "arm_id": "one_large_nevi_group_placebo",
+      "compounds": [
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Fewer nevi after the treatment",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "responder"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Same number of nevi after treatment",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "More nevi after the treatment",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Yes",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "adverse_event"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "No",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "no_adverse_event"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "two_matched_nevi_group_lovastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "histopathologic regression (pathologist 1)",
+      "effect_size": 0.5,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "two_matched_nevi_group_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "histopathologic regression (pathologist 1)",
+      "effect_size": -0.12,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "two_matched_nevi_group_lovastatin",
+      "subgroup_descriptor": null,
+      "endpoint": "histopathologic regression (pathologist 2)",
+      "effect_size": 0.17,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "two_matched_nevi_group_placebo",
+      "subgroup_descriptor": null,
+      "endpoint": "histopathologic regression (pathologist 2)",
+      "effect_size": 0.04,
+      "p_value": null,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": []
+}

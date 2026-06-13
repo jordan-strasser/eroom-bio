@@ -2,11 +2,11 @@
   "nct_id": "NCT00111007",
   "therapeutic_hypothesis": {
     "compound": "sorafenib plus carboplatin/paclitaxel",
-    "claimed_target": "VEGFR2, PDGFR, RAF",
-    "proposed_mechanism": "kinase inhibition",
-    "intended_biology": "angiogenesis inhibition",
-    "target_population": "unresectable stage III or stage IV melanoma",
-    "primary_endpoint": "progression free survival",
+    "claimed_target": "RAF kinase, VEGFR, PDGFR",
+    "proposed_mechanism": "multi-kinase inhibition combined with DNA damage and microtubule disruption",
+    "intended_biology": "tumor growth inhibition and angiogenesis suppression",
+    "target_population": "patients with unresectable stage III or stage IV melanoma",
+    "primary_endpoint": "progression-free survival",
     "rationale_strength": "moderate"
   },
   "results": {
@@ -17,11 +17,8 @@
     "biomarker_changes": [],
     "subgroup_findings": [],
     "safety_signals": [
-      "neutrophils",
-      "hemoglobin",
-      "platelets",
-      "allergic reactions",
-      "cardiac arrhythmias"
+      "increased neutropenia in sorafenib arm",
+      "increased hemoglobin decrease in control arm"
     ],
     "dose_info": {
       "dose": "400 mg",
@@ -71,7 +68,7 @@
     "indication": "unresectable stage III or stage IV melanoma",
     "comparator": "carboplatin/paclitaxel",
     "sample_size": 270,
-    "duration": "68.3 weeks maximum",
+    "duration": "maximum treatment duration of 68.3 weeks",
     "duration_weeks": 68.3,
     "investigator_commentary": null
   },
@@ -117,9 +114,9 @@
       "raw_descriptor": "no change",
       "features": [
         {
-          "axis": "performance",
+          "axis": "other",
           "key": "",
-          "level": "unknown"
+          "level": "no_change"
         }
       ]
     },
@@ -137,68 +134,35 @@
   "results_by_chain": [
     {
       "arm_id": "sorafenib_nexavar_bay43_9006",
-      "intervention": "sorafenib",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 122.0,
       "p_value": 0.492,
-      "outcome": "failure",
-      "mechanism_description": "kinase inhibition",
-      "biology_description": "angiogenesis inhibition",
-      "population_description": "unresectable stage III or stage IV melanoma",
-      "mechanism_category": "kinase_inhibition"
-    },
-    {
-      "arm_id": "sorafenib_nexavar_bay43_9006",
-      "intervention": "carboplatin",
-      "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 122.0,
-      "p_value": 0.492,
-      "outcome": "failure",
-      "mechanism_description": "DNA cross-linking",
-      "biology_description": "DNA-damage-induced apoptosis",
-      "population_description": "unresectable stage III or stage IV melanoma",
-      "mechanism_category": "dna_crosslinking"
-    },
-    {
-      "arm_id": "sorafenib_nexavar_bay43_9006",
-      "intervention": "paclitaxel",
-      "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 122.0,
-      "p_value": 0.492,
-      "outcome": "failure",
-      "mechanism_description": "microtubule stabilization",
-      "biology_description": "mitotic arrest",
-      "population_description": "unresectable stage III or stage IV melanoma",
-      "mechanism_category": "microtubule_binding"
+      "outcome": "failure"
     },
     {
       "arm_id": "carboplatin_paclitaxel_c_p",
-      "intervention": "carboplatin",
       "subgroup_descriptor": null,
       "endpoint": "PFS",
       "effect_size": 125.0,
       "p_value": 0.492,
-      "outcome": "failure",
-      "mechanism_description": "DNA cross-linking",
-      "biology_description": "DNA-damage-induced apoptosis",
-      "population_description": "unresectable stage III or stage IV melanoma",
-      "mechanism_category": "dna_crosslinking"
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "sorafenib_nexavar_bay43_9006",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 294.0,
+      "p_value": 0.979,
+      "outcome": "failure"
     },
     {
       "arm_id": "carboplatin_paclitaxel_c_p",
-      "intervention": "paclitaxel",
       "subgroup_descriptor": null,
-      "endpoint": "PFS",
-      "effect_size": 125.0,
-      "p_value": 0.492,
-      "outcome": "failure",
-      "mechanism_description": "microtubule stabilization",
-      "biology_description": "mitotic arrest",
-      "population_description": "unresectable stage III or stage IV melanoma",
-      "mechanism_category": "microtubule_binding"
+      "endpoint": "OS",
+      "effect_size": 294.0,
+      "p_value": 0.979,
+      "outcome": "failure"
     }
   ],
   "modulation_entries": [
@@ -208,7 +172,7 @@
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "anti-angiogenic therapy may enhance chemotherapy efficacy by normalizing tumor vasculature",
+      "hypothesis": "sorafenib multi-kinase inhibition should enhance chemotherapy efficacy through anti-angiogenic and pro-apoptotic effects",
       "citation": "Hazard Ratio (HR) = 0.906 (95% CI: 0.627\u20131.310), p = 0.492"
     }
   ]

@@ -1,0 +1,33 @@
+{
+  "nct_id": "NCT02407171",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data reported to confirm PD-1 engagement by MK-3475. Cannot assess whether the drug reached its intended target.\n\n2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers reported to assess whether checkpoint blockade pathway was activated downstream of PD-1.\n\n3. CLINICAL TRANSLATION: Primary endpoint results are not reported - no effect size, p-value, or indication of whether ORR was achieved. The extraction shows 'Primary Endpoint Met: None' suggesting the trial failed to meet its primary efficacy endpoint.\n\n4. POPULATION EFFECTS: No subgroup findings reported to assess differential responses.\n\n5. CONFOUNDERS: This appears to be a Phase 1/2 dose-escalation study with safety as co-primary endpoint alongside efficacy. The trial enrolled 61 patients across multiple cohorts (NSCLC Phase 1, non-lung Phase 1, melanoma expansion, NSCLC expansion). Multiple serious adverse events were reported including device-related infections (10%), suggesting potential tolerability issues. However, without clear efficacy readout data, the primary failure appears to be lack of clinical benefit rather than dose-limiting toxicity.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "No primary endpoint results reported - no effect size, p-value, or clear indication of ORR achievement. Results extraction shows 'Primary Endpoint Met: None' and empty results_by_chain, providing no usable efficacy readout to assess the mechanistic causal chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_lung_cancer",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint was measured but no results reported, making it impossible to assess whether ORR captures clinical benefit in this indication"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_metastatic__line_second__prior_tx_anti_pd1_treated",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy results reported for this population, cannot assess differential response"
+    }
+  ],
+  "confidence_overall": 0.3,
+  "needs_expert_review": true,
+  "review_reason": "Trial provides no usable efficacy readout despite measuring primary endpoints. The extraction shows 'Primary Endpoint Met: None' but lacks the specific results needed to assess where in the causal chain the failure occurred. Expert review needed to determine if this represents early termination, incomplete data extraction, or actual endpoint failure."
+}

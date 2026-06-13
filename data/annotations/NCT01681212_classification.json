@@ -1,0 +1,38 @@
+{
+  "nct_id": "NCT01681212",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm CTLA-4 engagement by ipilimumab or DNA damage by dacarbazine. Cannot assess target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess downstream biology changes from checkpoint blockade or DNA damage mechanisms. 3. CLINICAL TRANSLATION: Primary endpoint was 1-year OS rate of 66.7% but no p-value or comparator provided. With only 21 patients and no control arm or historical benchmark comparison, cannot determine if this represents efficacy or failure. The outcome is listed as 'unknown' in results_by_chain. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: This appears to be a small single-arm Phase I/II study (N=21) without adequate power or control for efficacy assessment. High rates of liver toxicity (ALT increased in 67% of patients, AST increased in 47%) suggest potential dose-limiting toxicity issues. The trial design appears inadequate for definitive efficacy assessment.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Single-arm trial with N=21, no p-value reported, no comparator arm, outcome listed as 'unknown' in results. Cannot determine if 66.7% 1-year OS represents efficacy or failure without historical benchmark or statistical testing."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.7,
+      "evidence": "Sample size of only 21 patients is inadequate for definitive efficacy assessment of overall survival endpoint in advanced melanoma."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "OS_melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "OS endpoint was measured (66.7% 1-year rate) but without comparator or statistical testing, cannot assess whether this translates to clinical benefit"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_unresectable__line_first",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Single-arm design with no statistical testing prevents assessment of population response"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Single-arm trial with no statistical testing or comparator makes it impossible to determine efficacy vs failure. High liver toxicity rates may indicate dose-limiting issues but sample size too small for definitive safety assessment."
+}

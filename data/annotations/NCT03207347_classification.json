@@ -1,0 +1,81 @@
+{
+  "nct_id": "NCT03207347",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to confirm PARP inhibition or target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported to assess DNA damage response pathway disruption. 3. CLINICAL TRANSLATION: Primary endpoint (ORR) failed in both cohorts - Cohort A achieved only 5.6% ORR and Cohort B achieved 0% ORR. PFS also failed in Cohort A (2.1 months) while showing partial benefit in Cohort B (7.2 months). 4. POPULATION EFFECTS: No subgroup analyses reported. Both cohorts targeting DNA damage response deficient tumors failed on primary endpoint. 5. CONFOUNDERS: Single-arm trial with small sample size (N=37) and short duration (4 weeks) may be underpowered. However, the very low response rates (5.6% and 0%) suggest insufficient efficacy rather than trial design issues.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "Without biomarker data, cannot confirm target engagement or pathway modulation, but the extremely low ORR (5.6% and 0%) in a population selected for DNA damage response deficiency suggests the mechanism may not have translated to clinical benefit"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "niraparib",
+      "target_entity": "ENSG00000129484",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "No target engagement biomarker data available to confirm PARP inhibition in failed trial"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "niraparib",
+      "target_entity": "ENSG00000129484",
+      "support": "ambiguous",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "No target engagement biomarker data available to confirm PARP inhibition in failed trial"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-110362",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "Primary endpoint failed with very low ORR (5.6%) suggesting enzyme inhibition mechanism did not effectively modulate DNA repair pathway"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "enzyme_inhibition",
+      "target_entity": "R-HSA-110362",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "Primary endpoint failed with 0% ORR suggesting enzyme inhibition mechanism did not effectively modulate DNA repair pathway"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-110362",
+      "target_entity": "mesothelioma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_a",
+      "reasoning": "DNA repair pathway disruption did not translate to clinical benefit with only 5.6% ORR in mesothelioma"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-110362",
+      "target_entity": "mesothelioma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cohort_b",
+      "reasoning": "DNA repair pathway disruption did not translate to clinical benefit with 0% ORR in mesothelioma"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "ORR_melanoma",
+      "target_entity": "mesothelioma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "ORR was measured as primary endpoint and provides clear readout of treatment benefit, though the drug failed to achieve meaningful response rates"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mesothelioma__arid1a_mutant__atm_mutant__atr_mutant__bap1_mutant__bard1_mutant__blm_mutant__brip1_mutant__cdk2_mutant__cdk4_mutant__chek1_mutant__chek2_mutant__ercc_mutant__extent_metastatic__fam175a_mutant__fen1_mutant__idh1_mutant__idh2_mutant__line_third_plus__mre11a_mutant__nbn_mutant__palb2_mutant__pold1_mutant__prkdc_mutant__pten_mutant__rad50_mutant__rad51_mutant__rad52_mutant__rad54_mutant__rpa1_mutant__slx4_mutant__wrn_mutant__xrcc_mutant",
+      "target_entity": "mesothelioma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "DNA damage response deficient population failed to respond to PARP inhibition with very low ORR (5.6% and 0%) despite theoretical rationale for synthetic lethality"
+    }
+  ],
+  "confidence_overall": 0.6,
+  "needs_expert_review": true,
+  "review_reason": "No biomarker or target engagement data available to definitively assess where in the causal chain the failure occurred. The extremely low response rates suggest mechanism failure but cannot pinpoint the specific step."
+}

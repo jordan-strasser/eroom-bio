@@ -1,0 +1,89 @@
+{
+  "nct_id": "NCT02385669",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Evidence shows target engagement for both components - CD4+ T cell responses detected in 2/3 participants by ELIspot assay, indicating both the melanoma helper peptides (6MHP) and ipilimumab engaged their targets. 2. PATHWAY MODULATION: Downstream biology was partially modulated - CD4+ T cell responses to 6MHP were detected in 2/3 participants, and 1/3 had response in sentinel lymph node, suggesting checkpoint blockade and peptide-specific activation occurred. 3. CLINICAL TRANSLATION: This was a Phase I safety/immunogenicity study with safety and CD4+ T cell responses as primary endpoints. The immunologic endpoint showed partial success (2/3 responders), but safety was compromised. 4. POPULATION EFFECTS: No subgroup analysis reported in this small n=3 study. 5. CONFOUNDERS: Major safety issues emerged - 2/3 participants experienced DLTs including serious uveitis in 1/3, leading to early termination. The study was underpowered by design (n=3) and stopped early due to safety concerns.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.9,
+      "evidence": "2/3 participants experienced DLTs, 33.3% incidence of serious uveitis, all participants had treatment-related AEs, and study was terminated early due to safety concerns"
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "ipilimumab",
+      "target_entity": "ENSG00000163599",
+      "support": "ambiguous",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "Target engagement confirmed by CD4+ T cell responses but in context of failed trial due to toxicity"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "6mhp",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "CD4+ T cell responses to 6MHP detected in 2/3 participants suggesting target engagement but trial failed due to safety"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000163599",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "CTLA4 engagement confirmed but trial terminated for safety, not mechanism failure"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389513",
+      "support": "weak_support",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "CD4+ T cell responses detected in 2/3 participants indicating pathway modulation occurred"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "antigen_directed_cytotoxicity",
+      "target_entity": "antigen_directed_cytotoxicity__melanoma",
+      "support": "weak_support",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "6MHP-specific CD4+ T cell responses detected in 2/3 participants with lymph node response in 1/3"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389513",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "Trial terminated for safety before clinical efficacy could be assessed"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "antigen_directed_cytotoxicity__melanoma",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": "6mhp_and_ipilimumab",
+      "reasoning": "Trial terminated for safety before clinical efficacy could be assessed"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Safety endpoint clearly captured the toxicity profile that led to trial termination"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__decisiondx_class2",
+      "target_entity": "melanoma",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Trial terminated early for safety with only 3 participants, insufficient data to assess population response"
+    }
+  ],
+  "confidence_overall": 0.7,
+  "needs_expert_review": true,
+  "review_reason": "Small Phase I study (n=3) terminated early for safety concerns. Target engagement and pathway modulation were demonstrated but clinical translation assessment was truncated by dose-limiting toxicity. Classification between dose_limiting_toxicity and insufficient_information requires expert judgment."
+}

@@ -1,0 +1,78 @@
+{
+  "nct_id": "NCT03259425",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker data available to assess target engagement for either PD-1 or viral oncolysis mechanisms. 2. PATHWAY MODULATION: No pathway biomarkers reported to confirm downstream biology changes. 3. CLINICAL TRANSLATION: Primary endpoint (pathological response) failed - only 1/6 patients achieved complete pathological response, 0/6 had major response. Secondary endpoints showed mixed results with some success (OS, complete surgical resection) but primary failed. 4. POPULATION EFFECTS: No subgroup analyses reported. 5. CONFOUNDERS: Trial was terminated early by DSMC due to high rate of serious adverse events (>40% Grade 3-5 AEs). Multiple serious toxicities including acute kidney injury, heart failure, adrenal insufficiency suggest dose-limiting toxicity prevented adequate treatment delivery.",
+  "failure_modes": [
+    {
+      "mode": "dose_limiting_toxicity",
+      "confidence": 0.8,
+      "evidence": "Trial terminated by DSMC due to high SAE rate. Grade 3-5 AEs: 28.6% nivolumab-related, 14.3% HF10-related. Multiple serious toxicities including heart failure, acute kidney injury, adrenal insufficiency. Early termination prevented full evaluation of efficacy."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.6,
+      "evidence": "No biomarker or target engagement data available. Small sample size (n=7) with early termination limits mechanistic interpretation of where the causal chain failed."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "nivolumab",
+      "target_entity": "ENSG00000188389",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_and_hf10_all_participants",
+      "reasoning": "No target engagement data available; trial terminated early for toxicity before adequate efficacy assessment"
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "hf10",
+      "target_entity": "UNKNOWN",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_and_hf10_all_participants",
+      "reasoning": "No target engagement data available; trial terminated early for toxicity"
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000188389",
+      "target_entity": "checkpoint_blockade",
+      "support": "ambiguous",
+      "affecting_arm_id": "nivolumab_and_hf10_all_participants",
+      "reasoning": "No pathway biomarker data to confirm mechanism engagement"
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "checkpoint_blockade",
+      "target_entity": "R-HSA-389948",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_hf10_all_participants",
+      "reasoning": "Primary endpoint failed; no evidence of downstream biology modulation despite combination approach"
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "R-HSA-389948",
+      "target_entity": "melanoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "nivolumab_and_hf10_all_participants",
+      "reasoning": "Primary pathological response endpoint failed with only 1/6 complete responses"
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_melanoma",
+      "target_entity": "melanoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Pathological response is an established surrogate endpoint for neoadjuvant melanoma therapy"
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "melanoma__extent_resectable__line_neoadjuvant__prior_tx_anti_ctla4_treated__prior_tx_anti_pd1_treated__prior_tx_chemotherapy_treated__prior_tx_radiation_treated__prior_tx_surgery_treated",
+      "target_entity": "melanoma",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint failed in this heavily pre-treated resectable population; trial terminated early for toxicity"
+    }
+  ],
+  "confidence_overall": 0.4,
+  "needs_expert_review": true,
+  "review_reason": "Early termination for toxicity with small sample size (n=7) and no biomarker data makes mechanistic failure classification uncertain. Mixed secondary endpoint results complicate interpretation."
+}

@@ -10,9 +10,9 @@ You MUST return ONLY valid JSON matching this exact schema—no markdown, no com
   "application_number": "string—FDA application number (e.g. NDA022465, BLA125514)",
   "drug": {
     "compound": "string—INN/generic name",
-    "claimed_target": "string—the molecular target PHYSICALLY ENGAGED by the drug (the protein/structure it binds), e.g. EGFR, PD-1, VEGFR2, microtubules, DNA",
-    "proposed_mechanism": "string—the LOCALIZED MOLECULAR ACTION at the target (one scale up from the target), e.g. 'EGFR kinase inhibition', 'PD-1 checkpoint blockade', 'microtubule stabilization'. Name the target + action; do NOT restate the disease.",
-    "intended_biology": "string—the ZOOMED-OUT cell/organ-level PHYSIOLOGICAL PROCESS the mechanism drives (one scale up from the mechanism), e.g. 'angiogenesis inhibition', 'mitotic arrest', 'T-cell mediated anti-tumor immunity'. STRIP disease/stage/cohort context; do NOT restate the molecular action."
+    "claimed_target": "string—molecular target",
+    "proposed_mechanism": "string—how the drug is supposed to work",
+    "intended_biology": "string—biological process being modulated"
   },
   "trials": [
     {

@@ -1,0 +1,147 @@
+{
+  "nct_id": "NCT02263508",
+  "therapeutic_hypothesis": {
+    "compound": "Talimogene Laherparepvec + Pembrolizumab",
+    "claimed_target": "PD-1 and oncolytic viral therapy",
+    "proposed_mechanism": "PD-1 checkpoint inhibition combined with oncolytic viral immunotherapy to enhance anti-tumor immune response",
+    "intended_biology": "Immune checkpoint blockade and viral-mediated tumor lysis with immune activation",
+    "target_population": "Unresected melanoma patients",
+    "primary_endpoint": "Progression Free Survival (PFS) by BICR using modified RECIST 1.1",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "PFS: 14.3 vs 8.5 months (HR 0.86, 95% CI: 0.71-1.04)",
+    "p_value": 0.13,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade \u22653 AEs in 161/344 (46.8%) combination vs 151/344 (43.9%) placebo+pembrolizumab",
+      "Serious AEs in 154/344 (44.8%) combination vs 141/344 (41.0%) placebo+pembrolizumab",
+      "Fatal AEs in 45/344 (13.1%) combination vs 42/344 (12.2%) placebo+pembrolizumab"
+    ],
+    "dose_info": {
+      "dose": "Pembrolizumab 200 mg",
+      "schedule": "every 3 weeks IV",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Anaemia",
+        "grade": "",
+        "incidence_treatment_pct": 2.6,
+        "incidence_control_pct": 2.3,
+        "serious": true
+      },
+      {
+        "term": "Anaemia of malignant disease",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Febrile neutropenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.3,
+        "serious": true
+      },
+      {
+        "term": "Lymphadenopathy",
+        "grade": "",
+        "incidence_treatment_pct": 0.6,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thrombocytopenia",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      },
+      {
+        "term": "Acute myocardial infarction",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": 0.6,
+        "serious": true
+      },
+      {
+        "term": "Angina pectoris",
+        "grade": "",
+        "incidence_treatment_pct": 0.3,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Unresected melanoma",
+    "comparator": "Placebo + Pembrolizumab",
+    "sample_size": 713,
+    "duration": "Median follow-up 25.5-25.6 months for PFS analysis, 34.8-36.8 months for OS analysis",
+    "duration_weeks": 111.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "phase1b_combo",
+      "compounds": [
+        "Talimogene Laherparepvec",
+        "Pembrolizumab"
+      ]
+    },
+    {
+      "arm_id": "placebo_pembro",
+      "compounds": [
+        "Pembrolizumab"
+      ]
+    },
+    {
+      "arm_id": "combo_pembro",
+      "compounds": [
+        "Talimogene Laherparepvec",
+        "Pembrolizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "placebo_pembro",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 8.5,
+      "p_value": 0.13,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "combo_pembro",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 14.3,
+      "p_value": 0.13,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "placebo_pembro",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": 0.77,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "combo_pembro",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": null,
+      "p_value": 0.77,
+      "outcome": "failure"
+    }
+  ]
+}

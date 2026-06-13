@@ -2,7 +2,7 @@
 
 Single fetch, four phases:
   1. Pull trials from ClinicalTrials.gov (one network call, reused below).
-  2. PopulationPipeline.populate_trials—initial graph + skeleton
+  2. PopulationPipeline.populate_oncology—initial graph + skeleton
      trial subgraphs.
   3. Extractor + Classifier—write per-trial annotations to
      data/annotations/.
@@ -34,7 +34,6 @@ from src.annotation.classifier import Classifier
 from src.annotation.extractor import Extractor
 from src.graph.populate import (
     PopulationPipeline,
-    attach_node_descriptions_from_extractions,
     seed_responds_differently_from_extractions,
 )
 from src.graph.store import GraphStore
@@ -359,7 +358,6 @@ async def main(
     concurrency: int,
     area: str,
     keep_annotations: bool = False,
-    reannotate: list[str] | None = None,
     corpus: str | None = None,
     include_ncts: list[str] | None = None,
     min_classify_success_rate: float = 0.80,
@@ -369,20 +367,8 @@ async def main(
     add_corpus: str | None = None,
     min_subgraph_success_rate: float = 0.75,
     allow_partial_subgraphs: bool = False,
-    exclude_from_attribution: list[str] | None = None,
-    assemble: bool = True,
-    enrich_pubmed: bool = False,
-    bottom_up: bool = True,
 ) -> None:
     incremental = bool(base_snapshot)
-    reannotate = reannotate or []
-    if reannotate:                       # surgical re-annotation: pin + preserve others
-        keep_annotations = True
-        include_ncts = sorted(set((include_ncts or []) + reannotate))
-        console.print(
-            f"[bold]Surgical re-annotation:[/bold] re-running extract+classify for "
-            f"{len(reannotate)} trial(s); all other annotations preserved"
-        )
     if incremental:
         console.rule(
             f"[bold]Incremental build: base={base_snapshot}[/bold]"
@@ -433,12 +419,6 @@ async def main(
                 "--add-trials / --add-corpus require --base-snapshot."
             )
 
-    # Bottom-up incremental append (the 200K seam): build_bottomup starts from the
-    # loaded base graph, builds Phase 1 ONLY for the new trials, unions them in, and
-    # re-runs the Phase-2 merge restricted to new-involving pairs. No raise here —
-    # this is the production append path. (Top-down incremental still works as the
-    # escape hatch.)
-
     # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
     # combo nukes data/annotations/ on its way to the SystemExit.
     if include_ncts and corpus_path is None:
@@ -470,12 +450,6 @@ async def main(
     else:
         console.print("[bold]Step 0:[/bold] wiping prior outputs")
         wipe_outputs(area, keep_annotations=keep_annotations)
-        for _nct in reannotate:          # surgical: drop only these trials' caches
-            for _suffix in ("extraction", "classification"):
-                _p = ANNOTATIONS_DIR / f"{_nct}_{_suffix}.json"
-                if _p.exists():
-                    _p.unlink()
-                    console.print(f"  re-annotate: cleared {_p.name} (will re-run)")
 
     console.rule("[bold]Step 1: fetch trials[/bold]")
     if incremental:
@@ -536,76 +510,13 @@ async def main(
             )
             return
     client = anthropic.AsyncAnthropic(timeout=60.0)
-
-    # Step 3a: extract — RUNS BEFORE POPULATE (semantic-layers redesign).
-    # Extraction has no graph dependency (extract_all needs only the trial +
-    # extractor); only classify needs the seeded graph, and it still runs after
-    # populate. Doing extract first lets populate define the Mechanism / Biology
-    # nodes FROM each trial's extracted descriptions (the description is the
-    # node's semantic identity + BioLORD merge substrate) instead of a per-trial
-    # Reactome lookup that resolves inconsistently in the isolated bottom-up
-    # build and falls back to a low-evidence slug. The extractor + classifier
-    # built here stay in scope for the classify step (3c) below.
-    console.rule("[bold]Step 3a: extract (before populate)[/bold]")
-    extractor = Extractor(client, enrich_pubmed=enrich_pubmed)
-    classifier = Classifier(client)
-    extracted = await extract_all(trials, extractor, concurrency=concurrency)
-    console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
-
-    if bottom_up:
-        # Chains-first build: resolve each trial in ISOLATION, then reassemble via
-        # the re-runnable node_merge projection (vs top-down's overlap-first shared
-        # store). Faithful to top-down on n=10 — chains 61==61 (0 missing, 0
-        # splits), belief coverage 205/258 vs 203/257. See populate_bottomup.
-        # annotations_dir lets per-trial populate read the just-written
-        # extractions so Biology nodes get their identity from the description.
-        from src.graph.populate_bottomup import build_bottomup
-        graph = await build_bottomup(
-            trials, client, condition=condition,
-            annotations_dir=str(ANNOTATIONS_DIR),
-            # Incremental append: start from the loaded base graph and merge ONLY
-            # the new trials' chains into it (Phase 1 just for `trials`, which the
-            # round-19 filter already trimmed to the not-yet-present ones). Fresh
-            # build: base_graph=None → empty start. Either way the same Phase-2
-            # merge runs (restricted to new-involving pairs on append).
-            base_graph=graph if incremental else None,
-            # Dump the Phase-1 union (pre-assemble) so the visualizer's
-            # before-block is FAITHFUL: each chain still references its own
-            # per-trial biology/target instance (the merge destroys that
-            # mapping, so it can't be reconstructed post-hoc). Additive only.
-            premerge_dump_path=str(EXPORTS_DIR / f"{area}_premerge.json"),
-        )
-        console.print(
-            f"  [bold]bottom-up (chains-first) build[/bold]: "
-            f"{graph.stats()['node_count']} nodes, "
-            f"{len(graph.trial_subgraphs)} trial subgraphs"
-            + ("  (incremental append)" if incremental else "")
-        )
-    else:
-        # Top-down (overlap-first) stays on LEGACY ontology biology: it writes
-        # straight into a shared store with no Phase-2 geometric merge, so
-        # description-identity biology would fragment by paraphrasing here with
-        # nothing to consolidate it. Description-identity is bottom-up-only
-        # (it needs the merge). So we do NOT thread annotations_dir here.
-        pipeline = PopulationPipeline(graph, anthropic_client=client)
-        await pipeline.populate_trials(
-            max_trials=max_trials,
-            include_terminated_no_results=include_terminated,
-            condition=condition,
-            trials=trials,
-        )
-
-    # Phase-4 EFO indication tree: connect ALL→leukemia, uveal→melanoma, … on
-    # the assembled graph so the prediction's indication backoff can pool a
-    # leaf-anchored chain onto its parent disease. Additive + best-effort
-    # (a failed EFO lookup just skips that disease).
-    try:
-        from src.graph.populate import link_indication_subtypes_via_efo
-        from src.ingestion.opentargets import OpenTargetsClient
-        n_sub = await link_indication_subtypes_via_efo(graph, OpenTargetsClient())
-        console.print(f"  EFO indication hierarchy: +{n_sub} SUBTYPE_OF edges")
-    except Exception:  # noqa: BLE001
-        logger.debug("EFO indication linking skipped", exc_info=True)
+    pipeline = PopulationPipeline(graph, anthropic_client=client)
+    await pipeline.populate_oncology(
+        max_trials=max_trials,
+        include_terminated_no_results=include_terminated,
+        condition=condition,
+        trials=trials,
+    )
 
     # Round-20.5 / round-21 followup: silent-drop guard.
     # build_trial_subgraphs skips a trial when its indication / endpoint
@@ -685,6 +596,12 @@ async def main(
     graph.export_snapshot(str(initial_path))
     console.print(f"  wrote {initial_path}")
 
+    console.rule("[bold]Step 3a: extract[/bold]")
+    extractor = Extractor(client)
+    classifier = Classifier(client)
+    extracted = await extract_all(trials, extractor, concurrency=concurrency)
+    console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
+
     # Step 3b: seed subgroup populations + responds_differently edges and
     # fork chains. Has to run BEFORE classification so the LLM sees the
     # subgroup PopulationNodes in its entity-context block.
@@ -694,35 +611,10 @@ async def main(
     rd_added, chains_added = await seed_responds_differently_from_extractions(
         seed_graph, ANNOTATIONS_DIR,
     )
-    # A.0: preserve the trials' rich free-text descriptions onto the Mechanism
-    # / Biology / Population nodes as the BioLORD embedding substrate (A.1).
-    # Reads the same cached extractions — no new LLM call.
-    desc_set = attach_node_descriptions_from_extractions(
-        seed_graph, ANNOTATIONS_DIR,
-    )
     seed_graph.export_snapshot(str(initial_path))
     console.print(
         f"  seeded {rd_added} responds_differently edges, "
-        f"forked {chains_added} subgroup chains, "
-        f"set {desc_set} node descriptions"
-    )
-
-    # Step 3b.5 (v2 / Q4): give EVERY node type a description + canonical
-    # name_id, so the manifold-1 substrate (BioLORD embeddings / boxes / (s,t))
-    # is meaningful on Target/Compound/Indication/Endpoint too — not just the
-    # Mechanism/Biology/Population nodes that extractions describe. Haiku +
-    # cache, so rebuilds are cheap. The geometric merge stays a separate,
-    # re-runnable projection (scripts/build_groundup.py), not baked in here.
-    console.rule("[bold]Step 3b.5: descriptions + name_id (all node types)[/bold]")
-    from src.graph.descriptions import assign_name_ids, generate_node_descriptions
-    gen_desc = await generate_node_descriptions(
-        seed_graph, client, concurrency=concurrency,
-    )
-    n_name_ids = assign_name_ids(seed_graph)
-    seed_graph.export_snapshot(str(initial_path))
-    console.print(
-        f"  generated {gen_desc} node descriptions (Haiku), "
-        f"assigned {n_name_ids} name_ids"
+        f"forked {chains_added} subgroup chains"
     )
 
     # Step 3c: classify each trial against the seeded graph so the
@@ -757,69 +649,10 @@ async def main(
             f"with the partial classifications."
         )
 
-    # Step 3d: prune invalid mechanisms — Reactome/GO entries that aren't a
-    # cellular ACTION/process (therapeutic collections, disease modules,
-    # pathogen-lifecycle pathways, receptor-family groupings, the 'other'
-    # placeholder). Post-classify / pre-attribute, so a trial's outcome is never
-    # credited through a non-mechanism. Deterministic name-gate, no LLM (see
-    # src/graph/mechanism_validity.py). Off-target hits + sub-mechanisms — real
-    # biology — are deliberately untouched.
-    console.rule("[bold]Step 3d: prune invalid mechanisms[/bold]")
-    from src.graph.mechanism_validity import prune_invalid_mechanisms
-    prune_graph = GraphStore()
-    prune_graph.import_snapshot(str(initial_path))
-    pstats = prune_invalid_mechanisms(prune_graph)
-    prune_graph.export_snapshot(str(initial_path))
-    console.print(
-        f"  dropped {pstats['nodes_dropped']} non-mechanism nodes "
-        f"{pstats['by_tier']}, {pstats['chains_dropped']} chain variants; "
-        f"{len(pstats['trials_emptied'])} trials left chain-less"
-    )
-
     console.rule("[bold]Step 4: attribute[/bold]")
     await attributor_main(
         str(ANNOTATIONS_DIR), str(initial_path), str(annotated_path),
-        exclude_from_attribution=exclude_from_attribution,
     )
-
-    # Step 5 (--assemble): the v2 post-build geometry. The per-(s,t) belief field
-    # and the box / is-a geometry are PRIVATE artifacts the boundary strips from
-    # the public snapshot, so they're materialized post-hoc — and therefore drift
-    # stale unless regenerated on every build (this is exactly how the field fell
-    # behind at 2/7 while the code already did 7). Wiring the two former scripts
-    # (assemble_v2 + materialize_belief_field) in here keeps the field in lockstep
-    # with the graph. Off by default: adds BioLORD embedding compute and needs
-    # EROOM_PRIVATE_ROOT. Node-merge stays a separate, re-runnable projection
-    # (assemble_v2 --merge), deliberately NOT baked in here.
-    if assemble:
-        console.rule("[bold]Step 5: assemble geometry + materialize (s,t) field[/bold]")
-        # Best-effort: steps 1-4 (incl. paid extractions) are already done and
-        # written to annotated_path, so a step-5 failure (offline BioLORD, unset
-        # private root, …) must NOT crash the build. The field is regenerable
-        # (scripts/materialize_belief_field.py) and post-hoc by construction.
-        try:
-            from scripts.assemble_v2 import assemble_geometry
-            from scripts.materialize_belief_field import materialize_field
-
-            geo = assemble_geometry(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
-            console.print(
-                f"  geometry: {geo['boxes']} boxes, "
-                f"is-a SUBTYPE_OF {geo['subtype_before']}→{geo['subtype_after']} "
-                f"(+{geo['subtype_added']})"
-            )
-            fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
-            console.print(
-                f"  (s,t) field: {fld['edges_localized']} edges localized, "
-                f"{fld['anchors_total']} anchors"
-            )
-            console.print(f"  private artifacts -> {geo['private_root']}")
-        except Exception as exc:  # noqa: BLE001 — field is regenerable; don't lose the build
-            console.print(
-                f"  [red]Step 5 (geometry + (s,t) field) FAILED:[/red] {exc}\n"
-                f"  [yellow]The graph snapshot is intact. Regenerate the field with:[/yellow]\n"
-                f"  python -m scripts.materialize_belief_field {annotated_path}"
-            )
-            logger.warning("assemble/materialize step failed", exc_info=True)
 
     final = GraphStore()
     final.import_snapshot(str(annotated_path))
@@ -838,31 +671,6 @@ async def main(
         f"trials full, {coverage['trials_partial']} partial, "
         f"[red]{coverage['trials_zero']} zero[/red]"
     )
-
-    # Phantom-edge guard: every edge type the PREDICTION consumes must be
-    # PRODUCED by the populator. A type consumed but instantiated by no producer
-    # is a phantom (the reflects_biology gap — defined in the schema, walked by
-    # the attributor, in the field EDGE_SPECS, but created by no populate method,
-    # so it silently never carried a belief). Warn loudly if any backbone edge
-    # type is absent from the built graph so the gap can't reopen unnoticed.
-    from src.prediction.path_query import CONSUMED_BACKBONE_EDGE_TYPES
-    present_edge_types = {k for *_, k in final._graph.edges(keys=True)}  # noqa: SLF001
-    missing_backbone = sorted(
-        et.value for et in CONSUMED_BACKBONE_EDGE_TYPES
-        if et.value not in present_edge_types
-    )
-    if missing_backbone:
-        console.print(
-            f"  [red]⚠ PHANTOM EDGE(S): the prediction consumes {missing_backbone} "
-            f"but the build produced ZERO of them[/red] — they will never carry a "
-            f"belief or materialize into the (s,t) field. A producer is missing "
-            f"(see path_query.CONSUMED_BACKBONE_EDGE_TYPES)."
-        )
-    else:
-        console.print(
-            f"  [green]backbone complete[/green]: all "
-            f"{len(CONSUMED_BACKBONE_EDGE_TYPES)} consumed edge types are present"
-        )
 
 
 if __name__ == "__main__":
@@ -894,18 +702,6 @@ if __name__ == "__main__":
         help="Skip wiping data/annotations/. Reuses cached extract+classify "
              "results from a prior run—useful when iterating on the "
              "attribute step.",
-    )
-    parser.add_argument(
-        "--reannotate", default="",
-        help="Surgical re-annotation (append-only; NO global wipe): comma-"
-             "separated NCT ids to RE-EXTRACT + RE-CLASSIFY under the current "
-             "prompts. Deletes ONLY those trials' cached "
-             "<nct>_{extraction,classification}.json and rebuilds them, leaving "
-             "every other trial's annotations untouched. Implies "
-             "--keep-annotations and pins the ids via --include (so requires "
-             "--corpus). Replaces the destructive 'drop --keep-annotations → "
-             "wipe 120 files to rebuild 10' pattern — the chains-first append-"
-             "only way to iterate on prompts.",
     )
     parser.add_argument(
         "--corpus", default=None,
@@ -982,65 +778,9 @@ if __name__ == "__main__":
              "even when many trials silently failed to produce subgraphs. "
              "Use only when investigating the drop log itself.",
     )
-    parser.add_argument(
-        "--exclude-from-attribution", default="",
-        help="Round-26 true-holdout flag. Comma-separated NCT ids whose "
-             "subgraphs should be BUILT (steps 1-3 — fetch, populate, "
-             "annotate) but whose evidence should NOT be folded into "
-             "edge beliefs (step 4 attribute skipped). Use to make a "
-             "true holdout: include the eval NCTs alongside the "
-             "training corpus, then exclude them here so the resulting "
-             "annotated.json has all subgraphs but only training "
-             "attribution. Fixes the round-24 contamination bug where "
-             "--add-trials re-ran attribution on holdouts.",
-    )
-    parser.add_argument(
-        "--enrich-pubmed", action="store_true",
-        help="Scale producer (the in-build 3rd call): for TERMINATED/WITHDRAWN "
-             "trials with no posted AEs but >=1 reference PMID, fetch the linked "
-             "abstract(s) via NCBI E-utilities and run a focused Anthropic call to "
-             "extract structured safety (HR/CI/failure_causing), written to the "
-             "<nct>_pubmed_safety.json the attribution step merges. Off by default "
-             "(network + an extra LLM call for the subset). Grounds program-ending "
-             "off-target toxicity (e.g. torcetrapib) the empty structured record "
-             "never captured.",
-    )
-    parser.add_argument(
-        "--bottom-up", action="store_true",
-        help="(DEFAULT now; flag kept for back-compat, no-op) chains-first build: "
-             "resolve each trial in isolation into trial-scoped nodes, then "
-             "reassemble via the re-runnable node_merge projection. This is the "
-             "only supported mode — append-only ingestion + retune any merge "
-             "without a rebuild, and incremental --add-trials/--add-corpus appends "
-             "new chains onto a base snapshot and re-runs the merge.",
-    )
-    parser.add_argument(
-        "--top-down", action="store_true",
-        help="Escape hatch (NOT recommended): the legacy overlap-first shared-store "
-             "build. Kept only for the faithfulness comparison + tests. Bottom-up "
-             "is the default and the production path.",
-    )
-    parser.add_argument(
-        "--assemble", action=argparse.BooleanOptionalAction, default=True,
-        help="Step 5: after attribution, run the v2 post-build geometry — fit "
-             "boxes on all 7 chain node types, resolve the box-geometry is-a "
-             "hierarchy (public SUBTYPE_OF edges), and materialize the per-(s,t) "
-             "belief field. Boxes + field are PRIVATE artifacts written under "
-             "EROOM_PRIVATE_ROOT (defaults to ~/.eroom/private; point it at the "
-             "enterprise artifacts dir for canonical builds). ON by default — the "
-             "(s,t) belief field is core to the product, so every build carries "
-             "it in lockstep with the graph (it's post-hoc by construction and "
-             "would otherwise drift stale). Pass --no-assemble for a fast debug "
-             "build that skips the BioLORD embedding compute. Node-merge stays "
-             "separate (assemble_v2 --merge).",
-    )
     args = parser.parse_args()
     include_ncts = [n.strip() for n in args.include.split(",") if n.strip()]
-    reannotate = [n.strip() for n in args.reannotate.split(",") if n.strip()]
     add_trials = [n.strip() for n in args.add_trials.split(",") if n.strip()]
-    exclude_from_attribution = [
-        n.strip() for n in args.exclude_from_attribution.split(",") if n.strip()
-    ]
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     asyncio.run(main(
@@ -1048,7 +788,6 @@ if __name__ == "__main__":
         max_trials=args.max_trials,
         include_terminated=args.include_terminated,
         keep_annotations=args.keep_annotations,
-        reannotate=reannotate or None,
         concurrency=args.concurrency,
         area=args.area,
         corpus=args.corpus,
@@ -1060,8 +799,4 @@ if __name__ == "__main__":
         add_corpus=args.add_corpus,
         min_subgraph_success_rate=args.min_subgraph_success_rate,
         allow_partial_subgraphs=args.allow_partial_subgraphs,
-        exclude_from_attribution=exclude_from_attribution or None,
-        assemble=args.assemble,
-        enrich_pubmed=args.enrich_pubmed,
-        bottom_up=not args.top_down,  # bottom-up is the default; --top-down opts out
     ))

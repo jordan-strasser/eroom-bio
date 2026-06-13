@@ -1,0 +1,133 @@
+{
+  "nct_id": "NCT01143402",
+  "therapeutic_hypothesis": {
+    "compound": "selumetinib vs temozolomide",
+    "claimed_target": "MEK1/2",
+    "proposed_mechanism": "MEK inhibition to block MAPK pathway activation",
+    "intended_biology": "inhibition of tumor cell proliferation and survival signaling",
+    "target_population": "patients with metastatic uveal melanoma",
+    "primary_endpoint": "progression-free survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "median PFS 15.9 weeks (selumetinib) vs 7 weeks (temozolomide)",
+    "p_value": null,
+    "target_engagement_evidence": "decrease in p-ERK correlated with disease status",
+    "biomarker_changes": [
+      "decrease in p-ERK",
+      "changes in Ki67",
+      "changes in p-AKT",
+      "changes in PTEN",
+      "apoptosis measured by caspase 3 cleavage"
+    ],
+    "subgroup_findings": [
+      "primary analysis performed among Gnaq/Gna11 mutant patients"
+    ],
+    "safety_signals": [
+      "CPK increased more frequent in selumetinib arms",
+      "hepatic toxicity observed in both arms"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "CPK increased",
+        "grade": "",
+        "incidence_treatment_pct": 18.4,
+        "incidence_control_pct": 8.0,
+        "serious": true
+      },
+      {
+        "term": "Alanine aminotransferase increased",
+        "grade": "",
+        "incidence_treatment_pct": 4.1,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      },
+      {
+        "term": "Hepatic failure",
+        "grade": "",
+        "incidence_treatment_pct": 2.0,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      },
+      {
+        "term": "Abdominal pain",
+        "grade": "",
+        "incidence_treatment_pct": 4.1,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      },
+      {
+        "term": "Lymphocyte count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 2.0,
+        "incidence_control_pct": 2.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "metastatic uveal melanoma",
+    "comparator": "temozolomide",
+    "sample_size": 120,
+    "duration": "up to 5 years",
+    "duration_weeks": 260.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_i_temozolomide",
+      "compounds": [
+        "temozolomide"
+      ]
+    },
+    {
+      "arm_id": "arm_ii_selumetinib",
+      "compounds": [
+        "selumetinib"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_i_temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 7.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_ii_selumetinib",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 15.9,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "arm_i_temozolomide",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 9.1,
+      "p_value": null,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_ii_selumetinib",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 11.8,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": []
+}

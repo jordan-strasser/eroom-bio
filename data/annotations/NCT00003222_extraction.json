@@ -1,0 +1,236 @@
+{
+  "nct_id": "NCT00003222",
+  "therapeutic_hypothesis": {
+    "compound": "melanoma peptide vaccine + interleukin-2",
+    "claimed_target": "melanoma-associated antigens (gp100, tyrosinase)",
+    "proposed_mechanism": "peptide vaccination to induce tumor-specific T cell responses",
+    "intended_biology": "anti-tumor immune activation",
+    "target_population": "stage III or IV melanoma patients",
+    "primary_endpoint": "objective clinical response (CR/PR/SD)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Overall response rate: 7.5% (3/40 patients achieved partial response)",
+    "p_value": null,
+    "target_engagement_evidence": "Immune responses detected by ELISPOT assay in peripheral blood and sentinel nodes",
+    "biomarker_changes": [
+      "Tumor-antigen-specific immunity in PBMC: 1/13 responders (dendritic cell arm) vs 5/27 responders (GM-CSF arm)",
+      "Tumor-antigen-specific immunity in sentinel nodes: 1/13 responders (dendritic cell arm) vs 8/27 responders (GM-CSF arm), p=0.004"
+    ],
+    "subgroup_findings": [
+      "GM-CSF adjuvant arm showed superior immune responses in sentinel nodes (p=0.004)",
+      "No complete responses observed in either arm"
+    ],
+    "safety_signals": [
+      "Serious adverse events primarily in GM-CSF arm including dyspnea, fever, hyperglycemia, insomnia"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Alkaline Phosphatase elevation",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Creatinine elevation",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dyspnea",
+        "grade": "",
+        "incidence_treatment_pct": 7.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fever",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Hyperglycemia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Insomnia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Palpitations",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "stage III or IV melanoma",
+    "comparator": "peptides pulsed on dendritic cells vs peptides in GM-CSF adjuvant",
+    "sample_size": 40,
+    "duration": "24 months follow-up",
+    "duration_weeks": 104.3,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "peptides_pulsed_on_dendritic_cells",
+      "compounds": [
+        "aldesleukin",
+        "gp100 antigen",
+        "incomplete Freund's adjuvant",
+        "tetanus peptide melanoma vaccine",
+        "tyrosinase peptide"
+      ]
+    },
+    {
+      "arm_id": "peptides_in_gmcsf_in_adjuvant",
+      "compounds": [
+        "aldesleukin",
+        "gp100 antigen",
+        "incomplete Freund's adjuvant",
+        "sargramostim",
+        "tetanus peptide melanoma vaccine",
+        "tyrosinase peptide"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "response",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "peptides_pulsed_on_dendritic_cells",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "objective response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "peptides_in_gmcsf_in_adjuvant",
+      "subgroup_descriptor": "Complete Response",
+      "endpoint": "objective response",
+      "effect_size": 0.0,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "peptides_pulsed_on_dendritic_cells",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "objective response",
+      "effect_size": 1.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "peptides_in_gmcsf_in_adjuvant",
+      "subgroup_descriptor": "Partial Response",
+      "endpoint": "objective response",
+      "effect_size": 2.0,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "peptides_pulsed_on_dendritic_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "PBMC immune response",
+      "effect_size": 1.0,
+      "p_value": 0.13,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "peptides_in_gmcsf_in_adjuvant",
+      "subgroup_descriptor": null,
+      "endpoint": "PBMC immune response",
+      "effect_size": 5.0,
+      "p_value": 0.13,
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "peptides_pulsed_on_dendritic_cells",
+      "subgroup_descriptor": null,
+      "endpoint": "sentinel node immune response",
+      "effect_size": 1.0,
+      "p_value": 0.004,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "peptides_in_gmcsf_in_adjuvant",
+      "subgroup_descriptor": null,
+      "endpoint": "sentinel node immune response",
+      "effect_size": 8.0,
+      "p_value": 0.004,
+      "outcome": "success"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "sargramostim",
+      "primary_compound_id": "melanoma_peptide_vaccine",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "GM-CSF enhances dendritic cell activation and antigen presentation to improve vaccine-induced immune responses",
+      "citation": "Tumor-antigen-specific immunity in sentinel nodes: 1/13 responders (dendritic cell arm) vs 8/27 responders (GM-CSF arm), p=0.004"
+    }
+  ]
+}

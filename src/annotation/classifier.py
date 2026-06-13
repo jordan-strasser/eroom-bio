@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _ANNOTATIONS_DIR = Path("data/annotations")
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-sonnet-4-20250514"
 MAX_TOKENS = 4096
 MAX_RETRIES = 3
 
@@ -352,16 +352,6 @@ def _parse_classification(
 
     evidence_quotes = [m.get("evidence", "") for m in modes if m.get("evidence")]
 
-    # Coarse trial-conduct gate (outcome-conditioning redesign). The
-    # classifier emits a single optional boolean: was this an OPERATIONAL
-    # failure (the chain was never properly tested) rather than a valid
-    # test of the mechanism? Absent / non-bool ⇒ None ⇒ full weight
-    # (conservative). Read from the raw JSON so cached classifications
-    # without the field fall back to valid-test.
-    operational_failure = raw.get("operational_failure")
-    if not isinstance(operational_failure, bool):
-        operational_failure = None
-
     classification = FailureClassification(
         trial_id=trial_id,
         primary_failure_mode=primary_mode,
@@ -369,7 +359,6 @@ def _parse_classification(
         confidence=confidence,
         reasoning=raw.get("reasoning", ""),
         evidence_quotes=evidence_quotes,
-        operational_failure=operational_failure,
     )
 
     # Stash extra fields for serialization
@@ -508,7 +497,6 @@ async def annotate_trial(
                 extraction,
                 client=extractor._client,
                 meddra_cache=meddra_cache or MeddraCache(),
-                classification=classification,
             )
             updates.extend(ae_updates)
     return extraction, classification, updates

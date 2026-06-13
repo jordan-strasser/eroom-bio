@@ -182,11 +182,11 @@ class TestSubgroupTaxonomyIntegration:
         load(cache_path=hgnc_tsv_path, download_if_missing=False)
         ids = {
             PopulationNode.compose_id(
-                [canonicalize_feature("gene", name, "high")]
+                "melanoma", [canonicalize_feature("gene", name, "high")]
             )
             for name in ("PD-L1", "PDL1", "CD274", "B7-H1")
         }
-        assert ids == {"cd274_positive"}
+        assert ids == {"melanoma__cd274_positive"}
 
     def test_unknown_gene_falls_to_other_when_resolver_loaded(self, hgnc_tsv_path: Path):
         from src.graph.subgroup_taxonomy import canonicalize_feature

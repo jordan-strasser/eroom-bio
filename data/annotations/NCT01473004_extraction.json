@@ -1,0 +1,150 @@
+{
+  "nct_id": "NCT01473004",
+  "therapeutic_hypothesis": {
+    "compound": "SIR-Spheres Yttrium-90 microspheres",
+    "claimed_target": "hepatic tumor vasculature",
+    "proposed_mechanism": "selective internal radiation therapy delivering beta radiation to liver metastases",
+    "intended_biology": "localized tumor cell death via radiation-induced DNA damage",
+    "target_population": "Stage IV uveal melanoma patients with liver metastases",
+    "primary_endpoint": "Clinical Benefit Rate",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Clinical benefit rate: 83% (20/24) in Group A, 58% (14/24) in Group B",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "Group A (no prior embolization) showed higher clinical benefit rate than Group B (prior embolization)",
+      "Partial response rates: 29% Group A vs 25% Group B",
+      "Stable disease rates: 54% Group A vs 33% Group B"
+    ],
+    "safety_signals": [
+      "31 of 48 patients experienced adverse events"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "once for each lobe involved separated by 4 weeks",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "any adverse event",
+        "grade": "",
+        "incidence_treatment_pct": 64.6,
+        "incidence_control_pct": null,
+        "serious": false
+      }
+    ]
+  },
+  "context": {
+    "indication": "Stage IV uveal melanoma with liver metastases",
+    "comparator": "none",
+    "sample_size": 48,
+    "duration": "3 months post final treatment, an average of 4 months",
+    "duration_weeks": 17.4,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "group_a_no_prior",
+      "compounds": [
+        "SIR-Spheres Yttrium-90 microspheres"
+      ]
+    },
+    {
+      "arm_id": "group_b_prior_embol",
+      "compounds": [
+        "SIR-Spheres Yttrium-90 microspheres"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Complete Response",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "complete_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Partial Response",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "partial_response"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stable Disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "stable_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Progressive Disease",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "progressive_disease"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Not Evaluated",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "not_evaluated"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "group_a_no_prior",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 18.9,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "group_b_prior_embol",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 19.1,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "group_a_no_prior",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 8.1,
+      "p_value": null,
+      "outcome": "success"
+    },
+    {
+      "arm_id": "group_b_prior_embol",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 5.2,
+      "p_value": null,
+      "outcome": "success"
+    }
+  ]
+}

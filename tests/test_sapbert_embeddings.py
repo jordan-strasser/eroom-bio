@@ -237,17 +237,13 @@ class TestAvailability:
 
 class TestInterventionNodeSchema:
     """The Phase A schema additions to InterventionNode (`stable_id`,
-    `embedding`). `stable_id` is public and roundtrips through the GraphStore
-    JSON snapshot; `embedding` is a *private* value (it would be a fine-tuned
-    vector once the manifold work lands) and is stripped from public snapshots
-    by the artifact boundary (`src/boundary.py`), persisting only in-memory and
-    in the private snapshot."""
+    `embedding`) must roundtrip through Pydantic + the GraphStore JSON
+    snapshot without losing precision or shape."""
 
-    def test_stable_id_persists_embedding_is_boundary_stripped(
-        self, tmp_path, monkeypatch
-    ):
-        from src.boundary import private_root
-        from src.graph.models import CompoundNode, Modality
+    def test_stable_id_and_embedding_persist(self, tmp_path):
+        from src.graph.models import (
+            CompoundNode, EdgeBeliefState, EdgeType, GraphEdge, Modality,
+        )
         from src.graph.store import GraphStore
 
         store = GraphStore()
@@ -258,29 +254,17 @@ class TestInterventionNodeSchema:
             embedding=[0.123, -0.456, 0.789],
             aliases=["5-FU", "Adrucil"],
         ))
-        # Pydantic carries the vector with full precision in-memory.
-        assert store.get_node("fluorouracil")["embedding"] == [0.123, -0.456, 0.789]
 
-        # PUBLIC snapshot: stable_id + aliases persist; the embedding is
-        # stripped by the boundary so it never reaches a committed artifact.
-        public = tmp_path / "snap.json"
-        store.export_snapshot(str(public))
-        reloaded = GraphStore()
-        reloaded.import_snapshot(str(public))
-        node = reloaded.get_node("fluorouracil")
+        snapshot = tmp_path / "snap.json"
+        store.export_snapshot(str(snapshot))
+
+        roundtripped = GraphStore()
+        roundtripped.import_snapshot(str(snapshot))
+        node = roundtripped.get_node("fluorouracil")
         assert node["stable_id"] == "CHEMBL185"
+        assert node["embedding"] == [0.123, -0.456, 0.789]
+        # Existing fields stay intact.
         assert node["aliases"] == ["5-FU", "Adrucil"]
-        assert "embedding" not in node
-
-        # PRIVATE snapshot: the full vector is preserved for the enterprise tree.
-        monkeypatch.setenv("EROOM_PRIVATE_ROOT", str(tmp_path / "private"))
-        priv = private_root(create=True) / "snap.json"
-        store.export_private_snapshot(str(priv))
-        priv_reload = GraphStore()
-        priv_reload.import_snapshot(str(priv))
-        assert priv_reload.get_node("fluorouracil")["embedding"] == [
-            0.123, -0.456, 0.789,
-        ]
 
     def test_defaults_to_none_when_not_set(self):
         from src.graph.models import CompoundNode, Modality

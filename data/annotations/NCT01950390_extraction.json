@@ -1,0 +1,160 @@
+{
+  "nct_id": "NCT01950390",
+  "therapeutic_hypothesis": {
+    "compound": "ipilimumab with or without bevacizumab",
+    "claimed_target": "CTLA-4 and VEGF",
+    "proposed_mechanism": "immune checkpoint blockade with anti-angiogenic modulation",
+    "intended_biology": "enhanced T-cell activation and tumor vascular normalization",
+    "target_population": "patients with unresectable stage III-IV melanoma",
+    "primary_endpoint": "overall survival",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "HR 0.94 (95% CI: not fully reported)",
+    "p_value": 0.383,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Grade 3-5 treatment-related AEs higher in combination arm (58% vs 39%)",
+      "Fatigue more common in combination arm",
+      "Various immune-related adverse events observed"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Grade 3-5 treatment-related adverse events",
+        "grade": "3-5",
+        "incidence_treatment_pct": 58.0,
+        "incidence_control_pct": 39.0,
+        "serious": true
+      },
+      {
+        "term": "Anemia",
+        "grade": "",
+        "incidence_treatment_pct": 3.7,
+        "incidence_control_pct": 1.2,
+        "serious": true
+      },
+      {
+        "term": "Atrial fibrillation",
+        "grade": "",
+        "incidence_treatment_pct": 1.2,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Fatigue",
+        "grade": "",
+        "incidence_treatment_pct": 9.8,
+        "incidence_control_pct": 4.9,
+        "serious": true
+      },
+      {
+        "term": "Rash maculo-papular",
+        "grade": "",
+        "incidence_treatment_pct": 6.1,
+        "incidence_control_pct": 8.5,
+        "serious": true
+      },
+      {
+        "term": "Adrenal insufficiency",
+        "grade": "",
+        "incidence_treatment_pct": 2.4,
+        "incidence_control_pct": 3.7,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "unresectable stage III-IV melanoma",
+    "comparator": "ipilimumab monotherapy",
+    "sample_size": 169,
+    "duration": "up to 5 years",
+    "duration_weeks": 260.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "arm_a_ipilimumab",
+      "compounds": [
+        "ipilimumab"
+      ]
+    },
+    {
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "compounds": [
+        "ipilimumab",
+        "bevacizumab"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "arm_a_ipilimumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 20.4,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 20.1,
+      "p_value": 0.383,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_a_ipilimumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 2.8,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 4.4,
+      "p_value": 0.358,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_a_ipilimumab",
+      "subgroup_descriptor": null,
+      "endpoint": "Clinical Response Rate",
+      "effect_size": 11.8,
+      "p_value": null,
+      "outcome": "unknown"
+    },
+    {
+      "arm_id": "arm_b_ipilimumab_and_bevacizumab",
+      "subgroup_descriptor": null,
+      "endpoint": "Clinical Response Rate",
+      "effect_size": 15.5,
+      "p_value": 0.482,
+      "outcome": "failure"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "bevacizumab",
+      "primary_compound_id": "ipilimumab",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.85,
+      "hypothesis": "anti-angiogenic therapy normalizes tumor vasculature to enhance immune cell infiltration and checkpoint blockade efficacy",
+      "citation": "Primary endpoint OS showed HR 0.94, p = 0.383, indicating no significant benefit from adding bevacizumab to ipilimumab"
+    }
+  ]
+}

@@ -2,9 +2,9 @@
   "nct_id": "NCT04577807",
   "therapeutic_hypothesis": {
     "compound": "lerapolturev",
-    "claimed_target": "TLR9",
-    "proposed_mechanism": "toll-like receptor agonism",
-    "intended_biology": "innate immune activation",
+    "claimed_target": "tumor microenvironment",
+    "proposed_mechanism": "direct intratumoral injection to stimulate local immune activation",
+    "intended_biology": "immune system activation and tumor infiltration",
     "target_population": "advanced PD-1 refractory melanoma",
     "primary_endpoint": "overall response rate",
     "rationale_strength": "moderate"
@@ -13,16 +13,16 @@
     "primary_endpoint_met": false,
     "effect_size": "2/27 overall responses (7.4%)",
     "p_value": null,
-    "target_engagement_evidence": null,
+    "target_engagement_evidence": "changes in CD8+ TILs and PD-L1 expression measured",
     "biomarker_changes": [
-      "Changes in CD8+ tumor infiltrating lymphocytes",
-      "Changes in PD-L1 expression"
+      "changes from baseline in CD8+ tumor infiltrating lymphocytes",
+      "changes from baseline in PD-L1 expression"
     ],
     "subgroup_findings": [],
     "safety_signals": [
-      "Treatment-emergent adverse events in majority of patients",
-      "Immune-related adverse events in combination arm",
-      "Treatment discontinuations due to adverse events"
+      "treatment-emergent adverse events in 24/27 patients",
+      "immune-related adverse events in combination arms",
+      "discontinuations due to adverse events in 3 patients"
     ],
     "dose_info": {
       "dose": "",
@@ -79,12 +79,33 @@
         "incidence_treatment_pct": 33.3,
         "incidence_control_pct": null,
         "serious": true
+      },
+      {
+        "term": "malignant pleural effusion",
+        "grade": "",
+        "incidence_treatment_pct": 16.7,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "cerebrovascular accident",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "device occlusion",
+        "grade": "",
+        "incidence_treatment_pct": 9.1,
+        "incidence_control_pct": null,
+        "serious": true
       }
     ]
   },
   "context": {
     "indication": "advanced PD-1 refractory melanoma",
-    "comparator": "none",
+    "comparator": "lerapolturev monotherapy vs lerapolturev plus anti-PD-1",
     "sample_size": 27,
     "duration": "24 months",
     "duration_weeks": 104.3,
@@ -101,7 +122,7 @@
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
       "compounds": [
         "lerapolturev",
-        "anti-PD-1"
+        "anti-pd-1"
       ]
     }
   ],
@@ -109,53 +130,62 @@
   "results_by_chain": [
     {
       "arm_id": "arm_1_lerapolturev",
-      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
-      "endpoint": "ORR",
-      "effect_size": 7.7,
+      "endpoint": "overall response",
+      "effect_size": 1.0,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "toll-like receptor agonism",
-      "biology_description": "innate immune activation",
-      "population_description": "advanced PD-1 refractory melanoma",
-      "mechanism_category": "immune_costimulation"
+      "outcome": "failure"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "intervention": "lerapolturev",
       "subgroup_descriptor": null,
-      "endpoint": "ORR",
-      "effect_size": 7.1,
+      "endpoint": "overall response",
+      "effect_size": 1.0,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "toll-like receptor agonism",
-      "biology_description": "innate immune activation",
-      "population_description": "advanced PD-1 refractory melanoma",
-      "mechanism_category": "immune_costimulation"
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_1_lerapolturev",
+      "subgroup_descriptor": null,
+      "endpoint": "OS",
+      "effect_size": 4.3,
+      "p_value": null,
+      "outcome": "failure"
     },
     {
       "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
-      "intervention": "anti-PD-1",
       "subgroup_descriptor": null,
-      "endpoint": "ORR",
-      "effect_size": 7.1,
+      "endpoint": "OS",
+      "effect_size": 10.5,
       "p_value": null,
-      "outcome": "failure",
-      "mechanism_description": "checkpoint blockade",
-      "biology_description": "T-cell mediated anti-tumor immunity",
-      "population_description": "advanced PD-1 refractory melanoma",
-      "mechanism_category": "checkpoint_blockade"
+      "outcome": "partial"
+    },
+    {
+      "arm_id": "arm_1_lerapolturev",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.9,
+      "p_value": null,
+      "outcome": "failure"
+    },
+    {
+      "arm_id": "arm_2_lerapolturev_and_anti_pd_1",
+      "subgroup_descriptor": null,
+      "endpoint": "PFS",
+      "effect_size": 1.6,
+      "p_value": null,
+      "outcome": "failure"
     }
   ],
   "modulation_entries": [
     {
       "modulator_compound_id": "lerapolturev",
-      "primary_compound_id": "anti-PD-1",
+      "primary_compound_id": "anti-pd-1",
       "affects_layer": "biology",
       "direction": "neutral",
       "confidence": 0.85,
-      "hypothesis": "TLR9 agonism enhances innate immune activation to overcome PD-1 resistance",
-      "citation": "Trial tested lerapolturev with or without anti-PD-1 in PD-1 refractory melanoma but showed no meaningful difference in response rates between monotherapy and combination arms"
+      "hypothesis": "lerapolturev intratumoral injection intended to enhance anti-PD-1 efficacy through local immune activation",
+      "citation": "Overall response rates were low in both monotherapy and combination arms with only 2/27 total responses"
     }
   ]
 }

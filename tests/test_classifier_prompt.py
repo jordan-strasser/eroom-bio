@@ -125,71 +125,31 @@ class TestRound16AlwaysEmitRule:
         )
 
 
-class TestPromptModulatesViaAmbiguousOnFailures:
-    """Round-15 Option A (still in force in round 28): failed trials
-    cannot emit *_support on `modulates_via`. The classifier emits
-    `ambiguous` instead. `affects` follows a separate rule documented
-    in `TestPromptAffectsIsMolecularBinding` below."""
+class TestPromptDoesntEmitSupportOnUpstreamFromFailures:
+    """Option A (round-15): failed trials cannot emit *_support on
+    `affects` or `modulates_via`. They emit ambiguous instead. This
+    test verifies the directive is present in the prompt."""
 
     def test_directive_present(self, prompt):
-        # Look for the round-15 directive that bans *_support on
-        # modulates_via from failed trials.
+        # Look for the round-15 directive that bans *_support on those
+        # two edges from failed trials.
+        # Use loose anchoring — the wording can evolve but the contract
+        # ("never emit support on affects/modulates_via for failures")
+        # must remain.
         lower = prompt.lower()
         assert "ambiguous" in lower
         assert "never" in lower or "NEVER" in prompt
+        # Find the section near "affects" + "modulates_via"
+        # The directive paragraph mentions both edges and 'ambiguous' or 'NEVER'.
+        # We require at least one paragraph that mentions all three concepts.
         chunks = prompt.split("\n\n")
         directive_chunks = [
             c for c in chunks
-            if "modulates_via" in c and (
+            if "affects" in c and "modulates_via" in c and (
                 "NEVER" in c or "never" in c.lower() or "ambiguous" in c.lower()
             )
         ]
         assert directive_chunks, (
-            "Round-15 directive ('failed trials use ambiguous, never "
-            "*_support, on modulates_via') missing from prompt"
+            "Round-15 Option A directive ('failed trials use ambiguous, "
+            "never *_support, on affects/modulates_via') missing from prompt"
         )
-
-
-class TestPromptAffectsIsMolecularBinding:
-    """Round-28: `affects` encodes molecular binding, not a trial-outcome
-    edge. The classifier emits STRONG_SUPPORT when target engagement is
-    demonstrated, emits nothing when binding isn't measured, and
-    reserves contradict for explicit non-binding evidence. Defaulting
-    to AMBIGUOUS is explicitly banned because it dilutes the curated
-    OT/ChEMBL/mAb-table records that carry the molecular fact."""
-
-    def test_round28_affects_rule_present(self, prompt):
-        # Anchor on the round-28 marker.
-        assert "round-28" in prompt.lower() or "Round-28" in prompt, (
-            "Round-28 AFFECTS rule header missing from prompt"
-        )
-        # Locate the AFFECTS section.
-        idx = prompt.lower().find("round-28 rule")
-        assert idx != -1
-        section = prompt[idx:idx + 3000]
-        # Should explicitly mention molecular binding and reference the
-        # curated databases that carry the fact.
-        for token in ("molecular", "binding", "OT", "ChEMBL"):
-            assert token in section, (
-                f"Round-28 AFFECTS rule should reference {token!r}"
-            )
-        # Should explicitly forbid defaulting to ambiguous.
-        assert "do NOT default to" in section or "Do NOT emit `ambiguous`" in section
-
-    def test_affects_strong_support_on_target_engagement(self, prompt):
-        idx = prompt.lower().find("round-28 rule")
-        section = prompt[idx:idx + 3000]
-        # Strong support when binding is demonstrated.
-        assert "strong_support" in section
-        # Strong support tied to target engagement / PD biomarker.
-        assert (
-            "target engagement" in section.lower()
-            or "PD biomarker" in section
-            or "pharmacodynamic" in section.lower()
-        )
-
-    def test_affects_no_record_when_binding_unmeasured(self, prompt):
-        idx = prompt.lower().find("round-28 rule")
-        section = prompt[idx:idx + 3000]
-        # Must say to emit NO record when binding isn't measured.
-        assert "NO " in section or "do not emit" in section.lower() or "emit no" in section.lower()
