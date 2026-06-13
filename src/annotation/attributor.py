@@ -49,6 +49,8 @@ from src.annotation.taxonomy import (
     FailureClassification,
     FailureMode,
     ModulationEntry,
+    RoutingBranch,
+    routing_branch_for,
     StructuredAE,
     TrialExtraction,
 )
@@ -149,6 +151,40 @@ def _edge_effect_enabled() -> bool:
     return os.environ.get("EROOM_EDGE_EFFECT", "").strip().lower() in (
         "1", "on", "true", "yes",
     )
+
+
+# ── Pillar A (A3 + A4): reason-routed EM with competing-risks censoring ────
+#
+# EROOM_ROUTING (default OFF — current behavior byte-identical) wires the
+# 13-category failure reason into the backbone update as competing-risks
+# censoring (EM doc §3.2) and replaces the heuristic explaining-away split
+# with the principled normalized responsibility (§3.1 / §4, A4). When OFF,
+# `_condition_chain_on_outcomes` is untouched. When ON, a failed/partial
+# trial routes by `taxonomy.routing_branch_for(primary_failure_mode)`:
+#   EFFICACY / MEASUREMENT → responsibility update (blame within M_t)
+#   SAFETY / OPERATIONAL   → CENSOR the efficacy+measurement backbone
+#   UNKNOWN                → fall back to the existing explaining-away path
+# plus a safety-gate SURVIVAL credit (b += w) on readout-reaching trials.
+def _routing_enabled() -> bool:
+    """Whether the reason-routed EM path (A3 + A4) is active.
+
+    Env-gated, default off; read at call time so an A/B harness can attribute
+    the same initial graph both ways in one process."""
+    return os.environ.get("EROOM_ROUTING", "").strip().lower() in (
+        "1", "on", "true", "yes",
+    )
+
+
+# Degenerate-chain guard for the A4 responsibility denominator (1 − M). When
+# every must-hold edge is already near-certain, M = ∏ r_a → 1 and (1 − M) → 0:
+# the failure carries no information about which edge broke, so the update is
+# skipped rather than dividing by ~0.
+_RESPONSIBILITY_M_EPS = 1e-6
+
+# p_obs label/override for the safety-gate SURVIVAL credit (b += w). The
+# conjugate step uses p_obs=0 (all mass to β = "did not fire"); STRONG_CONTRADICT
+# is the matching replay-display bucket on the EvidenceRecord.
+_SURVIVAL_P_OBS = 0.0
 
 
 def _per_edge_fracs(
@@ -900,6 +936,15 @@ class Attributor:
         base_n = effective_n_for_evidence(evidence_type, quality)
         w_base = base_n * f_n * gate_weight
 
+        # A3 + A4 routing context (no-op unless EROOM_ROUTING is on). The
+        # branch is trial-level — resolved once from the classifier's primary
+        # failure reason — and decides, per failed/partial chain below, whether
+        # to censor, blame-within-backbone, or fall back to the legacy path.
+        routing = _routing_enabled()
+        reason_branch = routing_branch_for(
+            classification.primary_failure_mode
+        ) if routing else RoutingBranch.UNKNOWN
+
         emitted: list[AppliedEdgeUpdate] = []
         for chain in trial.chains:
             outcome = outcomes.get(chain.arm_id)
@@ -932,13 +977,49 @@ class Attributor:
             if not live_edges:
                 continue
 
+            is_success = outcome == TrialOutcome.SUCCESS
+
+            # ── A3 + A4: reason-routed competing-risks update (EROOM_ROUTING) ──
+            # SUCCESS is NEVER routed — the whole path operated, so every backbone
+            # edge gets the full upvote below (unchanged). A failed / partial
+            # trial routes by its failure reason (the untested lever, FINDINGS P4):
+            if routing and not is_success:
+                if reason_branch in (
+                    RoutingBranch.SAFETY, RoutingBranch.OPERATIONAL,
+                ):
+                    # Competing-risks CENSOR. A safety death (the trial never
+                    # revealed whether its biology would have worked) or an
+                    # operational stop (the chain was never properly tested)
+                    # applies ZERO virtual evidence to the efficacy+measurement
+                    # backbone — not a downvote, not an upvote. We do NOT mark
+                    # applied_edges, so a *different* arm of the same trial with a
+                    # real (non-censored) outcome can still condition a shared
+                    # edge. AE edges are handled separately (safety: the existing
+                    # attribute_adverse_events occurrence path; operational: no
+                    # safety-survival credit either — see _credit_safety_survival).
+                    continue
+                if reason_branch in (
+                    RoutingBranch.EFFICACY, RoutingBranch.MEASUREMENT,
+                ):
+                    # A4: blame within the must-hold backbone via the normalized
+                    # posterior responsibility (denom 1 − M), crediting reliable
+                    # edges for surviving and blaming the unreliable ones.
+                    emitted.extend(self._apply_responsibility_update(
+                        trial.trial_id, live_edges, w_base, dedup_arm, chain,
+                        outcome, evidence_type, quality, n_obs, extraction,
+                        applied_edges, reason_branch,
+                    ))
+                    continue
+                # RoutingBranch.UNKNOWN → fall through to the existing
+                # full-spread explaining-away path below (the §3.1 unrouted
+                # responsibility the current code already approximates).
+
             # Per-edge fractions + p_obs by outcome.
             #   ``fracs[i]`` is edge i's SHARE of the trial mass w_base;
             #   ``n_eff_i = w_base * fracs[i]``.
             # The explaining-away split (u_i/Σu, uniform if all u==0) is always
             # computed: the default mode uses it for FAILURE/PARTIAL, and the
             # EROOM_EDGE_ATTR symmetric variants may use it for SUCCESS too.
-            is_success = outcome == TrialOutcome.SUCCESS
             us = [max(0.0, 1.0 - pre.expected_probability)
                   for (_, _, _, pre) in live_edges]
             total_u = sum(us)
@@ -1004,6 +1085,201 @@ class Attributor:
                     source_id=src_id,
                     target_id=tgt_id,
                     edge_type=et,
+                    evidence=evidence,
+                    pre_update_belief=pre,
+                    post_update_belief=post,
+                ))
+
+        # A3: safety-gate SURVIVAL credit (b += w). A trial that ran to readout
+        # — any successful arm, or an efficacy/measurement death (ran, missed) —
+        # is informative about safety in the GOOD direction: its safety gates did
+        # not trigger a halt (§3.2 "survived → b_k += 1", weighted by w here).
+        # Safety deaths (gate FIRED → handled by attribute_adverse_events) and
+        # operational/unknown stops (censored) get no survival credit.
+        if routing:
+            survived = (
+                any(o == TrialOutcome.SUCCESS for o in outcomes.values())
+                or reason_branch in (
+                    RoutingBranch.EFFICACY, RoutingBranch.MEASUREMENT,
+                )
+            )
+            if survived:
+                emitted.extend(self._credit_safety_survival(
+                    trial, w_base, evidence_type, quality, n_obs,
+                    reason_branch, applied_edges,
+                ))
+        return emitted
+
+    def _apply_responsibility_update(
+        self,
+        trial_id: str,
+        live_edges: list[tuple[str, str, EdgeType, EdgeBeliefState]],
+        w_base: float,
+        dedup_arm: str | None,
+        chain: CausalChain,
+        outcome: TrialOutcome,
+        evidence_type: EvidenceType,
+        quality: float,
+        n_obs: int | None,
+        extraction: "TrialExtraction | None",
+        applied_edges: set[tuple[str, str, str, str | None]],
+        reason_branch: RoutingBranch,
+    ) -> list[AppliedEdgeUpdate]:
+        """A4: principled normalized-responsibility update for a routed
+        EFFICACY/MEASUREMENT failure (EM doc §3.2, efficacy-death branch).
+
+        Let ``M = ∏_{a∈M_t} r_a`` over the must-hold backbone edges present in
+        the chain (``live_edges``), with ``r_a = E[p_a]`` the current posterior
+        mean. For each must-hold edge ``a`` the failure splits its full evidence
+        weight ``w`` between blame and partial-success credit by the posterior
+        responsibility::
+
+            β_a += w · (1 − r_a) / (1 − M)        # failure responsibility ρ_a
+            α_a += w · (r_a − M) / (1 − M)        # P(f_a = 1 | fail) credit
+
+        Since ρ_a + P(f_a=1|fail) = (1−M)/(1−M) = 1, each edge receives exactly
+        ``w`` total mass — so this reuses ``apply_virtual_evidence`` with
+        ``n_eff = w`` and ``p_obs = (r_a − M)/(1 − M)`` (the α-share). A
+        high-reliability edge (r_a → 1) gets p_obs → 1 (credited for surviving);
+        a low-reliability edge absorbs the blame (β-delta monotone in 1 − r_a).
+        This REPLACES the heuristic ``u_i = 1 − E[p_i]`` explaining-away split —
+        same machinery, correct math, and now reason-gated.
+
+        Guard: if ``1 − M < ε`` (degenerate all-reliable chain) the failure
+        carries no information about which edge broke, so skip (no update).
+        """
+        rs = [pre.expected_probability for (_, _, _, pre) in live_edges]
+        m = 1.0
+        for r in rs:
+            m *= r
+        denom = 1.0 - m
+        if denom < _RESPONSIBILITY_M_EPS:
+            # All-reliable chain — (1 − M) → 0, responsibilities undefined /
+            # uninformative. Mark applied (so the legacy fall-through can't also
+            # touch these edges) and emit nothing.
+            for src_id, tgt_id, et, _ in live_edges:
+                applied_edges.add((et.value, src_id, tgt_id, dedup_arm))
+            return []
+
+        emitted: list[AppliedEdgeUpdate] = []
+        for (src_id, tgt_id, et, pre), r_a in zip(live_edges, rs):
+            # α-share = P(f_a = 1 | fail) = (r_a − M)/(1 − M); β-share is the
+            # complement = ρ_a = (1 − r_a)/(1 − M). Clamp for floating-point
+            # safety (M ≤ r_a ≤ 1 guarantees the exact value is in [0, 1]).
+            p_obs = max(0.0, min(1.0, (r_a - m) / denom))
+            n_eff_i = w_base
+            applied_edges.add((et.value, src_id, tgt_id, dedup_arm))
+            rho = max(0.0, min(1.0, (1.0 - r_a) / denom))
+            evidence = EvidenceRecord(
+                source_id=trial_id,
+                source_type=evidence_type,
+                support=_OUTCOME_TO_SUPPORT_BUCKET[outcome].value,
+                quality_score=quality,
+                timestamp=datetime.now(timezone.utc),
+                notes=(
+                    f"routed-responsibility (arm={chain.arm_id}, "
+                    f"branch={reason_branch.value}, outcome={outcome.value}, "
+                    f"r_a={r_a:.3f}, M={m:.4f}, rho={rho:.3f}, "
+                    f"w={w_base:.3f}, p_obs={p_obs:.3f})"
+                ),
+                n_obs=n_obs,
+                effect=extraction.effect_size if extraction else None,
+                p_value=extraction.p_value if extraction else None,
+                context={
+                    "outcome_conditioned": True,
+                    "routed": True,
+                    "routing_branch": reason_branch.value,
+                    "arm_id": chain.arm_id,
+                    "outcome": outcome.value,
+                    "responsibility_rho": rho,
+                    "M_backbone": m,
+                    "n_eff_applied": n_eff_i,
+                    "p_obs_applied": p_obs,
+                },
+            )
+            post = self.graph.update_edge_belief(
+                src_id, tgt_id, et, evidence,
+                n_eff_override=n_eff_i, p_obs_override=p_obs,
+            )
+            emitted.append(AppliedEdgeUpdate(
+                source_id=src_id,
+                target_id=tgt_id,
+                edge_type=et,
+                evidence=evidence,
+                pre_update_belief=pre,
+                post_update_belief=post,
+            ))
+        return emitted
+
+    def _credit_safety_survival(
+        self,
+        trial: TrialSubgraph,
+        w_base: float,
+        evidence_type: EvidenceType,
+        quality: float,
+        n_obs: int | None,
+        reason_branch: RoutingBranch,
+        applied_edges: set[tuple[str, str, str, str | None]],
+    ) -> list[AppliedEdgeUpdate]:
+        """A3: credit a did-not-fire (β += w) count to the trial's safety gates.
+
+        The safety gates of a readout-reaching trial are the EXISTING
+        ``causes_ae`` edges from its treatment compounds (the compound's known
+        AE-liability pathways). Each survived the trial without halting it, so
+        each gets ``β += w`` via ``p_obs=0`` (all mass to β). Bounded to
+        edges that already exist (no node/edge creation) and deduped once per
+        trial. This is the safety-survival signal of §3.2 — DISTINCT from the
+        AE OCCURRENCE signal ``attribute_adverse_events`` lands from incidence
+        rates (which moves α), and only fires under EROOM_ROUTING.
+        """
+        emitted: list[AppliedEdgeUpdate] = []
+        for compound_id in self._treatment_compound_ids(trial):
+            try:
+                out_edges = list(
+                    self.graph._graph.out_edges(compound_id, keys=True)
+                )
+            except Exception:  # noqa: BLE001 — missing node ⇒ no gates
+                continue
+            for _src, ae_id, key in out_edges:
+                if key != EdgeType.CAUSES_AE.value:
+                    continue
+                dedup_key = (key, compound_id, ae_id, "survival")
+                if dedup_key in applied_edges:
+                    continue
+                try:
+                    pre = self.graph.get_edge_belief(
+                        compound_id, ae_id, EdgeType.CAUSES_AE
+                    )
+                except KeyError:
+                    continue
+                applied_edges.add(dedup_key)
+                evidence = EvidenceRecord(
+                    source_id=trial.trial_id,
+                    source_type=evidence_type,
+                    support=SupportBucket.STRONG_CONTRADICT.value,
+                    quality_score=quality,
+                    timestamp=datetime.now(timezone.utc),
+                    notes=(
+                        f"safety-gate survival (branch={reason_branch.value}, "
+                        f"did-not-fire b+={w_base:.3f})"
+                    ),
+                    n_obs=n_obs,
+                    context={
+                        "safety_survival": True,
+                        "routed": True,
+                        "routing_branch": reason_branch.value,
+                        "n_eff_applied": w_base,
+                        "p_obs_applied": _SURVIVAL_P_OBS,
+                    },
+                )
+                post = self.graph.update_edge_belief(
+                    compound_id, ae_id, EdgeType.CAUSES_AE, evidence,
+                    n_eff_override=w_base, p_obs_override=_SURVIVAL_P_OBS,
+                )
+                emitted.append(AppliedEdgeUpdate(
+                    source_id=compound_id,
+                    target_id=ae_id,
+                    edge_type=EdgeType.CAUSES_AE,
                     evidence=evidence,
                     pre_update_belief=pre,
                     post_update_belief=post,

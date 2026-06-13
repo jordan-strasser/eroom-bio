@@ -29,6 +29,97 @@ class FailureMode(str, Enum):
     MULTIPLE_FACTORS = "multiple_factors"
 
 
+# ── Reason → competing-risks routing branch (Pillar A, A3) ────────────────
+#
+# The 13-category FailureMode taxonomy IS extracted by the classifier but,
+# historically, thrown away by the attributor except for one leaky binary
+# operational gate (``gate_weight_for`` below). FINDINGS P4: only ~4% of
+# failures implicate the efficacy spine, yet 100% of failures downvote it;
+# 68% fail for non-efficacy reasons but still smear the backbone; the 3 DLT
+# safety deaths downvote at full weight. Net: the beliefs are trained on
+# ~139 contaminating failures, then scored on the clean efficacy subset.
+#
+# This map routes the training update by failure reason, implementing the
+# EM doc's competing-risks censoring (§3.2). It is consumed by the
+# attributor ONLY when ``EROOM_ROUTING`` is on (default off, current
+# behavior preserved). Branch semantics:
+#
+#   EFFICACY     — the conjunctive causal spine (target engagement / mechanism
+#                  translation / target validity) is implicated. Blame within
+#                  the must-hold backbone via the principled responsibility.
+#   MEASUREMENT  — the readout, not the biology, is implicated (wrong /
+#                  insensitive endpoint, endpoint didn't capture biology, high
+#                  placebo response, wrong population / enrichment). A missed
+#                  readout is ambiguous between "no real effect" and "effect
+#                  not detected," so EFFICACY and MEASUREMENT both blame within
+#                  the same backbone set and let cross-trial sharing
+#                  disambiguate over time — they share the responsibility path.
+#   SAFETY       — dose-limiting toxicity / AE-driven stop. CENSOR the efficacy
+#                  + measurement backbone (a trial killed on safety never
+#                  reveals whether its biology would have worked); the AE edges
+#                  move via the separate ``attribute_adverse_events`` path.
+#   OPERATIONAL  — the chain was never properly tested (underpowered,
+#                  manufacturing/delivery, commercial/strategic, insufficient
+#                  information). CENSOR everything — applies zero virtual
+#                  evidence to any mechanistic edge.
+#   UNKNOWN      — genuinely unclassifiable (multiple overlapping factors). No
+#                  metadata to route on, so fall back to the existing
+#                  full-spread responsibility (the unrouted §3.1 path).
+class RoutingBranch(str, Enum):
+    EFFICACY = "efficacy"
+    MEASUREMENT = "measurement"
+    SAFETY = "safety"
+    OPERATIONAL = "operational"
+    UNKNOWN = "unknown"
+
+
+FAILURE_MODE_BRANCH: dict[FailureMode, RoutingBranch] = {
+    # EFFICACY — the conjunctive spine is what failed.
+    FailureMode.NO_TARGET_ENGAGEMENT: RoutingBranch.EFFICACY,
+    FailureMode.TARGET_ENGAGED_BIOLOGY_NOT_MOVED: RoutingBranch.EFFICACY,
+    # MEASUREMENT — detection / validity / population, not the biology itself.
+    FailureMode.BIOLOGY_MOVED_ENDPOINT_FLAT: RoutingBranch.MEASUREMENT,
+    FailureMode.WRONG_TIMEFRAME: RoutingBranch.MEASUREMENT,
+    FailureMode.HIGH_PLACEBO_RESPONSE: RoutingBranch.MEASUREMENT,
+    FailureMode.WRONG_POPULATION: RoutingBranch.MEASUREMENT,
+    FailureMode.EFFICACY_IN_SUBGROUP_ONLY: RoutingBranch.MEASUREMENT,
+    # SAFETY — censor the backbone; AE edges handled separately.
+    FailureMode.DOSE_LIMITING_TOXICITY: RoutingBranch.SAFETY,
+    # OPERATIONAL — the chain was never properly tested; censor everything.
+    FailureMode.UNDERPOWERED: RoutingBranch.OPERATIONAL,
+    FailureMode.MANUFACTURING_OR_DELIVERY: RoutingBranch.OPERATIONAL,
+    FailureMode.COMMERCIAL_NOT_SCIENTIFIC: RoutingBranch.OPERATIONAL,
+    FailureMode.INSUFFICIENT_INFORMATION: RoutingBranch.OPERATIONAL,
+    # UNKNOWN — genuinely unclassifiable; full-spread fallback.
+    FailureMode.MULTIPLE_FACTORS: RoutingBranch.UNKNOWN,
+}
+
+
+def routing_branch_for(mode: "FailureMode | None") -> RoutingBranch:
+    """The competing-risks routing branch for a failure mode (A3).
+
+    Defaults to ``UNKNOWN`` when the mode is missing or unmapped, so an
+    unrecognized reason falls back to the safe full-spread responsibility
+    rather than silently censoring or blaming. Every member of the current
+    ``FailureMode`` enum has an explicit entry in ``FAILURE_MODE_BRANCH``.
+    """
+    if mode is None:
+        return RoutingBranch.UNKNOWN
+    return FAILURE_MODE_BRANCH.get(mode, RoutingBranch.UNKNOWN)
+
+
+def _print_routing_branch_map() -> None:  # pragma: no cover - review helper
+    """Print the FailureMode → RoutingBranch map for human review.
+
+    Run with ``python -m src.annotation.taxonomy`` (see ``__main__`` below).
+    """
+    width = max(len(m.value) for m in FailureMode)
+    print(f"{'FailureMode':<{width}}  ->  RoutingBranch")
+    print("-" * (width + 22))
+    for mode in FailureMode:
+        print(f"{mode.value:<{width}}  ->  {routing_branch_for(mode).value}")
+
+
 # ── Edge update rules ────────────────────────────────────────────────────
 
 Scope = Literal[
@@ -553,3 +644,7 @@ class EdgeUpdate(BaseModel):
 
 # Fix forward reference—EdgeAttribution references EdgeUpdate
 EdgeAttribution.model_rebuild()
+
+
+if __name__ == "__main__":  # pragma: no cover
+    _print_routing_branch_map()
