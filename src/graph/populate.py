@@ -647,6 +647,15 @@ def _biology_id_from_description(description: str) -> str:
     identity lives in the node's ``name`` + ``description``; the real curated
     cross-ref (Reactome/GO), when it resolves, is used as the handle instead.
     """
+    # B1 (EROOM_BIO_ONTOLOGY, default OFF): key biology by the nearest GO-BP term
+    # so the same biology recurs on one node — mirrors the Reactome id-merge that
+    # makes mechanism the densest layer. Unmappable biology falls back to the
+    # content hash below, so no node is lost. See B1_DECISION.md.
+    from src.graph import biology_ontology as _bio_ontology
+    if _bio_ontology.enabled():
+        oid = _bio_ontology.ontology_id_for(description)
+        if oid:
+            return oid
     norm = " ".join(description.strip().lower().split())
     return "bio:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
 
