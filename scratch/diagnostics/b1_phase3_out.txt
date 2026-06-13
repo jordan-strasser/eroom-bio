@@ -1,0 +1,43 @@
+==============================================================================
+(1) BIOLOGY NODE TRIAL-REUSE — headline scoreboard (target: %>=8 -> 18.7%)
+==============================================================================
+  baseline         n= 241 median=   1 mean=2.33 %singleton=74.3 %>=4=11.6 %>=8= 4.6 max=53
+  B1-GO            n= 181 median=   1 mean=3.10 %singleton=61.3 %>=4=19.3 %>=8= 8.8 max=54
+
+==============================================================================
+(1b) BIOLOGY-INCIDENT EDGE REUSE (#distinct host NCTs), by edge type
+==============================================================================
+  mechanism_affects    | baseline: n=1395 mean=1.78 %>=2=28 %>=8=2   ||   B1-GO: n=1342 mean=1.85 %>=2=31 %>=8=3
+  biology_drives       | baseline: n=1479 mean=0.37 %>=2=5 %>=8=0   ||   B1-GO: n=1448 mean=0.38 %>=2=5 %>=8=0
+  reflects_biology     | baseline: n=916 mean=0.60 %>=2=5 %>=8=0   ||   B1-GO: n=908 mean=0.61 %>=2=5 %>=8=0
+
+==============================================================================
+(2) PER-BRANCH EDGE-CLASS REUSE (mean trials/edge, %>=2)
+==============================================================================
+  efficacy     | baseline: n=4943 mean=1.22 %>=2=19   ||   B1-GO: n=4859 mean=1.24 %>=2=20
+  measurement  | baseline: n=2828 mean=0.34 %>=2=2   ||   B1-GO: n=2820 mean=0.34 %>=2=3
+  safety       | baseline: n=3986 mean=0.90 %>=2=6   ||   B1-GO: n=3986 mean=0.90 %>=2=6
+
+==============================================================================
+(3) CONTEXT-COLLAPSE GUARD — heterogeneity of biology nodes (reuse>=2)
+   (does merging pool mixed OUTCOMES / multiple INDICATIONS under one node?)
+==============================================================================
+  (resolved binary labels for 275 trials)
+  baseline  | reuse>=2 nodes=  62  mean #indications/node=3.69  max=28  %pooling mixed succ+fail=42%  mean outcome-entropy=0.561
+  B1-GO     | reuse>=2 nodes=  70  mean #indications/node=3.87  max=28  %pooling mixed succ+fail=46%  mean outcome-entropy=0.626
+
+  [B1 GO-keyed nodes] total=132 reuse>=2=64; mean #indications=4.11
+    bio:3de92c5f913e 'DNA-damage-induced apoptosis' trials=41 inds=28 outcomes={'TrialOutcome.UNKNOWN': 228}
+    bio:30676876920c 'mitotic arrest' trials=24 inds=17 outcomes={'TrialOutcome.UNKNOWN': 192}
+    bio:29764fcd7fed 'angiogenesis inhibition' trials=23 inds=17 outcomes={'TrialOutcome.UNKNOWN': 191}
+    bio:1bc8e254260d 'T-cell mediated immune suppression' trials=13 inds=10 outcomes={'TrialOutcome.UNKNOWN': 235}
+    bio:6b96eaf9986a 'platelet aggregation inhibition' trials=11 inds=10 outcomes={'TrialOutcome.UNKNOWN': 126}
+    bio:9b37e6f08f95 'DNA synthesis inhibition' trials=12 inds=10 outcomes={'TrialOutcome.UNKNOWN': 74}
+    bio:03b27f41914b 'insulin sensitization and metabolic regula' trials=35 inds=10 outcomes={'TrialOutcome.UNKNOWN': 445}
+    bio:01172ed8a93b 'glycemic control via incretin enhancement' trials=54 inds=9 outcomes={'TrialOutcome.UNKNOWN': 475}
+
+==============================================================================
+(5) SAFETY INVARIANCE — within-target target_associated_ae E[p] SD (~0.048)
+==============================================================================
+  baseline  | targets(>=3 AE)= 45  mean within-target SD=0.0479
+  B1-GO     | targets(>=3 AE)= 45  mean within-target SD=0.0479

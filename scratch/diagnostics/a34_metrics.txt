@@ -1,0 +1,26 @@
+failure-trials (trial_outcome=failure) in annotations: 233
+routing-branch breakdown over failure-trials (theoretical):
+    operational   153 (66%)
+    measurement    64 (27%)
+    efficacy       10 (4%)
+    safety          3 (1%)
+    unknown         3 (1%)
+  → expect ~33% to touch the spine under routing (efficacy+measurement+unknown)
+
+========== BASELINE (EROOM_ROUTING off) ==========
+#2 failure-trials touching efficacy spine: 215/233 = 92.3%
+    [ref] mechanistic binary base success rate: 0.658 (n=275)
+#3 posterior E[p] spread by edge class (evidenced edges):
+    efficacy     n= 4567 mean=0.620 sd=0.150 med=0.575
+    measurement  n= 1670 mean=0.533 sd=0.111 med=0.509
+    safety       n= 3986 mean=0.565 sd=0.111 med=0.500
+    modulation   n=  331 mean=0.522 sd=0.129 med=0.510
+
+========== ROUTED (EROOM_ROUTING on) ==========
+#2 failure-trials touching efficacy spine: 72/233 = 30.9%
+    [ref] mechanistic binary base success rate: 0.658 (n=275)
+#3 posterior E[p] spread by edge class (evidenced edges):
+    efficacy     n= 4513 mean=0.634 sd=0.150 med=0.586
+    measurement  n= 1462 mean=0.554 sd=0.111 med=0.575
+    safety       n= 3992 mean=0.479 sd=0.176 med=0.500
+    modulation   n=  331 mean=0.522 sd=0.129 med=0.510

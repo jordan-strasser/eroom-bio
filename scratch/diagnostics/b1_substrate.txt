@@ -1,0 +1,23 @@
+graph: data/exports/multi_500_annotated.json
+
+===== Part A — biology-node EFFECTIVE REUSE (discrete vs field) =====
+biology nodes: 212
+  discrete reuse (#host trials): median=1.00 mean=2.65 p90=4.0 max=53
+  singletons (reuse≤1): 71%   reuse≥8: 5.2%
+
+  biology-incident field edges: 3034
+  per-edge field eff sample-size (Σ kernel wt incl self): median=1.71 mean=2.46 max=48.2
+  per-edge distinct host trials (anchors' ncts):          median=2.00 mean=2.25 max=41
+  → field eff ÷ trial count (lift from within-edge borrowing): mean 1.10×
+  biology-node field eff reuse: median=2.58 %≥8=9.9%  (vs discrete %≥8=5.2%)
+
+===== Part B — within-target AE SD (P9, baseline 0.048) =====
+  within-target AE SD (targets w/≥3 AE edges): mean=0.048 (n_targets=45)
+  (AE edges carry NO field + key on target identity → B1 biology re-representation leaves this invariant)
+
+===== Part C — real BioLORD geometry_alignment (Step 3) =====
+  biology nodes with an estimable (≥2-trial) edge: 58
+  (i)  pairwise corr(BioLORD cosine, 1−|Δreliability|) = +0.022 (n_pairs=1653)
+  (ii) LOO 5-NN reliability prediction corr(pred, actual) = +0.086
+  reliability spread: mean=0.581 sd=0.134
+  → this corr ≈ real geometry_alignment; compare to Step-2 α_cross

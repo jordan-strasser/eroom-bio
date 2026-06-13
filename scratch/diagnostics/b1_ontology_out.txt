@@ -1,0 +1,31 @@
+OLS: 212 unique descriptions, 132 to fetch (warm cache 80) across [go,efo,mondo,hpo] ...
+  ...50/132
+  ...100/132
+  OLS errors on 1/212 queries (network). Sample: URLError:<urlopen error [Errno 54] Connection reset by peer>
+Embedding 327 strings (desc + candidate labels) via BioLORD ...
+
+=== COVERAGE: biology nodes mapping to a term at semantic-cosine gate ===
+  gate cos>=0.00: mapped 27/212 (13%)  | singletons mapped 12/150
+  gate cos>=0.55: mapped 19/212 (9%)  | singletons mapped 7/150
+  gate cos>=0.65: mapped 17/212 (8%)  | singletons mapped 6/150
+  gate cos>=0.75: mapped 11/212 (5%)  | singletons mapped 4/150
+  gate cos>=0.85: mapped 6/212 (3%)  | singletons mapped 4/150
+
+  ontology source of confident maps (gate 0.65): GO:13, MONDO:2, EFO:2
+
+=== COLLAPSE @ gate 0.55 ===
+  confident maps: 19 nodes -> 19 distinct terms
+  terms with >=2 biology nodes (real merges): 0  pooling 0 nodes
+  SINGLETON collapse: 0/150 singletons (0%) share a term with another node [of 7 mapped singletons]
+
+=== COLLAPSE @ gate 0.65 ===
+  confident maps: 17 nodes -> 17 distinct terms
+  terms with >=2 biology nodes (real merges): 0  pooling 0 nodes
+  SINGLETON collapse: 0/150 singletons (0%) share a term with another node [of 6 mapped singletons]
+
+=== COLLAPSE @ gate 0.75 ===
+  confident maps: 11 nodes -> 11 distinct terms
+  terms with >=2 biology nodes (real merges): 0  pooling 0 nodes
+  SINGLETON collapse: 0/150 singletons (0%) share a term with another node [of 4 mapped singletons]
+
+=== TOP ONTOLOGY MERGE-GROUPS (gate 0.65) — what gets pooled ===

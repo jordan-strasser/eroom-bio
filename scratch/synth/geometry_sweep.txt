@@ -1,0 +1,83 @@
+reuse=1.24  align=0.0  pi_corr none=0.125 discrete=0.019 f_perdim=0.104 f_full=0.065
+reuse=1.24  align=0.2  pi_corr none=0.124 discrete=0.078 f_perdim=0.111 f_full=0.071
+reuse=1.24  align=0.4  pi_corr none=0.126 discrete=0.174 f_perdim=0.128 f_full=0.086
+reuse=1.24  align=0.5  pi_corr none=0.127 discrete=0.239 f_perdim=0.143 f_full=0.100
+reuse=1.24  align=0.6  pi_corr none=0.125 discrete=0.285 f_perdim=0.156 f_full=0.113
+reuse=1.24  align=0.8  pi_corr none=0.126 discrete=0.431 f_perdim=0.199 f_full=0.151
+reuse=1.24  align=1.0  pi_corr none=0.131 discrete=0.595 f_perdim=0.268 f_full=0.216
+reuse=2.0   align=0.0  pi_corr none=0.171 discrete=0.058 f_perdim=0.148 f_full=0.092
+reuse=2.0   align=0.2  pi_corr none=0.168 discrete=0.096 f_perdim=0.151 f_full=0.094
+reuse=2.0   align=0.4  pi_corr none=0.164 discrete=0.182 f_perdim=0.167 f_full=0.112
+reuse=2.0   align=0.5  pi_corr none=0.167 discrete=0.239 f_perdim=0.179 f_full=0.121
+reuse=2.0   align=0.6  pi_corr none=0.167 discrete=0.308 f_perdim=0.192 f_full=0.133
+reuse=2.0   align=0.8  pi_corr none=0.155 discrete=0.414 f_perdim=0.217 f_full=0.165
+reuse=2.0   align=1.0  pi_corr none=0.131 discrete=0.554 f_perdim=0.243 f_full=0.200
+reuse=4.0   align=0.0  pi_corr none=0.219 discrete=0.090 f_perdim=0.201 f_full=0.116
+reuse=4.0   align=0.2  pi_corr none=0.213 discrete=0.098 f_perdim=0.199 f_full=0.120
+reuse=4.0   align=0.4  pi_corr none=0.208 discrete=0.181 f_perdim=0.209 f_full=0.136
+reuse=4.0   align=0.5  pi_corr none=0.209 discrete=0.229 f_perdim=0.220 f_full=0.151
+reuse=4.0   align=0.6  pi_corr none=0.205 discrete=0.282 f_perdim=0.227 f_full=0.164
+reuse=4.0   align=0.8  pi_corr none=0.206 discrete=0.408 f_perdim=0.262 f_full=0.210
+reuse=4.0   align=1.0  pi_corr none=0.199 discrete=0.536 f_perdim=0.293 f_full=0.260
+reuse=8.0   align=0.0  pi_corr none=0.321 discrete=0.135 f_perdim=0.305 f_full=0.202
+reuse=8.0   align=0.2  pi_corr none=0.311 discrete=0.131 f_perdim=0.301 f_full=0.203
+reuse=8.0   align=0.4  pi_corr none=0.303 discrete=0.197 f_perdim=0.306 f_full=0.221
+reuse=8.0   align=0.5  pi_corr none=0.305 discrete=0.243 f_perdim=0.316 f_full=0.234
+reuse=8.0   align=0.6  pi_corr none=0.310 discrete=0.295 f_perdim=0.331 f_full=0.254
+reuse=8.0   align=0.8  pi_corr none=0.299 discrete=0.361 f_perdim=0.340 f_full=0.283
+reuse=8.0   align=1.0  pi_corr none=0.308 discrete=0.537 f_perdim=0.381 f_full=0.348
+
+=== composite recovery corr(π̂,π_true) — reuse × alignment ===
+
+-- none --
+reuse\align      0.0     0.2     0.4     0.5     0.6     0.8     1.0
+      1.24    0.125   0.124   0.126   0.127   0.125   0.126   0.131   <- corpus
+       2.0    0.171   0.168   0.164   0.167   0.167   0.155   0.131
+       4.0    0.219   0.213   0.208   0.209   0.205   0.206   0.199
+       8.0    0.321   0.311   0.303   0.305   0.310   0.299   0.308
+
+-- discrete --
+reuse\align      0.0     0.2     0.4     0.5     0.6     0.8     1.0
+      1.24    0.019   0.078   0.174   0.239   0.285   0.431   0.595   <- corpus
+       2.0    0.058   0.096   0.182   0.239   0.308   0.414   0.554
+       4.0    0.090   0.098   0.181   0.229   0.282   0.408   0.536
+       8.0    0.135   0.131   0.197   0.243   0.295   0.361   0.537
+
+-- field_perdim --
+reuse\align      0.0     0.2     0.4     0.5     0.6     0.8     1.0
+      1.24    0.104   0.111   0.128   0.143   0.156   0.199   0.268   <- corpus
+       2.0    0.148   0.151   0.167   0.179   0.192   0.217   0.243
+       4.0    0.201   0.199   0.209   0.220   0.227   0.262   0.293
+       8.0    0.305   0.301   0.306   0.316   0.331   0.340   0.381
+
+-- field_full --
+reuse\align      0.0     0.2     0.4     0.5     0.6     0.8     1.0
+      1.24    0.065   0.071   0.086   0.100   0.113   0.151   0.216   <- corpus
+       2.0    0.092   0.094   0.112   0.121   0.133   0.165   0.200
+       4.0    0.116   0.120   0.136   0.151   0.164   0.210   0.260
+       8.0    0.202   0.203   0.221   0.234   0.254   0.283   0.348
+
+=== winner by alignment (composite corr) at corpus reuse ===
+ align      none  discrete    field*        winner
+   0.0     0.125     0.019     0.104          none
+   0.2     0.124     0.078     0.111          none
+   0.4     0.126     0.174     0.128      discrete
+   0.5     0.127     0.239     0.143      discrete
+   0.6     0.125     0.285     0.156      discrete
+   0.8     0.126     0.431     0.199      discrete
+   1.0     0.131     0.595     0.268      discrete
+
+  α_cross (discrete overtakes best field) at reuse 1.24 = 0.4
+  → real alignment BELOW α_cross ⇒ field; ABOVE ⇒ discrete (see Step 3 for the real estimate)
+
+=== effective reuse: %% nodes ≥ 8 at reuse 1.24 ===
+align             none        discrete    field_perdim      field_full
+  0.0              0%%           100%%            29%%           100%%
+  0.2              0%%           100%%            29%%           100%%
+  0.4              0%%           100%%            29%%           100%%
+  0.5              0%%           100%%            29%%           100%%
+  0.6              0%%           100%%            29%%           100%%
+  0.8              0%%           100%%            29%%           100%%
+  1.0              0%%           100%%            29%%           100%%
+
+wrote scratch/synth/geometry_sweep.json

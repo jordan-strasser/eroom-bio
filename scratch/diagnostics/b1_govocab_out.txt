@@ -1,0 +1,81 @@
+GO-BP vocab: 2367 terms
+Embedding GO labels + biology descriptions via BioLORD ...
+
+=== COVERAGE: nearest GO-BP term clears cosine gate ===
+  gate 0.50: mapped 208/212 (98%) | singletons 147/150 (98%)
+  gate 0.55: mapped 201/212 (95%) | singletons 142/150 (95%)
+  gate 0.60: mapped 174/212 (82%) | singletons 118/150 (79%)
+  gate 0.65: mapped 139/212 (66%) | singletons 88/150 (59%)
+  gate 0.70: mapped 102/212 (48%) | singletons 59/150 (39%)
+
+=== CALIBRATION: nearest-GO mappings by cosine band (is it correct?) ===
+  -- band [0.75,1.01): 67 nodes --
+     0.930  'B-cell modulation / immune regulation'  ->  GO:0050864 'regulation of B cell activation'
+     0.918  'circadian rhythm regulation and sleep-wake cycle normalization'  ->  GO:0045187 'regulation of circadian sleep/wake cycle, sleep'
+     0.900  'B-cell survival and differentiation suppression'  ->  GO:0030889 'negative regulation of B cell proliferation'
+     0.883  'chromatin remodeling and transcriptional regulation'  ->  GO:0006338 'chromatin remodeling'
+     0.881  'inflammatory pathway suppression'  ->  GO:0050728 'negative regulation of inflammatory response'
+     0.878  'modulation of myocardial contractility'  ->  GO:0055117 'regulation of cardiac muscle contraction'
+  -- band [0.65,0.75): 72 nodes --
+     0.747  'antimicrobial and anti-inflammatory effects'  ->  GO:0046677 'response to antibiotic'
+     0.745  'glucose-independent insulin secretion from pancreatic beta cells'  ->  GO:0032869 'cellular response to insulin stimulus'
+     0.745  'autoantibody-mediated immune suppression'  ->  GO:0050777 'negative regulation of immune response'
+     0.742  'catecholaminergic neurotransmission enhancement'  ->  GO:0051580 'regulation of neurotransmitter uptake'
+     0.740  'anti-inflammatory immunomodulation and neuroprotection'  ->  GO:0150077 'regulation of neuroinflammatory response'
+     0.739  'enhancement of cortical neurotransmitter release and cognitive signaling'  ->  GO:0051968 'positive regulation of synaptic transmission, glutamatergic'
+  -- band [0.58,0.65): 48 nodes --
+     0.650  'myeloablative conditioning'  ->  GO:0002846 'regulation of T cell tolerance induction to tumor cell'
+     0.648  'cardiac remodeling reversal / ventricular function improvement'  ->  GO:0060452 'positive regulation of cardiac muscle contraction'
+     0.648  'prostaglandin-mediated inflammation suppression'  ->  GO:0071812 'positive regulation of fever generation by positive regulation of prostaglandin secretion'
+     0.640  'mucosal inflammation suppression in the colon'  ->  GO:1904343 'positive regulation of colon smooth muscle contraction'
+     0.639  'central pain modulation'  ->  GO:0048265 'response to pain'
+     0.637  'mucosal healing and growth promotion'  ->  GO:0030277 'maintenance of gastrointestinal epithelium'
+  -- band [0.50,0.58): 21 nodes --
+     0.577  'reduction of oxidative stress and intestinal inflammation'  ->  GO:0098869 'cellular oxidant detoxification'
+     0.577  'neuroprotection and symptomatic cognitive stabilization in dementia'  ->  GO:0007616 'long-term memory'
+     0.576  'reduction of glucocorticoid-mediated neurotoxicity'  ->  GO:0071383 'cellular response to steroid hormone stimulus'
+     0.575  'pulmonary vasodilation and reduction of right ventricular afterload'  ->  GO:0045906 'negative regulation of vasoconstriction'
+     0.574  'anti-inflammatory immunosuppression via purine and pyrimidine synthesis inhibition'  ->  GO:0009168 'purine ribonucleoside monophosphate biosynthetic process'
+     0.573  'reduction of diabetes-related skeletal complications'  ->  GO:0046849 'bone remodeling'
+
+=== COLLAPSE @ gate 0.55 (shared nearest GO-BP term) ===
+  singleton collapse: 70/150 (47% of all singletons) | 49% of 142 mapped singletons
+  re-keyed GO groups: 142; top sizes [5, 5, 5, 4, 4, 3, 3, 3, 3, 3]; >=8: 0
+    GO:0150077 'regulation of neuroinflammatory response' <- 'immunomodulation reducing neuroinflammation'; 'anti-inflammatory immunomodulation and neuroprotection'; 'immunomodulation / reduction of CNS inflammatory activity'; 'immunomodulation and neuroprotection'; 'neuroinflammation modulation via noradrenergic signaling'
+    GO:0061026 'cardiac muscle tissue regeneration' <- 'coronary artery reperfusion'; 'reduction of oxidative stress and improvement of myocardial energy metabolism'; 'myocardial regeneration and angiogenesis'; 'coronary thrombus dissolution and myocardial reperfusion'; 'plaque stabilization and anti-inflammatory cardioprotection'
+    GO:0032869 'cellular response to insulin stimulus' <- 'insulin sensitization and systemic inflammation reduction'; 'insulin sensitization and neuroinflammation modulation'; 'glucose-independent insulin secretion from pancreatic beta cells'; 'reduction of chronic low-grade inflammation to restore insulin sensitivity and beta-cell function'; 'neuronal insulin signaling enhancement'
+    GO:0002517 'T cell tolerance induction' <- 'Th1/Th17-mediated intestinal inflammation suppression'; 'T-cell mediated intestinal inflammation suppression'; 'immunosuppression with renal tubular toxicity sparing'; 'immune tolerance induction / beta-cell preservation'
+    GO:0055117 'regulation of cardiac muscle contraction' <- 'reduction of cardiac afterload and fibrosis via endothelin pathway blockade'; 'reduction of myocardial stiffness and improved diastolic function'; 'modulation of myocardial contractility'; 'neurohormonal modulation reducing cardiac wall stress'
+    GO:0008285 'negative regulation of cell population proliferation' <- 'cell growth inhibition'; 'HER2-mediated growth inhibition'; 'anti-proliferative effects'
+    GO:0050728 'negative regulation of inflammatory response' <- 'inflammatory pathway suppression'; 'Th1/Th17 inflammatory pathway suppression'; 'TNF-mediated inflammatory suppression'
+    GO:0050777 'negative regulation of immune response' <- 'immune suppression'; 'autoantibody-mediated immune suppression'; 'anti-inflammatory and antiproliferative suppression of immune cell activity'
+    GO:0030277 'maintenance of gastrointestinal epithelium' <- 'mucosal healing and growth promotion'; 'mucosal protection and secretion enhancement'; 'suppression of intestinal inflammation'
+    GO:0010906 'regulation of glucose metabolic process' <- 'neuroprotection via improved cerebral glucose metabolism'; 'glycemic control via multiple oral antidiabetic mechanisms'; 'glycemic control via incretin enhancement'
+
+=== COLLAPSE @ gate 0.6 (shared nearest GO-BP term) ===
+  singleton collapse: 59/150 (39% of all singletons) | 50% of 118 mapped singletons
+  re-keyed GO groups: 123; top sizes [5, 4, 4, 4, 3, 3, 3, 3, 3, 3]; >=8: 0
+    GO:0150077 'regulation of neuroinflammatory response' <- 'immunomodulation reducing neuroinflammation'; 'anti-inflammatory immunomodulation and neuroprotection'; 'immunomodulation / reduction of CNS inflammatory activity'; 'immunomodulation and neuroprotection'; 'neuroinflammation modulation via noradrenergic signaling'
+    GO:0061026 'cardiac muscle tissue regeneration' <- 'coronary artery reperfusion'; 'reduction of oxidative stress and improvement of myocardial energy metabolism'; 'myocardial regeneration and angiogenesis'; 'coronary thrombus dissolution and myocardial reperfusion'
+    GO:0055117 'regulation of cardiac muscle contraction' <- 'reduction of cardiac afterload and fibrosis via endothelin pathway blockade'; 'reduction of myocardial stiffness and improved diastolic function'; 'modulation of myocardial contractility'; 'neurohormonal modulation reducing cardiac wall stress'
+    GO:0032869 'cellular response to insulin stimulus' <- 'insulin sensitization and systemic inflammation reduction'; 'insulin sensitization and neuroinflammation modulation'; 'glucose-independent insulin secretion from pancreatic beta cells'; 'neuronal insulin signaling enhancement'
+    GO:0008285 'negative regulation of cell population proliferation' <- 'cell growth inhibition'; 'HER2-mediated growth inhibition'; 'anti-proliferative effects'
+    GO:0050728 'negative regulation of inflammatory response' <- 'inflammatory pathway suppression'; 'Th1/Th17 inflammatory pathway suppression'; 'TNF-mediated inflammatory suppression'
+    GO:0050777 'negative regulation of immune response' <- 'immune suppression'; 'autoantibody-mediated immune suppression'; 'anti-inflammatory and antiproliferative suppression of immune cell activity'
+    GO:0030277 'maintenance of gastrointestinal epithelium' <- 'mucosal healing and growth promotion'; 'mucosal protection and secretion enhancement'; 'suppression of intestinal inflammation'
+    GO:0002517 'T cell tolerance induction' <- 'T-cell mediated intestinal inflammation suppression'; 'immunosuppression with renal tubular toxicity sparing'; 'immune tolerance induction / beta-cell preservation'
+    GO:0010906 'regulation of glucose metabolic process' <- 'neuroprotection via improved cerebral glucose metabolism'; 'glycemic control via multiple oral antidiabetic mechanisms'; 'glycemic control via incretin enhancement'
+
+=== COLLAPSE @ gate 0.65 (shared nearest GO-BP term) ===
+  singleton collapse: 42/150 (28% of all singletons) | 48% of 88 mapped singletons
+  re-keyed GO groups: 101; top sizes [4, 4, 3, 3, 3, 3, 3, 3, 2, 2]; >=8: 0
+    GO:0150077 'regulation of neuroinflammatory response' <- 'immunomodulation reducing neuroinflammation'; 'anti-inflammatory immunomodulation and neuroprotection'; 'immunomodulation / reduction of CNS inflammatory activity'; 'neuroinflammation modulation via noradrenergic signaling'
+    GO:0032869 'cellular response to insulin stimulus' <- 'insulin sensitization and systemic inflammation reduction'; 'insulin sensitization and neuroinflammation modulation'; 'glucose-independent insulin secretion from pancreatic beta cells'; 'neuronal insulin signaling enhancement'
+    GO:0008285 'negative regulation of cell population proliferation' <- 'cell growth inhibition'; 'HER2-mediated growth inhibition'; 'anti-proliferative effects'
+    GO:0050728 'negative regulation of inflammatory response' <- 'inflammatory pathway suppression'; 'Th1/Th17 inflammatory pathway suppression'; 'TNF-mediated inflammatory suppression'
+    GO:0050777 'negative regulation of immune response' <- 'immune suppression'; 'autoantibody-mediated immune suppression'; 'anti-inflammatory and antiproliferative suppression of immune cell activity'
+    GO:0061026 'cardiac muscle tissue regeneration' <- 'coronary artery reperfusion'; 'reduction of oxidative stress and improvement of myocardial energy metabolism'; 'myocardial regeneration and angiogenesis'
+    GO:0055117 'regulation of cardiac muscle contraction' <- 'reduction of myocardial stiffness and improved diastolic function'; 'modulation of myocardial contractility'; 'neurohormonal modulation reducing cardiac wall stress'
+    GO:0097242 'amyloid-beta clearance' <- 'amyloid plaque clearance'; 'amyloid precursor protein processing and beta-amyloid clearance'; 'amyloid beta peptide reduction'
+    GO:0045786 'negative regulation of cell cycle' <- 'mitotic arrest'; 'cell-cycle arrest and apoptosis induction'
+    GO:0030889 'negative regulation of B cell proliferation' <- 'B-cell depletion'; 'B-cell survival and differentiation suppression'
