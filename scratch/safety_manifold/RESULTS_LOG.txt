@@ -1,0 +1,176 @@
+=== Phase 1 alignment ===
+snapshot: data/exports/multi_500_annotated.json
+
+======================================================================
+COMPOUND MANIFOLD — Tanimoto (ECFP4) vs AE-profile similarity
+======================================================================
+compounds with fp AND >= 2 evidenced AEs: 132
+
+--- ALL pairs: geo-sim vs idf-Jaccard (n_pairs=8646) ---
+  Pearson r = +0.097   Spearman rho = +0.085
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)   4885       0.0267
+  [0.10,0.20)   3587       0.0337
+  [0.20,0.40)    142       0.0821
+  [0.40,0.60)     21       0.1027
+  [0.60,1.01)     11       0.1207
+
+--- ALL pairs (plain Jaccard): geo-sim vs plain-Jaccard (n_pairs=8646) ---
+  Pearson r = +0.115   Spearman rho = +0.091
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)   4885       0.0390
+  [0.10,0.20)   3587       0.0493
+  [0.20,0.40)    142       0.1051
+  [0.40,0.60)     21       0.1481
+  [0.60,1.01)     11       0.1530
+
+  permutation null (idf-Jaccard): obs r=+0.097  null mean=-0.001  p=0.0050
+
+  same-target pairs: 133   different-target pairs: 8513
+
+--- DIFFERENT-target pairs (off-target signal): geo-sim vs idf-Jaccard (n_pairs=8513) ---
+  Pearson r = +0.060   Spearman rho = +0.079
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)   4855       0.0264
+  [0.10,0.20)   3539       0.0327
+  [0.20,0.40)    114       0.0578
+  [0.40,0.60)      5       0.0649
+
+--- SAME-target pairs (incl on-target): geo-sim vs idf-Jaccard (n_pairs=133) ---
+  Pearson r = +0.056   Spearman rho = +0.160
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)     30       0.0746
+  [0.10,0.20)     48       0.1059
+  [0.20,0.40)     28       0.1813
+  [0.40,0.60)     16       0.1145
+  [0.60,1.01)     11       0.1207
+
+======================================================================
+TARGET MANIFOLD — pathway co-membership vs on-target AE-profile sim
+======================================================================
+targets with pathways AND >= 2 evidenced on-target AEs: 34
+
+--- ALL target pairs: geo-sim vs idf-Jaccard (n_pairs=561) ---
+  Pearson r = +0.207   Spearman rho = +0.162
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)    545       0.0464
+  [0.10,0.20)      6       0.2858
+  [0.20,0.40)      9       0.1660
+  [0.40,0.60)      1       0.0926
+
+--- ALL target pairs (plain Jaccard): geo-sim vs plain-Jaccard (n_pairs=561) ---
+  Pearson r = +0.190   Spearman rho = +0.152
+     geo-sim bin      n  mean AE-sim
+  [0.00,0.10)    545       0.0745
+  [0.10,0.20)      6       0.3460
+  [0.20,0.40)      9       0.1832
+  [0.40,0.60)      1       0.1579
+
+  permutation null (idf-Jaccard): obs r=+0.207  null mean=+0.004  p=0.0100
+=== Phase 2 reuse (per-edge) ===
+snapshot: data/exports/multi_500_annotated.json
+
+=== COMPOUND manifold, per causes_ae edge ===
+   bw  smin  n_edge  mult_med  mult_mean  own%≥8  brw%≥8 | sparse  spMult_md  spRescue
+ 0.30  0.30    1810     0.000      0.060     55%     58% |    817      0.000        7%
+ 0.50  0.30    1810     0.000      0.105     55%     59% |    817      0.000        8%
+ 0.50  0.20    1810     0.000      0.172     55%     61% |    817      0.000       13%
+ 0.50  0.40    1810     0.000      0.072     55%     58% |    817      0.000        7%
+
+=== TARGET manifold, per target_associated_ae edge ===
+   bw  smin  n_edge  mult_med  mult_mean  own%≥8  brw%≥8 | sparse  spMult_md  spRescue
+ 0.25  0.10     301     0.000      0.013    100%    100% |      0      0.000        0%
+ 0.40  0.10     301     0.000      0.038    100%    100% |      0      0.000        0%
+ 0.40  0.05     301     0.000      0.062    100%    100% |      0      0.000        0%
+ 0.40  0.20     301     0.000      0.021    100%    100% |      0      0.000        0%
+=== Phase 3 validate ===
+==============================================================================
+KNOWN-CASE VALIDATION
+==============================================================================
+
+[EGFR → skin] expected on-target
+   EGFR-inhibitor rash — canonical on-target class effect
+   routed: {'on-target': 3}  →  representative=on-target  [PASS]
+   Cetuximab / EGFR / AE:rash: on_lift=+0.59 (n=2, diversity=0.71) off_lift=-0.08
+   on-target carriers (diverse scaffolds sharing target): lapatinib ditosylate, gefitinib
+
+[INSR → endocrine] expected on-target
+   insulin hypoglycemia — textbook on-target mechanism effect
+   routed: {'on-target(low-div)': 5}  →  representative=on-target(low-div)  [PASS]
+   Insulin glargine / INSR / AE:hypoglycaemia: on_lift=+0.79 (n=2, diversity=0.00) off_lift=-0.21
+   on-target carriers (diverse scaffolds sharing target): Insulin glulisine, Insulin Lispro Protamine Suspension
+
+[HMGCR → musculoskeletal] expected on-target
+   statin myopathy (corpus caught fractures, not myopathy — see note)
+   (no qualifying observed AE in corpus)
+
+[TUBB → nervous] expected on-target
+   tubulin-inhibitor peripheral neuropathy (taxane+vinca, diverse scaffolds)
+   routed: {'idiosyncratic': 1}  →  representative=idiosyncratic  [miss]
+   docetaxel / TUBB / AE:neuropathy_peripheral: on_lift=-0.09 (n=0, diversity=0.00) off_lift=-0.09
+   on-target carriers (diverse scaffolds sharing target): 
+
+[GLP1R → gastrointestinal] expected on-target
+   GLP-1 agonist GI — on-target incretin effect
+   (no qualifying observed AE in corpus)
+
+[TNF → infections] expected on-target
+   anti-TNF infection — on-target immunosuppression
+   routed: {'idiosyncratic': 2}  →  representative=idiosyncratic  [miss]
+   Adalimumab / TNF / AE:infection: on_lift=-0.19 (n=0, diversity=0.00) off_lift=-0.19
+   on-target carriers (diverse scaffolds sharing target): 
+
+==============================================================================
+AE LIABILITY PROFILE — gefitinib  (targets: EGFR)
+==============================================================================
+  diarrhea                   P=0.68  on-target          [on 100%/off 0%/idio 0%]  shared w/ 3 EGFR compounds (div 0.66)
+  nausea                     P=0.68  on-target          [on 100%/off 0%/idio 0%]  shared w/ 3 EGFR compounds (div 0.66)
+  anorexia                   P=0.68  on-target          [on 100%/off 0%/idio 0%]  shared w/ 3 EGFR compounds (div 0.66)
+  rash                       P=0.66  on-target          [on 78%/off 0%/idio 22%]  shared w/ 2 EGFR compounds (div 0.71)
+
+==============================================================================
+AE LIABILITY PROFILE — carboplatin  (targets: CHEBI:16991)
+==============================================================================
+  stomatitis                 P=0.46  on-target          [on 35%/off 0%/idio 65%]  shared w/ 4 CHEBI:16991 compounds (div 0.87)
+  nausea                     P=0.46  on-target          [on 35%/off 0%/idio 65%]  shared w/ 4 CHEBI:16991 compounds (div 0.87)
+  mucositis                  P=0.46  on-target          [on 35%/off 0%/idio 65%]  shared w/ 4 CHEBI:16991 compounds (div 0.87)
+  dehydration                P=0.34  on-target          [on 70%/off 0%/idio 30%]  shared w/ 4 CHEBI:16991 compounds (div 0.92)
+  fatigue                    P=0.31  on-target          [on 80%/off 0%/idio 20%]  shared w/ 4 CHEBI:16991 compounds (div 0.92)
+  anorexia                   P=0.27  on-target          [on 62%/off 0%/idio 38%]  shared w/ 4 CHEBI:16991 compounds (div 0.87)
+  diarrhea                   P=0.23  on-target          [on 74%/off 0%/idio 26%]  shared w/ 4 CHEBI:16991 compounds (div 0.87)
+  rash                       P=0.76  idiosyncratic      [on 0%/off 0%/idio 100%]  
+  transaminase_increased     P=0.72  idiosyncratic      [on 4%/off 0%/idio 96%]  
+  allergic_reaction          P=0.51  idiosyncratic      [on 0%/off 0%/idio 100%]  
+  hyperbilirubinemia         P=0.50  idiosyncratic      [on 6%/off 0%/idio 94%]  
+  hyperglycemia              P=0.39  idiosyncratic      [on 10%/off 0%/idio 90%]  
+  neutropenia                P=0.25  baseline           [on 4%/off 0%/idio 96%]  
+
+==============================================================================
+AE LIABILITY PROFILE — Insulin glargine  (targets: INS, INSR)
+==============================================================================
+  hypoglycaemia              P=0.79  on-target(low-div) [on 100%/off 0%/idio 0%]  shared w/ 2 INSR compounds (div 0.00)
+  hypoglycemia               P=0.79  on-target(low-div) [on 100%/off 0%/idio 0%]  shared w/ 2 INSR compounds (div 0.00)
+  pneumonia                  P=0.42  idiosyncratic      [on 0%/off 0%/idio 100%]  
+=== Phase 4 novel-entity ===
+
+=== COMPOUND (structure) novel-entity test (n=69, served by ≥1 trial-disjoint neighbor=25) ===
+  per-SOC AUROC (covered entities)  manifold = 0.442   prior = 0.500   lift = -0.058   [15 SOCs scored]
+  (pooled cross-SOC AUROC — base-rate-trapped, shown for context: manifold 0.648 / prior 0.834)
+  manifold calibration on covered entities (pred bin -> observed):
+    [0.0,0.2)  n=  528  observed=0.116
+    [0.2,0.4)  n=    9  observed=0.111
+    [0.4,0.6)  n=   17  observed=0.176
+    [0.6,0.8)  n=    8  observed=0.500
+    [0.8,1.0)  n=   63  observed=0.238
+
+=== TARGET (pathway) novel-entity test (n=37, served by ≥1 trial-disjoint neighbor=31) ===
+  per-SOC AUROC (covered entities)  manifold = 0.590   prior = 0.500   lift = +0.090   [19 SOCs scored]
+  (pooled cross-SOC AUROC — base-rate-trapped, shown for context: manifold 0.793 / prior 0.843)
+  manifold calibration on covered entities (pred bin -> observed):
+    [0.0,0.2)  n=  593  observed=0.062
+    [0.2,0.4)  n=   64  observed=0.156
+    [0.4,0.6)  n=   24  observed=0.625
+    [0.6,0.8)  n=   19  observed=0.368
+    [0.8,1.0)  n=   75  observed=0.520
+
+=== invariance: within-target target_associated_ae SD = 0.044 (n=39 targets) ===
