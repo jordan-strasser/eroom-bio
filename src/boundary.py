@@ -275,19 +275,24 @@ def assert_public_safe(payload: Any, *, source: str = "") -> None:
 #                        which the policy is encoded (Part 1) before the code move
 #                        (the separate, approved next step — see BOUNDARY_SPLIT_PLAN.md).
 #
-# When the relocation lands: extract the public baseline reference query first (it
-# stays public + runnable + drives the validation harnesses — see the split plan),
-# move the frontier to `dest`, then flip `relocated` to True here.
+# Owner decision (2026-06-15): the ENTIRE prediction read-path is private — there is
+# NO public baseline (the legacy geomean is retired). The public repo ships no
+# prediction engine at all; the public website shows only a few FROZEN sample-query
+# outputs (cached PredictionResults), never the algorithm. See BOUNDARY_SPLIT_PLAN.md.
+#
+# When the relocation lands: move the entire prediction read-path to `dest`, then flip
+# `relocated` to True here. After that, this gate (default mode) is a hard regression
+# guard, and `make query-strict` / CI should fail if any prediction module is public.
 PRIVATE_QUERY_MODULES: dict[str, dict[str, Any]] = {
     "src/prediction/path_query.py": {
         "dest": "eroom_enterprise/prediction/frontier_query.py",
         "relocated": False,
         "note": (
-            "Frontier query composition: P(success)/risk composition, "
-            "safety-penalty composition, query-time on/off-target decomposition, "
-            "weakest-link aggregation, ranking. STRADDLER — split first: a public "
-            "baseline reference query (src/prediction/baseline_query.py) stays, the "
-            "frontier relocates."
+            "The prediction algorithm (the paid product): P(success)/risk "
+            "composition, safety-penalty composition, query-time on/off-target "
+            "decomposition, weakest-link softmin aggregation, ranking. ENTIRE module "
+            "relocates — no public baseline (geomean retired). Public keeps only "
+            "frozen sample-query outputs for the website."
         ),
     },
     "src/prediction/field_prediction.py": {
