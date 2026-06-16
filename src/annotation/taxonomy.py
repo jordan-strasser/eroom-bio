@@ -108,6 +108,70 @@ def routing_branch_for(mode: "FailureMode | None") -> RoutingBranch:
     return FAILURE_MODE_BRANCH.get(mode, RoutingBranch.UNKNOWN)
 
 
+# ── CT.gov stop-reason override (the terminated-trial misroute fix) ─────────
+# The LLM classifier reads the trial's results / description text, NOT the
+# structured CT.gov ``overallStatus`` / ``whyStopped``. So an EARLY STOP
+# (TERMINATED / WITHDRAWN / SUSPENDED) for a non-efficacy reason — slow accrual,
+# funding, a sponsor/portfolio decision, toxicity — can be classified as an
+# efficacy/measurement failure and then WRONGLY downvote the biological backbone.
+# These trials never properly tested the chain, so the correct routing is to
+# CENSOR the backbone (OPERATIONAL / SAFETY), not blame the biology. This
+# deterministic override consults the CT.gov status and reroutes such trials.
+#
+# Veto: any efficacy/futility language means the stop IS a real backbone signal
+# (e.g. "terminated for futility"), so we leave the classifier's branch alone.
+_EARLY_STOP_STATUSES = ("TERMINATED", "WITHDRAWN", "SUSPENDED")
+
+# Efficacy/futility language → do NOT override (the stop is a genuine efficacy
+# signal; trust the classifier's efficacy/measurement routing).
+_STOP_EFFICACY_KW = (
+    "futility", "futile", "efficac", "did not meet", "lack of response",
+    "no benefit", "ineffective", "primary endpoint", "interim analysis",
+    "lack of response", "insufficient response", "negative result",
+)
+# Operational / business / strategic stop language → OPERATIONAL (censor).
+_STOP_OPERATIONAL_KW = (
+    "accrual", "enroll", "enrol", "recruit", "fund", "financ", "budget",
+    "sponsor", "business", "commercial", "strateg", "portfolio", "prioriti",
+    "supply", "manufactur", "administrativ", "merger", "reorganiz", "company",
+    "discontinu", "logistic", "feasib", "covid", "pandemic",
+)
+# Toxicity / safety stop language → SAFETY (also censors the backbone). Checked
+# AFTER operational so a negated mention ("not driven by safety concerns") that
+# co-occurs with a real operational reason lands as OPERATIONAL.
+_STOP_SAFETY_KW = (
+    "toxic", "adverse event", "tolerab", "unacceptable risk", "safety signal",
+    "serious adverse",
+)
+
+
+def stop_reason_override(
+    overall_status: str | None, why_stopped: str | None
+) -> "tuple[RoutingBranch, str] | None":
+    """Routing-branch override implied by CT.gov status, or ``None`` to leave the
+    classifier's branch untouched.
+
+    Fires only for an EARLY STOP (``overallStatus`` terminated/withdrawn/suspended)
+    with a documented ``whyStopped`` that is clearly NON-efficacy. Returns
+    ``(RoutingBranch.OPERATIONAL | SAFETY, category)`` — both censor the efficacy +
+    measurement backbone downstream (and neither earns safety-survival credit), so
+    the trial that never tested its biology stops wrongly downvoting it. Efficacy /
+    futility language vetoes the override. Deterministic and keyword-based; absent
+    or empty status returns ``None`` (default behaviour preserved).
+    """
+    status = (overall_status or "").strip().upper()
+    why = (why_stopped or "").strip().lower()
+    if not why or not any(s in status for s in _EARLY_STOP_STATUSES):
+        return None
+    if any(k in why for k in _STOP_EFFICACY_KW):
+        return None  # documented futility/efficacy → trust the classifier
+    if any(k in why for k in _STOP_OPERATIONAL_KW):
+        return RoutingBranch.OPERATIONAL, "operational"
+    if any(k in why for k in _STOP_SAFETY_KW):
+        return RoutingBranch.SAFETY, "safety"
+    return None  # ambiguous (e.g. "DSMB recommendation") → leave it alone
+
+
 def _print_routing_branch_map() -> None:  # pragma: no cover - review helper
     """Print the FailureMode → RoutingBranch map for human review.
 

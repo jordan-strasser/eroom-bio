@@ -51,11 +51,35 @@ from src.annotation.taxonomy import (
     ModulationEntry,
     RoutingBranch,
     routing_branch_for,
+    stop_reason_override,
     StructuredAE,
     TrialExtraction,
 )
 
 logger = logging.getLogger(__name__)
+
+# CT.gov status cache for the stop-reason routing override (the terminated-trial
+# misroute fix). Maps NCT → {"overall_status", "why_stopped"}. Built by
+# ``scripts/build_ctgov_status_cache.py``. ABSENT by default → the override is a
+# no-op and routing behaviour is byte-identical, so reproducibility is preserved.
+_CTGOV_STATUS_CACHE_PATH = Path("data/cache/ctgov_status.json")
+_ctgov_status_cache: dict[str, dict] | None = None
+# audit log of every applied stop-reason override (one JSON line per flip)
+_STOP_OVERRIDE_LOG_PATH = Path("data/dev/stop_reason_overrides.jsonl")
+
+
+def _ctgov_status_for(nct: str) -> dict | None:
+    """CT.gov {overall_status, why_stopped} for an NCT, or None if uncached.
+
+    Lazy-loads the cache once. Missing file → empty cache → every lookup is None
+    → the stop-reason override never fires (default behaviour preserved)."""
+    global _ctgov_status_cache
+    if _ctgov_status_cache is None:
+        try:
+            _ctgov_status_cache = json.loads(_CTGOV_STATUS_CACHE_PATH.read_text())
+        except (OSError, json.JSONDecodeError):
+            _ctgov_status_cache = {}
+    return _ctgov_status_cache.get(nct)
 
 _ANNOTATIONS_DIR = Path("data/annotations")
 # v0.3.0 unrouted modulation log — separate file so unroutable LLM
@@ -944,6 +968,45 @@ class Attributor:
         reason_branch = routing_branch_for(
             classification.primary_failure_mode
         ) if routing else RoutingBranch.UNKNOWN
+
+        # CT.gov stop-reason override (terminated-trial misroute fix). The LLM
+        # classifier never saw the structured CT.gov status, so an early stop for
+        # a non-efficacy reason (accrual / funding / sponsor decision / toxicity)
+        # may have been routed to EFFICACY/MEASUREMENT — wrongly downvoting the
+        # biology. If the cache documents such a stop, reroute to the CENSORING
+        # branch. No-op when the cache is absent (default) or the reason is
+        # efficacy/ambiguous, so reproducibility is preserved.
+        if routing:
+            _st = _ctgov_status_for(trial.trial_id)
+            if _st:
+                _ov = stop_reason_override(
+                    _st.get("overall_status"), _st.get("why_stopped")
+                )
+                if _ov is not None and _ov[0] != reason_branch:
+                    _new_branch, _cat = _ov
+                    logger.info(
+                        "ctgov stop-reason override %s: %s → %s (%s) — %r",
+                        trial.trial_id, reason_branch.value, _new_branch.value,
+                        _cat, (_st.get("why_stopped") or "")[:120],
+                    )
+                    try:
+                        _STOP_OVERRIDE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+                        with _STOP_OVERRIDE_LOG_PATH.open("a") as _fh:
+                            _fh.write(json.dumps({
+                                "nct": trial.trial_id,
+                                "from": reason_branch.value,
+                                "to": _new_branch.value,
+                                "category": _cat,
+                                "overall_status": _st.get("overall_status"),
+                                "why_stopped": _st.get("why_stopped"),
+                                "primary_failure_mode": (
+                                    classification.primary_failure_mode.value
+                                    if classification.primary_failure_mode else None
+                                ),
+                            }) + "\n")
+                    except OSError:
+                        pass
+                    reason_branch = _new_branch
 
         emitted: list[AppliedEdgeUpdate] = []
         for chain in trial.chains:
