@@ -682,6 +682,19 @@ async def main(
         f"from the denominator"
     )
 
+    # Native modulation direction (EROOM_DIRECTION, default off → no-op). Stamp
+    # each chain's agonist/antagonist direction from ChEMBL action_type BEFORE
+    # the initial export, so attribution + prediction downstream see it. A pure
+    # per-compound property — independent of the merge, never fragments a node.
+    from src.graph import direction as _direction
+    if _direction.enabled():
+        _dstats = _direction.stamp_directions(graph)
+        console.print(
+            f"  EROOM_DIRECTION: stamped {_dstats['chains']} chains "
+            f"(antagonist={_dstats['antagonist']} agonist={_dstats['agonist']} "
+            f"unknown={_dstats['unknown']})"
+        )
+
     graph.export_snapshot(str(initial_path))
     console.print(f"  wrote {initial_path}")
 

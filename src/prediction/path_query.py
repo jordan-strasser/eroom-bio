@@ -21,6 +21,7 @@ from src.graph.models import (
     TrialOutcome,
 )
 from src.inference.beliefs import pool_hierarchical
+from src.graph import direction as _direction
 from src.graph.store import GraphStore
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,56 @@ CONSUMED_BACKBONE_EDGE_TYPES: frozenset[EdgeType] = frozenset(
 )
 
 _DEFAULT_BELIEF = EdgeBeliefState(alpha=1.0, beta=1.0)
+
+# Shared downstream edges whose belief pools across every compound hitting the
+# target — so an agonist and an antagonist (opposite intended sign on the pathway)
+# update the SAME belief. The direction filter de-contaminates these at query time.
+_DIRECTION_PARTITIONED = frozenset({
+    EdgeType.MODULATES_VIA,
+    EdgeType.MECHANISM_AFFECTS,
+    EdgeType.BIOLOGY_DRIVES,
+})
+_DIR_PRIOR_FLOOR = 1e-6
+
+
+def _direction_filtered(belief: EdgeBeliefState, chain_direction: str) -> EdgeBeliefState:
+    """De-contaminate a shared-edge belief for a directional query (EROOM_DIRECTION).
+
+    Removes the conjugate contribution of KNOWN OPPOSITE-direction trial evidence
+    (an antagonist's evidence when querying an agonist chain, and vice-versa),
+    keeping same-direction AND direction-agnostic (curated / unknown) evidence. This
+    is SUBTRACTION from the rich pooled belief, not a sparse per-direction rebuild —
+    so reuse is preserved and no node is fragmented. No-op when the chain direction
+    is unknown or the edge carries no opposite-direction evidence."""
+    if not chain_direction or chain_direction == _direction.UNKNOWN:
+        return belief
+    rem_a = rem_b = 0.0
+    for rec in belief.evidence:
+        d = (rec.context or {}).get("direction")
+        if not d or d == _direction.UNKNOWN or d == chain_direction:
+            continue  # keep same-direction + direction-agnostic evidence
+        ne, po = rec.applied_n_eff, rec.applied_p_obs
+        if ne is None or po is None:
+            continue
+        rem_a += ne * po
+        rem_b += ne * (1.0 - po)
+    if rem_a <= 0.0 and rem_b <= 0.0:
+        return belief  # nothing opposite to remove
+    return EdgeBeliefState(
+        alpha=max(_DIR_PRIOR_FLOOR, belief.alpha - rem_a),
+        beta=max(_DIR_PRIOR_FLOOR, belief.beta - rem_b),
+        evidence=belief.evidence,
+        belief_field=belief.belief_field,
+    )
+
+
+def _maybe_direction_filter(
+    belief: EdgeBeliefState, edge_type: EdgeType, chain: CausalChain
+) -> EdgeBeliefState:
+    """Apply the direction filter to a shared efficacy edge under EROOM_DIRECTION."""
+    if not _direction.enabled() or edge_type not in _DIRECTION_PARTITIONED:
+        return belief
+    return _direction_filtered(belief, getattr(chain, "direction", ""))
 
 
 # Round-20 calibration: severity-weighted safety penalty.
@@ -1118,6 +1169,7 @@ class PredictionEngine:
                 )
                 if resolved is not None:
                     anc_ind, belief = resolved
+                    belief = _maybe_direction_filter(belief, edge_type, chain)
                     edges.append((src_id, anc_ind, edge_type, belief))
                 continue
 
@@ -1134,6 +1186,7 @@ class PredictionEngine:
             if belief.evidence_strength <= 0.0:
                 continue  # Beta(1,1) — no learned evidence, skip
 
+            belief = _maybe_direction_filter(belief, edge_type, chain)
             edges.append((src_id, tgt_id, edge_type, belief))
 
         for me_edge in _collect_modulation_edges(self.graph, chain.compound_id):

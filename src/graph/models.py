@@ -916,6 +916,13 @@ class CausalChain(BaseModel):
     outcome: TrialOutcome = TrialOutcome.UNKNOWN
     effect_size: float | None = None
     p_value: float | None = None
+    # Native modulation direction (agonist / antagonist / unknown) of the
+    # compound's action on its target, from ChEMBL ``action_type`` (see
+    # ``src.graph.direction``). An EDGE-LEVEL partition key — used to split the
+    # shared downstream beliefs by direction without fragmenting any node.
+    # Default "unknown" so pre-direction cached snapshots parse unchanged; only
+    # populated under ``EROOM_DIRECTION``.
+    direction: str = "unknown"
     # PROVENANCE (not field math): this chain's OWN per-(arm, drug) free-text
     # descriptions, stamped once at build by ``populate_chain_descriptions`` via
     # the per-(arm, intervention) index — so a combo arm's paclitaxel chain keeps
