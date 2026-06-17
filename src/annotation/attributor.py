@@ -68,6 +68,17 @@ _ctgov_status_cache: dict[str, dict] | None = None
 _STOP_OVERRIDE_LOG_PATH = Path("data/dev/stop_reason_overrides.jsonl")
 
 
+def _direction_ctx(chain) -> dict:
+    """Direction tag for a backbone evidence record's context (native modulation
+    direction, src.graph.direction). Empty unless the chain carries a resolved
+    direction — so pre-direction snapshots and EROOM_DIRECTION-off builds (chains
+    default ``unknown``) stay byte-identical; the per-direction partition appears
+    only once a build has stamped directions. Read at query time by the
+    direction-matched prediction path."""
+    d = getattr(chain, "direction", "") or ""
+    return {"direction": d} if d and d != "unknown" else {}
+
+
 def _ctgov_status_for(nct: str) -> dict | None:
     """CT.gov {overall_status, why_stopped} for an NCT, or None if uncached.
 
@@ -1138,6 +1149,7 @@ class Attributor:
                         "n_eff_applied": n_eff_i,
                         "p_obs_applied": p_obs,
                         "gate_weight": gate_weight,
+                        **_direction_ctx(chain),
                     },
                 )
                 post = self.graph.update_edge_belief(
@@ -1258,6 +1270,7 @@ class Attributor:
                     "M_backbone": m,
                     "n_eff_applied": n_eff_i,
                     "p_obs_applied": p_obs,
+                    **_direction_ctx(chain),
                 },
             )
             post = self.graph.update_edge_belief(
