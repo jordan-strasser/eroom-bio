@@ -35,11 +35,6 @@ from pathlib import Path
 
 from src.annotation.attributor import _main as attributor_main
 from src.graph.store import GraphStore
-from src.prediction.field_prediction import (
-    build_st_desc_map,
-    load_edge_fields,
-    localized_chain_probability,
-)
 from src.prediction.path_query import (
     PredictionEngine,
     predict_clinical_hypothesis,
@@ -121,51 +116,6 @@ async def graph_holdout_predictions(
     return insample, holdout
 
 
-def _field_loo(scorable, full: GraphStore, field_path: str, n_samples: int):
-    """Field leave-one-out via anchor-drop (no re-attribution needed — the
-    kernel query is additive, so removing a trial's (s,t) anchors removes
-    exactly its contribution). Returns rows (nct, label, p_field_insample,
-    p_field_loo) for trials whose chain localizes against the field."""
-    from src.graph.biolord_embeddings import embed_text
-
-    field_map = load_edge_fields(field_path)
-    cache: dict = {}
-    rows = []
-    for nct, label, chain, kwargs in scorable:
-        try:
-            result = predict_clinical_hypothesis(
-                full, chain["compound_id"], chain["indication_id"],
-                n_samples=n_samples, **kwargs,
-            )
-        except KeyError:
-            continue
-        if not result.edge_contributions:
-            continue
-        st_map = build_st_desc_map(full, nct)
-        if not st_map:
-            continue
-        _ps, pl_in, per_edge = localized_chain_probability(
-            result.edge_contributions, field_map, st_map,
-            embed_fn=embed_text, embed_cache=cache,
-        )
-        if not any(e["is_localized"] for e in per_edge):
-            continue
-        # LOO: drop THIS trial's anchors on the chain edges, re-query.
-        keys = {(ec.source_id, ec.target_id, ec.edge_type.value)
-                for ec in result.edge_contributions}
-        loo_map = dict(field_map)
-        for k in keys:
-            if k in loo_map:
-                loo_map[k] = loo_map[k].without_trial(nct)
-        _ps2, pl_loo, _pe2 = localized_chain_probability(
-            result.edge_contributions, loo_map, st_map,
-            embed_fn=embed_text, embed_cache=cache,
-        )
-        sf = 1.0 - result.safety_penalty
-        rows.append((nct, label, pl_in * sf, pl_loo * sf))
-    return rows
-
-
 async def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--initial", required=True, help="pre-attribution initial.json")
@@ -181,10 +131,6 @@ async def main() -> int:
     ap.add_argument("--seed", type=int, default=42,
                     help="seed for the prediction RNG so holdout AUROC is "
                          "exactly reproducible (Monte-Carlo Beta sampling).")
-    ap.add_argument("--field", default=None,
-                    help="(s,t) belief-field snapshot (nct-tagged anchors). Adds "
-                         "a FIELD leave-one-out via anchor-drop — full-corpus "
-                         "capable, no re-attribution.")
     args = ap.parse_args()
 
     full = GraphStore()
@@ -265,21 +211,6 @@ async def main() -> int:
     print(f"  in-sample → holdout gap  = {is_auroc - ho_auroc:+.3f}")
     print(f"  holdout binary acc       = {ho_acc:.3f}   "
           f"(TP={tp}, TN={tn}, FP={fp}, FN={fn})")
-
-    if args.field:
-        print("\n  computing FIELD leave-one-out (anchor-drop)...", flush=True)
-        frows = _field_loo(scorable, full, args.field, args.n_samples)
-        fy = [1 if lab == "success" else 0 for _, lab, _, _ in frows]
-        if frows and 0 < sum(fy) < len(fy):
-            f_in = _auroc([a for _, _, a, _ in frows], fy)
-            f_lo = _auroc([b for _, _, _, b in frows], fy)
-            print(f"\n── FIELD true-holdout (anchor-drop, n={len(frows)}, "
-                  f"success={sum(fy)}, failure={len(fy) - sum(fy)}) ──")
-            print(f"  AUROC field in-sample    = {f_in:.3f}")
-            print(f"  AUROC field holdout      = {f_lo:.3f}   (drop each trial's (s,t) anchors)")
-            print(f"  field in-sample → holdout gap = {f_in - f_lo:+.3f}")
-        else:
-            print("  field-LOO: too few localizable scored trials for AUROC")
     return 0
 
 

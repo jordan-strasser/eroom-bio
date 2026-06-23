@@ -49,7 +49,7 @@ eroom/
 python -m scripts.build_graph --corpus my_corpus --area my_corpus --max-trials 50 --keep-annotations
 ```
 
-Visualize a built graph: `python -m scripts.visualize_graph --area <name> --mode layered` (a left→right Compound→…→Population causal-chain view) or `--mode graph` (a force-directed overview).
+Visualize a built graph: `python -m scripts.visualize_graph --area <name> --mode chain` (the default — a left→right Compound→…→Population causal-chain view, before/after merge) or `--mode graph` (a force-directed product overview).
 
 ## Testing
 - `pytest tests/` runs the suite; `pytest -m "not integration"` skips tests that hit external APIs.

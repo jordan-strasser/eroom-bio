@@ -25,7 +25,7 @@ export CLUE_API_KEY=your_key            # optional, for LINCS signatures
 Sanity-check the install:
 
 ```bash
-pytest tests/ -q                        # 428 tests should pass
+pytest tests/ -q                        # the non-integration suite should pass (~1,390 tests)
 ```
 
 Build the existing melanoma graph from the frozen corpus:
@@ -190,11 +190,13 @@ indications.
 - **Tests live in `tests/`**; integration tests that hit external APIs are
   marked `@pytest.mark.integration`
 
-Stability matters here: the prediction math, trust-weight function, edge
-priors, and aggregation method are **frozen** at v1.0 until the corpus
-expands to additional indications. Architectural PRs that touch those
-should wait for the cross-indication scaling phase to land first; data
-and adapter PRs are unblocked.
+Stability matters here: the prediction algorithm is **baked into one frozen
+config**, `src/config.py` — reason-routing, biology→GO ontology keying, native
+direction, the informed prior, the safety DLT-gate, weakest-link **softmin**
+aggregation, and the n_eff evidence tiers. There are no production feature flags;
+changing any of those modeling choices is an architectural change. Architectural
+PRs that touch them should wait for the cross-indication scaling phase to land
+first; data and adapter PRs are unblocked.
 
 ---
 
@@ -207,4 +209,4 @@ and adapter PRs are unblocked.
   produced—disagreements with classifier output are how the prompts
   get sharper
 - Architectural proposals: open a discussion before opening a PR; the
-  v1.0 baseline is intentionally locked
+  baked baseline in `src/config.py` is intentionally locked
