@@ -83,7 +83,7 @@ def main():
                 d = b.alpha + b.beta
                 means.append(b.alpha / d if d > 0 else 0.5)
                 weights.append(_trust_weight(b))
-            soft = float(_aggregate_samples([np.array([m]) for m in means], weights)[0])
+            soft = float(_aggregate_samples([np.array([m]) for m in means])[0])
             tmat = len(target_trials.get(ch.target_id, set()) - {nct})
             mmat = len(mech_trials.get(ch.mechanism_id, set()) - {nct})
             if best is None or soft < best[0]:

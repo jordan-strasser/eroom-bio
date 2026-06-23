@@ -144,8 +144,8 @@ def trial_features(store, nct, field_map, emb, bandwidth):
             f_means.append(f_mean)
             weights.append(_trust_weight(b))
         if s_means:
-            s_ov = float(_aggregate_samples([np.array([m]) for m in s_means], weights)[0])
-            f_ov = float(_aggregate_samples([np.array([m]) for m in f_means], weights)[0])
+            s_ov = float(_aggregate_samples([np.array([m]) for m in s_means])[0])
+            f_ov = float(_aggregate_samples([np.array([m]) for m in f_means])[0])
             chain_aggs.append((s_ov, f_ov))
     if not chain_aggs:
         return None
