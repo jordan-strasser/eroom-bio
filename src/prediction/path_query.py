@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import math
-import os
 from pathlib import Path
 from typing import Any
 
@@ -353,59 +352,18 @@ def _trust_weight(belief: EdgeBeliefState) -> float:
     return min(1.0, math.log(s + 1.0) / _TRUST_LOG_SAT)
 
 
-def _aggregate_samples(
-    edge_samples: list[np.ndarray],
-    weights: list[float],
-) -> np.ndarray:
-    """Combine per-edge sample arrays into one chain-probability sample array.
-
-    Default is weakest-link **softmin** (``EROOM_AGG``, round-30); the legacy
-    **trust-weighted geometric mean** is the ``EROOM_AGG=geomean`` branch below
-    (``product``/``min``/``harmonic`` also available). The softmin family runs
-    unweighted on purpose — don't down-weight a sparse-but-decisive edge; only
-    the geomean branch consumes ``weights``.
-
-    Callers drop zero-evidence edges upstream so every entry has positive
-    weight. The fallback branch (sum_w <= 0) is a safety net — an unweighted
-    geomean so we don't blow up if an empty chain ever slips through.
-    """
+def _aggregate_samples(edge_samples: list[np.ndarray]) -> np.ndarray:
+    """Combine per-edge sample arrays into one chain-probability sample array via
+    the weakest-link **softmin** (the baked aggregation; temperature
+    ``CONFIG.softmin_t``). Runs unweighted on purpose — a sparse-but-decisive
+    weak edge must NOT be down-weighted; it is exactly the bottleneck softmin is
+    meant to surface. Returns an empty array for an empty chain."""
     if not edge_samples:
         return np.array([])
-    # Experimental aggregation modes (EROOM_AGG). The default trust-weighted
-    # geomean dilutes a decisive weak link; these test true conditional-chain
-    # probability (product / noisy-AND) and weakest-link (min / softmin).
-    # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
-    # decisive edge. Default ("" / geomean) keeps the existing behavior.
-    # Default softmin (round-30): weakest-link P(success). Set EROOM_AGG=geomean
-    # to restore the legacy trust-weighted geometric mean.
-    mode = os.environ.get("EROOM_AGG", "softmin").strip().lower()
-    if mode in ("product", "min", "softmin", "harmonic"):
-        stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
-        if mode == "product":
-            return np.prod(stack, axis=0)
-        if mode == "min":
-            return stack.min(axis=0)
-        if mode == "harmonic":
-            # power mean p=-1: dominated by the smallest edge (weakest-link)
-            # but accumulates multiple weak links AND is length-normalized —
-            # the middle ground between min (no discrimination) and product
-            # (length-tanks).
-            return stack.shape[0] / np.sum(1.0 / stack, axis=0)
-        return -_SOFTMIN_T * (
-            logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
-        )
-    n_samples = edge_samples[0].shape[0]
-    sum_w = float(sum(w for w in weights if w > 0.0))
-    log_sum = np.zeros(n_samples)
-    if sum_w <= 0.0:
-        for s in edge_samples:
-            log_sum += np.log(np.clip(s, _LOG_FLOOR, 1.0))
-        return np.exp(log_sum / len(edge_samples))
-    for s, w in zip(edge_samples, weights):
-        if w <= 0.0:
-            continue
-        log_sum += w * np.log(np.clip(s, _LOG_FLOOR, 1.0))
-    return np.exp(log_sum / sum_w)
+    stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
+    return -_SOFTMIN_T * (
+        logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
+    )
 
 
 # ── Models ──────────────────────────────────────────────────────────────
@@ -666,7 +624,7 @@ class PredictionEngine:
             trust_weights.append(_trust_weight(belief))
 
         # 3. Aggregate samples (default softmin; EROOM_AGG=geomean for legacy)
-        samples = _aggregate_samples(edge_samples, trust_weights)
+        samples = _aggregate_samples(edge_samples)
 
         # 4. Compute statistics (mechanism-only — the "efficacy" view).
         if samples.size:

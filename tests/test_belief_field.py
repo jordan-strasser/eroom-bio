@@ -299,28 +299,13 @@ def _edge_store():
     return s
 
 
-def test_store_update_scalar_only_when_flag_off(monkeypatch):
+def test_store_update_is_scalar_only():
+    # Field localization at attribution was removed with the EROOM_BELIEF_FIELD
+    # flag; the store update is always scalar-only. The (s,t) field is built
+    # post-hoc by materialize_belief_field, not during attribution.
     from src.graph.models import EdgeType
 
-    monkeypatch.delenv("EROOM_BELIEF_FIELD", raising=False)
     s = _edge_store()
     b = s.update_edge_belief("A", "B", EdgeType.MECHANISM_AFFECTS, _localizable_record())
-    assert b.belief_field is None          # no field by default
+    assert b.belief_field is None          # no field populated at attribution
     assert b.alpha > 1.0                    # scalar still updated
-
-
-def test_store_update_localizes_when_flag_on(monkeypatch):
-    from src.graph.models import EdgeType
-
-    monkeypatch.delenv("EROOM_BELIEF_FIELD", raising=False)
-    scalar_alpha = _edge_store().update_edge_belief(
-        "A", "B", EdgeType.MECHANISM_AFFECTS, _localizable_record()
-    ).alpha
-
-    monkeypatch.setenv("EROOM_BELIEF_FIELD", "1")
-    b = _edge_store().update_edge_belief(
-        "A", "B", EdgeType.MECHANISM_AFFECTS, _localizable_record()
-    )
-    assert b.belief_field is not None
-    assert len(b.belief_field["anchors"]) == 1
-    assert b.alpha == pytest.approx(scalar_alpha)  # scalar identical regardless of flag

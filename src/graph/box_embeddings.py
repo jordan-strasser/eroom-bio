@@ -29,13 +29,11 @@ from pathlib import Path
 
 import numpy as np
 
-# Relation thresholds on mean per-dim containment fraction. Tunable; the
-# defaults separate the five gold-pair labels cleanly on bounding-box-fit
-# geometry. Env overrides keep them out of call sites.
-import os
-
-_HI = float(os.environ.get("EROOM_BOX_CONTAIN_HI", "0.90"))  # ⊇ "contains"
-_LO = float(os.environ.get("EROOM_BOX_OVERLAP_LO", "0.30"))  # sibling vs unrelated
+# Relation thresholds on mean per-dim containment fraction. The defaults
+# separate the five gold-pair labels cleanly on bounding-box-fit geometry.
+# Baked constants (were EROOM_BOX_CONTAIN_HI / EROOM_BOX_OVERLAP_LO).
+_HI = 0.90  # ⊇ "contains"
+_LO = 0.30  # sibling vs unrelated
 
 
 @dataclass

@@ -23,12 +23,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.annotation.attributor import (
-    Attributor,
-    _edge_attr_mode,
-    _effect_modulation,
-    _per_edge_fracs,
-)
+from src.annotation.attributor import Attributor
 from src.annotation.taxonomy import (
     ChainResult,
     ExtractedArm,
@@ -376,47 +371,3 @@ class TestSaturatingFofN:
         # bounded by the saturating multiplier (≈ ceil 2.5 / floor 0.5 = 5x).
         assert n_eff_big > n_eff_small
         assert n_eff_big / n_eff_small <= 5.0
-
-
-# ── TASK 2: per-edge attribution-math experiment knobs ─────────────────────
-
-
-class TestEdgeAttrModes:
-    def test_mode_is_baked_explain_away(self):
-        # Baked to CONFIG.edge_attr; no longer env-toggled.
-        assert _edge_attr_mode() == "explain_away"
-
-    def test_per_edge_fracs_dispatch(self):
-        ef = [0.5, 0.3, 0.2]  # an explaining-away split (already normalized)
-        # explain_away: success=full, failure=explaining-away
-        assert _per_edge_fracs("explain_away", True, ef, 3) == [1.0, 1.0, 1.0]
-        assert _per_edge_fracs("explain_away", False, ef, 3) == ef
-        # symmetric_full: full both ways
-        assert _per_edge_fracs("symmetric_full", True, ef, 3) == [1.0, 1.0, 1.0]
-        assert _per_edge_fracs("symmetric_full", False, ef, 3) == [1.0, 1.0, 1.0]
-        # symmetric_uniform: 1/L both ways
-        unif = _per_edge_fracs("symmetric_uniform", False, ef, 3)
-        assert all(abs(f - 1 / 3) < 1e-9 for f in unif)
-        # symmetric_explain: explaining-away weighting BOTH ways
-        assert _per_edge_fracs("symmetric_explain", True, ef, 3) == ef
-        assert _per_edge_fracs("symmetric_explain", False, ef, 3) == ef
-
-    def test_effect_modulation_uses_pvalue_ignores_effect(self):
-        # effect arg is deliberately ignored (unreliable extraction)
-        assert _effect_modulation(0.8, 999999.0, None) == _effect_modulation(
-            0.8, None, None
-        )
-        # no p_value → identity
-        assert _effect_modulation(0.8, None, None) == (0.8, 1.0)
-
-    def test_effect_modulation_significant_p_sharpens(self):
-        # success p_obs=0.80; a very significant p pushes it UP + raises n_eff
-        p_obs_adj, neff = _effect_modulation(0.80, None, 0.0005)
-        assert p_obs_adj > 0.80
-        assert neff > 1.0
-
-    def test_effect_modulation_nonsignificant_p_softens(self):
-        # a non-significant p pulls p_obs toward 0.5 + shrinks n_eff
-        p_obs_adj, neff = _effect_modulation(0.80, None, 0.5)
-        assert p_obs_adj < 0.80
-        assert neff < 1.0

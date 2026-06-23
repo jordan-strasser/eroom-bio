@@ -207,21 +207,6 @@ _PRECISION_EXPONENT = 0.5    # concave in N (sqrt): 4x patients -> 2x weight
 _PRECISION_MULT_FLOOR = 0.5  # a small trial is still worth >= half the anchor
 _PRECISION_MULT_CEIL = 2.5   # a huge trial caps at 2.5x (trust saturates anyway)
 
-# Directness matrix: (evidence_type, edge_type) -> multiplier in (0, 1].
-# Reserved (plan open item): how directly the evidence bears on THIS edge's
-# claim. Empty for now -> directness 1.0 everywhere, so enabling the flag moves
-# n_eff ONLY via the anchored precision multiplier (keeps the build
-# no-regression). Populate + calibrate before activating.
-_DIRECTNESS: dict[tuple[EvidenceType, str], float] = {}
-
-
-def _precision_enabled() -> bool:
-    """Precision-aware n_eff path is permanently OFF (the flag was default-off and
-    its off-branch is the baked behavior). Kept as a stub until Phase 1b removes
-    the dead branches it gates."""
-    return False
-
-
 def _precision_multiplier(n_obs: int | None) -> float:
     """Anchored, concave precision weight from a patient/observation count.
 
@@ -236,12 +221,6 @@ def _precision_multiplier(n_obs: int | None) -> float:
     return max(_PRECISION_MULT_FLOOR, min(_PRECISION_MULT_CEIL, raw))
 
 
-def _directness(source_type: EvidenceType, edge_type: str | None) -> float:
-    if edge_type is None:
-        return 1.0
-    return _DIRECTNESS.get((source_type, edge_type), 1.0)
-
-
 def effective_n_for_evidence(
     source_type: EvidenceType,
     quality_score: float = 1.0,
@@ -249,70 +228,29 @@ def effective_n_for_evidence(
     n_obs: int | None = None,
     edge_type: str | None = None,
 ) -> float:
-    """Effective virtual sample size for one evidence record.
+    """Effective virtual sample size for one evidence record:
+    ``EVIDENCE_TYPE_N_EFF[source_type] * quality_score`` — the type-constant
+    weighting, where ``quality_score`` ∈ [0, 1] folds in the LLM classifier's
+    self-reported confidence (1.0 for non-LLM streams like LINCS / GWAS that
+    have no classification step).
 
-    Legacy path (default, and whenever ``EROOM_NEFF_PRECISION`` is off):
-    returns ``EVIDENCE_TYPE_N_EFF[source_type] * quality_score`` exactly —
-    the type-constant weighting, where ``quality_score`` ∈ [0, 1] folds in
-    the LLM classifier's self-reported confidence (1.0 for non-LLM streams
-    like LINCS / GWAS that have no classification step).
-
-    Precision-aware path (flag on)::
-
-        base × precision_multiplier(n_obs)
-             × directness(source_type, edge_type)
-             × bias
-
-    where ``bias`` is the same ``quality_score`` discount (the LLM-confidence
-    term is preserved as the bias factor) and the precision multiplier is
-    anchored at ``_N_REF_ANCHOR`` so a median-N record reproduces ``base``.
-    Records without ``n_obs`` (curated facts, LINCS signatures, etc.) get
-    multiplier 1.0 and so reproduce the legacy value — v1 re-weights only
-    clinical evidence that carries a patient count. ``directness`` is 1.0
-    until its matrix is populated (plan open item), so the only active
-    change under the flag is the anchored N precision.
+    ``n_obs`` / ``edge_type`` were inputs to the removed precision-aware n_eff
+    path (the EROOM_NEFF_PRECISION flag); they are kept on the signature for
+    call-site stability but no longer affect the result.
     """
     if not 0.0 <= quality_score <= 1.0:
         raise ValueError(
             f"quality_score must be in [0, 1], got {quality_score!r}"
         )
-    base = EVIDENCE_TYPE_N_EFF[source_type]
-    if not _precision_enabled():
-        return base * quality_score
-    return (
-        base
-        * _precision_multiplier(n_obs)
-        * _directness(source_type, edge_type)
-        * quality_score
-    )
-
-
-# Independence / redundancy: the (m+1)-th evidence record sharing a record's
-# correlation cluster (same study/source, or an explicit cluster_key) is not
-# an independent observation. Its effective weight is discounted to
-# 1 / (1 + m·ρ) of nominal — diminishing returns, so clustered evidence
-# saturates instead of compounding linearly. ρ == 0 disables the discount;
-# pre-calibration default.
-_REDUNDANCY_RHO = 0.5
+    return EVIDENCE_TYPE_N_EFF[source_type] * quality_score
 
 
 def redundancy_factor(prior_same_cluster: int) -> float:
-    """Diminishing-returns discount for non-independent (clustered) evidence.
-
-    ``prior_same_cluster`` is how many records already on the edge share this
-    record's correlation cluster (same source/study, or an explicit
-    ``cluster_key``). The new record is then the (prior+1)-th member of that
-    cluster and contributes ``1 / (1 + prior·ρ)`` of its nominal n_eff, so a
-    cluster of m correlated records sums sub-linearly rather than as m× a
-    single observation.
-
-    Returns 1.0 (no discount) when the precision flag is off, for the first
-    member of a cluster, or when ρ is 0 — leaving the legacy path and
-    genuinely independent evidence unchanged.
-    """
-    if not _precision_enabled() or prior_same_cluster <= 0 or _REDUNDANCY_RHO <= 0:
-        return 1.0
-    return 1.0 / (1.0 + prior_same_cluster * _REDUNDANCY_RHO)
+    """No-op (returns 1.0). The clustered-evidence redundancy discount was part
+    of the removed precision-aware n_eff path (EROOM_NEFF_PRECISION); the baked
+    behavior applies no discount. Retained as a 1.0-returning stub because the
+    store's belief update calls it on the hot path — kept behavior-identical."""
+    return 1.0
 
 
 def applied_weights(record) -> tuple[float, float]:

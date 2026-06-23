@@ -30,7 +30,6 @@ private per the open-methods boundary.
 from __future__ import annotations
 
 import logging
-import os
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable
 
@@ -290,13 +289,6 @@ def _classes_for_type(
         for a, b in _pair_indices(keys, new_ids):
             if cosine_similarity(vecs[keys[a]], vecs[keys[b]]) >= config.biolord_threshold:
                 uf.union(keys[a], keys[b])
-
-    if config.enable_box and boxes:
-        from src.graph.box_embeddings import relation
-        boxed = [i for i in ids if i in boxes]
-        for a, b in _pair_indices(boxed, new_ids):
-            if relation(boxes[boxed[a]], boxes[boxed[b]]) == "merge":
-                uf.union(boxed[a], boxed[b])
 
     return uf.classes()
 

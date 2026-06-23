@@ -29,7 +29,6 @@ sorted stable-id order so the result is deterministic across rebuilds.
 from __future__ import annotations
 
 import logging
-import os
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -346,15 +345,6 @@ def _update_chain_references(
     return rewrites
 
 
-def embedding_merge_enabled() -> bool:
-    """A.4 feature flag (``EROOM_EMBEDDING_MERGE``). Default off — the build
-    path stays crosswalk-only until the embedding merger is threshold-validated
-    on the gold set (A.5)."""
-    return os.environ.get("EROOM_EMBEDDING_MERGE", "").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
-
-
 def embedding_merge_pairs(
     graph: "GraphStore",
     *,
@@ -502,15 +492,6 @@ async def merge_equivalent_biology_nodes(
     reactome_ids = [b for b in bio_nodes if b.startswith("R-")]
     crosswalk = await fetch_reactome_to_go_crosswalk(reactome_ids, lincs_client)
     classes = find_equivalence_classes(bio_nodes, crosswalk)
-
-    # A.4 (flag-gated, EROOM_EMBEDDING_MERGE): catch semantic equivalence the
-    # ontology crosswalk missed, via BioLORD cosine on node descriptions. Off
-    # by default so the crosswalk-only build path is unchanged until validated.
-    if embedding_merge_enabled():
-        emb_pairs = embedding_merge_pairs(graph)
-        if emb_pairs:
-            classes = augment_classes_with_pairs(classes, emb_pairs)
-            logger.info("A.4 embedding merger added %d pairs", len(emb_pairs))
 
     nodes_removed: list[str] = []
     winner_by_loser: dict[str, str] = {}
