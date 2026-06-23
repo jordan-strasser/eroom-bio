@@ -627,7 +627,7 @@ async def main() -> int:
         scorable = [(t.nct, t.label, t.chain, t.kwargs) for t in eval_trials]
         print("\ncomputing graph in-sample + K-fold holdout (re-attribution)...", flush=True)
         g_in, g_ho = await graph_holdout_predictions(
-            graph, scorable, args.initial, args.k, args.n_samples)
+            graph, scorable, args.initial, args.k, args.n_samples, seed=args.seed)
         g_in = {n: p for n, p in g_in.items() if p is not None}
         g_ho = {n: p for n, p in g_ho.items() if p is not None}
         if args.dump_graph_preds:

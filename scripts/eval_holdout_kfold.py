@@ -40,7 +40,11 @@ from src.prediction.field_prediction import (
     load_edge_fields,
     localized_chain_probability,
 )
-from src.prediction.path_query import PredictionEngine, predict_clinical_hypothesis
+from src.prediction.path_query import (
+    PredictionEngine,
+    predict_clinical_hypothesis,
+    seed_prediction_rng,
+)
 from scripts.eval_holdout_compose import (
     ANN_DIR,
     CORPORA_DIR,
@@ -79,6 +83,7 @@ async def graph_holdout_predictions(
     k: int,
     n_samples: int,
     annotations_dir: str | None = None,
+    seed: int | None = 42,
 ):
     """Per-trial graph predictions, in-sample and TRUE K-fold holdout.
 
@@ -89,6 +94,10 @@ async def graph_holdout_predictions(
     graph on the IDENTICAL folds it scores the ML/base-rate models on (paired
     DeLong needs same trials, same fold assignment)."""
     ann = annotations_dir or str(ANN_DIR)
+    # Pin the prediction RNG so the holdout AUROC is exactly reproducible. The
+    # scorable order is deterministic (corpus-file order), so a single seeded
+    # stream shared across all predict() calls yields identical numbers per run.
+    seed_prediction_rng(seed)
     insample = {nct: _predict(full, ch, kw, n_samples) for nct, _, ch, kw in scorable}
     folds: dict[int, list] = {}
     for row in scorable:
@@ -169,6 +178,9 @@ async def main() -> int:
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--min-overlap", type=int, default=5)
     ap.add_argument("--n-samples", type=int, default=2000)
+    ap.add_argument("--seed", type=int, default=42,
+                    help="seed for the prediction RNG so holdout AUROC is "
+                         "exactly reproducible (Monte-Carlo Beta sampling).")
     ap.add_argument("--field", default=None,
                     help="(s,t) belief-field snapshot (nct-tagged anchors). Adds "
                          "a FIELD leave-one-out via anchor-drop — full-corpus "
@@ -227,7 +239,7 @@ async def main() -> int:
 
     # In-sample + TRUE K-fold holdout (re-attribute per fold excluding it).
     insample, holdout = await graph_holdout_predictions(
-        full, scorable, args.initial, args.k, args.n_samples
+        full, scorable, args.initial, args.k, args.n_samples, seed=args.seed
     )
 
     # Report over trials scored BOTH ways.

@@ -313,6 +313,21 @@ def _informed_prior_enabled() -> bool:
     }
 
 
+# Module-level prediction RNG. Default is a fresh unseeded Generator (random,
+# unchanged behavior for production callers). The eval harness calls
+# ``seed_prediction_rng(seed)`` once so the Monte-Carlo holdout AUROC is exactly
+# reproducible (the per-trial Beta sampling otherwise gives ~±0.002 AUROC noise).
+# This is a reproducibility hook, not an algorithm parameter — the math is
+# identical; only the random stream is pinned.
+_PREDICTION_RNG = np.random.default_rng()
+
+
+def seed_prediction_rng(seed: int | None) -> None:
+    """Reseed the shared prediction RNG (None → fresh random Generator)."""
+    global _PREDICTION_RNG
+    _PREDICTION_RNG = np.random.default_rng(seed)
+
+
 def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
     """Sample an edge's Beta, optionally under a weak informed prior.
 
@@ -646,7 +661,7 @@ class PredictionEngine:
         the same weakest-link softmin over the UNION of its constituents' chain
         edges (not a single constituent picked via a weak combo_inherit edge)."""
         # 2. Sample from each edge's Beta and compute per-edge trust weights
-        rng = np.random.default_rng()
+        rng = _PREDICTION_RNG
         edge_samples: list[np.ndarray] = []
         trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
