@@ -2717,20 +2717,24 @@ class TestPopulatorCodenameToINN:
         assert "cisplatin" in pipeline.graph._graph  # noqa: SLF001
 
 
-def test_biology_id_from_description_is_content_address():
-    """A description-defined BiologyNode id is a content-address over the
-    normalized description (semantic-layers redesign) — NOT a {mech}__{ind}
-    slug. Case/whitespace-normalized so phrasing-identical descriptions collapse
-    to one id (exact Tier-1 merge); distinct biology gets a distinct id."""
+def test_biology_id_from_description_is_stable_identity():
+    """A description-defined BiologyNode id is a STABLE identity over the
+    normalized description — NOT a {mech}__{ind} slug. With biology→GO ontology
+    keying baked ON (CONFIG.bio_ontology), a description mapping to a GO-BP term
+    above the gate gets ``bio:GO:<acc>``; otherwise it falls back to the
+    content-address ``bio:<sha1>``. Either way: phrasing-identical descriptions
+    collapse to one id (exact Tier-1 merge) and distinct biology gets a distinct
+    id."""
     from src.graph.populate import _biology_id_from_description
 
     a = _biology_id_from_description("Formation of new blood vessels")
     b = _biology_id_from_description("formation of new   blood vessels")
     c = _biology_id_from_description("T-cell mediated cytotoxicity")
 
-    assert a.startswith("bio:") and len(a) == len("bio:") + 12
+    # GO id (bio:GO:...) when mapped, else content-address (bio:<sha1>).
+    assert a.startswith("bio:")
     assert a == b          # normalized (case + collapsed whitespace) → same id
-    assert a != c          # distinct biology → distinct content-address
+    assert a != c          # distinct biology → distinct id
     assert "__" not in a   # not a {mechanism}__{indication} slug
 
 

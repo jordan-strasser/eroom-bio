@@ -20,6 +20,7 @@ from src.graph.models import (
     EdgeType,
     TrialOutcome,
 )
+from src.config import CONFIG
 from src.inference.beliefs import pool_hierarchical
 from src.graph import direction as _direction
 from src.graph.store import GraphStore
@@ -208,15 +209,13 @@ def _ae_severity_weight(
 # contributes fully; only tolerated AEs (fraction 0) now contribute nothing.
 # contribution = floor + (1-floor)*fraction = fraction, the clean DLT gate the
 # round-30 design intended. See memory project_benchmark_verdict / tuning-log.
-_SAFETY_DLT_FLOOR = 0.0
+_SAFETY_DLT_FLOOR = CONFIG.safety_dlt_floor
 
 
 def _safety_dlt_gate_enabled() -> bool:
-    # Default ON (round-30): penalize failure-causing toxicity, not occurrence.
-    # Set EROOM_SAFETY_DLT_GATE=0 to restore the round-29 occurrence behavior.
-    return os.environ.get("EROOM_SAFETY_DLT_GATE", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+    # Baked ON: penalize failure-causing toxicity, not mere AE occurrence.
+    # See src/config.py.
+    return CONFIG.safety_dlt_gate
 
 
 def _dlt_fraction(belief: EdgeBeliefState) -> float:
@@ -292,25 +291,23 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
-_SOFTMIN_T = float(os.environ.get("EROOM_SOFTMIN_T", "0.10"))  # soft-min temperature; ->0 approaches hard min
+_SOFTMIN_T = CONFIG.softmin_t  # weakest-link softmin temperature; ->0 approaches hard min
 
 # Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
 # for a WEAK prior centered on a plausible base rate, so an under-evidenced /
 # unobserved chain edge defers to "probably operative" (~0.75) instead of
 # producing low samples that spuriously become the weakest link. Weak
 # (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
-_INFORMED_PRIOR_MEAN = float(os.environ.get("EROOM_PRIOR_MEAN", "0.75"))
-_INFORMED_PRIOR_STRENGTH = float(os.environ.get("EROOM_PRIOR_STRENGTH", "2.0"))
+_INFORMED_PRIOR_MEAN = CONFIG.prior_mean
+_INFORMED_PRIOR_STRENGTH = CONFIG.prior_strength
 _INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
 _INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
 
 
 def _informed_prior_enabled() -> bool:
-    # Default ON (round-30): under-evidenced edges defer to a plausible base
-    # rate. Set EROOM_INFORMED_PRIOR=0 to restore the Beta(1,1) coin-flip prior.
-    return os.environ.get("EROOM_INFORMED_PRIOR", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+    # Baked ON: under-evidenced edges defer to a plausible base rate (~0.75)
+    # instead of the Beta(1,1) coin-flip. See src/config.py.
+    return CONFIG.informed_prior
 
 
 # Module-level prediction RNG. Default is a fresh unseeded Generator (random,
@@ -837,7 +834,7 @@ class PredictionEngine:
     # over-penalized well-evidenced drugs (nivolumab, bevacizumab) that
     # had many manageable AEs; raising the cap while switching to a
     # severity-weighted contribution (below) keeps the cap rarely hit.
-    _SAFETY_PENALTY_CAP = 0.60
+    _SAFETY_PENALTY_CAP = CONFIG.safety_penalty_cap
 
     def _compute_safety_penalty(
         self,

@@ -17,9 +17,10 @@ build is byte-identical), so it can be A/B-validated before it becomes the defau
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
+
+from src.config import CONFIG
 
 # Direction buckets (the sign of the pharmacological action ON THE TARGET).
 AGONIST = "agonist"        # activates / increases target function
@@ -54,11 +55,8 @@ _ACTION_TYPE_DIRECTION: dict[str, str] = {
 
 
 def enabled() -> bool:
-    """Whether native direction resolution is active (default off; read at call
-    time so an A/B harness can build the same corpus both ways in one process)."""
-    return os.environ.get("EROOM_DIRECTION", "").strip().lower() in (
-        "1", "on", "true", "yes",
-    )
+    """Whether native direction resolution is active. Baked ON; see src/config.py."""
+    return CONFIG.direction
 
 
 def direction_for_action_type(action_type: str | None) -> str:

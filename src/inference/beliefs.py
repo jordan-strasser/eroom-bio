@@ -32,9 +32,9 @@ them in tests or after calibration without subclassing.
 
 from __future__ import annotations
 
-import os
 from enum import Enum
 
+from src.config import CONFIG
 from src.graph.models import (
     EdgeBeliefState,
     EvidenceDirection,
@@ -216,10 +216,10 @@ _DIRECTNESS: dict[tuple[EvidenceType, str], float] = {}
 
 
 def _precision_enabled() -> bool:
-    """Whether the precision-aware n_eff path is active (env-gated, default off)."""
-    return os.environ.get("EROOM_NEFF_PRECISION", "").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+    """Precision-aware n_eff path is permanently OFF (the flag was default-off and
+    its off-branch is the baked behavior). Kept as a stub until Phase 1b removes
+    the dead branches it gates."""
+    return False
 
 
 def _precision_multiplier(n_obs: int | None) -> float:
@@ -469,18 +469,11 @@ def modulation_bucket(
 # is calibrated by the evidence-strength SCALE, NOT tuned against any holdout
 # AUROC, and is env-overridable (``EROOM_POOL_PRIOR_STRENGTH``) for sweeps. See
 # /tuning-log.
-_POOL_PRIOR_STRENGTH = 20.0
+_POOL_PRIOR_STRENGTH = CONFIG.pool_prior_strength
 
 
 def _pool_prior_strength() -> float:
-    raw = os.environ.get("EROOM_POOL_PRIOR_STRENGTH", "").strip()
-    if not raw:
-        return _POOL_PRIOR_STRENGTH
-    try:
-        val = float(raw)
-    except ValueError:
-        return _POOL_PRIOR_STRENGTH
-    return val if val >= 0.0 else _POOL_PRIOR_STRENGTH
+    return _POOL_PRIOR_STRENGTH
 
 
 def _cap_concentration(

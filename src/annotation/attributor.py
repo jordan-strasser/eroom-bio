@@ -27,6 +27,7 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.config import CONFIG
 from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import (
@@ -169,14 +170,9 @@ _EDGE_ATTR_MODES = (
 
 
 def _edge_attr_mode() -> str:
-    """Read EROOM_EDGE_ATTR (default ``explain_away``); read at call time so a
-    harness can re-attribute the same graph under several modes in one process."""
-    mode = os.environ.get("EROOM_EDGE_ATTR", "explain_away").strip()
-    if mode not in _EDGE_ATTR_MODES:
-        raise ValueError(
-            f"EROOM_EDGE_ATTR={mode!r} not in {_EDGE_ATTR_MODES}"
-        )
-    return mode
+    """Per-edge failure-attribution mode. Baked to ``explain_away``; see
+    src/config.py."""
+    return CONFIG.edge_attr
 
 
 def _edge_effect_enabled() -> bool:
@@ -201,13 +197,9 @@ def _edge_effect_enabled() -> bool:
 #   UNKNOWN                → fall back to the existing explaining-away path
 # plus a safety-gate SURVIVAL credit (b += w) on readout-reaching trials.
 def _routing_enabled() -> bool:
-    """Whether the reason-routed EM path (A3 + A4) is active.
-
-    Env-gated, default off; read at call time so an A/B harness can attribute
-    the same initial graph both ways in one process."""
-    return os.environ.get("EROOM_ROUTING", "").strip().lower() in (
-        "1", "on", "true", "yes",
-    )
+    """Whether the reason-routed EM path (A3 + A4) is active. Baked ON; see
+    src/config.py."""
+    return CONFIG.routing
 
 
 # Degenerate-chain guard for the A4 responsibility denominator (1 − M). When

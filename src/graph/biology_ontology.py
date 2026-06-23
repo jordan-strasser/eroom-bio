@@ -20,23 +20,20 @@ flag is on.
 from __future__ import annotations
 
 import json
-import os
 from functools import lru_cache
 from pathlib import Path
 
+from src.config import CONFIG
+
 _MAP_PATH = Path("data/cache/biology_ontology_map.json")
-_DEFAULT_GATE = 0.60
 
 
 def enabled() -> bool:
-    return os.environ.get("EROOM_BIO_ONTOLOGY", "") not in ("", "0", "false", "False")
+    return CONFIG.bio_ontology
 
 
 def gate() -> float:
-    try:
-        return float(os.environ.get("EROOM_BIO_ONTOLOGY_GATE", _DEFAULT_GATE))
-    except ValueError:
-        return _DEFAULT_GATE
+    return CONFIG.bio_ontology_gate
 
 
 def _normkey(s: str) -> str:
