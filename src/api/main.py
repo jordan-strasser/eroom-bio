@@ -34,7 +34,7 @@ from src.graph.populate import (
 )
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import ClinicalTrialsClient
-from src.prediction.path_query import PredictionEngine, PredictionResult
+from src.prediction.path_query import PredictionResult, predict_clinical_hypothesis
 
 logger = logging.getLogger("eroom.api")
 
@@ -256,24 +256,21 @@ def predict(req: PredictRequest) -> PredictionResult:
     if not indication_id:
         raise HTTPException(status_code=404, detail=f"Indication '{req.indication}' not found")
 
-    mechanism_id = _find_node_by_name(req.mechanism, "MechanismNode") or "UNKNOWN"
-    endpoint_id = _find_node_by_name(req.endpoint, "EndpointNode") or "UNKNOWN"
-    population_id = _find_node_by_name(req.population, "PopulationNode") or "UNKNOWN"
-
-    chain = CausalChain(
-        arm_id="api_query",
-        compound_id=compound_id,
-        subgroup_population_id=population_id,
+    # Canonical predictor — the SAME path the eval uses
+    # (predict_clinical_hypothesis). It resolves the rest of the chain from the
+    # graph, INCLUDING biology, rather than pinning biology_id="UNKNOWN" as the
+    # old hand-built chain did. Optional intermediates pass None so the resolver
+    # fills them from the target-onward topology.
+    return predict_clinical_hypothesis(
+        state.graph,
+        compound_id,
+        indication_id,
         target_id=target_id,
-        mechanism_id=mechanism_id,
-        biology_id="UNKNOWN",
-        indication_id=indication_id,
-        endpoint_id=endpoint_id,
-        outcome=TrialOutcome.UNKNOWN,
+        mechanism_id=_find_node_by_name(req.mechanism, "MechanismNode"),
+        endpoint_id=_find_node_by_name(req.endpoint, "EndpointNode"),
+        population_id=_find_node_by_name(req.population, "PopulationNode"),
+        n_samples=req.n_samples,
     )
-
-    engine = PredictionEngine(state.graph)
-    return engine.predict(chain, n_samples=req.n_samples)
 
 
 @app.post("/annotate", response_model=AnnotateResponse)
