@@ -42,11 +42,12 @@ class AlgorithmConfig:
     edge_attr: str = "explain_away"
 
     # ── Substrate (node identity) ─────────────────────────────────────────
-    # Key biology nodes by curated GO-BP id (bio:GO:xxxx) instead of a content
-    # hash of the description, so the same biology pools across trials. The gate
-    # is the BioLORD cosine floor for accepting a GO mapping. (was
-    # EROOM_BIO_ONTOLOGY / EROOM_BIO_ONTOLOGY_GATE)
-    bio_ontology: bool = True
+    # Biology nodes pool across trials by their curated GO-BP id. This is applied
+    # by ONE explicit build step (scripts/rekey_biology_ontology.py) — populate
+    # stays purely description-content-addressed (native per-trial GO-keying gave a
+    # worse fresh-build graph, 0.53 vs 0.701). There is no on/off flag anymore; the
+    # only parameter is the gate — the BioLORD cosine floor for accepting a GO
+    # mapping. (was EROOM_BIO_ONTOLOGY_GATE; the EROOM_BIO_ONTOLOGY on/off is gone.)
     bio_ontology_gate: float = 0.60
 
     # Native modulation direction (inhibit/activate) from ChEMBL action_type,

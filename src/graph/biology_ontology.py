@@ -28,11 +28,11 @@ from src.config import CONFIG
 _MAP_PATH = Path("data/cache/biology_ontology_map.json")
 
 
-def enabled() -> bool:
-    return CONFIG.bio_ontology
-
-
 def gate() -> float:
+    """BioLORD cosine floor for accepting a GO-BP mapping (CONFIG.bio_ontology_gate).
+    The biology→GO grouping is no longer flag-gated — the rekey step
+    (scripts/rekey_biology_ontology.py) applies it unconditionally; this gate is
+    its only tuneable parameter."""
     return CONFIG.bio_ontology_gate
 
 
