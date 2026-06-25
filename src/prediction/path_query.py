@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import math
-import os
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +19,7 @@ from src.graph.models import (
     EdgeType,
     TrialOutcome,
 )
+from src.config import CONFIG
 from src.inference.beliefs import pool_hierarchical
 from src.graph import direction as _direction
 from src.graph.store import GraphStore
@@ -208,15 +208,13 @@ def _ae_severity_weight(
 # contributes fully; only tolerated AEs (fraction 0) now contribute nothing.
 # contribution = floor + (1-floor)*fraction = fraction, the clean DLT gate the
 # round-30 design intended. See memory project_benchmark_verdict / tuning-log.
-_SAFETY_DLT_FLOOR = 0.0
+_SAFETY_DLT_FLOOR = CONFIG.safety_dlt_floor
 
 
 def _safety_dlt_gate_enabled() -> bool:
-    # Default ON (round-30): penalize failure-causing toxicity, not occurrence.
-    # Set EROOM_SAFETY_DLT_GATE=0 to restore the round-29 occurrence behavior.
-    return os.environ.get("EROOM_SAFETY_DLT_GATE", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+    # Baked ON: penalize failure-causing toxicity, not mere AE occurrence.
+    # See src/config.py.
+    return CONFIG.safety_dlt_gate
 
 
 def _dlt_fraction(belief: EdgeBeliefState) -> float:
@@ -292,25 +290,38 @@ def _collect_modulation_edges(
 # `mechanism_affects` clinical updates can hit 45+ in a few trials.
 _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
-_SOFTMIN_T = float(os.environ.get("EROOM_SOFTMIN_T", "0.10"))  # soft-min temperature; ->0 approaches hard min
+_SOFTMIN_T = CONFIG.softmin_t  # weakest-link softmin temperature; ->0 approaches hard min
 
 # Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
 # for a WEAK prior centered on a plausible base rate, so an under-evidenced /
 # unobserved chain edge defers to "probably operative" (~0.75) instead of
 # producing low samples that spuriously become the weakest link. Weak
 # (strength ~2 pseudo-obs) so real evidence dominates; calibratable.
-_INFORMED_PRIOR_MEAN = float(os.environ.get("EROOM_PRIOR_MEAN", "0.75"))
-_INFORMED_PRIOR_STRENGTH = float(os.environ.get("EROOM_PRIOR_STRENGTH", "2.0"))
+_INFORMED_PRIOR_MEAN = CONFIG.prior_mean
+_INFORMED_PRIOR_STRENGTH = CONFIG.prior_strength
 _INFORMED_PRIOR_A = _INFORMED_PRIOR_MEAN * _INFORMED_PRIOR_STRENGTH          # 1.5
 _INFORMED_PRIOR_B = (1.0 - _INFORMED_PRIOR_MEAN) * _INFORMED_PRIOR_STRENGTH  # 0.5
 
 
 def _informed_prior_enabled() -> bool:
-    # Default ON (round-30): under-evidenced edges defer to a plausible base
-    # rate. Set EROOM_INFORMED_PRIOR=0 to restore the Beta(1,1) coin-flip prior.
-    return os.environ.get("EROOM_INFORMED_PRIOR", "1").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+    # Baked ON: under-evidenced edges defer to a plausible base rate (~0.75)
+    # instead of the Beta(1,1) coin-flip. See src/config.py.
+    return CONFIG.informed_prior
+
+
+# Module-level prediction RNG. Default is a fresh unseeded Generator (random,
+# unchanged behavior for production callers). The eval harness calls
+# ``seed_prediction_rng(seed)`` once so the Monte-Carlo holdout AUROC is exactly
+# reproducible (the per-trial Beta sampling otherwise gives ~±0.002 AUROC noise).
+# This is a reproducibility hook, not an algorithm parameter — the math is
+# identical; only the random stream is pinned.
+_PREDICTION_RNG = np.random.default_rng()
+
+
+def seed_prediction_rng(seed: int | None) -> None:
+    """Reseed the shared prediction RNG (None → fresh random Generator)."""
+    global _PREDICTION_RNG
+    _PREDICTION_RNG = np.random.default_rng(seed)
 
 
 def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
@@ -341,59 +352,18 @@ def _trust_weight(belief: EdgeBeliefState) -> float:
     return min(1.0, math.log(s + 1.0) / _TRUST_LOG_SAT)
 
 
-def _aggregate_samples(
-    edge_samples: list[np.ndarray],
-    weights: list[float],
-) -> np.ndarray:
-    """Combine per-edge sample arrays into one chain-probability sample array.
-
-    Default is weakest-link **softmin** (``EROOM_AGG``, round-30); the legacy
-    **trust-weighted geometric mean** is the ``EROOM_AGG=geomean`` branch below
-    (``product``/``min``/``harmonic`` also available). The softmin family runs
-    unweighted on purpose — don't down-weight a sparse-but-decisive edge; only
-    the geomean branch consumes ``weights``.
-
-    Callers drop zero-evidence edges upstream so every entry has positive
-    weight. The fallback branch (sum_w <= 0) is a safety net — an unweighted
-    geomean so we don't blow up if an empty chain ever slips through.
-    """
+def _aggregate_samples(edge_samples: list[np.ndarray]) -> np.ndarray:
+    """Combine per-edge sample arrays into one chain-probability sample array via
+    the weakest-link **softmin** (the baked aggregation; temperature
+    ``CONFIG.softmin_t``). Runs unweighted on purpose — a sparse-but-decisive
+    weak edge must NOT be down-weighted; it is exactly the bottleneck softmin is
+    meant to surface. Returns an empty array for an empty chain."""
     if not edge_samples:
         return np.array([])
-    # Experimental aggregation modes (EROOM_AGG). The default trust-weighted
-    # geomean dilutes a decisive weak link; these test true conditional-chain
-    # probability (product / noisy-AND) and weakest-link (min / softmin).
-    # Unweighted on purpose — the point is to NOT down-weight a sparse-but-
-    # decisive edge. Default ("" / geomean) keeps the existing behavior.
-    # Default softmin (round-30): weakest-link P(success). Set EROOM_AGG=geomean
-    # to restore the legacy trust-weighted geometric mean.
-    mode = os.environ.get("EROOM_AGG", "softmin").strip().lower()
-    if mode in ("product", "min", "softmin", "harmonic"):
-        stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
-        if mode == "product":
-            return np.prod(stack, axis=0)
-        if mode == "min":
-            return stack.min(axis=0)
-        if mode == "harmonic":
-            # power mean p=-1: dominated by the smallest edge (weakest-link)
-            # but accumulates multiple weak links AND is length-normalized —
-            # the middle ground between min (no discrimination) and product
-            # (length-tanks).
-            return stack.shape[0] / np.sum(1.0 / stack, axis=0)
-        return -_SOFTMIN_T * (
-            logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
-        )
-    n_samples = edge_samples[0].shape[0]
-    sum_w = float(sum(w for w in weights if w > 0.0))
-    log_sum = np.zeros(n_samples)
-    if sum_w <= 0.0:
-        for s in edge_samples:
-            log_sum += np.log(np.clip(s, _LOG_FLOOR, 1.0))
-        return np.exp(log_sum / len(edge_samples))
-    for s, w in zip(edge_samples, weights):
-        if w <= 0.0:
-            continue
-        log_sum += w * np.log(np.clip(s, _LOG_FLOOR, 1.0))
-    return np.exp(log_sum / sum_w)
+    stack = np.clip(np.vstack(edge_samples), _LOG_FLOOR, 1.0)
+    return -_SOFTMIN_T * (
+        logsumexp(-stack / _SOFTMIN_T, axis=0) - np.log(stack.shape[0])
+    )
 
 
 # ── Models ──────────────────────────────────────────────────────────────
@@ -646,7 +616,7 @@ class PredictionEngine:
         the same weakest-link softmin over the UNION of its constituents' chain
         edges (not a single constituent picked via a weak combo_inherit edge)."""
         # 2. Sample from each edge's Beta and compute per-edge trust weights
-        rng = np.random.default_rng()
+        rng = _PREDICTION_RNG
         edge_samples: list[np.ndarray] = []
         trust_weights: list[float] = []
         for _src, _tgt, _etype, belief in edges:
@@ -654,7 +624,7 @@ class PredictionEngine:
             trust_weights.append(_trust_weight(belief))
 
         # 3. Aggregate samples (default softmin; EROOM_AGG=geomean for legacy)
-        samples = _aggregate_samples(edge_samples, trust_weights)
+        samples = _aggregate_samples(edge_samples)
 
         # 4. Compute statistics (mechanism-only — the "efficacy" view).
         if samples.size:
@@ -822,7 +792,7 @@ class PredictionEngine:
     # over-penalized well-evidenced drugs (nivolumab, bevacizumab) that
     # had many manageable AEs; raising the cap while switching to a
     # severity-weighted contribution (below) keeps the cap rarely hit.
-    _SAFETY_PENALTY_CAP = 0.60
+    _SAFETY_PENALTY_CAP = CONFIG.safety_penalty_cap
 
     def _compute_safety_penalty(
         self,

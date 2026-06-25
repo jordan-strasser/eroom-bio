@@ -24,18 +24,8 @@ manifold 3, which conditions on outcomes and lives in ``eroom-enterprise``).
 from __future__ import annotations
 
 import math
-import os
 from dataclasses import dataclass, field
 from typing import Any
-
-
-def field_enabled() -> bool:
-    """True when the manifold-2 belief-field path is switched on
-    (``EROOM_BELIEF_FIELD``). Default off — the scalar Beta path is unchanged
-    and public predictions are byte-identical until this is set."""
-    return os.environ.get("EROOM_BELIEF_FIELD", "").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
 
 
 PRIOR_ALPHA = 1.0

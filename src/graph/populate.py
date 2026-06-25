@@ -636,26 +636,20 @@ _UNKNOWN = "UNKNOWN"
 def _biology_id_from_description(description: str) -> str:
     """Content-address handle for a description-defined BiologyNode.
 
-    Semantic-layers redesign: a Biology node's IDENTITY is its extracted
-    physiological-process description + that description's BioLORD embedding.
-    This id is *not* a slug — it fabricates no meaning from neighboring layers
-    (the old ``{mechanism}__{indication}`` slug glued the two layers around
-    biology into a fake key). It's a stable content-address (like a git blob
-    hash) over the normalized description text: identical descriptions across
-    trials collapse to the same id (exact Tier-1 merge), and near-identical
-    phrasings pool via the Tier-3 BioLORD geometric merge. The human-readable
-    identity lives in the node's ``name`` + ``description``; the real curated
-    cross-ref (Reactome/GO), when it resolves, is used as the handle instead.
+    A Biology node's IDENTITY is a stable content-address (like a git blob hash)
+    over its normalized description text: identical descriptions across trials
+    collapse to the same id at the Tier-1 merge. It is *not* a slug — it
+    fabricates no meaning from neighboring layers (the old
+    ``{mechanism}__{indication}`` slug glued the two layers around biology into a
+    fake key).
+
+    The GO-BP ontology GROUPING is applied as a SEPARATE post-populate step
+    (``scripts/rekey_biology_ontology.py`` — the frontier recipe), NOT here:
+    native per-trial GO-keying at populate produced a measurably worse fresh-build
+    graph (honest holdout 0.53 vs the rekey's 0.701), so populate stays purely
+    description-content-addressed and the rekey owns the GO merge. See
+    docs/dev/reports/CLEANUP_RESULTS.md.
     """
-    # B1 (EROOM_BIO_ONTOLOGY, default OFF): key biology by the nearest GO-BP term
-    # so the same biology recurs on one node — mirrors the Reactome id-merge that
-    # makes mechanism the densest layer. Unmappable biology falls back to the
-    # content hash below, so no node is lost. See B1_DECISION.md.
-    from src.graph import biology_ontology as _bio_ontology
-    if _bio_ontology.enabled():
-        oid = _bio_ontology.ontology_id_for(description)
-        if oid:
-            return oid
     norm = " ".join(description.strip().lower().split())
     return "bio:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
 

@@ -122,7 +122,7 @@ def trial_features(store, nct, engine, *, exclude_self):
                 eweights.append(_trust_weight(b))
             elif et == "modulates_efficacy_of":
                 modeff.append(m)
-        eff_overall = (float(_aggregate_samples([np.array([m]) for m in emeans], eweights)[0])
+        eff_overall = (float(_aggregate_samples([np.array([m]) for m in emeans])[0])
                        if emeans else 0.5)
         flags, nfeat = _pop_features(store, ch.subgroup_population_id)
         n_ae, n_serious = _ae_features(store, ch.compound_id)

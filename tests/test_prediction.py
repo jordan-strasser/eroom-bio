@@ -393,33 +393,20 @@ class TestTrustWeight:
 
 
 class TestAggregateSamples:
-    def test_zero_weight_falls_back_to_unweighted(self):
-        # All weights 0 → fallback to unweighted geomean of 0.5 and 0.5 = 0.5
-        s1 = np.array([0.5, 0.5])
-        s2 = np.array([0.5, 0.5])
-        out = _aggregate_samples([s1, s2], [0.0, 0.0])
-        assert np.allclose(out, [0.5, 0.5])
-
-    def test_full_trust_recovers_geomean(self, monkeypatch):
-        monkeypatch.setenv("EROOM_AGG", "geomean")  # geomean is opt-in (default softmin)
-        s1 = np.full(1000, 0.6)
-        s2 = np.full(1000, 0.4)
-        out = _aggregate_samples([s1, s2], [1.0, 1.0])
-        expected = np.exp(0.5 * np.log(0.6) + 0.5 * np.log(0.4))
-        assert np.allclose(out, expected)
-
-    def test_zero_weight_edges_dont_drag(self, monkeypatch):
-        monkeypatch.setenv("EROOM_AGG", "geomean")  # trust-weighting is the geomean path (now opt-in)
-        strong = np.full(100, 0.9)
-        weak_samples = [np.full(100, 0.5) for _ in range(6)]
-        out = _aggregate_samples([strong] + weak_samples, [1.0] + [0.0] * 6)
-        assert np.allclose(out, 0.9)
-
-    def test_default_is_weakest_link_softmin(self):
-        # Round-30: default aggregation is softmin (weakest-link), not geomean.
-        out = _aggregate_samples([np.full(200, 0.9), np.full(200, 0.3)], [1.0, 1.0])
+    def test_is_weakest_link_softmin(self):
+        # Baked aggregation is softmin (weakest-link); the geomean/product/min/
+        # harmonic variants and the weights arg were removed in the flag collapse.
+        out = _aggregate_samples([np.full(200, 0.9), np.full(200, 0.3)])
         # dominated by the weak 0.3 link, well below geomean(0.9, 0.3) = 0.52
         assert out.mean() < 0.45
+
+    def test_single_edge_passes_through(self):
+        # softmin of one edge is the edge itself.
+        out = _aggregate_samples([np.full(50, 0.7)])
+        assert np.allclose(out, 0.7, atol=1e-6)
+
+    def test_empty_chain_returns_empty(self):
+        assert _aggregate_samples([]).size == 0
 
 
 class TestWeightedGeomeanPredict:

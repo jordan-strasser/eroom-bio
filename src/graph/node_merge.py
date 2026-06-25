@@ -30,12 +30,12 @@ private per the open-methods boundary.
 from __future__ import annotations
 
 import logging
-import os
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable
 
 from pydantic import BaseModel
 
+from src.config import CONFIG
 from src.graph.biology_merge import _evidence_dedup_key, _replay_belief
 from src.graph.models import EdgeType, EvidenceRecord, GraphEdge
 
@@ -57,18 +57,10 @@ DEFAULT_NODE_TYPES = (
 )
 
 
-def _env_threshold(default: float) -> float:
-    raw = os.environ.get("EROOM_MERGE_COSINE", "").strip()
-    try:
-        return float(raw) if raw else default
-    except ValueError:
-        return default
-
-
 @dataclass
 class MergeConfig:
-    """Tiered-merge knobs. ``biolord_threshold`` is overridable at runtime via
-    ``EROOM_MERGE_COSINE``; Tier-3 stays loose-but-tunable by design."""
+    """Tiered-merge knobs. ``biolord_threshold`` is the BioLORD description-cosine
+    floor for the Tier-3 (biology) semantic merge, baked from CONFIG.merge_cosine."""
 
     node_types: tuple[str, ...] = DEFAULT_NODE_TYPES
     enable_id: bool = True            # Tier 1: ontology id / crosswalk
@@ -77,7 +69,7 @@ class MergeConfig:
     enable_sapbert: bool = False      # Tier 2b: SapBERT cosine on node NAME (entity-linking)
     enable_biolord: bool = True       # Tier 3: BioLORD cosine on DESCRIPTION (semantic)
     enable_box: bool = False          # Tier 3: box relation == "merge"
-    biolord_threshold: float = field(default_factory=lambda: _env_threshold(0.85))
+    biolord_threshold: float = field(default_factory=lambda: CONFIG.merge_cosine)
     # SapBERT separates true distinct entities (PD-1 0.67 vs synonym ~0.75), so a
     # high threshold is the precision tier BioLORD lacks. Tunable per the eval.
     sapbert_threshold: float = 0.80
@@ -297,13 +289,6 @@ def _classes_for_type(
         for a, b in _pair_indices(keys, new_ids):
             if cosine_similarity(vecs[keys[a]], vecs[keys[b]]) >= config.biolord_threshold:
                 uf.union(keys[a], keys[b])
-
-    if config.enable_box and boxes:
-        from src.graph.box_embeddings import relation
-        boxed = [i for i in ids if i in boxes]
-        for a, b in _pair_indices(boxed, new_ids):
-            if relation(boxes[boxed[a]], boxes[boxed[b]]) == "merge":
-                uf.union(boxed[a], boxed[b])
 
     return uf.classes()
 

@@ -46,6 +46,8 @@ Five well-known case studies anchor direction-prediction: nivolumab CheckMate-06
 
 **Honest scope:** these 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation — in-sample is self-consistency, the holdout is the real (small) generalization test; the predictor's knobs are pre-calibration.
 
+**Ground-truth caveat:** the success/failure label is the **LLM-extracted `primary_endpoint_met`** (read from the trial's results text by the extraction model), with a classifier-`trial_outcome` fallback — *not* a structured ClinicalTrials.gov efficacy field. The labels therefore inherit any extraction error; treat the headline AUROC as conditioned on label fidelity, not an absolute.
+
 ---
 
 ## Architecture
@@ -215,7 +217,7 @@ data/
   dev/          # Per-build observability logs (dropped trials,
                 # unrouted updates, unmapped subgroup features)
 audit/          # Per-round audit notes + case-study reports (gitignored)
-tests/          # 1227 tests (non-integration)
+tests/          # ~1,390 tests (non-integration)
 scripts/        # Build + analysis tools
 docs/           # Architecture spec
 ```
@@ -236,7 +238,7 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 
 ## Current status
 
-- 1227 tests passing (non-integration) on Python 3.11+
+- ~1,390 tests passing (non-integration) on Python 3.11+
 - **Chains-first v2 (on `main`).** The build is per-trial isolated subgraphs → a re-runnable merge (`--bottom-up`); the abstraction ladder sits at true scale (Target → Mechanism = Reactome signaling pathway → Biology = general process; drug-class is metadata on the compound, operativity on the `modulates_via` edge); and **attribution is outcome-conditioning** — the trial outcome conditions the whole chain by explaining-away, the failure classifier is a coarse operational gate, and cross-trial overlap triangulates the failing edge.
 - **Holdout (compose-and-scan, target-anchored).** 3/3 direction-correct on every classic case study whose target the corpus knows (nivolumab→melanoma, torcetrapib→CVD, selumetinib→thyroid); the two whose target is absent from the small corpus are honest "unknown"s, not misses.
 - Pending: an evidence-depth check on the lighter-conditioned holdouts; the PubMed ingester (off-target safety not posted to CT.gov); LOO calibration of the predictor knobs; the BioLORD node substrate.

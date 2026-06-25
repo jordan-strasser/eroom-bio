@@ -27,6 +27,7 @@ from src.graph.models import (
     TrialSubgraph,
     normalize_entity,
 )
+from src.config import CONFIG
 from src.graph.store import GraphStore
 from src.inference.ae_propagation import propagate_to_target_associated_ae
 from src.inference.beliefs import (
@@ -149,43 +150,14 @@ _OUTCOME_TO_SUPPORT_BUCKET: dict["TrialOutcome", SupportBucket] = {
 }
 
 
-# ── TASK 2: per-edge attribution-math experiment knobs ────────────────────
-#
-# The default (``explain_away``) is the shipped asymmetric noisy-AND: SUCCESS
-# credits every backbone edge at FULL trial weight (the whole path operated);
+# Per-edge attribution is baked to the shipped asymmetric noisy-AND
+# (``explain_away``), inlined at the conditioning call site: SUCCESS credits
+# every backbone edge at FULL trial weight (the whole path operated);
 # FAILURE/PARTIAL SPLIT the (modest) failure mass toward the currently-uncertain
 # edges (explaining-away) so no single trial collapses an edge and curated
-# binds_to edges self-protect. ``EROOM_EDGE_ATTR`` lets a measurement harness
-# swap that per-edge SPLIT for symmetric variants so the owner can SEE how the
-# choice shapes the edge-belief distribution (the modes change only the per-edge
-# SHARE of the trial mass, never the outcome-determined p_obs strength):
-#   explain_away      (default) success=full, failure=explaining-away split
-#   symmetric_full    both directions full per-edge weight = pure per-edge freq
-#   symmetric_uniform both directions split 1/L (uniform mass across the chain)
-#   symmetric_explain explaining-away weighting for BOTH success and failure
-_EDGE_ATTR_MODES = (
-    "explain_away", "symmetric_full", "symmetric_uniform", "symmetric_explain",
-)
-
-
-def _edge_attr_mode() -> str:
-    """Read EROOM_EDGE_ATTR (default ``explain_away``); read at call time so a
-    harness can re-attribute the same graph under several modes in one process."""
-    mode = os.environ.get("EROOM_EDGE_ATTR", "explain_away").strip()
-    if mode not in _EDGE_ATTR_MODES:
-        raise ValueError(
-            f"EROOM_EDGE_ATTR={mode!r} not in {_EDGE_ATTR_MODES}"
-        )
-    return mode
-
-
-def _edge_effect_enabled() -> bool:
-    """Read EROOM_EDGE_EFFECT (default off). When on, the trial's quantitative
-    effect_size + p_value modulate the update STRENGTH (p_obs) and PRECISION
-    (n_eff) around the outcome-determined neutral — see ``_effect_modulation``."""
-    return os.environ.get("EROOM_EDGE_EFFECT", "").strip().lower() in (
-        "1", "on", "true", "yes",
-    )
+# binds_to edges self-protect. (The EROOM_EDGE_ATTR symmetric variants and the
+# EROOM_EDGE_EFFECT p_value modulation — an unreliable, default-off path — were
+# removed in the flag-collapse refactor.)
 
 
 # ── Pillar A (A3 + A4): reason-routed EM with competing-risks censoring ────
@@ -201,13 +173,9 @@ def _edge_effect_enabled() -> bool:
 #   UNKNOWN                → fall back to the existing explaining-away path
 # plus a safety-gate SURVIVAL credit (b += w) on readout-reaching trials.
 def _routing_enabled() -> bool:
-    """Whether the reason-routed EM path (A3 + A4) is active.
-
-    Env-gated, default off; read at call time so an A/B harness can attribute
-    the same initial graph both ways in one process."""
-    return os.environ.get("EROOM_ROUTING", "").strip().lower() in (
-        "1", "on", "true", "yes",
-    )
+    """Whether the reason-routed EM path (A3 + A4) is active. Baked ON; see
+    src/config.py."""
+    return CONFIG.routing
 
 
 # Degenerate-chain guard for the A4 responsibility denominator (1 − M). When
@@ -220,80 +188,6 @@ _RESPONSIBILITY_M_EPS = 1e-6
 # conjugate step uses p_obs=0 (all mass to β = "did not fire"); STRONG_CONTRADICT
 # is the matching replay-display bucket on the EvidenceRecord.
 _SURVIVAL_P_OBS = 0.0
-
-
-def _per_edge_fracs(
-    mode: str, is_success: bool, explain_fracs: list[float], n_edges: int,
-) -> list[float]:
-    """Per-edge SHARE of the trial mass for the chosen ``EROOM_EDGE_ATTR`` mode.
-
-    ``explain_fracs`` is the explaining-away split (u_i/Σu, uniform if all u==0)
-    already computed from the live edges' pre-update E[p]. The dispatch keeps the
-    default path byte-identical to the prior hard-coded behavior.
-    """
-    full = [1.0] * n_edges
-    uniform = [1.0 / n_edges] * n_edges
-    if mode == "explain_away":
-        return full if is_success else explain_fracs
-    if mode == "symmetric_full":
-        return full
-    if mode == "symmetric_uniform":
-        return uniform
-    if mode == "symmetric_explain":
-        return explain_fracs
-    raise ValueError(f"unknown edge-attr mode {mode!r}")  # pragma: no cover
-
-
-def _effect_modulation(
-    p_obs: float, effect: float | None, p_value: float | None,
-) -> tuple[float, float]:
-    """TASK 2b — fold the trial's quantitative significance into (p_obs, n_eff).
-
-    SIGN-FREE by construction: the coarse 3-way OUTCOME already fixed the update
-    DIRECTION (success pushes p_obs>0.5, failure <0.5). The quantitative signal
-    only refines how FAR from the neutral 0.5 (strength) and how PRECISE (n_eff)
-    the update is — no HR<1-vs-OR>1 normalization needed. Returns
-    ``(p_obs_adj, neff_scale)``; identity (p_obs, 1.0) when the signal is absent.
-
-    USES p_value ONLY. The ``effect`` arg is accepted for signature stability but
-    DELIBERATELY UNUSED: the experiment (scripts/edge_attr_experiment.py) proved
-    the extractor's ``effect_size`` is a bare first-number parse of a free-text
-    string that conflates hazard ratios (``HR 0.56``), percentages (``41.3% vs
-    54.0% pCR``), point differences (``3.8 point improvement``) and raw counts
-    (``11 discontinuations``) — range −1e5…2.4e6, median 6. There is no scale on
-    which a single float means the same thing across trials, so any magnitude
-    rule (even a ratio gate) mislabels percentages/counts as ratios. Folding it
-    in is actively WRONG, not merely noisy. The real fix is upstream: the
-    extractor must emit a STRUCTURED effect (metric_type + direction-normalized
-    magnitude + CI) — root-cause #1/#2 (ingestion / data→node mapping), tracked
-    separately. Until then only p_value (present on ~26% of trials, but
-    semantically uniform) is safe.
-
-      p_value → significance/precision. A small p is stronger, more precise
-        evidence; a non-significant p (>0.10) is weak/ambiguous regardless of the
-        coarse label, so it pulls p_obs toward 0.5 AND shrinks n_eff.
-    """
-    del effect  # see docstring — unreliable, intentionally not used
-    strength = 0.0       # signed [-1,1]: + sharpens p_obs away from 0.5
-    neff_scale = 1.0
-    if p_value is not None and 0.0 <= p_value <= 1.0:
-        if p_value <= 0.001:
-            s = 1.0
-        elif p_value <= 0.01:
-            s = 0.6
-        elif p_value <= 0.05:
-            s = 0.3
-        elif p_value <= 0.10:
-            s = 0.0
-        else:
-            s = -0.6  # non-significant — weak/ambiguous evidence
-        strength += s
-        neff_scale *= 1.0 + 0.5 * s          # ∈ [0.7, 1.5]
-    strength = max(-1.0, min(1.0, strength))
-    p_obs_adj = 0.5 + (p_obs - 0.5) * (1.0 + 0.30 * strength)
-    p_obs_adj = max(0.05, min(0.95, p_obs_adj))
-    neff_scale = max(0.5, min(1.6, neff_scale))
-    return p_obs_adj, neff_scale
 
 
 def _chain_backbone_edges(chain: CausalChain) -> list[tuple[str, str, EdgeType]]:
@@ -1101,9 +995,9 @@ class Attributor:
                 explain_fracs = [1.0 / len(live_edges)] * len(live_edges)
             else:
                 explain_fracs = [u / total_u for u in us]
-            fracs = _per_edge_fracs(
-                _edge_attr_mode(), is_success, explain_fracs, len(live_edges),
-            )
+            # Baked explain_away: SUCCESS gives every edge full weight; FAILURE
+            # spreads the contradict mass by the explaining-away split.
+            fracs = [1.0] * len(live_edges) if is_success else explain_fracs
             if is_success:
                 p_obs = _SUCCESS_P_OBS
             else:
@@ -1112,14 +1006,7 @@ class Attributor:
                     else _PARTIAL_CONTRADICT_P_OBS
                 )
 
-            # TASK 2b: fold the trial's quantitative effect_size + p_value into
-            # the update strength (p_obs) + precision (n_eff_scale). Sign-free —
-            # the outcome already fixed the direction. Off unless EROOM_EDGE_EFFECT.
             neff_scale = 1.0
-            if _edge_effect_enabled() and extraction is not None:
-                p_obs, neff_scale = _effect_modulation(
-                    p_obs, extraction.effect_size, extraction.p_value,
-                )
 
             support_bucket = _OUTCOME_TO_SUPPORT_BUCKET[outcome]
             for (src_id, tgt_id, et, pre), w_i in zip(live_edges, fracs):

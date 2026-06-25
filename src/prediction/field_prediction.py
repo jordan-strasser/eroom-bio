@@ -190,6 +190,6 @@ def localized_chain_probability(
 
     if not scalar_means:
         return 0.5, 0.5, per_edge
-    p_scalar = float(_aggregate_samples([np.array([m]) for m in scalar_means], weights)[0])
-    p_local = float(_aggregate_samples([np.array([m]) for m in local_means], weights)[0])
+    p_scalar = float(_aggregate_samples([np.array([m]) for m in scalar_means])[0])
+    p_local = float(_aggregate_samples([np.array([m]) for m in local_means])[0])
     return p_scalar, p_local, per_edge

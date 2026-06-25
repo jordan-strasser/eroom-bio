@@ -54,12 +54,8 @@ class TestDirectionFromMechanisms:
 
 
 class TestEnabledFlag:
-    def test_default_off(self, monkeypatch):
-        monkeypatch.delenv("EROOM_DIRECTION", raising=False)
-        assert D.enabled() is False
-
-    def test_on(self, monkeypatch):
-        monkeypatch.setenv("EROOM_DIRECTION", "1")
+    def test_direction_is_baked_on(self):
+        # Native direction is baked ON (CONFIG.direction); no longer env-toggled.
         assert D.enabled() is True
 
 

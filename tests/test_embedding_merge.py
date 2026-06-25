@@ -11,7 +11,6 @@ import numpy as np
 from src.graph.biology_merge import (
     augment_classes_with_pairs,
     box_merge_pairs,
-    embedding_merge_enabled,
     embedding_merge_pairs,
 )
 from src.graph.box_embeddings import Box
@@ -72,10 +71,3 @@ def test_box_merge_merges_coincident_not_containment():
     pairs = {frozenset(p) for p in box_merge_pairs(g, boxes)}
     assert frozenset({"a", "b"}) in pairs              # coincident -> merge
     assert frozenset({"parent", "child"}) not in pairs  # containment -> NOT merge
-
-
-def test_flag_default_off(monkeypatch):
-    monkeypatch.delenv("EROOM_EMBEDDING_MERGE", raising=False)
-    assert embedding_merge_enabled() is False
-    monkeypatch.setenv("EROOM_EMBEDDING_MERGE", "1")
-    assert embedding_merge_enabled() is True

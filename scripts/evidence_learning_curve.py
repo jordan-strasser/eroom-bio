@@ -103,7 +103,7 @@ def main():
                 means.append(b.alpha / d if d > 0 else 0.5)
                 w.append(_trust_weight(b))
             if means:
-                probs.append(float(_aggregate_samples([np.array([m]) for m in means], w)[0]))
+                probs.append(float(_aggregate_samples([np.array([m]) for m in means])[0]))
             else:
                 probs.append(0.5)
         au = auroc(probs, y) if len(set(y)) > 1 else float("nan")

@@ -2718,19 +2718,20 @@ class TestPopulatorCodenameToINN:
 
 
 def test_biology_id_from_description_is_content_address():
-    """A description-defined BiologyNode id is a content-address over the
-    normalized description (semantic-layers redesign) — NOT a {mech}__{ind}
-    slug. Case/whitespace-normalized so phrasing-identical descriptions collapse
-    to one id (exact Tier-1 merge); distinct biology gets a distinct id."""
+    """A description-defined BiologyNode id is a content-address (``bio:<sha1>``)
+    over the normalized description — NOT a {mech}__{ind} slug. Populate stays
+    purely content-addressed; the GO-BP grouping is a separate post-populate rekey
+    step (not native at populate). Phrasing-identical descriptions collapse to one
+    id (exact Tier-1 merge); distinct biology gets a distinct id."""
     from src.graph.populate import _biology_id_from_description
 
     a = _biology_id_from_description("Formation of new blood vessels")
     b = _biology_id_from_description("formation of new   blood vessels")
     c = _biology_id_from_description("T-cell mediated cytotoxicity")
 
-    assert a.startswith("bio:") and len(a) == len("bio:") + 12
+    assert a.startswith("bio:") and len(a) == len("bio:") + 12   # content hash
     assert a == b          # normalized (case + collapsed whitespace) → same id
-    assert a != c          # distinct biology → distinct content-address
+    assert a != c          # distinct biology → distinct id
     assert "__" not in a   # not a {mechanism}__{indication} slug
 
 

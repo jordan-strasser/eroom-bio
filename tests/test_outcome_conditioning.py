@@ -23,12 +23,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.annotation.attributor import (
-    Attributor,
-    _edge_attr_mode,
-    _effect_modulation,
-    _per_edge_fracs,
-)
+from src.annotation.attributor import Attributor
 from src.annotation.taxonomy import (
     ChainResult,
     ExtractedArm,
@@ -138,10 +133,16 @@ def _clf(
     outcome: str = "failure",
     operational_failure: bool | None = None,
     confidence: float = 0.8,
+    failure_mode: FailureMode = FailureMode.MULTIPLE_FACTORS,
 ) -> FailureClassification:
+    # Reason-routing is baked ON. The default MULTIPLE_FACTORS routes to the
+    # UNKNOWN branch — the explaining-away spread these tests validate. Operational
+    # / safety modes are CENSORED (no efficacy update); efficacy / measurement
+    # modes use the principled responsibility update. Tests that need a specific
+    # branch pass ``failure_mode`` explicitly.
     clf = FailureClassification(
         trial_id="NCT_OC",
-        primary_failure_mode=FailureMode.INSUFFICIENT_INFORMATION,
+        primary_failure_mode=failure_mode,
         confidence=confidence,
         operational_failure=operational_failure,
     )
@@ -223,40 +224,31 @@ class TestOperationalGate:
         assert gate_weight_for(False) == 1.0
         assert gate_weight_for(None) == 1.0  # unknown → conservative full weight
 
-    def test_operational_failure_downweights_chain_conditioning(self):
-        """An operational failure (recruitment collapse, manufacturing
-        error, …) barely perturbs the mechanism beliefs."""
+    def test_operational_failure_is_censored(self):
+        """Under reason-routing an operational failure (recruitment collapse,
+        manufacturing, underpowered, insufficient info) is CENSORED: it does
+        not condition the efficacy/measurement backbone at all — the trial
+        carries no information about whether the biology works."""
         g, ts = _seed_single_arm_graph()
-        clf = _clf(outcome="failure", operational_failure=True)
+        clf = _clf(outcome="failure",
+                   failure_mode=FailureMode.INSUFFICIENT_INFORMATION)
+        updates = Attributor(g).attribute(clf, ts, _ext("failure"))
+        backbone = {
+            EdgeType.AFFECTS, EdgeType.MODULATES_VIA, EdgeType.MECHANISM_AFFECTS,
+            EdgeType.BIOLOGY_DRIVES, EdgeType.REFLECTS_BIOLOGY,
+            EdgeType.ENDPOINT_CAPTURES,
+        }
+        assert not any(u.edge_type in backbone for u in updates)
+
+    def test_chain_failure_conditions_the_chain(self):
+        """A wrong-endpoint / wrong-subgroup / unattributable (chain) failure is
+        NOT operational — it conditions the chain: the uncertain mechanism edge
+        moves down."""
+        g, ts = _seed_single_arm_graph()
+        clf = _clf(outcome="failure", failure_mode=FailureMode.MULTIPLE_FACTORS)
         updates = Attributor(g).attribute(clf, ts, _ext("failure"))
         mech = next(u for u in updates if u.edge_type == EdgeType.MECHANISM_AFFECTS)
-        gated_delta = abs(mech.probability_change)
-
-        # Same trial, but a VALID test (chain failure) → full weight.
-        g2, ts2 = _seed_single_arm_graph()
-        clf2 = _clf(outcome="failure", operational_failure=False)
-        updates2 = Attributor(g2).attribute(clf2, ts2, _ext("failure"))
-        mech2 = next(u for u in updates2 if u.edge_type == EdgeType.MECHANISM_AFFECTS)
-        valid_delta = abs(mech2.probability_change)
-
-        # The operational gate (0.2) makes the update much smaller.
-        assert gated_delta < valid_delta
-        assert gated_delta < 0.5 * valid_delta
-
-    def test_chain_failure_is_not_operational_full_weight(self):
-        """A wrong-endpoint / wrong-subgroup failure is a CHAIN failure, not
-        operational — it conditions the chain at FULL weight. We assert the
-        gate weight stays 1.0 (operational_failure=False) and the update is
-        the same magnitude as the un-gated baseline."""
-        # operational_failure=False is the correct classification for a
-        # wrong-endpoint/wrong-subgroup chain failure.
-        clf = _clf(outcome="failure", operational_failure=False)
-        assert clf.gate_weight == 1.0
-
-        g, ts = _seed_single_arm_graph()
-        updates = Attributor(g).attribute(clf, ts, _ext("failure"))
-        mech = next(u for u in updates if u.edge_type == EdgeType.MECHANISM_AFFECTS)
-        # Full-weight contradict noticeably moves the uncertain edge down.
+        # Contradict mass noticeably moves the uncertain edge down.
         assert mech.probability_change < 0
         assert abs(mech.probability_change) > 0.05
 
@@ -379,84 +371,3 @@ class TestSaturatingFofN:
         # bounded by the saturating multiplier (≈ ceil 2.5 / floor 0.5 = 5x).
         assert n_eff_big > n_eff_small
         assert n_eff_big / n_eff_small <= 5.0
-
-
-# ── TASK 2: per-edge attribution-math experiment knobs ─────────────────────
-
-
-class TestEdgeAttrModes:
-    def test_default_mode_is_explain_away(self, monkeypatch):
-        monkeypatch.delenv("EROOM_EDGE_ATTR", raising=False)
-        assert _edge_attr_mode() == "explain_away"
-
-    def test_invalid_mode_raises(self, monkeypatch):
-        monkeypatch.setenv("EROOM_EDGE_ATTR", "nonsense")
-        with pytest.raises(ValueError):
-            _edge_attr_mode()
-
-    def test_per_edge_fracs_dispatch(self):
-        ef = [0.5, 0.3, 0.2]  # an explaining-away split (already normalized)
-        # explain_away: success=full, failure=explaining-away
-        assert _per_edge_fracs("explain_away", True, ef, 3) == [1.0, 1.0, 1.0]
-        assert _per_edge_fracs("explain_away", False, ef, 3) == ef
-        # symmetric_full: full both ways
-        assert _per_edge_fracs("symmetric_full", True, ef, 3) == [1.0, 1.0, 1.0]
-        assert _per_edge_fracs("symmetric_full", False, ef, 3) == [1.0, 1.0, 1.0]
-        # symmetric_uniform: 1/L both ways
-        unif = _per_edge_fracs("symmetric_uniform", False, ef, 3)
-        assert all(abs(f - 1 / 3) < 1e-9 for f in unif)
-        # symmetric_explain: explaining-away weighting BOTH ways
-        assert _per_edge_fracs("symmetric_explain", True, ef, 3) == ef
-        assert _per_edge_fracs("symmetric_explain", False, ef, 3) == ef
-
-    def test_symmetric_full_breaks_self_protection_on_failure(self, monkeypatch):
-        """Under explain_away a curated AFFECTS edge (α≫β) self-protects on
-        failure (absorbs ≈0). Under symmetric_full every edge eats the FULL
-        contradict, so the curated edge moves materially more — the exact
-        trade-off the experiment exists to surface."""
-        def _affects_delta(mode: str) -> float:
-            monkeypatch.setenv("EROOM_EDGE_ATTR", mode)
-            g, ts = _seed_single_arm_graph(
-                affects_belief=EdgeBeliefState(alpha=80.0, beta=1.0),
-                mech_belief=EdgeBeliefState(alpha=1.0, beta=1.0),
-            )
-            updates = Attributor(g).attribute(
-                _clf(outcome="failure"), ts, _ext("failure"),
-            )
-            by_edge = {u.edge_type: u for u in updates}
-            return abs(by_edge[EdgeType.AFFECTS].probability_change)
-
-        explain = _affects_delta("explain_away")
-        full = _affects_delta("symmetric_full")
-        assert full > explain
-        assert explain < 0.01  # self-protects
-
-    def test_symmetric_full_weights_are_all_one(self, monkeypatch):
-        monkeypatch.setenv("EROOM_EDGE_ATTR", "symmetric_full")
-        g, ts = _seed_single_arm_graph()
-        updates = Attributor(g).attribute(
-            _clf(outcome="failure"), ts, _ext("failure"),
-        )
-        assert all(
-            u.evidence.context["explain_away_weight"] == 1.0 for u in updates
-        )
-
-    def test_effect_modulation_uses_pvalue_ignores_effect(self):
-        # effect arg is deliberately ignored (unreliable extraction)
-        assert _effect_modulation(0.8, 999999.0, None) == _effect_modulation(
-            0.8, None, None
-        )
-        # no p_value → identity
-        assert _effect_modulation(0.8, None, None) == (0.8, 1.0)
-
-    def test_effect_modulation_significant_p_sharpens(self):
-        # success p_obs=0.80; a very significant p pushes it UP + raises n_eff
-        p_obs_adj, neff = _effect_modulation(0.80, None, 0.0005)
-        assert p_obs_adj > 0.80
-        assert neff > 1.0
-
-    def test_effect_modulation_nonsignificant_p_softens(self):
-        # a non-significant p pulls p_obs toward 0.5 + shrinks n_eff
-        p_obs_adj, neff = _effect_modulation(0.80, None, 0.5)
-        assert p_obs_adj < 0.80
-        assert neff < 1.0

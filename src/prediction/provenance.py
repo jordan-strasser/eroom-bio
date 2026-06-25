@@ -537,10 +537,9 @@ def _self_excluded_efficacy(
         if b.evidence_strength <= 0.0:
             continue
         samples.append(_sample_edge(rng, b, n_samples))
-        weights.append(_trust_weight(b))
     if not samples:
         return None, 0
-    agg = _aggregate_samples(samples, weights)
+    agg = _aggregate_samples(samples)
     return float(np.mean(agg)), len(samples)
 
 

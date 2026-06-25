@@ -31,9 +31,6 @@ from src.boundary import (
     strip_private,
 )
 from src.inference.belief_field import (
-    BeliefField,
-    apply_virtual_evidence_local,
-    field_enabled,
     index_anchor_vectors,
     rehydrate_anchor_vectors,
 )
@@ -210,26 +207,6 @@ class GraphStore:
         else:
             p_obs = p_obs_for_bucket(SupportBucket(evidence.support))
         belief = apply_virtual_evidence(belief, n_eff=n_eff, p_obs=p_obs)
-
-        # A.3 (flag-gated, EROOM_BELIEF_FIELD): also localize this evidence on
-        # the per-region belief field when it carries (s, t) embeddings. The
-        # scalar update above is unchanged — default behavior and public
-        # predictions are byte-identical until the flag is on. The field is the
-        # private "edge weights" (stripped from public snapshots).
-        if (
-            field_enabled()
-            and evidence.source_embedding is not None
-            and evidence.target_embedding is not None
-        ):
-            bf = BeliefField.from_dict(belief.belief_field or {})
-            apply_virtual_evidence_local(
-                bf,
-                s=evidence.source_embedding,
-                t=evidence.target_embedding,
-                n_eff=n_eff,
-                p_obs=p_obs,
-            )
-            belief.belief_field = bf.to_dict()
 
         # Persist the EXACT weights this record contributed (incl. the
         # explaining-away override and the redundancy discount above) so any

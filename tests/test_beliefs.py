@@ -9,6 +9,7 @@ from src.inference.beliefs import (
     BUCKET_TO_P_OBS,
     EVIDENCE_TYPE_N_EFF,
     SupportBucket,
+    _pool_prior_strength,
     apply_virtual_evidence,
     bucket_to_direction,
     effective_n_for_evidence,
@@ -391,15 +392,13 @@ class TestPoolHierarchical:
                 assert pooled.expected_probability <= prev + 1e-9
             prev = pooled.expected_probability
 
-    def test_env_override_changes_cap(self, monkeypatch):
-        # Leaf leans LOW (mean 0.25, 6 own obs); parent leans high (mean 0.9).
+    def test_pool_prior_strength_is_baked(self):
+        # The parent-concentration cap is baked (CONFIG.pool_prior_strength=20.0);
+        # no longer env-overridable. Pooling still blends leaf toward parent.
+        from src.config import CONFIG
+        assert _pool_prior_strength() == CONFIG.pool_prior_strength
         leaf = EdgeBeliefState(alpha=2.0, beta=6.0)
         parent = EdgeBeliefState(alpha=90.0, beta=10.0)
-        monkeypatch.setenv("EROOM_POOL_PRIOR_STRENGTH", "2.0")
-        tight = pool_hierarchical([leaf, parent])
-        monkeypatch.setenv("EROOM_POOL_PRIOR_STRENGTH", "200.0")
-        loose = pool_hierarchical([leaf, parent])
-        # A looser (larger) cap lets more of the rich high-mean parent through,
-        # so the low-leaning leaf is overridden and the blend sits higher; a
-        # tight cap lets the leaf pull it down.
-        assert loose.expected_probability > tight.expected_probability + 0.2
+        blended = pool_hierarchical([leaf, parent])
+        # The rich high-mean parent pulls the low-leaning leaf up.
+        assert blended.expected_probability > leaf.expected_probability

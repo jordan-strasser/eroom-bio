@@ -82,7 +82,7 @@ def trial_row(store, nct, engine, *, exclude_self: bool):
             means.append(m)
             weights.append(_trust_weight(b))
         if means:
-            aggs.append(float(_aggregate_samples([np.array([x]) for x in means], weights)[0]))
+            aggs.append(float(_aggregate_samples([np.array([x]) for x in means])[0]))
     if not aggs:
         return None
     return {et: stx.mean(v) for et, v in pt.items()}, min(aggs), n_self
