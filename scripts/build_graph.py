@@ -216,6 +216,13 @@ async def fetch_trials(
             console.print(
                 f"  --include pinned {len(include_ncts)} NCT ids to the head of the slice"
             )
+        # Fetch only what we'll actually build. --include ids are sorted to the
+        # head above, so truncating here keeps them. (Previously the full corpus
+        # was fetched and truncated AFTER — so a --max-trials 50 build still paid
+        # the CT.gov fetch for all ~500 ids, the dominant build cost.)
+        if max_trials and len(nct_ids) > max_trials:
+            nct_ids = nct_ids[:max_trials]
+            console.print(f"  fetching only the first {max_trials} (max-trials)")
         sem = asyncio.Semaphore(corpus_concurrency)
 
         async def _one(nct_id: str) -> TrialRecord | None:
