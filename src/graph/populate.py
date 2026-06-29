@@ -644,11 +644,17 @@ def _biology_id_from_description(description: str) -> str:
     fake key).
 
     The GO-BP ontology GROUPING is applied as a SEPARATE post-populate step
-    (``scripts/rekey_biology_ontology.py`` — the frontier recipe), NOT here:
-    native per-trial GO-keying at populate produced a measurably worse fresh-build
-    graph (honest holdout 0.53 vs the rekey's 0.701), so populate stays purely
-    description-content-addressed and the rekey owns the GO merge. See
-    docs/dev/reports/CLEANUP_RESULTS.md.
+    (``scripts/rekey_biology_ontology.py`` — the frontier recipe), NOT here.
+
+    CORRECTED 2026-06-29: the biology-keying CHOICE is essentially AUROC-neutral.
+    A 2026-06-26 mechanism diagnostic showed native per-trial GO-keying (90 biology
+    nodes) and this sha1 content-address (118 nodes) gave ~the same fresh-build
+    holdout (~0.53); the 0.53-vs-frontier-0.701 gap is the MECHANISM layer
+    re-architecture (GO-process-terms -> Reactome pathway fan-out, commit 991a25b),
+    NOT biology. So this sha1 path is simply the frontier snapshot's recipe; native
+    GO-keying at populate is an equally-valid — and faster-merging, since it
+    pre-collapses biology by GO id before the BioLORD tier — alternative.
+    See docs/dev/reports/CLEANUP_RESULTS.md.
     """
     norm = " ".join(description.strip().lower().split())
     return "bio:" + hashlib.sha1(norm.encode("utf-8")).hexdigest()[:12]
