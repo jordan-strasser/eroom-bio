@@ -263,8 +263,13 @@ async def build_bottomup(
         sapbert_node_types=(
             "IndicationNode", "PopulationNode", "EndpointNode",
         ),
-        enable_biolord=True,
-        biolord_node_types=("BiologyNode",),
+        # BiologyNode merges by ID ONLY — its curated GO-BP id (bio:GO:<acc>),
+        # exactly the MechanismNode rationale: the ontology id IS the canonical
+        # key, so no geometric embedding merge is needed. Biology is GO-keyed at
+        # populate (_biology_id_from_description), so the Tier-1 id merge pools it
+        # cheaply; the former BioLORD-on-DESCRIPTION tier ground through ~6k
+        # content-hash biology nodes (O(n^2)) and was the build's slow step.
+        enable_biolord=False,
     )
     # Incremental: restrict the O(n²) geometric tiers to pairs touching a just-added
     # node (existing↔existing are already merged) — O(new × total), not O(total²).

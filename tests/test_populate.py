@@ -3322,12 +3322,13 @@ async def test_mechanism_falls_back_to_enum_slug_without_resolvable_pathway(tmp_
 def test_bottomup_mergeconfig_merge_tiers_by_node_semantics():
     """Merge-tier redesign: the default bottom-up MergeConfig routes the clinical
     ENTITY nodes (Indication + Population + Endpoint) through the SapBERT
-    entity-linker and the BiologyNode DESCRIPTION through BioLORD — the embedding
-    matches what the node is. MechanismNode is in NEITHER geometric tier
-    (Option 2): its id IS a curated Reactome / GO pathway stable_id, so it merges
-    DETERMINISTICALLY by id (shared pathways across targets collapse onto one
-    node — the cross-trial credit-assignment substrate). SapBERT/BioLORD-on-
-    pathway-NAME over-merged 65-72% (T3), so no embedding tier touches it.
+    entity-linker. BiologyNode and MechanismNode are in NEITHER geometric tier —
+    they merge DETERMINISTICALLY by id: a mechanism id IS a curated Reactome / GO
+    pathway stable_id, and a biology id is its GO-BP id (rekey) / description
+    content-hash. The curated id IS the canonical key, so shared pathways/biology
+    collapse onto one node (the cross-trial credit-assignment substrate). The old
+    BioLORD-on-biology-DESCRIPTION tier was the build's slow step (O(n^2) on ~6k
+    nodes) and AUROC-neutral — removed; GO consolidation is the rekey step's job.
 
     AdverseEventNode is DELIBERATELY EXCLUDED from the SapBERT tier (T5 verdict,
     scripts/instrument_entity_merge.py): AE nodes are created during attribution
@@ -3341,17 +3342,20 @@ def test_bottomup_mergeconfig_merge_tiers_by_node_semantics():
     src = inspect.getsource(populate_bottomup.build_bottomup)
     assert "enable_sapbert=True" in src
     # SapBERT entity-linker tier: clinical ENTITY nodes that exist AT merge time.
-    sapbert_block = src.split("sapbert_node_types=")[1].split("biolord_node_types=")[0]
+    # Grab ONLY the tuple (up to its closing paren) — not the trailing comment,
+    # which mentions other node types and would pollute the membership checks.
+    sapbert_block = src.split("sapbert_node_types=")[1].split(")")[0]
     for nt in ("IndicationNode", "PopulationNode", "EndpointNode"):
         assert f'"{nt}"' in sapbert_block, f"{nt} should be in the SapBERT tier"
     # AdverseEventNode is created post-merge (MedDRA-canonicalized) → NOT a SapBERT
     # tier member; including it is inert + a re-merge over-merge footgun (T5).
     assert "AdverseEventNode" not in sapbert_block
-    # MechanismNode is in neither geometric tier — id-merge only (Option 2).
+    # MechanismNode AND BiologyNode are in neither geometric tier — id-merge only.
     assert "MechanismNode" not in sapbert_block
-    biolord_block = src.split("biolord_node_types=")[1].split(")")[0]
-    assert "BiologyNode" in biolord_block
-    assert "MechanismNode" not in biolord_block
+    assert "BiologyNode" not in sapbert_block
+    # No BioLORD tier: biology merges by its curated GO/content-hash id, not by
+    # description embedding (removed — was the slow step, AUROC-neutral).
+    assert "enable_biolord=False" in src
 
 
 def test_mechanism_pathway_canonicalizes_past_orphan_biology_collision():
