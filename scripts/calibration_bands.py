@@ -8,8 +8,9 @@ true 3-way outcome. The calibration targets (owner, 2026-06-09):
     failure   mean < 0.40
 This is the in-sample BASELINE (a sanity/calibration check), NOT generalization —
 out-of-sample is the harder test and is at the multi-causal ceiling. Re-run after
-changing a knob (env: EROOM_SOFTMIN_T, EROOM_PRIOR_MEAN/STRENGTH, EROOM_AGG,
-EROOM_SAFETY_*) to see the effect on the bands.
+changing a knob in the baked config (``src/config.py``: softmin_t, prior_mean /
+prior_strength, safety_* — there are no EROOM_* env knobs anymore) to see the
+effect on the bands.
 
 Run: python -m scripts.calibration_bands --graph data/exports/multi_500_annotated.json
 """

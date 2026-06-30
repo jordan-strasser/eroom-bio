@@ -39,7 +39,7 @@ eroom/
 ```
 
 ## Building the graph
-`scripts/build_graph.py` is the end-to-end entry point: **fetch → populate → annotate → attribute**. Common flags:
+`scripts/build_graph.py` is the end-to-end entry point: **fetch → extract → populate → classify → attribute** (extraction runs *before* populate; classification *after*). Common flags:
 - `--corpus <name>` — build against the frozen NCT-id list at `data/corpora/<name>.txt` (or write one on first run).
 - `--area <name>` — output prefix for the snapshots written to `data/exports/`.
 - `--max-trials N` — cap the number of trials.

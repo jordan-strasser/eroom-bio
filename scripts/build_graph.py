@@ -1,17 +1,19 @@
-"""End-to-end graph rebuild: fetch → populate → annotate → attribute.
+"""End-to-end graph rebuild: fetch → extract → populate → classify → attribute.
 
-Single fetch, four phases:
-  1. Pull trials from ClinicalTrials.gov (one network call, reused below).
-  2. PopulationPipeline.populate_trials—initial graph + skeleton
-     trial subgraphs.
-  3. Extractor + Classifier—write per-trial annotations to
-     data/annotations/.
-  4. attributor._main—apply efficacy + AE updates and save the
-     final snapshot.
+One network fetch, then the build runs in dependency order. Note EXTRACTION runs
+BEFORE populate, so each trial's Biology/Mechanism nodes get their identity from
+its extracted descriptions; only CLASSIFICATION needs the seeded graph and runs
+after it:
+  1. Fetch trials from ClinicalTrials.gov (frozen-corpus path fetches by NCT id).
+  2. Extract per-trial structure (LLM) → data/annotations/.
+  3. Populate via build_bottomup—resolve each trial in isolation, union, then
+     re-run the node merge (chains-first; the only build mode).
+  4. Seed subgroup populations + descriptions/name_ids, then classify each trial
+     against the seeded graph (LLM) → data/annotations/.
+  5. Prune invalid mechanisms, attribute (Beta-Binomial efficacy + AE updates),
+     topology-hygiene sweep, and (--assemble) materialize the (s,t) field/geometry.
 
-Default: melanoma, n=10, with-results only. The four-step pipeline is
-``ingest → annotate → update → query``; this driver covers the first
-three so a single command rebuilds the graph end-to-end.
+Default: melanoma, n=10, with-results only.
 """
 
 from __future__ import annotations
@@ -671,15 +673,15 @@ async def main(
         f"from the denominator"
     )
 
-    # Native modulation direction (EROOM_DIRECTION, default off → no-op). Stamp
-    # each chain's agonist/antagonist direction from ChEMBL action_type BEFORE
+    # Native modulation direction (baked ON via CONFIG.direction; was EROOM_DIRECTION).
+    # Stamp each chain's agonist/antagonist direction from ChEMBL action_type BEFORE
     # the initial export, so attribution + prediction downstream see it. A pure
     # per-compound property — independent of the merge, never fragments a node.
     from src.graph import direction as _direction
     if _direction.enabled():
         _dstats = _direction.stamp_directions(graph)
         console.print(
-            f"  EROOM_DIRECTION: stamped {_dstats['chains']} chains "
+            f"  direction: stamped {_dstats['chains']} chains "
             f"(antagonist={_dstats['antagonist']} agonist={_dstats['agonist']} "
             f"unknown={_dstats['unknown']})"
         )
@@ -837,7 +839,7 @@ async def main(
             fld = materialize_field(str(annotated_path), annotations_dir=str(ANNOTATIONS_DIR))
             console.print(
                 f"  (s,t) field: {fld['edges_localized']} edges localized, "
-                f"{fld['anchors_total']} anchors → PUBLIC snapshot (open-core predictor)"
+                f"{fld['anchors_total']} anchors → {fld['out']} (PRIVATE — moat)"
             )
             console.print(f"  private geometry (boxes / is-a) -> {geo['private_root']}")
         except Exception as exc:  # noqa: BLE001 — field is regenerable; don't lose the build

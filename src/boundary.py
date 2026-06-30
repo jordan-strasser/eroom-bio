@@ -48,24 +48,24 @@ stripped. A declared-but-``None`` private field is therefore always safe.
 Manifold → boundary mapping (see ``future_ideas/manifold_learning.md``):
   * Manifold 1 geometry — fine-tuned embeddings, trained boxes  → private value
   * Manifold 2 — scalar ``Beta(alpha, beta)`` marginal           → PUBLIC
-  *            — full per-region belief field                    → PUBLIC
+  *            — full per-region belief field                    → private value
   * Manifold 3 — outcome-conditioned learner + its snapshots     → private (lives
                  entirely in the enterprise repo, never imported here)
 
-The open core is meant to be a top-shelf predictor, so the manifold-2 per-region
-belief field (the ``(s,t)`` localized refinement of the scalar marginal) ships in
-the PUBLIC snapshot as of the field-public move. The enterprise moat is private
-DATA integration (pharma deals), NOT the prediction math — so the field's anchors
-and the shared ``_belief_field_vectors`` table are public, while manifold-1 node
-embeddings / trained boxes and the manifold-3 outcome learner stay private.
+The PUBLIC belief-state is the scalar ``Beta(alpha, beta)`` marginal + evidence
+provenance. The manifold-2 per-region belief field (the ``(s,t)`` localized
+refinement) is a PRIVATE artifact — the moat — stripped from public snapshots and
+materialized under ``EROOM_PRIVATE_ROOT`` for the (private) read-path that consumes
+it (``src/prediction/field_prediction.py``). Manifold-1 node embeddings / trained
+boxes and the manifold-3 outcome learner are private too.
 
 .. note::
-   **Superseded in part by the governing write-path/read-path boundary
-   (BOUNDARY.md, 2026-06-12).** The "NOT the prediction math" clause above still
-   holds for the belief-STATE (public) and the manifold-2 field VALUES, but the
-   **frontier query/prediction path is now PRIVATE** — composing a customer risk
-   answer is the paid value-extraction (see :data:`PRIVATE_QUERY_MODULES`). The
-   belief-state remains public; only the read-path that *queries* it moves private.
+   **Governing write-path/read-path boundary (BOUNDARY.md, 2026-06-12; field made
+   private 2026-06-30).** The PUBLIC surface is the intake/write-path + the scalar
+   belief-STATE; the **frontier query/prediction path AND the manifold-2 field
+   values are PRIVATE** (the paid value-extraction — see :data:`PRIVATE_QUERY_MODULES`
+   and the field gate above). Only public-source-derived scalar beliefs ship in the
+   public snapshot.
 """
 
 from __future__ import annotations
@@ -130,14 +130,16 @@ PRIVATE_FIELD_NAMES: frozenset[str] = frozenset(
     }
 )
 
-# Field names that are PUBLIC even though they'd otherwise match a private name
-# or suffix. ``belief_field`` ends in the private ``_field`` suffix and contains a
-# (privately-named) ``anchors`` list, but the manifold-2 field is open-core (see
-# the module docstring): its whole subtree is kept and NOT recursed into, so the
-# inner ``anchors`` survive while ``anchors``/``region_anchors`` stay private
-# everywhere else. The shared ``_belief_field_vectors`` table is a top-level key
-# that matches no private convention, so it passes through unstripped.
-PUBLIC_FIELD_NAMES: frozenset[str] = frozenset({"belief_field"})
+# Field names that are PUBLIC even though they'd otherwise match a private name or
+# suffix — an explicit open-core override hook. Currently EMPTY: ``belief_field``
+# used to live here (the "field-public" experiment), but per the governing
+# write-path/read-path boundary (BOUNDARY.md) the manifold-2 per-region field is a
+# PRIVATE artifact (the moat), so it is now stripped from public snapshots via the
+# ``_field`` suffix rule like every other manifold value. The shared
+# ``_belief_field_vectors`` table ends in ``_vectors`` (not a private suffix); it is
+# a valueless dedup index in a public snapshot (the anchors it would point at are
+# stripped with ``belief_field``), so it passes through harmlessly.
+PUBLIC_FIELD_NAMES: frozenset[str] = frozenset()
 
 
 def is_private_field(name: str) -> bool:
@@ -200,8 +202,9 @@ def strip_private(obj: Any) -> Any:
     """
     if isinstance(obj, dict):
         return {
-            # Keep a public-override subtree (belief_field) WHOLE — don't recurse,
-            # so its inner (privately-named) ``anchors`` survive.
+            # A PUBLIC_FIELD_NAMES override (currently none) is kept WHOLE without
+            # recursing; everything else recurses so nested private values (e.g.
+            # embeddings, the manifold-2 ``belief_field``) are stripped.
             k: (v if k in PUBLIC_FIELD_NAMES else strip_private(v))
             for k, v in obj.items()
             if not is_private_field(k)

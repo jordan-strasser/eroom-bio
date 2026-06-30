@@ -44,8 +44,7 @@ def test_private_names_are_private(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["alpha", "beta", "evidence", "description", "id", "node_type", "metadata",
-     "belief_field"],  # manifold-2 field is open-core (PUBLIC) as of the field-public move
+    ["alpha", "beta", "evidence", "description", "id", "node_type", "metadata"],
 )
 def test_public_names_are_public(name):
     assert not is_private_field(name)
@@ -54,7 +53,7 @@ def test_public_names_are_public(name):
 # ── Scanning / stripping ─────────────────────────────────────────────────────
 
 
-def test_strip_private_is_recursive_and_keeps_public():
+def test_strip_private_is_recursive_and_strips_belief_field():
     payload = {
         "graph": {
             "nodes": [
@@ -71,11 +70,9 @@ def test_strip_private_is_recursive_and_keeps_public():
     }
     cleaned = strip_private(payload)
     node = cleaned["graph"]["nodes"][0]
-    assert node == {"id": "VEGF", "description": "VEGF signaling"}
-    # belief_field is PUBLIC now (open-core predictor) — kept WHOLE, not stripped.
-    assert cleaned["graph"]["links"][0]["belief"] == {
-        "alpha": 3.0, "beta": 1.0, "belief_field": {"x": 1},
-    }
+    assert node == {"id": "VEGF", "description": "VEGF signaling"}  # embedding stripped
+    # belief_field is PRIVATE now (manifold-2 moat) — stripped from the public projection.
+    assert cleaned["graph"]["links"][0]["belief"] == {"alpha": 3.0, "beta": 1.0}
 
 
 def test_empty_private_fields_do_not_count_as_leaks():
@@ -134,8 +131,8 @@ def test_export_snapshot_strips_private_and_keeps_scalar(tmp_path):
     # No PRIVATE values (manifold-1 embeddings) anywhere in the committed artifact.
     assert find_private_fields(raw) == []
     assert "embedding" not in out.read_text()
-    # ...but the manifold-2 belief field is PUBLIC now — it SHIPS in the open snapshot.
-    assert "belief_field" in out.read_text()
+    # ...and the manifold-2 belief field is PRIVATE now — stripped from the public snapshot.
+    assert "belief_field" not in out.read_text()
     # Public scalar belief survived untouched (node_link_data names the edge
     # list "links" or "edges" depending on the NetworkX version).
     edges = raw["graph"].get("links") or raw["graph"].get("edges") or []
@@ -159,9 +156,10 @@ def test_export_private_snapshot_keeps_private_under_root(tmp_path, monkeypatch)
     # Private (manifold-1) values ARE present in the enterprise artifact.
     hits = find_private_fields(raw)
     assert any(h.endswith("embedding") for h in hits)
-    # belief_field is open-core now: present in the snapshot, but NOT a private leak.
+    # belief_field is a PRIVATE artifact now: it's kept in the private snapshot (that's
+    # the point of export_private_snapshot) and find_private_fields flags it as private.
     assert "belief_field" in out.read_text()
-    assert not any("belief_field" in h for h in hits)
+    assert any("belief_field" in h for h in hits)
 
 
 def test_export_private_snapshot_refuses_outside_private_root(tmp_path, monkeypatch):

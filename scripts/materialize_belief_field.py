@@ -243,15 +243,18 @@ def materialize_field(
                 if sample is None and len(field.anchors) >= 2:
                     sample = (e["source_id"], e["target_id"], et, field)
 
-    # The belief field is PUBLIC (open-core predictor): write it INTO the public
-    # annotated snapshot so prediction loads it with the graph — no private root,
-    # no detached field file. boundary.strip_private keeps belief_field; the anchor
-    # (s,t) vectors dedup into the snapshot's _belief_field_vectors table.
-    g.export_snapshot(graph_path)
+    # The belief field is a PRIVATE artifact (manifold-2 moat): write it to a
+    # snapshot under EROOM_PRIVATE_ROOT via export_private_snapshot, NOT the public
+    # annotated snapshot (boundary.strip_private now strips belief_field from public
+    # exports). The (s,t) anchor vectors dedup into the private snapshot's
+    # _belief_field_vectors table; the private read-path (field_prediction) loads it.
+    from src.boundary import private_root
+    out_path = private_root(create=True) / f"{Path(graph_path).stem}_field.json"
+    g.export_private_snapshot(str(out_path))
     result: dict = {
         "edges_localized": edges_localized,
         "anchors_total": anchors_total,
-        "out": graph_path,
+        "out": str(out_path),
     }
     if sample is not None:
         sid, tid, et, field = sample

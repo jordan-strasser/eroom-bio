@@ -340,11 +340,11 @@ class GraphStore:
         ``import_snapshot`` for backwards compatibility.
         """
         public_payload = strip_private(self._build_snapshot_payload())
-        # The manifold-2 belief field is now PUBLIC (open-core predictor). Dedup
-        # its anchor (s,t) BioLORD vectors into a shared ``_belief_field_vectors``
-        # table — the same compaction the private snapshot used — since the same
-        # description embedding recurs across thousands of anchors. ``index_anchor_
-        # vectors`` rewrites only fresh belief dicts, so the live graph is untouched.
+        # The manifold-2 belief field is PRIVATE now: ``strip_private`` removed it
+        # above, so the public links carry no anchors and ``index_anchor_vectors``
+        # returns an empty table (the dedup table is materialized for real only in
+        # ``export_private_snapshot``). Kept here for symmetry / defensive safety —
+        # a future public-override field with anchors would still dedup correctly.
         graph_data = public_payload.get("graph", {})
         links = graph_data.get("links") or graph_data.get("edges") or []
         table = index_anchor_vectors(links)

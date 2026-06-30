@@ -61,31 +61,15 @@ data/private/
 *.npy
 *.npz
 
-# Regenerable graph snapshots (belief-state intermediates) — large + rebuildable
-# via scripts/build_graph.py (... --assemble). Rule: a bottom-up build's PRE-MERGE
-# union is always huge (100s of MB) and is a pure intermediate; the per-session
-# experimental / A-B / scratch snapshots (b1_*, *_reattr*, rebuild_*, t4b_*,
-# phaseb_*, phasec_*, neff*) are regenerable too. This is a backstop so a future
-# `git add -A` can't sweep them in again (the cause of the 2.5 GB blob incident).
-# NOTE: gitignore never un-tracks an already-committed path — the deliberately
-# PUBLISHED public snapshots (onco_scale_500_annotated.json, multi_500_*) stay
-# tracked. This only blocks NEW untracked bloat. See CLEANUP_MERGE_REPORT.md.
-# Always-intermediate: a build's pre-merge union + re-attribution outputs.
-data/exports/*premerge*.json
-data/exports/*_reattr*.json
-# Per-session experimental / A-B / scratch build families (regenerable). The
-# deliberately-published baseline families STAY tracked: mi_bu*, mi_td*, mi_v2*,
-# multi_indication_*, onco_scale_500_{annotated,initial}, oncology_*.
-data/exports/b1_*.json
-data/exports/multi_500_*.json
-data/exports/neff*.json
-data/exports/onco_scale_252_*.json
-data/exports/onco_scale_500_enr_*.json
-data/exports/mi_oc52_*.json
-data/exports/rebuild_*.json
-data/exports/t4b_*.json
-data/exports/phaseb_n*.json
-data/exports/phasec_n*.json
+# Regenerable graph snapshots — ALL of data/exports/ is untracked (2026-06-30
+# boundary/hygiene decision). Snapshots are large (10s–100s of MB) and rebuildable
+# via scripts/build_graph.py (... --assemble). Per the public/private boundary
+# (docs/dev/reports/BOUNDARY.md): any *sellable* snapshot (carrying private beliefs)
+# lives in eroom-enterprise, and any public demo snapshot is distributed via a
+# GitHub Release / artifact store — never committed in-tree. Paid inputs
+# (data/annotations/, data/corpora/) stay tracked. This also prevents a future
+# `git add -A` sweeping in bloat (the 2.5 GB blob incident). See CLEANUP_MERGE_REPORT.md.
+data/exports/*.json
 
 # Regenerable working artifacts: dev scratch outputs + HTML graph visualizations.
 data/dev/

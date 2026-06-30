@@ -223,9 +223,11 @@ def test_private_snapshot_vector_dedup_roundtrip(tmp_path, monkeypatch):
     assert fields[key1].anchors[0].s is fields[key2].anchors[0].s
 
 
-def test_belief_field_ships_in_public_snapshot(tmp_path):
-    """Field-public move: the manifold-2 per-region field is open-core — it SHIPS
-    in the public snapshot (deduped into _belief_field_vectors) and round-trips."""
+def test_belief_field_stripped_from_public_ships_in_private(tmp_path, monkeypatch):
+    """Field-private move: the manifold-2 per-region field is the moat — it is
+    STRIPPED from the public snapshot (only the scalar marginal survives) and ships
+    only in the private snapshot (deduped into _belief_field_vectors), round-tripping."""
+    from src.boundary import private_root
     from src.graph.models import EdgeBeliefState, EdgeType, GraphEdge
     from src.graph.store import GraphStore
 
@@ -236,19 +238,30 @@ def test_belief_field_ships_in_public_snapshot(tmp_path):
         source_id="VEGF", target_id="ANGIO", edge_type=EdgeType.MECHANISM_AFFECTS,
         belief=EdgeBeliefState(alpha=4.0, beta=2.0, belief_field=f.to_dict()),
     ))
-    out = tmp_path / "pub.json"
-    store.export_snapshot(str(out))
-    text = out.read_text()
-    # The field is PUBLIC now (open-core predictor), deduped into a shared table.
-    assert "belief_field" in text
-    assert "_belief_field_vectors" in text
-    # scalar marginal AND the field round-trip through import.
+
+    # Public snapshot: belief_field stripped (private moat); scalar marginal survives.
+    pub = tmp_path / "pub.json"
+    store.export_snapshot(str(pub))
+    pub_text = pub.read_text()
+    assert "belief_field" not in pub_text
     reloaded = GraphStore()
-    reloaded.import_snapshot(str(out))
+    reloaded.import_snapshot(str(pub))
     b = reloaded.get_edge_belief("VEGF", "ANGIO", EdgeType.MECHANISM_AFFECTS)
     assert (b.alpha, b.beta) == (4.0, 2.0)
-    assert b.belief_field is not None
-    rt = BeliefField.from_dict(b.belief_field)
+    assert b.belief_field is None
+
+    # Private snapshot: the field ships (deduped) and round-trips.
+    monkeypatch.setenv("EROOM_PRIVATE_ROOT", str(tmp_path / "private"))
+    priv = private_root(create=True) / "field.json"
+    store.export_private_snapshot(str(priv))
+    priv_text = priv.read_text()
+    assert "belief_field" in priv_text
+    assert "_belief_field_vectors" in priv_text
+    rp = GraphStore()
+    rp.import_snapshot(str(priv))
+    pb = rp.get_edge_belief("VEGF", "ANGIO", EdgeType.MECHANISM_AFFECTS)
+    assert pb.belief_field is not None
+    rt = BeliefField.from_dict(pb.belief_field)
     assert len(rt.anchors) == 1
     assert list(rt.anchors[0].s) == [1.0, 0.0]
 

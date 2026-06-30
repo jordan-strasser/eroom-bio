@@ -3,8 +3,9 @@
 Fetches ``overallStatus`` + ``whyStopped`` from ClinicalTrials.gov v2 for every
 NCT in a corpus and writes/merges ``data/cache/ctgov_status.json``
 (``{nct: {"overall_status", "why_stopped"}}``). The attributor consults this
-cache (under EROOM_ROUTING) to reroute early-terminated non-efficacy trials to the
-censoring branch instead of letting them downvote the biological backbone.
+cache (routing is baked ON via CONFIG.routing) to reroute early-terminated
+non-efficacy trials to the censoring branch instead of letting them downvote the
+biological backbone.
 
 Usage:
     python -m scripts.build_ctgov_status_cache --corpus onco_scale_500
