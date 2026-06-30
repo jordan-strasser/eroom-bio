@@ -281,6 +281,21 @@ async def build_bottomup(
     # ``embed_texts``; this DEFAULT build path silently fell back to per-node).
     from src.graph.biolord_embeddings import embed_texts as _biolord_batch
     from src.graph.sapbert_embeddings import embed_compound_names as _sapbert_batch
+    # SapBERT (sentence-transformers) is an optional extra. When it isn't
+    # installed, skip the SapBERT entity-linking merge tier and fall back to the
+    # id/name_id merges — the documented graceful degradation (see
+    # SapBertUnavailable) — instead of raising out of the whole build.
+    try:
+        import sentence_transformers  # noqa: F401
+    except ImportError:
+        from dataclasses import replace
+        logger.warning(
+            "sentence-transformers not installed; skipping the SapBERT merge "
+            "tier and falling back to id/name_id merges (install the `sapbert` "
+            "extra to enable name canonicalization)."
+        )
+        cfg = replace(cfg, enable_sapbert=False)
+        _sapbert_batch = None
     report = assemble(merged, cfg, embed_fn=embed_fn,
                       batch_embed_fn=_biolord_batch,
                       batch_sapbert_embed_fn=_sapbert_batch,
