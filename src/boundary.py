@@ -55,17 +55,21 @@ Manifold → boundary mapping (see ``future_ideas/manifold_learning.md``):
 The PUBLIC belief-state is the scalar ``Beta(alpha, beta)`` marginal + evidence
 provenance. The manifold-2 per-region belief field (the ``(s,t)`` localized
 refinement) is a PRIVATE artifact — the moat — stripped from public snapshots and
-materialized under ``EROOM_PRIVATE_ROOT`` for the (private) read-path that consumes
-it (``src/prediction/field_prediction.py``). Manifold-1 node embeddings / trained
-boxes and the manifold-3 outcome learner are private too.
+materialized under ``EROOM_PRIVATE_ROOT``; the public read-path that consumes it
+(``src/prediction/field_prediction.py``) falls back to the scalar marginal when the
+private field isn't present. Manifold-1 node embeddings / trained boxes and the
+manifold-3 outcome learner are private too.
 
 .. note::
-   **Governing write-path/read-path boundary (BOUNDARY.md, 2026-06-12; field made
-   private 2026-06-30).** The PUBLIC surface is the intake/write-path + the scalar
-   belief-STATE; the **frontier query/prediction path AND the manifold-2 field
-   values are PRIVATE** (the paid value-extraction — see :data:`PRIVATE_QUERY_MODULES`
-   and the field gate above). Only public-source-derived scalar beliefs ship in the
-   public snapshot.
+   **Boundary (owner decision 2026-06-30).** PUBLIC: the intake / write-path, the
+   scalar belief-STATE, AND the basic prediction engine — the open core keeps a
+   working predictor (``path_query`` / ``field_prediction`` / ``provenance``).
+   PRIVATE (the moat): the trained manifold VALUES (manifold-1 embeddings/boxes, the
+   manifold-2 ``belief_field``, the manifold-3 learner), stripped from public
+   snapshots by the field gate above; and a FUTURE next-gen prediction engine, to be
+   built privately in eroom-enterprise (register it in :data:`PRIVATE_QUERY_MODULES`
+   when it lands). Only public-source-derived scalar beliefs ship in the public
+   snapshot.
 """
 
 from __future__ import annotations
@@ -278,46 +282,16 @@ def assert_public_safe(payload: Any, *, source: str = "") -> None:
 #                        which the policy is encoded (Part 1) before the code move
 #                        (the separate, approved next step — see BOUNDARY_SPLIT_PLAN.md).
 #
-# Owner decision (2026-06-15): the ENTIRE prediction read-path is private — there is
-# NO public baseline (the legacy geomean is retired). The public repo ships no
-# prediction engine at all; the public website shows only a few FROZEN sample-query
-# outputs (cached PredictionResults), never the algorithm. See BOUNDARY_SPLIT_PLAN.md.
-#
-# When the relocation lands: move the entire prediction read-path to `dest`, then flip
-# `relocated` to True here. After that, this gate (default mode) is a hard regression
-# guard, and `make query-strict` / CI should fail if any prediction module is public.
-PRIVATE_QUERY_MODULES: dict[str, dict[str, Any]] = {
-    "src/prediction/path_query.py": {
-        "dest": "eroom_enterprise/prediction/frontier_query.py",
-        "relocated": False,
-        "note": (
-            "The prediction algorithm (the paid product): P(success)/risk "
-            "composition, safety-penalty composition, query-time on/off-target "
-            "decomposition, weakest-link softmin aggregation, ranking. ENTIRE module "
-            "relocates — no public baseline (geomean retired). Public keeps only "
-            "frozen sample-query outputs for the website."
-        ),
-    },
-    "src/prediction/field_prediction.py": {
-        "dest": "eroom_enterprise/prediction/field_prediction.py",
-        "relocated": False,
-        "note": (
-            "(s,t)-localized frontier prediction — composes a localized chain "
-            "P(success) from the manifold-2 belief field. Read-path."
-        ),
-    },
-    "src/prediction/provenance.py": {
-        "dest": "eroom_enterprise/prediction/provenance.py",
-        "relocated": False,
-        "note": (
-            "Cross-indication frontier analysis — re-runs the query aggregation "
-            "(predict_clinical_hypothesis / _aggregate_samples) for the thesis probe. "
-            "Read-path. The structural bridge census (find_biology_bridges / "
-            "find_mechanism_bridges) is belief-state read-only and could be carved "
-            "back public — see BOUNDARY_SPLIT_PLAN.md."
-        ),
-    },
-}
+# Owner decision (2026-06-30, SUPERSEDES the 2026-06-15 "entire read-path private"
+# plan): the BASIC / current prediction engine STAYS PUBLIC — the open core keeps a
+# working, runnable predictor (``path_query`` / ``field_prediction`` / ``provenance``).
+# Only a FUTURE next-gen prediction engine will be built privately in eroom-enterprise
+# from scratch; when it exists, register its public-tree path(s) here with
+# ``relocated=True`` and the gate becomes a hard regression guard for it. Until then
+# this registry is EMPTY and the query-boundary gate is a no-op. (The manifold VALUE
+# gates above — embeddings / boxes / belief_field — are unaffected: those stay private
+# regardless of where the prediction code lives.)
+PRIVATE_QUERY_MODULES: dict[str, dict[str, Any]] = {}
 
 
 def is_private_query_module(path: str) -> bool:
