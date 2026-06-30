@@ -34,7 +34,8 @@ from src.graph.populate import (
 )
 from src.graph.store import GraphStore
 from src.ingestion.clinicaltrials import ClinicalTrialsClient
-from src.prediction.path_query import PredictionResult, predict_clinical_hypothesis
+from src.prediction.contract import PredictionResult
+from src.prediction.path_query import predict_clinical_hypothesis
 
 logger = logging.getLogger("eroom.api")
 

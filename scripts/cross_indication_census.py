@@ -22,7 +22,7 @@ import re
 from collections import defaultdict
 
 from src.graph.store import GraphStore
-from src.prediction.provenance import (
+from src.prediction.bridges import (
     build_nct_indication_index,
     canonical_indication,
     therapeutic_area,

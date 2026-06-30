@@ -2635,7 +2635,7 @@ class TestReflectsBiologyEdges:
         reflects_biology gap). Pair with the build-time presence warning in
         build_graph (which catches a missing PRODUCER) — this catches consumer
         drift statically."""
-        from src.prediction.path_query import CONSUMED_BACKBONE_EDGE_TYPES
+        from src.prediction.contract import CONSUMED_BACKBONE_EDGE_TYPES
         from scripts.materialize_belief_field import EDGE_SPECS
         consumed = {et.value for et in CONSUMED_BACKBONE_EDGE_TYPES}
         field = {et.value for et in EDGE_SPECS}

@@ -874,7 +874,7 @@ async def main(
     # the attributor, in the field EDGE_SPECS, but created by no populate method,
     # so it silently never carried a belief). Warn loudly if any backbone edge
     # type is absent from the built graph so the gap can't reopen unnoticed.
-    from src.prediction.path_query import CONSUMED_BACKBONE_EDGE_TYPES
+    from src.prediction.contract import CONSUMED_BACKBONE_EDGE_TYPES
     present_edge_types = {k for *_, k in final._graph.edges(keys=True)}  # noqa: SLF001
     missing_backbone = sorted(
         et.value for et in CONSUMED_BACKBONE_EDGE_TYPES
@@ -885,7 +885,7 @@ async def main(
             f"  [red]⚠ PHANTOM EDGE(S): the prediction consumes {missing_backbone} "
             f"but the build produced ZERO of them[/red] — they will never carry a "
             f"belief or materialize into the (s,t) field. A producer is missing "
-            f"(see path_query.CONSUMED_BACKBONE_EDGE_TYPES)."
+            f"(see contract.CONSUMED_BACKBONE_EDGE_TYPES)."
         )
     else:
         console.print(

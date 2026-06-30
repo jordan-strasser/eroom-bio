@@ -21,7 +21,7 @@ import json
 
 from src.graph.models import EdgeType
 from src.graph.store import GraphStore
-from src.prediction.provenance import (
+from src.prediction.bridges import (
     BiologyBridge,
     find_biology_bridges,
     find_mechanism_bridges,
