@@ -72,9 +72,9 @@ _STOP_OVERRIDE_LOG_PATH = Path("data/dev/stop_reason_overrides.jsonl")
 def _direction_ctx(chain) -> dict:
     """Direction tag for a backbone evidence record's context (native modulation
     direction, src.graph.direction). Empty unless the chain carries a resolved
-    direction — so pre-direction snapshots and EROOM_DIRECTION-off builds (chains
-    default ``unknown``) stay byte-identical; the per-direction partition appears
-    only once a build has stamped directions. Read at query time by the
+    direction — so pre-direction snapshots and chains with no resolved direction
+    (both default ``unknown``) stay byte-identical; the per-direction partition
+    appears only once a build has stamped directions. Read at query time by the
     direction-matched prediction path."""
     d = getattr(chain, "direction", "") or ""
     return {"direction": d} if d and d != "unknown" else {}
@@ -151,7 +151,8 @@ _OUTCOME_TO_SUPPORT_BUCKET: dict["TrialOutcome", SupportBucket] = {
 
 
 # Per-edge attribution is baked to the shipped asymmetric noisy-AND
-# (``explain_away``), inlined at the conditioning call site: SUCCESS credits
+# (``CONFIG.edge_attr == "explain_away"``, src/config.py), inlined at the
+# conditioning call site: SUCCESS credits
 # every backbone edge at FULL trial weight (the whole path operated);
 # FAILURE/PARTIAL SPLIT the (modest) failure mass toward the currently-uncertain
 # edges (explaining-away) so no single trial collapses an edge and curated
@@ -162,12 +163,12 @@ _OUTCOME_TO_SUPPORT_BUCKET: dict["TrialOutcome", SupportBucket] = {
 
 # ── Pillar A (A3 + A4): reason-routed EM with competing-risks censoring ────
 #
-# EROOM_ROUTING (default OFF — current behavior byte-identical) wires the
-# 13-category failure reason into the backbone update as competing-risks
-# censoring (EM doc §3.2) and replaces the heuristic explaining-away split
-# with the principled normalized responsibility (§3.1 / §4, A4). When OFF,
-# `_condition_chain_on_outcomes` is untouched. When ON, a failed/partial
-# trial routes by `taxonomy.routing_branch_for(primary_failure_mode)`:
+# Baked ON via ``CONFIG.routing`` (src/config.py); formerly the ``EROOM_ROUTING``
+# flag (default OFF). It wires the 13-category failure reason into the backbone
+# update as competing-risks censoring (EM doc §3.2) and replaces the heuristic
+# explaining-away split with the principled normalized responsibility
+# (§3.1 / §4, A4). A failed/partial trial routes by
+# `taxonomy.routing_branch_for(primary_failure_mode)`:
 #   EFFICACY / MEASUREMENT → responsibility update (blame within M_t)
 #   SAFETY / OPERATIONAL   → CENSOR the efficacy+measurement backbone
 #   UNKNOWN                → fall back to the existing explaining-away path
@@ -804,10 +805,11 @@ class Attributor:
                      * gate_weight    # operational-failure gate (Piece 2)
 
         ``f_N`` = ``beliefs._precision_multiplier(extraction.sample_size)``
-        called DIRECTLY (independent of EROOM_NEFF_PRECISION — the outcome
-        path is always f(N)-weighted): concave √N, anchored 350, floored 0.5,
-        ceiled 2.5, so a huge trial counts more than a tiny one but not
-        linearly more.
+        called DIRECTLY — the outcome path is always f(N)-weighted (the former
+        flag-gated ``EROOM_NEFF_PRECISION`` integration was removed; this √N
+        multiplier survives and runs unconditionally): concave √N, anchored 350,
+        floored 0.5, ceiled 2.5, so a huge trial counts more than a tiny one but
+        not linearly more.
 
         Per-outcome update math:
 
@@ -865,8 +867,8 @@ class Attributor:
         base_n = effective_n_for_evidence(evidence_type, quality)
         w_base = base_n * f_n * gate_weight
 
-        # A3 + A4 routing context (no-op unless EROOM_ROUTING is on). The
-        # branch is trial-level — resolved once from the classifier's primary
+        # A3 + A4 routing context (baked ON via CONFIG.routing; was EROOM_ROUTING).
+        # The branch is trial-level — resolved once from the classifier's primary
         # failure reason — and decides, per failed/partial chain below, whether
         # to censor, blame-within-backbone, or fall back to the legacy path.
         routing = _routing_enabled()
@@ -947,7 +949,7 @@ class Attributor:
 
             is_success = outcome == TrialOutcome.SUCCESS
 
-            # ── A3 + A4: reason-routed competing-risks update (EROOM_ROUTING) ──
+            # ── A3 + A4: reason-routed competing-risks update (baked ON; was EROOM_ROUTING) ──
             # SUCCESS is NEVER routed — the whole path operated, so every backbone
             # edge gets the full upvote below (unchanged). A failed / partial
             # trial routes by its failure reason (the untested lever, FINDINGS P4):
@@ -986,8 +988,9 @@ class Attributor:
             #   ``fracs[i]`` is edge i's SHARE of the trial mass w_base;
             #   ``n_eff_i = w_base * fracs[i]``.
             # The explaining-away split (u_i/Σu, uniform if all u==0) is always
-            # computed: the default mode uses it for FAILURE/PARTIAL, and the
-            # EROOM_EDGE_ATTR symmetric variants may use it for SUCCESS too.
+            # computed and used for FAILURE/PARTIAL (the baked explain_away mode,
+            # CONFIG.edge_attr; the former EROOM_EDGE_ATTR symmetric variants that
+            # also used it for SUCCESS were removed).
             us = [max(0.0, 1.0 - pre.expected_probability)
                   for (_, _, _, pre) in live_edges]
             total_u = sum(us)
@@ -1193,7 +1196,8 @@ class Attributor:
         edges that already exist (no node/edge creation) and deduped once per
         trial. This is the safety-survival signal of §3.2 — DISTINCT from the
         AE OCCURRENCE signal ``attribute_adverse_events`` lands from incidence
-        rates (which moves α), and only fires under EROOM_ROUTING.
+        rates (which moves α), and only fires when CONFIG.routing is True
+        (baked ON; was EROOM_ROUTING).
         """
         emitted: list[AppliedEdgeUpdate] = []
         for compound_id in self._treatment_compound_ids(trial):

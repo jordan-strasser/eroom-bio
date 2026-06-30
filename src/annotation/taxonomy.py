@@ -41,8 +41,8 @@ class FailureMode(str, Enum):
 #
 # This map routes the training update by failure reason, implementing the
 # EM doc's competing-risks censoring (§3.2). It is consumed by the
-# attributor ONLY when ``EROOM_ROUTING`` is on (default off, current
-# behavior preserved). Branch semantics:
+# attributor whenever ``CONFIG.routing`` is True (src/config.py) — baked
+# ON; formerly the ``EROOM_ROUTING`` flag (default off). Branch semantics:
 #
 #   EFFICACY     — the conjunctive causal spine (target engagement / mechanism
 #                  translation / target validity) is implicated. Blame within

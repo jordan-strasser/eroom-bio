@@ -171,12 +171,12 @@ Add the new evidence type to `EVIDENCE_TYPE_N_EFF` in
 
 ### Entity resolution improvements
 
-`PopulationPipeline.resolve_entity` (`src/graph/populate.py`) does
-exact-string + lowercase matching today. Drug codenames (e.g. GSK2118436
-for dabrafenib), trade names, and indication aliases are common failure
-modes. Better fuzzy matching, alias tables, or HUGO/MeSH lookups would
-move the corpus-coverage ceiling above its current ~80% on noisy
-indications.
+Compound resolution already layers a curated codename dict
+(`CODENAME_TO_INN`), ChEMBL `stable_id` matching, and SapBERT embedding
+similarity (see the README's "Compound canonicalization"). The remaining
+gaps are trade names, indication aliases, and monoclonal-antibody target
+resolution; better alias tables or HUGO/MeSH lookups would move the
+corpus-coverage ceiling above its current ~80% on noisy indications.
 
 ---
 

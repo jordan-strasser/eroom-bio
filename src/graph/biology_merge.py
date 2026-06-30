@@ -357,8 +357,10 @@ def embedding_merge_pairs(
     descriptions).
 
     Cosine ≥ ``threshold`` on BioLORD embeddings of each node's A.0 description
-    (falling back to its name). PUBLIC code (open methods); the merge DECISION
-    is flag-gated (``EROOM_EMBEDDING_MERGE``, default off).
+    (falling back to its name). PUBLIC code (open methods). A standalone utility
+    that thresholds embedding cosine — there is no ``EROOM_EMBEDDING_MERGE`` flag
+    (it never existed in env or ``src/config.py``) and it is not wired into the
+    baked build path; it is exercised by ``tests/test_embedding_merge.py``.
 
     **Gold-set validation (2026-05-24, scripts/eval_merge_threshold.py):** raw
     cosine is a WEAK merge discriminator — best F1 only ~0.53 because `sibling`
@@ -418,8 +420,9 @@ def box_merge_pairs(
     gene-level distinction (PD-1 != CTLA4), so no box-size calibration fixes it.
     Conclusion: the ontology crosswalk remains the more reliable merger; an
     embedding merger needs a gene/target-aware signal (or a node-pair gold set
-    to set a high-precision operating point) before it's worth enabling. The
-    flag (``EROOM_EMBEDDING_MERGE``) stays OFF.
+    to set a high-precision operating point) before it's worth enabling. Neither
+    this nor ``embedding_merge_pairs`` is wired into the baked build path (there
+    is no ``EROOM_EMBEDDING_MERGE`` flag); both remain standalone utilities.
     """
     from src.graph.box_embeddings import relation
 

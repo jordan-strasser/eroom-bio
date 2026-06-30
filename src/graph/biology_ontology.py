@@ -1,6 +1,8 @@
 """B1 — map a biology description to a GO-biological-process controlled-vocabulary id.
 
-Gated by ``EROOM_BIO_ONTOLOGY`` (default OFF). When ON, a BiologyNode is keyed by
+Applied by the explicit rekey step (``scripts/rekey_biology_ontology.py``) using
+``CONFIG.bio_ontology_gate`` (src/config.py); formerly the ``EROOM_BIO_ONTOLOGY``
+on/off flag, which is gone — only the cosine gate remains. A BiologyNode is keyed by
 the nearest GO-BP term instead of a content hash of its free-text description, so the
 same biology across trials lands on ONE node — mirroring the Reactome id-merge that
 makes the mechanism layer the densest, highest-reuse unit in the graph. Unmappable
@@ -14,8 +16,8 @@ re-normalization — is the lever).
 
 The desc→GO map is precomputed at ``data/cache/biology_ontology_map.json`` (built by
 ``scratch/diagnostics/b1_build_ontology_map.py``) so a build is deterministic and
-offline. A cache miss falls back to a live BioLORD nearest-GO lookup only when the
-flag is on.
+offline. A cache miss falls back to a live BioLORD nearest-GO lookup (invoked by the
+rekey step whenever it requests a mapping).
 """
 from __future__ import annotations
 

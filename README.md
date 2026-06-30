@@ -32,19 +32,16 @@ Most systems record whether trials pass or fail. Eroom Bio records **where in th
 
 ---
 
-## Current evaluation (round 30)
+## Current evaluation
 
-Five well-known case studies anchor direction-prediction: nivolumab CheckMate-067 (success), solanezumab EXPEDITION (failure), bevacizumab AVANT (failure, adjuvant), torcetrapib ILLUMINATE (failure, off-target safety), selumetinib thyroid (success). They're scored two ways: **in-sample** (the trial's own evidence is attributed into the graph — an algorithmic-correctness gate; it *should* be called right) and **true holdout** (excluded from attribution, predicted only from other trials — the generalization test).
+Eroom Bio is an active research prototype; everything below is reported under honest, leak-free protocols — k-fold holdout with **per-fold re-attribution** (each test trial's evidence is removed from the graph before it is scored), plus leave-target-out and leave-indication-out — never same-corpus leave-one-out (which flatters the model).
 
-- **In-sample: 5/5** direction-correct — the algorithm reproduces the outcomes of trials whose own evidence is in the graph.
-- **True holdout: 3/5**, including both successes (nivolumab, selumetinib). Three mechanisms make this work: a decisive weak link can veto the chain (bevacizumab's `responds_differently` for the adjuvant population), an informed prior keeps ignorance from sinking the chain, and tolerated toxicity no longer sinks an effective drug (nivolumab's irAEs).
-- Across **54 labeled trials**: binary accuracy 0.69, AUROC 0.65 — lifting true successes without lifting failures.
+- **In-sample** (a trial's own evidence is in the graph — a correctness gate, *not* generalization): AUROC ≈ 0.77.
+- **Honest holdout, broad multi-indication corpus (~500 trials across 5 diseases):** AUROC ≈ 0.53–0.57, roughly flat with corpus size — sparse cross-trial reuse means beliefs largely echo each trial's own evidence rather than transferring.
+- **Honest holdout, concentrated oncology corpus (`onco_scale_500`):** AUROC ≈ 0.70, robust to leave-indication/leave-target-out — but the lift is **localized to targeted therapies** and absent in the cytotoxic backbone.
+- **vs. baselines:** on a single binary-success number the graph currently **ties** strong non-mechanistic trial-design features (enrollment, single-arm, #compounds, rationale; AUROC ≈ 0.68–0.70). Incremental tests (likelihood-ratio + CV-stacked DeLong) show the graph adds *complementary* signal on top of design — localized to targeted therapies — rather than beating it outright.
 
-**The two holdout misses are data gaps, not predictor flaws:**
-- **torcetrapib** — its off-target cardiac safety isn't in CT.gov (no posted results); a PubMed ingester is the fix.
-- **bevacizumab** — `responds_differently` is population-only, so adjuvant-CRC chemo successes dilute the anti-VEGF-adjuvant failure on the shared edge; the structural fix is mechanism-conditioned population sub-regions.
-
-**Honest scope:** these 5 case studies + 54 labeled trials are a *directional* signal, not statistical validation — in-sample is self-consistency, the holdout is the real (small) generalization test; the predictor's knobs are pre-calibration.
+**What ships today is the interpretable layer, not novel-entity prediction:** **structured failure decomposition** (which edge in the causal chain the corpus implicates for a given outcome) and **per-target safety attribution** (validated on EGFR→rash and INSR→hypoglycemia). Predicting risk for *unseen* compounds/targets remains at chance — gated by **reuse-per-edge** (how many trials share each link), the project's single binding constraint, not by the inference method. (Five classic case studies — nivolumab, solanezumab, bevacizumab, torcetrapib, selumetinib — remain wired as a direction sanity-check in `scripts/eval_holdout_compose.py`.)
 
 **Ground-truth caveat:** the success/failure label is the **LLM-extracted `primary_endpoint_met`** (read from the trial's results text by the extraction model), with a classifier-`trial_outcome` fallback — *not* a structured ClinicalTrials.gov efficacy field. The labels therefore inherit any extraction error; treat the headline AUROC as conditioned on label fidelity, not an absolute.
 
@@ -88,14 +85,14 @@ Updates use a Beta-Binomial conjugate model. Each evidence record contributes N_
 | Preclinical in vitro | 1.0 | Cell line data |
 | Computational | 0.3 | Predicted, not measured |
 
-Round 25 split these into per-source curated-database tiers; **round 30** makes N_eff *precision-grounded* — the value above is the anchor for a median-N trial, scaled by the trial's actual patient count, with an independence/redundancy discount so correlated evidence (same study/sponsor) doesn't compound as if independent (flag-gated via `EROOM_NEFF_PRECISION`).
+Round 25 split these into per-source curated-database tiers — the shipped behavior. (An experimental refinement that further scaled N_eff by trial size with a redundancy discount was prototyped and removed; the fixed tiers above are what runs.)
 
-### Prediction (round 30: weakest-link + informed prior, failure-causing safety)
+### Prediction (weakest-link + informed prior, failure-causing safety)
 
 `overall = efficacy × (1 − safety_penalty)`.
 
-- **Efficacy — weakest-link, not geometric mean.** A causal chain is only as strong as its weakest *well-evidenced* link, so efficacy is a **soft-min** over per-edge Beta samples (`P(success) ≈ P(weakest link)`) — replacing the earlier trust-weighted geometric mean, which diluted a decisive weak link by the n-th root. Under-evidenced edges sample under a **weak informed prior** (mean ~0.75), so ignorance defers to a plausible base rate instead of producing low samples that spuriously become the minimum. The Bayesian posterior's concentration thus replaces the old evidence-count "trust weight" (sparse → near prior; abundant → near observed). Env-tunable (`EROOM_SOFTMIN_T`, `EROOM_PRIOR_MEAN`/`EROOM_PRIOR_STRENGTH`); `EROOM_AGG=geomean` restores the legacy mean.
-- **Safety — failure-causing toxicity, not occurrence.** `causes_ae` / `target_associated_ae` measure AE *incidence*, but an effective drug with tolerated toxicity (e.g. nivolumab's irAEs in trials that *succeeded*) must not be penalized like one whose toxicity was dose-limiting. Each AE's penalty is gated by the fraction of its evidence from **dose-limiting-toxicity failures** vs tolerated/successful trials — soft-or of `severity × belief × trust × failure-causing` (capped). A serious AE floors at the grade-3 weight when CTCAE grade is missing (the common case). `EROOM_SAFETY_DLT_GATE=0` restores occurrence-only.
+- **Efficacy — weakest-link, not geometric mean.** A causal chain is only as strong as its weakest *well-evidenced* link, so efficacy is a **soft-min** over per-edge Beta samples (`P(success) ≈ P(weakest link)`) — replacing the earlier trust-weighted geometric mean, which diluted a decisive weak link by the n-th root. Under-evidenced edges sample under a **weak informed prior** (mean ~0.75), so ignorance defers to a plausible base rate instead of producing low samples that spuriously become the minimum. The Bayesian posterior's concentration thus replaces the old evidence-count "trust weight" (sparse → near prior; abundant → near observed). These parameters are baked in `src/config.py` (`softmin_t`, `prior_mean`, `prior_strength`); the geometric-mean / product / hard-min variants were removed — soft-min is the sole aggregation path.
+- **Safety — failure-causing toxicity, not occurrence.** `causes_ae` / `target_associated_ae` measure AE *incidence*, but an effective drug with tolerated toxicity (e.g. nivolumab's irAEs in trials that *succeeded*) must not be penalized like one whose toxicity was dose-limiting. Each AE's penalty is gated by the fraction of its evidence from **dose-limiting-toxicity failures** vs tolerated/successful trials — soft-or of `severity × belief × trust × failure-causing` (capped). A serious AE floors at the grade-3 weight when CTCAE grade is missing (the common case). The DLT gate is baked on (`src/config.py`).
 
 ### Build modes (round 19)
 
@@ -142,7 +139,7 @@ The repo has many scripts and flags; in practice you use a small set. This is th
 python -m scripts.build_graph \
   --corpus multi_indication_52_train \   # frozen NCT-id list → reproducible build
   --max-trials 60 \
-  --bottom-up \                          # chains-first build — the production mode
+  --bottom-up \                          # chains-first build — already the default (flag kept for back-compat)
   --assemble \                           # materialize geometry + the (s,t) belief field
   --allow-partial-classify --allow-partial-subgraphs
 ```
@@ -151,7 +148,7 @@ The flags that actually matter (the rest are rarely needed):
 
 | Flag | When you reach for it |
 |---|---|
-| `--bottom-up` | Always, for a real build — per-trial isolated subgraphs → a re-runnable merge. Omitting it falls back to the legacy top-down path. |
+| `--bottom-up` | The production build — per-trial isolated subgraphs → a re-runnable merge. **It is already the default**; the flag is a no-op kept for back-compat. Pass `--top-down` to opt into the legacy shared-store path. |
 | `--assemble` | Materialize the geometry (boxes, is-a) and the per-`(s,t)` belief field. Requires `python -m`. |
 | `--corpus <name>` | Pin a frozen NCT-id list (written on first use) — reproducible builds. |
 | `--reannotate NCT,NCT…` | **Iterate on prompts.** Deletes only those trials' caches, re-runs just them, preserves every other annotation — append-only. This is *not* a fresh build. |
@@ -184,6 +181,14 @@ masking is unfaithful under node-merge + AE-propagation):
 python -m scripts.eval_holdout_kfold --initial data/exports/<area>_initial.json \
   --annotated data/exports/<area>_annotated.json --corpus <name> --k 5
 ```
+
+**Reproduce the headline oncology numbers.** One tracked, seeded command — it runs the honest k-fold holdout *and* the paired-DeLong comparison against the design baseline, against the frozen frontier snapshots:
+
+```bash
+python -m scripts.reproduce_frontier        # → holdout AUROC ≈0.70, in-sample ≈0.77 (seed 42)
+```
+
+The full modeling config (routing, ontology keying, informed prior, soft-min, safety gate, n_eff tiers) is frozen in **`src/config.py`** — the single source of algorithm truth. There are no `EROOM_*` algorithm flags; only deployment paths (`EROOM_GRAPH_SNAPSHOT`, `EROOM_PRIVATE_ROOT`) and API keys are read from the environment.
 
 **Inspect causal chains** (columns by node type, per-row before-merge vs converged after-merge) — also wired as the `/graph-inspect` skill:
 
@@ -238,10 +243,11 @@ Existing tools predict trial outcomes as black-box classifiers. Eroom Bio produc
 
 ## Current status
 
-- ~1,390 tests passing (non-integration) on Python 3.11+
-- **Chains-first v2 (on `main`).** The build is per-trial isolated subgraphs → a re-runnable merge (`--bottom-up`); the abstraction ladder sits at true scale (Target → Mechanism = Reactome signaling pathway → Biology = general process; drug-class is metadata on the compound, operativity on the `modulates_via` edge); and **attribution is outcome-conditioning** — the trial outcome conditions the whole chain by explaining-away, the failure classifier is a coarse operational gate, and cross-trial overlap triangulates the failing edge.
-- **Holdout (compose-and-scan, target-anchored).** 3/3 direction-correct on every classic case study whose target the corpus knows (nivolumab→melanoma, torcetrapib→CVD, selumetinib→thyroid); the two whose target is absent from the small corpus are honest "unknown"s, not misses.
-- Pending: an evidence-depth check on the lighter-conditioned holdouts; the PubMed ingester (off-target safety not posted to CT.gov); LOO calibration of the predictor knobs; the BioLORD node substrate.
+- ~1,390 tests passing (non-integration) on Python 3.11+.
+- **One baked algorithm config** (`src/config.py`) — reason-routed attribution, biology→GO-BP ontology keying, native direction, informed prior, safety DLT-gate, weakest-link soft-min. There are **no production feature flags**; `python -m scripts.reproduce_frontier` reproduces the headline oncology numbers from the frozen snapshots.
+- **Chains-first build (on `main`).** Per-trial isolated subgraphs → a re-runnable merge; the abstraction ladder sits at true scale (Target → Mechanism = Reactome signaling pathway → Biology = general process; drug-class is metadata on the compound, operativity on the `modulates_via` edge); and **attribution is outcome-conditioning** — the trial outcome conditions the whole chain by explaining-away, the failure classifier is a coarse operational gate, and cross-trial overlap triangulates the failing edge.
+- **Validated surfaces:** interpretable failure decomposition + per-target safety attribution. **Gated on denser data:** novel-entity risk and binary-success prediction — reuse-per-edge is the binding constraint.
+- **Pending:** a PubMed safety ingester (off-target safety not posted to CT.gov); predictor calibration; the BioLORD node substrate.
 
 ---
 

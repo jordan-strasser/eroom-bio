@@ -190,15 +190,17 @@ def p_obs_for_bucket(bucket: SupportBucket) -> float:
     return BUCKET_TO_P_OBS[bucket]
 
 
-# ── Principled / precision-aware N_eff (env flag: EROOM_NEFF_PRECISION) ────
+# ── Precision-aware N_eff (formerly the EROOM_NEFF_PRECISION flag) ─────────
 #
-# Off by default. When off — and on every record that carries no patient
-# count — ``effective_n_for_evidence`` returns the legacy
-# ``base × quality_score``, so existing builds, snapshots, and the holdout
-# stay byte-for-byte unchanged. When on, clinical records additionally scale
-# by the *precision* of the reported result, anchored so a median-N trial
-# reproduces its legacy type-constant. Only the dispersion around that anchor
-# is new signal, which keeps the rollout no-regression.
+# The flag is GONE and the path that folded precision into
+# ``effective_n_for_evidence`` was REMOVED — that function now always returns
+# the legacy ``base × quality_score`` (its ``n_obs`` / ``edge_type`` params are
+# vestigial), so existing builds, snapshots, and the holdout stay byte-for-byte
+# unchanged. What SURVIVES and is baked in is ``_precision_multiplier`` below,
+# which the attributor's outcome path calls DIRECTLY and unconditionally
+# (belief formation is always √N-weighted): a clinical record scales by the
+# *precision* of the reported result, anchored so a median-N trial reproduces
+# its legacy type-constant.
 #
 # All values are pre-calibration defaults; a future calibration pass is
 # meant to refit them against held-out outcomes (Brier / ECE).
@@ -405,8 +407,8 @@ def modulation_bucket(
 # ``prior_strength`` (τ) defaults to 20 — ≈ the p90 of observed n=500 parent-edge
 # strengths, so the cap bites only the richest proxies, not the typical one. It
 # is calibrated by the evidence-strength SCALE, NOT tuned against any holdout
-# AUROC, and is env-overridable (``EROOM_POOL_PRIOR_STRENGTH``) for sweeps. See
-# /tuning-log.
+# AUROC. BAKED via ``CONFIG.pool_prior_strength`` (src/config.py); formerly the
+# env-overridable ``EROOM_POOL_PRIOR_STRENGTH``. See /tuning-log.
 _POOL_PRIOR_STRENGTH = CONFIG.pool_prior_strength
 
 

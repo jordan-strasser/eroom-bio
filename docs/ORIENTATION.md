@@ -1,6 +1,6 @@
 # eroom.bio — orientation map
 
-*Read this first. Plain-language state of the project + glossary. Drop into `docs/ORIENTATION.md` or fold into `CLAUDE.md`.*
+*Read this first — a plain-language state of the project and glossary.*
 
 ## What this is (no jargon)
 eroom.bio reads clinical trials and learns which biological bets tend to succeed or fail, so trials can be designed with better odds. Long-term aim: bend the ~90% trial failure rate by accumulating transferable knowledge of human physiology across trials. How: each trial is broken into **one connected causal chain** — **drug → target → mechanism → biology → endpoint → indication → population**, plus **adverse-event** links off the drug and target. That one chain's edges split into **three functional branches** (efficacy, measurement, safety — see glossary): one chain by topology, three branches by function. Each link gets a belief (how reliable it is). Beliefs pool across trials that share the same link. **The system learns by comparing trials that share parts.**
@@ -11,7 +11,7 @@ A link is only learnable when several trials share it. **Reuse = how many trials
 ## Glossary (the lexicon, plainly)
 - **reuse / effective reuse** — how much evidence informs a node/edge: direct (same node in N trials) + borrowed (from similar nodes). Low = learns nothing.
 - **node merging** — deciding two trials mean the same thing (same target/biology) so their evidence pools. Done by a shared id (gene id, pathway id, ontology term).
-- **branch / edge class** — the three kinds of link, each a segment of the one chain: **efficacy** (drug→target→mechanism→biology: does a real effect exist), **measurement** (biology→endpoint→indication→population: does the trial detect it), **safety** (the adverse-event side-links: does it harm). They share nodes (biology is the seam; drug/target feed safety) but are scored and updated separately because they fail for different reasons.
+- **branch / edge class** — the three kinds of link, each a segment of the one chain: **efficacy** (drug→target→mechanism→biology: does a real effect exist), **measurement** (biology→endpoint→indication→population: does the trial detect it), **safety** (the adverse-event side-links: does it harm). They share nodes (biology is the seam; drug/target feed safety) but are scored and updated separately because they fail for different reasons. *(At prediction time efficacy and measurement links are pooled into one weakest-link soft-min, and safety enters separately as `overall = efficacy × (1 − safety_penalty)`; the three-way split is primarily about how a failure is **routed** during belief updates.)*
 - **per-branch / per-target recovery** — how faithfully the system learns the true reliabilities, measured separately per branch and per drug target.
 - **routing / censoring (the "A34" work)** — only update the link a failure actually implicates (a safety death must not downvote the biology). Uses the trial's stated failure reason.
 - **responsibility** — how much blame a failed trial puts on each link: its own unreliability ÷ total failure probability.
@@ -43,7 +43,8 @@ Two asymmetries are the whole point. A **success is clean** evidence (everything
 ## Key result docs (in repo)
 `A34_RESULTS.md`, `SYNTH_REPORT.md`, `MERGE_POOLING_MAP.md`, `B1_DECISION.md`, `B1_BUILD_RESULTS.md`, `SAFETY_MANIFOLD_ALIGNMENT.md`, `SAFETY_MANIFOLD_RESULTS.md`.
 
-## Flags (both default OFF; old behavior preserved)
-- `EROOM_ROUTING` — reason-routed failure updates (A34).
-- `EROOM_BIO_ONTOLOGY` — biology ids from GO-BP (B1).
-- `EROOM_SAFETY_MANIFOLD` — domain-manifold AE borrowing (predictive borrowing disabled pending more data; decomposition + exact-id ship).
+## Configuration — one baked config, no flags
+The modeling choices are **frozen in `src/config.py`**; there are no `EROOM_*` algorithm switches anymore (only deployment paths and API keys come from the environment).
+- **Reason-routing** (the "A34" work) — baked **on**: a failure updates only the link it implicates.
+- **Biology→GO-BP ontology keying** (B1) — applied by the explicit build step `scripts/rekey_biology_ontology.py`; the old on/off flag is gone, only the cosine gate remains.
+- **Safety manifold** — predictive cross-entity AE *borrowing* is **disabled** (chance on novel entities pending denser data); what ships is exact-id safety + the on/off-target decomposition.

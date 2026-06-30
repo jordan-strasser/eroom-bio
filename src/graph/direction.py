@@ -11,8 +11,8 @@ shared downstream beliefs) — it never fragments a node. BTLA stays one node; i
 agonist and antagonist evidence simply land in different direction buckets on the
 same edge.
 
-Flag-gated by ``EROOM_DIRECTION`` (default OFF → no direction is stamped and the
-build is byte-identical), so it can be A/B-validated before it becomes the default.
+Baked ON via ``CONFIG.direction`` (src/config.py); formerly the ``EROOM_DIRECTION``
+flag (default OFF). Direction is always stamped at build and applied at query time.
 """
 from __future__ import annotations
 

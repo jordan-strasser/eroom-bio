@@ -43,11 +43,17 @@ eroom/
 - `--corpus <name>` — build against the frozen NCT-id list at `data/corpora/<name>.txt` (or write one on first run).
 - `--area <name>` — output prefix for the snapshots written to `data/exports/`.
 - `--max-trials N` — cap the number of trials.
-- `--keep-annotations` — reuse cached LLM extractions/classifications across rebuilds (so a re-populate doesn't re-pay for extraction).
+- `--keep-annotations` — reuse cached LLM extractions/classifications across rebuilds (so a re-populate doesn't re-pay for extraction). **Footgun:** without it a fresh build *wipes* `data/annotations/`; use it for populator-only iteration, but default to a fresh re-annotate for audit/closeout builds.
 
 ```bash
 python -m scripts.build_graph --corpus my_corpus --area my_corpus --max-trials 50 --keep-annotations
 ```
+
+## Algorithm config & reproducing results
+- **The modeling algorithm is frozen in `src/config.py`** (one `CONFIG` dataclass): reason-routing, biology→GO-BP ontology keying, native direction, informed prior, weakest-link soft-min, safety DLT-gate, n_eff tiers. **There are no `EROOM_*` algorithm flags** — only deployment paths (`EROOM_GRAPH_SNAPSHOT`, `EROOM_PRIVATE_ROOT`) and API keys are read from the environment. Any `EROOM_*` switch you see in an old comment or doc is historical.
+- **Reproduce the headline oncology numbers:** `python -m scripts.reproduce_frontier` (seeded → holdout AUROC ≈0.70 / in-sample ≈0.77 from the frozen `onco_scale_500` snapshots). Note `build_graph.py` *builds* the graph; it did **not** produce those numbers — the eval harnesses did.
+- **Honest evaluation only:** `scripts/eval_holdout_kfold.py` (k-fold with per-fold re-attribution) or leave-target/leave-indication-out — never same-corpus leave-one-out (it flatters the model; that trap has recurred). A fresh build cannot reproduce 0.70 (mechanism-layer drift since the frozen snapshot); snapshot reproduction is canonical.
+- **Biology→GO ontology keying** is a separate explicit step (`scripts/rekey_biology_ontology.py`) applied to an `_initial.json`, not part of `build_graph.py`.
 
 Visualize a built graph: `python -m scripts.visualize_graph --area <name> --mode chain` (the default — a left→right Compound→…→Population causal-chain view, before/after merge) or `--mode graph` (a force-directed product overview).
 

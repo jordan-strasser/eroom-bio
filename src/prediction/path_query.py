@@ -66,7 +66,7 @@ _DIR_PRIOR_FLOOR = 1e-6
 
 
 def _direction_filtered(belief: EdgeBeliefState, chain_direction: str) -> EdgeBeliefState:
-    """De-contaminate a shared-edge belief for a directional query (EROOM_DIRECTION).
+    """De-contaminate a shared-edge belief for a directional query (CONFIG.direction; was EROOM_DIRECTION).
 
     Removes the conjugate contribution of KNOWN OPPOSITE-direction trial evidence
     (an antagonist's evidence when querying an agonist chain, and vice-versa),
@@ -99,7 +99,7 @@ def _direction_filtered(belief: EdgeBeliefState, chain_direction: str) -> EdgeBe
 def _maybe_direction_filter(
     belief: EdgeBeliefState, edge_type: EdgeType, chain: CausalChain
 ) -> EdgeBeliefState:
-    """Apply the direction filter to a shared efficacy edge under EROOM_DIRECTION."""
+    """Apply the direction filter to a shared efficacy edge (baked ON via CONFIG.direction; was EROOM_DIRECTION)."""
     if not _direction.enabled() or edge_type not in _DIRECTION_PARTITIONED:
         return belief
     return _direction_filtered(belief, getattr(chain, "direction", ""))
@@ -292,7 +292,8 @@ _TRUST_LOG_SAT = math.log(50.0)  # = log(saturation + 1) with saturation=49
 _LOG_FLOOR = 1e-12  # clip per-sample probabilities before taking log
 _SOFTMIN_T = CONFIG.softmin_t  # weakest-link softmin temperature; ->0 approaches hard min
 
-# Informed prior (EROOM_INFORMED_PRIOR): swap the Beta(1,1) "coin-flip" prior
+# Informed prior (baked ON via CONFIG.informed_prior; was EROOM_INFORMED_PRIOR):
+# swap the Beta(1,1) "coin-flip" prior
 # for a WEAK prior centered on a plausible base rate, so an under-evidenced /
 # unobserved chain edge defers to "probably operative" (~0.75) instead of
 # producing low samples that spuriously become the weakest link. Weak
@@ -328,7 +329,8 @@ def _sample_edge(rng, belief, n_samples: int) -> np.ndarray:
     """Sample an edge's Beta, optionally under a weak informed prior.
 
     The stored belief is Beta(1+e_pos, 1+e_neg) (Beta(1,1) prior + evidence).
-    With EROOM_INFORMED_PRIOR we re-prior to Beta(a0+e_pos, b0+e_neg) where
+    With the informed prior (CONFIG.informed_prior; was EROOM_INFORMED_PRIOR)
+    we re-prior to Beta(a0+e_pos, b0+e_neg) where
     Beta(a0,b0) has mean ~0.75 — so an unobserved edge samples around 0.75
     (plausible) rather than uniform/low, and well-evidenced edges are
     essentially unchanged (the weak prior is swamped).
@@ -578,8 +580,9 @@ class PredictionEngine:
     ) -> PredictionResult:
         """Compositional prediction via Monte Carlo sampling along one causal chain.
 
-        Aggregation: weakest-link softmin by default (``EROOM_AGG``, round-30;
-        ``geomean`` restores the legacy trust-weighted geometric mean). Edges
+        Aggregation: weakest-link softmin — the sole aggregation path (baked via
+        ``CONFIG.softmin_t``; the former ``EROOM_AGG`` geomean/product/min/harmonic
+        variants were deleted). Edges
         with no evidence beyond the prior are dropped upstream. Trial-level
         prediction (across multiple arms × subgroups) is the caller's
         responsibility—predict each chain and aggregate as appropriate (e.g.
@@ -623,7 +626,7 @@ class PredictionEngine:
             edge_samples.append(_sample_edge(rng, belief, n_samples))
             trust_weights.append(_trust_weight(belief))
 
-        # 3. Aggregate samples (default softmin; EROOM_AGG=geomean for legacy)
+        # 3. Aggregate samples (weakest-link softmin — the sole path; was EROOM_AGG)
         samples = _aggregate_samples(edge_samples)
 
         # 4. Compute statistics (mechanism-only — the "efficacy" view).

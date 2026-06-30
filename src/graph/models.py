@@ -779,11 +779,12 @@ class EvidenceRecord(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
 
     # ── Principled-N_eff inputs (optional; default None = back-compat) ─────
-    # Quantitative properties of the evidence, consumed by the precision-
-    # aware n_eff path in ``src/inference/beliefs.py`` when the
-    # ``EROOM_NEFF_PRECISION`` flag is enabled. All default None so existing
-    # records and serialized snapshots load unchanged and reproduce the
-    # legacy type-constant n_eff exactly.
+    # Quantitative properties of the evidence. These FED the precision-aware
+    # n_eff path in ``src/inference/beliefs.py`` (the former
+    # ``EROOM_NEFF_PRECISION`` flag), which was REMOVED — so they are now
+    # vestigial and no longer consumed. All default None so existing records and
+    # serialized snapshots load unchanged and reproduce the legacy type-constant
+    # n_eff exactly.
     #   ``n_obs``      patient/observation count (trial enrollment / N)
     #   ``effect``     reported point-estimate effect size (HR/OR/Δ), if any
     #   ``p_value``    reported p-value, if any
@@ -920,8 +921,9 @@ class CausalChain(BaseModel):
     # compound's action on its target, from ChEMBL ``action_type`` (see
     # ``src.graph.direction``). An EDGE-LEVEL partition key — used to split the
     # shared downstream beliefs by direction without fragmenting any node.
-    # Default "unknown" so pre-direction cached snapshots parse unchanged; only
-    # populated under ``EROOM_DIRECTION``.
+    # Default "unknown" so pre-direction cached snapshots parse unchanged;
+    # populated whenever a compound resolves a curated ChEMBL action_type
+    # (direction is baked ON via ``CONFIG.direction``; was ``EROOM_DIRECTION``).
     direction: str = "unknown"
     # PROVENANCE (not field math): this chain's OWN per-(arm, drug) free-text
     # descriptions, stamped once at build by ``populate_chain_descriptions`` via
