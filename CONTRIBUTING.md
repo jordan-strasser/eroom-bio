@@ -14,7 +14,7 @@ annotations, and the conventions we keep stable across PRs.
 ## Quick start
 
 ```bash
-git clone https://github.com/eroom-bio/eroom.git
+git clone https://github.com/jordan-strasser/eroom-bio.git
 cd eroom
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
@@ -173,10 +173,10 @@ Add the new evidence type to `EVIDENCE_TYPE_N_EFF` in
 
 Compound resolution already layers a curated codename dict
 (`CODENAME_TO_INN`), ChEMBL `stable_id` matching, and SapBERT embedding
-similarity (see the README's "Compound canonicalization"). The remaining
-gaps are trade names, indication aliases, and monoclonal-antibody target
-resolution; better alias tables or HUGO/MeSH lookups would move the
-corpus-coverage ceiling above its current ~80% on noisy indications.
+similarity. The remaining gaps are trade names, indication aliases, and
+monoclonal-antibody target resolution; better alias tables or HUGO/MeSH
+lookups would move the corpus-coverage ceiling above its current ~80% on
+noisy indications.
 
 ---
 

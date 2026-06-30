@@ -379,7 +379,6 @@ async def main(
     exclude_from_attribution: list[str] | None = None,
     assemble: bool = True,
     enrich_pubmed: bool = False,
-    bottom_up: bool = True,
 ) -> None:
     incremental = bool(base_snapshot)
     reannotate = reannotate or []
@@ -443,8 +442,7 @@ async def main(
     # Bottom-up incremental append (the 200K seam): build_bottomup starts from the
     # loaded base graph, builds Phase 1 ONLY for the new trials, unions them in, and
     # re-runs the Phase-2 merge restricted to new-involving pairs. No raise here —
-    # this is the production append path. (Top-down incremental still works as the
-    # escape hatch.)
+    # this is the production append path.
 
     # Validate CLI inputs BEFORE wiping anything — otherwise a bad flag
     # combo nukes data/annotations/ on its way to the SystemExit.
@@ -559,48 +557,32 @@ async def main(
     extracted = await extract_all(trials, extractor, concurrency=concurrency)
     console.print(f"  extracted {len(extracted)}/{len(trials)} trials")
 
-    if bottom_up:
-        # Chains-first build: resolve each trial in ISOLATION, then reassemble via
-        # the re-runnable node_merge projection (vs top-down's overlap-first shared
-        # store). Faithful to top-down on n=10 — chains 61==61 (0 missing, 0
-        # splits), belief coverage 205/258 vs 203/257. See populate_bottomup.
-        # annotations_dir lets per-trial populate read the just-written
-        # extractions so Biology nodes get their identity from the description.
-        from src.graph.populate_bottomup import build_bottomup
-        graph = await build_bottomup(
-            trials, client, condition=condition,
-            annotations_dir=str(ANNOTATIONS_DIR),
-            # Incremental append: start from the loaded base graph and merge ONLY
-            # the new trials' chains into it (Phase 1 just for `trials`, which the
-            # round-19 filter already trimmed to the not-yet-present ones). Fresh
-            # build: base_graph=None → empty start. Either way the same Phase-2
-            # merge runs (restricted to new-involving pairs on append).
-            base_graph=graph if incremental else None,
-            # Dump the Phase-1 union (pre-assemble) so the visualizer's
-            # before-block is FAITHFUL: each chain still references its own
-            # per-trial biology/target instance (the merge destroys that
-            # mapping, so it can't be reconstructed post-hoc). Additive only.
-            premerge_dump_path=str(EXPORTS_DIR / f"{area}_premerge.json"),
-        )
-        console.print(
-            f"  [bold]bottom-up (chains-first) build[/bold]: "
-            f"{graph.stats()['node_count']} nodes, "
-            f"{len(graph.trial_subgraphs)} trial subgraphs"
-            + ("  (incremental append)" if incremental else "")
-        )
-    else:
-        # Top-down (overlap-first) stays on LEGACY ontology biology: it writes
-        # straight into a shared store with no Phase-2 geometric merge, so
-        # description-identity biology would fragment by paraphrasing here with
-        # nothing to consolidate it. Description-identity is bottom-up-only
-        # (it needs the merge). So we do NOT thread annotations_dir here.
-        pipeline = PopulationPipeline(graph, anthropic_client=client)
-        await pipeline.populate_trials(
-            max_trials=max_trials,
-            include_terminated_no_results=include_terminated,
-            condition=condition,
-            trials=trials,
-        )
+    # Chains-first build: resolve each trial in ISOLATION, then reassemble via the
+    # re-runnable node_merge projection. This is the only build mode. annotations_dir
+    # lets per-trial populate read the just-written extractions so Biology nodes get
+    # their identity from the description.
+    from src.graph.populate_bottomup import build_bottomup
+    graph = await build_bottomup(
+        trials, client, condition=condition,
+        annotations_dir=str(ANNOTATIONS_DIR),
+        # Incremental append: start from the loaded base graph and merge ONLY
+        # the new trials' chains into it (Phase 1 just for `trials`, which the
+        # round-19 filter already trimmed to the not-yet-present ones). Fresh
+        # build: base_graph=None → empty start. Either way the same Phase-2
+        # merge runs (restricted to new-involving pairs on append).
+        base_graph=graph if incremental else None,
+        # Dump the Phase-1 union (pre-assemble) so the visualizer's
+        # before-block is FAITHFUL: each chain still references its own
+        # per-trial biology/target instance (the merge destroys that
+        # mapping, so it can't be reconstructed post-hoc). Additive only.
+        premerge_dump_path=str(EXPORTS_DIR / f"{area}_premerge.json"),
+    )
+    console.print(
+        f"  [bold]bottom-up (chains-first) build[/bold]: "
+        f"{graph.stats()['node_count']} nodes, "
+        f"{len(graph.trial_subgraphs)} trial subgraphs"
+        + ("  (incremental append)" if incremental else "")
+    )
 
     # Phase-4 EFO indication tree: connect ALL→leukemia, uveal→melanoma, … on
     # the assembled graph so the prediction's indication backoff can pool a
@@ -1051,21 +1033,6 @@ if __name__ == "__main__":
              "never captured.",
     )
     parser.add_argument(
-        "--bottom-up", action="store_true",
-        help="(DEFAULT now; flag kept for back-compat, no-op) chains-first build: "
-             "resolve each trial in isolation into trial-scoped nodes, then "
-             "reassemble via the re-runnable node_merge projection. This is the "
-             "only supported mode — append-only ingestion + retune any merge "
-             "without a rebuild, and incremental --add-trials/--add-corpus appends "
-             "new chains onto a base snapshot and re-runs the merge.",
-    )
-    parser.add_argument(
-        "--top-down", action="store_true",
-        help="Escape hatch (NOT recommended): the legacy overlap-first shared-store "
-             "build. Kept only for the faithfulness comparison + tests. Bottom-up "
-             "is the default and the production path.",
-    )
-    parser.add_argument(
         "--assemble", action=argparse.BooleanOptionalAction, default=True,
         help="Step 5: after attribution, run the v2 post-build geometry — fit "
              "boxes on all 7 chain node types, resolve the box-geometry is-a "
@@ -1108,5 +1075,4 @@ if __name__ == "__main__":
         exclude_from_attribution=exclude_from_attribution or None,
         assemble=args.assemble,
         enrich_pubmed=args.enrich_pubmed,
-        bottom_up=not args.top_down,  # bottom-up is the default; --top-down opts out
     ))

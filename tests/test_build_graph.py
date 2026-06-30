@@ -60,7 +60,10 @@ class TestClassifySuccessRateAbort:
         with (
             patch.object(build_graph, "fetch_trials", new=AsyncMock(return_value=fake_trials)),
             patch.object(build_graph, "wipe_outputs"),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            # Mock the bottom-up entry (the only build mode) so no real
+            # populate/LLM cost is incurred; it returns an empty graph.
+            patch("src.graph.populate_bottomup.build_bottomup",
+                  new=AsyncMock(return_value=build_graph.GraphStore())),
             patch.object(build_graph, "Extractor"),
             patch.object(build_graph, "Classifier"),
             patch.object(build_graph, "extract_all", new=AsyncMock(return_value=fake_trials)),
@@ -73,12 +76,6 @@ class TestClassifySuccessRateAbort:
             patch.object(build_graph, "attributor_main", new=AsyncMock()),
             patch("anthropic.AsyncAnthropic"),
         ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
-            mock_pop.graph = type("FakeGraph", (), {
-                "export_snapshot": lambda self, p: None,
-            })()
-
             with pytest.raises(SystemExit, match="classify success rate"):
                 await build_graph.main(
                     condition="melanoma", max_trials=10,
@@ -87,9 +84,6 @@ class TestClassifySuccessRateAbort:
                     # Bypass the round-20.5 subgraph-success check so
                     # this test exercises ONLY the classify-rate path.
                     allow_partial_subgraphs=True,
-                    # Orchestration (classify-abort) is mode-independent; mock the
-                    # top-down PopulationPipeline path (bottom-up is now default).
-                    bottom_up=False,
                 )
 
     @pytest.mark.asyncio
@@ -114,7 +108,11 @@ class TestClassifySuccessRateAbort:
         with (
             patch.object(build_graph, "fetch_trials", new=AsyncMock(return_value=fake_trials)),
             patch.object(build_graph, "wipe_outputs"),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            # Mock the bottom-up entry so no real populate/LLM cost is
+            # incurred; it returns an empty graph (the final import_snapshot +
+            # stats path runs against the pre-created snapshot file below).
+            patch("src.graph.populate_bottomup.build_bottomup",
+                  new=AsyncMock(return_value=build_graph.GraphStore())),
             patch.object(build_graph, "Extractor"),
             patch.object(build_graph, "Classifier"),
             patch.object(build_graph, "extract_all", new=AsyncMock(return_value=fake_trials)),
@@ -127,25 +125,15 @@ class TestClassifySuccessRateAbort:
             patch.object(build_graph, "attributor_main", new=attributor_mock),
             patch("anthropic.AsyncAnthropic"),
         ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
-            mock_pop.graph = type("FakeGraph", (), {
-                "export_snapshot": lambda self, p: None,
-            })()
-            # The final import_snapshot + stats path is the only place
-            # the orchestrator touches a real GraphStore. We can let it
-            # actually run since the file exists.
-
             await build_graph.main(
                 condition="melanoma", max_trials=10,
                 include_terminated=False, concurrency=2,
                 area="oncology", min_classify_success_rate=0.80,
                 # Round-20.5 subgraph-rate check would fire here too
-                # because the populate mock doesn't populate
-                # graph.trial_subgraphs. Bypass since this test is
-                # about the classify-rate path only.
+                # because the bottom-up mock returns an empty graph (no
+                # trial_subgraphs). Bypass since this test is about the
+                # classify-rate path only.
                 allow_partial_subgraphs=True,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # If we got here without SystemExit, the abort didn't fire.
             attributor_mock.assert_awaited_once()
@@ -171,7 +159,9 @@ class TestClassifySuccessRateAbort:
         with (
             patch.object(build_graph, "fetch_trials", new=AsyncMock(return_value=fake_trials)),
             patch.object(build_graph, "wipe_outputs"),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            # Mock the bottom-up entry so no real populate/LLM cost is incurred.
+            patch("src.graph.populate_bottomup.build_bottomup",
+                  new=AsyncMock(return_value=build_graph.GraphStore())),
             patch.object(build_graph, "Extractor"),
             patch.object(build_graph, "Classifier"),
             patch.object(build_graph, "extract_all", new=AsyncMock(return_value=fake_trials)),
@@ -182,12 +172,6 @@ class TestClassifySuccessRateAbort:
             patch.object(build_graph, "attributor_main", new=attributor_mock),
             patch("anthropic.AsyncAnthropic"),
         ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
-            mock_pop.graph = type("FakeGraph", (), {
-                "export_snapshot": lambda self, p: None,
-            })()
-
             await build_graph.main(
                 condition="melanoma", max_trials=10,
                 include_terminated=False, concurrency=2,
@@ -195,7 +179,6 @@ class TestClassifySuccessRateAbort:
                 min_classify_success_rate=0.80,
                 allow_partial_classify=True,
                 allow_partial_subgraphs=True,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
             # Attribution should have been called despite the low rate.
             attributor_mock.assert_awaited_once()
@@ -487,11 +470,11 @@ class TestIncrementalBuildOrchestration:
             base.read_text()
         )
 
-        populate_mock = AsyncMock(return_value=None)
+        bottomup_mock = AsyncMock(return_value=build_graph.GraphStore())
         with (
             patch.object(build_graph, "fetch_trials_by_ids",
                          new=AsyncMock(return_value=[existing, new_trial])),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            patch("src.graph.populate_bottomup.build_bottomup", new=bottomup_mock),
             patch.object(build_graph, "Extractor"),
             patch.object(build_graph, "Classifier"),
             patch.object(build_graph, "extract_all",
@@ -503,27 +486,21 @@ class TestIncrementalBuildOrchestration:
             patch.object(build_graph, "attributor_main", new=AsyncMock()),
             patch("anthropic.AsyncAnthropic"),
         ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = populate_mock
-
             await build_graph.main(
                 condition="melanoma", max_trials=10,
                 include_terminated=False, concurrency=2,
                 area="oncology",
                 base_snapshot=str(base),
                 add_trials=["NCT00000001", "NCT00000002"],
-                # populate is mocked so trial_subgraphs stays empty —
-                # bypass the round-20.5 subgraph-rate guard.
+                # the bottom-up builder is mocked so trial_subgraphs stays
+                # empty — bypass the round-20.5 subgraph-rate guard.
                 allow_partial_subgraphs=True,
-                # Top-down incremental: asserts the shared already-present filter
-                # via the populate_trials mock (bottom-up append is covered e2e).
-                bottom_up=False,
             )
 
-        # The populator should have been called with ONLY the new trial.
-        populate_mock.assert_awaited_once()
-        call_kwargs = populate_mock.await_args.kwargs
-        passed_trials = call_kwargs["trials"]
+        # The bottom-up builder should have been handed ONLY the new trial
+        # (the already-present NCT00000001 is filtered out before populate).
+        bottomup_mock.assert_awaited_once()
+        passed_trials = bottomup_mock.await_args.args[0]
         passed_ids = [t.nct_id for t in passed_trials]
         assert passed_ids == ["NCT00000002"]
 
@@ -643,7 +620,10 @@ class TestIncrementalBuildOrchestration:
             patch.object(build_graph, "fetch_trials",
                          new=AsyncMock(return_value=fake_trials)),
             patch.object(build_graph, "wipe_outputs"),
-            patch.object(build_graph, "PopulationPipeline") as MockPop,
+            # The bottom-up builder is mocked to return the pre-built graph
+            # (2 trial subgraphs), so the subgraph-rate guard sees 2 built.
+            patch("src.graph.populate_bottomup.build_bottomup",
+                  new=AsyncMock(return_value=graph)),
             patch.object(build_graph, "Extractor"),
             patch.object(build_graph, "Classifier"),
             patch.object(build_graph, "GraphStore", return_value=graph),
@@ -656,8 +636,6 @@ class TestIncrementalBuildOrchestration:
             patch.object(build_graph, "attributor_main", new=attributor_mock),
             patch("anthropic.AsyncAnthropic"),
         ):
-            mock_pop = MockPop.return_value
-            mock_pop.populate_trials = AsyncMock(return_value=None)
             # 2 built of 10 input = 20% raw, but 8 are legitimate
             # drops so eligible_count = 2 and rate = 2/2 = 100%.
             # The 75% threshold should PASS.
@@ -666,7 +644,6 @@ class TestIncrementalBuildOrchestration:
                 include_terminated=False, concurrency=2,
                 area="oncology",
                 min_subgraph_success_rate=0.75,
-                bottom_up=False,  # mode-independent orchestration via top-down mock
             )
         # Build proceeded past the subgraph guard → attribution ran.
         attributor_mock.assert_awaited_once()
