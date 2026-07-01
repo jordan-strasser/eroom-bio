@@ -10,6 +10,7 @@ from src.graph.models import EdgeBeliefState, EdgeType
 from src.graph.store import GraphStore
 from src.ingestion.opentargets import (
     OpenTargetsClient,
+    _labels,
     populate_target_disease_edges,
     score_to_prior,
 )
@@ -544,6 +545,55 @@ class TestPopulateGraph:
 # ── Integration test ─────────────────────────────────────────────────────
 
 
+class TestDrugLabelAndSourceShape:
+    """OT changed ``synonyms``/``tradeNames`` from ``[String]`` to
+    ``[DrugLabelAndSource]`` ({label, source}); a scalar request now 400s the
+    whole query. ``_labels`` flattens the object form, and the queries request
+    a ``{ label }`` sub-selection. These pin the new shape without breaking the
+    old (cached) one."""
+
+    def test_labels_flattens_object_form(self):
+        assert _labels([{"label": "Risperdal", "source": "x"},
+                        {"label": "Okedi"}]) == ["Risperdal", "Okedi"]
+
+    def test_labels_tolerates_legacy_string_form(self):
+        # Old cached payloads (plain strings) must still resolve.
+        assert _labels(["Opdivo", "BMS-936558"]) == ["Opdivo", "BMS-936558"]
+
+    def test_labels_handles_none_and_empty(self):
+        assert _labels(None) == []
+        assert _labels([{"source": "no-label"}, {"label": ""}]) == []
+
+    @pytest.mark.asyncio
+    async def test_get_drug_with_targets_parses_object_synonyms(self):
+        # The exact post-v4 shape OT returns today.
+        mock = {"search": {"hits": [{
+            "id": "CHEMBL85", "name": "RISPERIDONE",
+            "object": {
+                "id": "CHEMBL85", "name": "RISPERIDONE",
+                "synonyms": [{"label": "LY-03004"}, {"label": "N05AX08"}],
+                "tradeNames": [{"label": "Risperdal"}],
+                "mechanismsOfAction": {"rows": [{
+                    "actionType": "ANTAGONIST",
+                    "mechanismOfAction": "Dopamine D2 receptor antagonist",
+                    "targets": [{
+                        "id": "ENSG00000149295",
+                        "approvedSymbol": "DRD2",
+                        "approvedName": "dopamine receptor D2",
+                    }],
+                }]},
+            },
+        }]}}
+        client = OpenTargetsClient()
+        client._post = AsyncMock(return_value=mock)
+        result = await client.get_drug_with_targets("Risperdal")
+        assert result["chembl_id"] == "CHEMBL85"
+        assert result["targets"][0]["approved_symbol"] == "DRD2"
+        # Trade name takes the reserved slot; object synonyms flattened in.
+        assert "Risperdal" in result["aliases"]
+        assert "LY-03004" in result["aliases"]
+
+
 @pytest.mark.integration
 class TestIntegration:
     @pytest.mark.asyncio
@@ -552,3 +602,12 @@ class TestIntegration:
         result = await client.search_target("BRAF")
         assert result["approved_symbol"] == "BRAF"
         assert result["target_id"].startswith("ENSG")
+
+    @pytest.mark.asyncio
+    async def test_drug_synonyms_object_shape_real_api(self):
+        # Guards the DrugLabelAndSource schema change against silent re-breakage:
+        # a scalar synonyms/tradeNames request 400s the whole query live.
+        client = OpenTargetsClient()
+        result = await client.get_drug_with_targets("risperidone")
+        assert result["chembl_id"] == "CHEMBL85"
+        assert any(t["approved_symbol"] == "DRD2" for t in result["targets"])

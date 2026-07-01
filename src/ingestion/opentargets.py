@@ -20,6 +20,25 @@ logger = logging.getLogger(__name__)
 
 GRAPHQL_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
+
+def _labels(items: list[Any] | None) -> list[str]:
+    """Flatten OT ``synonyms`` / ``tradeNames`` into a list of label strings.
+
+    Open Targets returns these as ``[DrugLabelAndSource!]`` objects
+    (``{label, source}``) since a v4 schema change; they were previously
+    plain ``[String]`` (and a scalar request now 400s the whole query).
+    Tolerant of both shapes so an old-format cached payload still resolves.
+    """
+    out: list[str] = []
+    for it in items or []:
+        if isinstance(it, dict):
+            label = it.get("label")
+            if label:
+                out.append(label)
+        elif isinstance(it, str):
+            out.append(it)
+    return out
+
 # Non-protein-target inference (DNA/RNA/tubulin for chemos) lives in
 # `src/ingestion/chembl.py` — ChEMBL's raw REST API exposes the
 # structured `target_chembl_id` we need; OT's GraphQL generic-ifies
@@ -56,8 +75,8 @@ query SearchDrug($name: String!) {
         ... on Drug {
           id
           name
-          synonyms
-          tradeNames
+          synonyms { label }
+          tradeNames { label }
         }
       }
     }
@@ -85,8 +104,8 @@ query DrugWithTargets($name: String!) {
         ... on Drug {
           id
           name
-          synonyms
-          tradeNames
+          synonyms { label }
+          tradeNames { label }
           mechanismsOfAction {
             rows {
               actionType
@@ -217,8 +236,8 @@ class OpenTargetsClient:
         obj = hits[0]["object"] or {}
         chembl_id = obj.get("id") or hits[0].get("id")
         canonical_name = obj.get("name") or hits[0].get("name") or name
-        synonyms = obj.get("synonyms") or []
-        trade_names = obj.get("tradeNames") or []
+        synonyms = _labels(obj.get("synonyms"))
+        trade_names = _labels(obj.get("tradeNames"))
         return {
             "chembl_id": chembl_id,
             "name": canonical_name,
@@ -262,8 +281,8 @@ class OpenTargetsClient:
         obj = hit.get("object") or {}
         chembl_id = obj.get("id") or hit.get("id")
         canonical_name = obj.get("name") or hit.get("name") or name
-        synonyms = obj.get("synonyms") or []
-        trade_names = obj.get("tradeNames") or []
+        synonyms = _labels(obj.get("synonyms"))
+        trade_names = _labels(obj.get("tradeNames"))
         moa = (obj.get("mechanismsOfAction") or {}).get("rows") or []
         seen_ids: set[str] = set()
         targets: list[dict[str, str]] = []
@@ -360,8 +379,8 @@ def _pick_best_drug_hit(hits: list[dict[str, Any]], queried_name: str) -> int:
         for v in (obj.get("name"), hit.get("name")):
             if v:
                 candidates.append(v)
-        candidates.extend(obj.get("synonyms") or [])
-        candidates.extend(obj.get("tradeNames") or [])
+        candidates.extend(_labels(obj.get("synonyms")))
+        candidates.extend(_labels(obj.get("tradeNames")))
         for c in candidates:
             if not c:
                 continue

@@ -619,8 +619,10 @@ class ClinicalTrialsClient:
     async def search(
         self,
         condition: str | None = None,
+        intervention: str | None = None,
         phase: str | None = None,
         status: str | None = None,
+        study_type: str | None = None,
         has_results: bool | None = None,
         max_results: int = 100,
     ) -> list[TrialRecord]:
@@ -629,9 +631,20 @@ class ClinicalTrialsClient:
         }
         if condition:
             params["query.cond"] = condition
+        # Intervention search (v2 ``query.intr``). Used by the drug-driven
+        # corpus builders (e.g. the DRD2 direction-pooling set) that need
+        # every trial of a given drug across indications, rather than every
+        # drug of a given condition.
+        if intervention:
+            params["query.intr"] = intervention
 
         # Build filter.advanced with AREA[] syntax for the v2 API
         filters: list[str] = []
+        # Restrict to interventional studies when requested (``StudyType``).
+        # Drug-driven pulls otherwise sweep in observational/registry records
+        # that name the drug but build no causal chain.
+        if study_type:
+            filters.append(f"AREA[StudyType]{study_type}")
         if phase:
             # phase can be "PHASE3" or "PHASE2,PHASE3"
             parts = [p.strip() for p in phase.split(",")]
