@@ -81,13 +81,63 @@ def _direction_filtered(belief: EdgeBeliefState, chain_direction: str) -> EdgeBe
     )
 
 
-def _maybe_direction_filter(
-    belief: EdgeBeliefState, edge_type: EdgeType, chain: CausalChain
+# ── Direction as a hierarchical-backoff grouping key ──────────────────────
+#
+# The indication/population backoffs (``_resolve_indication_edge`` /
+# ``_resolve_responds_differently``) group an edge's evidence by an ONTOLOGY
+# hierarchy and partial-pool the specific level toward its coarser parent via
+# ``pool_hierarchical`` (concentration cap = ``CONFIG.pool_prior_strength``).
+# Direction is the same idea with a 1-level grouping:
+#
+#   parent  = the direction-AGNOSTIC pooled belief (all trials on the shared
+#             edge, both directions) — exactly the stored edge belief.
+#   child   = the queried direction's own evidence (same-direction + curated /
+#             direction-agnostic records), reconstructed by removing the
+#             OPPOSITE direction's conjugate mass (``_direction_filtered``).
+#
+# ``pool_hierarchical([child, parent])`` then shrinks the child toward the
+# (capped) parent BY ITS OWN EVIDENCE COUNT: a rich-direction child dominates;
+# a held-out / thin-direction child (its own mass ≈ 0) gracefully falls back to
+# the pooled parent instead of collapsing to the Beta(1,1) prior (which the old
+# same-direction-only subtraction did, dropping the edge entirely).
+#
+# The three modes are the ablation axis for the pooling hypothesis:
+#   BACKOFF            — child shrunk toward the both-direction parent (default).
+#   SAME_DIRECTION_ONLY — child alone (old behavior; the subtraction filter).
+#   FLAT               — the parent, direction ignored (agonist == antagonist).
+DIRECTION_BACKOFF = "backoff"
+DIRECTION_SAME_ONLY = "same_direction_only"
+DIRECTION_FLAT = "flat"
+
+
+def direction_resolved_belief(
+    belief: EdgeBeliefState,
+    edge_type: EdgeType,
+    chain: CausalChain,
+    mode: str = DIRECTION_BACKOFF,
 ) -> EdgeBeliefState:
-    """Apply the direction filter to a shared efficacy edge (baked ON via CONFIG.direction; was EROOM_DIRECTION)."""
+    """Resolve a shared efficacy edge's belief for the chain's direction.
+
+    Dispatches on ``mode`` (see the module constants). A no-op — returns the
+    input belief unchanged — for non-partitioned edge types, when direction is
+    disabled, when the chain direction is unknown, or when the edge carries no
+    opposite-direction evidence to pool away from (so non-DRD2 predictions are
+    byte-identical across modes)."""
     if not _direction.enabled() or edge_type not in _DIRECTION_PARTITIONED:
         return belief
-    return _direction_filtered(belief, getattr(chain, "direction", ""))
+    if mode == DIRECTION_FLAT:
+        return belief
+    d = getattr(chain, "direction", "")
+    child = _direction_filtered(belief, d)
+    if mode == DIRECTION_SAME_ONLY:
+        return child
+    # BACKOFF: shrink the direction child toward the both-direction parent.
+    # When _direction_filtered was a no-op (unknown dir / no opposite mass) the
+    # child IS the parent — nothing to pool, return it unchanged.
+    if child is belief:
+        return belief
+    pooled = pool_hierarchical([child, belief])
+    return pooled if pooled is not None else belief
 
 
 # Round-20 calibration: severity-weighted safety penalty.
@@ -471,8 +521,14 @@ def _resolve_indication_edge(
 
 
 class PredictionEngine:
-    def __init__(self, graph: GraphStore) -> None:
+    def __init__(
+        self, graph: GraphStore, *, direction_mode: str = DIRECTION_BACKOFF
+    ) -> None:
         self.graph = graph
+        # How shared +/- edges resolve the chain's direction (backoff / same-
+        # direction-only / flat). Default: hierarchical backoff toward the
+        # both-direction pooled parent. See ``direction_resolved_belief``.
+        self.direction_mode = direction_mode
 
     def predict(
         self,
@@ -1043,7 +1099,9 @@ class PredictionEngine:
                 )
                 if resolved is not None:
                     anc_ind, belief = resolved
-                    belief = _maybe_direction_filter(belief, edge_type, chain)
+                    belief = direction_resolved_belief(
+                        belief, edge_type, chain, self.direction_mode
+                    )
                     edges.append((src_id, anc_ind, edge_type, belief))
                 continue
 
@@ -1060,7 +1118,9 @@ class PredictionEngine:
             if belief.evidence_strength <= 0.0:
                 continue  # Beta(1,1) — no learned evidence, skip
 
-            belief = _maybe_direction_filter(belief, edge_type, chain)
+            belief = direction_resolved_belief(
+                belief, edge_type, chain, self.direction_mode
+            )
             edges.append((src_id, tgt_id, edge_type, belief))
 
         for me_edge in _collect_modulation_edges(self.graph, chain.compound_id):
@@ -1268,8 +1328,16 @@ def predict_clinical_hypothesis(
     endpoint_id: str | None = None,
     population_id: str | None = None,
     n_samples: int = 10_000,
+    direction_mode: str = DIRECTION_BACKOFF,
 ) -> PredictionResult:
     """Stateless prediction over a clinical hypothesis chain.
+
+    ``direction_mode`` controls how shared +/- efficacy edges resolve the
+    chain's direction (see ``direction_resolved_belief``): ``"backoff"``
+    (default) shrinks the direction child toward the both-direction pooled
+    parent; ``"same_direction_only"`` uses only same-direction evidence;
+    ``"flat"`` ignores direction. The non-default modes exist for the
+    pooling-ablation eval.
 
     Required: ``indication_id`` (must be in the graph). ``compound_id``
     is positional but may be ``None`` or a string not in the graph —
@@ -1314,7 +1382,7 @@ def predict_clinical_hypothesis(
     ):
         stated = _stated_chains_for(graph, compound_id, indication_id)
         if stated:
-            engine = PredictionEngine(graph)
+            engine = PredictionEngine(graph, direction_mode=direction_mode)
             stated_results = [
                 r for r in (engine.predict(c, n_samples=n_samples) for c in stated)
                 if r.edge_contributions
@@ -1348,7 +1416,9 @@ def predict_clinical_hypothesis(
                 endpoint_id=c_end,
                 outcome=TrialOutcome.UNKNOWN,
             ))
-        return PredictionEngine(graph).predict_combo(
+        return PredictionEngine(
+            graph, direction_mode=direction_mode
+        ).predict_combo(
             constituent_chains, compound_id, n_samples=n_samples,
         )
 
@@ -1384,7 +1454,7 @@ def predict_clinical_hypothesis(
         endpoint_id=resolved_endpoint,
         outcome=TrialOutcome.UNKNOWN,
     )
-    engine = PredictionEngine(graph)
+    engine = PredictionEngine(graph, direction_mode=direction_mode)
     return engine.predict(chain, n_samples=n_samples)
 
 
