@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT02431702",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Paliperidone palmitate is a well-established D2 receptor antagonist (DRD2/ENSG00000149295). The trial does not report direct target engagement biomarkers (e.g., D2 occupancy PET), but the drug's mechanism is pharmacologically established. The ICM fraction biomarker data reported is not a direct target engagement measure but rather a brain imaging correlate. No explicit PD/PK target engagement data is provided, so per the round-28 AFFECTS rule, no affects record is emitted for this trial. 2. PATHWAY MODULATION: The ICM (intracranial matter) fraction changes are minimal and similar across arms (PP: -0.001 to -0.7 LS mean ratio vs OAP: -0.003 to +0.5), suggesting no meaningful differential pathway modulation between PP and OAP. Both arms show modest changes, consistent with antipsychotic class effects rather than a disease-modifying signal. 3. CLINICAL TRANSLATION: The primary endpoints were not met. Part 2: Time to first treatment failure \u2014 outcome unknown (median not reached in either arm, suggesting the trial may have been underpowered or the event rate was too low). Part 3 Disease Modification: MCCB composite score change \u2014 PP\u2192PP: -0.7 (failure), OAP\u2192PP delayed start: -0.2 (failure), OAP\u2192OAP: +0.5 (partial). The PP arms actually showed slight cognitive worsening vs. OAP continuation. The EDP (extended disease progression) MCCB scores showed improvement in both arms (PP\u2192PP: +1.6, OAP\u2192OAP: +3.2) but OAP numerically outperformed PP. No p-values are reported, making statistical significance assessment impossible, but the directional data consistently favors OAP over PP. 4. POPULATION EFFECTS: Subgroup analyses (CRDPSS) show both PP and OAP improved hallucinations and delusions, but OAP showed more responders in negative symptoms (61 improved vs 16 for PP). This suggests PP may be less effective for negative symptoms in this recent-onset population. The disease modification hypothesis (early LAI use preventing cognitive decline) was not supported. 5. CONFOUNDERS: The trial has several design issues: (a) The disease modification hypothesis (that early LAI use would prevent cognitive decline vs. OAP) is a novel and ambitious hypothesis that may not be testable in this timeframe or population. (b) The MCCB as a disease modification endpoint in recent-onset schizophrenia is challenging \u2014 both arms showed improvement, suggesting floor effects or natural recovery confounding. (c) No p-values are reported, making it impossible to assess statistical significance. (d) The sample size (337 total across multiple arms and parts) may be insufficient for the disease modification hypothesis. (e) The primary failure mode appears to be that the biology (dopaminergic modulation via LAI vs. oral) did not translate to differential cognitive outcomes \u2014 the endpoint was flat relative to comparator. The overall classification is FAILURE: the primary endpoints were not met, and the disease modification hypothesis was not supported. The failure appears to be at the biology_drives \u2192 endpoint level (both arms showed antipsychotic effects, but PP did not show superior disease modification over OAP) combined with a potentially wrong endpoint/timeframe for the disease modification hypothesis.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Both PP and OAP arms showed some MCCB improvement (antipsychotic biology engaged), but the disease modification hypothesis failed \u2014 PP\u2192PP showed -0.7 MCCB change at Day 260 vs OAP\u2192OAP +0.5, with no differential benefit for early LAI initiation. The biology (dopaminergic modulation) moved in both arms but the primary endpoint (disease modification via MCCB) did not show PP superiority."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.45,
+      "evidence": "The disease modification hypothesis requires demonstrating that early LAI use prevents long-term cognitive decline. The 18-month timeframe may be insufficient to detect disease-modifying effects in recent-onset schizophrenia, where natural recovery and practice effects on MCCB confound the signal."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "No p-values are reported for any endpoint. The sample size of 337 across multiple arms and a 3-part design with attrition (Part 3 PP\u2192PP: n=49, OAP\u2192OAP: n=63, OAP\u2192PP: n=57) is likely insufficient to detect the modest disease modification effect hypothesized. The time to treatment failure endpoint in Part 2 had median not reached in either arm, suggesting event rates were too low."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:62e2ee05af06",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_pp_pp",
+      "reasoning": "PP\u2192PP arm showed MCCB decline (-0.7) at Day 260 Disease Modification endpoint, failing to demonstrate that sustained D2 receptor pathway modulation via LAI translates to superior cognitive biology vs. OAP. The mechanism did not produce differential downstream biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:62e2ee05af06",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_oap_delayed_start_paliperidone_palmitate_pp",
+      "reasoning": "Delayed-start PP arm showed MCCB change of -0.2 at Day 260, failing to demonstrate disease modification benefit from switching to LAI, suggesting the dopamine receptor pathway modulation via PP does not produce superior cognitive biology vs. continued OAP."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:62e2ee05af06",
+      "support": "weak_support",
+      "affecting_arm_id": "part_3_oap_oap",
+      "reasoning": "OAP\u2192OAP arm showed modest positive MCCB change (+0.5 at Day 260, +3.2 at 18 months EDP), providing weak support that dopamine receptor pathway modulation via oral antipsychotics has some positive effect on cognitive biology in recent-onset schizophrenia."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:62e2ee05af06",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_pp_pp",
+      "reasoning": "The disease modification hypothesis \u2014 that early sustained dopaminergic neurotransmission modulation via LAI would drive superior outcomes in schizophrenia \u2014 was not supported. PP\u2192PP showed cognitive decline at the primary disease modification endpoint."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:62e2ee05af06",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "part_3_oap_delayed_start_paliperidone_palmitate_pp",
+      "reasoning": "Delayed-start PP also failed to show disease modification benefit, further undermining the hypothesis that dopaminergic modulation via LAI drives superior schizophrenia outcomes vs. OAP."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:62e2ee05af06",
+      "target_entity": "schizophrenia",
+      "support": "weak_support",
+      "affecting_arm_id": "part_3_oap_oap",
+      "reasoning": "OAP\u2192OAP showed modest positive MCCB trends, providing weak support that dopaminergic neurotransmission modulation drives some benefit in schizophrenia, consistent with established antipsychotic efficacy."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "TTP",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Time to first treatment failure endpoint in Part 2 had median not reached in either arm, providing no informative signal about whether this endpoint captures schizophrenia benefit. The event rate was too low to assess endpoint validity in this recent-onset population."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "In this first-line recent-onset schizophrenia population, PP LAI did not demonstrate superior disease modification over oral antipsychotics. Both treatment approaches showed modest cognitive improvements, but PP did not outperform OAP, suggesting this population does not respond differentially to LAI vs. oral antipsychotic formulation for disease modification."
+    }
+  ],
+  "confidence_overall": 0.5,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values are reported for any endpoint, making it impossible to formally assess statistical significance. The trial uses a novel disease modification design (delayed-start paradigm) with MCCB as a surrogate for disease modification in recent-onset schizophrenia \u2014 the validity of this endpoint for this purpose is debated. The ICM fraction biomarker data is reported but its interpretation as a disease modification marker is unclear. The multi-part design with attrition across parts complicates causal inference. Expert review is needed to assess whether the failure reflects wrong endpoint, insufficient power, or a genuine null effect of LAI vs. oral antipsychotics for disease modification."
+}

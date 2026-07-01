@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00641745",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that lurasidone engaged the dopamine D2 receptor or that risperidone engaged HTR2A. The trial's primary endpoint was a safety endpoint (number of participants with adverse events), not an efficacy endpoint, so target engagement was not assessed. 2. PATHWAY MODULATION: No pathway biomarker data is reported. Dopaminergic neurotransmission modulation was not directly measured. 3. CLINICAL TRANSLATION: The primary endpoint is a safety/tolerability measure, not an efficacy endpoint. Both arms showed very similar overall AE rates (~94% lurasidone vs ~94% risperidone), suggesting comparable tolerability profiles. The SAE profiles are low-incidence and broadly similar between arms, with no clear signal of excess harm in either arm. No p-value is reported and no formal comparison was made. The primary_endpoint_met is null, indicating no formal conclusion was drawn. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: This is a 12-month safety/tolerability study comparing lurasidone to risperidone in stable schizophrenia patients. The primary endpoint is purely a safety measure. The trial appears to have been designed as a long-term safety study rather than an efficacy trial. The outcome is 'unknown' for both arms because no formal statistical comparison was pre-specified or reported for the primary safety endpoint. The trial provides a safety readout but no efficacy readout, making mechanistic causal chain assessment largely impossible. The overall AE rates are nearly identical (~94% vs ~94%), suggesting lurasidone has a comparable safety profile to risperidone. This is classified as 'partial' because the safety data was collected and reported, but no efficacy endpoint was assessed and no formal statistical conclusion was drawn.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.7,
+      "evidence": "The primary endpoint is a safety measure (number of participants with adverse events), not an efficacy endpoint. No p-value is reported, primary_endpoint_met is null, and no formal statistical comparison was made. The trial provides no usable efficacy readout to assess the mechanistic causal chain from D2 antagonism to schizophrenia benefit."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_adverse_effects_experienced",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint was a safety/tolerability measure. Both arms showed ~94% AE rates with no formal statistical comparison. The endpoint captures safety tolerability but not clinical benefit in schizophrenia. The result is ambiguous because no formal conclusion was drawn and no efficacy signal was assessed."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_remission",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No subgroup analyses were reported and no efficacy endpoint was assessed. The population of clinically stable schizophrenia patients showed comparable AE rates across both arms, but no differential response to treatment was measurable from this safety-only trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial's primary endpoint is a safety measure rather than an efficacy endpoint, making mechanistic causal chain classification largely inapplicable. The trial appears to be a long-term safety/tolerability study comparing lurasidone to risperidone. No efficacy data, biomarker data, or formal statistical comparisons are reported. Expert review is needed to determine whether this trial should be treated as a pure safety study with no mechanistic chain implications, and whether any efficacy data was collected as secondary endpoints that could inform the causal chain."
+}

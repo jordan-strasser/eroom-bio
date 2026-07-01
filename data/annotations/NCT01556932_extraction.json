@@ -1,0 +1,82 @@
+{
+  "nct_id": "NCT01556932",
+  "therapeutic_hypothesis": {
+    "compound": "ABH gel (Ativan/Benadryl/Haldol topical gel)",
+    "claimed_target": "multiple (GABA-A receptor, H1 receptor, D2 receptor)",
+    "proposed_mechanism": "receptor antagonism / allosteric modulation",
+    "intended_biology": "suppression of nausea and vomiting reflex",
+    "target_population": "cancer patients with nausea",
+    "primary_endpoint": "Change in numeric rating scale (NRS) for self-reported nausea from baseline to 60 minutes after topical application",
+    "rationale_strength": "weak"
+  },
+  "results": {
+    "primary_endpoint_met": false,
+    "effect_size": "Mean difference 0.8 points on 0\u201310 NRS (ABH 1.70 vs placebo 0.90)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "",
+      "schedule": "as needed (prn), topical application",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "nausea and vomiting in cancer patients",
+    "comparator": "placebo gel (topical)",
+    "sample_size": 22,
+    "duration": "crossover; 60-minute observation per treatment period",
+    "duration_weeks": null,
+    "investigator_commentary": "A crossover design was used with two sequences: ABH then placebo, or placebo then ABH. No carry-over effect was assumed. A paired t-test and repeated measures analysis were used. The mean NRS reduction was 1.70 for ABH gel and 0.90 for placebo, with a mean difference of 0.8; no statistically significant p-value was reported."
+  },
+  "arms": [
+    {
+      "arm_id": "placebo_then_abh",
+      "compounds": [
+        "placebo",
+        "ABH gel"
+      ]
+    },
+    {
+      "arm_id": "abh_then_placebo",
+      "compounds": [
+        "ABH gel",
+        "placebo"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "abh_then_placebo",
+      "intervention": "ABH gel",
+      "subgroup_descriptor": null,
+      "endpoint": "Change in NRS nausea score at 60 minutes",
+      "effect_size": 1.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism at GABA-A, histamine H1, and dopamine D2 receptors",
+      "biology_description": "suppression of nausea and vomiting reflex",
+      "population_description": "cancer patients with active nausea receiving topical ABH gel first then placebo",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "placebo_then_abh",
+      "intervention": "ABH gel",
+      "subgroup_descriptor": null,
+      "endpoint": "Change in NRS nausea score at 60 minutes",
+      "effect_size": 1.7,
+      "p_value": null,
+      "outcome": "failure",
+      "mechanism_description": "receptor antagonism at GABA-A, histamine H1, and dopamine D2 receptors",
+      "biology_description": "suppression of nausea and vomiting reflex",
+      "population_description": "cancer patients with active nausea receiving placebo first then topical ABH gel",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": []
+}

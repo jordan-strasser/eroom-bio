@@ -1,0 +1,147 @@
+{
+  "nct_id": "NCT02939287",
+  "therapeutic_hypothesis": {
+    "compound": "Aprepitant, Olanzapine, Aprepitant plus Olanzapine",
+    "claimed_target": "NK1 receptor (aprepitant); dopamine/serotonin receptors (olanzapine)",
+    "proposed_mechanism": "NK1 receptor antagonism (aprepitant); dopamine/serotonin receptor antagonism (olanzapine)",
+    "intended_biology": "chemotherapy-induced nausea and vomiting prevention",
+    "target_population": "patients receiving high-dose melphalan conditioning for stem cell transplant",
+    "primary_endpoint": "Complete Response (no emesis and no rescue anti-emetic therapy within 120 hours of melphalan administration)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": null,
+    "effect_size": "CR rates: Aprepitant 4/14 (28.6%), Olanzapine 11/21 (52.4%), Aprepitant plus Olanzapine 4/8 (50%)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Mucositis was the only reported serious adverse event across all arms"
+    ],
+    "dose_info": {
+      "dose": "Aprepitant: 125 mg (Day -1), 80 mg (Days 0, +1); Olanzapine: 10 mg daily",
+      "schedule": "Aprepitant: Day -1 through Day +1; Olanzapine: Days -1, 0, +1, +2",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Mucositis",
+        "grade": "",
+        "incidence_treatment_pct": 21.4,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Mucositis",
+        "grade": "",
+        "incidence_treatment_pct": 14.3,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Mucositis",
+        "grade": "",
+        "incidence_treatment_pct": 12.5,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "chemotherapy-induced nausea and vomiting with high-dose melphalan",
+    "comparator": "each arm compared against the others (three-arm trial)",
+    "sample_size": 52,
+    "duration": "120 hours following melphalan administration",
+    "duration_weeks": 0.71,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "aprepitant",
+      "compounds": [
+        "aprepitant"
+      ]
+    },
+    {
+      "arm_id": "olanzapine",
+      "compounds": [
+        "olanzapine"
+      ]
+    },
+    {
+      "arm_id": "aprepitant_plus_olanzapine",
+      "compounds": [
+        "aprepitant",
+        "olanzapine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "aprepitant",
+      "intervention": "aprepitant",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response (120h)",
+      "effect_size": 28.6,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "NK1 receptor antagonism",
+      "biology_description": "chemotherapy-induced nausea and vomiting prevention",
+      "population_description": "patients receiving high-dose melphalan conditioning for stem cell transplant",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "olanzapine",
+      "intervention": "olanzapine",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response (120h)",
+      "effect_size": 52.4,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "dopamine and serotonin receptor antagonism",
+      "biology_description": "chemotherapy-induced nausea and vomiting prevention",
+      "population_description": "patients receiving high-dose melphalan conditioning for stem cell transplant",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "aprepitant_plus_olanzapine",
+      "intervention": "aprepitant",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response (120h)",
+      "effect_size": 50.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "NK1 receptor antagonism",
+      "biology_description": "chemotherapy-induced nausea and vomiting prevention",
+      "population_description": "patients receiving high-dose melphalan conditioning for stem cell transplant",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "aprepitant_plus_olanzapine",
+      "intervention": "olanzapine",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response (120h)",
+      "effect_size": 50.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "dopamine and serotonin receptor antagonism",
+      "biology_description": "chemotherapy-induced nausea and vomiting prevention",
+      "population_description": "patients receiving high-dose melphalan conditioning for stem cell transplant",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "olanzapine",
+      "primary_compound_id": "aprepitant",
+      "affects_layer": "biology",
+      "direction": "neutral",
+      "confidence": 0.6,
+      "hypothesis": "Olanzapine's dopamine/serotonin receptor blockade may complement NK1 antagonism by aprepitant to broaden anti-emetic coverage across multiple receptor pathways, potentially amplifying overall CINV prevention.",
+      "citation": "Aprepitant Plus Olanzapine: 4 (CR count out of 8 patients, ~50%) vs Aprepitant alone: 4 (CR count out of 14 patients, ~28.6%)"
+    }
+  ]
+}

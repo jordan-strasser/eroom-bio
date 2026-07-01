@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT02625181",
+  "therapeutic_hypothesis": {
+    "compound": "PONV Clinical Decision Support System (automated AIMS notifications + email recommendations)",
+    "claimed_target": "anesthesia provider decision-making behavior",
+    "proposed_mechanism": "real-time algorithmic guideline prompting",
+    "intended_biology": "improved adherence to evidence-based PONV prophylaxis protocols",
+    "target_population": "adult patients undergoing elective surgery under general anesthesia at Vanderbilt University Medical Center",
+    "primary_endpoint": "Adherence to PONV Guidelines (percentage of patients receiving the exact recommended number of prophylactic interventions)",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Adherence: Baseline 666 patients adherent vs CDS Email 5260 vs CDS Email + Real-Time 5863 (count of participants meeting guideline)",
+    "p_value": null,
+    "target_engagement_evidence": "Automated notifications delivered within AIMS at case start, surgery start, and surgery end; preoperative emails sent via PDW",
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [
+      "Mortality: Baseline 7/1518; CDS Email 43/12809; CDS Email + Real-Time 40/12707 \u2014 rates comparable across phases"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Mortality",
+        "grade": "",
+        "incidence_treatment_pct": 0.315,
+        "incidence_control_pct": 0.461,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Postoperative Nausea and Vomiting (PONV) prevention",
+    "comparator": "Baseline period (no clinical decision support)",
+    "sample_size": 27034,
+    "duration": "July 2016 to November 2017",
+    "duration_weeks": 69.4,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "ponv_clinical_decision_support_system",
+      "compounds": [
+        "Automated recommendation at the start of the case",
+        "Automated notification at the start of surgery",
+        "Preoperative recommendations by email",
+        "Automated notification at the end of surgery",
+        "Ondansetron",
+        "Dexamethasone",
+        "Scopolamine",
+        "Droperidol",
+        "Haloperidol",
+        "Promethazine",
+        "Meclizine",
+        "Aprepitant",
+        "Metoclopramide",
+        "Granisetron",
+        "Palonosetron",
+        "Propofol",
+        "Sevoflurane",
+        "Isoflurane",
+        "Desflurane",
+        "Fentanyl",
+        "Morphine",
+        "Ketamine"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "ponv_clinical_decision_support_system",
+      "intervention": "Automated recommendation at the start of the case",
+      "subgroup_descriptor": null,
+      "endpoint": "Adherence to PONV Guidelines",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "real-time algorithmic guideline prompting at decision point",
+      "biology_description": "improved clinical guideline adherence through behavioral nudging",
+      "population_description": "adult patients undergoing elective surgery under general anesthesia",
+      "mechanism_category": "other"
+    }
+  ],
+  "modulation_entries": []
+}

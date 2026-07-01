@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT03728933",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to directly confirm dopamine receptor engagement. Rotigotine is a well-established dopamine receptor agonist with curated binding evidence; the trial assumes engagement rather than measuring it. Per Round-28 AFFECTS rule, no affects edge is emitted since engagement was not directly measured or implied by PD readout.\n\n2. PATHWAY MODULATION: No pathway biomarkers were reported. Dopamine receptor agonism driving dopaminergic modulation of sensorimotor symptoms is the assumed mechanism, but no direct PD evidence is available in this trial.\n\n3. CLINICAL TRANSLATION: The primary endpoints (IRLS sum score change and CGI Item 1) were not formally met \u2014 no p-values are reported and the trial was terminated early by sponsor decision. However, the 2 mg/24h arm showed a numerically larger IRLS improvement (-14.0) vs placebo (-8.2), a difference of ~5.8 points, which is clinically meaningful. The 3 mg/24h arm showed less improvement (-6.4 vs -8.2 placebo), suggesting the higher dose was less effective or the small sample (N=23) introduced noise. No formal statistical testing was completed.\n\n4. POPULATION EFFECTS: The 2 mg/24h arm showed consistent directional improvements across all RLS-6 subscales vs placebo, while the 3 mg/24h arm showed smaller or negligible differences. This dose-response inconsistency (lower dose numerically better than higher dose) is notable and may reflect the very small sample size (N=23 total across 3 arms, roughly 7-8 per arm).\n\n5. CONFOUNDERS: The trial was terminated by sponsor decision (commercial/strategic), not for safety or efficacy reasons. The sample size is extremely small (N=23), making formal statistical inference impossible. No p-values were reported. The trial is fundamentally underpowered and was stopped before a definitive readout. The primary failure modes are: (a) commercial/strategic termination, and (b) severe underpowering. The 2 mg arm showed a numerically promising signal but the trial cannot be considered a success or failure on mechanistic grounds given these confounders.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Trial explicitly terminated due to sponsor decision; investigator commentary states 'Not a safety decision'. No safety signal drove termination."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.9,
+      "evidence": "Total N=23 across 3 arms (~7-8 per arm). No p-values reported. Formal statistical testing was not completed. This sample size is grossly insufficient to detect a statistically significant treatment effect on IRLS or CGI endpoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "bio:5254db333420",
+      "support": "weak_support",
+      "affecting_arm_id": "2_milligram_24_hours_rotigotine",
+      "reasoning": "The 2 mg/24h arm showed a numerically larger IRLS improvement (-14.0) vs placebo (-8.2), suggesting the dopamine receptor agonism mechanism may be modulating sensorimotor symptoms in adolescents. However, no statistical testing was completed and the sample is tiny, so only weak support is warranted."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "bio:5254db333420",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3_milligram_24_hours_rotigotine",
+      "reasoning": "The 3 mg/24h arm showed less IRLS improvement (-6.4) than placebo (-8.2), providing weak contradict signal for this arm. The dose-response inconsistency (higher dose performing worse) weakens the mechanistic case, though small N limits interpretation."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_support",
+      "affecting_arm_id": "2_milligram_24_hours_rotigotine",
+      "reasoning": "Numerically meaningful IRLS improvement in the 2 mg arm vs placebo is directionally consistent with dopaminergic modulation driving RLS symptom reduction, but no statistical confirmation and very small N limit this to weak support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "3_milligram_24_hours_rotigotine",
+      "reasoning": "The 3 mg arm performed numerically worse than placebo on IRLS, providing weak contradict signal for this arm's chain, though confounded by very small N."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_end_maintenance_period_international_restless",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The IRLS and CGI endpoints were measured but no formal statistical testing was completed due to early termination and very small N. The 2 mg arm showed a numerically meaningful signal but without p-values or adequate power, the endpoint's ability to capture clinical benefit in this adolescent population cannot be confirmed. Ambiguous is appropriate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled adolescents with severe RLS (high IRLS, high CGI) but was terminated early with N=23 and no p-values. The 2 mg arm showed a numerically larger improvement than placebo, but without statistical testing the population response signal is ambiguous."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial terminated by sponsor decision before primary endpoint analysis with only N=23 enrolled. No p-values reported. The mechanistic chain was not given a fair statistical test. The dose-response inconsistency (2 mg numerically better than 3 mg and better than placebo, while 3 mg was worse than placebo) is unusual and may reflect random noise from tiny sample sizes or a true non-linear dose-response in adolescents. Expert review needed to assess whether the 2 mg signal is clinically meaningful enough to warrant a properly powered follow-up study in this pediatric population."
+}

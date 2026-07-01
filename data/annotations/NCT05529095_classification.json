@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT05529095",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that apomorphine sublingual film engaged dopamine D1/D2 receptors in this trial. The dose was 10 mg initial, titrated sublingually, which is a plausible route for apomorphine delivery, but no target engagement evidence was reported. Per the round-28 AFFECTS rule, since no PD/engagement data is present, no affects record is emitted. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., dopaminergic pathway activity, sensorimotor symptom biomarkers) were reported. We cannot assess whether dopaminergic pathway modulation occurred. 3. CLINICAL TRANSLATION: The primary endpoint (Visual Analogue Scale of Improvement at Weeks 4-8) has no reported result \u2014 effect size is null, p-value is null, and outcome is listed as 'unknown.' This means the trial produced no usable efficacy readout. With only 16 participants and no reported primary endpoint data, this trial appears to have been terminated or completed without a reportable efficacy result. 4. POPULATION EFFECTS: No subgroup findings were reported. The population was patients with refractory restless legs syndrome, a plausible target population for dopamine agonism. 5. CONFOUNDERS: The sample size of 16 is extremely small \u2014 well below what would be needed for adequate power in a randomized controlled trial. The absence of any numeric result (null effect size, null p-value, unknown outcome) despite a 20-week study duration suggests either the trial was terminated early, data was not reported, or the study was too small to generate a meaningful readout. This is the primary classification driver: insufficient information due to no usable efficacy readout. The trial cannot be classified as a mechanistic failure because no endpoint data was generated to test the causal chain.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Primary endpoint result is null (no effect size, no p-value, outcome listed as 'unknown'). Sample size of only 16 participants. No biomarker data. No safety signals reported. The trial provides no usable efficacy readout to classify mechanistic failure."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "Sample size of 16 is grossly insufficient for a randomized controlled trial of a VAS improvement endpoint in restless legs syndrome. Standard power calculations for such trials typically require 50-200+ participants. This likely contributed to the absence of reportable results."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_visual_analogue_scale_improvement",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (VAS of Improvement) was designated as the primary measure for restless legs syndrome but produced no reportable result (null effect size, null p-value). The endpoint's ability to capture clinical benefit in this indication cannot be assessed from this trial. VAS is a plausible PRO for RLS symptom burden, but the absence of any numeric readout leaves the endpoint_captures relationship unresolved."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No primary endpoint result was reported for this population (refractory RLS patients with severe symptom burden). The trial produced no usable efficacy readout, so the population's response to apomorphine sublingual film cannot be characterized. Ambiguous is appropriate given the complete absence of outcome data."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "bio:d72f9c62e19b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "sublingual_apomorphine_kynmobi",
+      "reasoning": "No efficacy readout was generated, but the trial's failure to produce any result (combined with extreme underpowering at N=16) provides weak negative signal about the receptor agonism \u2192 dopaminergic pathway modulation \u2192 sensorimotor symptom reduction chain in refractory RLS. Per round-14 rules, a missed/absent endpoint in a failed trial must contribute at least weak contradict signal to the upstream chain. Weak rather than moderate given the absence of data is due to trial conduct issues rather than a clean mechanistic test."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72f9c62e19b",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "sublingual_apomorphine_kynmobi",
+      "reasoning": "No efficacy readout was generated. Per round-14 rules, failure of the whole chain (even without biomarker data) must contribute weak contradict signal to biology_drives. Weak rather than moderate because the absence of data reflects trial conduct issues (extreme underpowering, no reportable result) rather than a clean adequately-powered test of the biology \u2192 indication link."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial produced no usable efficacy readout (null effect size, null p-value, unknown outcome) despite a 20-week study duration. With only 16 participants, it is unclear whether the trial was terminated early, completed but underpowered to generate meaningful results, or whether data was simply not reported to ClinicalTrials.gov. Expert review is needed to determine: (1) whether the trial completed its planned enrollment or was terminated early; (2) whether any efficacy data exists but was not reported in the extraction; (3) whether the N=16 was the planned sample size or reflects early termination. The operational_failure flag is set to true because the extreme underpowering (N=16 for a randomized controlled trial) and absence of any numeric result suggest the mechanism was never given a fair test."
+}

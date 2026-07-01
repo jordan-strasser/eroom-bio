@@ -1,0 +1,108 @@
+{
+  "nct_id": "NCT00711555",
+  "therapeutic_hypothesis": {
+    "compound": "aprepitant + ondansetron + dexamethasone",
+    "claimed_target": "NK1 receptor, 5-HT3 receptor, glucocorticoid receptor",
+    "proposed_mechanism": "NK1 receptor antagonism, 5-HT3 receptor antagonism, glucocorticoid receptor agonism",
+    "intended_biology": "suppression of chemotherapy-induced nausea and vomiting",
+    "target_population": "patients receiving moderately-high to highly emetogenic multi-day chemotherapy",
+    "primary_endpoint": "Complete Response (no emetic episodes and no use of rescue therapy) on cycle 1, day 1",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "84% complete response rate on cycle 1, day 1",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "aprepitant 125 mg (day 1), 80 mg (days 2+); ondansetron 24 mg/day; dexamethasone 12 mg/day (during chemo), 4 mg q12h (post-chemo)",
+      "schedule": "once daily, given 1 hour before chemotherapy; post-chemo dexamethasone q12h x2 days; aprepitant 80 mg daily x2 days post-chemo",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "chemotherapy-induced nausea and vomiting",
+    "comparator": "none (single-arm study)",
+    "sample_size": 22,
+    "duration": "November 2005 to January 2009",
+    "duration_weeks": null,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "single_arm_study_with_emend",
+      "compounds": [
+        "aprepitant",
+        "ondansetron",
+        "dexamethasone"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "single_arm_study_with_emend",
+      "intervention": "aprepitant",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response",
+      "effect_size": 84.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced emesis",
+      "population_description": "patients receiving moderately-high to highly emetogenic multi-day chemotherapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "single_arm_study_with_emend",
+      "intervention": "ondansetron",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response",
+      "effect_size": 84.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced emesis",
+      "population_description": "patients receiving moderately-high to highly emetogenic multi-day chemotherapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "single_arm_study_with_emend",
+      "intervention": "dexamethasone",
+      "subgroup_descriptor": null,
+      "endpoint": "Complete Response",
+      "effect_size": 84.0,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor agonism",
+      "biology_description": "anti-inflammatory modulation of emesis pathways",
+      "population_description": "patients receiving moderately-high to highly emetogenic multi-day chemotherapy",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "ondansetron",
+      "primary_compound_id": "aprepitant",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "5-HT3 antagonism by ondansetron blocks the serotonergic pathway of emesis, complementing NK1 antagonism by aprepitant to more completely suppress chemotherapy-induced nausea and vomiting",
+      "citation": "On day 1, the subject will receive a total daily dose of oral dexamethasone 12mg, oral ondansetron 24mg, and oral aprepitant 125mg."
+    },
+    {
+      "modulator_compound_id": "dexamethasone",
+      "primary_compound_id": "aprepitant",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.65,
+      "hypothesis": "Dexamethasone's anti-inflammatory effects augment the antiemetic efficacy of aprepitant by reducing central and peripheral inflammatory mediators involved in chemotherapy-induced nausea and vomiting",
+      "citation": "On day 1, the subject will receive a total daily dose of oral dexamethasone 12mg, oral ondansetron 24mg, and oral aprepitant 125mg."
+    }
+  ]
+}

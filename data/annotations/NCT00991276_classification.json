@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00991276",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Pregabalin binds the alpha-2-delta subunit of voltage-gated calcium channels. While direct binding assays are not reported, the robust pharmacodynamic effects (increased SWS/N3, reduced PLMI, improved sleep architecture) are consistent with calcium channel modulation. The biomarker data strongly implies target engagement via downstream pathway effects. Pramipexole's mechanism (dopamine receptor agonism) is separately assessed.\n\n2. PATHWAY MODULATION: Pregabalin demonstrably modulated downstream biology: Stage N3/SWS increased by ~21 min (p<0.0001), PLMI reduced by 14.5 movements/hour (p<0.0001), Stage N1 reduced, Stage N2 increased, sleep efficiency improved by 6.80%. These are consistent with neuronal excitability reduction via calcium channel modulation. Pramipexole showed strong PLM reduction (its primary mechanism target) but paradoxically worsened WASO in hours 4-6 and significantly suppressed REM sleep and SWS, suggesting dopaminergic pathway activation has complex and partially adverse effects on sleep architecture.\n\n3. CLINICAL TRANSLATION: Pregabalin met the primary endpoint (WASO: -27.1 min vs placebo, p=0.0001) and all key secondary endpoints (PLMI, TST, IRLS, Stage N3). The effect size is clinically meaningful. Pramipexole failed the primary endpoint (WASO: -0.17 min, p=0.9684) and TST despite reducing PLM more than pregabalin, demonstrating that PLM reduction alone does not translate to sleep quality improvement.\n\n4. POPULATION EFFECTS: The trial enrolled adults with RLS and associated sleep disturbance in a crossover design (n=85). No differential subgroup responses by patient characteristics were reported; the pregabalin effect was consistent across all 8 hours and all 4 quarters of the night. The crossover design is appropriate for this indication.\n\n5. CONFOUNDERS: The crossover design (3 x 4-week periods) is appropriate for RLS. Sample size of 85 is modest but the effect sizes and p-values are highly significant. SAE rates are low and comparable across arms, with no dose-limiting toxicity pattern. The trial is a clean success for pregabalin on the primary endpoint with concordant secondary endpoints. The pramipexole arm provides an active comparator that failed the primary endpoint despite being an approved RLS treatment, highlighting that WASO is a sleep-specific endpoint that dopaminergic therapy does not address as well as calcium channel modulation.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.2,
+      "evidence": "Sample size of 85 in a crossover design is modest; however, the highly significant p-values (p=0.0001) and large effect sizes suggest adequate power for the primary endpoint. This is a minor caveat rather than a true failure mode."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pregabalin",
+      "target_entity": "ENSG00000196557",
+      "support": "strong_support",
+      "affecting_arm_id": "pregabalin",
+      "reasoning": "Pregabalin produced robust downstream pharmacodynamic effects (increased SWS, reduced PLMI, improved sleep architecture) consistent with calcium channel alpha-2-delta subunit engagement. The breadth and magnitude of PD changes imply target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000196557",
+      "target_entity": "GO:0070588",
+      "support": "strong_support",
+      "affecting_arm_id": "pregabalin",
+      "reasoning": "The downstream biology (increased SWS/N3, reduced neuronal excitability markers like PLMI, improved sleep continuity) is consistent with calcium ion transmembrane transport modulation via CACNA1H engagement. Multiple concordant PD biomarkers support this pathway activation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0070588",
+      "target_entity": "bio:ecad0754ae8a",
+      "support": "strong_support",
+      "affecting_arm_id": "pregabalin",
+      "reasoning": "Calcium ion transmembrane transport modulation demonstrably reduced neuronal excitability as evidenced by increased SWS (N3 +20.93 min, p<0.0001), reduced PLMI (-14.5, p<0.0001), reduced N1 sleep, and improved sleep efficiency. The mechanism-to-biology link is strongly supported."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:ecad0754ae8a",
+      "target_entity": "restless_legs_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": "pregabalin",
+      "reasoning": "Neuronal excitability reduction drove clinically meaningful improvements in RLS: WASO reduced by 27.1 min (p=0.0001), IRLS score reduced by 6.1 points (p=0.0001), TST increased by 32.72 min (p=0.0001). The biology-to-indication link is strongly validated."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "pramipexol",
+      "target_entity": "ENSG00000149295",
+      "support": "strong_support",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "Pramipexole produced strong PLM reduction (-25.84 movements/hour, p=0.0001) and significantly delayed REM latency (+46.47 min, p<0.0001), consistent with DRD2 dopamine receptor agonism. These are known pharmacodynamic signatures of dopaminergic engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "strong_support",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "Pramipexole's strong PLM reduction and REM latency delay are consistent with dopamine receptor pathway activation via DRD2. The mechanism was engaged even though the primary sleep endpoint (WASO) was not improved."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e2663fc0cc1f",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "Dopamine receptor activation modulated dopaminergic pathway biology (PLM reduction, REM suppression) but did not translate to overall sleep quality improvement (WASO failed, TST failed, SWS reduced). The pathway was activated but with mixed downstream effects on sleep architecture."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e2663fc0cc1f",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "Dopaminergic pathway activation reduced PLM and IRLS scores but failed to improve the primary sleep endpoint (WASO: -0.17 min, p=0.9684) and TST, and worsened SWS and second-half-of-night wakefulness. This suggests dopaminergic pathway activation alone does not adequately drive RLS sleep disturbance improvement."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_wake_after_sleep_onset_waso",
+      "target_entity": "restless_legs_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "WASO by PSG was the primary endpoint and was met by pregabalin (p=0.0001) with concordant secondary endpoints (TST, IRLS, SWS all improved). The endpoint captured clinically meaningful benefit in RLS-associated sleep disturbance. Pramipexole's failure on WASO despite PLM reduction further validates WASO as a discriminating endpoint for sleep quality in RLS."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "This population of adults with severe RLS (high IRLS, high severity scores) responded strongly to pregabalin (WASO -27.1 min, p=0.0001) with consistent effects across all hours of the night and multiple secondary endpoints. The population was appropriately selected for the mechanism."
+    }
+  ],
+  "confidence_overall": 0.85,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

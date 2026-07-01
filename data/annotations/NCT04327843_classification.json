@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT04327843",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Haloperidol decanoate is a well-established D2 receptor antagonist. No direct target engagement biomarker (e.g., D2 occupancy imaging) was measured, but the drug was delivered via LAI at mean ~68 mg/month, a dose range consistent with therapeutic D2 occupancy. The oral tolerance test prior to LAI initiation further supports adequate exposure. Extrapyramidal symptom monitoring (ESRS-A) showed minimal EPS, consistent with appropriate dosing. Target engagement is assumed from pharmacological knowledge and adequate dosing rather than directly measured.\n\n2. PATHWAY MODULATION: The intended downstream biology is antipsychotic symptom suppression via dopamine receptor antagonism. BPRS (symptom severity) changed minimally from 27.00 to 25.06 (p=0.43), indicating no statistically significant symptom improvement. CGI trended toward improvement (2.88 to 2.24, p=0.07) and SOFAS improved (62.17 to 68.39, p=0.10), but neither reached significance. This is a single-arm study with n=22, so the lack of significance may reflect underpowering rather than true absence of effect. The biology (symptom suppression) was not clearly demonstrated to move.\n\n3. CLINICAL TRANSLATION: The primary endpoints \u2014 TRQ adherence score change (-57% weekly, -23% monthly) and LAI injection completion (18/22 participants received all injections) \u2014 were met. These are adherence endpoints, not symptom endpoints. The trial was primarily designed to test whether CAE + LAI improves medication adherence, not symptom outcomes. On that primary question, the trial succeeded. However, the downstream clinical goal (symptom suppression, functional improvement) was not significantly demonstrated, making this a partial success: adherence improved but clinical symptom benefit was not statistically confirmed.\n\n4. POPULATION EFFECTS: No formal subgroup analyses were reported. The population was adults with schizophrenia/schizoaffective disorder with medication nonadherence in Tanzania \u2014 a specific, underserved population. The DAI (drug attitude inventory) improved significantly (p=0.001), suggesting the behavioral intervention successfully changed attitudes toward medication, which is a meaningful intermediate outcome.\n\n5. CONFOUNDERS: This is a single-arm study (n=22) with no control group, making it impossible to attribute adherence improvements to the intervention vs. natural course, regression to the mean, or the Hawthorne effect. The small sample size limits power for symptom endpoints. No p-values were reported for the primary adherence endpoints, which is a limitation. The study is best characterized as a feasibility/pilot study. The BPRS failure likely reflects underpowering and the short 25-week duration rather than a true absence of antipsychotic effect, given that haloperidol decanoate is a proven antipsychotic.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Single-arm study with n=22 participants and no control group. BPRS missed significance (p=0.43) with a small effect size (-1.94 points). CGI (p=0.07) and SOFAS (p=0.10) trended toward improvement but did not reach significance, consistent with insufficient power to detect symptom-level changes. No p-values reported for primary adherence endpoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "haloperidol_decanoate",
+      "target_entity": "ENSG00000149295",
+      "support": "weak_support",
+      "affecting_arm_id": "cae_lai",
+      "reasoning": "No direct D2 receptor engagement biomarker was measured. Adequate dosing (~68 mg/month LAI) and minimal EPS suggest appropriate pharmacological exposure, but target engagement is inferred rather than demonstrated. Per round-28 AFFECTS rule, no direct PD biomarker confirms binding, so weak_support based on dose adequacy inference rather than strong_support."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "weak_support",
+      "affecting_arm_id": "cae_lai",
+      "reasoning": "No direct pathway biomarker for dopamine receptor modulation was measured. BPRS did not significantly improve (p=0.43), suggesting the downstream biology of symptom suppression was not clearly activated. However, the small sample and single-arm design limit interpretation. Weak support based on known pharmacology of haloperidol at D2 receptors with adequate dosing, but no PD confirmation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:0338915b9ea6",
+      "support": "weak_support",
+      "affecting_arm_id": "cae_lai",
+      "reasoning": "Dopamine receptor antagonism via haloperidol decanoate is expected to suppress psychotic symptoms. BPRS showed a non-significant trend toward improvement (-1.94 points, p=0.43), CGI trended (p=0.07), and SOFAS trended (p=0.10). The direction is consistent with the mechanism but statistical significance was not achieved, likely due to underpowering in this small single-arm study. Weak support rather than contradict given the directional trends and known efficacy of haloperidol."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0338915b9ea6",
+      "target_entity": "schizophrenia",
+      "support": "weak_support",
+      "affecting_arm_id": "cae_lai",
+      "reasoning": "Antipsychotic symptom suppression is the established mechanism for treating schizophrenia. The trial showed directional but non-significant improvements in BPRS, CGI, and SOFAS. The primary endpoints were adherence-focused, not symptom-focused, and the small n=22 single-arm design limits conclusions about symptom-level biology driving clinical benefit. Weak support given directional trends consistent with known biology."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_tablets_routine_questionnaire_trq",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The TRQ adherence endpoint was the primary endpoint and was met with a large effect size (-57% weekly adherence improvement, 18/22 participants completing all injections). The TRQ is a validated adherence measure relevant to medication nonadherence in schizophrenia. However, as a single-arm study without a control group, the magnitude of improvement cannot be fully attributed to the intervention. Moderate support as the endpoint captured meaningful adherence improvement in this population."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "medicationadherence_low__severity_active",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The population of adults with schizophrenia/schizoaffective disorder with active medication nonadherence in Tanzania showed substantial adherence improvement (TRQ -57% weekly, 18/22 completing all injections) and significant improvement in drug attitudes (DAI p=0.001). This population-specific response to CAE+LAI is meaningful, though the single-arm design and small n=22 limit causal attribution. Moderate support for this population responding to the combined behavioral+LAI intervention."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a single-arm feasibility/pilot study (n=22) with no control group, making it difficult to attribute adherence improvements to the intervention vs. natural course or Hawthorne effect. No p-values were reported for the primary adherence endpoints. The trial tests a combined behavioral intervention (CAE) + pharmacological intervention (haloperidol decanoate LAI), making it difficult to disentangle the contributions of each component to the observed outcomes. The BPRS failure may reflect underpowering rather than true absence of antipsychotic effect. Expert review is needed to assess whether the adherence endpoints are appropriate surrogates for clinical benefit in schizophrenia and whether the single-arm design provides sufficient evidence for the causal chain."
+}

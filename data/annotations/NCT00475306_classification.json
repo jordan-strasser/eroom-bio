@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00475306",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2 receptor engagement by metoclopramide is reported. However, the dose-dependent akathisia signal (higher incidence at 20mg vs 10mg) is an indirect pharmacodynamic marker of D2 receptor antagonism in the extrapyramidal system, suggesting the drug did reach and modulate its target. This is indirect evidence of target engagement.\n\n2. PATHWAY MODULATION: The akathisia signal (a known consequence of dopaminergic blockade in the nigrostriatal pathway) suggests the drug engaged D2 receptors and modulated dopaminergic signaling. However, the intended biology \u2014 nausea suppression via dopaminergic blockade in the chemoreceptor trigger zone \u2014 cannot be confirmed as having been modulated, since all arms showed median nausea score of 0 at 60 minutes.\n\n3. CLINICAL TRANSLATION: The primary endpoint (Nausea Scale at 60 minutes) showed a median score of 0 across ALL four arms, including both metoclopramide doses and both diphenhydramine/placebo combinations. This is a classic high placebo response pattern: all patients, including those on placebo co-administered with metoclopramide, achieved near-complete nausea resolution. The effect size is 0.0 across all arms, meaning there is no differential treatment effect detectable. The primary endpoint was not met (no statistically significant difference between arms).\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. All four arms showed identical outcomes on the primary endpoint, suggesting no differential response by dose or diphenhydramine co-administration for the nausea endpoint.\n\n5. CONFOUNDERS: The most prominent confounder here is the extremely high response in all arms \u2014 median nausea score of 0 at 60 minutes across all arms. This is consistent with a high placebo response (or natural disease resolution) in an ED nausea population. Patients presenting to the ED with acute nausea may have self-limiting conditions where nausea resolves spontaneously within 60 minutes regardless of treatment. The 60-minute timeframe may also be too short to distinguish drug effect from natural resolution. Additionally, the trial design (all arms receive metoclopramide \u2014 there is no true placebo-only arm) means we cannot determine whether metoclopramide itself drove the nausea resolution or whether it was spontaneous. The 'placebo' here refers only to diphenhydramine vs. placebo co-administration, not a metoclopramide-free control. This is a critical design issue: without a true no-treatment or saline-only arm, the trial cannot distinguish drug effect from natural resolution. The high placebo response (floor effect at 0) masked any potential between-arm differences.",
+  "failure_modes": [
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.8,
+      "evidence": "Median nausea score of 0 (95% CI: 0-2) at 60 minutes across ALL four arms, including both metoclopramide doses. All arms showed identical outcomes, consistent with a floor effect driven by natural disease resolution or high response to any intervention in an ED setting. No true placebo-only (no metoclopramide) arm was included, making it impossible to separate drug effect from spontaneous resolution."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.55,
+      "evidence": "The 60-minute assessment window in an ED nausea population may be too short to distinguish drug effect from natural resolution of acute nausea. The floor effect (median 0) across all arms suggests nausea resolved regardless of treatment, possibly due to the natural course of the illness within this timeframe."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:c32471a5c40f",
+      "support": "weak_contradict",
+      "affecting_arm_id": "metoclopramide_20_placebo",
+      "reasoning": "No differential effect on nausea suppression was observed at 20mg metoclopramide vs lower dose or diphenhydramine co-administration. All arms showed median nausea score of 0, providing weak contradict evidence that dopamine receptor modulation drives nausea suppression in this population/timeframe, though high placebo response confounds interpretation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:c32471a5c40f",
+      "support": "weak_contradict",
+      "affecting_arm_id": "metoclopramide_10_placebo",
+      "reasoning": "No differential effect on nausea suppression was observed at 10mg metoclopramide. All arms showed median nausea score of 0, providing weak contradict evidence that dopamine receptor modulation drives nausea suppression in this population/timeframe."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:c32471a5c40f",
+      "target_entity": "nausea",
+      "support": "weak_contradict",
+      "affecting_arm_id": "metoclopramide_20_placebo",
+      "reasoning": "Nausea suppression via dopaminergic blockade did not translate to a measurable clinical benefit over the comparator arms. The floor effect across all arms weakly contradicts the hypothesis that this biology drives the clinical endpoint in this population, though high placebo response is a major confounder."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:c32471a5c40f",
+      "target_entity": "nausea",
+      "support": "weak_contradict",
+      "affecting_arm_id": "metoclopramide_10_placebo",
+      "reasoning": "Nausea suppression via dopaminergic blockade did not translate to a measurable clinical benefit over the comparator arms at 10mg dose either."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_nausea_scale",
+      "target_entity": "nausea",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The nausea scale endpoint was measured but showed a floor effect (median 0) across all arms, making it impossible to determine whether the endpoint failed to capture a real drug effect or whether there was genuinely no drug effect. The absence of a true no-treatment control arm further limits interpretation. The endpoint is a validated PRO for nausea but the trial design and population characteristics prevented it from discriminating between arms."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "nausea",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled ED nausea population showed no differential response to metoclopramide at either dose compared to the comparator condition. Median nausea score of 0 across all arms with no p-value reported suggests no treatment effect was detectable in this population, consistent with a weak contradict signal for this population responding to metoclopramide-based treatment."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial lacks a true placebo-only (no metoclopramide) arm \u2014 all arms received metoclopramide at either 10mg or 20mg, with the 'placebo' referring only to diphenhydramine co-administration. This design cannot distinguish metoclopramide's effect on nausea from spontaneous resolution. The floor effect (median nausea score 0 across all arms) may reflect natural disease resolution in an ED population rather than drug effect. Expert review is needed to determine whether the trial design was fundamentally incapable of testing the metoclopramide-nausea hypothesis, and whether the akathisia dose-response signal (indirect D2 engagement evidence) should be used to update the affects/modulates_via edges for metoclopramide \u2192 DRD2."
+}

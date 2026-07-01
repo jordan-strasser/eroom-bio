@@ -1,0 +1,82 @@
+{
+  "nct_id": "NCT00390689",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2/D3 receptor engagement is reported. However, pramipexole is a well-established dopamine agonist with curated binding evidence; the clinical response pattern is consistent with receptor agonism. Per Round-28 AFFECTS rule, no affects record is emitted since target engagement was not directly measured in this trial.\n\n2. PATHWAY MODULATION: No pathway biomarkers (e.g., dopaminergic signaling readouts) were reported. The mechanism is assumed based on the drug class. The clinical response pattern (consistent improvement across doses) is consistent with dopaminergic pathway modulation.\n\n3. CLINICAL TRANSLATION: The primary endpoint (IRLS total score change from baseline at 6 weeks) was met across all three dose arms: -12.3 (0.25 mg), -12.5 (0.5 mg), -11.8 (0.75 mg). IRLS responder rates were 60.4%, 58.5%, and 49.1% respectively. The 0.75 mg arm showed slightly lower responder rates (partial for that secondary endpoint), but the primary endpoint was met. At 52 weeks open-label, high responder rates (68-100%) were maintained. No augmentation was observed, which is a notable positive finding for long-term dopamine agonist use in RLS.\n\n4. POPULATION EFFECTS: The trial enrolled Japanese patients with idiopathic RLS. All three dose groups showed consistent benefit. The slightly lower responder rate at 0.75 mg may suggest a non-linear dose-response or tolerability issue at higher doses, but this is minor. No subgroup analyses by biomarker status were reported.\n\n5. CONFOUNDERS: This trial lacks a placebo arm (active dose comparison only), which is a significant design limitation. Without a placebo control, the absolute treatment effect cannot be distinguished from natural disease fluctuation or placebo response. The IRLS improvements (~12 points) are clinically meaningful and consistent with placebo-controlled trials of pramipexole in RLS from other populations, lending credibility to the findings. Sample size is modest (n=154 across 3 arms). P-values are not reported, which limits statistical interpretation. The trial is classified as success based on the pre-specified primary endpoint being met and effect sizes consistent with established efficacy in this drug class.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "No placebo arm and no p-values reported; n=154 across 3 active arms (~51/arm). While the primary endpoint was met, the absence of a control arm and formal statistical testing limits the strength of inference. This is a design caveat rather than a failure."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:d72f9c62e19b",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_25_mg_once_daily",
+      "reasoning": "The 0.25 mg arm showed clinically meaningful IRLS improvement (-12.3 points, 60.4% responder rate), consistent with dopaminergic pathway modulation reducing sensorimotor symptoms. No placebo arm limits certainty."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:d72f9c62e19b",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_5_mg_once_daily",
+      "reasoning": "The 0.5 mg arm showed clinically meaningful IRLS improvement (-12.5 points, 58.5% responder rate), consistent with dopaminergic pathway modulation. No placebo arm limits certainty."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:d72f9c62e19b",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_75_mg_once_daily",
+      "reasoning": "The 0.75 mg arm showed IRLS improvement (-11.8 points) consistent with dopaminergic pathway modulation, though responder rate was slightly lower (49.1%, partial). Overall still supportive."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72f9c62e19b",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_25_mg_once_daily",
+      "reasoning": "Dopaminergic pathway modulation reducing sensorimotor symptoms drove clinically meaningful improvement in RLS (IRLS -12.3 points, 60.4% responder rate). Consistent with established biology of RLS."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72f9c62e19b",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_5_mg_once_daily",
+      "reasoning": "Dopaminergic pathway modulation drove clinically meaningful improvement in RLS (IRLS -12.5 points, 58.5% responder rate)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72f9c62e19b",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pramipexole_0_75_mg_once_daily",
+      "reasoning": "Dopaminergic pathway modulation drove improvement in RLS (IRLS -11.8 points), though responder rate was slightly lower at this dose."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_end_maintenance_period_international_restless",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The IRLS total score change from baseline was the primary endpoint and was met across all dose arms with clinically meaningful effect sizes (~12 points reduction). The IRLS is a validated, regulator-accepted patient-reported outcome for RLS. Absence of a placebo arm and p-values limits upgrade to strong_support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Japanese patients with idiopathic RLS (severe baseline IRLS scores) showed consistent clinically meaningful improvement across all pramipexole dose arms. The population responded well to dopamine agonism. Moderate rather than strong due to absence of placebo control and p-values."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Trial lacks a placebo control arm (active dose comparison only) and does not report p-values for the primary endpoint. This makes it impossible to formally distinguish treatment effect from placebo response or natural disease fluctuation. The effect sizes are consistent with placebo-controlled pramipexole RLS trials, but the absence of a control arm is a non-standard design feature that warrants expert review for proper interpretation of the evidence strength."
+}

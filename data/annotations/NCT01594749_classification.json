@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT01594749",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data measuring NK1 receptor occupancy was reported. However, fosaprepitant is a well-established NK1 receptor antagonist (prodrug of aprepitant), and the clinical outcome strongly implies target engagement given the mechanism-consistent effect in the delayed emesis window (25\u2013120h). Per Round-28 AFFECTS rule, without direct PD measurement, no affects record is emitted for fosaprepitant; the curated OT/ChEMBL binding record carries the molecular fact.\n\n2. PATHWAY MODULATION: No pathway biomarkers were reported. The clinical response pattern (improved complete response in the delayed phase, 25\u2013120h) is mechanistically consistent with NK1 receptor antagonism blocking substance P-mediated delayed emesis, which is the expected downstream biology. The control arm (dexamethasone + ondansetron) achieved 68.5% CR, while the fosaprepitant arm achieved 78.9%, a ~10.4 percentage point improvement attributable to the NK1 antagonism layer.\n\n3. CLINICAL TRANSLATION: The primary endpoint (complete response 25\u2013120h) was met at p=0.001 with a clinically meaningful ~10.4 percentage point improvement (78.9% vs 68.5%). This is a pre-specified primary endpoint in a large RCT (N=1015), and the effect size is consistent with prior NK1 antagonist trials in HEC/MEC settings. The endpoint directly captures the clinical benefit of CINV prevention.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (MEC patients) is appropriate for the mechanism, as NK1 antagonism is known to be particularly relevant for delayed-phase emesis.\n\n5. CONFOUNDERS: Safety profile is favorable \u2014 no dose-limiting toxicity, no meaningful excess of Grade 3+ AEs in the fosaprepitant arm. The trial was adequately powered (N=1015). Placebo response in the control arm (68.5%) is consistent with historical benchmarks for dexamethasone + 5-HT3 antagonist in MEC. No manufacturing or delivery issues noted. The trial was completed as planned.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-380095",
+      "target_entity": "bio:4f5e60ba27f5",
+      "support": "moderate_support",
+      "affecting_arm_id": "fosaprepitant_regimen",
+      "reasoning": "The fosaprepitant arm achieved 78.9% CR vs 68.5% in the control arm (p=0.001), with the incremental benefit attributable to NK1 receptor antagonism (R-HSA-380095) driving suppression of chemotherapy-induced emesis. No direct pathway biomarker, hence moderate rather than strong support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4f5e60ba27f5",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": "fosaprepitant_regimen",
+      "reasoning": "Suppression of chemotherapy-induced emesis biology drove meaningful improvement in CINV outcomes (78.9% CR), confirming this biology is relevant to the indication."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:4f5e60ba27f5",
+      "support": "moderate_support",
+      "affecting_arm_id": "fosaprepitant_regimen",
+      "reasoning": "Ondansetron (5-HT3 antagonism via HTR3A/GO:0007210) is a backbone of both arms; the 68.5% CR in the control arm and 78.9% in the fosaprepitant arm both reflect serotonin receptor signaling pathway modulation contributing to emesis suppression."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051384",
+      "target_entity": "bio:71d5fc7fdfd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "fosaprepitant_regimen",
+      "reasoning": "Dexamethasone (glucocorticoid receptor agonism via NR3C1/GO:0051384) contributes to anti-inflammatory and antiemetic modulation as part of the backbone regimen in both arms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:71d5fc7fdfd4",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": "fosaprepitant_regimen",
+      "reasoning": "Anti-inflammatory and antiemetic modulation biology (dexamethasone component) contributes to CINV control, consistent with the established role of corticosteroids in CINV prophylaxis."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:4f5e60ba27f5",
+      "support": "moderate_support",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Ondansetron in the control arm contributed to 68.5% CR, confirming serotonin receptor signaling pathway modulation drives emesis suppression in CINV."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051384",
+      "target_entity": "bio:71d5fc7fdfd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Dexamethasone in the control arm contributed to 68.5% CR, supporting glucocorticoid-mediated antiemetic modulation in CINV."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4f5e60ba27f5",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Control arm achieved 68.5% CR through emesis suppression biology, confirming this biology drives CINV outcomes."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "Complete response (no vomiting, no rescue medication) is the regulatory-accepted primary endpoint for CINV trials. It was hit at p=0.001 with a clinically meaningful effect size, and is concordant with the mechanistic hypothesis. This is a well-validated endpoint for this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (MEC patients, predominantly first-line) responded to fosaprepitant-containing regimen with 78.9% CR vs 68.5% control, p=0.001, a clinically meaningful and statistically significant difference confirming this population responds to NK1 antagonism augmentation."
+    }
+  ],
+  "confidence_overall": 0.78,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

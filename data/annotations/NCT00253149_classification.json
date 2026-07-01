@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00253149",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that risperidone engaged D2/5-HT2A receptors in this trial. Risperidone's binding to these receptors is well-established pharmacologically, but this trial provides no direct evidence of target engagement. Per the round-28 AFFECTS rule, no affects record should be emitted since target engagement was not measured or implied by the trial data. 2. PATHWAY MODULATION: No pathway biomarker data is reported. There is no evidence of downstream monoaminergic modulation or changes in manic symptomatology biology. 3. CLINICAL TRANSLATION: The primary endpoint (YMRS change from baseline) has no reported result \u2014 effect size is null, p-value is null, and outcome is listed as 'unknown.' This means the trial produced no usable efficacy readout. 4. POPULATION EFFECTS: No subgroup findings are reported. 5. CONFOUNDERS: The trial has 158 participants and a comparator arm (placebo add-on to mood stabilizers), suggesting it was designed as a proper RCT. However, with no results reported at all \u2014 no effect size, no p-value, no outcome \u2014 this trial appears to have been terminated or otherwise failed to produce a primary endpoint readout. This qualifies as insufficient_information rather than a mechanistic failure, as the causal chain was never given a fair test with a reportable outcome. The operational_failure flag is set to true because the trial did not produce a usable efficacy readout, meaning the mechanism was never tested in a way that generates informative evidence for the causal chain graph. Despite this, per the round-16 rule, endpoint_captures and responds_differently must still be emitted. Since the outcome is unknown (no numeric result), these edges are emitted as ambiguous.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Primary endpoint result is null (effect_size: null, p_value: null, outcome: unknown). No biomarker data, no safety signals, no dose/exposure data reported. The trial enrolled 158 patients with a placebo comparator but produced no reportable efficacy readout, suggesting early termination or data unavailability."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_3_week_endpoint_young_mania_rating_scale_ymrs",
+      "target_entity": "bipolar_disorder",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The YMRS is a well-validated endpoint for bipolar mania, but this trial produced no numeric result, so no informative signal about whether the endpoint captured clinical benefit can be derived. Emitting ambiguous per round-16 requirement."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active__ymrs_high",
+      "target_entity": "bipolar_disorder",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No outcome data was reported for this population, so no informative signal about differential response can be derived. Emitting ambiguous per round-16 requirement."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial has a comparator arm and 158 enrolled patients but reports no primary endpoint result (null effect size, null p-value, unknown outcome). It is unclear whether the trial was terminated early, whether results were never published, or whether there is a data extraction issue. Expert review is needed to determine the actual disposition of this trial and whether any results exist in unpublished form or regulatory submissions."
+}

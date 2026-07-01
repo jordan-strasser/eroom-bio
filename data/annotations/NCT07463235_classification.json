@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT07463235",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. Cabergoline is a well-established dopamine D2 receptor agonist with extensive prior evidence of target engagement in prolactinoma, but this trial reports no target engagement evidence (e.g., prolactin level changes). 2. PATHWAY MODULATION: No pathway biomarker data (e.g., prolactin suppression, tumor volume reduction) is reported. 3. CLINICAL TRANSLATION: The primary endpoint (remission at 3, 6, and 12 months) has outcome=unknown for both arms, with no effect size or p-value reported. No efficacy readout is available. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial appears to be ongoing or not yet completed \u2014 the follow-up extends to December 2029, and the trial has 70 participants with a 2-year treatment period plus follow-up. The NCT ID (NCT07463235) suggests a very recently registered trial. The absence of any results is consistent with a trial that has not yet reached its primary endpoint analysis. This is a case of insufficient information \u2014 the trial was registered and designed but has not yet produced a usable efficacy readout. Both arms show outcome=unknown, no primary endpoint data is available, and the trial duration extends well into the future. This is not a mechanistic failure but rather a trial that has not yet been tested. The operational_failure flag is set to false because this is not a conduct failure per se, but the insufficient_information failure mode applies because no efficacy readout exists.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.9,
+      "evidence": "Both arms report outcome=unknown with null effect size and null p-value. The trial follow-up extends to December 2029, indicating the primary endpoint analysis has not yet been reached. No efficacy, biomarker, or safety data is available."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "prolactin_producing_pituitary_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial uses remission (CR) as the primary endpoint for microprolactinoma, which is a clinically relevant endpoint for this indication. However, no results have been reported yet, so the endpoint's ability to capture benefit cannot be assessed. Ambiguous is appropriate given the lack of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__prolactin_high",
+      "target_entity": "prolactin_producing_pituitary_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy results are available for either arm. The population response cannot be assessed. Ambiguous is the appropriate bucket given the complete absence of outcome data."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Trial appears to be ongoing with follow-up extending to December 2029. No efficacy, biomarker, or safety data is available for either arm. Classification as insufficient_information is based on the complete absence of any readout, but expert review should confirm whether this trial is still actively enrolling/following patients or has been terminated/abandoned without reporting results."
+}

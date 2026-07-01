@@ -1,0 +1,95 @@
+{
+  "nct_id": "NCT02959840",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available for the P6 acupressure arm. The P6 stimulator was applied at a 'comfortable level' continuously during the procedure, but there is no objective measure of nerve afferent engagement. For the metoclopramide+ondansetron arm, the drugs were administered IV at standard doses (metoclopramide 10mg, ondansetron 8mg), and their strong efficacy results (p<0.00001 for nausea, p=0.001 for vomiting vs control) imply adequate target engagement (DRD2 and HTR3A respectively). 2. PATHWAY MODULATION: For the pharmacological arm, the dramatic reduction in nausea (44 control vs 14 treated) and vomiting (27 control vs 10 treated) strongly implies pathway modulation (dopamine and serotonin receptor antagonism suppressing the emetic reflex). For the P6 arm, there is no pathway biomarker data. However, the P6 arm did show a statistically significant reduction vs control (nausea p=0.00005, vomiting p=0.0002), suggesting some biological activity, but the effect was smaller than the pharmacological arm. 3. CLINICAL TRANSLATION: The primary endpoint comparison was P6 vs metoclopramide+ondansetron. P6 failed to demonstrate non-inferiority or superiority vs the active comparator (nausea p=0.1, vomiting p=0.8). The P6 arm reduced nausea from 44 to 22 participants (vs 14 for pharmacological arm) \u2014 a meaningful but inferior effect. The metoclopramide+ondansetron arm clearly succeeded on all endpoints. 4. POPULATION EFFECTS: The enrolled population (cesarean section under regional anesthesia) is appropriate for both interventions. Stage I subgroup analysis showed similar patterns. No biomarker-defined subgroups were analyzed. 5. CONFOUNDERS: The trial is a 3-arm comparison (control, P6, metoclopramide+ondansetron) with N=180 (~60/arm). The primary endpoint was defined as comparison vs the active comparator, which is a high bar. The P6 arm did show significant benefit vs control, suggesting the mechanism has some activity but is inferior to pharmacological prophylaxis. The trial outcome is 'partial': the pharmacological arm succeeded clearly; the P6 arm failed to meet the primary endpoint (non-inferiority vs active comparator) but showed significant benefit vs control. The primary failure mode for the P6 arm is that the effect size was insufficient compared to the active comparator \u2014 this could reflect a weaker mechanism or insufficient stimulation intensity. The overall trial is classified as partial because one arm succeeded and one failed.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.6,
+      "evidence": "P6 stimulator showed statistically significant reduction in nausea (p=0.00005) and vomiting (p=0.0002) vs control, indicating some biological activity, but failed to meet the primary endpoint of non-inferiority vs metoclopramide+ondansetron (nausea p=0.1, vomiting p=0.8). The biology moved but the clinical endpoint (comparison vs active comparator) was not met."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.3,
+      "evidence": "The P6 stimulator may be less effective in the context of spinal anesthesia-induced hypotension-related nausea (a dominant mechanism in cesarean section) compared to pharmacological agents targeting dopamine/serotonin pathways. The population's specific nausea etiology may not be optimally addressed by neuromodulation alone."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "metoclopramide",
+      "target_entity": "ENSG00000149295",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "Metoclopramide at 10mg IV produced highly significant reduction in nausea (p<0.00001) and vomiting (p=0.001) vs control, strongly implying DRD2 engagement and downstream antiemetic effect."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "ondansetron",
+      "target_entity": "ENSG00000166736",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "Ondansetron at 8mg IV in combination produced highly significant antiemetic effects, consistent with HTR3A engagement and serotonin receptor antagonism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "The strong clinical antiemetic effect of metoclopramide confirms that DRD2 antagonism modulates dopamine receptor signaling pathway to suppress nausea/vomiting."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000166736",
+      "target_entity": "GO:0007210",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "The strong clinical antiemetic effect of ondansetron confirms that HTR3A antagonism modulates serotonin receptor signaling pathway to suppress nausea/vomiting."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:649ac9ecdb92",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "Dopamine receptor antagonism via metoclopramide produced strong suppression of nausea and vomiting reflex (44 control vs 14 treated, p<0.00001)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:649ac9ecdb92",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "Serotonin receptor antagonism via ondansetron produced strong suppression of nausea and vomiting reflex in combination with metoclopramide."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:649ac9ecdb92",
+      "target_entity": "nausea",
+      "support": "strong_support",
+      "affecting_arm_id": "metoclopramide_ondansetron",
+      "reasoning": "Suppression of the nausea and vomiting reflex via pharmacological intervention produced highly significant clinical benefit, confirming this biology drives the indication."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_nausea",
+      "target_entity": "nausea",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The incidence of nausea and vomiting during the surgical procedure was measured and clearly differentiated active treatment from control (p<0.00001 for pharmacological arm), confirming the endpoint captures clinical benefit in this indication. The P6 arm also showed significant benefit vs control, further validating the endpoint's sensitivity."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "asa_low__functional_class_ii",
+      "target_entity": "nausea",
+      "support": "moderate_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The P6 acupressure arm failed to meet the primary endpoint vs active comparator (p=0.1 for nausea, p=0.8 for vomiting) in this population of cesarean section patients under regional anesthesia, suggesting this population does not respond sufficiently to P6 neuromodulation alone to match pharmacological prophylaxis."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial's primary endpoint was non-inferiority/superiority of P6 vs active pharmacological comparator, which is a high bar. The P6 arm showed significant benefit vs control (p=0.00005 for nausea), suggesting the mechanism has real biological activity. The failure may reflect insufficient effect size rather than no mechanism engagement. Additionally, the P6 arm_id ('acupressure_point_p6_stimulator') is not in the valid arm_ids list provided, which means causal-chain edges for the P6 arm cannot be properly attributed. Expert review is needed to assess whether the P6 mechanism should be classified as 'biology_moved_endpoint_flat' (vs active comparator) or whether the comparison arm choice inflated the failure classification."
+}

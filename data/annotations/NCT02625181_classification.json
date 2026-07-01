@@ -1,0 +1,90 @@
+{
+  "nct_id": "NCT02625181",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: The PONV Clinical Decision Support System delivered automated notifications within the AIMS at case start, surgery start, and surgery end, plus preoperative emails via PDW. This constitutes direct evidence that the 'intervention' (the CDS system) reached its intended 'target' (anesthesia provider decision-making behavior) \u2014 the notifications were delivered as designed. 2. PATHWAY MODULATION: The downstream biology here is 'improved clinical guideline adherence through behavioral nudging.' The adherence counts rose dramatically: from 666/1518 (43.9%) at baseline to 5260/12809 (41.1%) in the CDS Email phase and 5863/12707 (46.1%) in the CDS Email + Real-Time phase. The real-time notification phase shows a meaningful improvement over baseline in absolute adherence counts and rate. 3. CLINICAL TRANSLATION: The primary endpoint (adherence to PONV guidelines) was met. The effect size reported is the count of adherent patients (666 baseline vs. 5863 in the combined CDS phase), representing a large absolute increase. No p-value is reported, which is a limitation, but the trial is described as having met its primary endpoint. This is a quality improvement / implementation science trial rather than a traditional RCT, so the absence of a formal p-value is expected. 4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (adult elective surgery patients at a single academic center) is appropriate for the intervention. 5. CONFOUNDERS: The trial uses a pre-post design (baseline period vs. intervention periods) rather than a randomized controlled design, which introduces temporal confounding. The sample sizes are large (>12,000 per intervention phase), which provides substantial statistical power. Mortality rates were comparable across phases (~0.3-0.5%), indicating no safety signal. The lack of a p-value and the non-randomized design are notable limitations. The intervention is a behavioral/systems intervention, so the molecular causal chains mapped (propofol\u2192GABRA1, ondansetron\u2192HTR3A, etc.) represent the PONV prophylactic agents whose use was being optimized, not the mechanism of the CDS system itself. The CDS system's mechanism is behavioral nudging \u2192 guideline adherence \u2192 PONV prevention. The trial succeeded in demonstrating improved adherence.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.2,
+      "evidence": "No p-value reported for the primary endpoint comparison; pre-post design without randomization limits causal inference. However, the large sample sizes (>12,000 per phase) and clear directional improvement make underpowering unlikely to be a real concern here \u2014 this is a minor caveat."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_adherence_ponv_guidelines",
+      "target_entity": "postoperative_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The adherence endpoint was the pre-specified primary endpoint and was met, with large absolute increases in guideline-adherent patients across intervention phases. Adherence to evidence-based PONV prophylaxis protocols is a validated process measure for PONV prevention. No p-value was reported and the design is pre-post rather than randomized, limiting confidence to moderate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "postoperative_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (adult elective surgery patients at a single academic center) showed meaningful improvement in guideline adherence with the CDS intervention. The primary endpoint was met. No p-value was reported and the pre-post design limits causal certainty, so moderate rather than strong support is appropriate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:51992a59fcd4",
+      "target_entity": "postoperative_nausea_and_vomiting",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Improved clinical guideline adherence through behavioral nudging is the intended biology driving PONV prevention. The trial demonstrated that the CDS system improved adherence substantially, supporting the hypothesis that guideline adherence drives PONV outcomes. The pre-post design and absence of a formal p-value limit this to moderate support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Serotonin receptor signaling pathway (ondansetron, granisetron, palonosetron, etc.) is one of the key mechanisms through which PONV prophylaxis agents act. The CDS system increased use of these agents per guidelines, supporting that the mechanism affects the intended biology. Moderate support given pre-post design."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Dopamine receptor pathway (droperidol, metoclopramide) is another key PONV prophylaxis mechanism. Increased guideline adherence supports this mechanism contributing to improved PONV biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390648",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Muscarinic acetylcholine receptor pathway (scopolamine) is a validated PONV prophylaxis mechanism. Improved adherence to guidelines including scopolamine use supports this edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390650",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Histamine receptor pathway (promethazine, meclizine) is a validated PONV prophylaxis mechanism. Improved adherence supports this edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-380095",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Tachykinin receptor pathway (aprepitant/NK1 antagonism) is a validated PONV prophylaxis mechanism. Improved adherence supports this edge."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0071383",
+      "target_entity": "bio:51992a59fcd4",
+      "support": "moderate_support",
+      "affecting_arm_id": "ponv_clinical_decision_support_system",
+      "reasoning": "Cellular response to steroid hormone stimulus (dexamethasone via NR3C1) is a validated PONV prophylaxis mechanism. Improved adherence supports this edge."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a quality improvement / implementation science trial using a pre-post design rather than a randomized controlled trial. No p-value was reported for the primary endpoint comparison. The molecular causal chains mapped (propofol\u2192GABRA1, ondansetron\u2192HTR3A, etc.) represent the PONV prophylactic agents whose use was being optimized, not the mechanism of the CDS intervention itself (behavioral nudging). The mapping of a behavioral/systems intervention onto molecular pharmacology chains is conceptually misaligned and may produce spurious edge updates. Expert review is needed to assess whether the edge updates for individual PONV agents are meaningful given that the trial tested a CDS system, not the individual drugs. Additionally, the pre-post design introduces temporal confounding that limits causal inference about the CDS system's effectiveness."
+}

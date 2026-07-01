@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00044044",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm lurasidone engaged DRD2 in vivo. However, lurasidone is a known D2 antagonist with established binding affinity (curated molecular fact). The haloperidol active control arm succeeded (BPRS -9.8, PANSS -16, CGI-S -0.8), confirming the trial was sensitive to D2 antagonism and the population was appropriate. This is indirect evidence that the mechanism can work in this population, but does not confirm lurasidone specifically engaged its target at these doses.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., dopamine metabolites, receptor occupancy imaging) was reported. We cannot directly assess whether lurasidone modulated dopaminergic neurotransmission. The dose-response pattern is weak: 20 mg (-5.0 BPRS), 40 mg (-5.2 BPRS), 80 mg (-8.0 BPRS) \u2014 a modest trend at 80 mg but not statistically significant vs. placebo (placebo ~-7.9 BPRS per the extraction summary). The 80 mg arm showed partial signals on PANSS (-13.6) and CGI-S (-0.8), matching haloperidol on CGI-S, suggesting some biological activity at the highest dose.\n\n3. CLINICAL TRANSLATION: The primary endpoint (BPRS change from baseline) was not met for any lurasidone dose. Critically, the placebo response was very high (~-7.9 on BPRS), nearly matching the 80 mg lurasidone arm (-8.0). This high placebo response compressed the detectable treatment effect. The haloperidol arm succeeded (-9.8 BPRS), confirming the trial had assay sensitivity. The lurasidone effect sizes were numerically small relative to placebo, suggesting either insufficient target engagement at these doses or a high placebo response masking a real but modest effect.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population (schizophrenia patients with active symptoms) is appropriate for D2 antagonism. The haloperidol arm's success confirms the population was responsive to the mechanism class.\n\n5. CONFOUNDERS: The most prominent confounder is the very high placebo response (~-7.9 BPRS), which is unusually high for schizophrenia trials and compressed the treatment-placebo difference for lurasidone. This is a classic high-placebo-response scenario. Additionally, the 6-week duration is standard for acute schizophrenia trials, so wrong timeframe is unlikely. The dose range tested (20-80 mg) may have been subtherapeutic \u2014 lurasidone was later approved at 40-160 mg, suggesting the 80 mg ceiling here may have been insufficient for full target engagement. The trial was adequately powered (N=356) but the high placebo response effectively reduced the detectable signal. The primary failure mode is high placebo response combined with potentially insufficient dosing, with the 80 mg arm showing the most promising (partial) signals.",
+  "failure_modes": [
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.75,
+      "evidence": "Placebo BPRS change was approximately -7.9, nearly identical to lurasidone 80 mg (-8.0), compressing the treatment-placebo difference to near zero. This unusually high placebo response is the primary reason the primary endpoint was missed despite haloperidol succeeding in the same trial."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.25,
+      "evidence": "The dose range tested (20-80 mg) may have been below the therapeutic range later established (40-160 mg), suggesting the doses were insufficient for full D2 engagement. However, this is more a dose/exposure issue than a population issue."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:b43cb836fdc0",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_20_mg",
+      "reasoning": "Lurasidone 20 mg failed on all endpoints with minimal effect vs. placebo, providing weak contradict signal for the mechanism-to-biology link at this dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:b43cb836fdc0",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_40_mg",
+      "reasoning": "Lurasidone 40 mg failed on all endpoints with minimal effect vs. placebo, providing weak contradict signal for the mechanism-to-biology link at this dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:b43cb836fdc0",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_80_mg",
+      "reasoning": "Lurasidone 80 mg showed partial signals on PANSS and CGI-S but failed the primary BPRS endpoint, largely due to high placebo response. Weak contradict rather than moderate because the 80 mg arm showed numerically meaningful activity on secondary endpoints."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b43cb836fdc0",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_20_mg",
+      "reasoning": "Lurasidone 20 mg failed to demonstrate that normalizing dopaminergic neurotransmission via D2 antagonism at this dose drove clinical benefit in schizophrenia."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b43cb836fdc0",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_40_mg",
+      "reasoning": "Lurasidone 40 mg failed to demonstrate that normalizing dopaminergic neurotransmission via D2 antagonism at this dose drove clinical benefit in schizophrenia."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b43cb836fdc0",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "lurasidone_80_mg",
+      "reasoning": "Lurasidone 80 mg failed the primary endpoint despite partial secondary signals; high placebo response is a major confounder, so only weak contradict is warranted."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:b43cb836fdc0",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol_10mg",
+      "reasoning": "Haloperidol 10 mg succeeded on all endpoints (BPRS -9.8, PANSS -16, CGI-S -0.8), supporting that serotonin receptor modulation (haloperidol's chain per the resolved entities) contributes to normalization of neurotransmission and reduction of psychotic symptoms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:b43cb836fdc0",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol_10mg",
+      "reasoning": "Haloperidol's success confirms that normalization of neurotransmission drives clinical benefit in schizophrenia, validating the biology-to-indication link for the active control arm."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_end_double_blind_treatment_bprs_brief",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The BPRS endpoint captured clinical benefit in the haloperidol arm (success), confirming it is a valid endpoint for schizophrenia. The lurasidone arms missed, but this reflects drug failure rather than endpoint inadequacy. Moderate rather than strong because no OS-equivalent confirmatory endpoint was reported."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "bprs_high__pansspositivesymptoms_high__prolactin_low__severity_active",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (active schizophrenia with high BPRS/PANSS) did not respond to lurasidone at the doses tested, though the haloperidol arm succeeded in the same population. The high placebo response suggests the population may have been particularly susceptible to placebo effects, contributing to the failure. Weak contradict because the population is appropriate for the mechanism but the trial failed for lurasidone."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The placebo BPRS response (~-7.9) was unusually high, nearly matching the highest lurasidone dose (-8.0), which is a major confounder. No p-values were reported for any arm comparison, making it impossible to formally assess statistical significance. The haloperidol chain in the resolved entities maps to HTR2A/serotonin receptors rather than DRD2, which is atypical for haloperidol (a primarily D2 antagonist) and may reflect a data extraction artifact. Expert review is needed to confirm whether the haloperidol chain assignment is correct and whether the high placebo response was pre-specified as a sensitivity analysis. Additionally, lurasidone was later approved at higher doses (up to 160 mg), suggesting the dose ceiling of 80 mg in this trial may have been insufficient for full therapeutic effect."
+}

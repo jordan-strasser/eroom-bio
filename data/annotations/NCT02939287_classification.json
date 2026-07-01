@@ -1,0 +1,87 @@
+{
+  "nct_id": "NCT02939287",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm target engagement for either aprepitant (NK1 receptor) or olanzapine (dopamine/serotonin receptors). The trial does not report any direct target engagement evidence. Per the round-28 AFFECTS rule, no affects edge is emitted for the monotherapy arms (no PD/engagement data). For the combo arm, the canonical chain includes TACR1 and DRD2, but again no engagement data is reported.\n\n2. PATHWAY MODULATION: No pathway biomarker data is available. We cannot assess whether NK1 receptor antagonism or dopamine/serotonin receptor antagonism translated into measurable downstream pathway changes. No modulates_via or mechanism_affects evidence from PD data.\n\n3. CLINICAL TRANSLATION: The primary endpoint (Complete Response within 120 hours) was not formally met by any arm in a statistically significant sense \u2014 no p-values are reported. CR rates were: Aprepitant 28.6% (4/14), Olanzapine 52.4% (11/21), Aprepitant+Olanzapine 50% (4/8). The olanzapine and combo arms show numerically promising CR rates (~50%), but without a control arm or statistical testing, these cannot be declared successes. The aprepitant monotherapy arm performed notably worse (28.6%). The trial is classified as 'partial' because the olanzapine-containing arms show clinically meaningful CR rates that suggest biological activity, but the absence of p-values and a comparator arm prevents definitive success classification.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population is specifically patients receiving high-dose melphalan conditioning for stem cell transplant \u2014 a well-defined, homogeneous population.\n\n5. CONFOUNDERS: The trial is small (N=52 total, with only 8 in the combo arm), lacks a placebo/standard-of-care control arm, and reports no p-values. This is a three-arm comparative design without a formal statistical framework for declaring success. The small sample size, particularly in the combo arm (n=8), severely limits interpretability. The trial appears to be a pilot/exploratory study. The absence of a control arm means we cannot benchmark these CR rates against standard antiemetic prophylaxis. The underpowered design and lack of statistical testing are the primary limitations. The olanzapine arm's 52.4% CR rate is numerically encouraging and consistent with olanzapine's known antiemetic efficacy in CINV, suggesting the mechanism is plausible but the trial design cannot confirm it.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Total N=52 across three arms (14, 21, 8 patients respectively), no p-values reported, no formal power calculation referenced, no control arm. The combo arm had only 8 patients. This is insufficient to draw statistically valid conclusions about any arm's efficacy."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.55,
+      "evidence": "No p-values reported, no placebo/standard-of-care control arm for benchmarking, no statistical testing framework described. The trial provides CR rates but without statistical context, definitive success or failure cannot be determined for any arm."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:f7bb2f905b8e",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine10_mg_orally_daily_on_days_1_0_1_2#NCT02939287",
+      "reasoning": "Olanzapine monotherapy achieved 52.4% CR rate in CINV prevention, suggesting dopamine/serotonin receptor antagonism mechanism has biological activity in this setting. However, no p-values or control arm prevent stronger support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:f7bb2f905b8e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "o_aprepitant_orally_one_hour_prior_to_chemotherapy_on_day_1_orally_on_days_0_1#NCT02939287",
+      "reasoning": "Aprepitant monotherapy achieved only 28.6% CR rate, notably lower than olanzapine arm, suggesting NK1 receptor antagonism alone may be less effective for CINV prevention in high-dose melphalan conditioning. Without a control arm this is weak evidence."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f7bb2f905b8e",
+      "target_entity": "nausea",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine10_mg_orally_daily_on_days_1_0_1_2#NCT02939287",
+      "reasoning": "The 52.4% CR rate in the olanzapine arm provides weak directional support that modulating CINV biology (dopamine/serotonin pathways) translates to clinical benefit in nausea/vomiting prevention, though lack of statistical testing limits confidence."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f7bb2f905b8e",
+      "target_entity": "nausea",
+      "support": "weak_contradict",
+      "affecting_arm_id": "o_aprepitant_orally_one_hour_prior_to_chemotherapy_on_day_1_orally_on_days_0_1#NCT02939287",
+      "reasoning": "Aprepitant monotherapy's 28.6% CR rate provides weak contradict signal that NK1 receptor antagonism alone drives sufficient CINV biology modulation to achieve complete response in high-dose melphalan setting."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "weak_support",
+      "affecting_arm_id": "aprepitant, olanzapine",
+      "reasoning": "The combo arm achieved 50% CR rate, consistent with olanzapine engaging DRD2 and modulating dopamine receptor pathways. No direct PD data, but clinical response is directionally consistent with mechanism engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000115353",
+      "target_entity": "R-HSA-380095",
+      "support": "weak_support",
+      "affecting_arm_id": "aprepitant, olanzapine",
+      "reasoning": "The combo arm achieved 50% CR rate, consistent with aprepitant engaging TACR1 and modulating tachykinin receptor pathways. No direct PD data available; clinical response provides only indirect support."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "nausea",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "Complete Response (no emesis and no rescue antiemetic within 120h) is a clinically meaningful and regulator-accepted endpoint for CINV prevention. The endpoint was measured and reported across all arms, providing directional information about CINV prevention. Weak support rather than moderate because no p-values were reported and no control arm was present."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "qtc_low",
+      "target_entity": "nausea",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No subgroup analyses were reported. The population (high-dose melphalan conditioning for SCT) is homogeneous and no differential response by subgroup was assessed. The qtc_low population id is the only resolved population; response signal is ambiguous given lack of statistical testing and no control arm."
+    }
+  ],
+  "confidence_overall": 0.4,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "Trial lacks a control arm (no placebo or standard-of-care comparator), reports no p-values, and has very small arm sizes (especially combo arm n=8). The 'partial' classification reflects numerically promising CR rates in olanzapine-containing arms but the absence of statistical testing prevents definitive conclusions. Expert review needed to assess whether these CR rates are clinically meaningful relative to historical benchmarks for high-dose melphalan CINV prophylaxis, and whether the trial should be considered a pilot study informing future adequately-powered trials."
+}

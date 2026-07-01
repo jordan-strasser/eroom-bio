@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00145496",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that asenapine engaged DRD2 or 5-HT2A receptors in this trial. However, asenapine is a well-characterized atypical antipsychotic with established receptor binding profiles (OT/ChEMBL curated), and the dose range (5-10 mg BID sublingually) is within the clinically active range. The absence of weight gain (0.0 kg vs +2.6 kg for olanzapine, p<0.0001) is an indirect pharmacodynamic signal suggesting asenapine's receptor profile differs from olanzapine's, consistent with known pharmacology. No direct target engagement biomarker was measured. 2. PATHWAY MODULATION: No pathway biomarkers (e.g., dopamine metabolites, receptor occupancy imaging) were reported. The differential weight effect between asenapine and olanzapine suggests some pharmacodynamic activity, but this does not confirm modulation of the dopaminergic/serotonergic pathway relevant to negative symptoms. 3. CLINICAL TRANSLATION: The primary endpoint (NSA total score change from baseline at Day 182) was not met. Asenapine showed -9.7 change vs olanzapine -9.2, with p=0.7177 \u2014 essentially identical outcomes between arms. Critically, BOTH arms showed similar improvement from baseline (~9-10 points), suggesting the trial may have lacked a placebo arm to determine whether either drug was effective vs. no treatment. The QLS secondary endpoint showed a trend favoring asenapine (11.1 vs 7.1, p=0.0565) but did not reach significance. 4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population had persistent negative symptoms of schizophrenia \u2014 a notoriously difficult-to-treat domain where dopamine D2/5-HT2A antagonism has limited established efficacy for negative symptoms specifically (as opposed to positive symptoms). This raises the question of whether the mechanism is appropriate for this specific symptom domain. 5. CONFOUNDERS: This is an active-controlled trial (asenapine vs olanzapine) without a placebo arm. Both arms showed similar improvement (~9-10 points on NSA), making it impossible to determine if either drug was effective vs. placebo. The p-value of 0.7177 reflects the comparison between the two active arms, not vs. placebo. The primary failure mode is that the trial was designed to show superiority of asenapine over olanzapine for negative symptoms \u2014 a comparison where neither drug has strong evidence for negative symptom efficacy. The wrong_population failure mode is also relevant: persistent negative symptoms of schizophrenia are thought to be driven by mechanisms beyond D2/5-HT2A antagonism (e.g., glutamatergic, cognitive, social cognitive pathways), suggesting the mechanism may not be well-matched to this specific symptom domain. The trial design (active comparator only, no placebo) also limits interpretability.",
+  "failure_modes": [
+    {
+      "mode": "wrong_population",
+      "confidence": 0.65,
+      "evidence": "Persistent negative symptoms of schizophrenia are a distinct clinical domain where D2/5-HT2A receptor antagonism has limited established efficacy. Both asenapine and olanzapine showed similar modest improvements (~9-10 points on NSA), suggesting neither drug's mechanism is well-suited to this symptom domain. The enrolled population (persistent negative symptoms) may not be the right target for this mechanism."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.35,
+      "evidence": "The differential weight effect (asenapine 0.0 kg vs olanzapine +2.6 kg, p<0.0001) suggests pharmacodynamic activity of asenapine, but the NSA primary endpoint showed no differential benefit. However, this is weak evidence as weight is not a direct measure of the intended biology for negative symptoms."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:bebb70937bf6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "asenapine",
+      "reasoning": "No biomarker data available; primary endpoint missed with p=0.7177. The mechanism (dopamine receptor modulation) did not translate to improvement in negative symptoms for asenapine. Emitting weak_contradict per round-14 rule for no-PD-data failures."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:bebb70937bf6",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "asenapine",
+      "reasoning": "Modulation of dopaminergic/serotonergic neurotransmission via D2/5-HT2A antagonism did not drive improvement in negative symptoms of schizophrenia. Both arms showed similar modest improvement, suggesting this biology does not strongly drive the negative symptom domain."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:bebb70937bf6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine also failed to show superiority on NSA (effect -9.2, p=0.7177 vs asenapine). No biomarker data; emitting weak_contradict per round-14 rule."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:bebb70937bf6",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine's dopaminergic/serotonergic modulation also failed to show differential benefit on negative symptoms vs asenapine, consistent with the mechanism being insufficient for this symptom domain."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_negative_symptoms_schizophrenia_negative_symptom",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The NSA scale is a validated instrument for negative symptoms, but the trial lacked a placebo arm, making it impossible to determine whether either drug improved negative symptoms vs. no treatment. Both arms showed similar improvement (~9-10 points), which could reflect natural disease course, regression to the mean, or drug effect. The endpoint's ability to capture clinical benefit in this trial is ambiguous due to the active-comparator-only design."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "negativesymptoms_positive__severity_active",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The population with persistent negative symptoms of schizophrenia did not show differential response to asenapine vs olanzapine (p=0.7177). Both arms showed similar modest improvement, suggesting this population does not respond differentially to D2/5-HT2A antagonism for negative symptoms. Weak_contradict rather than moderate because the active-comparator design limits interpretation."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial used an active comparator (olanzapine) without a placebo arm, making it impossible to determine whether either drug was effective vs. no treatment for negative symptoms. Both arms showed similar improvement (~9-10 points on NSA), which could reflect drug effect, natural disease course, or regression to the mean. The p-value of 0.7177 reflects only the between-arm comparison. Expert review is needed to assess: (1) whether the trial was adequately powered to detect a clinically meaningful difference between asenapine and olanzapine specifically; (2) whether the absence of a placebo arm fundamentally limits the interpretability of the negative result; and (3) whether the QLS trend (p=0.0565 favoring asenapine) represents a clinically meaningful signal that warrants further investigation."
+}

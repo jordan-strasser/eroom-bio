@@ -1,0 +1,116 @@
+{
+  "nct_id": "NCT02484911",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm target engagement. However, the drugs used (olanzapine, aprepitant, palonosetron, dexamethasone) are well-established agents with known pharmacology at their respective receptors. The control arm (aprepitant + palonosetron + dexamethasone) is a standard-of-care regimen. The question is whether adding olanzapine to this backbone improves complete response rates.\n\n2. PATHWAY MODULATION: No biomarker data is available to assess downstream pathway modulation. The mechanism of action for all agents is well-established in CINV prevention, so pathway engagement is assumed but not directly measured in this trial.\n\n3. CLINICAL TRANSLATION: The primary endpoint (complete response in overall phase 0-120h) was not met in either the HEC cohort (20 vs 15 responders, p=0.397) or the MEC cohort (36 vs 40 responders, p=1.0). The olanzapine arm did not outperform the control arm on the primary endpoint. Notably, in the MEC cohort, the control arm actually had numerically more responders (40 vs 36), suggesting olanzapine added no benefit in MEC.\n\n4. POPULATION EFFECTS: Interesting subgroup findings emerge: in the HEC cohort, the no-vomiting endpoint (a component of complete response) showed significant benefit for olanzapine in the overall phase (17 vs 6, p=0.02) and delayed phase (17 vs 7, p=0.005), but not in the acute phase (18 vs 15, p=1.0). This suggests olanzapine may reduce vomiting specifically in HEC patients in the delayed phase, but this did not translate to the composite complete response endpoint (which also requires no rescue therapy). In MEC, no benefit was observed on any vomiting endpoint.\n\n5. CONFOUNDERS: The trial enrolled 120 patients across two cohorts (HEC and MEC), which may be underpowered to detect a difference in complete response rates, particularly given the composite nature of the endpoint. The primary endpoint failure despite a significant no-vomiting signal in HEC suggests the rescue therapy component may have diluted the complete response signal, or the trial was underpowered for the composite endpoint. The p=1.0 for MEC complete response with numerically more responders in the control arm suggests olanzapine is not beneficial in MEC. The failure mode is most consistent with underpowering combined with a possible wrong population (MEC patients may not benefit from olanzapine addition) and the composite endpoint potentially not capturing the partial benefit seen in HEC vomiting subgroup.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "With only 120 patients split across HEC and MEC cohorts, the trial may have been underpowered to detect a statistically significant difference in the composite complete response endpoint. The HEC no-vomiting subgroup showed significant benefit (p=0.02 overall, p=0.005 delayed phase) but the composite CR endpoint missed (p=0.397), suggesting insufficient power to detect the full composite effect."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "MEC cohort showed no benefit whatsoever (p=1.0 for CR, numerically more responders in control arm: 40 vs 36). The olanzapine addition appears to have no benefit in MEC patients, suggesting this population was not appropriate for the olanzapine add-on hypothesis. The HEC cohort showed partial signal (vomiting reduction) but not composite CR improvement."
+    },
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "In HEC patients, the no-vomiting component showed significant improvement with olanzapine (p=0.02 overall phase, p=0.005 delayed phase), suggesting partial biological activity. However, the composite complete response endpoint (which also requires no rescue therapy) did not improve (p=0.397), indicating the endpoint may not have fully captured the biological benefit, or rescue therapy use was not reduced despite reduced vomiting."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:6e2576bbd763",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_regimen",
+      "reasoning": "The olanzapine arm failed to improve complete response rates over the control arm in both HEC (p=0.397) and MEC (p=1.0) cohorts. No biomarker data available. Dopamine receptor antagonism via olanzapine did not translate to improved composite CINV suppression, though partial vomiting benefit was seen in HEC."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6e2576bbd763",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_regimen",
+      "reasoning": "The olanzapine regimen failed to improve complete response in CINV over the control regimen. The emetic signaling suppression biology did not translate to improved clinical outcomes with the addition of olanzapine, though partial vomiting reduction was observed in HEC."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-380095",
+      "target_entity": "bio:6e2576bbd763",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_regimen",
+      "reasoning": "Aprepitant (NK1 antagonism) in the olanzapine regimen arm failed to achieve complete response improvement over control. No biomarker data available to confirm pathway engagement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:6e2576bbd763",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "The control regimen (aprepitant + palonosetron + dexamethasone) also failed to show superiority in the comparative analysis; both arms had similar complete response rates, suggesting the biology suppression did not differentiate between arms."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-380095",
+      "target_entity": "bio:6e2576bbd763",
+      "support": "weak_contradict",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Aprepitant in the control arm did not produce superior complete response rates compared to the olanzapine arm; both arms failed the primary endpoint comparison."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:6e2576bbd763",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_regimen",
+      "reasoning": "Palonosetron (5-HT3 antagonism) in the olanzapine regimen arm did not contribute to a significant improvement in complete response over control. No biomarker data available."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0007210",
+      "target_entity": "bio:6e2576bbd763",
+      "support": "weak_contradict",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Palonosetron in the control arm did not produce superior complete response rates in the comparative analysis."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051384",
+      "target_entity": "bio:0ef78eacffa6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_regimen",
+      "reasoning": "Dexamethasone glucocorticoid modulation in the olanzapine regimen arm did not contribute to improved complete response over control."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0051384",
+      "target_entity": "bio:0ef78eacffa6",
+      "support": "weak_contradict",
+      "affecting_arm_id": "control_regimen",
+      "reasoning": "Dexamethasone in the control arm did not produce superior complete response rates in the comparative analysis."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The composite complete response endpoint (no vomiting + no rescue therapy) missed significance despite a significant no-vomiting signal in HEC patients. This suggests the composite endpoint may not fully capture the biological benefit of olanzapine addition, or the rescue therapy component diluted the signal. The endpoint is a standard CINV endpoint but its composite nature may have obscured partial benefit."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (cancer patients receiving HEC or MEC) did not show a significant benefit from olanzapine addition on the primary composite complete response endpoint (p=0.397 for HEC, p=1.0 for MEC). The population did not respond differently to the olanzapine-containing regimen vs control on the primary endpoint."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial shows a dissociation between the no-vomiting subcomponent (significant benefit in HEC: p=0.02 overall, p=0.005 delayed phase) and the composite complete response endpoint (p=0.397). This raises the question of whether the rescue therapy component of the composite endpoint was confounded by differential prescribing practices or patient/physician behavior rather than true lack of efficacy. Additionally, the MEC cohort showed numerically worse outcomes with olanzapine (36 vs 40 responders), which is unexpected and may reflect a sedation-related effect of olanzapine interfering with patient-reported outcomes or rescue therapy seeking. Expert review is needed to assess whether the composite endpoint design was appropriate and whether the HEC vomiting signal represents a clinically meaningful partial success."
+}

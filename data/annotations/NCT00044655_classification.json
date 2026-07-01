@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00044655",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm direct dopamine D2 receptor or serotonin receptor engagement. However, all compounds in this trial (risperidone, olanzapine, ziprasidone, quetiapine, aripiprazole) are well-established atypical antipsychotics with curated binding evidence at DRD2/HTR2A. The trial design assumes engagement rather than measuring it. Per the round-28 AFFECTS rule, no affects edge is emitted since engagement was not directly measured.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., dopaminergic/serotonergic signaling readouts) was reported. The trial was a pragmatic comparative effectiveness study focused on medication management strategy (stay vs. switch) rather than mechanistic pathway interrogation.\n\n3. CLINICAL TRANSLATION: The primary endpoint \u2014 number who discontinued medication within the first 6 study months \u2014 was met. The 'stay on baseline medication' arm had 11 discontinuations vs. 23 in the 'switch per study protocol' arm. This indicates that patients who stayed on their current antipsychotic had better medication adherence over 6 months compared to those switched per protocol. The primary endpoint was met (True per extraction), though no p-value is provided. The effect size difference (11 vs. 23 discontinuations out of ~110 per arm) is clinically meaningful \u2014 roughly doubling the discontinuation rate in the switch arm.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population was schizophrenia patients on antipsychotic medication. The trial is essentially a pragmatic study of medication management strategy rather than a mechanistic test of a new compound.\n\n5. CONFOUNDERS: The trial is a pragmatic comparative effectiveness study comparing staying on current medication vs. switching. Both arms use the same class of compounds (atypical antipsychotics). The 'success' here reflects that staying on a stable antipsychotic regimen leads to better adherence than switching \u2014 a clinically important finding about treatment strategy rather than drug mechanism. No p-value is reported, which limits statistical confidence, but the primary endpoint is stated as met. The hospitalization rates were similar (8 vs. 9), suggesting comparable safety between strategies. The trial outcome is classified as 'success' based on the primary endpoint being met per the extraction, with the caveat that no p-value is available.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:191b5a86e9be",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "stay_on_baseline_medication_prescribed",
+      "reasoning": "The stay arm showed lower discontinuation (11 vs 23), consistent with dopaminergic/serotonergic neurotransmission modulation driving schizophrenia symptom control and medication adherence. Moderate rather than strong because no p-value is reported and no biomarker data confirms pathway engagement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:191b5a86e9be",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "switch_per_study_protocol",
+      "reasoning": "The switch arm had higher discontinuation (23 vs 11), suggesting that switching between antipsychotics \u2014 even within the same mechanistic class \u2014 disrupts treatment stability, providing weak contradict evidence that the biology-to-indication link is not uniformly robust across switching strategies."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:191b5a86e9be",
+      "support": "moderate_support",
+      "affecting_arm_id": "stay_on_baseline_medication_prescribed",
+      "reasoning": "Serotonin receptor modulation contributing to neurotransmission modulation is supported by the clinical success of the stay arm, though no direct PD biomarker data is available."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:191b5a86e9be",
+      "support": "moderate_support",
+      "affecting_arm_id": "stay_on_baseline_medication_prescribed",
+      "reasoning": "Dopamine receptor modulation contributing to neurotransmission modulation is supported by the clinical success of the stay arm, consistent with established antipsychotic pharmacology."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_who_discontinued_medication_within_first_6",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The discontinuation endpoint captured a clinically meaningful difference between arms (11 vs 23), and medication adherence/discontinuation is a well-accepted proxy for treatment effectiveness in schizophrenia. Moderate rather than strong because no p-value is reported and no concordant secondary biomarker endpoint was provided."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_remission",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of schizophrenia patients on stable antipsychotic medication showed a meaningful difference in discontinuation rates between stay and switch strategies, supporting that this population responds to antipsychotic treatment. Moderate support given the absence of a p-value."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint despite the endpoint being stated as met. The effect size (11 vs 23 discontinuations) is directionally clear but statistical significance cannot be confirmed from the extraction. Additionally, this is a pragmatic comparative effectiveness trial of medication management strategy rather than a mechanistic test of a new compound \u2014 both arms use the same drug class, making causal-chain edge updates less informative than in a typical drug vs. placebo trial. The resolved graph entities map all compounds to HTR2A/serotonin receptor chains except olanzapine (DRD2), which may not fully reflect the multi-receptor pharmacology of these agents."
+}

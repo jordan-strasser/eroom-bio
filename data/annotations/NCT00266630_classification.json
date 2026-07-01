@@ -1,0 +1,194 @@
+{
+  "nct_id": "NCT00266630",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct PD/PK target engagement biomarker (e.g., D2 receptor occupancy) was reported. However, olanzapine is a well-established D2/5-HT2A antagonist with extensive prior evidence of target engagement. The metabolic biomarker changes (weight gain, lipid changes, glucose changes) are consistent with olanzapine's known pharmacological profile, providing indirect evidence of drug activity. DIEPSS scores (extrapyramidal side effects) were minimal in the monotherapy arm (0.05 change), consistent with atypical antipsychotic D2 partial occupancy at therapeutic doses.\n\n2. PATHWAY MODULATION: The downstream biology (mood stabilization via dopaminergic modulation) was engaged. In the monotherapy arm, 97/100 participants achieved manic response and 93/100 achieved remission of mania, with CGI-BP severity remaining stable at ~1.7-1.9 (already low at baseline, indicating patients were in remission/maintenance). In the combination arm, CGI-BP improved dramatically from 4.7 to 2.9, and YMRS dropped by -19.8 points, indicating robust pathway modulation when olanzapine was combined with mood stabilizers.\n\n3. CLINICAL TRANSLATION: Both arms met their primary endpoints. The monotherapy arm showed a YMRS change of -3.0 (95% CI: -4.10 to -1.90), which is modest in absolute terms but reflects a maintenance population already at low YMRS at baseline (CGI-BP ~1.7-1.9). The combination arm showed a much larger YMRS change of -19.8 (95% CI: -25.58 to -14.06), consistent with treating an active manic episode. Both arms demonstrated clinical success per the trial's pre-specified criteria.\n\n4. POPULATION EFFECTS: The monotherapy arm enrolled patients already in remission/maintenance (low baseline YMRS, CGI-BP ~1.7-1.9), while the combination arm enrolled patients with active mania (CGI-BP ~4.7). This explains the differential effect sizes. The combination arm's dramatic improvement reflects both the higher baseline severity and the additive effects of mood stabilizers. No formal subgroup analyses by biomarker were reported.\n\n5. CONFOUNDERS: The trial lacks a placebo arm, making it difficult to attribute the monotherapy arm's small YMRS change entirely to olanzapine vs. natural disease course. The monotherapy arm's low baseline YMRS suggests a floor effect. No p-values were reported, limiting statistical interpretation. The combination arm's large effect size is compelling but confounded by the contribution of the mood stabilizers themselves. Despite these limitations, both arms met their pre-specified success criteria.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "No p-values reported; sample size of 139 total (100 monotherapy, ~38 combination) is modest. The absence of a placebo arm and formal statistical testing limits the strength of conclusions, particularly for the monotherapy arm where the effect size is small (-3.0 YMRS points)."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "olanzapine",
+      "target_entity": "ENSG00000149295",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_monotherapy",
+      "reasoning": "Olanzapine monotherapy produced clinical antimanic effects (97/100 manic response, 93/100 remission) consistent with D2 receptor engagement. Metabolic side effects (weight gain, lipid changes) are consistent with olanzapine's known pharmacological profile. No direct receptor occupancy data reported, so moderate rather than strong support."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_monotherapy",
+      "reasoning": "Clinical antimanic response in the monotherapy arm is consistent with D2 receptor modulation driving dopaminergic pathway changes. DIEPSS minimal change (0.05) is consistent with atypical antipsychotic D2 occupancy at therapeutic levels. No direct pathway biomarker reported, so moderate support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e63ed25182e9",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_monotherapy",
+      "reasoning": "Dopamine receptor modulation translated to mood stabilization biology as evidenced by high remission rates (93/100) and stable CGI-BP scores in the monotherapy arm."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e63ed25182e9",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_monotherapy",
+      "reasoning": "Mood stabilization via dopaminergic modulation drove clinical benefit in bipolar disorder (manic episode), with 97% manic response and 93% remission in the monotherapy arm."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "olanzapine",
+      "target_entity": "ENSG00000149295",
+      "support": "strong_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Olanzapine in combination produced a large YMRS reduction (-19.8 points) with dramatic CGI-BP improvement (4.7 to 2.9), strongly consistent with D2 receptor engagement contributing to antimanic effects."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "D2 receptor engagement modulating dopaminergic pathways is supported by the combination arm's robust antimanic response, though the contribution of mood stabilizers cannot be fully separated."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e63ed25182e9",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Dopamine receptor modulation contributed to mood stabilization biology in the combination arm, as evidenced by large YMRS reduction and CGI-BP improvement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e63ed25182e9",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Mood stabilization biology drove clinical benefit in bipolar disorder in the combination arm, with YMRS reduction of -19.8 and CGI-BP improvement from 4.7 to 2.9."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "lithium",
+      "target_entity": "ENSG00000105723",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Lithium's contribution to the combination arm's success (-19.8 YMRS vs -3.0 monotherapy) is consistent with GSK3A engagement, though individual drug contributions cannot be separated."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000105723",
+      "target_entity": "R-HSA-198323",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Lithium's GSK3A inhibition modulating AKT signaling is inferred from the combination arm's superior outcome, but no direct pathway biomarker was measured."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198323",
+      "target_entity": "bio:92833e04798c",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "AKT pathway modulation contributing to neuronal signal transduction and mood stabilization is inferred from combination arm success but not directly measured."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:92833e04798c",
+      "target_entity": "bipolar_disorder",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Neuronal signal transduction modulation contributing to bipolar disorder benefit is inferred from combination arm success but individual drug contributions are confounded."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "valproate",
+      "target_entity": "ENSG00000112294",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Valproate's contribution to the combination arm's superior antimanic effect is consistent with ALDH5A1/GABA pathway engagement, though individual contributions cannot be isolated."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112294",
+      "target_entity": "R-HSA-916853",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Valproate modulating GABA degradation pathway is inferred from combination arm success but not directly measured in this trial."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-916853",
+      "target_entity": "bio:8a81610303c0",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "GABAergic neurotransmission enhancement contributing to mood stabilization is inferred from combination arm success but not directly measured."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8a81610303c0",
+      "target_entity": "bipolar_disorder",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "GABAergic mood stabilization biology contributing to bipolar disorder benefit is inferred from combination arm success but individual drug contributions are confounded."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "carbamazepine",
+      "target_entity": "ENSG00000144285",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Carbamazepine's contribution to the combination arm's superior antimanic effect is consistent with SCN1A sodium channel blockade, though individual contributions cannot be isolated."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000144285",
+      "target_entity": "GO:0035725",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Carbamazepine modulating sodium ion transmembrane transport is inferred from combination arm success but not directly measured in this trial."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0035725",
+      "target_entity": "bio:e8e24acce6e9",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Sodium channel blockade contributing to neuronal membrane stabilization and mood stabilization is inferred from combination arm success but not directly measured."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e8e24acce6e9",
+      "target_entity": "bipolar_disorder",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_mood_stabilizer",
+      "reasoning": "Neuronal membrane stabilization contributing to bipolar disorder benefit is inferred from combination arm success but individual drug contributions are confounded."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_3_week_endpoint_young_mania_rating_scale_ymrs",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "YMRS total score change is a well-validated, regulator-accepted endpoint for bipolar mania trials. Both arms met their endpoints using this measure, and it was supported by concordant CGI-BP improvements, confirming its utility for capturing clinical benefit in bipolar disorder."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active__ymrs_high",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The combination arm enrolled patients with active mania (CGI-BP ~4.7, high YMRS) and showed a large treatment effect (-19.8 YMRS change), while the monotherapy arm enrolled patients already in remission (CGI-BP ~1.7-1.9, low YMRS) and showed a smaller effect (-3.0). This differential response by baseline severity/activity status supports that patients with high YMRS/active mania respond more robustly to treatment."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values reported for either arm, making formal statistical interpretation impossible. The monotherapy arm's small effect size (-3.0 YMRS) in a population already at low baseline severity raises questions about clinical meaningfulness and whether this represents a true treatment effect vs. floor effect or natural disease stability. The lack of a placebo arm prevents attribution of the monotherapy arm's outcome to olanzapine specifically. The combination arm's large effect (-19.8) cannot be decomposed into individual drug contributions. Expert review is needed to assess whether the monotherapy arm's success classification is appropriate given the low baseline severity and absence of statistical testing."
+}

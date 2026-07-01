@@ -1,0 +1,34 @@
+{
+  "nct_id": "NCT00625547",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that cabergoline or levodopa engaged dopamine D2/D3 receptors in this trial. Both compounds have well-established mechanisms from prior literature (cabergoline as a D2/D3 agonist; levodopa as a dopamine precursor), but this trial provides no direct engagement evidence. 2. PATHWAY MODULATION: No pathway biomarker data is reported. Dopaminergic modulation of sensorimotor symptoms cannot be confirmed or refuted from this trial's data. 3. CLINICAL TRANSLATION: Both primary endpoints (IRLSSG-RS change at Week 6 and time to dropout due to augmentation/loss of efficacy) have outcome=unknown and no effect size or p-value is reported. The trial appears to have been terminated or completed without a usable efficacy readout being extracted. With 361 patients enrolled and a 30-week duration, this was a substantive trial, but no numeric results are available. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The absence of any efficacy readout despite a reasonably sized trial (n=361) and a 30-week duration suggests either a commercial/administrative termination, a data reporting issue, or the trial was stopped before the primary endpoint was reached. The primary endpoint outcome is listed as 'unknown' for both arms, which is the defining criterion for insufficient_information. This is not a case of a clearly missed endpoint \u2014 there is simply no efficacy readout available to classify the mechanistic chain. Given that no primary endpoint result was reported and no comparator benchmark is available from this extraction, this falls into the insufficient_information category. The trial cannot be used to update the causal chain in either direction.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Both arms report outcome=unknown for the primary endpoint (IRLSSG-RS change at Week 6), with no effect size, p-value, or secondary endpoint data reported. No biomarker, safety, or adverse event data is available. The trial cannot provide a usable efficacy or safety readout for mechanistic classification."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_end_maintenance_period_international_restless",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (IRLSSG-RS total score change) is a validated PRO instrument for RLS and is generally accepted as capturing disease burden, but no result was reported in this trial, so its translatability to clinical benefit cannot be assessed here. Ambiguous is appropriate given the absence of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No efficacy results were reported for either arm, so the response of this population to dopaminergic treatment cannot be assessed from this trial. Ambiguous is the appropriate bucket when no informative signal is available."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Both arms report outcome=unknown with no numeric efficacy data, p-values, or biomarker readouts despite a 361-patient, 30-week trial. It is unclear whether the trial was terminated early, whether results were never published/reported, or whether there is a data extraction issue. Expert review is needed to determine whether results exist in a publication or regulatory filing that could enable mechanistic classification. The operational_failure flag is set because the absence of any efficacy readout suggests the causal chain was not given a fair test in the extractable record."
+}

@@ -1,0 +1,50 @@
+{
+  "nct_id": "NCT04107480",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available. The trial reports no results whatsoever \u2014 primary endpoint met is null, effect size is null, p-value is null, and both arms show outcome=unknown. This is a surgical intervention (endoscopic trans-sphenoidal adenoma resection) vs. dopamine agonists for prolactinoma, with a planned 60-month follow-up. The trial appears to have been registered but no results have been reported, suggesting it was either terminated early, is still ongoing, or results were never posted. 2. PATHWAY MODULATION: Cannot assess \u2014 no data reported. 3. CLINICAL TRANSLATION: Cannot assess \u2014 no primary endpoint data. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The complete absence of any results data (null effect size, null p-value, unknown outcomes for both arms) with a 260.7-week duration listed suggests this trial either did not complete or results were not posted. This constitutes insufficient information \u2014 there is no usable efficacy or safety readout. The trial cannot be classified as a mechanistic success or failure because no endpoint was reported. This is an operational failure scenario where the causal chain was not given a fair test due to lack of reported results.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Primary endpoint met is null, effect size is null, p-value is null, and both arms report outcome=unknown. No biomarker data, no safety signals, no adverse event data. Despite a planned 260.7-week duration, no results have been reported, making it impossible to assess whether the surgical intervention or dopamine agonist comparator achieved the HRQoL or remission endpoints."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_health_related_quality_life",
+      "target_entity": "prolactin_producing_pituitary_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (HRQoL at 12 months and long-term remission at 36 months) was pre-specified for this indication, but no results were reported. The endpoint's ability to capture clinical benefit in prolactinoma cannot be assessed from this trial. HRQoL is a plausible endpoint for prolactinoma given the chronic nature of the condition and treatment burden, but without data the signal is ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "prl_high__prlrecoveryrate_high",
+      "target_entity": "prolactin_producing_pituitary_tumor",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No outcome data was reported for either arm, making it impossible to assess whether this population responded differently. The trial enrolled patients with prolactinoma but no results are available to characterize population-level response."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:919e73a6e91b",
+      "target_entity": "prolactin_producing_pituitary_tumor",
+      "support": "weak_contradict",
+      "affecting_arm_id": "standard_care",
+      "reasoning": "No results were reported for the dopamine agonist arm. Per the mandatory upstream causal-chain emission rule for failure trials, a weak_contradict is emitted. However, given the complete absence of data (not a clean miss), this is at the weakest level. The biology of prolactin suppression via dopaminergic inhibition driving prolactinoma disease is well-established, but this trial contributes no confirmatory evidence."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "bio:919e73a6e91b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "standard_care",
+      "reasoning": "No results were reported. Per the mandatory upstream causal-chain emission rule, a weak_contradict is emitted at the weakest level given the complete absence of data rather than a clean endpoint miss. The mechanism of receptor agonism affecting prolactin suppression biology cannot be assessed from this trial."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial has no reported results despite a 260.7-week duration entry. It is unclear whether the trial was terminated early, is still ongoing, or results were simply not posted to the registry. The complete absence of any efficacy, safety, or biomarker data makes mechanistic classification impossible. Expert review is needed to determine the trial's actual status and whether results exist in other sources. Additionally, the 'intervention' arm (surgical resection) has no corresponding canonical compound id in the resolved graph entities, limiting edge emissions for that arm."
+}

@@ -1,0 +1,74 @@
+{
+  "nct_id": "NCT00216476",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2 receptor engagement by Risperidone LAI is reported. However, risperidone's D2 antagonism is well-established pharmacologically, and the clinical outcomes (relapse prevention, PANSS improvement) are consistent with antipsychotic mechanism. The causal chains in the resolved entities show risperidone LAI mapped to UNKNOWN target, reflecting the absence of direct engagement data in this trial. 2. PATHWAY MODULATION: No pathway biomarkers reported. However, PANSS total score improvement of -9.3 points (p=0.0001) in the Risperidone LAI arm vs -1.1 in Quetiapine arm is consistent with dopaminergic neurotransmission modulation producing antipsychotic effect. CGI improvement of -0.3 (p=0.0001) further supports biological activity. 3. CLINICAL TRANSLATION: The primary endpoint (mean relapse-free period) was clearly met: Risperidone LAI achieved 607 days vs Quetiapine 533 days (p=0.0001). This is a clinically meaningful difference of ~74 days over 104 weeks. Multiple secondary endpoints (PANSS, CGI) also showed significant improvement for Risperidone LAI. Quality of life endpoints (SF-12 PCS, MCS) showed directional improvement but did not reach significance, representing a minor caveat. 4. POPULATION EFFECTS: The aripiprazole arm (n=45) was exploratory and underpowered; its relapse-free period of 314 days was numerically lower but no formal comparison was made. The quetiapine arm showed a 533-day relapse-free period (also p=0.0001 vs baseline), suggesting both active treatments work but Risperidone LAI outperforms quetiapine. No biomarker-defined subgroup analyses were reported. 5. CONFOUNDERS: The trial is adequately powered (n=753 total). The 104-week duration is appropriate for relapse prevention in schizophrenia. The aripiprazole arm was small (n=45) and exploratory, limiting conclusions. Safety profiles were broadly comparable across arms with no dose-limiting toxicity pattern. The trial design (active comparator, not placebo-controlled) means the primary comparison is head-to-head superiority, which was achieved. The SF-12 quality of life endpoints did not reach significance, but these were secondary endpoints. Overall, this is a clear success for Risperidone LAI vs Quetiapine on the primary endpoint.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.6,
+      "evidence": "The aripiprazole arm (n=45) was exploratory and substantially underpowered relative to the other arms (n=329 and n=337), limiting any conclusions about aripiprazole's efficacy. This is a design caveat for the aripiprazole comparison specifically, not for the primary Risperidone LAI vs Quetiapine comparison."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:7bbc7c80719a",
+      "support": "strong_support",
+      "affecting_arm_id": "001",
+      "reasoning": "Risperidone LAI arm achieved 607-day mean relapse-free period (p=0.0001) and PANSS improvement of -9.3 (p=0.0001), strongly supporting that receptor antagonism modulates dopaminergic neurotransmission / antipsychotic biology in schizophrenia."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7bbc7c80719a",
+      "target_entity": "schizophrenia",
+      "support": "strong_support",
+      "affecting_arm_id": "001",
+      "reasoning": "Dopaminergic neurotransmission modulation / antipsychotic effect clearly drives schizophrenia disease course as evidenced by the significant relapse prevention (607 days, p=0.0001) and PANSS/CGI improvements in the Risperidone LAI arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:7bbc7c80719a",
+      "support": "moderate_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Quetiapine arm achieved 533-day mean relapse-free period (p=0.0001 vs baseline) and some PANSS improvement, suggesting serotonin receptor modulation contributes to antipsychotic biology, though it was inferior to Risperidone LAI on the primary endpoint."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7bbc7c80719a",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Quetiapine arm showed meaningful relapse-free period (533 days) supporting that antipsychotic biology drives schizophrenia outcomes, though it was the comparator arm that 'failed' relative to Risperidone LAI."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "RFS",
+      "target_entity": "schizophrenia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The relapse-free period endpoint clearly captured clinical benefit in schizophrenia, with a significant and clinically meaningful difference between arms (p=0.0001), supported by concordant PANSS and CGI secondary endpoints."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second",
+      "target_entity": "schizophrenia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (schizophrenia/schizoaffective disorder patients) responded strongly to Risperidone LAI treatment with 607-day mean relapse-free period at p=0.0001, demonstrating clear population-level response."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102468",
+      "target_entity": "R-HSA-390666",
+      "support": "moderate_support",
+      "affecting_arm_id": "002",
+      "reasoning": "Quetiapine's clinical activity (533-day relapse-free period, some PANSS improvement) is consistent with HTR2A modulating serotonin receptor pathways to produce antipsychotic effect, though no direct PD biomarker data was reported."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

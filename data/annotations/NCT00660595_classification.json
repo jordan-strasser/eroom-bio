@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00660595",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data was reported. The trial used oral quetiapine XR and risperidone, both established antipsychotics with well-characterized D2/5-HT2A receptor antagonism, so target engagement is pharmacologically plausible but was not measured in this trial. 2. PATHWAY MODULATION: No pathway biomarker data available. Cannot assess whether dopaminergic/serotonergic modulation occurred. 3. CLINICAL TRANSLATION: The primary endpoint (PANSS-EC change from baseline at 3 weeks) has outcome=unknown for both arms, with null effect size and null p-value. No efficacy readout was obtained. 4. POPULATION EFFECTS: No subgroup findings reported. Sample size was only 29 patients. 5. CONFOUNDERS: The investigator commentary explicitly states 'Too difficult to recruit patients in the acute setting,' indicating the trial failed due to recruitment/accrual problems rather than a mechanistic failure. With only 29 patients enrolled and no primary endpoint data reported, this is an operational failure \u2014 the causal chain was never adequately tested. The trial was effectively terminated before a meaningful efficacy readout could be obtained, driven by recruitment collapse in the acute inpatient setting. This is a commercial_not_scientific / underpowered / operational failure rather than a mechanistic one. The primary failure mode is underpowered due to recruitment failure, making this an operational failure.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.85,
+      "evidence": "Sample size of only 29 patients with investigator commentary explicitly stating 'Too difficult to recruit patients in the acute setting.' No primary endpoint data was obtained (null effect size, null p-value, outcome=unknown for both arms), indicating the trial failed to accrue sufficient patients to generate a meaningful efficacy readout."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Both arms report outcome=unknown with null effect size and null p-value for the primary endpoint. No efficacy readout was obtained from this trial, making it impossible to assess the mechanistic causal chain."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_2_hours_post_first_intramuscular_im_injection",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (PANSS-EC at 3 weeks) was never measured due to recruitment failure. No efficacy data was obtained, so the endpoint's ability to capture clinical benefit in schizophrenia cannot be assessed from this trial. Ambiguous is appropriate given the complete absence of a readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__panss_high",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled schizophrenic inpatients with acute agitation/excitatory symptoms (high CGI/PANSS population) but failed to generate any efficacy readout due to recruitment collapse. No conclusion can be drawn about whether this population responds differently to antipsychotic treatment for schizophrenia from this trial."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": false,
+  "review_reason": null
+}

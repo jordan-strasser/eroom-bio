@@ -1,0 +1,17 @@
+{
+  "nct_id": "NCT07008417",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This is a bioequivalence (BE) study comparing a test formulation of cabergoline tablets to a reference formulation in healthy volunteers. The primary endpoints are PK parameters (Cmax and AUC0-72h), not clinical efficacy endpoints. No results have been reported \u2014 both arms show outcome=unknown, with null effect sizes and p-values. There is no target engagement data, no biomarker data, and no safety signals reported. 2. PATHWAY MODULATION: Not assessable \u2014 no PD or biomarker data reported. 3. CLINICAL TRANSLATION: Not applicable \u2014 this is a PK/BE study, not a clinical efficacy trial. The primary endpoint is a PK measure (Cmax and AUC), not a clinical outcome. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial has no reported results whatsoever. Both arms show unknown outcomes with null effect sizes and p-values. This trial appears to have been registered but has not yet reported results, or was terminated before the primary endpoint was reached. The study is a bioequivalence assessment in healthy volunteers \u2014 it is not designed to test the mechanistic causal chain from target engagement to clinical benefit. The primary endpoint (Cmax and AUC0-72h) is a pure PK/safety measure, not an efficacy endpoint. Per the rules, the primary endpoint is a pure PK measure (Cmax), which does not speak to indication-level clinical benefit, so endpoint_captures should be skipped. Since no results are available and the trial was not designed to test the therapeutic hypothesis mechanistically, this falls under insufficient_information. The operational_failure flag is set to true because the trial has not produced any usable efficacy or mechanistic readout \u2014 it is a BE study with no reported results, meaning the causal chain was never tested.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.85,
+      "evidence": "Both arms report outcome=unknown with null effect sizes and p-values. No PK results (Cmax, AUC0-72h) have been reported. This is a bioequivalence study in healthy volunteers with a pure PK primary endpoint \u2014 no efficacy or mechanistic readout is available. The trial provides no usable efficacy or safety readout."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This is a bioequivalence study with no reported results (all outcomes unknown, null effect sizes and p-values). The trial has not produced any usable readout. Additionally, the resolved graph entities show UNKNOWN for both the target and population nodes, and the primary endpoint (biomarker_cmax) is a PK measure rather than a clinical efficacy endpoint. No causal-chain edges can be meaningfully updated from this trial. Expert review is needed to confirm whether this trial was terminated early, is still ongoing, or simply has not yet posted results."
+}

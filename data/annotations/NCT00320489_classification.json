@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00320489",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: This trial compares olanzapine pamoate depot (long-acting injectable) vs. oral olanzapine \u2014 both formulations of the same compound targeting DRD2. No direct target engagement biomarker (e.g., D2 receptor occupancy imaging) was measured. However, both arms show similar metabolic side effects (weight gain, prolactin elevation, glucose/lipid shifts) that are known pharmacodynamic consequences of olanzapine's D2/receptor antagonism, suggesting both formulations engaged the target similarly. The biomarker profiles are statistically indistinguishable between arms (all p>0.25), consistent with equivalent target engagement by both formulations.\n\n2. PATHWAY MODULATION: The downstream biology (dopaminergic neurotransmission modulation) appears similarly engaged in both arms, as evidenced by equivalent metabolic/prolactin biomarker profiles. No direct pathway biomarker (e.g., dopamine metabolites) was measured, but the equivalent side-effect profiles strongly imply equivalent pharmacodynamic activity.\n\n3. CLINICAL TRANSLATION: The primary endpoint \u2014 median time to discontinuation \u2014 was not met (depot 644.5 days vs. oral 677.5 days, p=0.612). This is a non-inferiority/superiority comparison between two formulations of the same drug, not a drug vs. placebo comparison. Both arms performed similarly on all clinical endpoints: PANSS total score change (p=0.834), CGI-S change (p=0.282), QLS change (p=0.649), time to relapse (p=0.585), and relapse count (p=0.659). The one statistically significant finding was fewer hospitalization days in the depot arm (0.43 vs. 1.80, p=0.020), suggesting a possible adherence advantage for the depot formulation.\n\n4. POPULATION EFFECTS: No biomarker-defined subgroup showed differential response. The PANSS subgroup analysis showed no difference. The hospitalization days finding favoring depot may reflect better adherence in a real-world outpatient setting, but this was a secondary endpoint.\n\n5. CONFOUNDERS: This is fundamentally a head-to-head comparison of two formulations of the same drug. The primary endpoint failure reflects that the depot formulation did not demonstrate superiority over oral olanzapine on time to discontinuation \u2014 not that olanzapine itself failed. Both arms likely had adequate target engagement. The trial design (active comparator, not placebo) means the failure is about formulation equivalence, not mechanism. The trial was adequately powered (n=524, 104 weeks). The failure mode is best characterized as the depot formulation not demonstrating superiority over oral on the primary endpoint, with the biology_drives and mechanism_affects edges for olanzapine itself being supported by both arms' clinical activity (both maintained patients for ~644-677 days before discontinuation). The primary failure is that the depot did not outperform oral on the pre-specified primary endpoint \u2014 this is a formulation/delivery comparison failure rather than a mechanistic failure of olanzapine itself.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Both arms showed equivalent pharmacodynamic profiles (metabolic markers, prolactin) consistent with D2 engagement, and both maintained patients for ~644-677 days. The primary endpoint (time to discontinuation) showed no difference between depot and oral formulations (p=0.612), suggesting the depot delivery advantage did not translate to a clinically meaningful improvement in the primary endpoint vs. oral comparator."
+    },
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.45,
+      "evidence": "The trial tests a depot (long-acting injectable) formulation vs. oral olanzapine. The hypothesis was that improved adherence via depot delivery would improve outcomes. The primary endpoint failure suggests the depot delivery advantage (if any) did not translate to superior time to discontinuation, though the secondary hospitalization endpoint did favor depot (p=0.020)."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "olanzapine",
+      "target_entity": "ENSG00000149295",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_pamoate_depot",
+      "reasoning": "Equivalent metabolic and prolactin biomarker profiles in both arms are consistent with D2/receptor engagement by olanzapine pamoate depot. Weight gain, prolactin elevation, and metabolic shifts are known PD consequences of olanzapine's receptor antagonism, implying target engagement occurred."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "olanzapine",
+      "target_entity": "ENSG00000149295",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Equivalent metabolic and prolactin biomarker profiles confirm D2/receptor engagement by oral olanzapine. Both arms show similar PD side-effect profiles consistent with receptor antagonism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_pamoate_depot",
+      "reasoning": "Prolactin elevation and metabolic changes are downstream consequences of dopamine receptor modulation, suggesting the DRD2 target engagement did modulate the dopamine receptor pathway in both arms."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Same PD biomarker profile in oral arm confirms DRD2 engagement modulated dopamine receptor pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e25d7e68a3a7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_pamoate_depot",
+      "reasoning": "Despite apparent receptor engagement, the primary clinical endpoint (time to discontinuation) was not improved vs. oral comparator (p=0.612), and PANSS/CGI/relapse endpoints also showed no difference. The mechanism did not translate to superior clinical outcomes for the depot formulation."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e25d7e68a3a7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Oral olanzapine arm also failed to show superiority on primary endpoint vs. depot comparator; both arms showed similar clinical outcomes across all endpoints, suggesting the mechanism's translation to the primary endpoint measure is limited."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e25d7e68a3a7",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_pamoate_depot",
+      "reasoning": "The depot arm did not demonstrate superior time to discontinuation vs. oral olanzapine (p=0.612), nor superior PANSS, CGI, or relapse outcomes. The biology modulation did not drive differential clinical benefit on the primary endpoint."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e25d7e68a3a7",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Oral olanzapine arm similarly failed to show superiority; both arms performed equivalently across clinical endpoints, limiting the signal for dopaminergic modulation driving differential schizophrenia outcomes in this comparison."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_time_discontinuation_any_reason_excluding",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Time to discontinuation for any reason is a composite endpoint that captures treatment persistence but may not cleanly capture schizophrenia disease benefit \u2014 both arms had very long median times (~644-677 days) suggesting both formulations maintained patients well, but the endpoint did not discriminate between formulations. The hospitalization days secondary endpoint did show a significant difference (p=0.020), suggesting the primary endpoint may not have been the most sensitive measure of depot advantage."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_second",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (outpatients with schizophrenia, likely second-line given depot context) did not show differential response between depot and oral formulations on the primary endpoint (p=0.612). No subgroup showed a meaningful differential response."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This trial is a head-to-head formulation comparison (depot vs. oral olanzapine) rather than a drug vs. placebo trial. The failure mode classification is complicated because both arms represent the same active compound \u2014 the 'failure' is about formulation superiority, not mechanism. The hospitalization days secondary endpoint significantly favored depot (p=0.020), suggesting a possible real-world adherence advantage that the primary endpoint (time to discontinuation in a controlled trial setting) may not have captured. Expert review is needed to determine whether the primary endpoint was appropriate for detecting a depot adherence advantage, and whether the trial's active-comparator design should be interpreted differently for graph edge updates (both arms support olanzapine's mechanism, but neither arm provides a placebo-controlled test of the mechanism itself)."
+}

@@ -1,0 +1,22 @@
+{
+  "nct_id": "NCT03992196",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data was collected to confirm dopamine receptor engagement. The trial's primary endpoint was purely a safety measure (TEAE rate), not a mechanistic readout. No target engagement evidence is available.\n\n2. PATHWAY MODULATION: No pathway biomarkers or pharmacodynamic markers were reported. Secondary efficacy outcomes (IRLS, CGI, RLS-6) were not reportable due to N<3 in subgroups, meaning no downstream biology assessment is possible.\n\n3. CLINICAL TRANSLATION: The primary endpoint was a safety/tolerability measure (TEAE rate), not an efficacy endpoint. The trial was a long-term safety follow-up study for adolescents who completed the parent study SP1006. There is no efficacy readout \u2014 the trial was terminated by sponsor decision (commercial/strategic), not for safety reasons. The TEAE rates (100% and 85.7%) are high but no TEAEs led to withdrawal, suggesting tolerability was acceptable. The trial provides no usable efficacy readout.\n\n4. POPULATION EFFECTS: Secondary efficacy subgroup data was not reportable due to N<3, making any population-level mechanistic inference impossible. The sample size of 10 is extremely small.\n\n5. CONFOUNDERS: The trial was terminated by sponsor decision (commercial, not safety). The primary endpoint was purely a safety measure with no comparator arm. The sample size (N=10) is too small for any meaningful efficacy inference. The secondary efficacy endpoints were not reportable. This is fundamentally a safety follow-up study that was commercially terminated, providing no usable efficacy readout about the mechanistic causal chain.",
+  "failure_modes": [
+    {
+      "mode": "commercial_not_scientific",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states 'Sponsor decision to terminate; not a safety decision.' The trial was a long-term safety follow-up with no efficacy primary endpoint, terminated for commercial/strategic reasons."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.8,
+      "evidence": "Primary endpoint was TEAE rate (safety only, no efficacy readout). Secondary efficacy outcomes (IRLS, CGI, RLS-6) were not reportable due to N<3 in subgroups. No comparator arm. N=10 total. The trial provides no usable efficacy signal about the mechanistic causal chain."
+    }
+  ],
+  "edges_to_update": [],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "This trial is a long-term safety follow-up (open-label, single-arm, N=10) with a purely safety primary endpoint and no efficacy readout. Secondary efficacy endpoints were not reportable due to N<3 in subgroups. The trial was terminated by sponsor commercial decision. There are no resolved graph entities provided, making it impossible to emit any causal-chain edge updates. Expert review is needed to determine whether any data from this trial can be linked to the parent study SP1006 for a combined mechanistic inference, and whether the graph should be updated based on the parent study rather than this follow-up."
+}

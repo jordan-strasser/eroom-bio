@@ -1,0 +1,92 @@
+{
+  "nct_id": "NCT00156065",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is reported. Asenapine is a known D2/5-HT2A antagonist and haloperidol a known D2 antagonist; target engagement is assumed from pharmacology but not directly measured in this trial. Per round-28 AFFECTS rule, no affects record is emitted for the asenapine arms (no direct engagement evidence), and no affects record for haloperidol either.\n\n2. PATHWAY MODULATION: No pathway biomarker data is available. The mechanism (receptor antagonism \u2192 dopaminergic/serotonergic modulation) is assumed but not directly confirmed in this trial.\n\n3. CLINICAL TRANSLATION: The primary endpoint (Kaplan-Meier estimate of time to loss of effect over 52 weeks) was not formally met \u2014 no p-value is reported and the primary_endpoint_met field is null. The asenapine/asenapine arm had the shortest median survival time of effect (31 days), worse than both placebo/asenapine (57 days) and haloperidol/haloperidol (85 days). This is a concerning signal: asenapine-treated patients who continued asenapine lost effect faster than those switched from placebo to asenapine, and both asenapine arms performed worse than haloperidol. This suggests asenapine did not demonstrate superiority or even non-inferiority to haloperidol in maintaining effect, and the asenapine/asenapine arm's 31-day median is numerically inferior to placebo/asenapine (57 days), raising questions about tolerance or selection effects.\n\n4. POPULATION EFFECTS: The population was enriched for prior responders (\u226530% PANSS decrease in the preceding short-term trial). Loss-of-effect events were concentrated in the first 4 weeks across all arms, suggesting early relapse risk regardless of treatment. After week 12, events were rare. The placebo/asenapine arm (patients who had been on placebo and switched to asenapine) had a longer median survival of effect (57 days) than the asenapine/asenapine arm (31 days), which is counterintuitive and may reflect selection bias (placebo non-responders were not enrolled, so placebo/asenapine patients may have been more treatment-naive to asenapine).\n\n5. CONFOUNDERS: (a) No p-value is reported, making formal statistical inference impossible. (b) The trial design is complex \u2014 it is a long-term extension of a short-term trial, with arms defined by prior treatment assignment. (c) The asenapine/asenapine arm had the largest sample size (92) but worst outcome, which is not consistent with a power issue. (d) The haloperidol arm performed best numerically (85 days), suggesting the comparator was effective. (e) The overall KM estimates of loss of effect (~0.86\u20130.94 across arms) suggest most patients in all arms eventually lost effect, which may reflect the natural course of schizophrenia in this population. The trial outcome is classified as 'partial' because all arms showed some maintenance of effect but asenapine did not demonstrate superiority over haloperidol or a clear advantage over placebo-to-asenapine switch, and no formal statistical conclusion was reached.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.45,
+      "evidence": "Asenapine is pharmacologically active (D2/5-HT2A antagonism is established), and patients had prior response in the short-term trial, suggesting the biology was engaged. However, the asenapine/asenapine arm had the worst median survival of effect (31 days) compared to haloperidol (85 days) and placebo/asenapine (57 days), indicating the drug did not translate prior biological response into sustained clinical maintenance."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.35,
+      "evidence": "The asenapine/asenapine arm (patients who responded to asenapine short-term and continued) had worse outcomes than the placebo/asenapine arm (patients who were on placebo and switched to asenapine). This may suggest that the population continuing asenapine had already exhausted their response or developed tolerance, making this a suboptimal population for demonstrating long-term maintenance."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.4,
+      "evidence": "No p-value is reported for the primary endpoint comparison, and the primary_endpoint_met field is null. The total sample size of 187 across three arms (92 asenapine/asenapine, 50 placebo/asenapine, 43 haloperidol/haloperidol) may have been insufficient to detect statistically significant differences in time-to-loss-of-effect, particularly given the high event rates in the first 4 weeks."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:0154f8af548e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "asenapine_asenapine",
+      "reasoning": "The asenapine/asenapine arm had the worst median survival of effect (31 days), worse than both comparators. No biomarker data confirms pathway modulation. The mechanism (dopamine receptor antagonism \u2192 dopaminergic/serotonergic modulation) did not translate to sustained clinical maintenance in this arm, providing weak contradict evidence for the mechanism_affects edge."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0154f8af548e",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "asenapine_asenapine",
+      "reasoning": "The asenapine/asenapine arm failed to maintain effect over 52 weeks (median 31 days), suggesting that dopaminergic and serotonergic modulation via asenapine did not robustly drive sustained disease control in schizophrenia in this long-term maintenance setting."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:0154f8af548e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "placebo_asenapine",
+      "reasoning": "The placebo/asenapine arm (switched from placebo to asenapine) had a median survival of effect of 57 days, which is numerically better than asenapine/asenapine but still without formal statistical support. No biomarker data available. Weak contradict given the absence of demonstrated superiority."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0154f8af548e",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "placebo_asenapine",
+      "reasoning": "The placebo/asenapine arm showed a median survival of effect of 57 days without formal statistical significance, providing weak contradict evidence that dopaminergic/serotonergic modulation via asenapine drives sustained schizophrenia control."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:af79147b8655",
+      "support": "weak_support",
+      "affecting_arm_id": "haloperidol_haloperidol",
+      "reasoning": "Haloperidol had the best median survival of effect (85 days) among the three arms, providing weak support that serotonin receptor modulation (and D2 antagonism via haloperidol) affects dopaminergic modulation in psychosis. However, no formal statistical significance is reported."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:af79147b8655",
+      "target_entity": "schizophrenia",
+      "support": "weak_support",
+      "affecting_arm_id": "haloperidol_haloperidol",
+      "reasoning": "Haloperidol's numerically superior median survival of effect (85 days) provides weak support that dopaminergic modulation drives schizophrenia maintenance, though no p-value is available to confirm statistical significance."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_loss_effect_time",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The time-to-loss-of-effect endpoint was measured across all arms, but no formal p-value or statistical comparison was reported. The endpoint is clinically relevant for maintenance trials in schizophrenia, but the lack of statistical analysis and the counterintuitive ordering of arms (asenapine/asenapine worst, placebo/asenapine intermediate, haloperidol best) makes interpretation ambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgis_low__severity_mild",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (prior responders with \u226530% PANSS decrease, likely mild-to-moderate severity at entry) did not show a clear differential response to asenapine vs. haloperidol or placebo-to-asenapine switch. The asenapine/asenapine arm performed worst, suggesting this population did not respond differentially better to asenapine continuation."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint comparison, making formal statistical inference impossible. The counterintuitive finding that asenapine/asenapine (31 days) performed worse than placebo/asenapine (57 days) and haloperidol (85 days) may reflect selection bias from the preceding short-term trial design (patients who responded to asenapine short-term may have been at higher risk of early relapse due to tolerance or regression to the mean). The trial design as a long-term extension with arms defined by prior treatment assignment complicates causal interpretation. Expert review is needed to assess whether the arm differences reflect true pharmacological differences or trial design artifacts."
+}

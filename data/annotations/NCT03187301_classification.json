@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT03187301",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Strong evidence of target engagement. Apomorphine PK data shows dose-proportional exposure (Cmax 4.16\u20139.29 ng/mL, AUClast 7.55\u201312.1 h*ng/mL across 10\u201335 mg doses). MDS-UPDRS Part III improvements of -26.3 to -31.3 units at 60 min post-dose and ~90% of patients still ON at 90 min confirm functional dopamine receptor agonism. 2. PATHWAY MODULATION: The downstream biology (restoration of dopaminergic motor signaling) clearly moved \u2014 rapid onset of motor benefit (median time to ON: 30 min) and durable response (~90% ON at 90 min) confirm the mechanism is operating as intended. 3. CLINICAL TRANSLATION: This is a thorough QT/QTc (TQT) cardiac safety study, not a primary efficacy trial. The primary endpoint was \u0394\u0394QTcF vs placebo. The maximum \u0394\u0394QTcF was 6.2 ms (90% CI: 2.7\u20139.7), which is below the 10 ms regulatory threshold of concern. The moxifloxacin positive control confirmed assay sensitivity (\u0394\u0394QTcF 12.3 ms). The primary cardiac safety endpoint was met (no clinically meaningful QTc prolongation). 4. POPULATION EFFECTS: No subgroup analyses were pre-specified for differential response; the trial enrolled PD patients with motor fluctuations. The motor benefit data (MDS-UPDRS improvement) is consistent across the dose titration phase. 5. CONFOUNDERS: This is a crossover TQT study (n=48), which is appropriate for cardiac safety assessment. The study design is standard for regulatory TQT requirements. The safety profile shows higher TEAE rates with APL-130277 (27% vs 12.5% placebo) but no serious TEAEs or deaths, and only 1 Grade 3 TEAE. This is an acceptable safety profile for a dopamine agonist. The trial successfully demonstrated cardiac safety (no QTc prolongation concern) and provided supportive evidence of motor efficacy.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "apl_130277",
+      "target_entity": "ENSG00000149295",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "PK data confirms systemic exposure (Cmax 4.16\u20139.29 ng/mL, dose-proportional AUC) and MDS-UPDRS Part III improvement of up to -31.3 units with median ON onset at 30 min directly demonstrates dopamine receptor engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "Rapid motor benefit (MDS-UPDRS Part III -26.3 to -31.3 units at 60 min, ~90% ON at 90 min) confirms that DRD2 engagement activates the dopamine receptor signaling pathway as intended."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:747a0e1c5ce9",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "Dopamine receptor agonism demonstrably restored motor function during OFF episodes \u2014 median time to ON 30 min, ~90% patients ON at 90 min, MDS-UPDRS Part III improvement up to -31.3 units \u2014 confirming the mechanism drives the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:747a0e1c5ce9",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "Restoration of dopaminergic motor signaling produced clinically meaningful motor improvement in PD OFF episodes, supporting the biology-to-indication link. Note: this is a TQT safety study, not a primary efficacy trial, so the motor benefit data is secondary/exploratory."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_time_matched_qtc_placebo_adjusted_corrected",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The TQT endpoint (\u0394\u0394QTcF) was met \u2014 maximum 6.2 ms below the 10 ms regulatory threshold \u2014 with assay sensitivity confirmed by moxifloxacin positive control. This endpoint captures cardiac safety for regulatory purposes in this indication, and the result was unambiguous."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_i__hoehnandyahrscale_low__offtime_high__severity_active",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "PD patients with motor fluctuations (OFF episodes) showed both acceptable cardiac safety (\u0394\u0394QTcF 6.2 ms) and meaningful motor benefit (MDS-UPDRS -26 to -31 units, ~90% ON at 90 min), supporting that this population responds to APL-130277 treatment."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

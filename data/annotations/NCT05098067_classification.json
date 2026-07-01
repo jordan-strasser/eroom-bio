@@ -1,0 +1,68 @@
+{
+  "nct_id": "NCT05098067",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that topical capsaicin engaged TRPV1 receptors. The dose used (5g of 0.075% capsaicin cream applied once) is a low-concentration formulation, and there is no evidence of TRPV1 desensitization or nociceptor depletion being measured. Per the round-28 AFFECTS rule, no affects edge is emitted for capsaicin since target engagement was not demonstrated or implied.\n\n2. PATHWAY MODULATION: No pathway biomarkers were reported. There is no evidence that peripheral sensory modulation via TRPV1 desensitization occurred. The mechanism (receptor desensitization/nociceptor depletion) requires sustained or high-concentration capsaicin exposure, and a single topical application of 0.075% cream is unlikely to achieve meaningful TRPV1 desensitization within a 180-minute window.\n\n3. CLINICAL TRANSLATION: The primary endpoint (time to symptom control within 180 minutes) was not met. The intervention arm showed a median time of 72 minutes vs. 87 minutes in the placebo arm \u2014 a numerically favorable but small difference (15 minutes). No p-value was reported, and with only 30 patients total, the study was almost certainly underpowered to detect this modest difference. The primary endpoint was marked as not met.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population (pregnant patients with nausea/vomiting of pregnancy or hyperemesis gravidarum) is appropriate for an antiemetic intervention, but the mechanism of topical capsaicin for this indication has weak biological rationale.\n\n5. CONFOUNDERS: Multiple confounders are present: (a) The study is very small (N=30), making it severely underpowered. (b) Both arms received standard antiemetic therapy (metoclopramide + ondansetron + IV fluids), creating a high background treatment effect that would compress any detectable difference. (c) No p-value was reported, suggesting the analysis may not have been completed or the difference was not statistically significant. (d) The 180-minute observation window may be too short for topical capsaicin desensitization to manifest. The primary failure modes are underpowering and a high background treatment effect masking any capsaicin-specific signal. The weak biological rationale for topical capsaicin in this indication also contributes.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.8,
+      "evidence": "N=30 total patients across two arms. No p-value reported. A 15-minute difference in median time to symptom control (72 vs 87 min) is a modest effect that would require substantially larger sample sizes to detect with adequate power."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.65,
+      "evidence": "Both arms received active standard-of-care antiemetics (metoclopramide IV + ondansetron IV + IV fluids). The placebo arm achieved symptom control at median 87 minutes, indicating robust background treatment effect that compresses the detectable treatment difference attributable to capsaicin."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.4,
+      "evidence": "The biological rationale for topical capsaicin (TRPV1 desensitization) as an antiemetic in hyperemesis gravidarum is weak. The mechanism is peripheral sensory modulation, but nausea/vomiting of pregnancy has central and hormonal drivers (hCG, serotonin, dopamine pathways) that topical TRPV1 modulation is unlikely to address meaningfully."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "other",
+      "target_entity": "bio:8b15eed8787c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "intervention_group",
+      "reasoning": "The capsaicin TRPV1 desensitization mechanism did not produce a statistically significant improvement over placebo in nausea/vomiting suppression. No p-value reported and the trial was underpowered, but the directional signal is weak (15-minute difference) and the primary endpoint was not met."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:8b15eed8787c",
+      "target_entity": "hyperemesis_gravidarum",
+      "support": "weak_contradict",
+      "affecting_arm_id": "intervention_group",
+      "reasoning": "Peripheral sensory modulation via TRPV1 did not demonstrably drive clinical benefit in hyperemesis gravidarum. The primary endpoint was not met and no p-value was reported, suggesting the biology did not translate to clinical improvement in this indication."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:c7323e895be4",
+      "target_entity": "hyperemesis_gravidarum",
+      "support": "weak_support",
+      "affecting_arm_id": "placebo_group",
+      "reasoning": "The placebo arm (metoclopramide + ondansetron + IV fluids) achieved symptom control at median 87 minutes, consistent with known antiemetic efficacy of dopaminergic and serotonergic blockade in hyperemesis gravidarum. This provides weak support for the antiemetic biology driving benefit in this indication."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_time_symptom_control",
+      "target_entity": "hyperemesis_gravidarum",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Time to symptom control within 180 minutes was measured and reported numerically, but no p-value was provided and the trial was very small (N=30). The endpoint is clinically meaningful for hyperemesis gravidarum but the lack of statistical analysis makes it impossible to determine whether it adequately captured treatment benefit. Ambiguous given the incomplete reporting."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "hyperemesis_gravidarum",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (pregnant patients with nausea/vomiting of pregnancy or hyperemesis gravidarum) did not show a statistically significant response to capsaicin augmentation. Primary endpoint was not met, no p-value reported, and the study was underpowered."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value was reported for the primary endpoint comparison, making it impossible to formally assess statistical significance. The trial may have been too small to complete a proper statistical analysis. Additionally, the biological rationale for topical capsaicin in hyperemesis gravidarum is weak and the mechanism (TRPV1 desensitization via low-concentration topical cream applied once) may not have been pharmacologically adequate to test the hypothesis. Expert review is needed to determine whether the absence of a p-value reflects a statistical analysis failure, underpowering, or a pilot/feasibility design that was never intended to be powered for efficacy."
+}

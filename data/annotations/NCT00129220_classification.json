@@ -1,0 +1,98 @@
+{
+  "nct_id": "NCT00129220",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2/5-HT2A receptor engagement is reported. However, olanzapine's mechanism as a D2/5-HT2A antagonist is well-established pharmacologically, and the clinical response pattern (rapid YMRS reduction) is consistent with receptor antagonism. The trial assumes rather than measures target engagement. 2. PATHWAY MODULATION: No pathway biomarkers reported. The downstream biology (mood stabilization / anti-manic effect) is inferred from clinical response. 3. CLINICAL TRANSLATION: The primary endpoint (YMRS change from baseline at 3 weeks) was met for olanzapine vs placebo: LS mean difference -5.62, p=0.001. Olanzapine showed -12.6 YMRS reduction vs placebo -6.8. At 6 weeks, olanzapine showed -16.0 reduction, similar to haloperidol (-14.7), though the 6-week comparison between active arms was not significant (p=0.774), likely because both active arms improved similarly. The remission rate at 6 weeks favored olanzapine (44.2% vs haloperidol 20.0%, p=0.064), trending but not significant. 4. POPULATION EFFECTS: No formal subgroup analyses by biomarker. The enrolled population (adults with manic/mixed episode Bipolar I, high YMRS) is the appropriate target population. Haloperidol showed numerically greater YMRS reduction at 3 weeks but significantly worse extrapyramidal side effects (DIEPSS 2.70 vs 0.70, p=0.003) and higher depression switch rates (16.7% vs 2.4%). 5. CONFOUNDERS: The trial is a 3-arm RCT (olanzapine, haloperidol, placebo) with n=224. The placebo arm ran only 3 weeks while active arms ran 6 weeks, which limits 6-week comparisons. The primary endpoint at 3 weeks was clearly met. The haloperidol arm's safety profile (EPS, depression switch) represents a meaningful differentiation point favoring olanzapine tolerability. Overall, this is a successful trial: olanzapine met its primary endpoint with statistical significance and clinical meaningfulness, and demonstrated a favorable tolerability profile vs haloperidol.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "The 6-week remission rate comparison (olanzapine 44.2% vs haloperidol 20.0%, p=0.064) trended but did not reach significance, possibly due to limited sample size at 6 weeks given the placebo arm dropped out at 3 weeks. This is a minor caveat on an otherwise successful trial."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "olanzapine",
+      "target_entity": "ENSG00000149295",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine met the primary endpoint with p=0.001, consistent with D2 receptor engagement driving anti-manic effect. No direct binding biomarker measured, but clinical response pattern is mechanistically consistent with D2 antagonism. Per round-28 AFFECTS rule, clinical response implies target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "The clinical anti-manic response of olanzapine is consistent with D2 receptor modulation driving dopamine receptor pathway activity. No direct PD biomarker, but the mechanism is well-established and the clinical signal supports pathway engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:4c599ec5ae78",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Dopamine receptor pathway modulation translated to mood stabilization / anti-manic effect as evidenced by significant YMRS reduction at 3 weeks (p=0.001) and continued improvement at 6 weeks."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4c599ec5ae78",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Mood stabilization / anti-manic biology drove clinical benefit in bipolar disorder manic episode, as demonstrated by significant YMRS improvement vs placebo."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "haloperidol",
+      "target_entity": "ENSG00000102468",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol",
+      "reasoning": "Haloperidol showed significant YMRS reduction at 3 and 6 weeks, consistent with 5-HT2A receptor engagement. The EPS signal (DIEPSS 2.70, p=0.003) also reflects D2 receptor engagement. Clinical response implies target engagement per round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102468",
+      "target_entity": "R-HSA-390666",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol",
+      "reasoning": "Haloperidol's anti-manic effect and serotonin-related side effects (depression switch) are consistent with 5-HT2A receptor modulation driving serotonin receptor pathway activity."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:4c599ec5ae78",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol",
+      "reasoning": "Serotonin receptor pathway modulation by haloperidol translated to anti-manic effect (YMRS reduction at 3 and 6 weeks), supporting this mechanism-to-biology link."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:4c599ec5ae78",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "haloperidol",
+      "reasoning": "Haloperidol's anti-manic biology drove clinical benefit in bipolar disorder, with significant YMRS reductions at both 3 and 6 weeks."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_3_week_endpoint_young_mania_rating_scale_ymrs",
+      "target_entity": "bipolar_disorder",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The YMRS at 3 weeks was the pre-specified primary endpoint, was met at p=0.001 with a clinically meaningful effect size, and is a well-validated, regulator-accepted measure of manic symptom severity in bipolar disorder. Both active arms showed significant improvement, confirming the endpoint captures clinical benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active__ymrs_high",
+      "target_entity": "bipolar_disorder",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (adults with active manic/mixed episode, high YMRS) responded robustly to both olanzapine and haloperidol vs placebo (p=0.001), confirming this population responds to D2/5-HT2A antagonism in bipolar disorder."
+    }
+  ],
+  "confidence_overall": 0.72,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

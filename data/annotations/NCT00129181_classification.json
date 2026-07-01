@@ -1,0 +1,39 @@
+{
+  "nct_id": "NCT00129181",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: The trial used DATscan SPECT imaging to directly measure dopamine transporter density at baseline, 12 weeks, and 20 weeks \u2014 this is a direct target engagement readout. However, no numeric results, effect sizes, or p-values are reported for either arm. Both arms show 'outcome=unknown', meaning no efficacy data was returned from this trial. 2. PATHWAY MODULATION: Cannot be assessed \u2014 no biomarker changes are reported. 3. CLINICAL TRANSLATION: The primary endpoint (change in DAT density by DATscan SPECT) was not reported as met or unmet; all results are null/unknown. 4. POPULATION EFFECTS: No subgroup findings reported. 5. CONFOUNDERS: The trial enrolled only 30 subjects across at least 3 arms (carbidopa/levodopa, cabergoline, and an untreated control), making it substantially underpowered for a mechanistic imaging endpoint. The absence of any numeric results despite a defined primary endpoint and a 20-week duration suggests the trial either failed to complete its primary analysis, was terminated early, or results were never published/reported. The 'unknown' outcome across both treatment arms with null effect sizes and p-values, combined with the very small sample size (N=30 across 3 arms, ~10 per arm), points to an underpowered and likely incomplete trial. Given that no efficacy readout is available, this falls into the insufficient_information category, though underpowering is a contributing factor. The primary endpoint was defined and the imaging methodology was in place, but no results were returned \u2014 this is an operational failure in the sense that the causal chain was not given a fair test due to the combination of very small sample size and apparent failure to report results.",
+  "failure_modes": [
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Primary endpoint result is null, effect size is null, p-value is null, and both arm outcomes are 'unknown'. No biomarker changes reported despite DATscan SPECT being the primary readout. The trial provides no usable efficacy readout."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "Sample size of 30 subjects across at least 3 arms yields approximately 10 subjects per arm \u2014 substantially below what would be needed for adequate power on a neuroimaging biomarker endpoint in Parkinson's disease."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_determine_influence_short_term_levodopa_therapy",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "DATscan SPECT DAT density is a biologically plausible surrogate for nigrostriatal integrity in Parkinson's disease and has been used in regulatory contexts (ELLDOPA, CALM-PD), but this trial returned no numeric results, so the endpoint's ability to capture clinical benefit in this indication cannot be assessed from this trial alone. Ambiguous is appropriate given the absence of any readout."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_ii__severity_mild",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "No primary endpoint results were reported for either treatment arm in this early Parkinson's disease population. The population's differential response cannot be assessed from this trial."
+    }
+  ],
+  "confidence_overall": 0.3,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "All primary endpoint results are null/unknown despite a defined imaging endpoint and 20-week trial duration. It is unclear whether the trial was terminated early, failed to accrue adequately, or simply never published results. With N=30 across 3 arms and no reported outcomes, the mechanistic causal chain was not given a fair test. Expert review is needed to determine whether results exist in unpublished form and whether the trial was formally terminated or completed without reporting."
+}

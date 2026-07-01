@@ -1,0 +1,111 @@
+# DRD2 direction-pooling subset — one DRD2 (ENSG00000149295) node, both
+# directions, multi-indication. Built by scratch/drd2/{pull_ctgov,select}.py.
+# Each NCT: <drug> | <direction(ChEMBL action_type)> | <indication(CT.gov cond)>
+# | phase | status. Direction is stamped natively at build from the ChEMBL
+# mechanism cache (primed via scratch/drd2/mech_cache_primed.json).
+#
+# 100 trials | agonist=50 antagonist=50 | indications=6
+
+# ── agonist ──
+NCT01143584  # cabergoline | agonist | hyperprolactinemia | P? | UNKNOWN | noresults | Macroprolactinoma
+NCT01620138  # cabergoline | agonist | hyperprolactinemia | P2/3 | COMPLETED | results | Non-functioning Pituitary Adenomas
+NCT04107480  # cabergoline | agonist | hyperprolactinemia | P4 | UNKNOWN | noresults | Prolactinoma
+NCT07008417  # cabergoline | agonist | hyperprolactinemia | P1 | ACTIVE_NOT_RECRUITING | noresults | Hyperprolactinemia
+NCT07045935  # cabergoline | agonist | hyperprolactinemia | P4 | RECRUITING | noresults | Prolactinoma
+NCT07124221  # cabergoline | agonist | hyperprolactinemia | P3 | RECRUITING | noresults | Hyperprolactinemia
+NCT07463235  # cabergoline | agonist | hyperprolactinemia | P3 | RECRUITING | noresults | Prolactinoma
+NCT03038308  # ropinirole | agonist | hyperprolactinemia | P1/2 | COMPLETED | results | Hyperprolactinemia
+NCT02006121  # apomorphine | agonist | parkinsons | P3 | COMPLETED | results | Parkinson's Disease
+NCT02228590  # apomorphine | agonist | parkinsons | P2 | COMPLETED | results | Parkinson's Disease
+NCT02469090  # apomorphine | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease, Off Episodes
+NCT02542696  # apomorphine | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT03187301  # apomorphine | agonist | parkinsons | P2 | COMPLETED | results | Parkinson's Disease
+NCT03391882  # apomorphine | agonist | parkinsons | P3 | COMPLETED | results | Motor OFF Episodes Associated With Parki
+NCT00129181  # cabergoline | agonist | parkinsons | P? | COMPLETED | noresults | Parkinson Disease
+NCT00153972  # cabergoline | agonist | parkinsons | P4 | COMPLETED | noresults | Parkinson's Disease
+NCT00174239  # cabergoline | agonist | parkinsons | P4 | TERMINATED | noresults | Parkinson Disease
+NCT00275275  # pramipexole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00466167  # pramipexole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00479401  # pramipexole | agonist | parkinsons | P3 | COMPLETED | results | Early Parkinson Disease (Early PD)
+NCT00558025  # pramipexole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00560508  # pramipexole | agonist | parkinsons | P2/3 | COMPLETED | results | Parkinson Disease
+NCT00577460  # pramipexole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00465452  # ropinirole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00593606  # ropinirole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson's Disease
+NCT00632736  # ropinirole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00650104  # ropinirole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00823836  # ropinirole | agonist | parkinsons | P3 | COMPLETED | results | Parkinson Disease
+NCT00474058  # rotigotine | agonist | parkinsons | P3 | COMPLETED | results | Parkinson's Disease
+NCT00501969  # rotigotine | agonist | parkinsons | P3 | COMPLETED | results | Advanced Stage Parkinson's Disease
+NCT00505687  # rotigotine | agonist | parkinsons | P3 | COMPLETED | results | Idiopathic Parkinson's Disease
+NCT00519532  # rotigotine | agonist | parkinsons | P3 | TERMINATED | results | Parkinson's Disease
+NCT00522379  # rotigotine | agonist | parkinsons | P3 | COMPLETED | results | Parkinson's Disease
+NCT05529095  # apomorphine | agonist | restless_legs | P4 | UNKNOWN | noresults | Restless Legs Syndrome
+NCT00625547  # cabergoline | agonist | restless_legs | P3 | COMPLETED | noresults | Restless Legs Syndrome
+NCT00627003  # cabergoline | agonist | restless_legs | P3 | COMPLETED | noresults | Restless Legs Syndrome
+NCT00390689  # pramipexole | agonist | restless_legs | P3 | COMPLETED | results | Idiopathic Restless Legs Syndrome
+NCT00654498  # pramipexole | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT00806026  # pramipexole | agonist | restless_legs | P3 | COMPLETED | results | Idiopathic Restless Legs Syndrome
+NCT00991276  # pramipexole | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT04759703  # pramipexole | agonist | restless_legs | P2/3 | TERMINATED | results | Sleep Disorder
+NCT00256854  # ropinirole | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT00329602  # ropinirole | agonist | restless_legs | P4 | COMPLETED | results | Restless Legs Syndrome
+NCT00357097  # ropinirole | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT00530790  # ropinirole | agonist | restless_legs | P2 | COMPLETED | results | Restless Legs Syndrome
+NCT00996944  # ropinirole | agonist | restless_legs | P2 | TERMINATED | results | Restless Legs Syndrome
+NCT01537042  # rotigotine | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT01569464  # rotigotine | agonist | restless_legs | P3 | COMPLETED | results | Restless Legs Syndrome
+NCT03728933  # rotigotine | agonist | restless_legs | P3 | TERMINATED | results | Restless Legs Syndrome
+NCT03992196  # rotigotine | agonist | restless_legs | P3 | TERMINATED | results | Restless Legs Syndrome
+
+# ── antagonist ──
+NCT00097266  # haloperidol | antagonist | bipolar_mania | P3 | COMPLETED | noresults | Bipolar Disorder
+NCT00129220  # haloperidol | antagonist | bipolar_mania | P3 | COMPLETED | results | Bipolar Disorder
+NCT00253149  # haloperidol | antagonist | bipolar_mania | P3 | COMPLETED | noresults | Bipolar Disorders
+NCT00159783  # olanzapine | antagonist | bipolar_mania | P3 | COMPLETED | results | Bipolar Disorder
+NCT00259272  # olanzapine | antagonist | bipolar_mania | P3 | COMPLETED | results | Bipolar Disorder I or II
+NCT00266630  # olanzapine | antagonist | bipolar_mania | P3 | COMPLETED | results | Manic or Mixed Episode Associated With B
+NCT00057681  # risperidone | antagonist | bipolar_mania | P3 | COMPLETED | results | Bipolar Disorder
+NCT00176202  # risperidone | antagonist | bipolar_mania | P3 | COMPLETED | results | Bipolar Disorder
+NCT01556932  # haloperidol | antagonist | nausea_vomiting | P? | COMPLETED | results | Nausea
+NCT01594749  # haloperidol | antagonist | nausea_vomiting | P3 | COMPLETED | results | Chemotherapy-Induced Nausea and Vomiting
+NCT02625181  # haloperidol | antagonist | nausea_vomiting | P? | COMPLETED | results | Postoperative Nausea and Vomiting
+NCT03075163  # haloperidol | antagonist | nausea_vomiting | P4 | TERMINATED | results | Vomiting
+NCT05065567  # haloperidol | antagonist | nausea_vomiting | P3 | TERMINATED | results | Cyclic Vomiting Syndrome
+NCT00475306  # metoclopramide | antagonist | nausea_vomiting | P4 | COMPLETED | results | Nausea
+NCT01636947  # metoclopramide | antagonist | nausea_vomiting | P4 | COMPLETED | results | Nausea
+NCT02163434  # metoclopramide | antagonist | nausea_vomiting | P2 | COMPLETED | results | Hyperemesis Gravidarum
+NCT02959840  # metoclopramide | antagonist | nausea_vomiting | P4 | COMPLETED | results | Nausea
+NCT05098067  # metoclopramide | antagonist | nausea_vomiting | P2 | COMPLETED | results | Hyperemesis Gravidarum
+NCT02116530  # olanzapine | antagonist | nausea_vomiting | P3 | COMPLETED | results | Hematopoietic/Lymphoid Cancer
+NCT02484911  # olanzapine | antagonist | nausea_vomiting | P3 | COMPLETED | results | Chemotherapy-induced Nausea and Vomiting
+NCT02939287  # olanzapine | antagonist | nausea_vomiting | P3 | COMPLETED | results | Nausea
+NCT04535141  # olanzapine | antagonist | nausea_vomiting | P3 | COMPLETED | results | Chemotherapy-induced Nausea and Vomiting
+NCT00475085  # prochlorperazine | antagonist | nausea_vomiting | P3 | COMPLETED | results | Nausea
+NCT00590317  # prochlorperazine | antagonist | nausea_vomiting | P2 | COMPLETED | results | Nausea and Vomiting
+NCT00711555  # prochlorperazine | antagonist | nausea_vomiting | P2 | COMPLETED | results | Nausea
+NCT00044044  # haloperidol | antagonist | schizophrenia | P2 | COMPLETED | results | Schizophrenia
+NCT00044655  # haloperidol | antagonist | schizophrenia | P4 | COMPLETED | results | Schizophrenia
+NCT00156065  # haloperidol | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00723606  # haloperidol | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00797277  # haloperidol | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT01136772  # haloperidol | antagonist | schizophrenia | P4 | COMPLETED | results | Schizophrenia
+NCT01157351  # haloperidol | antagonist | schizophrenia | P4 | COMPLETED | results | Schizophrenia
+NCT02431702  # haloperidol | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT04327843  # haloperidol | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00145496  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00174265  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00320489  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00396565  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00401973  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00615433  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00640510  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00645099  # olanzapine | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00132314  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizoaffective Disorder
+NCT00216476  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00435370  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Smoking Cessation
+NCT00589914  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00600756  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenic Disorders
+NCT00604279  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00641745  # risperidone | antagonist | schizophrenia | P3 | COMPLETED | results | Schizophrenia
+NCT00660595  # risperidone | antagonist | schizophrenia | P3 | TERMINATED | results | Schizophrenic Disorders

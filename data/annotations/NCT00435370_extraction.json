@@ -1,0 +1,105 @@
+{
+  "nct_id": "NCT00435370",
+  "therapeutic_hypothesis": {
+    "compound": "Tropisetron + Risperidone",
+    "claimed_target": "5-HT3 receptor",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "cognitive enhancement in schizophrenia via serotonergic modulation",
+    "target_population": "patients with schizophrenia",
+    "primary_endpoint": "MATRICS Cognition Domains composite score at end of 12-week treatment",
+    "rationale_strength": "moderate"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Tropisetron: 96 vs Placebo: 95 (MATRICS composite score)",
+    "p_value": 0.05,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [],
+    "safety_signals": [],
+    "dose_info": {
+      "dose": "Tropisetron 10 mg/day; Risperidone 6 mg/day",
+      "schedule": "daily",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": []
+  },
+  "context": {
+    "indication": "schizophrenia",
+    "comparator": "placebo plus risperidone",
+    "sample_size": 179,
+    "duration": "12 weeks",
+    "duration_weeks": 12.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "tropisetron",
+      "compounds": [
+        "tropisetron",
+        "risperidone"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo",
+        "risperidone"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "tropisetron",
+      "intervention": "tropisetron",
+      "subgroup_descriptor": null,
+      "endpoint": "MATRICS Cognition Domains composite score",
+      "effect_size": 96.0,
+      "p_value": 0.05,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "serotonergic modulation of cognitive function",
+      "population_description": "patients with schizophrenia receiving risperidone background therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "tropisetron",
+      "intervention": "risperidone",
+      "subgroup_descriptor": null,
+      "endpoint": "MATRICS Cognition Domains composite score",
+      "effect_size": 96.0,
+      "p_value": 0.05,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "dopaminergic and serotonergic modulation of psychotic symptoms and cognition",
+      "population_description": "patients with schizophrenia receiving risperidone background therapy",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "placebo",
+      "intervention": "risperidone",
+      "subgroup_descriptor": null,
+      "endpoint": "MATRICS Cognition Domains composite score",
+      "effect_size": 95.0,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "dopaminergic and serotonergic modulation of psychotic symptoms and cognition",
+      "population_description": "patients with schizophrenia receiving placebo plus risperidone background therapy",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "tropisetron",
+      "primary_compound_id": "risperidone",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.72,
+      "hypothesis": "5-HT3 antagonism by tropisetron augments the cognitive-enhancing effects of risperidone by further modulating serotonergic signaling in prefrontal circuits",
+      "citation": "Tropisetron: 96 vs Placebo: 95, p < 0.05 (ANCOVA)"
+    }
+  ]
+}

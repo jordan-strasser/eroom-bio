@@ -1,0 +1,95 @@
+{
+  "nct_id": "NCT01620138",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Pasireotide is a multi-receptor somatostatin analogue with high affinity for SSTR1-5. Cabergoline is a dopamine D2 receptor agonist. No direct target engagement biomarker (e.g., receptor occupancy, downstream signaling assay) is reported, but tumor volume reduction by MRI and prolactin level changes serve as functional readouts of target engagement. The dose escalation protocol for prolactinoma patients (600\u2192900 \u00b5g twice daily) suggests PK/PD-guided dosing. 2. PATHWAY MODULATION: Tumor volume measured by MRI at baseline and 6 months serves as a surrogate for somatostatin receptor-mediated growth suppression. Prolactin level changes in the resistant prolactinoma cohort reflect dopamine/somatostatin receptor-mediated hormone secretion inhibition. These are downstream pathway readouts, though not direct molecular pathway biomarkers. 3. CLINICAL TRANSLATION: The pasireotide arm met the primary endpoint: median tumor volume 3.8 cm\u00b3 (95% CI 3.46\u20134.58) vs. cabergoline 29.35 cm\u00b3 (95% CI 2.55\u201351.93), p=0.05. This is a statistically significant difference favoring pasireotide for NFPA tumor volume control. The cabergoline arm failed for NFPA tumor volume (effect_size=29.35, no p-value reported, outcome=failure). The prolactinoma cohort treated with pasireotide showed prolactin level changes, though the outcome for this subgroup is folded into the overall success. 4. POPULATION EFFECTS: The trial enrolled two distinct populations: NFPA patients (randomized to pasireotide vs. cabergoline) and cabergoline-resistant prolactinoma patients (treated with pasireotide only, non-randomized). The NFPA subgroup showed clear benefit for pasireotide over cabergoline. The prolactinoma subgroup was uncontrolled. The sample size is very small (N=21 total), limiting generalizability. 5. CONFOUNDERS: The trial is small (N=21), which raises underpowering concerns, particularly for the cabergoline arm in NFPA. The p=0.05 is borderline. The cabergoline arm was only evaluated for NFPA (not prolactinoma), making cross-arm comparison asymmetric. The prolactinoma cohort was not randomized. The trial is classified as 'partial' because pasireotide succeeded in NFPA vs. cabergoline, but cabergoline failed in NFPA, and the prolactinoma arm was single-arm without a comparator. The overall trial outcome is partial: one arm succeeded, one failed, with design limitations.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.65,
+      "evidence": "Total sample size of 21 patients across two populations (NFPA and prolactinoma) and two arms is very small. The p=0.05 borderline result and wide confidence intervals (cabergoline: 95% CI 2.55\u201351.93 cm\u00b3) suggest insufficient power, particularly for the cabergoline NFPA arm."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "Cabergoline is not a standard treatment for NFPA (which typically lacks dopamine receptor expression), so its failure in the NFPA arm may reflect a wrong-population/wrong-mechanism issue rather than a drug failure per se. The prolactinoma cohort was cabergoline-resistant, making it a selected population for pasireotide rescue."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "pasireotide",
+      "target_entity": "ENSG00000180616",
+      "support": "moderate_support",
+      "affecting_arm_id": "pasireotide",
+      "reasoning": "Pasireotide demonstrated tumor volume reduction in NFPA and prolactin changes in resistant prolactinoma, consistent with somatostatin receptor engagement. No direct binding assay reported, but functional PD readouts support target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000180616",
+      "target_entity": "GO:0038170",
+      "support": "moderate_support",
+      "affecting_arm_id": "pasireotide",
+      "reasoning": "Tumor volume suppression and prolactin inhibition are downstream readouts of somatostatin signaling pathway activation, supporting that SSTR2 engagement modulates the somatostatin signaling pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0038170",
+      "target_entity": "bio:a81885e94cb1",
+      "support": "moderate_support",
+      "affecting_arm_id": "pasireotide",
+      "reasoning": "Pasireotide arm showed statistically significant tumor volume reduction (p=0.05) vs. cabergoline in NFPA, and prolactin changes in resistant prolactinoma, supporting that somatostatin signaling pathway modulation affects pituitary tumor growth suppression and hormone secretion inhibition."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:a81885e94cb1",
+      "target_entity": "non_functioning_pituitary_adenoma",
+      "support": "moderate_support",
+      "affecting_arm_id": "pasireotide",
+      "reasoning": "Tumor volume reduction in NFPA patients treated with pasireotide supports that pituitary tumor growth suppression biology drives the NFPA indication."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "cabergoline",
+      "target_entity": "ENSG00000149295",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cabergoline",
+      "reasoning": "Cabergoline failed to reduce tumor volume in NFPA (median 29.35 cm\u00b3, no significant p-value). However, NFPA typically lacks DRD2 expression, so this may reflect wrong population rather than non-binding. Emitting weak_contradict for the NFPA context specifically."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:d1ee7567ba3d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cabergoline",
+      "reasoning": "Cabergoline failed to suppress tumor volume in NFPA patients, suggesting dopamine receptor agonism does not effectively drive pituitary tumor growth suppression in this population. This is likely a wrong-population effect (NFPA lacks DRD2), but the chain failure is still informative."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d1ee7567ba3d",
+      "target_entity": "non_functioning_pituitary_adenoma",
+      "support": "weak_contradict",
+      "affecting_arm_id": "cabergoline",
+      "reasoning": "Cabergoline's failure in NFPA suggests that dopamine-mediated pituitary tumor growth suppression does not drive NFPA disease biology, consistent with the known lack of DRD2 expression in NFPA."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_tumor_volume_nfpa_prolactin_prolactinoma",
+      "target_entity": "non_functioning_pituitary_adenoma",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Tumor volume measured by MRI at 6 months is a clinically relevant surrogate endpoint for NFPA, and the endpoint successfully differentiated between pasireotide and cabergoline arms. Prolactin level changes are a validated biomarker for prolactinoma. The endpoint captured meaningful clinical differences."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__prolactin_high",
+      "target_entity": "non_functioning_pituitary_adenoma",
+      "support": "weak_support",
+      "affecting_arm_id": null,
+      "reasoning": "The trial enrolled both NFPA and cabergoline-resistant prolactinoma patients. The prolactinoma subgroup (prolactin_high) showed prolactin changes with pasireotide, suggesting differential response by population subtype. However, this was a single-arm uncontrolled observation in the prolactinoma cohort, limiting the strength of the signal."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The trial enrolled two distinct populations (NFPA and cabergoline-resistant prolactinoma) with different endpoints and different designs (randomized for NFPA, single-arm for prolactinoma). The overall 'primary endpoint met' classification aggregates across these heterogeneous cohorts. The very small sample size (N=21) and borderline p=0.05 raise concerns about statistical robustness. The cabergoline arm's failure in NFPA likely reflects a wrong-population/wrong-mechanism issue (NFPA typically lacks DRD2) rather than a true drug failure, which complicates mechanistic interpretation. Expert review is needed to disentangle the NFPA vs. prolactinoma results and assess whether the cabergoline comparator was scientifically appropriate for NFPA."
+}

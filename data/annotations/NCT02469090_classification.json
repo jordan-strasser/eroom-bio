@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT02469090",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker data for dopamine receptor engagement is reported. However, APL-130277 is a sublingual formulation of apomorphine, a well-established dopamine receptor agonist with decades of clinical use. The rapid onset of effect (median 21.2 minutes to effect) and the magnitude of motor improvement are consistent with dopaminergic receptor agonism. The mechanism is pharmacologically well-established even without explicit PD biomarker data in this trial.\n\n2. PATHWAY MODULATION: The downstream biology (dopaminergic motor circuit activation) is reflected in the MDS-UPDRS Part III motor score changes. The drug arm showed a -11.1 point change from pre-dose to 30 minutes post-dose, while placebo showed only -3.5 points, indicating that the drug produced meaningful motor circuit activation beyond placebo. The rapid time-to-effect (21.2 minutes median) is consistent with dopaminergic pathway activation.\n\n3. CLINICAL TRANSLATION: The primary endpoint was met with high statistical significance (p=0.0002). The LS mean difference of -7.6 points (95% CI: -11.5 to -3.7) is clinically meaningful for Parkinson's OFF episodes. Multiple secondary endpoints also succeeded: full ON response within 30 minutes (p=0.0426), improvement at 15 minutes (-6.4 points), and 78.7% home diary full ON responses at 30 minutes. The clinical translation is robust and consistent across multiple endpoints.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (Parkinson's disease patients experiencing OFF episodes) is well-matched to the mechanism of action \u2014 dopamine receptor agonism to rescue motor function during dopamine-deficient OFF states. This is a biomarker-selected population in the sense that OFF episodes represent a defined pharmacodynamic state.\n\n5. CONFOUNDERS: The placebo response was modest (-3.5 points), which is expected for an acute motor endpoint measured at 30 minutes post-dose in Parkinson's OFF episodes \u2014 there is limited room for placebo-driven motor improvement in this acute setting. The trial was adequately powered (n=141) and the effect was highly significant. Safety signals (SAEs in the treatment arm: cardiac arrest, congestive cardiac failure, hypokalaemia, staphylococcal infection) are noted but appear as isolated events at low incidence (~1-2% each) without evidence of dose-limiting toxicity or protocol-required dose reductions. The trial ran for 12 weeks, appropriate for demonstrating acute rescue efficacy. Overall, the trial provides a clean positive result with no major confounders.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "apl_130277",
+      "target_entity": "ENSG00000149295",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "APL-130277 (sublingual apomorphine) is a dopamine receptor agonist. The rapid and robust motor improvement (median onset 21.2 min, -11.1 MDS-UPDRS III change) is mechanistically consistent with dopamine receptor engagement. The clinical response pattern implies target engagement even without explicit PD biomarker data."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000149295",
+      "target_entity": "R-HSA-390651",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "The rapid motor circuit activation (onset ~21 minutes, robust MDS-UPDRS III improvement) is consistent with DRD2 engagement driving dopamine receptor pathway activation. The time course and magnitude of effect are pharmacodynamically consistent with dopaminergic receptor agonism modulating the dopamine receptor pathway."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:faa6a1b9f30e",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "Dopamine receptor agonism via APL-130277 produced robust dopaminergic motor circuit activation as evidenced by -11.1 point MDS-UPDRS Part III improvement at 30 minutes, 78.7% full ON responses at home, and rapid onset consistent with direct dopaminergic motor circuit engagement."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:faa6a1b9f30e",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": "apl_130277",
+      "reasoning": "Restoration of dopaminergic motor circuit activation produced clinically meaningful improvement in Parkinson's disease OFF episodes (primary endpoint met p=0.0002, LS mean difference -7.6 points), confirming that dopaminergic motor circuit dysfunction drives the parkinsonian syndrome in this population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_pre_dose_30_minutes_post_dose_movement_disorders",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (MDS-UPDRS Part III change from pre-dose to 30 minutes post-dose) was met at p=0.0002 with a clinically meaningful effect size, and was supported by concordant secondary endpoints including full ON response rate (p=0.0426), 15-minute improvement, and home diary ON responses. The endpoint robustly captured clinical benefit in Parkinson's OFF episodes."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "functional_class_i__hoehnandyahrscale_low__offtime_high__severity_active",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of Parkinson's disease patients with active OFF episodes responded robustly to APL-130277 (primary endpoint p=0.0002, LS mean difference -7.6 points), confirming that this population with high OFF time and active motor fluctuations is the appropriate responder population for dopamine receptor agonist rescue therapy."
+    }
+  ],
+  "confidence_overall": 0.82,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

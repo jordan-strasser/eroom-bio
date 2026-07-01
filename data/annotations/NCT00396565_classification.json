@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00396565",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2/5-HT2A receptor engagement is reported. However, paliperidone (the active metabolite of risperidone) is a well-established D2/5-HT2A antagonist with a strong mechanistic rationale. The clinical response strongly implies target engagement occurred at the 6 mg dose. Per the round-28 AFFECTS rule, without explicit PD/engagement data, no affects record is emitted \u2014 the curated molecular binding record carries this fact.\n\n2. PATHWAY MODULATION: No pathway biomarkers (e.g., dopamine metabolites, receptor occupancy imaging) were reported. The strong clinical response is consistent with modulation of dopaminergic and serotonergic neurotransmission, but this is inferred rather than directly measured.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in total PANSS score at 6 weeks) was clearly met. The LS mean difference vs placebo was -12.7 (95% CI: -17.16 to -8.25), p=0.0001. The per-arm result for paliperidone ER shows -9.1 change from baseline vs placebo, p=0.0001. The olanzapine active comparator arm also succeeded (-9.9), providing internal validation that the trial was well-conducted and the endpoint was sensitive. Both active arms outperformed placebo convincingly.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The enrolled population (patients with schizophrenia, severity_active) responded as expected.\n\n5. CONFOUNDERS: The trial was adequately powered (N=394 across three arms). The 6-week duration is standard for acute schizophrenia trials. Safety signals were mild \u2014 SAEs were low-frequency and not indicative of dose-limiting toxicity. No manufacturing or delivery issues noted. The trial appears to have been conducted cleanly with no major confounders.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:191b5a86e9be",
+      "support": "moderate_support",
+      "affecting_arm_id": "er_oros_paliperidone",
+      "reasoning": "Paliperidone ER significantly reduced PANSS scores vs placebo (p=0.0001), consistent with serotonin receptor modulation contributing to dopaminergic/serotonergic neurotransmission changes. No direct pathway biomarker, so moderate rather than strong support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:191b5a86e9be",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "er_oros_paliperidone",
+      "reasoning": "The significant clinical improvement in PANSS scores supports that modulation of dopaminergic and serotonergic neurotransmission drives schizophrenia symptomatology. Moderate rather than strong because no direct biomarker confirmation of pathway engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:191b5a86e9be",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine also significantly reduced PANSS scores (-9.9 from baseline), consistent with dopamine receptor modulation driving neurotransmission changes relevant to schizophrenia. No direct PD biomarker, so moderate support."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:191b5a86e9be",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine's clinical success further corroborates that dopaminergic/serotonergic neurotransmission modulation drives schizophrenia symptoms."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_positive_negative_syndrome_scale_panss_score",
+      "target_entity": "schizophrenia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The PANSS total score change from baseline is the gold-standard regulatory endpoint for acute schizophrenia trials. Both active arms hit the endpoint convincingly (p=0.0001), and the endpoint is well-validated as a clinical benefit measure in this indication. Strong support is warranted given the clear hit with concordant active comparator."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "schizophrenia",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The actively symptomatic schizophrenia population responded strongly to paliperidone ER (p=0.0001, LS mean difference -12.7 vs placebo), meeting the primary endpoint with a clinically meaningful effect size."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT04535141",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that olanzapine engaged the dopamine D2 receptor in this HSCT population. The drug is a well-established D2 antagonist with curated binding evidence, so target engagement is assumed but not directly measured here. 2. PATHWAY MODULATION: No downstream pathway biomarkers (e.g., dopaminergic signaling readouts) were reported. The mechanism of action (D2 receptor antagonism suppressing chemotherapy-induced nausea/vomiting) is pharmacologically plausible and established in other settings, but pathway modulation was not directly assessed. 3. CLINICAL TRANSLATION: The primary endpoint (complete response over the entire study period) was not met. Olanzapine achieved 47% (21/45) vs placebo 28% (13/46) complete response \u2014 a numerically meaningful difference (~19 percentage points) but no p-value is reported, suggesting the trial was likely underpowered to reach statistical significance. Secondary/subgroup endpoints showed consistent directional trends favoring olanzapine (delayed phase nausea, minimal nausea overall), suggesting biological activity but insufficient power to confirm the primary composite endpoint. 4. POPULATION EFFECTS: The HSCT population is a specialized, high-intensity chemotherapy setting. Acute phase endpoints were nearly identical between arms (44/45 vs 43/46 for nausea frequency; 45/45 vs 45/46 for emesis), suggesting the acute phase was well-controlled by standard antiemetics in both arms, and the composite primary endpoint was dragged down by this near-ceiling acute phase performance. The delayed phase showed more separation. This suggests the composite endpoint design and the specific HSCT population (where standard antiemetics are very effective acutely) may have been suboptimal for detecting olanzapine's incremental benefit. 5. CONFOUNDERS: The trial enrolled only 91 patients (45 olanzapine, 46 placebo), which is small for a composite endpoint with multiple components. The near-ceiling acute phase response in both arms (>95%) compressed the composite endpoint, making it very difficult to show a statistically significant difference. The lack of a reported p-value is notable \u2014 this is consistent with an underpowered study. The primary failure mode is underpowering combined with a composite endpoint that was dominated by an acute phase where both arms performed nearly identically, leaving insufficient room for differentiation. The safety profile does not suggest dose-limiting toxicity prevented adequate dosing \u2014 the 5 mg dose was well-tolerated with minimal somnolence and balanced QTc signals.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "N=91 total (45 olanzapine, 46 placebo) with a ~19 percentage point difference in complete response (47% vs 28%) but no reported p-value, strongly suggesting the trial lacked statistical power to confirm the observed numerical trend. The acute phase near-ceiling effect in both arms further compressed the composite endpoint's discriminatory ability."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.45,
+      "evidence": "HSCT recipients receiving highly emetogenic conditioning chemotherapy already achieve near-perfect acute phase control with standard antiemetics (44-45/45 in both arms for acute nausea frequency). The composite endpoint spanning the entire period was dominated by this acute phase where olanzapine provided no incremental benefit, suggesting this specific HSCT population and endpoint design may not be optimal for detecting olanzapine's antiemetic effect."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:7ea2944bc264",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_arm",
+      "reasoning": "Primary composite endpoint missed (no p-value reported, likely underpowered), though directional trends in delayed phase suggest partial biological activity. No biomarker data available. Weak contradict reflects the failed primary endpoint with mitigating factors (underpowering, ceiling effect in acute phase)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:7ea2944bc264",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_arm",
+      "reasoning": "The primary endpoint was not met in this HSCT population. However, the near-ceiling acute phase performance in both arms and small sample size are significant mitigating factors, so only weak contradict is warranted rather than moderate or strong."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "CR",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The composite complete response endpoint (no emesis + nausea frequency \u2264 rarely + nausea severity \u2264 mild over entire period) was dominated by the acute phase where both arms performed near-identically (~98% acute emesis control). This ceiling effect in the acute phase component suggests the composite endpoint as designed did not optimally capture the incremental benefit of olanzapine in this HSCT setting, particularly in the delayed phase where separation was observed."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "ecog_low__qtc_low",
+      "target_entity": "chemotherapy_induced_nausea_and_vomiting",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled HSCT population did not demonstrate a statistically significant response to olanzapine on the primary endpoint. The near-ceiling acute phase response in both arms and small sample size limit interpretation, but the primary endpoint miss in this population warrants a weak contradict signal."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint comparison, making it impossible to formally assess statistical significance. The ~19 percentage point difference (47% vs 28%) in a trial of 91 patients may represent a clinically meaningful but statistically underpowered result. Expert review is needed to determine whether this trial was formally powered for this endpoint and whether the near-ceiling acute phase performance was anticipated in the trial design. The composite endpoint design in the HSCT setting (where acute antiemetic control is already near-perfect with standard care) may represent a design flaw that warrants reassessment for future trials."
+}

@@ -1,0 +1,90 @@
+{
+  "nct_id": "NCT00401973",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct target engagement biomarkers (e.g., NMDA receptor occupancy, AMPK phosphorylation) were measured. However, metabolic biomarkers (HbA1c reduction p=0.049, total cholesterol reduction p=0.029 for metformin arm) suggest downstream biological activity consistent with metformin's mechanism. No direct PD confirmation for amantadine's NMDA/dopamine modulation on weight. 2. PATHWAY MODULATION: For metformin arm, HbA1c and cholesterol improvements suggest metabolic pathway engagement consistent with AMPK/insulin-sensitizing effects. For amantadine arm, no meaningful metabolic biomarker changes vs. olanzapine (HbA1c p=0.976, glucose p=0.499), suggesting limited pathway modulation relevant to weight. 3. CLINICAL TRANSLATION: The primary endpoint (weight change at 22 weeks) was met overall (p=0.036), driven entirely by the metformin arm (+0.65 kg vs +2.76 kg for olanzapine, p=0.036). The amantadine arm failed to meet the primary endpoint (+2.40 kg vs +2.76 kg, p=0.065). The trial is therefore a partial success: metformin succeeded, amantadine failed. 4. POPULATION EFFECTS: The enrolled population (schizophrenia/schizoaffective disorder initiating olanzapine) is appropriate for the mechanism. No biomarker-defined subgroup analyses were reported. The differential response between arms (metformin success vs. amantadine failure) reflects compound-specific rather than population-specific effects. 5. CONFOUNDERS: The adaptive design (switching patients gaining >3 kg between agents) complicates interpretation of individual agent effects. The amantadine arm p=0.065 is borderline and may reflect modest underpowering or the adaptive switching diluting the amantadine signal. Safety profile was manageable with no dose-limiting toxicity pattern. The trial was adequately powered overall (N=199). The overall trial outcome is classified as partial: one arm succeeded (metformin), one failed (amantadine), and the overall primary endpoint was met due to the metformin arm's contribution.",
+  "failure_modes": [
+    {
+      "mode": "efficacy_in_subgroup_only",
+      "confidence": 0.72,
+      "evidence": "The primary endpoint was met only in the olanzapine+metformin arm (p=0.036, effect size 2.11 kg difference from monotherapy). The olanzapine+amantadine arm failed to meet the primary endpoint (p=0.065). The overall trial success is driven by the metformin-containing arm, not the amantadine-containing arm, suggesting compound-specific (not universal adjunctive) efficacy."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "metformin",
+      "target_entity": "ENSG00000198695",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_metformin",
+      "reasoning": "Metformin arm showed significant HbA1c reduction (p=0.049) and cholesterol reduction (p=0.029), consistent with downstream metabolic target engagement. No direct MT-ND6 binding assay, but metabolic biomarker changes are directionally consistent with metformin's mechanism."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000198695",
+      "target_entity": "R-HSA-5419276",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine_metformin",
+      "reasoning": "Metabolic biomarker improvements (HbA1c, cholesterol) in the metformin arm suggest downstream pathway modulation consistent with mitochondrial/metabolic mechanism, though direct pathway readout was not measured."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-5419276",
+      "target_entity": "bio:1575c71535e2",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_metformin",
+      "reasoning": "Metformin arm achieved statistically significant attenuation of olanzapine-induced weight gain (+0.65 kg vs +2.76 kg, p=0.036) with concordant metabolic biomarker improvements (HbA1c p=0.049), supporting that the mechanism affected the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:1575c71535e2",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_metformin",
+      "reasoning": "Attenuation of antipsychotic-induced weight gain and metabolic dysregulation was clinically meaningful in schizophrenia patients on olanzapine, with significant weight and metabolic improvements in the metformin arm."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-438066",
+      "target_entity": "bio:334a4c4e241e",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_amantadine",
+      "reasoning": "Amantadine arm failed to significantly attenuate olanzapine-induced weight gain (p=0.065), and metabolic biomarkers (HbA1c p=0.976, glucose p=0.499) showed no meaningful improvement, suggesting NMDA receptor modulation did not translate to the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:334a4c4e241e",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "olanzapine_amantadine",
+      "reasoning": "Amantadine's proposed mechanism of attenuating antipsychotic-induced weight gain did not translate to clinical benefit in schizophrenia patients (p=0.065, not significant)."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:3515380e2b00",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "olanzapine_metformin",
+      "reasoning": "The olanzapine monotherapy arm gained +2.76 kg, confirming that antipsychotic-mediated appetite dysregulation and weight gain is a real biological driver of metabolic morbidity in schizophrenia, and that attenuating it (as metformin did) produces clinical benefit."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "safety_endpoint_weight",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "Weight change at 22 weeks captured clinically meaningful differences between arms (2.11 kg difference for metformin arm, p=0.036), and was concordant with metabolic biomarker changes (HbA1c, cholesterol), supporting its validity as an endpoint for antipsychotic-induced weight gain in schizophrenia."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "triglycerides_high",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Triglycerides were measured as a biomarker but the population was not specifically selected for high triglycerides, and triglyceride changes did not reach significance (p=0.125 for metformin arm). No subgroup analysis by triglyceride status was reported, making differential response assessment ambiguous."
+    }
+  ],
+  "confidence_overall": 0.62,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The adaptive switching design (patients switched between amantadine and metformin based on weight gain) complicates attribution of effects to individual agents. The arm labels 'olanzapine_amantadine' and 'olanzapine_metformin' may not purely reflect single-agent adjunctive effects since patients could be switched. Additionally, the canonical causal chain for metformin routes through MT-ND6/mitochondrial translation termination, which is an unusual mechanistic annotation for metformin's weight/metabolic effects (typically AMPK activation); this may reflect a database annotation artifact rather than the true mechanism, and expert review of the chain annotation is warranted. The zonisamide component appears in both active arms but its contribution cannot be isolated from the trial design."
+}

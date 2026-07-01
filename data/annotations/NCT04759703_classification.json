@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT04759703",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that pramipexole engaged dopamine D2/D3 receptors in this population. The dose used (0.25 mg daily) is at the lower end of the therapeutic range for RLS, and no PK/PD data was reported. We cannot confirm or deny target engagement from the available data.\n\n2. PATHWAY MODULATION: No downstream pathway biomarkers were reported. There is no evidence of dopaminergic pathway modulation being measured or confirmed.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change from baseline IRLS at 2 weeks) was not met. Pramipexole showed a mean change of -7.04 vs. placebo -9.15, meaning the placebo arm actually showed numerically greater improvement than the treatment arm. No p-value was reported, but the direction of effect is unfavorable. The SOWS endpoint also failed (-11.6 for pramipexole, no comparator value given). The investigator commentary explicitly states that an interim analysis showed they would need to enroll more subjects than planned to demonstrate a significant treatment effect, leading to termination.\n\n4. POPULATION EFFECTS: No subgroup analyses were reported. The population is highly specific: patients with opioid use disorder experiencing RLS symptoms during protracted opioid withdrawal. This is a potentially wrong population \u2014 RLS in the context of opioid withdrawal may have a different pathophysiology (opioid receptor-mediated rather than primarily dopaminergic), meaning dopamine agonism may not be the right mechanism for this specific etiology of RLS symptoms.\n\n5. CONFOUNDERS: The trial was terminated early due to an interim analysis showing insufficient effect to reach significance with the planned sample size (N=75 enrolled, but more needed). This is a combination of underpowering and potentially wrong population (opioid withdrawal-related RLS may not respond to dopamine agonism the same way idiopathic RLS does). The high placebo response (-9.15 on IRLS) is notable and may have compressed the detectable treatment effect. The 2-week duration is short but may be appropriate for an acute withdrawal symptom context. The dose (0.25 mg) is the starting dose for RLS and may be subtherapeutic for this population.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.75,
+      "evidence": "Investigator commentary explicitly states: 'An interim analysis indicated that we would need to enroll more subjects than our initial enrollment target, in order to demonstrate a significant treatment effect. Due to these results, we have decided to terminate this protocol.' The trial enrolled 75 subjects but was terminated before reaching adequate power."
+    },
+    {
+      "mode": "high_placebo_response",
+      "confidence": 0.65,
+      "evidence": "Placebo arm showed a mean IRLS change of -9.15, which is numerically greater than the pramipexole arm (-7.04). A high placebo response in this context (patients in withdrawal who receive any attention/care) would compress the detectable treatment effect."
+    },
+    {
+      "mode": "wrong_population",
+      "confidence": 0.55,
+      "evidence": "The population has RLS symptoms specifically during protracted opioid withdrawal. Opioid withdrawal-associated RLS may be driven by opioid receptor dysregulation rather than dopaminergic deficiency, making dopamine agonism potentially less effective than in idiopathic RLS where the dopaminergic mechanism is well-established."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:d72f9c62e19b",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "The primary endpoint missed and placebo numerically outperformed pramipexole. No biomarker data confirms pathway modulation. In the absence of PD data, the chain failure provides weak contradict signal for the mechanism-to-biology link, though underpowering and high placebo response are mitigating factors."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d72f9c62e19b",
+      "target_entity": "sleep_disorder",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pramipexole",
+      "reasoning": "The clinical endpoint failed to show benefit. In this specific population (opioid withdrawal-associated RLS), dopaminergic pathway modulation may not drive the sleep/sensorimotor disorder as strongly as in idiopathic RLS. Mitigating factors include underpowering and high placebo response, limiting this to weak contradict."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_international_rls_severity_score_irls_2_weeks",
+      "target_entity": "sleep_disorder",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The IRLS is a validated endpoint for RLS severity, but in this specific context of opioid withdrawal-associated RLS, the endpoint was measured and showed a large placebo response (-9.15), with pramipexole numerically worse. The endpoint moved substantially in both arms, making it unclear whether it captures drug-specific benefit vs. natural recovery/placebo in this withdrawal context. Ambiguous is appropriate."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "sleep_disorder",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (severe RLS in opioid withdrawal) did not show a treatment benefit with pramipexole vs. placebo. The primary endpoint was missed and the trial was terminated early. This population may not respond to dopamine agonism in the same way as idiopathic RLS patients, providing weak contradict evidence for this population-indication response relationship."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "The trial was terminated early due to interim analysis showing insufficient power, making it difficult to draw definitive mechanistic conclusions. The placebo arm numerically outperformed the treatment arm (IRLS -9.15 vs -7.04), which is unusual and raises questions about whether this represents a true null effect, high placebo response, or wrong population. No p-value was reported. Expert review is needed to assess: (1) whether the 0.25 mg dose is adequate for this population, (2) whether opioid withdrawal-associated RLS has a different pathophysiology from idiopathic RLS that would make dopamine agonism less effective, and (3) whether the operational_failure designation is appropriate given that the trial did produce an efficacy readout (albeit underpowered and terminated early)."
+}

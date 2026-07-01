@@ -1,0 +1,66 @@
+{
+  "nct_id": "NCT01136772",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: Both paliperidone palmitate and haloperidol decanoate are well-established D2 receptor antagonists. No direct biomarker or PD data was reported in this trial, but both compounds have robust preclinical and clinical evidence of D2 engagement. The trial does not provide new target engagement data, so per the round-28 AFFECTS rule, no affects edge is emitted (curated OT/ChEMBL records carry the molecular fact). 2. PATHWAY MODULATION: No pathway biomarker data was reported. Both drugs are known to modulate dopaminergic neurotransmission via D2 antagonism, but this trial provides no direct evidence of pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoint was 'efficacy failure at 24 months.' Paliperidone palmitate had 49 efficacy failures vs. haloperidol decanoate's 47 \u2014 essentially identical outcomes. The primary endpoint was not met (no statistically significant difference between arms). PANSS scores improved similarly in both arms (PP: -6.87, HD: -6.4), indicating both drugs produced partial symptom improvement but neither was superior. This is a non-inferiority/superiority comparison trial where the new agent (paliperidone palmitate) failed to demonstrate superiority over the active comparator (haloperidol decanoate). 4. POPULATION EFFECTS: No subgroup findings were reported. Both arms had similar rates of psychiatric hospitalization (PP: 44/147, HD: 34/147) and other safety events. 5. CONFOUNDERS: This is an active-controlled trial comparing two long-acting injectable antipsychotics. The primary endpoint was not met because both arms performed similarly \u2014 this is not a failure of the mechanism per se (D2 antagonism works for schizophrenia), but rather a failure of paliperidone palmitate to demonstrate superiority over haloperidol decanoate. The trial design was a head-to-head comparison, and the result is that both drugs are similarly effective. The 'primary_endpoint_met: false' reflects the failure to show a difference between arms, not a failure of the underlying mechanism. This is best classified as a biology_moved_endpoint_flat scenario at the comparison level \u2014 both drugs moved biology (PANSS improved in both arms), but the primary endpoint (differential efficacy failure rate) was flat because both arms performed equivalently. The failure mode is most accurately 'biology_moved_endpoint_flat' in the context of the comparative hypothesis, though the underlying mechanism (D2 antagonism for schizophrenia) is supported by both arms showing PANSS improvement.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.65,
+      "evidence": "Both arms showed PANSS improvement (PP: -6.87, HD: -6.4) indicating biological activity of D2 antagonism, but the primary endpoint (differential efficacy failure rate: 49 vs 47) showed no meaningful difference between arms. The mechanism works but paliperidone palmitate was not superior to haloperidol decanoate."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e25d7e68a3a7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "paliperidone_palmitate",
+      "reasoning": "No biomarker data available; primary comparative endpoint missed (49 vs 47 efficacy failures, no significant difference). PANSS partial improvement in both arms suggests some biological activity but the chain did not translate to differential clinical benefit. Per round-14 rules, emit weak_contradict for the comparative hypothesis."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e25d7e68a3a7",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "paliperidone_palmitate",
+      "reasoning": "The primary endpoint was missed \u2014 paliperidone palmitate did not demonstrate superior efficacy over haloperidol decanoate. Both arms had similar efficacy failure rates, providing weak contradict signal for the differential biology_drives hypothesis for paliperidone palmitate specifically."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:e25d7e68a3a7",
+      "support": "weak_contradict",
+      "affecting_arm_id": "haloperidol_decanoate",
+      "reasoning": "No biomarker data available; primary comparative endpoint missed. Haloperidol decanoate arm also showed partial PANSS improvement but no differential superiority. Per round-14 rules, emit weak_contradict for the comparative hypothesis."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:e25d7e68a3a7",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "haloperidol_decanoate",
+      "reasoning": "Primary endpoint missed \u2014 haloperidol decanoate did not demonstrate differential superiority. Both arms performed similarly, providing weak contradict signal for the differential biology_drives hypothesis."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_efficacy_failure",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The efficacy failure endpoint was measured but the result is ambiguous \u2014 both arms had nearly identical failure rates (49 vs 47), and no p-value was reported. The endpoint may capture schizophrenia outcomes but the trial design (active comparator, no placebo) and the near-identical results make it difficult to assess whether the endpoint truly captures differential benefit in this indication."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "Primary endpoint missed with no statistically significant difference between arms (49 vs 47 efficacy failures, no p-value reported). No subgroup findings. The enrolled population did not respond differently to paliperidone palmitate vs haloperidol decanoate, suggesting no differential population-level response."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is an active-controlled non-inferiority/superiority trial comparing two D2 antagonists. The 'primary_endpoint_met: false' reflects failure to show superiority of paliperidone palmitate over haloperidol decanoate, not failure of the D2 antagonism mechanism per se. Both arms showed partial PANSS improvement, suggesting the mechanism works in both arms. The failure mode classification is complicated by the active comparator design \u2014 the mechanism (D2 antagonism for schizophrenia) is actually supported by both arms, but the comparative hypothesis failed. No p-value was reported, making statistical interpretation difficult. Expert review is needed to determine whether this should be classified as a true mechanistic failure or a comparative effectiveness null result, and to assess the appropriate edge updates given the active-controlled design."
+}

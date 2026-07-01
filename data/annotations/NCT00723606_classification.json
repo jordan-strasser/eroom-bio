@@ -1,0 +1,71 @@
+{
+  "nct_id": "NCT00723606",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm dopamine D2 receptor engagement. However, both ziprasidone and haloperidol are well-established D2 antagonists with known IM pharmacokinetics, and both arms showed substantial BPRS reductions (~17-18 points), suggesting both drugs were pharmacologically active. The absence of explicit target engagement data means we cannot formally confirm engagement from this trial alone.\n\n2. PATHWAY MODULATION: No pathway biomarker data is reported. The large BPRS reductions in both arms (~17-18 points) suggest the antipsychotic/sedative biology was engaged by both compounds, consistent with D2 antagonism driving dopaminergic modulation. However, this is inferred from clinical response, not direct PD measurement.\n\n3. CLINICAL TRANSLATION: The primary endpoint (change from baseline in BPRS total score at 72 hours) was not met. Ziprasidone showed -17.32 vs haloperidol -18.44. No p-value is reported for the comparison, but the effect sizes are nearly identical, suggesting non-inferiority was not demonstrated (or the trial was designed as a superiority/non-inferiority comparison where ziprasidone failed to meet the pre-specified margin). Both arms improved substantially, but the primary endpoint was marked as not met \u2014 likely because ziprasidone failed to demonstrate non-inferiority or equivalence to haloperidol within the pre-specified margin.\n\n4. POPULATION EFFECTS: The agitation subscale responder analysis shows similar response rates: ziprasidone 149 responders vs haloperidol 155 responders, and 39 vs 29 non-responders respectively. These are raw counts, not proportions, but suggest comparable response rates. No biomarker-defined subgroups were identified.\n\n5. CONFOUNDERS: The trial is an active-controlled comparison (vs. haloperidol), not placebo-controlled. The primary endpoint failure appears to reflect that ziprasidone did not demonstrate superiority or non-inferiority to haloperidol rather than a failure of the drug to work at all. Both arms showed clinically meaningful BPRS reductions. The lack of a p-value makes it difficult to assess statistical significance. The trial duration (72 hours) is appropriate for acute agitation. The sample size (376) is reasonable. The most likely explanation is that this was a non-inferiority or superiority trial where ziprasidone failed to meet the pre-specified margin vs. haloperidol, not that the drug failed to work mechanistically. This could also reflect that the endpoint (BPRS total) may not be the most sensitive measure for acute agitation in a 72-hour window, or that haloperidol is simply slightly more effective in this acute setting. Given both drugs worked similarly, this is best classified as a failure to demonstrate superiority/non-inferiority vs. active comparator, with the biology clearly engaged in both arms.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Both arms showed substantial BPRS reductions (~17-18 points), indicating the antipsychotic biology was engaged, but the primary endpoint was not met \u2014 likely because ziprasidone failed to demonstrate non-inferiority or superiority to haloperidol within the pre-specified margin. The biology moved (both arms improved) but the comparative endpoint was not achieved."
+    },
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "No p-value is reported for the primary comparison, making it impossible to assess whether the trial was adequately powered to detect the pre-specified difference. The effect sizes are nearly identical (-17.32 vs -18.44), suggesting any difference is very small and would require a very large sample to detect."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:130f03307286",
+      "support": "weak_contradict",
+      "affecting_arm_id": "intramuscular_ziprasidone",
+      "reasoning": "Primary endpoint not met for ziprasidone arm. While both arms showed BPRS improvement, the failure to meet the primary endpoint provides weak contradict signal for the ziprasidone mechanism chain. The biology did appear to move (large BPRS reductions), but the comparative endpoint was not achieved."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:130f03307286",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "intramuscular_ziprasidone",
+      "reasoning": "Primary endpoint not met for ziprasidone vs haloperidol comparison. The biology (dopaminergic/serotonergic modulation) did not translate to a superior or non-inferior clinical outcome vs. active comparator, providing weak contradict signal."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_antagonism",
+      "target_entity": "bio:42bb4fb4d867",
+      "support": "moderate_support",
+      "affecting_arm_id": "intramuscular_haloperidol",
+      "reasoning": "Haloperidol arm showed -18.44 BPRS reduction and 155 agitation responders, suggesting the receptor antagonism mechanism drove meaningful antipsychotic/sedative biology. Haloperidol performed at least as well as ziprasidone, consistent with its established D2 antagonism mechanism."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:42bb4fb4d867",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "intramuscular_haloperidol",
+      "reasoning": "Haloperidol arm showed substantial BPRS improvement (-18.44) and high responder counts (155/184), supporting that dopaminergic modulation drives clinical benefit in acute schizophrenia agitation."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_brief_psychiatric_rating_scale_bprs_scores_72",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The BPRS total score at 72 hours was the primary endpoint and both arms showed large reductions (~17-18 points), but the primary endpoint was not met (likely a comparative non-inferiority/superiority failure). The endpoint did capture meaningful clinical change in both arms, but the comparative result was ambiguous \u2014 both drugs worked similarly, making it unclear whether the endpoint discriminates between treatments in this acute setting."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "severity_active",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The actively agitated schizophrenia population showed substantial improvement in both arms but the primary endpoint was not met for ziprasidone vs haloperidol. The population responded to treatment (both arms improved), but the comparative endpoint failure provides weak contradict signal for this population's differential response to ziprasidone specifically."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-value is reported for the primary endpoint comparison, making it impossible to determine whether the trial was designed as a superiority or non-inferiority study and what the pre-specified margin was. The primary endpoint is marked as 'not met' despite nearly identical effect sizes in both arms (-17.32 vs -18.44), which could reflect a non-inferiority margin failure, a statistical significance failure, or a protocol deviation. The outcome field for the primary endpoint in both arms is 'unknown' rather than 'failure', adding further ambiguity. Expert review is needed to clarify the trial design (superiority vs. non-inferiority), the pre-specified margin, and why the primary endpoint was not met despite both arms showing large BPRS reductions."
+}

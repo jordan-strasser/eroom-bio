@@ -1,0 +1,138 @@
+{
+  "nct_id": "NCT03187301",
+  "therapeutic_hypothesis": {
+    "compound": "APL-130277 (apomorphine sublingual film)",
+    "claimed_target": "dopamine receptors",
+    "proposed_mechanism": "dopamine receptor agonism",
+    "intended_biology": "restoration of motor function during OFF episodes",
+    "target_population": "Parkinson's disease patients with motor fluctuations (OFF episodes)",
+    "primary_endpoint": "Time-matched placebo-adjusted change from baseline in QTcF (\u0394\u0394QTcF) for APL-130277 vs placebo",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "Maximum \u0394\u0394QTcF of 6.2 ms (90% CI: 2.7\u20139.7) at 60 min post-dose; all time points below 10 ms threshold",
+    "p_value": null,
+    "target_engagement_evidence": "MDS-UPDRS Part III score improved by up to -31.3 units at 60 min post-dose; median time to ON was 30 minutes",
+    "biomarker_changes": [
+      "Apomorphine Cmax ranged from 4.16 to 9.29 ng/mL across dose levels (10\u201335 mg)",
+      "Apomorphine sulfate Cmax ranged from 220 to 1420 ng/mL across dose levels",
+      "Apomorphine Tmax median ranged from 0.75 to 1.50 hours",
+      "Apomorphine AUClast ranged from 7.55 to 12.1 h*ng/mL across dose levels",
+      "Moxifloxacin positive control showed \u0394\u0394QTcF of 10.0\u201312.3 ms confirming assay sensitivity"
+    ],
+    "subgroup_findings": [
+      "Maximum \u0394\u0394QTcF for APL-130277 vs placebo was 6.2 ms (90% CI: 2.7\u20139.7) at 60 min post-dose, below the 10 ms regulatory threshold",
+      "Moxifloxacin assay sensitivity confirmed with \u0394\u0394QTcF of 12.3 ms (90% CI: 7.5\u201317.1) at 2 hours post-dose",
+      "MDS-UPDRS Part III improvement of -26.3 to -31.3 units at 60 min during dose titration phase",
+      "Approximately 90% of patients were still ON at 90 minutes (censored) during dose titration"
+    ],
+    "safety_signals": [
+      "13/48 patients experienced any TEAE with APL-130277 vs 6 with placebo and 4 with moxifloxacin",
+      "12/48 patients had drug-related TEAEs with APL-130277 vs 2 with placebo and 0 with moxifloxacin",
+      "1 severe TEAE with APL-130277; none with placebo or moxifloxacin",
+      "No serious TEAEs or deaths in any arm"
+    ],
+    "dose_info": {
+      "dose": "10\u201350 mg (individually titrated sublingual film)",
+      "schedule": "single dose per crossover period",
+      "max_tolerated_dose": "",
+      "dose_modifications": "Dose individually determined during titration phase as lowest dose resulting in full ON response or highest tolerated dose"
+    },
+    "adverse_events": [
+      {
+        "term": "Any TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 27.08,
+        "incidence_control_pct": 12.5,
+        "serious": false
+      },
+      {
+        "term": "Drug-related TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 25.0,
+        "incidence_control_pct": 4.17,
+        "serious": false
+      },
+      {
+        "term": "Severe TEAE",
+        "grade": "3",
+        "incidence_treatment_pct": 2.08,
+        "incidence_control_pct": 0.0,
+        "serious": false
+      },
+      {
+        "term": "Serious TEAE",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      },
+      {
+        "term": "TEAE leading to death",
+        "grade": "",
+        "incidence_treatment_pct": 0.0,
+        "incidence_control_pct": 0.0,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Parkinson's disease with motor fluctuations (OFF episodes)",
+    "comparator": "placebo (crossover); moxifloxacin 400 mg as positive control",
+    "sample_size": 48,
+    "duration": "Approximately 2 weeks (randomized crossover assessment phase)",
+    "duration_weeks": 2.0,
+    "investigator_commentary": "This was a thorough QT/QTc (TQT) cardiac safety study. The assay sensitivity was confirmed by moxifloxacin positive control showing \u0394\u0394QTcF >5 ms. APL-130277 did not prolong QTcF beyond the 10 ms regulatory threshold of concern at any time point. Approximately 90% of patients were still ON at 90 minutes during dose titration, indicating durable motor benefit."
+  },
+  "arms": [
+    {
+      "arm_id": "apl_130277",
+      "compounds": [
+        "APL-130277"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "moxifloxacin",
+      "compounds": [
+        "moxifloxacin"
+      ]
+    }
+  ],
+  "subgroups": [],
+  "results_by_chain": [
+    {
+      "arm_id": "apl_130277",
+      "intervention": "APL-130277",
+      "subgroup_descriptor": null,
+      "endpoint": "\u0394\u0394QTcF (primary cardiac safety)",
+      "effect_size": 6.2,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "restoration of dopaminergic motor signaling",
+      "population_description": "Parkinson's disease patients with motor fluctuations experiencing OFF episodes",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "moxifloxacin",
+      "intervention": "moxifloxacin",
+      "subgroup_descriptor": null,
+      "endpoint": "\u0394\u0394QTcF (assay sensitivity positive control)",
+      "effect_size": 12.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "bacterial topoisomerase II/IV inhibition",
+      "biology_description": "bacterial DNA replication inhibition",
+      "population_description": "Parkinson's disease patients with motor fluctuations experiencing OFF episodes (positive control arm)",
+      "mechanism_category": "enzyme_inhibition"
+    }
+  ],
+  "modulation_entries": []
+}

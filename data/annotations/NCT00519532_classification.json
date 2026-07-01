@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00519532",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to confirm that rotigotine engaged dopamine receptors in this trial. The trial was a single-arm open-label extension (RECOVER LTE) with no comparator arm. Rotigotine is a well-established dopamine receptor agonist with prior evidence of target engagement from other trials, but this specific trial provides no direct engagement evidence. 2. PATHWAY MODULATION: No pathway biomarker data is reported. We cannot assess whether dopaminergic signaling was modulated. 3. CLINICAL TRANSLATION: The primary endpoints (UPDRS III and PDSS change from baseline at week 13) show effect sizes of -5.8 each, but no p-values are reported and the outcome is listed as 'unknown' for all endpoints. Critically, the investigator commentary states the trial was terminated due to clinical trial supplies shortage \u2014 meaning the trial was stopped before a complete efficacy readout could be obtained. Without a comparator arm and with premature termination, the effect sizes cannot be interpreted as evidence of efficacy or failure. 4. POPULATION EFFECTS: No subgroup analyses were reported. 5. CONFOUNDERS: The dominant confounder here is the operational failure: the trial was terminated due to clinical trial supplies shortage, not due to any scientific or safety finding. This is a manufacturing/delivery issue that prevented the trial from completing its planned course. The single-arm design with no comparator also means that even the observed effect sizes (-5.8 on UPDRS III, -5.8 on PDSS) cannot be attributed to drug effect vs. natural disease course or regression to the mean. The safety profile shows SAEs but no pattern suggesting dose-limiting toxicity drove termination. Overall, this trial provides insufficient information about efficacy due to premature termination for operational reasons.",
+  "failure_modes": [
+    {
+      "mode": "manufacturing_or_delivery",
+      "confidence": 0.85,
+      "evidence": "Investigator commentary explicitly states: 'Trial was terminated due to clinical trial supplies shortage.' This is a supply chain/manufacturing issue that prevented trial completion, not a scientific failure."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.75,
+      "evidence": "Single-arm open-label extension with no comparator, terminated before primary endpoint analysis, no p-values reported, all outcomes listed as 'unknown'. The observed effect sizes cannot be interpreted without a control arm or statistical testing."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "biomarker_updrs_iii_score_week_13_end_maintenance",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The UPDRS III endpoint was measured and showed a -5.8 change from baseline, but the trial was single-arm with no comparator and was terminated early due to supply shortage. Without a control arm or statistical testing, it is impossible to determine whether this endpoint captures clinical benefit in this indication from this trial alone. The endpoint is a validated scale for Parkinson's disease, but this trial's design and premature termination prevent a meaningful endpoint_captures assessment."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "Single-arm trial terminated early for supply shortage with no comparator and no p-values. The population response cannot be assessed. Ambiguous is the appropriate bucket given the complete absence of comparative efficacy data."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:59ed8873bd5c",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rotigotine",
+      "reasoning": "Trial was terminated early for operational reasons with no efficacy readout. Per the mandatory upstream chain emission rule for failure trials, a weak_contradict is emitted. However, confidence is low because the failure is operational (supply shortage), not scientific \u2014 the chain was not meaningfully tested. The weak (rather than moderate/strong) contradict reflects this operational nature."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:59ed8873bd5c",
+      "support": "weak_contradict",
+      "affecting_arm_id": "rotigotine",
+      "reasoning": "No PD/biomarker data available and trial terminated early. Per the mandatory upstream chain emission rule, weak_contradict is emitted for the mechanism_affects edge. The weakness reflects that the failure is operational rather than scientific \u2014 the mechanism was not tested under controlled conditions."
+    }
+  ],
+  "confidence_overall": 0.35,
+  "operational_failure": true,
+  "needs_expert_review": true,
+  "review_reason": "Trial was terminated due to clinical trial supplies shortage before primary endpoint analysis was completed. Single-arm open-label design with no comparator means observed effect sizes (-5.8 UPDRS III, -5.8 PDSS) cannot be attributed to drug effect. No p-values reported and all outcomes listed as 'unknown'. The operational termination means the mechanistic causal chain was never given a fair test, and the graph updates should be heavily discounted. Expert review needed to determine whether data from the parent RECOVER trial or other rotigotine trials should be used to contextualize these partial results."
+}

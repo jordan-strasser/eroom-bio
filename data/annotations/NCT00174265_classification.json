@@ -1,0 +1,60 @@
+{
+  "nct_id": "NCT00174265",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming D2/5-HT2A receptor engagement is reported. However, asenapine is a well-characterized atypical antipsychotic with established receptor binding profiles; the clinical response itself implies target engagement. No explicit engagement data to cite.\n\n2. PATHWAY MODULATION: No pathway biomarker data (e.g., dopamine metabolites, imaging) is available. The mechanism of receptor antagonism modulating dopaminergic/serotonergic signaling is assumed based on drug class.\n\n3. CLINICAL TRANSLATION: The primary endpoint (NSA total score change from baseline at Day 365) was met for asenapine: -15.8 vs olanzapine -11.0, p=0.0148. This is a statistically significant and clinically meaningful improvement in negative symptoms favoring asenapine over an active comparator. The olanzapine arm did not meet the primary endpoint threshold (classified as failure in results_by_chain, though both arms share the same p-value of 0.0148 \u2014 this appears to be a between-arm comparison p-value). The secondary endpoint (QLS total score) showed similar improvement in both arms (asenapine 12.4 vs olanzapine 11.7, p=0.81), suggesting no significant difference in quality of life/functioning between arms.\n\n4. POPULATION EFFECTS: The trial enrolled patients who completed a prior 6-month trial (A7501013), selecting for patients with prominent negative symptoms who tolerated initial treatment. No biomarker-defined subgroup analyses are reported. Both arms showed improvement, but asenapine showed statistically greater improvement on the NSA scale.\n\n5. CONFOUNDERS: The trial is an active-controlled extension study (n=196 total, 85 asenapine, 110 olanzapine). The sample size is modest. The QLS endpoint did not differentiate between arms (p=0.81), suggesting that while negative symptoms improved more with asenapine, functional outcomes were similar. Safety was favorable in both arms with infrequent SAEs. The 26-week extension duration (52 weeks total from original baseline) is appropriate for assessing long-term negative symptom outcomes. The trial is classified as success based on the pre-specified primary endpoint being met for asenapine vs olanzapine.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f25d5321cb9f",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "asenapine",
+      "reasoning": "Asenapine arm met the primary endpoint (NSA -15.8, p=0.0148), supporting that dopaminergic/serotonergic modulation reducing negative symptoms drives schizophrenia symptom burden. Moderate rather than strong because no direct biomarker confirmation of pathway engagement and QLS did not differentiate."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:f25d5321cb9f",
+      "target_entity": "schizophrenia",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine arm showed improvement in NSA (-11.0) but did not meet the primary endpoint threshold vs asenapine. Still directionally supportive that the biology drives schizophrenia symptoms, but weaker signal."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:f25d5321cb9f",
+      "support": "moderate_support",
+      "affecting_arm_id": "asenapine",
+      "reasoning": "Asenapine's dopamine receptor antagonism mechanism is associated with significant improvement in negative symptoms, supporting that dopamine receptor modulation affects the intended biology."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:f25d5321cb9f",
+      "support": "weak_support",
+      "affecting_arm_id": "olanzapine",
+      "reasoning": "Olanzapine also showed directional improvement in negative symptoms via the same mechanism, providing weak support for the mechanism-biology link."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_negative_symptoms_schizophrenia_negative_symptom",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The NSA total score captured a statistically significant and clinically meaningful difference between asenapine and olanzapine in negative symptom burden, supporting its validity as an endpoint for schizophrenia negative symptoms. Moderate rather than strong because the QLS (functional outcome) did not differentiate, suggesting the NSA captures symptom severity but not full clinical benefit translation."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "UNKNOWN",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (patients with prominent negative symptoms completing a prior 6-month trial) responded to asenapine treatment with statistically significant improvement in NSA score (p=0.0148), supporting that this population responds to D2/5-HT2A antagonism for schizophrenia negative symptoms."
+    }
+  ],
+  "confidence_overall": 0.65,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The p-value of 0.0148 is reported identically for both the asenapine and olanzapine arms in results_by_chain, suggesting this is a between-arm comparison p-value rather than a within-arm vs. placebo comparison. There is no placebo arm \u2014 this is an active-controlled trial. The interpretation of 'success' for asenapine and 'failure' for olanzapine on the same p-value requires clarification of the statistical model used. Additionally, the QLS secondary endpoint showed no differentiation (p=0.81), raising questions about whether NSA improvement translates to functional benefit. Expert review is warranted to confirm the statistical analysis plan and whether the NSA improvement represents a clinically meaningful advantage over olanzapine."
+}

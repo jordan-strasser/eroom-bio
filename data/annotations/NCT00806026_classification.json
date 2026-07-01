@@ -1,0 +1,124 @@
+{
+  "nct_id": "NCT00806026",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: No direct biomarker or PD data confirming alpha-2-delta subunit engagement by pregabalin is reported. However, pregabalin's mechanism is well-established pharmacologically, and the strong clinical response (IRLS LS mean difference -4.5 vs placebo, p=0.0001; responder rate 71.4% vs 46.8%) is consistent with target engagement. Per Round-28 AFFECTS rule, no explicit target-engagement biomarker was measured, so no affects record is emitted for pregabalin based on this trial alone. 2. PATHWAY MODULATION: No pathway biomarkers (e.g., neuronal excitability markers) were reported. The clinical signal is strong and consistent with calcium channel modulation reducing sensorimotor symptoms, but we cannot directly confirm pathway modulation from this trial's data. 3. CLINICAL TRANSLATION: The primary endpoint was met for pregabalin 300 mg: IRLS score improved significantly vs placebo (LS mean -4.5, p=0.0001 for the placebo-run-in arm; -11.8 absolute score for continuous arm). Augmentation rate was significantly lower for pregabalin (1.7%) vs pramipexole 0.5 mg (9.0%, p=0.0012). Both co-primary endpoints were met. 4. POPULATION EFFECTS: The enrolled population (adults with idiopathic RLS, severe symptoms) responded well to pregabalin. Pramipexole 0.25 mg failed to separate from placebo on IRLS (p=0.3603), while pramipexole 0.5 mg succeeded on IRLS but failed on augmentation. No subgroup analyses with differential response were reported beyond the arm-level comparisons. 5. CONFOUNDERS: The trial was adequately powered (N=731), had a 52-week duration appropriate for assessing both symptom relief and augmentation, and used a validated endpoint (IRLS). The placebo response was moderate (pbo_pgb arm baseline placebo phase showed minimal change). No manufacturing or delivery issues noted. The trial is a clear success for pregabalin on both co-primary endpoints.",
+  "failure_modes": [],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0070588",
+      "target_entity": "bio:d3e0862955be",
+      "support": "moderate_support",
+      "affecting_arm_id": "pgb_300_mg",
+      "reasoning": "Pregabalin 300 mg (continuous arm) showed strong IRLS improvement (-11.8, p=0.0001) and low augmentation (1.7%), consistent with calcium ion transmembrane transport modulation driving neuronal excitability reduction and sensorimotor symptom relief. No direct pathway biomarker, hence moderate rather than strong."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d3e0862955be",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pgb_300_mg",
+      "reasoning": "Neuronal excitability reduction via calcium channel modulation drove clinically meaningful RLS symptom improvement (IRLS -11.8, p=0.0001; augmentation 1.7%), supporting that this biology is relevant to RLS disease."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "GO:0070588",
+      "target_entity": "bio:d3e0862955be",
+      "support": "moderate_support",
+      "affecting_arm_id": "pbo_pgb_300_mg",
+      "reasoning": "Placebo-run-in then pregabalin arm also showed significant IRLS improvement (-4.5 vs placebo, p=0.0001), corroborating calcium channel modulation driving sensorimotor symptom relief."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:d3e0862955be",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pbo_pgb_300_mg",
+      "reasoning": "The placebo-run-in pregabalin arm confirmed that neuronal excitability reduction biology drives RLS symptom improvement (LS mean -4.5, p=0.0001)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:5254db333420",
+      "support": "moderate_support",
+      "affecting_arm_id": "ppx_0_5_mg",
+      "reasoning": "Pramipexole 0.5 mg (continuous) significantly improved IRLS vs placebo (-10.5, p=0.0001), supporting dopamine receptor pathway modulation driving dopaminergic sensorimotor symptom relief, though augmentation endpoint failed."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "ppx_0_5_mg",
+      "reasoning": "Pramipexole 0.5 mg continuous arm showed significant IRLS improvement, supporting dopaminergic modulation as relevant biology for RLS, though augmentation (9.0%) limits the overall benefit profile."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:5254db333420",
+      "support": "moderate_support",
+      "affecting_arm_id": "pbo_ppx_0_5_mg",
+      "reasoning": "Placebo-run-in pramipexole 0.5 mg arm showed significant IRLS improvement (-3.2, p=0.0001), supporting dopamine receptor pathway modulation driving sensorimotor symptom relief."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "moderate_support",
+      "affecting_arm_id": "pbo_ppx_0_5_mg",
+      "reasoning": "Pramipexole 0.5 mg placebo-run-in arm confirmed dopaminergic biology drives RLS symptom improvement (LS mean -3.2, p=0.0001)."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:5254db333420",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ppx_0_25_mg",
+      "reasoning": "Pramipexole 0.25 mg continuous arm failed to separate from placebo on IRLS (LS mean -7.9 vs placebo, p=0.3603), suggesting insufficient dopamine receptor pathway modulation at this dose to drive sensorimotor symptom relief."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "ppx_0_25_mg",
+      "reasoning": "Pramipexole 0.25 mg continuous arm failed on both IRLS (p=0.3603) and augmentation (p=0.0826), providing weak contradict signal for dopaminergic biology driving RLS benefit at this dose."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390651",
+      "target_entity": "bio:5254db333420",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pbo_ppx_0_25_mg",
+      "reasoning": "Placebo-run-in pramipexole 0.25 mg arm failed on IRLS (LS mean -0.6, p=0.3603), consistent with insufficient dopamine receptor pathway engagement at this dose."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:5254db333420",
+      "target_entity": "restless_legs_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pbo_ppx_0_25_mg",
+      "reasoning": "Pramipexole 0.25 mg placebo-run-in arm failed to show benefit (p=0.3603), providing weak contradict for dopaminergic biology driving RLS at this dose level."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_restless_legs_syndrome_rls_symptom_severity",
+      "target_entity": "restless_legs_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The IRLS total score (a validated PRO for RLS symptom severity) captured clinically meaningful treatment differences across multiple arms (pregabalin p=0.0001, pramipexole 0.5 mg p=0.0001), and the augmentation endpoint provided a complementary long-term safety/efficacy signal. The endpoint clearly translates to clinical benefit in RLS."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgi_high__ferritin_high__irls_high__msitds_high__rlsdi_high__severity_severe",
+      "target_entity": "restless_legs_syndrome",
+      "support": "strong_support",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population of adults with severe idiopathic RLS (high IRLS, high severity) responded strongly to pregabalin 300 mg (p=0.0001, clinically meaningful effect size) and to pramipexole 0.5 mg (p=0.0001), confirming this population responds to both calcium channel and dopaminergic interventions."
+    }
+  ],
+  "confidence_overall": 0.75,
+  "operational_failure": false,
+  "needs_expert_review": false,
+  "review_reason": null
+}

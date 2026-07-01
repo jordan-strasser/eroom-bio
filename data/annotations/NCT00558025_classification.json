@@ -1,0 +1,55 @@
+{
+  "nct_id": "NCT00558025",
+  "trial_outcome": "failure",
+  "reasoning": "1. TARGET ENGAGEMENT: No biomarker or PD data is available to directly confirm dopamine D2/D3 receptor engagement. However, this is a formulation-switch trial (IR to ER of the same molecule, pramipexole), so target engagement by the ER formulation is pharmacologically assumed \u2014 both formulations deliver the same active compound at equivalent doses (2.75 mg ER vs 2.83 mg IR mean final dose). The mechanism of action (dopamine receptor agonism) is well-established for pramipexole. 2. PATHWAY MODULATION: No biomarker data on dopaminergic neurotransmission restoration is reported. Given equivalent doses and the same active compound, pathway modulation is assumed to be similar between formulations. The UPDRS II+III change from baseline was actually numerically better in the ER arm (-1.6 vs -0.5), suggesting the biology was engaged. 3. CLINICAL TRANSLATION: The primary endpoint \u2014 percentage of patients successfully switching (UPDRS II+III change \u226415%) \u2014 was 84.5% for ER vs 94.2% for IR, with p=0.0803, which missed the conventional significance threshold. The trial was designed to demonstrate non-inferiority or equivalence of the switch, and the ER arm fell short. However, the absolute UPDRS II+III change was numerically better in the ER arm (-1.6 vs -0.5), and the difference in successful switch rates (-10.75%, 95% CI: -20.51 to 1.48) is borderline. 4. POPULATION EFFECTS: No biomarker-defined subgroups were identified. The subgroup analyses (CGI-I, PGI-I, dose changes) all showed non-significant differences. The population was specifically patients stabilized on IR pramipexole, which is appropriate for a switch study. 5. CONFOUNDERS: The trial appears underpowered \u2014 with only 156 patients and a p-value of 0.0803, the study was close to significance but did not reach it. The 95% CI for the risk difference (-20.51 to 1.48) includes zero, suggesting the study lacked power to definitively rule out a clinically meaningful difference. The 9-week duration may also be a factor \u2014 the switch period may not have been long enough for full dose optimization. The primary endpoint definition (\u226415% change in UPDRS II+III) is a somewhat unusual endpoint for a formulation-switch study, and the high success rate in both arms (84.5% vs 94.2%) suggests the endpoint may not have been optimally designed to detect equivalence. The trial is best classified as a failure primarily due to underpowering, with the endpoint design also contributing.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.72,
+      "evidence": "With n=156 and p=0.0803, the trial narrowly missed significance. The 95% CI for the risk difference (-20.51 to 1.48) includes zero but is borderline. The high success rates in both arms (84.5% vs 94.2%) suggest the study was not powered to detect the observed difference. A larger sample might have achieved significance or definitively demonstrated non-inferiority."
+    },
+    {
+      "mode": "wrong_timeframe",
+      "confidence": 0.35,
+      "evidence": "The 9-week trial duration with dose adaptation only allowed after week 4 may have been insufficient for full optimization of the ER formulation. The week 4 data (81.6% vs 92.3%) showed a similar gap, suggesting the switch period may not have allowed adequate titration."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "receptor_agonism",
+      "target_entity": "bio:788576c0907d",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pramipexole_extended_release_er",
+      "reasoning": "The ER formulation failed to demonstrate non-inferior successful switch rates compared to IR (84.5% vs 94.2%, p=0.0803). No biomarker data available. The chain failure is directional information against the ER formulation's mechanism translating equivalently to the IR formulation's biology restoration, though the absolute UPDRS change was numerically better in ER."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:788576c0907d",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": "pramipexole_extended_release_er",
+      "reasoning": "The ER arm failed the primary endpoint (successful switch rate p=0.0803). While the absolute UPDRS change was numerically better in ER, the primary endpoint miss provides weak contradict evidence for the biology-to-indication link for the ER formulation specifically. The underpowered design mitigates this to weak rather than moderate contradict."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "other_patients_who_successfully_switched_pramipexole",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (successful switch rate defined as \u226415% UPDRS II+III change) is an unusual surrogate for clinical benefit in Parkinson's disease. The high success rates in both arms (84.5% and 94.2%) and the borderline p-value suggest the endpoint may not optimally capture the clinical benefit of the formulation switch. The UPDRS II+III absolute change was actually numerically better in the ER arm, creating mixed signals about whether this endpoint captures the relevant biology."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "mmse_high__motorfluctuationsofftime_high__severity_severe",
+      "target_entity": "parkinsonian_syndrome",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The enrolled population (early Parkinson's disease patients stabilized on IR pramipexole) did not demonstrate a statistically significant successful switch to ER formulation (p=0.0803). The population-level response was borderline negative for the primary endpoint, though numerically the absolute UPDRS change favored ER."
+    }
+  ],
+  "confidence_overall": 0.55,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "This is a formulation-switch trial (IR to ER of the same compound) rather than a traditional efficacy trial, which creates interpretive complexity. The primary endpoint definition (\u226415% UPDRS change as 'successful switch') is non-standard and may not be the most appropriate measure of formulation equivalence. The trial narrowly missed significance (p=0.0803) with a borderline CI, and the absolute UPDRS change actually favored ER. Expert review is needed to determine whether this represents a true failure of the ER formulation or a trial design/power issue, and whether the endpoint_captures classification is appropriate for this type of formulation-switch study."
+}

@@ -1,0 +1,103 @@
+{
+  "nct_id": "NCT00600756",
+  "trial_outcome": "partial",
+  "reasoning": "1. TARGET ENGAGEMENT: Prolactin data provides indirect evidence of D2 receptor engagement. Quetiapine XR reduced prolactin by -7.735 ng/mL while risperidone increased it by +15.990 ng/mL, consistent with quetiapine XR's known lower D2 occupancy profile. This confirms both drugs engaged dopaminergic pathways, though quetiapine XR does so with lower D2 blockade. The differential prolactin response is a pharmacodynamic marker of D2 engagement. 2. PATHWAY MODULATION: Both arms showed improvements in SWN-K (subjective wellbeing), CDSS (depression), and CGI-SCH scores at Month 12, indicating that dopaminergic/serotonergic modulation did produce downstream biological changes consistent with antipsychotic activity. Quetiapine XR showed slightly better SWN-K improvement (+22.7 vs +19.4) and CDSS improvement (-4.7 vs -3.7), suggesting the biology did move. 3. CLINICAL TRANSLATION: The primary endpoint \u2014 SWN-K responder rate at Month 6 in the per-protocol population \u2014 has an unknown outcome (no p-value reported, no non-inferiority conclusion stated). The raw numbers show 136 responders for quetiapine XR vs 158 for risperidone, suggesting quetiapine XR had fewer responders, which would likely fail non-inferiority. Additionally, quetiapine XR had higher relapse rates (43 vs 31) and more psychiatric hospitalizations (37 vs 21), suggesting inferior clinical outcomes despite comparable or slightly better subjective wellbeing scores. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population was schizophrenia patients (first-line context implied by SWN-K low baseline). 5. CONFOUNDERS: The primary endpoint result is formally unknown (no p-value, no non-inferiority conclusion), making this a partial outcome. The higher relapse and hospitalization rates in the quetiapine XR arm suggest the drug may be less effective than risperidone in this population despite better tolerability (lower EPS, lower prolactin elevation). The trial appears to have been an active-controlled non-inferiority design where quetiapine XR likely failed to demonstrate non-inferiority on the primary endpoint given the numerically lower responder count. The biology moved (both arms improved) but quetiapine XR appeared clinically inferior to risperidone, suggesting the mechanism works but the drug's specific receptor profile (lower D2 occupancy) may be less effective for relapse prevention in schizophrenia.",
+  "failure_modes": [
+    {
+      "mode": "biology_moved_endpoint_flat",
+      "confidence": 0.55,
+      "evidence": "Both arms showed improvements in SWN-K, CDSS, and CGI-SCH scores indicating biological activity, but quetiapine XR had fewer responders (136 vs 158) at Month 6 and higher relapse rates (43 vs 31) and hospitalizations (37 vs 21), suggesting the primary non-inferiority endpoint was likely not met despite biological signal."
+    },
+    {
+      "mode": "insufficient_information",
+      "confidence": 0.4,
+      "evidence": "No p-value reported for the primary endpoint (SWN-K responder rate at Month 6), and the primary endpoint outcome is listed as 'unknown', making definitive classification of success or failure impossible. The non-inferiority margin and statistical analysis results are not provided."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "quetiapine_xr",
+      "target_entity": "ENSG00000102468",
+      "support": "moderate_support",
+      "affecting_arm_id": "quetiapine_xr",
+      "reasoning": "Prolactin reduction (-7.735 ng/mL) in the quetiapine XR arm provides indirect PD evidence of D2/serotonin receptor engagement, consistent with the drug's known receptor binding profile. Per round-28 AFFECTS rule, target engagement is demonstrated via PD biomarker."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "im_risperidone",
+      "target_entity": "ENSG00000102468",
+      "support": "strong_support",
+      "affecting_arm_id": "risperidone",
+      "reasoning": "Prolactin increase (+15.990 ng/mL) in the risperidone arm is a well-established PD marker of strong D2 receptor blockade, confirming target engagement. Per round-28 AFFECTS rule, this is direct PD evidence of target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102468",
+      "target_entity": "R-HSA-390666",
+      "support": "moderate_support",
+      "affecting_arm_id": "quetiapine_xr",
+      "reasoning": "The differential prolactin response and improvements in psychotic symptom scores (SWN-K, CDSS, CGI-SCH) indicate that serotonin receptor engagement modulated the intended pathway. Quetiapine XR's lower D2 occupancy (reflected in prolactin decrease) still produced pathway modulation, supporting the modulates_via edge."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102468",
+      "target_entity": "R-HSA-390666",
+      "support": "strong_support",
+      "affecting_arm_id": "risperidone",
+      "reasoning": "Risperidone's strong D2/5-HT2A blockade (evidenced by prolactin increase and clinical improvements) confirms that engaging HTR2A modulates the serotonin receptor pathway as intended."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:0ebe3c06a00c",
+      "support": "weak_support",
+      "affecting_arm_id": "quetiapine_xr",
+      "reasoning": "Quetiapine XR showed improvements in SWN-K (+22.7) and CDSS (-4.7) suggesting serotonin receptor modulation affected dopaminergic/serotonergic biology, but the higher relapse rate and likely failure of non-inferiority on the primary endpoint tempers this to weak support."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:0ebe3c06a00c",
+      "support": "moderate_support",
+      "affecting_arm_id": "risperidone",
+      "reasoning": "Risperidone showed improvements across multiple endpoints (SWN-K +19.4, CDSS -3.7, CGI-SCH 3.9) with lower relapse rates, supporting that serotonin receptor mechanism modulation affected the intended biology."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0ebe3c06a00c",
+      "target_entity": "schizophrenia",
+      "support": "moderate_support",
+      "affecting_arm_id": "risperidone",
+      "reasoning": "Risperidone's clinical outcomes (lower relapse, fewer hospitalizations, comparable symptom improvement) support that dopaminergic/serotonergic modulation drives schizophrenia disease course."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:0ebe3c06a00c",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": "quetiapine_xr",
+      "reasoning": "Quetiapine XR's higher relapse rate (43 vs 31) and more psychiatric hospitalizations (37 vs 21) despite biological activity (SWN-K improvement) suggests that the degree of dopaminergic/serotonergic modulation achieved by quetiapine XR was insufficient to drive adequate disease control in schizophrenia, providing weak contradict evidence for this arm."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_responder_rate_month_6_protocol_population",
+      "target_entity": "schizophrenia",
+      "support": "ambiguous",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint (SWN-K responder rate at Month 6) was measured but no p-value or non-inferiority conclusion was reported, making it impossible to definitively assess whether the endpoint captured clinical benefit. The SWN-K measures subjective wellbeing which is a patient-relevant outcome in schizophrenia, but the disconnect between SWN-K improvement and higher relapse/hospitalization rates in the quetiapine XR arm raises questions about its ability to fully capture disease control."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "line_first__swnk_low",
+      "target_entity": "schizophrenia",
+      "support": "weak_contradict",
+      "affecting_arm_id": null,
+      "reasoning": "The primary endpoint outcome is unknown (no p-value, no non-inferiority conclusion), and the numerically lower responder count for quetiapine XR (136 vs 158) combined with higher relapse and hospitalization rates suggests this population did not respond favorably to quetiapine XR relative to risperidone. The overall population response signal is directionally negative for quetiapine XR in this first-line, low SWN-K population."
+    }
+  ],
+  "confidence_overall": 0.45,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "The primary endpoint result is formally unknown \u2014 no p-value or non-inferiority conclusion was reported for the SWN-K responder rate at Month 6. The raw responder counts (136 vs 158) suggest quetiapine XR likely failed non-inferiority, but this cannot be confirmed without the statistical analysis. Additionally, the disconnect between subjective wellbeing improvement (SWN-K slightly favoring quetiapine XR) and objective clinical outcomes (higher relapse, more hospitalizations) raises questions about endpoint validity and whether the trial should be classified as failure vs partial. Expert review is needed to determine the actual non-inferiority analysis result and to assess whether the SWN-K is an appropriate primary endpoint for this indication."
+}

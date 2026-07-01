@@ -1,0 +1,235 @@
+{
+  "nct_id": "NCT02116530",
+  "therapeutic_hypothesis": {
+    "compound": "olanzapine",
+    "claimed_target": "dopamine D2 receptor / serotonin 5-HT2A receptor",
+    "proposed_mechanism": "receptor antagonism",
+    "intended_biology": "suppression of chemotherapy-induced nausea and vomiting",
+    "target_population": "adult cancer patients receiving highly emetogenic chemotherapy (cisplatin or cyclophosphamide/doxorubicin) with standard antiemetic prophylaxis",
+    "primary_endpoint": "Proportion of patients with no nausea (0\u2013120 hours after chemotherapy)",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "37.3% vs 21.9% no nausea (0\u2013120 h); 73.8% vs 45.3% (0\u201324 h); 42.4% vs 25.4% (25\u2013120 h)",
+    "p_value": null,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [],
+    "subgroup_findings": [
+      "No nausea 0\u201324 h: olanzapine 73.8% vs placebo 45.3%",
+      "No nausea 25\u2013120 h: olanzapine 42.4% vs placebo 25.4%",
+      "No nausea 0\u2013120 h: olanzapine 37.3% vs placebo 21.9%",
+      "Complete response 0\u201324 h: olanzapine 85.7% vs placebo 64.6%",
+      "Complete response 25\u2013120 h: olanzapine 66.9% vs placebo 52.4%",
+      "Complete response 0\u2013120 h: olanzapine 63.6% vs placebo 40.6%",
+      "Median nausea scores (VAS 0\u201310) lower in olanzapine arm on Days 2\u20136 (median 0 vs 1)",
+      "Undesired sedation higher in olanzapine arm on Day 2 (mean 2.3 vs 1.2)",
+      "Rescue medication use lower in olanzapine arm across Days 2\u20136"
+    ],
+    "safety_signals": [
+      "Undesired sedation was higher in the olanzapine arm on Day 2 (mean 2.3 vs 1.2) but converged by Days 3\u20136",
+      "Appetite increase slightly higher in olanzapine arm on Days 4\u20136",
+      "Serious adverse events reported in olanzapine arm: neutrophil count decreased (2/188), white blood cell decreased (1/188), thromboembolic event (1/188)"
+    ],
+    "dose_info": {
+      "dose": "",
+      "schedule": "",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Neutrophil count decreased",
+        "grade": "",
+        "incidence_treatment_pct": 1.06,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "White blood cell decreased",
+        "grade": "",
+        "incidence_treatment_pct": 0.53,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Thromboembolic event",
+        "grade": "",
+        "incidence_treatment_pct": 0.53,
+        "incidence_control_pct": null,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "chemotherapy-induced nausea and vomiting in cancer patients receiving highly emetogenic chemotherapy",
+    "comparator": "placebo",
+    "sample_size": 401,
+    "duration": "0 to 120 hours after chemotherapy (Day 1 to Day 6)",
+    "duration_weeks": 0.86,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "compounds": [
+        "olanzapine",
+        "cisplatin",
+        "cyclophosphamide",
+        "doxorubicin",
+        "ondansetron",
+        "granisetron",
+        "palonosetron",
+        "dexamethasone",
+        "fosaprepitant",
+        "aprepitant"
+      ]
+    },
+    {
+      "arm_id": "placebo_chemotherapy_antiemetic_treatment",
+      "compounds": [
+        "cisplatin",
+        "cyclophosphamide",
+        "doxorubicin",
+        "ondansetron",
+        "granisetron",
+        "palonosetron",
+        "dexamethasone",
+        "fosaprepitant",
+        "aprepitant"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "0-24 hours after chemotherapy",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "acute_period_0_24h"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "25-120 hours after chemotherapy",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "delayed_period_25_120h"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "0-120 hours after chemotherapy",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "overall_period_0_120h"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "intervention": "olanzapine",
+      "subgroup_descriptor": "0-120 hours after chemotherapy",
+      "endpoint": "Proportion with no nausea (overall)",
+      "effect_size": 37.3,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced nausea and vomiting",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "intervention": "olanzapine",
+      "subgroup_descriptor": "0-24 hours after chemotherapy",
+      "endpoint": "Proportion with no nausea (acute)",
+      "effect_size": 73.8,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced nausea and vomiting",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "intervention": "olanzapine",
+      "subgroup_descriptor": "25-120 hours after chemotherapy",
+      "endpoint": "Proportion with no nausea (delayed)",
+      "effect_size": 42.4,
+      "p_value": null,
+      "outcome": "success",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced nausea and vomiting",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "placebo_chemotherapy_antiemetic_treatment",
+      "intervention": "ondansetron",
+      "subgroup_descriptor": "0-120 hours after chemotherapy",
+      "endpoint": "Proportion with no nausea (overall)",
+      "effect_size": 21.9,
+      "p_value": null,
+      "outcome": "partial",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced nausea and vomiting",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis (control arm)",
+      "mechanism_category": "receptor_antagonism"
+    },
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "intervention": "cisplatin",
+      "subgroup_descriptor": null,
+      "endpoint": "Proportion with no nausea (overall)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "DNA cross-linking / alkylation",
+      "biology_description": "DNA-damage-induced apoptosis",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis",
+      "mechanism_category": "dna_crosslinking"
+    },
+    {
+      "arm_id": "olanzapine_chemotherapy_antiemetic_treatment",
+      "intervention": "aprepitant",
+      "subgroup_descriptor": "0-120 hours after chemotherapy",
+      "endpoint": "Proportion with no nausea (overall)",
+      "effect_size": null,
+      "p_value": null,
+      "outcome": "unknown",
+      "mechanism_description": "receptor antagonism",
+      "biology_description": "suppression of chemotherapy-induced nausea and vomiting",
+      "population_description": "adult cancer patients receiving highly emetogenic chemotherapy with standard antiemetic prophylaxis",
+      "mechanism_category": "receptor_antagonism"
+    }
+  ],
+  "modulation_entries": [
+    {
+      "modulator_compound_id": "olanzapine",
+      "primary_compound_id": "ondansetron",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.85,
+      "hypothesis": "Olanzapine's broad receptor antagonism (D2, 5-HT2A, H1, muscarinic) complements 5-HT3 blockade by ondansetron/granisetron/palonosetron, providing additive suppression of nausea and vomiting through complementary neurotransmitter pathways",
+      "citation": "No nausea 0\u2013120 h: olanzapine arm 37.3% vs placebo arm 21.9%; complete response 0\u2013120 h: olanzapine 63.6% vs placebo 40.6%"
+    },
+    {
+      "modulator_compound_id": "olanzapine",
+      "primary_compound_id": "aprepitant",
+      "affects_layer": "biology",
+      "direction": "amplifies",
+      "confidence": 0.82,
+      "hypothesis": "Olanzapine's dopaminergic and serotonergic antagonism adds complementary antiemetic coverage beyond NK1 receptor blockade by aprepitant/fosaprepitant, particularly in the delayed phase",
+      "citation": "No nausea 25\u2013120 h: olanzapine 42.4% vs placebo 25.4%; complete response 25\u2013120 h: olanzapine 66.9% vs placebo 52.4%"
+    }
+  ]
+}

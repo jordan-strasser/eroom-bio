@@ -1,0 +1,529 @@
+{
+  "nct_id": "NCT00991276",
+  "therapeutic_hypothesis": {
+    "compound": "pregabalin",
+    "claimed_target": "voltage-gated calcium channels (alpha-2-delta subunit)",
+    "proposed_mechanism": "calcium channel modulation",
+    "intended_biology": "neuronal excitability reduction and sleep architecture normalization",
+    "target_population": "adults with restless legs syndrome and associated sleep disturbance",
+    "primary_endpoint": "Wake After Sleep Onset (WASO) by polysomnography",
+    "rationale_strength": "strong"
+  },
+  "results": {
+    "primary_endpoint_met": true,
+    "effect_size": "pregabalin vs placebo: LS mean difference -27.10 min (95% CI: -35.78 to -18.42); pregabalin vs pramipexole: LS mean difference -26.93 min (95% CI: -35.54 to -18.32)",
+    "p_value": 0.0001,
+    "target_engagement_evidence": null,
+    "biomarker_changes": [
+      "Pregabalin significantly increased Stage N3/SWS (LS mean 66.88 min vs placebo 45.95 min, p<0.0001)",
+      "Pregabalin significantly reduced PLMI vs placebo (LS mean difference -14.50 movements/hour, p<0.0001)",
+      "Pregabalin significantly reduced PLMSI vs placebo (LS mean difference -14.53 movements/hour, p<0.0001)",
+      "Pramipexole showed greater reduction in PLMI vs placebo (LS mean difference -25.84 movements/hour, p<0.0001) and vs pregabalin (p=0.0001)",
+      "Pregabalin increased TST vs placebo by 32.72 min (p<0.0001) and vs pramipexole by 25.86 min (p<0.0001)",
+      "Pregabalin improved sleep efficiency vs placebo by 6.80% (p<0.0001)",
+      "Pramipexole significantly delayed REM latency vs placebo (LS mean difference +46.47 min, p<0.0001) and vs pregabalin (LS mean difference -35.77 min, p<0.0001)",
+      "Pregabalin reduced Stage N1 sleep vs placebo (p=0.0076) and vs pramipexole (p<0.0001)",
+      "Pregabalin increased Stage N2 sleep vs placebo (p=0.0003) and vs pramipexole (p=0.0174)"
+    ],
+    "subgroup_findings": [
+      "Pregabalin showed consistently lower WASO across all 8 hours and all 4 quarters of the night compared to both pramipexole and placebo",
+      "Pramipexole showed higher WASO than placebo in hours 4-6 (second half of night)",
+      "Pregabalin showed superior sleep efficiency in hours 2-6 compared to both comparators",
+      "Pramipexole showed greater PLM reduction than pregabalin in all hourly and quarterly assessments"
+    ],
+    "safety_signals": [
+      "Pregabalin: 1 SAE of orthostatic hypotension, 1 SAE of postural dizziness, 1 SAE of deep vein thrombosis",
+      "Pramipexole: 1 SAE of suicidal ideation",
+      "Placebo: 1 SAE of gastroenteritis, 1 SAE of hypokalemia, 1 SAE of suicidal ideation"
+    ],
+    "dose_info": {
+      "dose": "300 mg (pregabalin); 0.5 mg (pramipexole)",
+      "schedule": "once daily; 4 weeks per treatment period",
+      "max_tolerated_dose": "",
+      "dose_modifications": ""
+    },
+    "adverse_events": [
+      {
+        "term": "Blood pressure orthostatic decreased (SAE)",
+        "grade": "",
+        "incidence_treatment_pct": 1.33,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Dizziness postural (SAE)",
+        "grade": "",
+        "incidence_treatment_pct": 1.33,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Deep vein thrombosis (SAE)",
+        "grade": "",
+        "incidence_treatment_pct": 1.33,
+        "incidence_control_pct": null,
+        "serious": true
+      },
+      {
+        "term": "Suicidal ideation (SAE) - pramipexole",
+        "grade": "",
+        "incidence_treatment_pct": 1.32,
+        "incidence_control_pct": 1.37,
+        "serious": true
+      },
+      {
+        "term": "Gastroenteritis (SAE)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.37,
+        "serious": true
+      },
+      {
+        "term": "Hypokalaemia (SAE)",
+        "grade": "",
+        "incidence_treatment_pct": null,
+        "incidence_control_pct": 1.37,
+        "serious": true
+      }
+    ]
+  },
+  "context": {
+    "indication": "Restless Legs Syndrome with associated sleep disturbance",
+    "comparator": "placebo and pramipexole 0.5 mg",
+    "sample_size": 85,
+    "duration": "3 crossover periods of 4 weeks each (17 weeks total)",
+    "duration_weeks": 17.0,
+    "investigator_commentary": null
+  },
+  "arms": [
+    {
+      "arm_id": "pregabalin",
+      "compounds": [
+        "pregabalin"
+      ]
+    },
+    {
+      "arm_id": "placebo",
+      "compounds": [
+        "placebo"
+      ]
+    },
+    {
+      "arm_id": "pramipexole",
+      "compounds": [
+        "pramipexole"
+      ]
+    }
+  ],
+  "subgroups": [
+    {
+      "raw_descriptor": "Stage N1 Sleep",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "stage_n1_sleep"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stage N2 Sleep",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "stage_n2_sleep"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stage N3 Sleep/SWS",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "stage_n3_sleep"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Stage R Sleep",
+      "features": [
+        {
+          "axis": "other",
+          "key": "",
+          "level": "stage_r_sleep"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 1 (n= 66, 67, 66)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_1"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 2 (n= 67, 70, 66)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_2"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 3 (n= 67, 70, 67)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_3"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 4 (n= 67, 70, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_4"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 5 (n= 67, 70, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_5"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 6 (n= 67, 71, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_6"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 7 (n= 67, 71, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_7"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Hour 8 (n= 67, 71, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_hour",
+          "level": "hour_8"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Quarter 1 (n= 67, 70, 66)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_quarter",
+          "level": "quarter_1"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Quarter 2 (n= 67, 70, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_quarter",
+          "level": "quarter_2"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Quarter 3 (n= 67, 71, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_quarter",
+          "level": "quarter_3"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Quarter 4 (n= 67, 71, 68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "night_quarter",
+          "level": "quarter_4"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Awaken Short of Breath/with Headache (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "awaken_short_of_breath_headache"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Adequacy (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "adequacy"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Somnolence (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "somnolence"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Sleep Quantity (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "sleep_quantity"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "6-Item Sleep Problems Index (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "6_item_sleep_problems_index"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "9-Item Sleep Problems Index (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "9_item_sleep_problems_index"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Optimal Sleep (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "optimal_sleep"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Sleep Disturbance (n= 68,71,69)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "sleep_disturbance"
+        }
+      ]
+    },
+    {
+      "raw_descriptor": "Snoring (n= 67,71,68)",
+      "features": [
+        {
+          "axis": "other",
+          "key": "mos_ss_subscale",
+          "level": "snoring"
+        }
+      ]
+    }
+  ],
+  "results_by_chain": [
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": null,
+      "endpoint": "WASO",
+      "effect_size": -27.1,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": null,
+      "endpoint": "WASO",
+      "effect_size": -0.17,
+      "p_value": 0.9684,
+      "outcome": "failure",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": null,
+      "endpoint": "PLMI",
+      "effect_size": -14.5,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": null,
+      "endpoint": "PLMI",
+      "effect_size": -25.84,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": null,
+      "endpoint": "TST",
+      "effect_size": 32.72,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": null,
+      "endpoint": "TST",
+      "effect_size": 6.86,
+      "p_value": 0.2005,
+      "outcome": "failure",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": null,
+      "endpoint": "IRLS",
+      "effect_size": -6.1,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": null,
+      "endpoint": "IRLS",
+      "effect_size": -3.03,
+      "p_value": 0.0032,
+      "outcome": "success",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": "Stage N3 Sleep/SWS",
+      "endpoint": "Stage N3 Sleep minutes",
+      "effect_size": 20.93,
+      "p_value": 0.0001,
+      "outcome": "success",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": "Stage N3 Sleep/SWS",
+      "endpoint": "Stage N3 Sleep minutes",
+      "effect_size": -11.17,
+      "p_value": 0.008,
+      "outcome": "failure",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    },
+    {
+      "arm_id": "pregabalin",
+      "intervention": "pregabalin",
+      "subgroup_descriptor": "Stage R Sleep",
+      "endpoint": "Stage R Sleep minutes",
+      "effect_size": -4.97,
+      "p_value": 0.0834,
+      "outcome": "failure",
+      "mechanism_description": "calcium channel modulation",
+      "biology_description": "neuronal excitability reduction",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "other"
+    },
+    {
+      "arm_id": "pramipexole",
+      "intervention": "pramipexole",
+      "subgroup_descriptor": "Stage R Sleep",
+      "endpoint": "Stage R Sleep minutes",
+      "effect_size": -23.56,
+      "p_value": 0.0001,
+      "outcome": "failure",
+      "mechanism_description": "dopamine receptor agonism",
+      "biology_description": "dopaminergic pathway activation",
+      "population_description": "adults with restless legs syndrome and associated sleep disturbance",
+      "mechanism_category": "receptor_agonism"
+    }
+  ],
+  "modulation_entries": []
+}

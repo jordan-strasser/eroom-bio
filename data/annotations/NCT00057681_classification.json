@@ -1,0 +1,130 @@
+{
+  "nct_id": "NCT00057681",
+  "trial_outcome": "success",
+  "reasoning": "1. TARGET ENGAGEMENT: Blood levels were titrated to therapeutic ranges for lithium (1.1\u20131.3 mEq/L) and valproate (111\u2013125 ug/mL), confirming target engagement for those agents. Risperidone was dosed at 2.0\u20133.0 mg BID, a standard therapeutic dose for receptor antagonism. Target engagement is well-established for all three agents. 2. PATHWAY MODULATION: The K-SADS Mania Rating Scale scores at Week 8 (Lithium 24.06, Divalproex 26.31, Risperidone 14.58) reflect downstream biological activity \u2014 reduction of manic symptoms \u2014 consistent with pathway modulation. Risperidone showed the lowest (best) K-SADS score, suggesting stronger pathway modulation. 3. CLINICAL TRANSLATION: The primary endpoint (CGI-BP Mania Improvement) was met. Risperidone showed the best CGI-BP score (1.70, classified as 'success'), while lithium (2.49) and valproate (2.73) showed partial improvement. All three arms demonstrated clinically meaningful reductions in mania. The trial is a three-arm active comparator design with no placebo, so absolute effect sizes reflect within-arm improvement from baseline. Risperidone outperformed the mood stabilizers on both endpoints. 4. POPULATION EFFECTS: No subgroup analyses were reported. The population was children and adolescents with bipolar disorder (mania), a specific pediatric population. All three arms showed improvement, suggesting the mechanism works in this population. 5. CONFOUNDERS: No placebo arm limits interpretation of absolute effect sizes (regression to mean, natural course). P-values are not reported, limiting statistical inference. The 8-week duration is relatively short but appropriate for acute mania. SAE rates were low and comparable across arms (3\u20135% hospitalization), with no dose-limiting toxicity signals. The trial is adequately powered (N=379 across three arms). Overall, this is a partial/success trial: risperidone achieved full success on both endpoints, while lithium and valproate showed partial improvement. The trial outcome is classified as 'success' overall given the primary endpoint was met.",
+  "failure_modes": [
+    {
+      "mode": "underpowered",
+      "confidence": 0.3,
+      "evidence": "No p-values reported for between-arm comparisons or within-arm changes from baseline, limiting statistical inference. The absence of a placebo arm also means absolute effect sizes cannot be fully attributed to drug effect vs. natural course."
+    }
+  ],
+  "edges_to_update": [
+    {
+      "edge_type": "affects",
+      "source_entity": "lithium",
+      "target_entity": "ENSG00000105723",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Lithium blood levels were titrated to therapeutic range (1.1\u20131.3 mEq/L), confirming target engagement. Per round-28 AFFECTS rule, therapeutic blood level confirmation implies target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000105723",
+      "target_entity": "R-HSA-198323",
+      "support": "weak_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Lithium achieved therapeutic levels and partial clinical improvement, consistent with GSK3A modulation driving AKT pathway activity, though no direct pathway biomarker was measured."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-198323",
+      "target_entity": "bio:c9b0d42dd4d4",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Lithium arm showed partial improvement on CGI-BP (2.49) and K-SADS (24.06), consistent with AKT pathway modulation contributing to mood stabilization and reduction of manic symptoms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:c9b0d42dd4d4",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "1",
+      "reasoning": "Partial clinical improvement in mania symptoms with lithium supports that mood stabilization biology drives bipolar disorder (mania) in this pediatric population."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "valproate",
+      "target_entity": "ENSG00000112294",
+      "support": "moderate_support",
+      "affecting_arm_id": "2",
+      "reasoning": "Valproate blood levels were titrated to therapeutic range (111\u2013125 ug/mL), confirming target engagement per round-28 AFFECTS rule."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000112294",
+      "target_entity": "R-HSA-916853",
+      "support": "weak_support",
+      "affecting_arm_id": "2",
+      "reasoning": "Valproate achieved therapeutic levels and partial clinical improvement, consistent with ALDH5A1 modulation of GABA degradation pathway, though no direct pathway biomarker was measured."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-916853",
+      "target_entity": "bio:c9b0d42dd4d4",
+      "support": "moderate_support",
+      "affecting_arm_id": "2",
+      "reasoning": "Valproate arm showed partial improvement on CGI-BP (2.73) and K-SADS (26.31), consistent with GABA degradation pathway modulation contributing to mood stabilization."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:c9b0d42dd4d4",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "2",
+      "reasoning": "Partial clinical improvement in mania symptoms with valproate supports that mood stabilization biology drives bipolar disorder (mania) in this pediatric population."
+    },
+    {
+      "edge_type": "affects",
+      "source_entity": "im_risperidone",
+      "target_entity": "ENSG00000102468",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Risperidone was dosed at therapeutic levels (2.0\u20133.0 mg BID) and achieved the best clinical outcomes, consistent with HTR2A receptor engagement. Per round-28 AFFECTS rule, clinical response implies target engagement."
+    },
+    {
+      "edge_type": "modulates_via",
+      "source_entity": "ENSG00000102468",
+      "target_entity": "R-HSA-390666",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Risperidone achieved the best K-SADS score (14.58) and CGI-BP score (1.70), consistent with serotonin receptor modulation driving downstream biology. The superior outcome vs. mood stabilizers supports serotonin receptor pathway engagement."
+    },
+    {
+      "edge_type": "mechanism_affects",
+      "source_entity": "R-HSA-390666",
+      "target_entity": "bio:dfc0dbd19efc",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Risperidone arm showed the best improvement on both CGI-BP (1.70, success) and K-SADS (14.58, success), consistent with serotonin receptor antagonism reducing dopaminergic/serotonergic hyperactivity driving manic symptoms."
+    },
+    {
+      "edge_type": "biology_drives",
+      "source_entity": "bio:dfc0dbd19efc",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": "3",
+      "reasoning": "Risperidone's superior clinical outcomes support that reduction of dopaminergic/serotonergic hyperactivity drives bipolar disorder (mania) in this pediatric population."
+    },
+    {
+      "edge_type": "endpoint_captures",
+      "source_entity": "PRO_clinical_global_impressions_bipolar_mania",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "The CGI-BP Mania Improvement endpoint was the pre-specified primary endpoint and was met across all arms, with concordant K-SADS secondary endpoint results. The endpoint is a validated clinician-rated scale for bipolar mania, supporting its ability to capture clinical benefit in this indication. No p-values reported limits upgrade to strong_support."
+    },
+    {
+      "edge_type": "responds_differently",
+      "source_entity": "cgas_low__severity_severe",
+      "target_entity": "bipolar_disorder",
+      "support": "moderate_support",
+      "affecting_arm_id": null,
+      "reasoning": "All three arms showed meaningful improvement in this pediatric population with severe bipolar mania, supporting that this population responds to pharmacological treatment. Risperidone showed the strongest response. No subgroup analyses were reported to differentiate further."
+    }
+  ],
+  "confidence_overall": 0.6,
+  "operational_failure": false,
+  "needs_expert_review": true,
+  "review_reason": "No p-values are reported for within-arm or between-arm comparisons, making it impossible to formally assess statistical significance. The trial lacks a placebo arm, so absolute effect sizes cannot be fully attributed to drug effect vs. natural course or regression to the mean. The 'partial' vs. 'success' classification across arms is based on effect size magnitude without statistical testing. Additionally, the canonical graph entities for lithium and valproate map to specific molecular targets (GSK3A, ALDH5A1) that represent only one aspect of their complex multi-target mechanisms, which may not fully capture the therapeutic hypothesis."
+}
